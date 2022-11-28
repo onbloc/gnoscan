@@ -11,11 +11,19 @@ interface CardStyleProps {
 
 interface CardPros extends CardStyleProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-export const Card = ({children, width, height, padding = '24px', radius = '10px'}: CardPros) => {
+export const Card = ({
+  children,
+  width,
+  height,
+  padding = '24px',
+  radius = '10px',
+  className,
+}: CardPros) => {
   return (
-    <Wrapper width={width} height={height} padding={padding} radius={radius}>
+    <Wrapper width={width} height={height} padding={padding} radius={radius} className={className}>
       {children}
     </Wrapper>
   );

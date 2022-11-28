@@ -34,21 +34,21 @@ export const isDesktop = () => {
 };
 
 export const eachMedia = (): string => {
-  let result = '';
+  const [media, setMedia] = useState('');
   const isMobile = useMediaQuery({maxWidth: 767});
-
   const isTablet = useMediaQuery({minWidth: 768, maxWidth: 1279});
-
   const isDesktop = useMediaQuery({minWidth: 1280});
 
-  if (isDesktop) {
-    result = 'desktop';
-  } else if (isTablet) {
-    result = 'tablet';
-  } else if (isMobile) {
-    result = 'mobile';
-  } else {
-    result = 'unknown';
-  }
-  return result;
+  useEffect(() => {
+    console.log(media);
+    if (isDesktop) {
+      return setMedia('desktop');
+    } else if (isTablet) {
+      return setMedia('tablet');
+    } else if (isMobile) {
+      return setMedia('mobile');
+    }
+  }, [isMobile, isTablet, isDesktop]);
+
+  return media;
 };
