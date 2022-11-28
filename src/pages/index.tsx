@@ -1,10 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
+import MainCard from '@/components/view/main-card/main-card';
 
 const Home: React.FC = () => {
   return (
     <Wrapper>
-      <div className="inner-layout"></div>
+      <div className="inner-layout">
+        <MainCard />
+      </div>
     </Wrapper>
   );
 };
