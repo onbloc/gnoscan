@@ -1,6 +1,32 @@
-import '../styles/globals.css';
+import React from 'react';
 import type {AppProps} from 'next/app';
+import {GlobalStyle} from '../styles';
+import {RecoilRoot} from 'recoil';
+import {QueryClient, QueryClientProvider} from 'react-query';
+import Layout from '@/components/core/layout';
+import Head from 'next/head';
+import {ErrorBoundary} from '@/components/core/error-boundary';
 
-export default function App({Component, pageProps}: AppProps) {
-  return <Component {...pageProps} />;
-}
+const queryClient = new QueryClient();
+
+const App: React.FC<AppProps<any>> = ({Component, pageProps}: AppProps) => {
+  return (
+    <>
+      <Head>
+        <title>Gnoscan</title>
+      </Head>
+      <GlobalStyle />
+      <QueryClientProvider client={queryClient}>
+        <RecoilRoot>
+          <ErrorBoundary fallback={<div>ERROR</div>}>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </ErrorBoundary>
+        </RecoilRoot>
+      </QueryClientProvider>
+    </>
+  );
+};
+
+export default App;

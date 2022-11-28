@@ -1,7 +1,17 @@
-import styles from '../styles/Home.module.css';
+import React from 'react';
+import styled from 'styled-components';
 
-const huskyTest = 'test';
+const Home: React.FC = () => {
+  return (
+    <Wrapper>
+      <div className="inner-layout"></div>
+    </Wrapper>
+  );
+};
 
-export default function Home() {
-  return <div className={styles.container}>init</div>;
-}
+const Wrapper = styled.main`
+  width: 100%;
+  flex: 1;
+`;
+
+export default Home;
