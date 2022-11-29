@@ -8,6 +8,7 @@ import {
   Tooltip,
   Filler,
   Legend,
+  BarElement,
 } from 'chart.js';
 
 ChartJS.register(
@@ -15,6 +16,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Filler,
@@ -22,3 +24,4 @@ ChartJS.register(
 );
 
 export * from './area-chart';
+export * from './bar-chart';
