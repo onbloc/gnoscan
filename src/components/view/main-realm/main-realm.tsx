@@ -12,11 +12,15 @@ const MainRealm = () => {
   return (
     <Wrapper className={media}>
       <Card height="368px" className="card-1">
-        <Text type="body1">{'Total Gas Share By Realms'}</Text>
+        <Text className="title" type="h6" color="primary">
+          {'Total Gas Share By Realms'}
+        </Text>
         <MainRealmTotalGasShare />
       </Card>
       <Card height="368px" className="card-2">
-        <Text type="body1">Card 2</Text>
+        <Text className="title" type="h6" color="primary">
+          {'Newest Realms'}
+        </Text>
       </Card>
     </Wrapper>
   );
@@ -25,13 +29,21 @@ const MainRealm = () => {
 const Wrapper = styled.div`
   width: 100%;
   display: grid;
+  margin: 32px 0;
   grid-template-columns: 1fr;
   grid-template-rows: auto;
   grid-gap: 32px;
   grid-template-columns: repeat(2, 1fr);
+
+  & .title {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
   &.tablet {
     grid-template-columns: 1fr 1fr;
   }
+
   &.mobile {
     grid-template-columns: 1fr;
   }

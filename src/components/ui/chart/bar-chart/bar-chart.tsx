@@ -1,25 +1,26 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Line} from 'react-chartjs-2';
+import {Bar} from 'react-chartjs-2';
 import {Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
-import {AreaChartTooltip} from './tooltip';
+import {BarChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
 import {createRoot, Root} from 'react-dom/client';
 
-interface AreaChartProps {
+interface BarChartProps {
   labels: Array<string>;
-  datas: {[key in string]: Array<{value: number; rate: number}>};
-  colors?: Array<string>;
+  datas: Array<{date: string; value: number}>;
 }
 
-export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
+export const BarChart = ({labels, datas}: BarChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<Chart<'line'>>(null);
-  const [chartData, setChartData] = useState<ChartData<'line'>>({labels: [], datasets: []});
+  const chartRef = useRef<Chart<'bar'>>(null);
+  const [chartData, setChartData] = useState<ChartData<'bar'>>({labels: [], datasets: []});
   const [themeMode] = useTheme();
+
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
+
   const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
   useEffect(() => {
@@ -47,10 +48,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     return themeMode === 'light' ? theme.lightTheme : theme.darkTheme;
   };
 
-  const renderExternalTooltip = (context: {
-    chart: Chart<'line'>;
-    tooltip: TooltipModel<'line'>;
-  }) => {
+  const renderExternalTooltip = (context: {chart: Chart<'bar'>; tooltip: TooltipModel<'bar'>}) => {
     const {chart, tooltip} = context;
 
     let tooltipEl = document.getElementById('chartjs-tooltip');
@@ -87,30 +85,38 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     tooltipEl.style.top = top + 'px';
 
     const left = position.left + window.pageXOffset + tooltipModel.caretX;
-    if (left + 260 > window.innerWidth) {
+    if (left + 156 > window.innerWidth) {
       tooltipEl.style.right = '0';
     } else {
       tooltipEl.style.left = left + 'px';
     }
-    tooltipEl.style.pointerEvents = 'none';
 
     if (!tooltipRoot) {
       const root = createRoot(tooltipEl);
       setTooltipRoot(root);
-      root.render(<AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />);
+      root.render(
+        <BarChartTooltip
+          themeMode={`${themeMode}`}
+          title={tooltip.title[0]}
+          value={`${tooltip.dataPoints[0].formattedValue}`}
+        />,
+      );
     }
   };
 
-  const createChartOption = (): ChartOptions<'line'> => {
+  const createChartOption = (): ChartOptions<'bar'> => {
     const themePallet = getThemePallet();
     return {
       responsive: true,
       scales: {
         yAxis: {
-          max: 100,
           ticks: {
             color: themePallet.primary,
             count: 5,
+            format: {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 6,
+            },
           },
           grid: {
             color: themePallet.dimmed50,
@@ -121,7 +127,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
         },
         xAxis: {
           ticks: {
-            color: themePallet.primary,
+            display: false,
           },
           grid: {
             color: '#00000000',
@@ -134,14 +140,10 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       },
       plugins: {
         legend: {
-          position: 'bottom' as const,
-          labels: {
-            boxHeight: 4,
-            boxWidth: 4,
-            color: themePallet.primary,
-            pointStyle: 'circle',
-            usePointStyle: true,
-          },
+          display: false,
+        },
+        title: {
+          display: false,
         },
         tooltip: {
           enabled: false,
@@ -149,48 +151,35 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
           displayColors: false,
           external: renderExternalTooltip,
         },
-        title: {
-          display: false,
-        },
       },
     };
   };
 
   const createChartData = (
     labels: Array<string>,
-    datasets: {[key in string]: Array<{value: number; rate: number}>},
-  ): ChartData<'line'> => {
+    datasets: Array<{date: string; value: number}>,
+  ): ChartData<'bar'> => {
     const themePallet = getThemePallet();
     if (!chartRef.current || !labels || !datasets) {
       return {labels: [], datasets: []};
     }
 
-    const chart = chartRef.current;
-    const defaultChartData: ChartDataset<'line'> = {
+    const defaultChartData: ChartDataset<'bar'> = {
       yAxisID: 'yAxis',
       xAxisID: 'xAxis',
-      fill: true,
-      borderWidth: 2,
-      pointBorderWidth: 1,
-      pointRadius: 1,
+      borderWidth: 0,
       data: [],
     };
 
-    const chartColors = [
-      ...colors,
-      ...new Array(Object.keys(datasets).length).fill(themePallet.blue),
-    ];
-    const mappedDatasets = Object.keys(datasets).map((datasetName, index) => {
-      const currentDataset = datasets[datasetName].map(dataset => dataset.rate);
-      return {
+    const mappedDatasets = [
+      {
         ...defaultChartData,
-        label: datasetName,
-        data: currentDataset,
-        borderColor: chartColors[index],
-        pointBackgroundColor: chartColors[index],
-        backgroundColor: createGradient(chart, currentDataset, chartColors[index]),
-      };
-    });
+        data: datas.map(data => data.value),
+        backgroundColor: [themePallet.blue],
+        borderColor: themePallet.blue,
+        pointBackgroundColor: themePallet.blue,
+      },
+    ];
 
     return {
       labels,
@@ -198,24 +187,16 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     };
   };
 
-  const createGradient = (chart: Chart<'line'>, datas: Array<number>, colorStart: string) => {
-    const maxValue = Math.max(...datas);
-    const top = chart.chartArea.bottom - Math.round(chart.chartArea.bottom * (maxValue / 100));
-    const gradient = chart.ctx.createLinearGradient(0, top, 0, chart.chartArea.bottom);
-    gradient.addColorStop(0, colorStart);
-    gradient.addColorStop(1, `${colorStart.slice(0, 7)}22`);
-    return gradient;
-  };
-
   return (
     <Wrapper ref={wrapperRef}>
-      <Line
+      <Bar
         ref={chartRef}
         width={chartWidth}
         height={chartHeight}
         options={createChartOption()}
         data={chartData}
       />
+      {/* {isTooltip && tooltipData && <BarChartTooltip {...tooltipData} />} */}
     </Wrapper>
   );
 };
