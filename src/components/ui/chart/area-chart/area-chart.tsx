@@ -20,6 +20,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const [themeMode] = useTheme();
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
+  const [tooltip, setTooltip] = useState<TooltipModel<'line'>>();
   const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
   useEffect(() => {
@@ -93,12 +94,15 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       tooltipEl.style.left = left + 'px';
     }
     tooltipEl.style.pointerEvents = 'none';
+    setTooltip(tooltip);
 
     if (!tooltipRoot) {
       const root = createRoot(tooltipEl);
       setTooltipRoot(root);
-      root.render(<AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />);
     }
+    tooltipRoot?.render(
+      <AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />,
+    );
   };
 
   const createChartOption = (): ChartOptions<'line'> => {
