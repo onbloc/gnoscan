@@ -123,9 +123,10 @@ export class TotalGasShareModel {
     total_daily_fee?: number;
     pct?: number;
   }) => {
+    const packagePath = !pkg_path || pkg_path === '' ? 'None' : pkg_path.replace('gno.land', '');
     return {
       date: date ?? '',
-      packagePath: !pkg_path || pkg_path === '' ? 'None' : pkg_path,
+      packagePath: packagePath,
       packageDailyFee: pkg_daily_fee ?? 0,
       totalDailyFee: total_daily_fee ?? 0,
       percent: pct ?? 0,
