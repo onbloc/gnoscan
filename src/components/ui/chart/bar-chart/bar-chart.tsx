@@ -94,14 +94,14 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
     if (!tooltipRoot) {
       const root = createRoot(tooltipEl);
       setTooltipRoot(root);
-      root.render(
-        <BarChartTooltip
-          themeMode={`${themeMode}`}
-          title={tooltip.title[0]}
-          value={`${tooltip.dataPoints[0].formattedValue}`}
-        />,
-      );
     }
+    tooltipRoot?.render(
+      <BarChartTooltip
+        themeMode={`${themeMode}`}
+        title={tooltip.title[0]}
+        value={`${tooltip.dataPoints[0].formattedValue}`}
+      />,
+    );
   };
 
   const createChartOption = (): ChartOptions<'bar'> => {
