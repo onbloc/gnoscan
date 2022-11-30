@@ -12,13 +12,13 @@ const MainRealm = () => {
   return (
     <Wrapper className={media}>
       <Card height="368px" className="card-1">
-        <Text className="title" type="h6">
+        <Text className="title" type="h6" color="primary">
           {'Total Gas Share By Realms'}
         </Text>
         <MainRealmTotalGasShare />
       </Card>
       <Card height="368px" className="card-2">
-        <Text className="title" type="h6">
+        <Text className="title" type="h6" color="primary">
           {'Newest Realms'}
         </Text>
       </Card>

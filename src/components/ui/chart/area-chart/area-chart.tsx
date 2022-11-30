@@ -5,6 +5,7 @@ import {AreaChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
+import {createRoot, Root} from 'react-dom/client';
 
 interface AreaChartProps {
   labels: Array<string>;
@@ -22,6 +23,8 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
+
+  const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -60,6 +63,60 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   const getThemePallet = () => {
     return themeMode === 'light' ? theme.lightTheme : theme.darkTheme;
+  };
+
+  const renderExternalTooltip = (context: {
+    chart: Chart<'line'>;
+    tooltip: TooltipModel<'line'>;
+  }) => {
+    const {chart, tooltip} = context;
+
+    let tooltipEl = document.getElementById('chartjs-tooltip');
+    if (!tooltipEl) {
+      tooltipEl = document.createElement('div');
+      tooltipEl.id = 'chartjs-tooltip';
+      tooltipEl.innerHTML = '<table></table>';
+      document.body.appendChild(tooltipEl);
+    }
+
+    // Hide if no tooltip
+    const tooltipModel = tooltip;
+    if (tooltipModel.opacity === 0) {
+      tooltipEl.style.opacity = '0';
+      tooltipEl.remove();
+      tooltipRoot?.unmount();
+      setTooltipRoot(undefined);
+      return;
+    }
+
+    // Set caret Position
+    tooltipEl.classList.remove('above', 'below', 'no-transform');
+    if (tooltipModel.yAlign) {
+      tooltipEl.classList.add(tooltipModel.yAlign);
+    } else {
+      tooltipEl.classList.add('no-transform');
+    }
+
+    const position = chart.canvas.getBoundingClientRect();
+    tooltipEl.style.opacity = `${tooltipModel.opacity}`;
+    tooltipEl.style.position = 'absolute';
+
+    const top = position.top + window.pageYOffset + tooltipModel.caretY;
+    tooltipEl.style.top = top + 'px';
+
+    const left = position.left + window.pageXOffset + tooltipModel.caretX;
+    if (left + 260 > window.innerWidth) {
+      tooltipEl.style.right = '0';
+    } else {
+      tooltipEl.style.left = left + 'px';
+    }
+    tooltipEl.style.pointerEvents = 'none';
+
+    if (!tooltipRoot) {
+      const root = createRoot(tooltipEl);
+      setTooltipRoot(root);
+      root.render(<AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />);
+    }
   };
 
   const createChartOption = (): ChartOptions<'line'> => {
@@ -106,9 +163,9 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
         },
         tooltip: {
           enabled: false,
-          position: 'nearest',
+          position: 'average',
           displayColors: false,
-          external: context => updateTooltip(context.tooltip),
+          external: renderExternalTooltip,
         },
         title: {
           display: false,
@@ -170,7 +227,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
-      {tooltip && <AreaChartTooltip tooltip={tooltip} datas={datas} />}
       <Line
         ref={chartRef}
         width={chartWidth}

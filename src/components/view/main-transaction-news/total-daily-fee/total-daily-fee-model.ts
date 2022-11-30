@@ -39,9 +39,10 @@ export class TotalDailyFeeModel {
     date?: string;
     gas_fee?: number;
   }): TotalDailyFeeData => {
+    const gasFee = gas_fee ? gas_fee / 1000000 : 0;
     return {
       date: date ?? '',
-      gasFee: gas_fee ?? 0,
+      gasFee: gasFee,
     };
   };
 }

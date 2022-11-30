@@ -1,13 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {TooltipModel} from 'chart.js';
 import styled from 'styled-components';
+import theme from '@/styles/theme';
 
 interface TooltipProps {
   tooltip: TooltipModel<'line'>;
   datas: {[key in string]: Array<{value: number; rate: number}>};
+  themeMode: string;
 }
 
-export const AreaChartTooltip = ({tooltip, datas}: TooltipProps) => {
+export const AreaChartTooltip = ({tooltip, datas, themeMode}: TooltipProps) => {
   const getTotalValue = () => {
     if (tooltip.getActiveElements().length === 0) {
       return 0;
@@ -76,7 +78,7 @@ export const AreaChartTooltip = ({tooltip, datas}: TooltipProps) => {
   };
 
   return tooltip.getActiveElements().length > 0 ? (
-    <TooltipContainer x={tooltip.caretX + 100} y={tooltip.y}>
+    <TooltipContainer light={themeMode === 'light'}>
       <p className="tooltip-title">{tooltip.title}</p>
       <div className="tooltip-header">
         <span className="title">{'Total:'}</span>
@@ -90,23 +92,20 @@ export const AreaChartTooltip = ({tooltip, datas}: TooltipProps) => {
   );
 };
 
-const TooltipContainer = styled.div<{x: number; y: number}>`
+const TooltipContainer = styled.div<{light: boolean}>`
   & {
-    position: absolute;
-    margin-left: ${({x}) => `${x}px`};
-    margin-top: ${({y}) => `${y}px`};
     display: flex;
     flex-direction: column;
     width: 260px;
-    background-color: ${({theme}) => theme.colors.base};
+    background-color: ${({light}) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
     padding: 16px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 8px;
 
     span {
       display: inline-flex;
-      ${({theme}) => theme.fonts.body1};
-      color: ${({theme}) => theme.colors.primary};
+      ${theme.fonts.body1};
+      color: ${({light}) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
       vertical-align: bottom;
     }
 
@@ -134,20 +133,21 @@ const TooltipContainer = styled.div<{x: number; y: number}>`
   & .tooltip-title {
     display: flex;
     width: 100%;
-    color: ${({theme}) => theme.colors.tertiary};
+    color: ${({light}) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};
     padding-bottom: 4px;
-    ${({theme}) => theme.fonts.body1};
+    ${theme.fonts.body1};
   }
 
   & .tooltip-header {
     display: flex;
     width: 100%;
     padding: 4px 0;
-    border-bottom: 1px solid ${({theme}) => theme.colors.dimmed100};
+    border-bottom: 1px solid
+      ${({light}) => (light ? theme.lightTheme.dimmed100 : theme.darkTheme.dimmed100)};
     line-height: 20px;
 
     span {
-      ${({theme}) => theme.fonts.p4};
+      ${theme.fonts.p4};
     }
 
     .value {
