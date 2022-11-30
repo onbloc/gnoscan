@@ -180,18 +180,17 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       data: [],
     };
 
-    const chartColors = [
-      ...colors,
-      ...new Array(Object.keys(datasets).length).fill(themePallet.blue),
-    ];
+    const chartColors = [...colors, ...new Array(Object.keys(datasets).length).fill('#3673e8')];
     const mappedDatasets = Object.keys(datasets).map((datasetName, index) => {
       const currentDataset = datasets[datasetName].map(dataset => dataset.rate);
       return {
         ...defaultChartData,
         label: datasetName,
         data: currentDataset,
-        borderColor: chartColors[index],
-        pointBackgroundColor: chartColors[index],
+        borderWidth: 2,
+        borderColor: '#2090F3',
+        pointBorderColor: '#2090F3',
+        pointBackgroundColor: '#FFFFFF',
         backgroundColor: createGradient(chart, currentDataset, chartColors[index]),
       };
     });
@@ -206,8 +205,8 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     const maxValue = Math.max(...datas);
     const top = chart.chartArea.bottom - Math.round(chart.chartArea.bottom * (maxValue / 100));
     const gradient = chart.ctx.createLinearGradient(0, top, 0, chart.chartArea.bottom);
-    gradient.addColorStop(0, colorStart);
-    gradient.addColorStop(1, `${colorStart.slice(0, 7)}22`);
+    gradient.addColorStop(0, `${colorStart}55`);
+    gradient.addColorStop(1, `${colorStart.slice(0, 7)}00`);
     return gradient;
   };
 

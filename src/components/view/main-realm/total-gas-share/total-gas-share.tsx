@@ -37,7 +37,7 @@ export const MainRealmTotalGasShare = () => {
     <AreaChart
       labels={totalGasShareModel.labels}
       datas={totalGasShareModel.chartData}
-      colors={['#ff8f8f', '#ffdede', '#fff481']}
+      colors={[]}
     />
   );
 };
