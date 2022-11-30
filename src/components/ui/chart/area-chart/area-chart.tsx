@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Line} from 'react-chartjs-2';
-import {ActiveElement, Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
+import {Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
 import {AreaChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
@@ -17,13 +17,9 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart<'line'>>(null);
   const [chartData, setChartData] = useState<ChartData<'line'>>({labels: [], datasets: []});
-  const [tooltip, setTooltip] = useState<TooltipModel<'line'>>();
-  const [elements, setElements] = useState<Array<ActiveElement>>([]);
   const [themeMode] = useTheme();
-
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
-
   const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
   useEffect(() => {
@@ -37,7 +33,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     if (chartRef.current) {
       const chartData = createChartData(labels, datas);
       setChartData(chartData);
-      setTooltip(chartRef.current.tooltip);
     }
   }, [chartRef, labels, datas]);
 
@@ -45,19 +40,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     if (wrapperRef.current) {
       setChartWidth(wrapperRef.current.clientWidth);
       setChartHeight(wrapperRef.current.clientHeight);
-    }
-  };
-
-  const updateTooltip = (tooltip: TooltipModel<'line'>) => {
-    if (tooltip.getActiveElements().length !== elements.length) {
-      setElements(tooltip.getActiveElements());
-      return;
-    }
-    if (
-      tooltip.getActiveElements().length !== 0 &&
-      tooltip.getActiveElements()[0].index !== elements[0].index
-    ) {
-      setElements(tooltip.getActiveElements());
     }
   };
 
