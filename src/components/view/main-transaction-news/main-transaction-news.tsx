@@ -14,15 +14,23 @@ const MainTransactionNews = () => {
   return (
     <Wrapper className={media}>
       <Card height="274px" className="card-1">
-        <Text type="body1">{'Total Transactions'}</Text>
+        <Text className="title" type="h6">
+          {'Total Transactions'}
+        </Text>
         <MainTotalTransaction />
       </Card>
+
       <Card height="274px" className="card-2">
-        <Text type="body1">{'TotalDaily Fees (in GNOTs)'}</Text>
+        <Text className="title" type="h6">
+          {'TotalDaily Fees (in GNOTs)'}
+        </Text>
         <MainTotalDailyFee />
       </Card>
+
       <Card height="580px" className="card-3">
-        <Text type="body1">{'News'}</Text>
+        <Text className="title" type="h6">
+          {'News'}
+        </Text>
         <MainNewsTwitter />
       </Card>
     </Wrapper>
@@ -32,23 +40,30 @@ const MainTransactionNews = () => {
 const Wrapper = styled.div`
   width: 100%;
   display: grid;
+  margin: 32px 0;
   grid-template-columns: 1fr;
   grid-template-rows: auto;
   grid-gap: 32px;
   grid-template-columns: repeat(2, 1fr);
 
+  & .title {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
   &.desktop {
-    & .card-1 {
+    grid-template-columns: 1.43fr 1fr;
+    .card-1 {
       grid-column: 1 / 2;
       grid-row: 1 / 2;
     }
 
-    & .card-2 {
+    .card-2 {
       grid-column: 1 / 2;
       grid-row: 2 / 3;
     }
 
-    & .card-3 {
+    .card-3 {
       grid-column: 2 / 3;
       grid-row: 1 / 3;
     }
