@@ -7,7 +7,13 @@ import Layout from '@/components/core/layout';
 import Head from 'next/head';
 import {ErrorBoundary} from '@/components/core/error-boundary';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App: React.FC<AppProps<any>> = ({Component, pageProps}: AppProps) => {
   return (

@@ -1,3 +1,5 @@
+'use client';
+
 import mixins from '@/styles/mixins';
 import dynamic from 'next/dynamic';
 import {useRouter} from 'next/router';
