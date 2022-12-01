@@ -1,3 +1,5 @@
+'use client';
+
 import mixins from '@/styles/mixins';
 import theme from '@/styles/theme';
 import React from 'react';

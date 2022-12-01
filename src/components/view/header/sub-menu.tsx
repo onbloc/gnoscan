@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useLayoutEffect} from 'react';
 import styled, {css} from 'styled-components';
 import Portal from '@/components/core/portal';

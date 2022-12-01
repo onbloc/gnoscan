@@ -27,6 +27,12 @@ export const GlobalStyle = createGlobalStyle`
     }
   }
 
+  hr {
+    width: 100%;
+    height: 1px;
+    border: none;
+  }
+
   * {
     box-sizing: border-box;
     font: inherit;
