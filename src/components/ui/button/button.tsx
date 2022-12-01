@@ -47,7 +47,7 @@ const ButtonWrapper = styled.button<ButtonProps>`
     return 'auto';
   }};
   margin: ${props => props.margin};
-  background-color: ${({theme, bgColor}) => theme[bgColor ?? '#ffffff']};
+  background-color: ${({theme, bgColor}) => theme.colors[bgColor ?? 'base']};
   outline: none;
   border-radius: ${({radius}) => (radius ? radius : '4px')};
   cursor: ${props => (props.disabled ? 'default' : 'pointer')};

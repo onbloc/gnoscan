@@ -17,10 +17,17 @@ const Text = ({
   display = 'block',
   textAlign = 'left',
   color,
+  margin,
   ...restProps
 }: PropsWithChildren<TextProps>) => {
   return (
-    <Wrapper type={type} display={display} textAlign={textAlign} color={color} {...restProps}>
+    <Wrapper
+      type={type}
+      display={display}
+      textAlign={textAlign}
+      color={color}
+      margin={margin}
+      {...restProps}>
       {children}
     </Wrapper>
   );

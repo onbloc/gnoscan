@@ -40,7 +40,6 @@ export const eachMedia = (): string => {
   const isDesktop = useMediaQuery({minWidth: 1280});
 
   useEffect(() => {
-    console.log(media);
     if (isDesktop) {
       return setMedia('desktop');
     } else if (isTablet) {

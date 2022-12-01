@@ -17,6 +17,7 @@ interface TooltipProps extends StyleProps {
   content: React.ReactNode | string;
   type?: FontsType;
   direction?: Direction;
+  className?: string;
 }
 
 export const Tooltip = ({
@@ -25,6 +26,7 @@ export const Tooltip = ({
   content,
   type = 'body1',
   padding = '16px',
+  className,
 }: TooltipProps) => {
   const [active, setActive] = useState(false);
 
@@ -34,7 +36,7 @@ export const Tooltip = ({
   return (
     <Wrapper onMouseEnter={showTip} onMouseLeave={hideTip}>
       {children}
-      <TooltipContent pos={direction} active={active}>
+      <TooltipContent pos={direction} active={active} className={className}>
         <TooltipText type={type} padding={padding}>
           {content}
         </TooltipText>
@@ -56,8 +58,13 @@ const Wrapper = styled.div`
 
 const TooltipText = styled(Text)<StyleProps>`
   ${container};
+  width: 100%;
+  height: 100%;
   padding: ${({padding}) => padding};
   color: ${({theme}) => theme.colors.tertiary};
+  word-break: keep-all;
+  white-space: normal;
+  text-align: center;
 `;
 
 const TooltipContent = styled.div<StyleProps>`
@@ -69,6 +76,7 @@ const TooltipContent = styled.div<StyleProps>`
   z-index: 10;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   opacity: ${({active}) => (active ? 1 : 0)};
+  margin-bottom: 5px;
   :after {
     content: '';
     position: absolute;
