@@ -4,13 +4,16 @@ import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
 import {useQuery, UseQueryResult} from 'react-query';
 import {formatEllipsis} from '@/common/utils';
-import {ActiveList, StyledText} from '@/components/ui/active-list';
+import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
-import {colWidth, List, listTitle, StyledCard} from '../main-active-list';
+import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
+import IconLink from '@/assets/svgs/icon-link.svg';
+import Link from 'next/link';
 
 type BoardsValueType = {
   no: number;
-  name: string;
+  originName: string;
+  formatName: string;
   replies: number;
   reposts: number;
   uniqueUsers: number;
@@ -31,7 +34,8 @@ const ActiveBoards = () => {
         const boards = res.data.boards.map((v: any, i: number) => {
           return {
             no: v.idx,
-            name: formatEllipsis(v.board_name),
+            originName: v.board_name,
+            formatName: formatEllipsis(v.board_name),
             replies: v.replies,
             reposts: v.reposts,
             uniqueUsers: v.unique_users,
@@ -65,9 +69,20 @@ const ActiveBoards = () => {
                   <StyledText type="p4" width={colWidth.boards[0]} color="reverse">
                     {v.no}
                   </StyledText>
-                  <StyledText type="p4" width={colWidth.boards[1]} color="blue">
-                    {v.name}
+                  <StyledText
+                    type="p4"
+                    width={colWidth.boards[1]}
+                    color="blue"
+                    className="with-link">
+                    <a
+                      href={`https://test3.gno.land/r/demo/boards:${v.originName}`}
+                      target="_blank"
+                      rel="noreferrer">
+                      {v.formatName}
+                      <IconLink className="icon-link" />
+                    </a>
                   </StyledText>
+
                   <StyledText type="p4" width={colWidth.boards[2]} color="reverse">
                     {v.replies}
                   </StyledText>

@@ -1,9 +1,9 @@
 import {eachMedia} from '@/common/hooks/use-media';
 import React from 'react';
 import styled from 'styled-components';
-import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
 import {v1} from 'uuid';
+import {StyledText} from '@/components/view/main-active-list/main-active-list';
 
 interface ActiveListProps {
   title: string[];
@@ -11,7 +11,7 @@ interface ActiveListProps {
   children: React.ReactNode;
 }
 
-export const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
+const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
   const media = eachMedia();
   return (
     <ListContainer>
@@ -54,11 +54,4 @@ const ListContentWrap = styled.div`
   min-width: 100%;
 `;
 
-export const StyledText = styled(Text)<{width: string}>`
-  min-width: ${({width}) => width};
-  padding: 12px;
-  flex: 1;
-  :first-of-type {
-    max-width: 52px;
-  }
-`;
+export default ActiveList;

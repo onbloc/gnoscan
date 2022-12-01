@@ -116,9 +116,11 @@ const MainCard = () => {
                   <Text type="p4" color="tertiary">
                     Holders
                   </Text>
-                  <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                    <IconInfo className="svg-info" />
-                  </Button>
+                  <Tooltip content="Number of accounts with a positive GNOT Balance.">
+                    <Button width="16px" height="16px" radius="50%" bgColor="surface">
+                      <IconInfo className="svg-info" />
+                    </Button>
+                  </Tooltip>
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
@@ -214,9 +216,11 @@ const MainCard = () => {
           <>
             <Text type="h5" color="primary" className="title-info">
               Total&nbsp;Accounts
-              <Button width="16px" height="16px" radius="50%" bgColor="base">
-                <IconInfo className="svg-info" />
-              </Button>
+              <Tooltip content="Number of accounts included in at least 1 transaction.">
+                <Button width="16px" height="16px" radius="50%" bgColor="base">
+                  <IconInfo className="svg-info" />
+                </Button>
+              </Tooltip>
             </Text>
             <Text type="h3" color="primary" margin="10px 0px 24px">
               {card04?.num}
@@ -240,9 +244,11 @@ const MainCard = () => {
                   <Text type="p4" color="tertiary">
                     Total&nbsp;Users
                   </Text>
-                  <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                    <IconInfo className="svg-info" />
-                  </Button>
+                  <Tooltip content="Number of accounts registered as a user on/r/demo/users.">
+                    <Button width="16px" height="16px" radius="50%" bgColor="surface">
+                      <IconInfo className="svg-info" />
+                    </Button>
+                  </Tooltip>
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
@@ -302,7 +308,6 @@ const DataBoxContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  overflow: hidden;
   width: 100%;
   min-height: 223px;
 `;

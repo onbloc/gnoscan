@@ -4,13 +4,15 @@ import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
 import {useQuery, UseQueryResult} from 'react-query';
 import {formatAddress, formatEllipsis} from '@/common/utils';
-import {ActiveList, StyledText} from '@/components/ui/active-list';
+import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
-import {colWidth, List, listTitle, StyledCard} from '../main-active-list';
+import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 
 type NewestValueType = {
   no: number;
-  name: string;
+  originName: string;
+  formatName: string;
+  originAddress: string;
   publisher: string;
   functions: number;
   calls: number;
@@ -32,7 +34,9 @@ const ActiveNewest = () => {
         const realms = res.data.realms.map((v: any, i: number) => {
           return {
             no: v.idx,
-            name: formatEllipsis(v.pkg_name),
+            originName: v.pkg_name,
+            formatName: formatEllipsis(v.pkg_name),
+            originAddress: v.publisher_address,
             publisher: Boolean(v.publisher)
               ? formatEllipsis(v.publisher)
               : formatAddress(v.publisher_address),
@@ -64,16 +68,26 @@ const ActiveNewest = () => {
           </Text>
           <ActiveList title={listTitle.newest} colWidth={colWidth.newest}>
             <>
-              {newest.data.map((v: NewestValueType) => (
+              {newest.data.map((v: NewestValueType, i: number) => (
                 <List key={v1()}>
                   <StyledText type="p4" width={colWidth.newest[0]} color="reverse">
                     {v.no}
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[1]} color="blue">
-                    {v.name}
+                    <a
+                      href={`https://test3.gno.land/${v.originName}`}
+                      target="_blank"
+                      rel="noreferrer">
+                      {v.formatName}
+                    </a>
                   </StyledText>
-                  <StyledText type="p4" width={colWidth.newest[2]} color="reverse">
-                    {v.publisher}
+                  <StyledText type="p4" width={colWidth.newest[2]} color="blue">
+                    <a
+                      href={`https://gnoscan.io/test3/account/${v.originAddress}`}
+                      target="_blank"
+                      rel="noreferrer">
+                      {v.publisher}
+                    </a>
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
                     {v.functions}
@@ -81,8 +95,13 @@ const ActiveNewest = () => {
                   <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
                     {v.calls}
                   </StyledText>
-                  <StyledText type="p4" width={colWidth.newest[5]} color="reverse">
-                    {v.block}
+                  <StyledText type="p4" width={colWidth.newest[5]} color="blue">
+                    <a
+                      href={`https://gnoscan.io/test3/blocks/${v.block}`}
+                      target="_blank"
+                      rel="noreferrer">
+                      {v.block}
+                    </a>
                   </StyledText>
                 </List>
               ))}

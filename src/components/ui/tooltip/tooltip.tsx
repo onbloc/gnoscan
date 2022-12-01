@@ -1,52 +1,25 @@
-import {FontsType} from '@/styles';
-import React, {useState} from 'react';
-import styled, {css, CSSProperties} from 'styled-components';
+import React from 'react';
+import styled, {css} from 'styled-components';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
-
-type Direction = 'top' | 'bottom' | 'left' | 'right';
-
-interface StyleProps {
-  pos?: Direction;
-  padding?: CSSProperties['padding'];
-  active?: boolean;
-}
-
-interface TooltipProps extends StyleProps {
+interface TooltipProps {
   children: React.ReactNode;
   content: React.ReactNode | string;
-  type?: FontsType;
-  direction?: Direction;
   className?: string;
 }
 
-export const Tooltip = ({
-  children,
-  direction = 'top',
-  content,
-  type = 'body1',
-  padding = '16px',
-  className,
-}: TooltipProps) => {
-  const [active, setActive] = useState(false);
-
-  const showTip = () => setActive(true);
-  const hideTip = () => setActive(false);
-
+export const Tooltip = ({children, content, className}: TooltipProps) => {
   return (
-    <Wrapper onMouseEnter={showTip} onMouseLeave={hideTip}>
+    <Wrapper className={className}>
       {children}
-      <TooltipContent pos={direction} active={active} className={className}>
-        <TooltipText type={type} padding={padding}>
-          {content}
-        </TooltipText>
+      <TooltipContent className="tooltip">
+        <TooltipText type="body1">{content}</TooltipText>
       </TooltipContent>
     </Wrapper>
   );
 };
 
 const container = css`
-  white-space: nowrap;
   border-radius: 8px;
   background-color: ${({theme}) => theme.colors.base};
 `;
@@ -54,61 +27,49 @@ const container = css`
 const Wrapper = styled.div`
   position: relative;
   display: inline-block;
+  z-index: 11;
+  &:hover .tooltip {
+    transition: all 0.5s ease-in;
+    visibility: visible;
+    transform: translate(-50%, 0);
+  }
 `;
 
-const TooltipText = styled(Text)<StyleProps>`
+const TooltipText = styled(Text)`
   ${container};
   width: 100%;
   height: 100%;
-  padding: ${({padding}) => padding};
   color: ${({theme}) => theme.colors.tertiary};
   word-break: keep-all;
-  white-space: normal;
   text-align: center;
+  padding: 16px;
 `;
 
-const TooltipContent = styled.div<StyleProps>`
+const TooltipContent = styled.div`
   ${mixins.flexbox('row', 'center', 'center')};
   ${container};
-  visibility: ${({active}) => (active ? 'visible' : 'hidden')};
-  transition: all 0.3s ease;
+  width: 163px;
+  height: auto;
+  transition: all 0.5s ease-in;
   position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translate(-50%, 7%);
   z-index: 10;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  opacity: ${({active}) => (active ? 1 : 0)};
-  margin-bottom: 5px;
-  :after {
+  visibility: hidden;
+  &:after {
     content: '';
     position: absolute;
-    width: 8px;
-    height: 8px;
+    bottom: -3px;
+    left: 50%;
+    transform: rotate(45deg);
+    width: 6px;
+    height: 6px;
     z-index: -1;
     pointer-events: none;
     background-color: ${({theme}) => theme.colors.base};
-    margin-left: calc(4px * -1);
+    margin-left: calc(3px * -1);
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
-  ${({pos, active}) => {
-    if (pos === 'top')
-      return css`
-        left: 50%;
-        bottom: ${active ? '100%' : '70%'};
-        transform: translateX(-50%);
-        :after {
-          bottom: -4px;
-          transform: rotate(-45deg);
-        }
-      `;
-    if (pos === 'bottom')
-      return css`
-        /* left: 50%;
-        top: 100%;
-        transform: translateX(-50%);
-        :after {
-          top: -4px;
-          transform: rotate(-45deg);
-          z-index: -1;
-        } */
-      `;
-  }}
 `;

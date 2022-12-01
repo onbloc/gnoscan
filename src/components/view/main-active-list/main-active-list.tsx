@@ -5,6 +5,7 @@ import mixins from '@/styles/mixins';
 import {eachMedia} from '@/common/hooks/use-media';
 import ActiveAccount from './active-account';
 import ActiveBoards from './active-boards';
+import Text from '@/components/ui/text';
 
 export const listTitle = {
   accounts: ['No.', 'Account', 'TotalTxs', 'Non-Transfer Txs', 'Balance (GNOT)'],
@@ -58,6 +59,24 @@ export const StyledCard = styled(Card)`
   max-height: 408px;
   .active-list-title {
     ${mixins.flexbox('row', 'center', 'space-between')};
+  }
+  .icon-link {
+    stroke: ${({theme}) => theme.colors.reverse};
+    margin-left: 4px;
+  }
+`;
+
+export const StyledText = styled(Text)<{width: string}>`
+  min-width: ${({width}) => width};
+  padding: 12px;
+  flex: 1;
+  :first-of-type {
+    max-width: 52px;
+  }
+  &.with-link {
+    a {
+      ${mixins.flexbox('row', 'center', 'flex-start')};
+    }
   }
 `;
 

@@ -4,9 +4,9 @@ import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
 import {useQuery, UseQueryResult} from 'react-query';
 import {formatAddress, formatEllipsis} from '@/common/utils';
-import {ActiveList, StyledText} from '@/components/ui/active-list';
+import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
-import {colWidth, List, listTitle, StyledCard} from '../main-active-list';
+import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 
 type AccountsValueType = {
   no: number;
@@ -70,7 +70,12 @@ const ActiveAccount = () => {
                     {v.no}
                   </StyledText>
                   <StyledText type="p4" width={colWidth.accounts[1]} color="blue">
-                    {v.account}
+                    <a
+                      href={`https://gnoscan.io/test3/account/${v.address}`}
+                      target="_blank"
+                      rel="noreferrer">
+                      {v.account}
+                    </a>
                   </StyledText>
                   <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
                     {v.totalTxs}
