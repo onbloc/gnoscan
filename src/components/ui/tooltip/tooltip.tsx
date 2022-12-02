@@ -23,6 +23,7 @@ const Tooltip = ({
 
   const buttonClickHandler = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
+      if (trigger !== 'click') return;
       setIsClicked(true);
       navigator.clipboard.writeText(copyText);
     },

@@ -11,10 +11,22 @@ const Home: React.FC = () => {
   return (
     <Wrapper>
       <div className="inner-layout">
-        <MainCard />
+        {/* <MainCard />
         <MainActiveList />
         <MainRealm />
-        <MainTransactionNews />
+        <MainTransactionNews /> */}
+        <Tooltip content="Clicked!" trigger="click" copyText="copy text">
+          <Button width="36px" height="36px" radius="50%" bgColor="blue">
+            <h1>Click</h1>
+          </Button>
+        </Tooltip>
+        <br />
+        <br />
+        <Tooltip content="Hover!">
+          <Button width="36px" height="36px" radius="50%" bgColor="blue">
+            <h1>hover</h1>
+          </Button>
+        </Tooltip>
       </div>
     </Wrapper>
   );
