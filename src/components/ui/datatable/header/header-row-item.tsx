@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import {Tooltip} from '../../tooltip';
 import {Header} from './header';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import {DatatableOption} from '..';
 import theme from '@/styles/theme';
+import Tooltip from '../../tooltip';
 
 interface Props<T> {
   header: Header<T>;

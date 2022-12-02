@@ -1,4 +1,4 @@
-import {Tooltip} from '@/components/ui/tooltip';
+import Tooltip from '@/components/ui/tooltip';
 import React from 'react';
 import styled from 'styled-components';
 
