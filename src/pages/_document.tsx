@@ -45,6 +45,7 @@ class MyDocument extends Document {
             rel="stylesheet"
           />
           <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width" />
         </Head>
         <body>
           <Main />

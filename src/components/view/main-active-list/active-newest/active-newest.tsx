@@ -7,6 +7,7 @@ import {formatAddress, formatEllipsis} from '@/common/utils';
 import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
+import Link from 'next/link';
 
 type NewestValueType = {
   no: number;
@@ -81,28 +82,27 @@ const ActiveNewest = () => {
                       {v.formatName}
                     </a>
                   </StyledText>
-                  <StyledText type="p4" width={colWidth.newest[2]} color="blue">
-                    <a
-                      href={`https://gnoscan.io/test3/account/${v.originAddress}`}
-                      target="_blank"
-                      rel="noreferrer">
-                      {v.publisher}
+                  <Link href={`account/${v.originAddress}`} passHref>
+                    <a>
+                      <StyledText type="p4" width={colWidth.newest[2]} color="blue">
+                        {v.publisher}
+                      </StyledText>
                     </a>
-                  </StyledText>
+                  </Link>
+
                   <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
                     {v.functions}
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
                     {v.calls}
                   </StyledText>
-                  <StyledText type="p4" width={colWidth.newest[5]} color="blue">
-                    <a
-                      href={`https://gnoscan.io/test3/blocks/${v.block}`}
-                      target="_blank"
-                      rel="noreferrer">
-                      {v.block}
+                  <Link href={`blocks/${v.block}`} passHref>
+                    <a>
+                      <StyledText type="p4" width={colWidth.newest[5]} color="blue">
+                        {v.block}
+                      </StyledText>
                     </a>
-                  </StyledText>
+                  </Link>
                 </List>
               ))}
             </>

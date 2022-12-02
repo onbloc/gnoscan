@@ -23,6 +23,7 @@ const lightTheme: Palette = {
   dimmed100: 'rgba(255, 255, 255, 0.1)',
   dimmed200: 'rgba(255, 255, 255, 0.2)',
   dimmed600: 'rgba(0, 0, 0, 0.6)',
+  linear: 'linear-gradient(359.87deg, #FFFFFF 8.53%, rgba(255, 255, 255, 0) 69.1%)',
 } as const;
 
 const darkTheme: Palette = {
@@ -44,6 +45,7 @@ const darkTheme: Palette = {
   dimmed100: 'rgba(255, 255, 255, 0.1)',
   dimmed200: 'rgba(255, 255, 255, 0.2)',
   dimmed600: 'rgba(0, 0, 0, 0.6)',
+  linear: 'linear-gradient(359.87deg, #232323 8.53%, rgba(35, 35, 35, 0) 69.1%)',
 } as const;
 
 const fonts: FontsKeyType = {
@@ -153,7 +155,8 @@ export type PaletteKeyType =
   | 'dimmed50'
   | 'dimmed100'
   | 'dimmed200'
-  | 'dimmed600';
+  | 'dimmed600'
+  | 'linear';
 
 const device: DeviceValueType = {
   desktop: '(minWidth: 1280)',

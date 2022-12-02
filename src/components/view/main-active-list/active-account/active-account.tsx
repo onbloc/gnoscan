@@ -7,6 +7,7 @@ import {formatAddress, formatEllipsis} from '@/common/utils';
 import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
+import Link from 'next/link';
 
 type AccountsValueType = {
   no: number;
@@ -69,14 +70,13 @@ const ActiveAccount = () => {
                   <StyledText type="p4" width={colWidth.accounts[0]} color="reverse">
                     {v.no}
                   </StyledText>
-                  <StyledText type="p4" width={colWidth.accounts[1]} color="blue">
-                    <a
-                      href={`https://gnoscan.io/test3/account/${v.address}`}
-                      target="_blank"
-                      rel="noreferrer">
-                      {v.account}
+                  <Link href={`account/${v.address}`} passHref>
+                    <a>
+                      <StyledText type="p4" width={colWidth.accounts[1]} color="blue">
+                        {v.account}
+                      </StyledText>
                     </a>
-                  </StyledText>
+                  </Link>
                   <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
                     {v.totalTxs}
                   </StyledText>
