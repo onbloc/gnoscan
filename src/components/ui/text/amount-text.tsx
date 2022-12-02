@@ -11,30 +11,31 @@ interface AmountTextProps {
   value: string | number;
   denom?: string;
   color?: PaletteKeyType;
+  className?: string;
 }
 
 export const AmountText = ({
   minSize,
   maxSize,
   value,
-  denom,
+  denom = '',
   color = 'primary',
+  className,
 }: AmountTextProps) => {
   const num: string[] | string = decimalPointWithCommas(value);
-  console.log('---------- : ', num);
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       {num && (
         <Text type={maxSize} color={color} display="inline-block">
           {num[0]}
-          {Boolean(Number(num[1])) && (
+          {Boolean(Number(num[1])) && Boolean(denom) && (
             <Text type={minSize} color={color} display="inline-block">
-              {`.${num[1]}`}
+              {`.${num[1]} ${denom}`}
             </Text>
           )}
-          {denom && (
+          {Boolean(Number(num[1])) && !Boolean(denom) && (
             <Text type={minSize} color={color} display="inline-block">
-              {` ${denom}`}
+              {`.${num[1]} `}
             </Text>
           )}
         </Text>
