@@ -107,11 +107,12 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     const themePallet = getThemePallet();
     return {
       responsive: true,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       aspectRatio: 2,
       scales: {
         yAxis: {
           max: 100,
+          min: 0,
           ticks: {
             color: themePallet.primary,
             count: 5,

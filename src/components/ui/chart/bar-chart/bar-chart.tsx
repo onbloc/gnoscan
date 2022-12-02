@@ -108,6 +108,8 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
     const themePallet = getThemePallet();
     return {
       responsive: true,
+      maintainAspectRatio: false,
+      aspectRatio: 2,
       scales: {
         yAxis: {
           ticks: {
