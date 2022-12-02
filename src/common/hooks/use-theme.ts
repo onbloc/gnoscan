@@ -1,7 +1,6 @@
 import {themeState} from '@/states';
-import {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import {useCallback, useLayoutEffect} from 'react';
 import {useRecoilState} from 'recoil';
-import {storage} from '../values';
 
 function useTheme() {
   const [themeMode, setTheme] = useRecoilState(themeState);

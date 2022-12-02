@@ -8,7 +8,7 @@ interface TooltipProps {
   className?: string;
 }
 
-export const Tooltip = ({children, content, className}: TooltipProps) => {
+const Tooltip = ({children, content, className}: TooltipProps) => {
   return (
     <Wrapper className={className}>
       {children}
@@ -73,3 +73,5 @@ const TooltipContent = styled.div`
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 `;
+
+export default Tooltip;

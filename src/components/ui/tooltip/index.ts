@@ -1,2 +1,2 @@
-export * from './tooltip';
-export * from './delay-tooltip';
+import Tooltip from './tooltip';
+export default Tooltip;

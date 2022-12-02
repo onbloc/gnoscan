@@ -11,12 +11,29 @@ import {numberWithCommas, numberWithFixedCommas} from '@/common/utils';
 import mixins from '@/styles/mixins';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/tooltip';
-
+import Tooltip from '@/components/ui/tooltip';
 interface SupplyResultType {
   supply: string;
   exit: string;
   holders: string;
+}
+
+interface HeightResultType {
+  height: string;
+  avg_tx: string;
+  avg_time: string;
+}
+
+interface TxResultType {
+  avg_24hr: string;
+  total_fee: string;
+  total_txs: string;
+}
+
+interface AccountsResultType {
+  num: string;
+  registered: string;
+  validators: string;
 }
 
 const MainCard = () => {
@@ -26,9 +43,9 @@ const MainCard = () => {
     async () => await axios.get('http://3.218.133.250:7677/v3/info/card01'),
     {
       select: (res: any) => {
+        console.log('------- : ', res);
         const supply = res.data.gnot_supply;
         return {
-          ...supply,
           supply: numberWithCommas(supply.supply),
           exit: numberWithCommas(supply.exit),
           holders: numberWithCommas(supply.holders),
@@ -37,14 +54,13 @@ const MainCard = () => {
     },
   );
 
-  const {data: card02, isSuccess: card02Success} = useQuery(
+  const {data: card02, isSuccess: card02Success}: UseQueryResult<HeightResultType> = useQuery(
     'info/card02',
     async () => await axios.get('http://3.218.133.250:7677/v3/info/card02'),
     {
       select: (res: any) => {
         const block = res.data.block;
         return {
-          ...block,
           height: numberWithCommas(block.height),
           avg_tx: numberWithFixedCommas(block.avg_time, 2),
           avg_time: numberWithFixedCommas(block.avg_tx, 2),
@@ -53,7 +69,7 @@ const MainCard = () => {
     },
   );
 
-  const {data: card03, isSuccess: card03Success} = useQuery(
+  const {data: card03, isSuccess: card03Success}: UseQueryResult<TxResultType> = useQuery(
     'info/card03',
     async () => await axios.get('http://3.218.133.250:7677/v3/info/card03'),
     {
@@ -68,7 +84,7 @@ const MainCard = () => {
     },
   );
 
-  const {data: card04, isSuccess: card04Success} = useQuery(
+  const {data: card04, isSuccess: card04Success}: UseQueryResult<AccountsResultType> = useQuery(
     'info/card04',
     async () => await axios.get('http://3.218.133.250:7677/v3/info/card04'),
     {
