@@ -18,7 +18,7 @@ export const MainTotalTransaction = () => {
 
   const fetchGasShareData = () => {
     try {
-      fetch('http://3.218.133.250:7677/v0/info/daily_txs')
+      fetch('http://3.218.133.250:7677/v3/info/daily_txs')
         .then(res => res.json())
         .then(res => updatChartData(res));
     } catch (e) {
