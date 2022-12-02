@@ -1,5 +1,5 @@
 import Text from '@/components/ui/text';
-import BlockDatatable from '@/components/view/block-datatable/block-datatable';
+import {BlockDatatable} from '@/components/view/datatable';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 

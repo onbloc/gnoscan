@@ -23,21 +23,27 @@ export const AmountText = ({
   className,
 }: AmountTextProps) => {
   const num: string[] | string = decimalPointWithCommas(value);
+
+  const decimalValue = (num: string[] | string) => {
+    if (!Array.isArray(num)) {
+      return ` ${denom}`;
+    }
+
+    if (num.length < 2) {
+      return `.${num[1]} ${denom}`;
+    }
+
+    return `.${num[1]} ${denom}`;
+  };
+
   return (
     <Wrapper className={className}>
       {num && (
         <Text type={maxSize} color={color} display="inline-block">
           {num[0]}
-          {Boolean(Number(num[1])) && Boolean(denom) && (
-            <Text type={minSize} color={color} display="inline-block">
-              {`.${num[1]} ${denom}`}
-            </Text>
-          )}
-          {Boolean(Number(num[1])) && !Boolean(denom) && (
-            <Text type={minSize} color={color} display="inline-block">
-              {`.${num[1]} `}
-            </Text>
-          )}
+          <Text type={minSize} color={color} display="inline-block">
+            {decimalValue(num)}
+          </Text>
         </Text>
       )}
     </Wrapper>

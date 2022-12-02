@@ -1,5 +1,5 @@
 import Text from '@/components/ui/text';
-import {TransactionDatatable} from '@/components/view/transaction-datatable';
+import {TransactionDatatable} from '@/components/view/datatable';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 

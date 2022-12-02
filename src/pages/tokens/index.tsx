@@ -1,39 +1,22 @@
 import Text from '@/components/ui/text';
-import {TransactionDatatable} from '@/components/view/transaction-datatable';
+import {AccountDetailDatatable} from '@/components/view/datatable';
+import {TokenDatatable} from '@/components/view/datatable/token';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 
-interface TransactionData {
-  tx_hash: string;
-  success: boolean;
-  type: string;
-  func: string;
-  block: number;
-  from_address: string;
-  amount: {
-    value: number;
-    denom: string;
-  };
-  time: string;
-  gas_used: number;
+interface TokenData {
+  token: string;
+  holder: number;
+  function: string;
+  decimal: number;
+  total_supply: string;
+  pkg_path: string;
 }
 
 const Tokens = () => {
-  const [transactions, setTransactions] = useState<Array<TransactionData>>([]);
+  const [tokens, setTokens] = useState<Array<TokenData>>([]);
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  const fetchTransactions = () => {
-    try {
-      fetch('http://3.218.133.250:7677/v3/list/txs')
-        .then(res => res.json())
-        .then(res => setTransactions(res));
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  const fetchTokens = () => {};
 
   return (
     <Container>
@@ -42,7 +25,11 @@ const Tokens = () => {
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Tokens'}
           </Text>
-          <TransactionDatatable datas={transactions} />
+          <TokenDatatable datas={tokens} />
+        </Wrapper>
+
+        <Wrapper>
+          <AccountDetailDatatable />
         </Wrapper>
       </div>
     </Container>

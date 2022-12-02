@@ -6,17 +6,25 @@ import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
 import {getDateDiff} from '@/common/utils/date-util';
 import {textEllipsis} from '@/common/utils/string-util';
-import {TransactionDatatableItem} from '.';
+import {DatatableItem} from '..';
 
 const TOOLTIP_TX_HASH = (
   <>
-    Transctions have been temporarily
-    <br />
+    Transctions have been temporarily <br />
     assigned with values in <b>[height_order]</b>
     <br />
     format, as the tx hashing function is
     <br />
     still under development on Gnoland.
+    <br />
+  </>
+);
+
+const TOOLTIP_TYPE = (
+  <>
+    Hover on each value to <br />
+    view the raw transaction <br />
+    type and package path.
   </>
 );
 
@@ -45,9 +53,7 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => (
-        <TransactionDatatableItem.TxHash txHash={value} success={data.success} />
-      ))
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={data.success} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
@@ -58,9 +64,8 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
       .name('Type')
       .width(190)
       .colorName('blue')
-      .renderOption((_, data) => (
-        <TransactionDatatableItem.Type type={data.type} func={data.func} />
-      ))
+      .tooltip(TOOLTIP_TYPE)
+      .renderOption((_, data) => <DatatableItem.Type type={data.type} func={data.func} />)
       .build();
   };
 

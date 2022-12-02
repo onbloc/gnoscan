@@ -3,13 +3,18 @@ import styled from 'styled-components';
 import {DatatableData, DatatableHeader} from '.';
 
 interface Props<T> {
+  maxWidth?: number;
   headers: Array<DatatableHeader.Header<T>>;
   datas: Array<T>;
 }
 
-export const Datatable = <T extends {[key in string]: any}>({headers, datas}: Props<T>) => {
+export const Datatable = <T extends {[key in string]: any}>({
+  headers,
+  datas,
+  maxWidth,
+}: Props<T>) => {
   return (
-    <Container>
+    <Container maxWidth={maxWidth}>
       <div className="scroll-wrapper">
         <DatatableHeader.HeaderRow headers={headers} />
         <DatatableData.DataList headers={headers} datas={datas} />
@@ -18,7 +23,7 @@ export const Datatable = <T extends {[key in string]: any}>({headers, datas}: Pr
   );
 };
 
-const Container = styled.div`
+const Container = styled.div<{maxWidth?: number}>`
   * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -40,7 +45,7 @@ const Container = styled.div`
       display: flex;
       flex-direction: column;
       width: 100%;
-      min-width: 1150px;
+      min-width: ${({maxWidth}) => (maxWidth ? `${maxWidth}px` : '1150px')};
       z-index: 5;
     }
   }

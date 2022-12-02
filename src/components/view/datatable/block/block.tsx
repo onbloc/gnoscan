@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Datatable, {DatatableHeader, DatatableOption} from '@/components/ui/datatable';
+import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
 import {getDateDiff} from '@/common/utils/date-util';
@@ -9,7 +9,7 @@ import {textEllipsis} from '@/common/utils/string-util';
 
 const PADDING = 32;
 
-const BlockDatatable = <T extends {[key in string]: any}>({datas}: {datas: Array<T>}) => {
+export const BlockDatatable = <T extends {[key in string]: any}>({datas}: {datas: Array<T>}) => {
   const [theme] = useTheme();
 
   const createHeaders = () => {
@@ -99,5 +99,3 @@ const BlockDatatable = <T extends {[key in string]: any}>({datas}: {datas: Array
     />
   );
 };
-
-export default BlockDatatable;

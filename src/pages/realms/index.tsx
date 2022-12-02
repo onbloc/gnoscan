@@ -1,35 +1,30 @@
 import Text from '@/components/ui/text';
-import {TransactionDatatable} from '@/components/view/transaction-datatable';
+import {RealmDatatable} from '@/components/view/datatable/realm';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 
-interface TransactionData {
-  tx_hash: string;
-  success: boolean;
-  type: string;
-  func: string;
+interface Realms {
+  name: string;
+  path: string;
+  functions: number;
   block: number;
-  from_address: string;
-  amount: {
-    value: number;
-    denom: string;
-  };
-  time: string;
-  gas_used: number;
+  publisher: string;
+  username: string;
+  total_calls: number;
+  total_gas_used: number;
 }
-
 const Realms = () => {
-  const [transactions, setTransactions] = useState<Array<TransactionData>>([]);
+  const [realms, setRealms] = useState<Array<Realms>>([]);
 
   useEffect(() => {
-    fetchTransactions();
+    fetchRealms();
   }, []);
 
-  const fetchTransactions = () => {
+  const fetchRealms = () => {
     try {
-      fetch('http://3.218.133.250:7677/v3/list/txs')
+      fetch('http://3.218.133.250:7677/v3/list/realms')
         .then(res => res.json())
-        .then(res => setTransactions(res));
+        .then(res => setRealms(res.realms));
     } catch (e) {
       console.log(e);
     }
@@ -42,7 +37,7 @@ const Realms = () => {
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Realms'}
           </Text>
-          <TransactionDatatable datas={transactions} />
+          <RealmDatatable datas={realms} />
         </Wrapper>
       </div>
     </Container>
