@@ -82,7 +82,7 @@ const ActiveNewest = () => {
                       {v.formatName}
                     </a>
                   </StyledText>
-                  <Link href={`account/${v.originAddress}`} passHref>
+                  <Link href={`/accounts/${v.originAddress}`} passHref>
                     <a>
                       <StyledText type="p4" width={colWidth.newest[2]} color="blue">
                         {v.publisher}
@@ -96,7 +96,7 @@ const ActiveNewest = () => {
                   <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
                     {v.calls}
                   </StyledText>
-                  <Link href={`blocks/${v.block}`} passHref>
+                  <Link href={`/blocks/${v.block}`} passHref>
                     <a>
                       <StyledText type="p4" width={colWidth.newest[5]} color="blue">
                         {v.block}

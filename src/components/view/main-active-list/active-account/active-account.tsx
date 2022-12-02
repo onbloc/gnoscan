@@ -70,7 +70,7 @@ const ActiveAccount = () => {
                   <StyledText type="p4" width={colWidth.accounts[0]} color="reverse">
                     {v.no}
                   </StyledText>
-                  <Link href={`account/${v.address}`} passHref>
+                  <Link href={`/accounts/${v.address}`} passHref>
                     <a>
                       <StyledText type="p4" width={colWidth.accounts[1]} color="blue">
                         {v.account}

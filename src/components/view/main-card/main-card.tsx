@@ -43,7 +43,6 @@ const MainCard = () => {
     async () => await axios.get('http://3.218.133.250:7677/v3/info/card01'),
     {
       select: (res: any) => {
-        console.log('------- : ', res);
         const supply = res.data.gnot_supply;
         return {
           supply: numberWithCommas(supply.supply),

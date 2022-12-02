@@ -4,7 +4,7 @@ import mixins from '@/styles/mixins';
 import React from 'react';
 import styled, {css} from 'styled-components';
 import dynamic from 'next/dynamic';
-import DarkModeToggle from '@/components/ui/button/darkmode-toggle';
+import {DarkModeToggle} from '@/components/ui/button';
 import Discord from '@/assets/svgs/icon-discord.svg';
 import Twitter from '@/assets/svgs/icon-twitter.svg';
 import GnoscanSymbol from '@/assets/svgs/icon-gnoscan-symbol.svg';
