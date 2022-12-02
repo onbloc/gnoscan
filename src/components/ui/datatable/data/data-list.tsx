@@ -3,16 +3,16 @@ import styled from 'styled-components';
 import {DatatableHeader} from '..';
 import {DataRow} from './data-row';
 
-interface Props {
-  headers: Array<DatatableHeader.Header>;
-  datas: Array<{[key in string]: any}>;
+interface Props<T> {
+  headers: Array<DatatableHeader.Header<T>>;
+  datas: Array<T>;
 }
 
-export const DataList = ({headers, datas}: Props) => {
+export const DataList = <T extends {[key in string]: any}>({headers, datas}: Props<T>) => {
   return (
     <DataListContainer>
-      {datas.map(data => (
-        <DataRow headers={headers} data={data} />
+      {datas.map((data, index) => (
+        <DataRow key={index} headers={headers} data={data} />
       ))}
     </DataListContainer>
   );

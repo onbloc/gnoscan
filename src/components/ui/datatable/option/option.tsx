@@ -23,7 +23,7 @@ export const headerOptionByHeader = <T extends {[key in string]: any}>(
     align: header.headerAlign ?? header.align ?? 'left',
     flex: header.flex ?? true,
     sort: header.sort ?? false,
-    renderOption: header.renderOption ? header.renderOption : (value: any, data: T) => `${value}`,
+    renderOption: header.renderOption,
   };
 };
 
@@ -37,7 +37,7 @@ export const dataOptionByHeader = <T extends {[key in string]: any}>(
     align: header.align ?? 'left',
     flex: header.flex ?? true,
     sort: header.sort ?? false,
-    renderOption: header.renderOption ? header.renderOption : (value: any, data: T) => `${value}`,
+    renderOption: header.renderOption,
   };
 };
 
@@ -57,7 +57,7 @@ export const ColumnOption = styled.div<{options: Option<any>}>`
     ${({options}) => optionFlex(options.flex)};
     ${({options}) => optionAlign(options.align)};
 
-    .content {
+    .ellipsis {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;

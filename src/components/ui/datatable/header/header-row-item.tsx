@@ -37,6 +37,7 @@ const ItemContainer = styled(DatatableOption.ColumnOption)`
     ${theme.fonts.p4};
     font-weight: 600;
     justify-content: ${({options}) => options.headerAlign};
+
     .tooltip-wrapper {
       display: flex;
       flex: 0 0 auto;

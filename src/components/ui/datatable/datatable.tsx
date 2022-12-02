@@ -26,6 +26,7 @@ const Container = styled.div`
   }
 
   & {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -33,13 +34,14 @@ const Container = styled.div`
     padding: 20px;
     background-color: ${({theme}) => theme.colors.base};
     border-radius: 10px;
-    overflow-x: scroll;
+    overflow-x: auto;
 
     .scroll-wrapper {
       display: flex;
       flex-direction: column;
       width: 100%;
       min-width: 1150px;
+      z-index: 5;
     }
   }
 `;

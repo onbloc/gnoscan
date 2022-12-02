@@ -15,9 +15,11 @@ export const DataRowItem = <T extends {[key in string]: any}>({header, data}: Pr
 
   return (
     <ItemContainer options={option}>
-      <div className="content">
-        {option.renderOption ? option.renderOption(value, data) : `${value}`}
-      </div>
+      {option.renderOption ? (
+        option.renderOption(value, data)
+      ) : (
+        <span className="ellipsis">{`${value}`}</span>
+      )}
     </ItemContainer>
   );
 };

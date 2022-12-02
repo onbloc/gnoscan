@@ -11,8 +11,8 @@ interface Props<T> {
 export const DataRow = <T extends {[key in string]: any}>({headers, data}: Props<T>) => {
   return (
     <DataRowContainer>
-      {headers.map(header => (
-        <DataRowItem header={header} data={data} />
+      {headers.map((header, index) => (
+        <DataRowItem key={index} header={header} data={data} />
       ))}
     </DataRowContainer>
   );
