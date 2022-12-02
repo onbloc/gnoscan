@@ -36,7 +36,7 @@ export const MainNewsTwitter = () => {
 const Wrapper = styled.div`
   display: block;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 40px);
 
   & .twitter-wrapper {
     position: relative;

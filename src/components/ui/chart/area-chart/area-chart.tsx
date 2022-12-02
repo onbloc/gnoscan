@@ -20,7 +20,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const [themeMode] = useTheme();
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
-  const [tooltip, setTooltip] = useState<TooltipModel<'line'>>();
   const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
   useEffect(() => {
@@ -40,7 +39,9 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const handleResize = () => {
     if (wrapperRef.current) {
       setChartWidth(wrapperRef.current.clientWidth);
-      setChartHeight(wrapperRef.current.clientHeight);
+      if (wrapperRef.current.clientHeight > 250) {
+        setChartHeight(wrapperRef.current.clientHeight);
+      }
     }
   };
 
@@ -94,21 +95,20 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       tooltipEl.style.left = left + 'px';
     }
     tooltipEl.style.pointerEvents = 'none';
-    setTooltip(tooltip);
 
     if (!tooltipRoot) {
       const root = createRoot(tooltipEl);
       setTooltipRoot(root);
+      root.render(<AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />);
     }
-    tooltipRoot?.render(
-      <AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />,
-    );
   };
 
   const createChartOption = (): ChartOptions<'line'> => {
     const themePallet = getThemePallet();
     return {
       responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2,
       scales: {
         yAxis: {
           max: 100,
@@ -180,17 +180,18 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       data: [],
     };
 
-    const chartColors = [...colors, ...new Array(Object.keys(datasets).length).fill('#3673e8')];
+    const chartColors = [
+      ...colors,
+      ...new Array(Object.keys(datasets).length).fill(themePallet.blue),
+    ];
     const mappedDatasets = Object.keys(datasets).map((datasetName, index) => {
       const currentDataset = datasets[datasetName].map(dataset => dataset.rate);
       return {
         ...defaultChartData,
         label: datasetName,
         data: currentDataset,
-        borderWidth: 2,
-        borderColor: '#2090F3',
-        pointBorderColor: '#2090F3',
-        pointBackgroundColor: '#FFFFFF',
+        borderColor: chartColors[index],
+        pointBackgroundColor: chartColors[index],
         backgroundColor: createGradient(chart, currentDataset, chartColors[index]),
       };
     });
@@ -205,8 +206,8 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     const maxValue = Math.max(...datas);
     const top = chart.chartArea.bottom - Math.round(chart.chartArea.bottom * (maxValue / 100));
     const gradient = chart.ctx.createLinearGradient(0, top, 0, chart.chartArea.bottom);
-    gradient.addColorStop(0, `${colorStart}55`);
-    gradient.addColorStop(1, `${colorStart.slice(0, 7)}00`);
+    gradient.addColorStop(0, colorStart);
+    gradient.addColorStop(1, `${colorStart.slice(0, 7)}22`);
     return gradient;
   };
 
@@ -225,9 +226,11 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
 const Wrapper = styled.div`
   & {
-    display: block;
+    display: flex;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 40px);
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
   }
 `;

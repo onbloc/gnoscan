@@ -21,7 +21,7 @@ export const MainRealmTotalGasShare = () => {
 
   const fetchGasShareData = () => {
     try {
-      fetch('http://3.218.133.250:7677/v0/info/realms_gas')
+      fetch('http://3.218.133.250:7677/v3/info/realms_gas')
         .then(res => res.json())
         .then(res => updatChartData(res));
     } catch (e) {

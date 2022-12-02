@@ -203,9 +203,11 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
 
 const Wrapper = styled.div`
   & {
-    display: block;
+    display: flex;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 40px);
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
   }
 `;
