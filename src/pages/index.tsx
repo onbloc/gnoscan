@@ -4,6 +4,8 @@ import MainCard from '@/components/view/main-card/main-card';
 import MainRealm from '@/components/view/main-realm/main-realm';
 import MainTransactionNews from '@/components/view/main-transaction-news/main-transaction-news';
 import MainActiveList from '@/components/view/main-active-list';
+import Tooltip from '@/components/ui/tooltip';
+import {Button} from '@/components/ui/button';
 
 const Home: React.FC = () => {
   return (
@@ -11,8 +13,8 @@ const Home: React.FC = () => {
       <div className="inner-layout">
         <MainCard />
         <MainActiveList />
-        {/* <MainRealm />
-        <MainTransactionNews /> */}
+        <MainRealm />
+        <MainTransactionNews />
       </div>
     </Wrapper>
   );

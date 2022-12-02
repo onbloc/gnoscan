@@ -1,17 +1,44 @@
-import React from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import styled, {css} from 'styled-components';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
+
+type TriggerType = 'click' | 'hover';
 interface TooltipProps {
+  className?: string;
   children: React.ReactNode;
   content: React.ReactNode | string;
-  className?: string;
+  trigger?: TriggerType;
+  copyText?: string;
 }
 
-const Tooltip = ({children, content, className}: TooltipProps) => {
+const Tooltip = ({
+  className,
+  children,
+  content,
+  trigger = 'hover',
+  copyText = '',
+}: TooltipProps) => {
+  const [isClicked, setIsClicked] = useState<boolean>(false);
+
+  const buttonClickHandler = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      setIsClicked(true);
+      navigator.clipboard.writeText(copyText);
+    },
+    [isClicked, copyText],
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsClicked(false), 2000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isClicked]);
+
   return (
-    <Wrapper className={className}>
-      {children}
+    <Wrapper className={className} trigger={trigger} isClicked={isClicked}>
+      <div onClick={buttonClickHandler}>{children}</div>
       <TooltipContent className="tooltip">
         <TooltipText type="body1">{content}</TooltipText>
       </TooltipContent>
@@ -24,15 +51,31 @@ const container = css`
   background-color: ${({theme}) => theme.colors.base};
 `;
 
-const Wrapper = styled.div`
+const activeTooltip = css`
+  transition: all 0.5s ease-in;
+  visibility: visible;
+  transform: translate(-50%, 0);
+`;
+
+const Wrapper = styled.div<{trigger: TriggerType; isClicked: boolean}>`
   position: relative;
   display: inline-block;
   z-index: 11;
-  &:hover .tooltip {
-    transition: all 0.5s ease-in;
-    visibility: visible;
-    transform: translate(-50%, 0);
-  }
+  ${({trigger}) =>
+    trigger !== 'click' &&
+    css`
+      &:hover .tooltip {
+        ${activeTooltip};
+      }
+    `}
+
+  ${({isClicked}) =>
+    isClicked &&
+    css`
+      .tooltip {
+        ${activeTooltip};
+      }
+    `}
 `;
 
 const TooltipText = styled(Text)`
