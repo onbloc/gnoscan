@@ -12,7 +12,7 @@ interface ToggleButtonProps {
   className?: string;
 }
 
-const DarkModeToggle = ({className}: ToggleButtonProps) => {
+export const DarkModeToggle = ({className}: ToggleButtonProps) => {
   const [themeMode, onChangeTheme] = useTheme();
 
   return (
@@ -42,5 +42,3 @@ const ToggleButton = styled.div<ToggleButtonProps>`
   position: absolute;
   left: ${({darkMode}) => (darkMode ? '33px' : '5px')};
 `;
-
-export default DarkModeToggle;

@@ -3,7 +3,7 @@ import type {AppProps} from 'next/app';
 import {GlobalStyle} from '../styles';
 import {RecoilRoot} from 'recoil';
 import {QueryClient, QueryClientProvider} from 'react-query';
-import Layout from '@/components/core/layout';
+import {Layout} from '@/components/core/layout';
 import Head from 'next/head';
 import {ErrorBoundary} from '@/components/core/error-boundary';
 

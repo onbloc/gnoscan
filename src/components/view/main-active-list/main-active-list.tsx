@@ -1,11 +1,12 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import Card from '@/components/ui/card';
 import mixins from '@/styles/mixins';
 import {eachMedia} from '@/common/hooks/use-media';
 import ActiveAccount from './active-account';
 import ActiveBoards from './active-boards';
 import Text from '@/components/ui/text';
+import {AmountText} from '@/components/ui/text/amount-text';
 
 export const listTitle = {
   accounts: ['No.', 'Account', 'TotalTxs', 'Non-Transfer Txs', 'Balance (GNOT)'],
@@ -66,8 +67,7 @@ export const StyledCard = styled(Card)`
   }
 `;
 
-export const StyledText = styled(Text)<{width: string}>`
-  min-width: ${({width}) => width};
+const textStyle = css`
   padding: 12px;
   flex: 1;
   :first-of-type {
@@ -78,6 +78,16 @@ export const StyledText = styled(Text)<{width: string}>`
       ${mixins.flexbox('row', 'center', 'flex-start')};
     }
   }
+`;
+
+export const StyledText = styled(Text)<{width: string}>`
+  min-width: ${({width}) => width};
+  ${textStyle};
+`;
+
+export const StyledAmountText = styled(AmountText)<{width: string}>`
+  min-width: ${({width}) => width};
+  ${textStyle};
 `;
 
 export default MainActiveList;

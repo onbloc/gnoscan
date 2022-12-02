@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const Layout = ({children}: LayoutProps) => {
+export const Layout = ({children}: LayoutProps) => {
   const [themeMode] = useTheme();
 
   return (
@@ -41,5 +41,3 @@ const Layout = ({children}: LayoutProps) => {
     </ThemeProvider>
   );
 };
-
-export default Layout;
