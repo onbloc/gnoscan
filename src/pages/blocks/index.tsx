@@ -2,7 +2,7 @@ import Text from '@/components/ui/text';
 import BlockDatatable from '@/components/view/block-datatable/block-datatable';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
-
+import Link from 'next/link';
 interface BlockData {
   block_hash: string;
   height: number;

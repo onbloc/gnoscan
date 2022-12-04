@@ -2,27 +2,37 @@ import {eachMedia} from '@/common/hooks/use-media';
 import React from 'react';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
+import mixins from '@/styles/mixins';
 
 interface StyleProps {
-  media: string;
+  media?: string;
+  titleAlign?: 'center' | 'flex-start' | 'flex-end' | 'space-between';
 }
 
-interface DetailsLayoutProps {
+interface DetailsLayoutProps extends StyleProps {
   children: React.ReactNode;
   title: string | React.ReactNode;
+  titleOption?: React.ReactNode;
 }
 
-export const DetailsPageLayout = ({children, title}: DetailsLayoutProps) => {
+export const DetailsPageLayout = ({
+  children,
+  title,
+  titleOption,
+  titleAlign = 'flex-start',
+}: DetailsLayoutProps) => {
   const media = eachMedia();
   return (
     <Wrapper media={media}>
       <div className="inner-layout">
-        <Content media={media}>
+        <Content media={media} titleAlign={titleAlign}>
           <Text
             type={media === 'desktop' ? 'h2' : 'p2'}
             color="primary"
-            margin={media === 'desktop' ? '0px 0px 24px' : '0px 0px 16px'}>
+            margin={media === 'desktop' ? '0px 0px 24px' : '0px 0px 16px'}
+            className="content-text">
             {title}
+            {titleOption && titleOption}
           </Text>
           {children}
         </Content>
@@ -42,4 +52,7 @@ const Content = styled.div<StyleProps>`
   background-color: ${({theme}) => theme.colors.surface};
   border-radius: 10px;
   padding: ${({media}) => (media === 'desktop' ? '24px' : '16px')};
+  .content-text {
+    ${({titleAlign}) => mixins.flexbox('row', 'center', titleAlign ?? 'center')};
+  }
 `;

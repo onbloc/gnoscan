@@ -10,6 +10,7 @@ const lightTheme: Palette = {
   wine: '#66002E',
   crimson: '#CD0035',
   blue: '#2090F3',
+  green: '#00C59A',
   white: '#FFFFFF',
   reverse: '#000000',
   primary: '#333333',
@@ -32,6 +33,7 @@ const darkTheme: Palette = {
   wine: '#66002E',
   crimson: '#CD0035',
   blue: '#2090F3',
+  green: '#00C59A',
   white: '#FFFFFF',
   reverse: '#FFFFFF',
   primary: '#FFFFFF',
@@ -143,6 +145,7 @@ export type PaletteKeyType =
   | 'wine'
   | 'crimson'
   | 'blue'
+  | 'green'
   | 'white'
   | 'reverse'
   | 'primary'

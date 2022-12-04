@@ -2,7 +2,7 @@ import styled, {css} from 'styled-components';
 import React, {CSSProperties, PropsWithChildren} from 'react';
 import theme, {FontsType} from '@/styles/theme';
 
-interface TextProps extends React.ComponentPropsWithoutRef<'div'> {
+export interface TextProps extends React.ComponentPropsWithoutRef<'div'> {
   className?: string;
   type: FontsType;
   display?: CSSProperties['display'];

@@ -39,7 +39,9 @@ const Tooltip = ({
 
   return (
     <Wrapper className={className} trigger={trigger} isClicked={isClicked}>
-      <div onClick={buttonClickHandler}>{children}</div>
+      <div onClick={buttonClickHandler} className="tooltip-button">
+        {children}
+      </div>
       <TooltipContent className="tooltip">
         <TooltipText type="body1">{content}</TooltipText>
       </TooltipContent>
@@ -62,6 +64,10 @@ const Wrapper = styled.div<{trigger: TriggerType; isClicked: boolean}>`
   position: relative;
   display: inline-block;
   z-index: 11;
+  .tooltip-button {
+    ${mixins.flexbox('row', 'center', 'center')};
+    cursor: pointer;
+  }
   ${({trigger}) =>
     trigger !== 'click' &&
     css`
@@ -92,7 +98,7 @@ const TooltipText = styled(Text)`
 const TooltipContent = styled.div`
   ${mixins.flexbox('row', 'center', 'center')};
   ${container};
-  width: 163px;
+  /* width: 163px; */
   height: auto;
   transition: all 0.5s ease-in;
   position: absolute;

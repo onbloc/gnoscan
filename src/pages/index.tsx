@@ -5,16 +5,19 @@ import MainRealm from '@/components/view/main-realm/main-realm';
 import MainTransactionNews from '@/components/view/main-transaction-news/main-transaction-news';
 import MainActiveList from '@/components/view/main-active-list';
 import {eachMedia} from '@/common/hooks/use-media';
-
+import IconLink from '@/assets/svgs/icon-link.svg';
+import {Button} from '@/components/ui/button';
+import Tabs from '@/components/view/tabs';
 const Home: React.FC = () => {
   const media = eachMedia();
   return (
     <Wrapper media={media}>
       <div className="inner-layout">
-        <MainCard />
-        <MainActiveList />
-        <MainRealm />
-        <MainTransactionNews />
+        {/* <MainCard />
+        <MainActiveList /> */}
+        {/* <MainRealm />
+        <MainTransactionNews /> */}
+        <Tabs />
       </div>
     </Wrapper>
   );

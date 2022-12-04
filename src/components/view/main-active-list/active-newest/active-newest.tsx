@@ -29,7 +29,7 @@ const ActiveNewest = () => {
   const media = eachMedia();
   const {data: newest, isSuccess: newestSuccess}: UseQueryResult<NewestResultType> = useQuery(
     'info/newest_realm',
-    async () => await axios.get('http://3.218.133.250:7677/v3/info/newest_realm'),
+    async () => await axios.get('http://3.218.133.250:7677/latest/info/newest_realm'),
     {
       select: (res: any) => {
         const realms = res.data.realms.map((v: any, i: number) => {

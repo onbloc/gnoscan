@@ -50,7 +50,7 @@ export function formatEllipsis(v: string, num: number = 11) {
  * account-text에서 사용.
  */
 export const decimalPointWithCommas = (v: string | number, fixed?: number): string[] | string => {
-  if (v === '0' || !Boolean(v)) return '0';
+  if (v === '0' || !Boolean(v)) return ['0'];
   const fix = fixed ?? 6;
   const integerCheck = Number.isInteger(v);
   if (integerCheck) {

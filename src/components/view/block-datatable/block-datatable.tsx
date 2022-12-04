@@ -11,7 +11,7 @@ const PADDING = 32;
 
 const BlockDatatable = <T extends {[key in string]: any}>({datas}: {datas: Array<T>}) => {
   const [theme] = useTheme();
-
+  console.log(datas);
   const createHeaders = () => {
     return [
       createHeaderBlockHash(),
