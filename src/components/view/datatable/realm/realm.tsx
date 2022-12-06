@@ -4,6 +4,8 @@ import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
 import usePageQuery from '@/common/hooks/use-page-query';
+import {DatatableItem} from '..';
+import Link from 'next/link';
 
 interface Realms {
   name: string;
@@ -66,6 +68,7 @@ export const RealmDatatable = () => {
       .name('Path')
       .width(200)
       .colorName('blue')
+      .renderOption(packagePath => <DatatableItem.RealmPakage packagePath={packagePath} />)
       .build();
   };
 
@@ -83,6 +86,7 @@ export const RealmDatatable = () => {
       .name('Block')
       .width(93)
       .colorName('blue')
+      .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
@@ -92,6 +96,11 @@ export const RealmDatatable = () => {
       .name('Publisher')
       .width(201)
       .colorName('blue')
+      .renderOption(publisher => (
+        <span className="ellipsis">
+          <Link href={`/accounts/${publisher}`}>{publisher}</Link>
+        </span>
+      ))
       .build();
   };
 

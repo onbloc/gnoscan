@@ -12,7 +12,7 @@ interface Props {
 export const TxHash = ({txHash, success}: Props) => {
   return (
     <TxHashWrapper>
-      <Link className="ellipsis" href={'/transactions'}>
+      <Link className="ellipsis" href={`/transactions/${txHash}`}>
         {txHash}
       </Link>
       <span className="status">{success ? <IconSuccess /> : <IconFail />}</span>

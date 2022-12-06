@@ -1,35 +1,9 @@
 import Text from '@/components/ui/text';
 import {RealmDatatable} from '@/components/view/datatable/realm';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-interface Realms {
-  name: string;
-  path: string;
-  functions: number;
-  block: number;
-  publisher: string;
-  username: string;
-  total_calls: number;
-  total_gas_used: number;
-}
 const Realms = () => {
-  const [realms, setRealms] = useState<Array<Realms>>([]);
-
-  useEffect(() => {
-    fetchRealms();
-  }, []);
-
-  const fetchRealms = () => {
-    try {
-      fetch('http://3.218.133.250:7677/v3/list/realms')
-        .then(res => res.json())
-        .then(res => setRealms(res.realms));
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   return (
     <Container>
       <div className="inner-layout">
@@ -37,7 +11,7 @@ const Realms = () => {
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Realms'}
           </Text>
-          <RealmDatatable datas={realms} />
+          <RealmDatatable />
         </Wrapper>
       </div>
     </Container>

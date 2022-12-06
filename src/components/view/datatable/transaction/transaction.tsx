@@ -102,6 +102,7 @@ export const TransactionDatatable = () => {
       .name('Block')
       .width(93)
       .colorName('blue')
+      .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
@@ -111,7 +112,7 @@ export const TransactionDatatable = () => {
       .name('From')
       .width(160)
       .colorName('blue')
-      .renderOption(value => <Link href={`/accounts/${value}`}>{textEllipsis(value, 6)}</Link>)
+      .renderOption(address => <DatatableItem.Account address={address} />)
       .build();
   };
 
@@ -120,7 +121,12 @@ export const TransactionDatatable = () => {
       .key('amount')
       .name('Amount')
       .width(204)
-      .renderOption(value => `${value.value} ${value.denom}`)
+      .renderOption(amount => (
+        <DatatableItem.Amount
+          value={amount.value}
+          denom={amount.denom === '' ? 'ugnot' : amount.denom}
+        />
+      ))
       .build();
   };
 
@@ -138,7 +144,7 @@ export const TransactionDatatable = () => {
       .key('gas_used')
       .name('Fee')
       .width(129)
-      .renderOption(value => `${value} GNOT`)
+      .renderOption(value => <DatatableItem.Amount value={value} denom={'ugnot'} />)
       .build();
   };
 

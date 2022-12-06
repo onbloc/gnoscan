@@ -94,9 +94,9 @@ export const BlockDatatable = () => {
       .name('Proposer')
       .width(194 + PADDING)
       .colorName('blue')
-      .renderOption((proposer, data) => (
+      .renderOption(proposer => (
         <span className="ellipsis">
-          <Link href={`/blocks/${data.height}`}>{proposer}</Link>
+          <Link href={`/accounts/${proposer}`}>{proposer}</Link>
         </span>
       ))
       .build();
