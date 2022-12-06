@@ -12,33 +12,25 @@ import theme from '@/styles/theme';
 import Text from '@/components/ui/text';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
+import {numberWithCommas} from '@/common/utils';
 
-interface AccountTransactionData {
-  hash: string;
-  status: string;
+interface RealmTransactionData {
+  tx_hash: string;
+  success: boolean;
   type: string;
-  path: string;
   func: string;
-  height: number;
+  bloc: number;
+  from_address: string;
   amount: {
-    value_out: number;
-    value_in: number;
+    amount: string;
     denom: string;
   };
   time: string;
-  fee: {
-    value: number;
-    unit: string;
-  };
-}
-
-interface ResponseData {
-  total_hits: number;
-  txs: Array<AccountTransactionData>;
+  fee: number;
 }
 
 interface Props {
-  address: string;
+  pkgPath: string;
 }
 
 const TOOLTIP_TX_HASH = (
@@ -61,12 +53,12 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const AccountDetailDatatable = ({address}: Props) => {
+export const RealmDetailDatatable = ({pkgPath}: Props) => {
   const [theme] = useTheme();
 
-  const {data, fetchNextPage} = usePageQuery<ResponseData>({
-    key: 'account-detail/transactions',
-    uri: `http://3.218.133.250:7677/latest/account/txs/${address}`,
+  const {data, fetchNextPage} = usePageQuery<Array<RealmTransactionData>>({
+    key: 'realm-detail/transactions',
+    uri: `http://3.218.133.250:7677/latest/realm/txs/${pkgPath}`,
     pageable: true,
   });
 
@@ -74,8 +66,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
     if (!data) {
       return [];
     }
-    return data.pages.reduce<Array<AccountTransactionData>>(
-      (accum, current) => [...accum, ...current.txs],
+    return data.pages.reduce<Array<RealmTransactionData>>(
+      (accum, current) => [...accum, ...current],
       [],
     );
   };
@@ -85,28 +77,26 @@ export const AccountDetailDatatable = ({address}: Props) => {
       createHeaderTxHash(),
       createHeaderType(),
       createHeaderBlock(),
-      createHeaderAmountIn(),
-      createHeaderAmountOut(),
+      createHeaderFrom(),
+      createHeaderAmount(),
       createHeaderTime(),
       createHeaderFee(),
     ];
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
-      .key('hash')
+    return DatatableOption.Builder.builder<RealmTransactionData>()
+      .key('tx_hash')
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} success={data.status === 'success'} />
-      ))
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={data.success} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('type')
       .name('Type')
       .width(190)
@@ -117,39 +107,41 @@ export const AccountDetailDatatable = ({address}: Props) => {
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
-      .key('height')
+    return DatatableOption.Builder.builder<RealmTransactionData>()
+      .key('block')
       .name('Block')
       .width(93)
       .colorName('blue')
-      .renderOption(value => `${value ?? '-'}`)
+      .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
-  const createHeaderAmountIn = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
-      .key('amount')
-      .name('Amount (In)')
+  const createHeaderFrom = () => {
+    return DatatableOption.Builder.builder<RealmTransactionData>()
+      .key('from_address')
+      .name('From')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value_in} denom={amount.denom} />
-      ))
+      .colorName('blue')
+      .renderOption(address => <DatatableItem.Account address={address} />)
       .build();
   };
 
-  const createHeaderAmountOut = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+  const createHeaderAmount = () => {
+    return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('amount')
-      .name('Amount (Out)')
+      .name('Amount')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value_out} denom={amount.denom} />
+      .renderOption((amount: {amount: number; denom: string}) => (
+        <DatatableItem.Amount
+          value={amount.amount}
+          denom={amount.denom === '' ? 'gnot' : amount.denom}
+        />
       ))
       .build();
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('time')
       .name('Time')
       .width(130)
@@ -158,13 +150,11 @@ export const AccountDetailDatatable = ({address}: Props) => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(({value, unit}: {value: number; unit: string}) => (
-        <DatatableItem.Amount value={value} denom={unit} />
-      ))
+      .renderOption(value => <DatatableItem.Amount value={value} denom={'ugnot'} />)
       .build();
   };
 

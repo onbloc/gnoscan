@@ -3,9 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
-import Link from 'next/link';
 import {getDateDiff} from '@/common/utils/date-util';
-import {textEllipsis} from '@/common/utils/string-util';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
@@ -13,32 +11,30 @@ import Text from '@/components/ui/text';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 
-interface AccountTransactionData {
+interface BlockTransactionData {
   hash: string;
   status: string;
   type: string;
-  path: string;
   func: string;
-  height: number;
+  from_address: string;
+  block: number;
   amount: {
-    value_out: number;
-    value_in: number;
+    value: number;
     denom: string;
   };
   time: string;
   fee: {
     value: number;
-    unit: string;
+    denom: string;
   };
 }
 
 interface ResponseData {
-  total_hits: number;
-  txs: Array<AccountTransactionData>;
+  txs: Array<BlockTransactionData>;
 }
 
 interface Props {
-  address: string;
+  height: string | number;
 }
 
 const TOOLTIP_TX_HASH = (
@@ -61,12 +57,12 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const AccountDetailDatatable = ({address}: Props) => {
+export const BlockDetailDatatable = ({height}: Props) => {
   const [theme] = useTheme();
 
   const {data, fetchNextPage} = usePageQuery<ResponseData>({
-    key: 'account-detail/transactions',
-    uri: `http://3.218.133.250:7677/latest/account/txs/${address}`,
+    key: 'block-detail/transactions',
+    uri: `http://3.218.133.250:7677/latest/block/txs/${height}`,
     pageable: true,
   });
 
@@ -74,7 +70,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     if (!data) {
       return [];
     }
-    return data.pages.reduce<Array<AccountTransactionData>>(
+    return data.pages.reduce<Array<BlockTransactionData>>(
       (accum, current) => [...accum, ...current.txs],
       [],
     );
@@ -85,15 +81,15 @@ export const AccountDetailDatatable = ({address}: Props) => {
       createHeaderTxHash(),
       createHeaderType(),
       createHeaderBlock(),
-      createHeaderAmountIn(),
-      createHeaderAmountOut(),
+      createHeaderFrom(),
+      createHeaderAmount(),
       createHeaderTime(),
       createHeaderFee(),
     ];
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('hash')
       .name('Tx Hash')
       .width(210)
@@ -106,7 +102,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('type')
       .name('Type')
       .width(190)
@@ -117,8 +113,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
-      .key('height')
+    return DatatableOption.Builder.builder<BlockTransactionData>()
+      .key('block')
       .name('Block')
       .width(93)
       .colorName('blue')
@@ -126,44 +122,42 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .build();
   };
 
-  const createHeaderAmountIn = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
-      .key('amount')
-      .name('Amount (In)')
+  const createHeaderFrom = () => {
+    return DatatableOption.Builder.builder<BlockTransactionData>()
+      .key('from_address')
+      .name('From')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value_in} denom={amount.denom} />
-      ))
+      .renderOption(fromAddress => <DatatableItem.Account address={fromAddress} />)
       .build();
   };
 
-  const createHeaderAmountOut = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+  const createHeaderAmount = () => {
+    return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('amount')
-      .name('Amount (Out)')
+      .name('Amount')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value_out} denom={amount.denom} />
+      .renderOption((amount: {value: number; denom: string}) => (
+        <DatatableItem.Amount value={amount.value} denom={amount.denom} />
       ))
       .build();
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('time')
       .name('Time')
-      .width(130)
+      .width(204)
       .renderOption(value => `${getDateDiff(value)}`)
       .build();
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(({value, unit}: {value: number; unit: string}) => (
-        <DatatableItem.Amount value={value} denom={unit} />
+      .renderOption(({value, denom}: {value: number; denom: string}) => (
+        <DatatableItem.Amount value={value} denom={denom} />
       ))
       .build();
   };

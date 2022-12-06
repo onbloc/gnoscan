@@ -3,9 +3,39 @@
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
+import usePageQuery from '@/common/hooks/use-page-query';
+import {DatatableItem} from '..';
+import {numberWithCommas} from '@/common/utils';
 
-export const TokenDatatable = <T extends {[key in string]: any}>({datas}: {datas: Array<T>}) => {
+interface TokenData {
+  token: string;
+  img_path: string;
+  name: string;
+  denom: string;
+  holders: number;
+  functions: Array<string>;
+  decimals: number;
+  min_denom: string;
+  min_decimal: number;
+  total_supply: number;
+  pkg_path: string;
+}
+
+export const TokenDatatable = () => {
   const [theme] = useTheme();
+
+  const {data} = usePageQuery<Array<TokenData>>({
+    key: 'token/token-list',
+    uri: 'http://3.218.133.250:7677/latest/list/tokens',
+    pageable: true,
+  });
+
+  const getTokens = () => {
+    if (!data) {
+      return [];
+    }
+    return data.pages.reduce<Array<TokenData>>((accum, current) => [...accum, ...current], []);
+  };
 
   const createHeaders = () => {
     return [
@@ -19,35 +49,62 @@ export const TokenDatatable = <T extends {[key in string]: any}>({datas}: {datas
   };
 
   const createHeaderToken = () => {
-    return DatatableOption.Builder.builder<T>().key('token').name('Token').width(230).build();
+    return DatatableOption.Builder.builder<TokenData>()
+      .key('token')
+      .name('Token')
+      .width(230)
+      .renderOption((_, data) => (
+        <DatatableItem.TokenTitle
+          token={data.token}
+          imagePath={data.img_path}
+          name={data.name}
+          denom={data.denom}
+        />
+      ))
+      .build();
   };
 
   const createHeaderHolder = () => {
-    return DatatableOption.Builder.builder<T>().key('holder').name('Holders').width(100).build();
+    return DatatableOption.Builder.builder<TokenData>()
+      .key('holders')
+      .name('Holders')
+      .width(100)
+      .renderOption(numberWithCommas)
+      .build();
   };
 
   const createHeaderFunction = () => {
-    return DatatableOption.Builder.builder<T>()
-      .key('function')
+    return DatatableOption.Builder.builder<TokenData>()
+      .key('functions')
       .name('Functions')
       .width(329)
+      .renderOption(functions => <DatatableItem.Functions functions={functions} />)
       .build();
   };
 
   const createHeaderDecimal = () => {
-    return DatatableOption.Builder.builder<T>().key('decimal').name('Decimals').width(90).build();
+    return DatatableOption.Builder.builder<TokenData>()
+      .key('decimals')
+      .name('Decimals')
+      .width(90)
+      .build();
   };
 
   const createHeaderTotalSupply = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TokenData>()
       .key('total_supply')
       .name('Total Supply')
       .width(210)
+      .renderOption(numberWithCommas)
       .build();
   };
 
   const createHeaderPkgPath = () => {
-    return DatatableOption.Builder.builder<T>().key('pkg_path').name('Pkg Path').width(210).build();
+    return DatatableOption.Builder.builder<TokenData>()
+      .key('pkg_path')
+      .name('Pkg Path')
+      .width(210)
+      .build();
   };
 
   return (
@@ -58,7 +115,7 @@ export const TokenDatatable = <T extends {[key in string]: any}>({datas}: {datas
           themeMode: theme,
         };
       })}
-      datas={datas}
+      datas={getTokens()}
     />
   );
 };

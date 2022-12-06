@@ -1,40 +1,9 @@
 import Text from '@/components/ui/text';
 import {TransactionDatatable} from '@/components/view/datatable';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-interface TransactionData {
-  tx_hash: string;
-  success: boolean;
-  type: string;
-  func: string;
-  block: number;
-  from_address: string;
-  amount: {
-    value: number;
-    denom: string;
-  };
-  time: string;
-  gas_used: number;
-}
-
 const Transactions = () => {
-  const [transactions, setTransactions] = useState<Array<TransactionData>>([]);
-
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  const fetchTransactions = () => {
-    try {
-      fetch('http://3.218.133.250:7677/v3/list/txs')
-        .then(res => res.json())
-        .then(res => setTransactions(res));
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   return (
     <Container>
       <div className="inner-layout">
@@ -42,7 +11,7 @@ const Transactions = () => {
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Transactions'}
           </Text>
-          <TransactionDatatable datas={transactions} />
+          <TransactionDatatable />
         </Wrapper>
       </div>
     </Container>

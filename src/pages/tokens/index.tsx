@@ -1,23 +1,14 @@
 import Text from '@/components/ui/text';
-import {AccountDetailDatatable} from '@/components/view/datatable';
+import {
+  AccountDetailDatatable,
+  BlockDetailDatatable,
+  RealmDetailDatatable,
+} from '@/components/view/datatable';
 import {TokenDatatable} from '@/components/view/datatable/token';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 
-interface TokenData {
-  token: string;
-  holder: number;
-  function: string;
-  decimal: number;
-  total_supply: string;
-  pkg_path: string;
-}
-
 const Tokens = () => {
-  const [tokens, setTokens] = useState<Array<TokenData>>([]);
-
-  const fetchTokens = () => {};
-
   return (
     <Container>
       <div className="inner-layout">
@@ -25,12 +16,18 @@ const Tokens = () => {
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Tokens'}
           </Text>
-          <TokenDatatable datas={tokens} />
+          <TokenDatatable />
         </Wrapper>
 
         <Wrapper>
-          <AccountDetailDatatable />
+          <RealmDetailDatatable pkgPath="gno.land/r/demo/boards" />
         </Wrapper>
+
+        <Wrapper>
+          {/* <AccountDetailDatatable address='g1ffzxha57dh0qgv9ma5v393ur0zexfvp6lsjpae' /> */}
+        </Wrapper>
+
+        <Wrapper>{/* <BlockDetailDatatable height='863' /> */}</Wrapper>
       </div>
     </Container>
   );

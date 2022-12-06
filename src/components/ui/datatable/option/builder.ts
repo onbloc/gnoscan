@@ -90,10 +90,10 @@ export class Builder<T> {
     return this;
   }
 
-  public sort(sort: boolean) {
+  public sort() {
     this.options = {
       ...this.options,
-      sort,
+      sort: true,
     };
     return this;
   }

@@ -30,7 +30,7 @@ export const AmountText = ({
     }
 
     if (num.length < 2) {
-      return `.${num[1]} ${denom}`;
+      return ` ${denom}`;
     }
 
     return `.${num[1]} ${denom}`;

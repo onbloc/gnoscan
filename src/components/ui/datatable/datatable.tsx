@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import styled from 'styled-components';
 import {DatatableData, DatatableHeader} from '.';
 
@@ -6,17 +6,38 @@ interface Props<T> {
   maxWidth?: number;
   headers: Array<DatatableHeader.Header<T>>;
   datas: Array<T>;
+  sortOption?: {field: string; order: string};
+  setSortOption?: (sortOption: {field: any; order: any}) => void;
 }
 
 export const Datatable = <T extends {[key in string]: any}>({
   headers,
   datas,
   maxWidth,
+  sortOption,
+  setSortOption,
 }: Props<T>) => {
+  const datatableRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    datatableRef.current?.addEventListener('scroll', onHandleHideTooltips);
+    return () => {
+      datatableRef.current?.removeEventListener('scroll', onHandleHideTooltips);
+    };
+  }, [datatableRef]);
+
+  const onHandleHideTooltips = () => {
+    window?.dispatchEvent(new Event('resize'));
+  };
+
   return (
-    <Container maxWidth={maxWidth}>
+    <Container maxWidth={maxWidth} ref={datatableRef}>
       <div className="scroll-wrapper">
-        <DatatableHeader.HeaderRow headers={headers} />
+        <DatatableHeader.HeaderRow
+          headers={headers}
+          sortOption={sortOption}
+          setSortOption={setSortOption}
+        />
         <DatatableData.DataList headers={headers} datas={datas} />
       </div>
     </Container>

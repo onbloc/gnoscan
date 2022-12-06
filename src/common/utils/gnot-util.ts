@@ -1,5 +1,5 @@
 export const toGnot = (value: number, denom: string) => {
-  const denomValue = denom.toUpperCase().trim();
+  const denomValue = `${denom}`.toUpperCase().trim();
   const changedValue = {
     value,
     denom,

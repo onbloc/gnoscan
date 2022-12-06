@@ -7,6 +7,8 @@ import Link from 'next/link';
 import {getDateDiff} from '@/common/utils/date-util';
 import {textEllipsis} from '@/common/utils/string-util';
 import {DatatableItem} from '..';
+import styled from 'styled-components';
+import usePageQuery from '@/common/hooks/use-page-query';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -28,12 +30,37 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const TransactionDatatable = <T extends {[key in string]: any}>({
-  datas,
-}: {
-  datas: Array<T>;
-}) => {
+interface TransactionData {
+  tx_hash: string;
+  success: boolean;
+  type: string;
+  func: string;
+  block: number;
+  from_address: string;
+  amount: {
+    value: number;
+    denom: string;
+  };
+  time: string;
+  gas_used: number;
+}
+
+export const TransactionDatatable = () => {
   const [theme] = useTheme();
+  const {data} = usePageQuery<Array<TransactionData>>({
+    key: 'transaction/transaction-list',
+    uri: 'http://3.218.133.250:7677/latest/list/txs',
+    pageable: true,
+  });
+
+  const getTransactions = (): Array<TransactionData> => {
+    if (!data) {
+      return [];
+    }
+    return data.pages.reduce((accum: Array<TransactionData>, current) => {
+      return [...accum, ...current];
+    }, []);
+  };
 
   const createHeaders = () => {
     return [
@@ -48,7 +75,7 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TransactionData>()
       .key('tx_hash')
       .name('Tx Hash')
       .width(210)
@@ -59,18 +86,18 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TransactionData>()
       .key('type')
       .name('Type')
       .width(190)
       .colorName('blue')
-      .tooltip(TOOLTIP_TYPE)
+      .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => <DatatableItem.Type type={data.type} func={data.func} />)
       .build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TransactionData>()
       .key('block')
       .name('Block')
       .width(93)
@@ -79,7 +106,7 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TransactionData>()
       .key('from_address')
       .name('From')
       .width(160)
@@ -89,7 +116,7 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TransactionData>()
       .key('amount')
       .name('Amount')
       .width(204)
@@ -98,7 +125,7 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TransactionData>()
       .key('time')
       .name('Time')
       .width(130)
@@ -107,7 +134,7 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<T>()
+    return DatatableOption.Builder.builder<TransactionData>()
       .key('gas_used')
       .name('Fee')
       .width(129)
@@ -123,7 +150,11 @@ export const TransactionDatatable = <T extends {[key in string]: any}>({
           themeMode: theme,
         };
       })}
-      datas={datas}
+      datas={getTransactions()}
     />
   );
 };
+
+const TooltipContainer = styled.div`
+  min-width: 132px;
+`;
