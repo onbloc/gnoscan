@@ -177,9 +177,13 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       yAxisID: 'yAxis',
       xAxisID: 'xAxis',
       fill: true,
-      borderWidth: 2,
-      pointBorderWidth: 1,
-      pointRadius: 1,
+      borderWidth: 1,
+      pointBorderWidth: 0,
+      pointHitRadius: 0,
+      pointHoverRadius: 2,
+      pointHoverBorderWidth: 1,
+      pointHoverBackgroundColor: '#FFFFFF',
+      pointRadius: 0,
       data: [],
     };
 
@@ -210,7 +214,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     const top = chart.chartArea.bottom - Math.round(chart.chartArea.bottom * (maxValue / 100));
     const gradient = chart.ctx.createLinearGradient(0, top, 0, chart.chartArea.bottom);
     gradient.addColorStop(0, colorStart);
-    gradient.addColorStop(1, `${colorStart.slice(0, 7)}22`);
+    gradient.addColorStop(1, `${colorStart.slice(0, 7)}00`);
     return gradient;
   };
 
