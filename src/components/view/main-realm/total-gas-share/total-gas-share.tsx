@@ -1,6 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {AreaChart} from '@/components/ui/chart';
 import {TotalGasShareModel} from './total-gas-share-model';
+import dynamic from 'next/dynamic';
+
+const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
+  ssr: false,
+});
 
 interface TotalGasShareResponse {
   date: string;

@@ -1,6 +1,10 @@
-import {BarChart} from '@/components/ui/chart';
 import React, {useEffect, useState} from 'react';
+import dynamic from 'next/dynamic';
 import {TotalTransactionModel} from './total-transaction-model';
+
+const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
+  ssr: false,
+});
 
 interface TotalTransactionResponse {
   date: string;
