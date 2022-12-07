@@ -37,6 +37,7 @@ interface TransactionData {
   func: string;
   block: number;
   from_address: string;
+  pkg_path: string | null;
   amount: {
     value: number;
     denom: string;
@@ -92,7 +93,9 @@ export const TransactionDatatable = () => {
       .width(190)
       .colorName('blue')
       .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
-      .renderOption((_, data) => <DatatableItem.Type type={data.type} func={data.func} />)
+      .renderOption((_, data) => (
+        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.pkg_path} />
+      ))
       .build();
   };
 

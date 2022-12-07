@@ -13,6 +13,7 @@ import Text from '@/components/ui/text';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {numberWithCommas} from '@/common/utils';
+import {eachMedia} from '@/common/hooks/use-media';
 
 interface RealmTransactionData {
   tx_hash: string;
@@ -20,6 +21,7 @@ interface RealmTransactionData {
   type: string;
   func: string;
   bloc: number;
+  pkg_path: string | null;
   from_address: string;
   amount: {
     amount: string;
@@ -54,9 +56,10 @@ const TOOLTIP_TYPE = (
 );
 
 export const RealmDetailDatatable = ({pkgPath}: Props) => {
+  const media = eachMedia();
   const [theme] = useTheme();
 
-  const {data, fetchNextPage} = usePageQuery<Array<RealmTransactionData>>({
+  const {data, hasNext, fetchNextPage} = usePageQuery<Array<RealmTransactionData>>({
     key: 'realm-detail/transactions',
     uri: `http://3.218.133.250:7677/latest/realm/txs/${pkgPath}`,
     pageable: true,
@@ -102,7 +105,9 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .width(190)
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
-      .renderOption((_, data) => <DatatableItem.Type type={data.type} func={data.func} />)
+      .renderOption((_, data) => (
+        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.pkg_path} />
+      ))
       .build();
   };
 
@@ -175,9 +180,13 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
         datas={getTransactionDatas()}
       />
 
-      <Button className={'more-button'} radius={'4px'} onClick={() => fetchNextPage()}>
-        {'View More Transactions'}
-      </Button>
+      {hasNext ? (
+        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+          {'View More Transactions'}
+        </Button>
+      ) : (
+        <></>
+      )}
     </Container>
   );
 };
@@ -199,7 +208,7 @@ const Container = styled.div<{maxWidth?: number}>`
     }
 
     .more-button {
-      width: 344px;
+      width: calc(100% - 32px);
       padding: 16px;
       color: ${({theme}) => theme.colors.primary};
       background-color: ${({theme}) => theme.colors.surface};
@@ -207,6 +216,10 @@ const Container = styled.div<{maxWidth?: number}>`
       font-weight: 600;
       margin-top: 4px;
       margin-bottom: 24px;
+
+      &.desktop {
+        width: 344px;
+      }
     }
   }
 `;

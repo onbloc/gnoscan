@@ -6,6 +6,11 @@ import useTheme from '@/common/hooks/use-theme';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import Link from 'next/link';
+import {Button} from '@/components/ui/button';
+import styled from 'styled-components';
+import theme from '@/styles/theme';
+import {numberWithCommas} from '@/common/utils';
+import {eachMedia} from '@/common/hooks/use-media';
 
 interface Realms {
   name: string;
@@ -25,8 +30,9 @@ interface ResponseData {
 }
 
 export const RealmDatatable = () => {
+  const media = eachMedia();
   const [theme] = useTheme();
-  const {data, fetchNextPage, sortOption, setSortOption} = usePageQuery<ResponseData>({
+  const {data, hasNext, fetchNextPage, sortOption, setSortOption} = usePageQuery<ResponseData>({
     key: 'realm/realm-list',
     uri: 'http://3.218.133.250:7677/latest/list/realms',
     pageable: true,
@@ -110,6 +116,7 @@ export const RealmDatatable = () => {
       .name('Total Calls')
       .sort()
       .width(166)
+      .renderOption(numberWithCommas)
       .build();
   };
 
@@ -118,6 +125,7 @@ export const RealmDatatable = () => {
       .key('total_gas_used')
       .name('Total Gas Used')
       .width(166)
+      .renderOption(gasUsed => <DatatableItem.Amount value={gasUsed} denom={'ugnot'} />)
       .build();
   };
 
@@ -134,6 +142,25 @@ export const RealmDatatable = () => {
         setSortOption={setSortOption}
         datas={getRealms()}
       />
+
+      {hasNext ? (
+        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+          {'View More Transactions'}
+        </Button>
+      ) : (
+        <></>
+      )}
     </>
   );
 };
+
+const MoreButton = styled(Button)`
+  width: 344px;
+  padding: 16px;
+  color: ${({theme}) => theme.colors.primary};
+  background-color: ${({theme}) => theme.colors.surface};
+  ${theme.fonts.p4}
+  font-weight: 600;
+  margin-top: 4px;
+  margin-bottom: 24px;
+`;

@@ -1,11 +1,6 @@
 import Text from '@/components/ui/text';
-import {
-  AccountDetailDatatable,
-  BlockDetailDatatable,
-  RealmDetailDatatable,
-} from '@/components/view/datatable';
 import {TokenDatatable} from '@/components/view/datatable/token';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Tokens = () => {
@@ -18,16 +13,6 @@ const Tokens = () => {
           </Text>
           <TokenDatatable />
         </Wrapper>
-
-        <Wrapper>
-          <RealmDetailDatatable pkgPath="gno.land/r/demo/boards" />
-        </Wrapper>
-
-        <Wrapper>
-          {/* <AccountDetailDatatable address='g1ffzxha57dh0qgv9ma5v393ur0zexfvp6lsjpae' /> */}
-        </Wrapper>
-
-        <Wrapper>{/* <BlockDetailDatatable height='863' /> */}</Wrapper>
       </div>
     </Container>
   );

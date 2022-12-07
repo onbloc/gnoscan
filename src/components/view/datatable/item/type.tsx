@@ -1,17 +1,28 @@
 import Tooltip from '@/components/ui/tooltip';
+import theme from '@/styles/theme';
 import React from 'react';
 import styled from 'styled-components';
 
 interface Props {
   type: string;
   func: string;
+  packagePath?: string | null;
 }
 
-export const Type = ({type, func}: Props) => {
+export const Type = ({type, func, packagePath}: Props) => {
+  const renderTooltip = () => {
+    return (
+      <TooltipWrapper>
+        <span className="title">{type}</span>
+        {packagePath && packagePath !== null ? <span className="info">{packagePath}</span> : <></>}
+      </TooltipWrapper>
+    );
+  };
+
   return (
     <TypeWrapper>
-      <Tooltip content={type}>
-        <span>{func}</span>
+      <Tooltip content={renderTooltip()}>
+        <span className="function">{func}</span>
       </Tooltip>
     </TypeWrapper>
   );
@@ -25,12 +36,45 @@ const TypeWrapper = styled.div`
     justify-content: center;
     align-items: center;
 
-    span {
+    .function {
       display: flex;
       padding: 4px 16px;
       font-weight: 600;
       color: #fff;
       background-color: ${({theme}) => theme.colors.blue};
+      border-radius: 4px;
+    }
+  }
+`;
+
+const TooltipWrapper = styled.div`
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+
+    span {
+      display: flex;
+      width: 100%;
+      ${theme.fonts.p4};
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .title {
+      color: ${({theme}) => theme.colors.secondary};
+    }
+
+    .info {
+      width: 100%;
+      height: fit-content;
+      padding: 6px 10px;
+      margin-top: 4px;
+      color: ${({theme}) => theme.colors.reverse};
+      background-color: ${({theme}) => theme.colors.pantone};
       border-radius: 4px;
     }
   }

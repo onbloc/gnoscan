@@ -1,23 +1,22 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
-import Link from 'next/link';
 import {getDateDiff} from '@/common/utils/date-util';
-import {textEllipsis} from '@/common/utils/string-util';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
 import Text from '@/components/ui/text';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
+import {eachMedia} from '@/common/hooks/use-media';
 
 interface AccountTransactionData {
   hash: string;
   status: string;
   type: string;
-  path: string;
+  path: string | null;
   func: string;
   height: number;
   amount: {
@@ -63,8 +62,9 @@ const TOOLTIP_TYPE = (
 
 export const AccountDetailDatatable = ({address}: Props) => {
   const [theme] = useTheme();
+  const media = eachMedia();
 
-  const {data, fetchNextPage} = usePageQuery<ResponseData>({
+  const {data, hasNext, fetchNextPage} = usePageQuery<ResponseData>({
     key: 'account-detail/transactions',
     uri: `http://3.218.133.250:7677/latest/account/txs/${address}`,
     pageable: true,
@@ -112,7 +112,9 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .width(190)
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
-      .renderOption((_, data) => <DatatableItem.Type type={data.type} func={data.func} />)
+      .renderOption((_, data) => (
+        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.path} />
+      ))
       .build();
   };
 
@@ -185,9 +187,13 @@ export const AccountDetailDatatable = ({address}: Props) => {
         datas={getTransactionDatas()}
       />
 
-      <Button className={'more-button'} radius={'4px'} onClick={() => fetchNextPage()}>
-        {'View More Transactions'}
-      </Button>
+      {hasNext ? (
+        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+          {'View More Transactions'}
+        </Button>
+      ) : (
+        <></>
+      )}
     </Container>
   );
 };
@@ -209,7 +215,7 @@ const Container = styled.div<{maxWidth?: number}>`
     }
 
     .more-button {
-      width: 344px;
+      width: calc(100% - 32px);
       padding: 16px;
       color: ${({theme}) => theme.colors.primary};
       background-color: ${({theme}) => theme.colors.surface};
@@ -217,6 +223,10 @@ const Container = styled.div<{maxWidth?: number}>`
       font-weight: 600;
       margin-top: 4px;
       margin-bottom: 24px;
+
+      &.desktop {
+        width: 344px;
+      }
     }
   }
 `;

@@ -10,5 +10,12 @@ interface Props {
 export const Amount = ({value, denom}: Props) => {
   const amount = toGnot(value, denom);
 
-  return <AmountText value={amount.value} denom={amount.denom} maxSize="p4" minSize="body1" />;
+  return (
+    <AmountText
+      value={amount.value}
+      denom={amount.denom.toUpperCase()}
+      maxSize="p4"
+      minSize="body1"
+    />
+  );
 };

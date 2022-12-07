@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {
   FetchNextPageOptions,
   InfiniteData,
@@ -25,9 +25,8 @@ const usePageQuery = <T extends {[key in string]: any}>({
   pageable = false,
 }: Props): {
   data: InfiniteData<T> | undefined;
-  fetchNextPage: (
-    options?: FetchNextPageOptions | undefined,
-  ) => Promise<InfiniteQueryObserverResult<T, unknown>>;
+  hasNext: boolean;
+  fetchNextPage: () => Promise<void>;
   refetch: (
     options?: FetchNextPageOptions | undefined,
   ) => Promise<QueryObserverResult<InfiniteData<T>, unknown>>;
@@ -35,6 +34,7 @@ const usePageQuery = <T extends {[key in string]: any}>({
   setSortOption: (sortOption: SortOption) => void;
 } => {
   const [sortOption, setSortOption] = useState<SortOption>({field: 'none', order: 'none'});
+  const [hasNext, setHasNext] = useState(false);
   const {data, fetchNextPage, refetch} = useInfiniteQuery(
     [key, sortOption],
     query => fetchData(query.pageParam),
@@ -65,15 +65,27 @@ const usePageQuery = <T extends {[key in string]: any}>({
   };
 
   const fetchData = async (page: number | undefined) => {
-    let params = `?${createParamPaging(page)}&${createParamSortOption(sortOption)}`;
+    const params = `?${createParamPaging(page)}&${createParamSortOption(sortOption)}`;
     const apiUri = uri + params;
+
     const response = await axios.get<T>(apiUri);
+    if (!Array.isArray(response.data)) {
+      setHasNext(response.data?.next);
+    }
     return response.data;
+  };
+
+  const fetchNextData = async () => {
+    if (!hasNext) {
+      return;
+    }
+    await fetchNextPage();
   };
 
   return {
     data,
-    fetchNextPage,
+    hasNext,
+    fetchNextPage: fetchNextData,
     refetch,
     sortOption,
     setSortOption,

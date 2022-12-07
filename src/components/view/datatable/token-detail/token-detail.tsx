@@ -3,7 +3,9 @@
 import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
+import Link from 'next/link';
 import {getDateDiff} from '@/common/utils/date-util';
+import {textEllipsis} from '@/common/utils/string-util';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
@@ -12,31 +14,30 @@ import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
 
-interface BlockTransactionData {
-  hash: string;
-  status: string;
+interface TokenTransactionData {
+  tx_hash: string;
+  success?: boolean;
   type: string;
-  func: string;
-  from_address: string;
-  block: number;
+  bloc: number;
+  from: string;
   pkg_path: string | null;
   amount: {
-    value: number;
+    value: string;
     denom: string;
   };
   time: string;
   fee: {
-    value: number;
+    value: string;
     denom: string;
   };
 }
 
 interface ResponseData {
-  txs: Array<BlockTransactionData>;
+  txs: Array<TokenTransactionData>;
 }
 
 interface Props {
-  height: string | number;
+  denom: string;
 }
 
 const TOOLTIP_TX_HASH = (
@@ -59,13 +60,13 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const BlockDetailDatatable = ({height}: Props) => {
-  const [theme] = useTheme();
+export const TokenDetailDatatable = ({denom}: Props) => {
   const media = eachMedia();
+  const [theme] = useTheme();
 
   const {data, hasNext, fetchNextPage} = usePageQuery<ResponseData>({
-    key: 'block-detail/transactions',
-    uri: `http://3.218.133.250:7677/latest/block/txs/${height}`,
+    key: 'token-detail/transactions',
+    uri: `http://3.218.133.250:7677/latest/token/txs/${denom}`,
     pageable: true,
   });
 
@@ -73,7 +74,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
     if (!data) {
       return [];
     }
-    return data.pages.reduce<Array<BlockTransactionData>>(
+    return data.pages.reduce<Array<TokenTransactionData>>(
       (accum, current) => [...accum, ...current.txs],
       [],
     );
@@ -92,63 +93,65 @@ export const BlockDetailDatatable = ({height}: Props) => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
-      .key('hash')
+    return DatatableOption.Builder.builder<TokenTransactionData>()
+      .key('tx_hash')
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} success={data.status === 'success'} />
-      ))
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={true} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<TokenTransactionData>()
       .key('type')
       .name('Type')
       .width(190)
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.pkg_path} />
+        <DatatableItem.Type type={data.type} func={data.type} packagePath={data.pkg_path} />
       ))
       .build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<TokenTransactionData>()
       .key('block')
       .name('Block')
       .width(93)
       .colorName('blue')
-      .renderOption(value => `${value ?? '-'}`)
+      .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
-      .key('from_address')
+    return DatatableOption.Builder.builder<TokenTransactionData>()
+      .key('from')
       .name('From')
       .width(160)
-      .renderOption(fromAddress => <DatatableItem.Account address={fromAddress} />)
+      .colorName('blue')
+      .renderOption(address => <DatatableItem.Account address={address} />)
       .build();
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<TokenTransactionData>()
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {value: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value} denom={amount.denom} />
+      .renderOption((amount: {amount: number; denom: string}) => (
+        <DatatableItem.Amount
+          value={amount.amount}
+          denom={amount.denom === '' ? 'gnot' : amount.denom}
+        />
       ))
       .build();
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<TokenTransactionData>()
       .key('time')
       .name('Time')
       .width(204)
@@ -157,13 +160,11 @@ export const BlockDetailDatatable = ({height}: Props) => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<TokenTransactionData>()
       .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(({value, denom}: {value: number; denom: string}) => (
-        <DatatableItem.Amount value={value} denom={denom} />
-      ))
+      .renderOption(value => <DatatableItem.Amount value={value} denom={'ugnot'} />)
       .build();
   };
 

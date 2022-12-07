@@ -7,7 +7,7 @@ interface Props {
 
 export const RealmPakage = ({packagePath}: Props) => {
   return (
-    <Link href={`/realms/${encodeURIComponent(packagePath)}`}>
+    <Link href={`/realms/details?path=${packagePath}`}>
       <span className="ellipsis link">{packagePath}</span>
     </Link>
   );
