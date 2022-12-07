@@ -68,7 +68,9 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     if (tooltipModel.opacity === 0) {
       tooltipEl.style.opacity = '0';
       tooltipEl.remove();
-      tooltipRoot?.unmount();
+      if (tooltipRoot) {
+        tooltipRoot?.unmount();
+      }
       setTooltipRoot(undefined);
       return;
     }

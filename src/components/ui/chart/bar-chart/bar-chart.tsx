@@ -21,7 +21,15 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
 
-  const [tooltipRoot, setTooltipRoot] = useState<Root>();
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [currentValue, setCurrentValue] = useState({
+    title: '',
+    value: '',
+  });
+
+  useEffect(() => {
+    return () => {};
+  }, [tooltipRef]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -51,57 +59,35 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
   const renderExternalTooltip = (context: {chart: Chart<'bar'>; tooltip: TooltipModel<'bar'>}) => {
     const {chart, tooltip} = context;
 
-    let tooltipEl = document.getElementById('chartjs-tooltip');
-    if (!tooltipEl) {
-      tooltipEl = document.createElement('div');
-      tooltipEl.id = 'chartjs-tooltip';
-      tooltipEl.innerHTML = '<table></table>';
-      document.body.appendChild(tooltipEl);
-    }
-
-    // Hide if no tooltip
-    const tooltipModel = tooltip;
-    if (tooltipModel.opacity === 0) {
-      tooltipEl.style.opacity = '0';
-      tooltipEl.remove();
-      tooltipRoot?.unmount();
-      setTooltipRoot(undefined);
+    if (!tooltipRef.current) {
       return;
     }
 
-    // Set caret Position
-    tooltipEl.classList.remove('above', 'below', 'no-transform');
-    if (tooltipModel.yAlign) {
-      tooltipEl.classList.add(tooltipModel.yAlign);
-    } else {
-      tooltipEl.classList.add('no-transform');
+    const currentTooltip = tooltipRef.current;
+
+    const tooltipModel = tooltip;
+    if (tooltipModel.opacity === 0) {
+      currentTooltip.style.opacity = '0';
+      return;
     }
+    setCurrentValue({
+      title: tooltip.title[0],
+      value: `${tooltip.dataPoints[0].formattedValue}`,
+    });
 
+    currentTooltip.style.opacity = '1';
+
+    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
-    tooltipEl.style.opacity = `${tooltipModel.opacity}`;
-    tooltipEl.style.position = 'absolute';
-
-    const top = position.top + window.pageYOffset + tooltipModel.caretY;
-    tooltipEl.style.top = top + 'px';
+    currentTooltip.style.position = 'absolute';
+    currentTooltip.style.marginTop = -position.height + 'px';
 
     const left = position.left + window.pageXOffset + tooltipModel.caretX;
-    if (left + 156 > window.innerWidth) {
-      tooltipEl.style.right = '0';
+    if (left + tooltipRect.width + 20 > position.right) {
+      currentTooltip.style.right = '0';
     } else {
-      tooltipEl.style.left = left + 'px';
+      currentTooltip.style.left = left + 'px';
     }
-
-    if (!tooltipRoot) {
-      const root = createRoot(tooltipEl);
-      setTooltipRoot(root);
-    }
-    tooltipRoot?.render(
-      <BarChartTooltip
-        themeMode={`${themeMode}`}
-        title={tooltip.title[0]}
-        value={`${tooltip.dataPoints[0].formattedValue}`}
-      />,
-    );
   };
 
   const createChartOption = (): ChartOptions<'bar'> => {
@@ -191,6 +177,13 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
+      <div className="tooltip-container" ref={tooltipRef}>
+        <BarChartTooltip
+          themeMode={`${themeMode}`}
+          title={currentValue.title}
+          value={currentValue.value}
+        />
+      </div>
       <Bar
         ref={chartRef}
         width={chartWidth}
@@ -198,7 +191,6 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
         options={createChartOption()}
         data={chartData}
       />
-      {/* {isTooltip && tooltipData && <BarChartTooltip {...tooltipData} />} */}
     </Wrapper>
   );
 };
@@ -211,5 +203,13 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     overflow: hidden;
+
+    .tooltip-container {
+      position: absolute;
+      display: flex;
+      width: fit-content;
+      height: fit-content;
+      z-index: 9;
+    }
   }
 `;

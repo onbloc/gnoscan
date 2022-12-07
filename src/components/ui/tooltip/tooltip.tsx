@@ -92,7 +92,8 @@ const TooltipText = styled(Text)`
 const TooltipContent = styled.div`
   ${mixins.flexbox('row', 'center', 'center')};
   ${container};
-  width: 163px;
+  width: fit-content;
+  min-width: 163px;
   height: auto;
   transition: all 0.5s ease-in;
   position: absolute;
