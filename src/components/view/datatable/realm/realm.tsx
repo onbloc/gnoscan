@@ -104,11 +104,8 @@ export const RealmDatatable = () => {
       .key('publisher')
       .name('Publisher')
       .width(201)
-      .colorName('blue')
-      .renderOption(publisher => (
-        <span className="ellipsis">
-          <Link href={`/accounts/${publisher}`}>{publisher}</Link>
-        </span>
+      .renderOption((_, data) => (
+        <DatatableItem.Publisher address={data.publisher} username={data.username} />
       ))
       .build();
   };

@@ -7,3 +7,4 @@ export * from './functions';
 export * from './block';
 export * from './block-hash';
 export * from './realm-package';
+export * from './publisher';
