@@ -32,10 +32,11 @@ const usePageQuery = <T extends {[key in string]: any}>({
   ) => Promise<QueryObserverResult<InfiniteData<T>, unknown>>;
   sortOption: SortOption;
   setSortOption: (sortOption: SortOption) => void;
+  finished: boolean;
 } => {
   const [sortOption, setSortOption] = useState<SortOption>({field: 'none', order: 'none'});
   const [hasNext, setHasNext] = useState(false);
-  const {data, fetchNextPage, refetch} = useInfiniteQuery(
+  const {data, fetchNextPage, refetch, isFetched} = useInfiniteQuery(
     [key, sortOption],
     query => fetchData(query.pageParam),
     {
@@ -89,6 +90,7 @@ const usePageQuery = <T extends {[key in string]: any}>({
     refetch,
     sortOption,
     setSortOption,
+    finished: isFetched,
   };
 };
 

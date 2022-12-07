@@ -70,10 +70,16 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
       currentTooltip.style.opacity = '0';
       return;
     }
-    setCurrentValue({
-      title: tooltip.title[0],
-      value: `${tooltip.dataPoints[0].formattedValue}`,
-    });
+
+    if (
+      tooltip.title[0] !== currentValue.title ||
+      tooltip.dataPoints[0].formattedValue !== currentValue.value
+    ) {
+      setCurrentValue({
+        title: tooltip.title[0],
+        value: `${tooltip.dataPoints[0].formattedValue}`,
+      });
+    }
 
     currentTooltip.style.opacity = '1';
 
@@ -177,7 +183,7 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
-      <div className="tooltip-container" ref={tooltipRef}>
+      <div className="tooltip-container" ref={tooltipRef} style={{opacity: 0}}>
         <BarChartTooltip
           themeMode={`${themeMode}`}
           title={currentValue.title}

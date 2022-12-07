@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import theme from '@/styles/theme';
 import {numberWithCommas} from '@/common/utils';
 import {eachMedia} from '@/common/hooks/use-media';
+import useLoading from '@/common/hooks/use-loading';
 
 interface Realms {
   name: string;
@@ -32,11 +33,13 @@ interface ResponseData {
 export const RealmDatatable = () => {
   const media = eachMedia();
   const [theme] = useTheme();
-  const {data, hasNext, fetchNextPage, sortOption, setSortOption} = usePageQuery<ResponseData>({
-    key: 'realm/realm-list',
-    uri: 'http://3.218.133.250:7677/latest/list/realms',
-    pageable: true,
-  });
+  const {data, hasNext, fetchNextPage, sortOption, setSortOption, finished} =
+    usePageQuery<ResponseData>({
+      key: 'realm/realm-list',
+      uri: 'http://3.218.133.250:7677/latest/list/realms',
+      pageable: true,
+    });
+  useLoading({finished});
 
   const getRealms = (): Array<Realms> => {
     if (!data) {

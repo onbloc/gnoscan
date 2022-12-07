@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled, {ThemeProvider} from 'styled-components';
 import Head from 'next/head';
 import theme from '@/styles/theme';
@@ -6,6 +6,7 @@ import {Header} from '@/components/view/header';
 import {Footer} from '@/components/view/footer';
 import mixins from '@/styles/mixins';
 import useTheme from '@/common/hooks/use-theme';
+import useLoading from '@/common/hooks/use-loading';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,11 @@ const Wrapper = styled.div`
 
 export const Layout = ({children}: LayoutProps) => {
   const [themeMode] = useTheme();
+  const {clearLoading} = useLoading();
+
+  useEffect(() => {
+    clearLoading();
+  }, []);
 
   return (
     <ThemeProvider

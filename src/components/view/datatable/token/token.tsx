@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
+import useLoading from '@/common/hooks/use-loading';
 
 interface TokenData {
   token: string;
@@ -24,11 +25,12 @@ interface TokenData {
 export const TokenDatatable = () => {
   const [theme] = useTheme();
 
-  const {data} = usePageQuery<Array<TokenData>>({
+  const {data, finished} = usePageQuery<Array<TokenData>>({
     key: 'token/token-list',
     uri: 'http://3.218.133.250:7677/latest/list/tokens',
     pageable: true,
   });
+  useLoading({finished});
 
   const getTokens = () => {
     if (!data) {
