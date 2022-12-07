@@ -109,7 +109,7 @@ export const BlockDatatable = () => {
       .key('total_fees')
       .name('Total Fees')
       .width(131 + PADDING)
-      .renderOption(tatalFees => <DatatableItem.Amount value={tatalFees} denom={'gnot'} />)
+      .renderOption(tatalFees => <DatatableItem.Amount value={tatalFees} denom={'ugnot'} />)
       .build();
   };
 
