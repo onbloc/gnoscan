@@ -16,5 +16,5 @@ export const getDateDiff = (d: any) => {
   if (diffD >= 31 && diffD < 61) return '1 month ago';
   if (diffD >= 61 && diffD < 365) return `${Math.floor(diffD / 30)} months ago`;
   if (diffD >= 365 && diffD < 730) return '1 year ago';
-  if (diffD >= 730) return 'days/365 years ago';
+  if (diffD >= 730) return `${Math.floor(diffD / 365)} years ago`;
 };
