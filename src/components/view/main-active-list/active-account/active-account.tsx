@@ -35,7 +35,7 @@ const ActiveAccount = () => {
   const media = eachMedia();
   const {data: accounts, isSuccess: accountsSuccess}: UseQueryResult<AccountsResultType> = useQuery(
     'info/most_active_account',
-    async () => await axios.get('http://3.218.133.250:7677/v3/info/most_active_account'),
+    async () => await axios.get('http://3.218.133.250:7677/latest/info/most_active_account'),
     {
       select: (res: any) => {
         console.log(res.data);

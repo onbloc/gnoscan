@@ -8,7 +8,6 @@ import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import IconLink from '@/assets/svgs/icon-link.svg';
-import Link from 'next/link';
 
 type BoardsValueType = {
   no: number;
@@ -28,7 +27,7 @@ const ActiveBoards = () => {
   const media = eachMedia();
   const {data: boards, isSuccess: boardsSuccess}: UseQueryResult<BoardsResultType> = useQuery(
     'info/most_active_board',
-    async () => await axios.get('http://3.218.133.250:7677/v3/info/most_active_board'),
+    async () => await axios.get('http://3.218.133.250:7677/latest/info/most_active_board'),
     {
       select: (res: any) => {
         const boards = res.data.boards.map((v: any, i: number) => {

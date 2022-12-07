@@ -4,6 +4,15 @@ import {BlockDatatable} from '@/components/view/datatable';
 import LoadingPage from '@/components/view/loading/page';
 import React from 'react';
 import styled from 'styled-components';
+import Link from 'next/link';
+interface BlockData {
+  block_hash: string;
+  height: number;
+  time: string;
+  tx_count: number;
+  proposer: string;
+  total_fees: number;
+}
 
 const Block = () => {
   const {loading} = useLoading();

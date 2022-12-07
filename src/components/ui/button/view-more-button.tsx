@@ -6,11 +6,16 @@ import {eachMedia} from '@/common/hooks/use-media';
 import {Button} from './button';
 
 interface ViewMoreButtonProps {
-  onClick: () => void;
-  disabled: boolean;
+  onClick: (e: React.MouseEvent<HTMLElement>) => void;
+  disabled?: boolean;
+  text?: string;
 }
 
-export const ViewMoreButton = ({onClick, disabled}: ViewMoreButtonProps) => {
+export const ViewMoreButton = ({
+  onClick,
+  disabled = false,
+  text = 'View More Transactions',
+}: ViewMoreButtonProps) => {
   const media = eachMedia();
   return (
     <Wrapper
@@ -19,7 +24,7 @@ export const ViewMoreButton = ({onClick, disabled}: ViewMoreButtonProps) => {
       width={media === 'desktop' ? '344px' : '100%'}
       height="52px">
       <Text type="h7" color="reverse">
-        View More Transactions
+        {text}
       </Text>
     </Wrapper>
   );
@@ -29,7 +34,7 @@ const Wrapper = styled(Button)`
   ${mixins.flexbox('row', 'center', 'center')};
   border-radius: 4px;
   background-color: ${({theme}) => theme.colors.surface};
-  margin: 32px auto 0px;
+  margin: 24px auto 0px;
   /* transition: background-color 0.4s ease; */
   /* :hover:not(:disabled) {
     background-color: ${({theme}) => theme.colors.reverse};
