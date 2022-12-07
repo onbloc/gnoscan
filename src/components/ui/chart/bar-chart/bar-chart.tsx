@@ -88,11 +88,11 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
     currentTooltip.style.position = 'absolute';
     currentTooltip.style.marginTop = -position.height + 'px';
 
-    const left = position.left + window.pageXOffset + tooltipModel.caretX;
-    if (left + tooltipRect.width + 20 > position.right) {
-      currentTooltip.style.right = '0';
+    const left = tooltipModel.caretX - position.width / 2;
+    if (left + tooltipRect.width > position.width) {
+      currentTooltip.style.marginRight = '0';
     } else {
-      currentTooltip.style.left = left + 'px';
+      currentTooltip.style.marginLeft = left + 'px';
     }
   };
 
