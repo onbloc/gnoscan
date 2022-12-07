@@ -1,3 +1,11 @@
+import {PaletteKeyType} from '@/styles/theme';
+
+export type StatusKeyType = 'success' | 'failure';
+export interface StatusResultType {
+  status: string;
+  color: PaletteKeyType;
+}
+
 /**
  * 소수점이 0이라면 0 제거.
  * 소수점이 없는 정수일 경우, 정수에 comma 찍고 return.
@@ -54,9 +62,29 @@ export const decimalPointWithCommas = (v: string | number, fixed?: number): stri
   const fix = fixed ?? 6;
   const integerCheck = Number.isInteger(v);
   if (integerCheck) {
-    return [v.toString()];
+    return [numberWithCommas(v)];
   } else {
     const result = numberWithFixedCommas(v, fix);
     return result.split('.');
+  }
+};
+
+export const statusObj = (status: StatusKeyType): StatusResultType => {
+  switch (status) {
+    case 'success':
+      return {
+        status: 'Success',
+        color: 'green',
+      };
+    case 'failure':
+      return {
+        status: 'Failure',
+        color: 'failed',
+      };
+    default:
+      return {
+        status: '',
+        color: 'primary',
+      };
   }
 };

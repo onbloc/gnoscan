@@ -1,6 +1,7 @@
 import styled, {css} from 'styled-components';
 import React, {CSSProperties, PropsWithChildren} from 'react';
 import theme, {FontsType} from '@/styles/theme';
+import {eachMedia} from '@/common/hooks/use-media';
 
 export interface TextProps extends React.ComponentPropsWithoutRef<'div'> {
   className?: string;
@@ -18,6 +19,7 @@ const Text = ({
   textAlign = 'left',
   color,
   margin,
+  className = '',
   ...restProps
 }: PropsWithChildren<TextProps>) => {
   return (
@@ -27,6 +29,7 @@ const Text = ({
       textAlign={textAlign}
       color={color}
       margin={margin}
+      className={className}
       {...restProps}>
       {children}
     </Wrapper>
@@ -44,6 +47,12 @@ const Wrapper = styled.div<TextProps>`
       margin: ${props.margin};
     `;
   }}
+  &.ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
+  }
 `;
 
 export default Text;

@@ -9,6 +9,7 @@ const lightTheme: Palette = {
   orange: '#FF7600',
   wine: '#66002E',
   crimson: '#CD0035',
+  failed: '#FF4D4F',
   blue: '#2090F3',
   green: '#00C59A',
   white: '#FFFFFF',
@@ -20,9 +21,11 @@ const lightTheme: Palette = {
   surface: '#FFFFFF',
   select: '#F2F2F2',
   pantone: '#DFDFDF',
+  gray100: '#F5F5F5',
+  gray200: '#ADADAD',
   dimmed50: 'rgba(0, 0, 0, 0.05)',
-  dimmed100: 'rgba(255, 255, 255, 0.1)',
-  dimmed200: 'rgba(255, 255, 255, 0.2)',
+  dimmed100: 'rgba(0, 0, 0, 0.1)',
+  dimmed200: 'rgba(0, 0, 0, 0.2)',
   dimmed600: 'rgba(0, 0, 0, 0.6)',
   linear: 'linear-gradient(359.87deg, #FFFFFF 8.53%, rgba(255, 255, 255, 0) 69.1%)',
 } as const;
@@ -32,6 +35,7 @@ const darkTheme: Palette = {
   orange: '#FF7600',
   wine: '#66002E',
   crimson: '#CD0035',
+  failed: '#FF4D4F',
   blue: '#2090F3',
   green: '#00C59A',
   white: '#FFFFFF',
@@ -43,6 +47,8 @@ const darkTheme: Palette = {
   surface: '#232323',
   select: '#121212',
   pantone: '#292929',
+  gray100: '#2C2C2C',
+  gray200: '#7B7B7B',
   dimmed50: 'rgba(255, 255, 255, 0.05)',
   dimmed100: 'rgba(255, 255, 255, 0.1)',
   dimmed200: 'rgba(255, 255, 255, 0.2)',
@@ -144,6 +150,7 @@ export type PaletteKeyType =
   | 'orange'
   | 'wine'
   | 'crimson'
+  | 'failed'
   | 'blue'
   | 'green'
   | 'white'
@@ -155,6 +162,8 @@ export type PaletteKeyType =
   | 'surface'
   | 'select'
   | 'pantone'
+  | 'gray100'
+  | 'gray200'
   | 'dimmed50'
   | 'dimmed100'
   | 'dimmed200'

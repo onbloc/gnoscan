@@ -28,14 +28,14 @@ export const AmountText = ({
       {num && (
         <Text type={maxSize} color={color} display="inline-block">
           {num[0]}
-          {Boolean(Number(num[1])) && Boolean(denom) && (
+          {Boolean(Number(num[1])) && (
             <Text type={minSize} color={color} display="inline-block">
-              {`.${num[1]} ${denom}`}
+              {`.${num[1]}`}
             </Text>
           )}
-          {Boolean(Number(num[1])) && !Boolean(denom) && (
+          {Boolean(denom) && (
             <Text type={minSize} color={color} display="inline-block">
-              {`.${num[1]} `}
+              {` ${denom}`}
             </Text>
           )}
         </Text>
