@@ -42,9 +42,9 @@ const SkeletonBox = styled(SkeletonBoxStyle)<{
 }>`
   ${mixins.flexbox('column', 'flex-start', 'flex-start')};
   width: ${({width}) => width ?? '100%'};
-  margin-top: ${({marginTop}) => `${marginTop}px` ?? '0'};
-  margin-bottom: ${({marginBottom}) => `${marginBottom}px` ?? '0'};
-  height: ${({height}) => `${height}px` ?? '28px'};
+  margin-top: ${({marginTop}) => (marginTop ? `${marginTop}px` : '0')};
+  margin-bottom: ${({marginBottom}) => (marginBottom ? `${marginBottom}px` : '0')};
+  height: ${({height}) => (height ? `${height}px` : '28px')};
 `;
 
 const LoadingPage = ({visible = true}: {visible?: boolean}) => {
