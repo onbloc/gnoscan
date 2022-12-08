@@ -35,5 +35,6 @@ const HeaderRowContainer = styled.div`
     width: 100%;
     height: auto;
     border-bottom: 1px solid ${({theme}) => theme.colors.dimmed50};
+    align-items: center;
   }
 `;
