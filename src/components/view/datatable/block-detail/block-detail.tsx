@@ -131,6 +131,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .key('from_address')
       .name('From')
       .width(160)
+      .colorName('blue')
       .renderOption(fromAddress => <DatatableItem.Account address={fromAddress} />)
       .build();
   };
