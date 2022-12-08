@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {TotalDailyFeeModel} from './total-daily-fee-model';
 import dynamic from 'next/dynamic';
 import usePageQuery from '@/common/hooks/use-page-query';
+import {API_URI} from '@/common/values/constant-value';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
@@ -19,7 +20,7 @@ export const MainTotalDailyFee = () => {
 
   const {data} = usePageQuery<Array<TotalDailyFeeResponse>>({
     key: 'main/total-daily-fee',
-    uri: 'http://3.218.133.250:7677/latest/info/daily_fees',
+    uri: API_URI + '/latest/info/daily_fees',
     pageable: false,
   });
 

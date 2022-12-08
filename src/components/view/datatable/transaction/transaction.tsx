@@ -10,6 +10,7 @@ import {DatatableItem} from '..';
 import styled from 'styled-components';
 import usePageQuery from '@/common/hooks/use-page-query';
 import useLoading from '@/common/hooks/use-loading';
+import {API_URI} from '@/common/values/constant-value';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -51,7 +52,7 @@ export const TransactionDatatable = () => {
   const [theme] = useTheme();
   const {data, finished} = usePageQuery<Array<TransactionData>>({
     key: 'transaction/transaction-list',
-    uri: 'http://3.218.133.250:7677/latest/list/txs',
+    uri: API_URI + '/latest/list/txs',
     pageable: true,
   });
   useLoading({finished});

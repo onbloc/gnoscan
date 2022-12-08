@@ -16,6 +16,7 @@ import {
 } from '../main-active-list';
 import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
+import {API_URI} from '@/common/values/constant-value';
 
 type AccountsValueType = {
   no: number;
@@ -35,7 +36,7 @@ const ActiveAccount = () => {
   const media = eachMedia();
   const {data: accounts, isSuccess: accountsSuccess}: UseQueryResult<AccountsResultType> = useQuery(
     'info/most_active_account',
-    async () => await axios.get('http://3.218.133.250:7677/latest/info/most_active_account'),
+    async () => await axios.get(API_URI + '/latest/info/most_active_account'),
     {
       select: (res: any) => {
         const accounts = res.data.accounts.map((v: any, i: number) => {

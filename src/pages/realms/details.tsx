@@ -15,6 +15,7 @@ import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {RealmDetailDatatable} from '@/components/view/datatable';
 import useLoading from '@/common/hooks/use-loading';
+import {API_URI} from '@/common/values/constant-value';
 
 type RealmResultType = {
   name: string;
@@ -39,8 +40,7 @@ const RealmsDetails = () => {
     isFetched,
   }: UseQueryResult<RealmResultType> = useQuery(
     ['realm/path', path],
-    async ({queryKey}) =>
-      await axios.get(`http://3.218.133.250:7677/latest/realm/summary/${queryKey[1]}`),
+    async ({queryKey}) => await axios.get(API_URI + `/latest/realm/summary/${queryKey[1]}`),
     {
       enabled: !!path,
       select: (res: any) => {

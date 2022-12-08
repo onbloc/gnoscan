@@ -17,6 +17,7 @@ import IconLink from '@/assets/svgs/icon-link.svg';
 import {v1} from 'uuid';
 import DataSection from '@/components/view/details-data-section';
 import {AccountDetailDatatable} from '@/components/view/datatable';
+import {API_URI} from '@/common/values/constant-value';
 interface StyleProps {
   media?: string;
   padding?: string;
@@ -44,8 +45,7 @@ const AccountDetails = () => {
     isFetched,
   }: UseQueryResult<DetailResultType> = useQuery(
     ['detail/address', address],
-    async ({queryKey}) =>
-      await axios.get(`http://3.218.133.250:7677/latest/account/detail/${queryKey[1]}`),
+    async ({queryKey}) => await axios.get(API_URI + `/latest/account/detail/${queryKey[1]}`),
     {
       enabled: !!address,
       select: (res: any) => {

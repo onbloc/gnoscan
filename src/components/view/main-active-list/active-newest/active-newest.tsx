@@ -8,6 +8,7 @@ import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import Link from 'next/link';
+import {API_URI} from '@/common/values/constant-value';
 
 type NewestValueType = {
   no: number;
@@ -29,7 +30,7 @@ const ActiveNewest = () => {
   const media = eachMedia();
   const {data: newest, isSuccess: newestSuccess}: UseQueryResult<NewestResultType> = useQuery(
     'info/newest_realm',
-    async () => await axios.get('http://3.218.133.250:7677/latest/info/newest_realm'),
+    async () => await axios.get(API_URI + '/latest/info/newest_realm'),
     {
       select: (res: any) => {
         const realms = res.data.realms.map((v: any, i: number) => {

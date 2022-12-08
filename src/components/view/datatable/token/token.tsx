@@ -7,6 +7,7 @@ import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
+import {API_URI} from '@/common/values/constant-value';
 
 interface TokenData {
   token: string;
@@ -27,7 +28,7 @@ export const TokenDatatable = () => {
 
   const {data, finished} = usePageQuery<Array<TokenData>>({
     key: 'token/token-list',
-    uri: 'http://3.218.133.250:7677/latest/list/tokens',
+    uri: API_URI + '/latest/list/tokens',
     pageable: true,
   });
   useLoading({finished});

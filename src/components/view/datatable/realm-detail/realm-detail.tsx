@@ -11,6 +11,7 @@ import Text from '@/components/ui/text';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
+import {API_URI} from '@/common/values/constant-value';
 
 interface RealmTransactionData {
   tx_hash: string;
@@ -64,7 +65,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'realm-detail/transactions',
-    uri: `http://3.218.133.250:7677/latest/realm/txs/${pkgPath}`,
+    uri: API_URI + `/latest/realm/txs/${pkgPath}`,
     pageable: true,
   });
 

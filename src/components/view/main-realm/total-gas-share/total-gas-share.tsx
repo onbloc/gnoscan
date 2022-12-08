@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {TotalGasShareModel} from './total-gas-share-model';
 import dynamic from 'next/dynamic';
 import usePageQuery from '@/common/hooks/use-page-query';
+import {API_URI} from '@/common/values/constant-value';
 
 const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
   ssr: false,
@@ -22,7 +23,7 @@ export const MainRealmTotalGasShare = () => {
 
   const {data} = usePageQuery<Array<TotalGasShareResponse>>({
     key: 'main/total-gas-share',
-    uri: 'http://3.218.133.250:7677/latest/info/realms_gas',
+    uri: API_URI + '/latest/info/realms_gas',
     pageable: false,
   });
 

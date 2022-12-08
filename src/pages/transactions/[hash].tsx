@@ -22,6 +22,7 @@ import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
 import useLoading from '@/common/hooks/use-loading';
 import LoadingPage from '@/components/view/loading/page';
+import {API_URI} from '@/common/values/constant-value';
 
 type SummaryType = {
   statusType: StatusResultType;
@@ -150,7 +151,7 @@ const TransactionDetails = () => {
     isFetched,
   }: UseQueryResult<TxResultType> = useQuery(
     ['tx/hash', hash],
-    async ({queryKey}) => await axios.get(`http://3.218.133.250:7677/latest/tx/${queryKey[1]}`),
+    async ({queryKey}) => await axios.get(API_URI + `/latest/tx/${queryKey[1]}`),
     {
       enabled: !!hash,
       select: (res: any) => {

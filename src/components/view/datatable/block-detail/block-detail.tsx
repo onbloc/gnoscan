@@ -10,6 +10,7 @@ import theme from '@/styles/theme';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
+import {API_URI} from '@/common/values/constant-value';
 
 interface BlockTransactionData {
   hash: string;
@@ -64,7 +65,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'block-detail/transactions',
-    uri: `http://3.218.133.250:7677/latest/block/txs/${height}`,
+    uri: API_URI + `/latest/block/txs/${height}`,
     pageable: true,
   });
 

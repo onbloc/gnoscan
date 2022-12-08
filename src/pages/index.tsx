@@ -5,11 +5,6 @@ import MainRealm from '@/components/view/main-realm/main-realm';
 import MainTransactionNews from '@/components/view/main-transaction-news/main-transaction-news';
 import MainActiveList from '@/components/view/main-active-list';
 import {eachMedia} from '@/common/hooks/use-media';
-import IconLink from '@/assets/svgs/icon-link.svg';
-import {Button} from '@/components/ui/button';
-import Tabs from '@/components/view/tabs';
-import Link from 'next/link';
-import Text from '@/components/ui/text';
 
 const Home: React.FC = () => {
   const media = eachMedia();
@@ -18,8 +13,8 @@ const Home: React.FC = () => {
       <div className="inner-layout">
         <MainCard />
         <MainActiveList />
-        {/* <MainRealm />
-        <MainTransactionNews /> */}
+        <MainRealm />
+        <MainTransactionNews />
       </div>
     </Wrapper>
   );

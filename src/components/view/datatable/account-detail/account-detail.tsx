@@ -11,6 +11,7 @@ import Text from '@/components/ui/text';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
+import {API_URI} from '@/common/values/constant-value';
 
 interface AccountTransactionData {
   hash: string;
@@ -66,7 +67,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'account-detail/transactions',
-    uri: `http://3.218.133.250:7677/latest/account/txs/${address}`,
+    uri: API_URI + `/latest/account/txs/${address}`,
     pageable: true,
   });
 

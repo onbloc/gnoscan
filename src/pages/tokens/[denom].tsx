@@ -14,6 +14,7 @@ import ShowLog from '@/components/ui/show-log';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {TokenDetailDatatable} from '@/components/view/datatable';
+import {API_URI} from '@/common/values/constant-value';
 
 type TokenResultType = {
   name: string;
@@ -38,8 +39,7 @@ const TokenDetails = () => {
     isFetched,
   }: UseQueryResult<TokenResultType> = useQuery(
     ['token/denom', denom],
-    async ({queryKey}) =>
-      await axios.get(`http://3.218.133.250:7677/latest/token/summary/${queryKey[1]}`),
+    async ({queryKey}) => await axios.get(API_URI + `/latest/token/summary/${queryKey[1]}`),
     {
       enabled: !!denom,
       select: (res: any) => {

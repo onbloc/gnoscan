@@ -9,6 +9,7 @@ import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
+import {API_URI} from '@/common/values/constant-value';
 
 const PADDING = 32;
 
@@ -25,7 +26,7 @@ export const BlockDatatable = () => {
   const [theme] = useTheme();
   const {data, finished} = usePageQuery<Array<BlockData>>({
     key: 'block/block-list',
-    uri: 'http://3.218.133.250:7677/latest/list/blocks',
+    uri: API_URI + '/latest/list/blocks',
     pageable: true,
   });
   useLoading({finished});

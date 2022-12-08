@@ -12,6 +12,7 @@ import mixins from '@/styles/mixins';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
+import {API_URI} from '@/common/values/constant-value';
 interface SupplyResultType {
   supply: string;
   exit: string;
@@ -40,7 +41,7 @@ const MainCard = () => {
   const media = eachMedia();
   const {data: card01, isSuccess: card01Success}: UseQueryResult<SupplyResultType> = useQuery(
     'info/card01',
-    async () => await axios.get('http://3.218.133.250:7677/latest/info/card01'),
+    async () => await axios.get(API_URI + '/latest/info/card01'),
     {
       select: (res: any) => {
         const supply = res.data.gnot_supply;
@@ -55,7 +56,7 @@ const MainCard = () => {
 
   const {data: card02, isSuccess: card02Success}: UseQueryResult<HeightResultType> = useQuery(
     'info/card02',
-    async () => await axios.get('http://3.218.133.250:7677/latest/info/card02'),
+    async () => await axios.get(API_URI + '/latest/info/card02'),
     {
       select: (res: any) => {
         const block = res.data.block;
@@ -70,7 +71,7 @@ const MainCard = () => {
 
   const {data: card03, isSuccess: card03Success}: UseQueryResult<TxResultType> = useQuery(
     'info/card03',
-    async () => await axios.get('http://3.218.133.250:7677/latest/info/card03'),
+    async () => await axios.get(API_URI + '/latest/info/card03'),
     {
       select: (res: any) => {
         const tx = res.data.tx;
@@ -85,7 +86,7 @@ const MainCard = () => {
 
   const {data: card04, isSuccess: card04Success}: UseQueryResult<AccountsResultType> = useQuery(
     'info/card04',
-    async () => await axios.get('http://3.218.133.250:7677/latest/info/card04'),
+    async () => await axios.get(API_URI + '/latest/info/card04'),
     {
       select: (res: any) => {
         const account = res.data.account;
