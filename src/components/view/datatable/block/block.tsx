@@ -23,6 +23,22 @@ interface BlockData {
 
 export const BlockDatatable = () => {
   const [theme] = useTheme();
+  const {data, finished} = usePageQuery<Array<BlockData>>({
+    key: 'block/block-list',
+    uri: 'http://3.218.133.250:7677/latest/list/blocks',
+    pageable: true,
+  });
+  useLoading({finished});
+
+  const getBlocks = (): Array<BlockData> => {
+    if (!data) {
+      return [];
+    }
+    return data.pages.reduce((accum: Array<BlockData>, current) => {
+      return [...accum, ...current];
+    }, []);
+  };
+
   const createHeaders = () => {
     return [
       createHeaderBlockHash(),
