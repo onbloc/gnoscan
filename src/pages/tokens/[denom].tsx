@@ -13,6 +13,7 @@ import Link from 'next/link';
 import ShowLog from '@/components/ui/show-log';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
+import {TokenDetailDatatable} from '@/components/view/datatable';
 
 type TokenResultType = {
   name: string;
@@ -127,6 +128,10 @@ const TokenDetails = () => {
               </dd>
             </DLWrap>
             {token.log && <ShowLog isTabLog={true} tabData={token.log} btnTextType="Logs" />}
+          </DataSection>
+
+          <DataSection title="Transactions">
+            {denom && <TokenDetailDatatable denom={`${denom}`} />}
           </DataSection>
         </>
       )}
