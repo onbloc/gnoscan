@@ -4,8 +4,6 @@ import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
-import {getDateDiff} from '@/common/utils/date-util';
-import {textEllipsis} from '@/common/utils/string-util';
 import {DatatableItem} from '..';
 import styled from 'styled-components';
 import usePageQuery from '@/common/hooks/use-page-query';
@@ -141,7 +139,7 @@ export const TransactionDatatable = () => {
       .key('time')
       .name('Time')
       .width(130)
-      .renderOption(value => `${getDateDiff(value)}`)
+      .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
 

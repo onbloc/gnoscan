@@ -1,9 +1,8 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
-import {getDateDiff} from '@/common/utils/date-util';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
@@ -152,7 +151,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .key('time')
       .name('Time')
       .width(204)
-      .renderOption(value => `${getDateDiff(value)}`)
+      .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
 

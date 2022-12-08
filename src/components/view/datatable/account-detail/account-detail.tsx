@@ -3,11 +3,9 @@
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
-import {getDateDiff} from '@/common/utils/date-util';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
-import Text from '@/components/ui/text';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
@@ -156,7 +154,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .key('time')
       .name('Time')
       .width(130)
-      .renderOption(value => `${getDateDiff(value)}`)
+      .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
 

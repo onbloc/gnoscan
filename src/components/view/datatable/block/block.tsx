@@ -4,7 +4,6 @@ import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
-import {getDateDiff} from '@/common/utils/date-util';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
@@ -78,7 +77,7 @@ export const BlockDatatable = () => {
       .key('time')
       .name('Time')
       .width(194 + PADDING)
-      .renderOption(value => `${getDateDiff(value)}`)
+      .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
 
