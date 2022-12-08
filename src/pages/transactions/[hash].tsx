@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {useQuery, UseQueryResult} from 'react-query';
 import {useRouter} from 'next/router';
 import {isDesktop} from '@/common/hooks/use-media';
-import {numberWithCommas, StatusResultType, StatusKeyType, statusObj} from '@/common/utils';
+import {numberWithCommas, StatusResultType, statusObj} from '@/common/utils';
 import {getDateDiff} from '@/common/utils/date-util';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {v1} from 'uuid';
+import mixins from '@/styles/mixins';
 
 type SummaryType = {
   statusType: StatusResultType;
@@ -33,14 +34,9 @@ type SummaryType = {
   memo: string;
 };
 
-type ContractType = {
-  type: string;
-  args: any;
-};
-
 interface TxResultType {
   summary: SummaryType;
-  contract: ContractType;
+  contract: any;
   log: string;
 }
 
@@ -55,10 +51,10 @@ type ContractKeyType =
   | 'RenderBoard'
   | 'Render'
   | 'Register';
-('Transfer');
 
 type KeyOfContract = {
-  [index in string]: string;
+  type: string;
+  data: {[T in string]: any};
 };
 
 const contractObj = {
@@ -72,29 +68,72 @@ const contractObj = {
   RenderBoard: ['Board ID'],
   Render: ['Path'],
   Register: ['Inviter', 'Name', 'Profile'],
-  AddPkg: ['Caller'],
-  Transfer: ['Caller'],
+  AddPkg: ['Creator', 'Name', 'Path'],
+  Transfer: ['From', 'To', 'Amount'],
 } as const;
 
 const ellipsisTextKey = ['Caller', 'Body'];
 
-const valueForContract = (type: string, contract: any) => {
-  let map: KeyOfContract = {};
-  const isOfficial = type in contractObj;
-  if (isOfficial) {
-    if (type === 'Transfer' || type === 'AddPkg') {
-      map['Caller'] = Boolean(contract['from_username'])
-        ? contract['from_username']
-        : contract['from_address'];
+const valueForContractType = (contract: any) => {
+  let map: KeyOfContract = {
+    type: '',
+    data: {},
+  };
+  const {type, func} = contract;
+
+  if (type === '/vm.m_addpkg' && func === 'AddPkg') {
+    map = {
+      type: func,
+      data: {
+        Creator: contract.username ? contract.username : contract.creator,
+        Name: contract.pkg_name,
+        Path: contract.pkg_path,
+      },
+    };
+  } else if (type === '/bank.MsgSend' && func === 'Transfer') {
+    map = {
+      type: func,
+      data: {
+        From: contract.from_address,
+        To: contract.to_address,
+        Amount: {
+          denom: contract.amount.denom,
+          value:
+            contract.amount.denom === 'ugnot'
+              ? contract.amount.value / 1000000
+              : contract.amount.value,
+        },
+      },
+    };
+  } else if (type === '/vm.m_call') {
+    if (contract.pkg_path === '/r/demo/boards') {
+      return contractObj[type as ContractKeyType].forEach((v: string, i: number) => {
+        map.type = contract.func;
+        map.data[v] = contract.args[i];
+      });
+    } else if (contract.pkg_path === '/r/demo/users') {
+      map = {
+        type: func,
+        data: {
+          Register: contract.args,
+        },
+      };
     } else {
-      contractObj[type as ContractKeyType].map(
-        (v: string, i: number) => (map[v] = contract.args[i]),
-      );
+      map = {
+        type: func,
+        data: {
+          Caller: contract.username ? contract.username : contract.caller,
+        },
+      };
     }
   } else {
-    map['Args'] = contract.args;
+    map = {
+      type: func,
+      data: {
+        Caller: contract.username ? contract.username : contract.caller,
+      },
+    };
   }
-
   return map;
 };
 
@@ -109,7 +148,6 @@ const TransactionDetails = () => {
       enabled: !!hash,
       select: (res: any) => {
         const {summary, contract, log} = res.data;
-        console.log(contract);
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
           : summary.gas.used / summary.gas.wanted;
@@ -129,9 +167,9 @@ const TransactionDetails = () => {
           memo: summary.memo || '-',
         };
 
-        const contractData: ContractType = {
-          type: contract.type,
-          args: valueForContract(contract.func, contract),
+        const contractData = {
+          ...contract,
+          args: valueForContractType(contract),
         };
 
         return {
@@ -141,7 +179,7 @@ const TransactionDetails = () => {
           log: log,
         };
       },
-      onSuccess: (res: any) => console.log('Tx hash Data : ', res),
+      // onSuccess: (res: any) => console.log('Tx hash Data : ', res),
     },
   );
 
@@ -175,7 +213,7 @@ const TransactionDetails = () => {
               <dt>Tx Hash</dt>
               <dd>
                 <Badge>
-                  <Text type="p4" color="inherit" className="ellipsis" margin="0px 6px 0px 0px">
+                  <Text type="p4" color="inherit" className="ellipsis">
                     {tx.summary.hash}
                   </Text>
                   <Tooltip content="Copied!" trigger="click" copyText={tx.summary.hash}>
@@ -231,26 +269,30 @@ const TransactionDetails = () => {
               <dd>
                 <Badge type="blue">
                   <Text type="p4" color="white">
-                    {tx.contract.type}
+                    {tx.contract.args.type}
                   </Text>
                 </Badge>
               </dd>
             </DLWrap>
-            {Object.keys(tx.contract.args).map((v, i) => (
-              <DLWrap desktop={desktop} key={v1()}>
-                <dt>{v}</dt>
-                <dd>
-                  <Badge>
-                    <Text
-                      type="p4"
-                      color="inherit"
-                      className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                      {tx.contract.args[v]}
-                    </Text>
-                  </Badge>
-                </dd>
-              </DLWrap>
-            ))}
+            {tx.contract.args.type === 'Transfer' ? (
+              <TransferContract contract={tx.contract} desktop={desktop} />
+            ) : (
+              Object.keys(tx.contract.args.data).map((v, i) => (
+                <DLWrap desktop={desktop} key={v1()}>
+                  <dt>{v}</dt>
+                  <dd>
+                    <Badge>
+                      <Text
+                        type="p4"
+                        color="inherit"
+                        className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                        {tx.contract.args.data[v] ?? '-'}
+                      </Text>
+                    </Badge>
+                  </dd>
+                </DLWrap>
+              ))
+            )}
             {tx.log && <ShowLog isTabLog={false} logData={tx.log} btnTextType="Logs" />}
           </DataSection>
         </>
@@ -259,8 +301,70 @@ const TransactionDetails = () => {
   );
 };
 
+const TransferContract = ({contract, desktop}: any) => {
+  return (
+    <>
+      <DLWrap desktop={desktop}>
+        <dt>Amount</dt>
+        <dd>
+          <Badge>
+            <AmountText
+              minSize="body2"
+              maxSize="p4"
+              value={contract.args.data.Amount['value']}
+              denom="GNOT"
+            />
+          </Badge>
+        </dd>
+      </DLWrap>
+      {['From', 'To'].map((v, i) => (
+        <DLWrap desktop={desktop} key={v1()}>
+          <dt>{v}</dt>
+          <dd>
+            <Badge>
+              <AddressTextBox>
+                <Text type="p4" color="blue" className="ellipsis">
+                  <Link href={`/accounts/${contract.args.data[v]}`} passHref>
+                    <FitContentA>{contract.args.data[v]}</FitContentA>
+                  </Link>
+                  {contract.from_username && v === 'From' && (
+                    <Text type="p4" color="primary" display="inline-block">
+                      {` (${contract.from_username})`}
+                    </Text>
+                  )}
+                  {contract.to_username && v === 'To' && (
+                    <Text type="p4" color="primary" display="inline-block">
+                      {` (${contract.to_username})`}
+                    </Text>
+                  )}
+                </Text>
+                <Tooltip
+                  content="Copied!"
+                  trigger="click"
+                  copyText={contract.args.data[v]}
+                  className="address-tooltip">
+                  <StyledIconCopy />
+                </Tooltip>
+              </AddressTextBox>
+            </Badge>
+          </dd>
+        </DLWrap>
+      ))}
+    </>
+  );
+};
+
+const AddressTextBox = styled.div`
+  ${mixins.flexbox('row', 'center', 'center')}
+  width: 100%;
+  .address-tooltip {
+    vertical-align: text-bottom;
+  }
+`;
+
 const StyledIconCopy = styled(IconCopy)`
   stroke: ${({theme}) => theme.colors.primary};
+  margin-left: 6px;
 `;
 
 export default TransactionDetails;
