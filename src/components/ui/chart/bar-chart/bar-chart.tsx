@@ -105,7 +105,7 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
       scales: {
         yAxis: {
           ticks: {
-            color: themePallet.primary,
+            color: themePallet.tertiary,
             count: 5,
             format: {
               minimumFractionDigits: 0,

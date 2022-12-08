@@ -116,7 +116,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
           max: 100,
           min: 0,
           ticks: {
-            color: themePallet.primary,
+            color: themePallet.tertiary,
             count: 5,
           },
           grid: {
@@ -128,7 +128,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
         },
         xAxis: {
           ticks: {
-            color: themePallet.primary,
+            color: themePallet.tertiary,
           },
           grid: {
             color: '#00000000',
