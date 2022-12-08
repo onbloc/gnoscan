@@ -19,7 +19,7 @@ function useTheme() {
     }
     if (window.matchMedia) {
       setTheme(() =>
-        window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+        window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark',
       );
       return;
     }
