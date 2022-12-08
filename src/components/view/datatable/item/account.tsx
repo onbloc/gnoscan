@@ -1,11 +1,34 @@
 import {textEllipsis} from '@/common/utils/string-util';
+import Tooltip from '@/components/ui/tooltip';
 import Link from 'next/link';
 import React from 'react';
+import styled from 'styled-components';
 
 interface Props {
   address: string | undefined;
 }
 
 export const Account = ({address}: Props) => {
-  return <Link href={`/accounts/${address}`}>{textEllipsis(address ?? '', 6)}</Link>;
+  const renderTooltip = () => {
+    return <TooltipWrapper>{address}</TooltipWrapper>;
+  };
+
+  return (
+    <Tooltip content={renderTooltip()}>
+      <Link href={`/accounts/${address}`}>{textEllipsis(address ?? '', 6)}</Link>
+    </Tooltip>
+  );
 };
+
+const TooltipWrapper = styled.span`
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+`;

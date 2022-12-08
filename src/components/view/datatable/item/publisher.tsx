@@ -1,4 +1,5 @@
 import {textEllipsis} from '@/common/utils/string-util';
+import Tooltip from '@/components/ui/tooltip';
 import Link from 'next/link';
 import React from 'react';
 import styled from 'styled-components';
@@ -9,6 +10,10 @@ interface Props {
 }
 
 export const Publisher = ({username, address}: Props) => {
+  const renderTooltip = () => {
+    return <TooltipWrapper>{address}</TooltipWrapper>;
+  };
+
   const getDisplayUsername = (address?: string | undefined) => {
     if (username) {
       return username;
@@ -21,19 +26,30 @@ export const Publisher = ({username, address}: Props) => {
     return '-';
   };
 
-  return (
-    <PublisherWrapper className="ellipsis">
-      {address ? (
-        <Link href={`/accounts/${address}`}>{getDisplayUsername(address)}</Link>
-      ) : (
-        getDisplayUsername()
-      )}
-    </PublisherWrapper>
+  return address ? (
+    <Tooltip content={renderTooltip()}>
+      <Link href={`/accounts/${address}`}>{getDisplayUsername(address)}</Link>
+    </Tooltip>
+  ) : (
+    getDisplayUsername()
   );
 };
 
 const PublisherWrapper = styled.span`
   & a {
     color: ${({theme}) => theme.colors.blue};
+  }
+`;
+
+const TooltipWrapper = styled.span`
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    word-break: keep-all;
+    white-space: nowrap;
   }
 `;
