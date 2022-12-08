@@ -120,6 +120,13 @@ const ItemContainer = styled(DatatableOption.ColumnOption)<{left: string; top: s
       height: 16px;
       justify-content: center;
       align-items: center;
+
+      svg {
+        fill: ${({theme}) => theme.colors.tertiary};
+        & .icon-tooltip_svg__bg {
+          fill: ${({theme}) => theme.colors.surface};
+        }
+      }
     }
 
     .tooltip {
