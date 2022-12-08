@@ -66,7 +66,6 @@ const Wrapper = styled.div<{trigger: TriggerType; isClicked: boolean}>`
   z-index: 11;
   .tooltip-button {
     ${mixins.flexbox('row', 'center', 'center')};
-    cursor: pointer;
   }
   ${({trigger}) =>
     trigger !== 'click' &&
