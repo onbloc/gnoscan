@@ -14,7 +14,11 @@ export const Type = ({type, func, packagePath}: Props) => {
     return (
       <TooltipWrapper>
         <span className="title">{type}</span>
-        {packagePath && packagePath !== null ? <span className="info">{packagePath}</span> : <></>}
+        {packagePath && packagePath !== null ? (
+          <span className="info">{packagePath.replace('gno.land', '')}</span>
+        ) : (
+          <></>
+        )}
       </TooltipWrapper>
     );
   };
