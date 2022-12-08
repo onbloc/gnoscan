@@ -24,12 +24,12 @@ const usePageQuery = <T extends {[key in string]: any}>({
   uri,
   pageable = false,
 }: Props): {
-  data: InfiniteData<T> | undefined;
+  data: InfiniteData<T | undefined> | undefined;
   hasNext: boolean;
   fetchNextPage: () => Promise<void>;
   refetch: (
     options?: FetchNextPageOptions | undefined,
-  ) => Promise<QueryObserverResult<InfiniteData<T>, unknown>>;
+  ) => Promise<QueryObserverResult<InfiniteData<T | undefined>, unknown>>;
   sortOption: SortOption;
   setSortOption: (sortOption: SortOption) => void;
   finished: boolean;
@@ -42,7 +42,7 @@ const usePageQuery = <T extends {[key in string]: any}>({
     {
       keepPreviousData: false,
       getNextPageParam: (lastPage, pages) =>
-        lastPage.length === 0 ? pages.length : pages.length + 1,
+        !lastPage || lastPage.length === 0 ? pages.length : pages.length + 1,
     },
   );
 
@@ -70,6 +70,9 @@ const usePageQuery = <T extends {[key in string]: any}>({
     const apiUri = uri + params;
 
     const response = await axios.get<T>(apiUri);
+    if (typeof response.data === 'string') {
+      return undefined;
+    }
     if (!Array.isArray(response.data)) {
       setHasNext(response.data?.next);
     }

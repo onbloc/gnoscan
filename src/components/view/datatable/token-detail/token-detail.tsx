@@ -73,7 +73,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
       return [];
     }
     return data.pages.reduce<Array<TokenTransactionData>>(
-      (accum, current) => [...accum, ...current.txs],
+      (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
       [],
     );
   };

@@ -29,7 +29,7 @@ export const MainRealmTotalGasShare = () => {
   useEffect(() => {
     if (data) {
       const responseDatas = data.pages.reduce<Array<TotalGasShareResponse>>(
-        (accum, current) => [...accum, ...current],
+        (accum, current) => (current ? [...accum, ...current] : accum),
         [],
       );
       updatChartData(responseDatas);

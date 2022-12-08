@@ -45,7 +45,7 @@ export const Datatable = <T extends {[key in string]: any}>({
           <div className="loading-wrapper">
             <IconTabelLoading />
           </div>
-        ) : datas.length > 0 ? (
+        ) : datas?.length > 0 ? (
           <DatatableData.DataList headers={headers} datas={datas} />
         ) : (
           <div className="no-content-wrapper">

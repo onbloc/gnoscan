@@ -31,7 +31,7 @@ interface RealmTransactionData {
 interface ResponseData {
   hits: number;
   next: boolean;
-  txs: Array<RealmTransactionData>;
+  realms: Array<RealmTransactionData>;
 }
 
 interface Props {
@@ -73,7 +73,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       return [];
     }
     return data.pages.reduce<Array<RealmTransactionData>>(
-      (accum, current) => [...accum, ...current.txs],
+      (accum, current) => (current?.realms ? [...accum, ...current.realms] : accum),
       [],
     );
   };
