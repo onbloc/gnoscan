@@ -171,7 +171,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
   return (
     <Container>
       <div className="title-wrapper">
-        <Text type="h4" color="primary">
+        <Text type={media === 'desktop' ? 'h4' : 'h6'} color="primary">
           {'Transactions'}
         </Text>
       </div>
