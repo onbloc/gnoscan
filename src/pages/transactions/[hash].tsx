@@ -147,7 +147,6 @@ const TransactionDetails = () => {
   const {
     data: tx,
     isSuccess: txSuccess,
-    isLoading,
     isFetched,
   }: UseQueryResult<TxResultType> = useQuery(
     ['tx/hash', hash],

@@ -19,6 +19,7 @@ import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
+import useLoading from '@/common/hooks/use-loading';
 
 interface TitleOptionProps {
   prevProps: {
@@ -96,10 +97,12 @@ const BlockDetails = () => {
           next: !data.next,
         };
       },
-      // onSuccess: (res: any) => console.log('Summary Data : ', res),
+      onSuccess: () => {
+        // useLoading({finished: isFetched});
+      },
     },
   );
-
+  // console.log('-------- : ', isFetched);
   return (
     <>
       {summarySuccess && (

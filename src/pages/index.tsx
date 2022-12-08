@@ -16,21 +16,10 @@ const Home: React.FC = () => {
   return (
     <Wrapper media={media}>
       <div className="inner-layout">
-        <Link href={{pathname: 'realms/details', query: {path: 'gno.land/r/pwnh4/meetup'}}}>
-          <a>
-            <h1>Go to Realms</h1>
-          </a>
-        </Link>
         <MainCard />
         <MainActiveList />
-        <MainRealm />
-        <MainTransactionNews />
-        {/* <Text type="h1" color="reverse">
-          <Link href="/blocks/123">Block</Link>
-        </Text>
-        <Text type="h1" color="reverse">
-          <Link href="/accounts/123">Accounts</Link>
-        </Text> */}
+        {/* <MainRealm />
+        <MainTransactionNews /> */}
       </div>
     </Wrapper>
   );

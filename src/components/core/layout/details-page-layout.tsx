@@ -4,10 +4,12 @@ import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
 import LoadingPage from '@/components/view/loading/page';
+import useLoading from '@/common/hooks/use-loading';
 
 interface StyleProps {
   media?: string;
   titleAlign?: 'center' | 'flex-start' | 'flex-end' | 'space-between';
+  visible?: boolean;
 }
 interface DetailsLayoutProps extends StyleProps {
   children: React.ReactNode;
@@ -24,24 +26,22 @@ export const DetailsPageLayout = ({
   isFetched,
 }: DetailsLayoutProps) => {
   const media = eachMedia();
+  // const {loading} = useLoading();
+  // console.log(loading);
   return (
     <Wrapper media={media}>
       <div className="inner-layout">
-        {isFetched ? (
-          <Content media={media} titleAlign={titleAlign}>
-            <Text
-              type={media === 'desktop' ? 'h2' : 'p2'}
-              color="primary"
-              margin={media === 'desktop' ? '0px 0px 24px' : '0px 0px 16px'}
-              className="content-text">
-              {title}
-              {titleOption && titleOption}
-            </Text>
-            {children}
-          </Content>
-        ) : (
-          <LoadingPage visible={!isFetched} />
-        )}
+        <Content media={media} titleAlign={titleAlign}>
+          <Text
+            type={media === 'desktop' ? 'h2' : 'p2'}
+            color="primary"
+            margin={media === 'desktop' ? '0px 0px 24px' : '0px 0px 16px'}
+            className="content-text">
+            {title}
+            {titleOption && titleOption}
+          </Text>
+          {children}
+        </Content>
       </div>
     </Wrapper>
   );
