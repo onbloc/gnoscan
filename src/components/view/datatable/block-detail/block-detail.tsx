@@ -122,7 +122,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .name('Block')
       .width(93)
       .colorName('blue')
-      .renderOption(value => `${value ?? '-'}`)
+      .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
