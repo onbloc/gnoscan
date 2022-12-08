@@ -136,6 +136,13 @@ const ItemContainer = styled(DatatableOption.ColumnOption)<{left: string; top: s
   }
 `;
 
+const getSortIconColor = (active: boolean, order: string, theme: any) => {
+  if (active && order) {
+    return theme?.colors?.blue ?? '';
+  }
+  return theme?.colors?.pantone ?? '';
+};
+
 const SortContainer = styled.div<{active: boolean; order: string}>`
   & {
     display: flex;
@@ -149,13 +156,11 @@ const SortContainer = styled.div<{active: boolean; order: string}>`
     ${theme.fonts.p4};
 
     .up {
-      fill: ${({active, order, theme}) =>
-        active && order === 'asc' ? theme.colors.blue : theme.colors.pantone};
+      fill: ${({active, order, theme}) => getSortIconColor(active, order, theme)};
     }
 
     .down {
-      fill: ${({active, order, theme}) =>
-        active && order === 'desc' ? theme.colors.blue : theme.colors.pantone};
+      fill: ${({active, order, theme}) => getSortIconColor(active, order, theme)};
     }
   }
 `;
