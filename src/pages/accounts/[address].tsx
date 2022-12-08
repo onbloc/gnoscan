@@ -38,7 +38,11 @@ const AccountDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
   const {address} = router.query;
-  const {data: detail, isSuccess: detailSuccess}: UseQueryResult<DetailResultType> = useQuery(
+  const {
+    data: detail,
+    isSuccess: detailSuccess,
+    isFetched,
+  }: UseQueryResult<DetailResultType> = useQuery(
     ['detail/address', address],
     async ({queryKey}) =>
       await axios.get(`http://3.218.133.250:7677/latest/account/detail/${queryKey[1]}`),
@@ -61,7 +65,7 @@ const AccountDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title="Account Details">
+    <DetailsPageLayout title="Account Details" isFetched={isFetched}>
       <DataSection title="Address">
         {detailSuccess && (
           <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>

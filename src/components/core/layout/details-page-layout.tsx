@@ -3,16 +3,17 @@ import React from 'react';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
+import LoadingPage from '@/components/view/loading/page';
 
 interface StyleProps {
   media?: string;
   titleAlign?: 'center' | 'flex-start' | 'flex-end' | 'space-between';
 }
-
 interface DetailsLayoutProps extends StyleProps {
   children: React.ReactNode;
   title: string | React.ReactNode;
   titleOption?: React.ReactNode;
+  isFetched: boolean;
 }
 
 export const DetailsPageLayout = ({
@@ -20,22 +21,27 @@ export const DetailsPageLayout = ({
   title,
   titleOption,
   titleAlign = 'flex-start',
+  isFetched,
 }: DetailsLayoutProps) => {
   const media = eachMedia();
   return (
     <Wrapper media={media}>
       <div className="inner-layout">
-        <Content media={media} titleAlign={titleAlign}>
-          <Text
-            type={media === 'desktop' ? 'h2' : 'p2'}
-            color="primary"
-            margin={media === 'desktop' ? '0px 0px 24px' : '0px 0px 16px'}
-            className="content-text">
-            {title}
-            {titleOption && titleOption}
-          </Text>
-          {children}
-        </Content>
+        {isFetched ? (
+          <Content media={media} titleAlign={titleAlign}>
+            <Text
+              type={media === 'desktop' ? 'h2' : 'p2'}
+              color="primary"
+              margin={media === 'desktop' ? '0px 0px 24px' : '0px 0px 16px'}
+              className="content-text">
+              {title}
+              {titleOption && titleOption}
+            </Text>
+            {children}
+          </Content>
+        ) : (
+          <LoadingPage visible={!isFetched} />
+        )}
       </div>
     </Wrapper>
   );

@@ -65,7 +65,11 @@ const BlockDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
   const {height} = router.query;
-  const {data: summary, isSuccess: summarySuccess}: UseQueryResult<SummaryResultType> = useQuery(
+  const {
+    data: summary,
+    isSuccess: summarySuccess,
+    isFetched,
+  }: UseQueryResult<SummaryResultType> = useQuery(
     ['summary/height', height],
     async ({queryKey}) =>
       await axios.get(`http://3.218.133.250:7677/latest/block/summary/${queryKey[1]}`),
@@ -107,7 +111,8 @@ const BlockDetails = () => {
               nextProps={{disabled: summary?.next, path: `/blocks/${Number(summary?.height + 1)}`}}
             />
           }
-          titleAlign={desktop ? 'flex-start' : 'space-between'}>
+          titleAlign={desktop ? 'flex-start' : 'space-between'}
+          isFetched={isFetched}>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Timestamp</dt>

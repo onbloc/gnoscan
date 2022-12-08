@@ -32,7 +32,11 @@ const TokenDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
   const {denom} = router.query;
-  const {data: token, isSuccess: tokenSuccess}: UseQueryResult<TokenResultType> = useQuery(
+  const {
+    data: token,
+    isSuccess: tokenSuccess,
+    isFetched,
+  }: UseQueryResult<TokenResultType> = useQuery(
     ['token/denom', denom],
     async ({queryKey}) =>
       await axios.get(`http://3.218.133.250:7677/latest/token/summary/${queryKey[1]}`),
@@ -61,7 +65,7 @@ const TokenDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Token Details'}>
+    <DetailsPageLayout title={'Token Details'} isFetched={isFetched}>
       {tokenSuccess && (
         <>
           <DataSection title="Summary">

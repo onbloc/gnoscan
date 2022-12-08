@@ -20,6 +20,8 @@ import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
+import useLoading from '@/common/hooks/use-loading';
+import LoadingPage from '@/components/view/loading/page';
 
 type SummaryType = {
   statusType: StatusResultType;
@@ -138,10 +140,16 @@ const valueForContractType = (contract: any) => {
 };
 
 const TransactionDetails = () => {
+  const {loading} = useLoading();
   const desktop = isDesktop();
   const router = useRouter();
   const {hash} = router.query;
-  const {data: tx, isSuccess: txSuccess}: UseQueryResult<TxResultType> = useQuery(
+  const {
+    data: tx,
+    isSuccess: txSuccess,
+    isLoading,
+    isFetched,
+  }: UseQueryResult<TxResultType> = useQuery(
     ['tx/hash', hash],
     async ({queryKey}) => await axios.get(`http://3.218.133.250:7677/latest/tx/${queryKey[1]}`),
     {
@@ -184,7 +192,7 @@ const TransactionDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Transaction Details'}>
+    <DetailsPageLayout title={'Transaction Details'} isFetched={isFetched}>
       {txSuccess && (
         <>
           <DataSection title="Summary">

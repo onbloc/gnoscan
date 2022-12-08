@@ -14,6 +14,7 @@ import ShowLog from '@/components/ui/show-log';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {RealmDetailDatatable} from '@/components/view/datatable';
+import useLoading from '@/common/hooks/use-loading';
 
 type RealmResultType = {
   name: string;
@@ -28,10 +29,15 @@ type RealmResultType = {
 };
 
 const RealmsDetails = () => {
+  const {loading} = useLoading();
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
-  const {data: realm, isSuccess: realmSuccess}: UseQueryResult<RealmResultType> = useQuery(
+  const {
+    data: realm,
+    isSuccess: realmSuccess,
+    isFetched,
+  }: UseQueryResult<RealmResultType> = useQuery(
     ['realm/path', path],
     async ({queryKey}) =>
       await axios.get(`http://3.218.133.250:7677/latest/realm/summary/${queryKey[1]}`),
@@ -59,7 +65,7 @@ const RealmsDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Realm Details'}>
+    <DetailsPageLayout title={'Realm Details'} isFetched={isFetched}>
       {realmSuccess && (
         <>
           <DataSection title="Summary">

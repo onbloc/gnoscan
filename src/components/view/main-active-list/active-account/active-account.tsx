@@ -38,7 +38,6 @@ const ActiveAccount = () => {
     async () => await axios.get('http://3.218.133.250:7677/latest/info/most_active_account'),
     {
       select: (res: any) => {
-        console.log(res.data);
         const accounts = res.data.accounts.map((v: any, i: number) => {
           return {
             no: v.idx,
