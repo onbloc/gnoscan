@@ -36,7 +36,10 @@ export const TokenDatatable = () => {
     if (!data) {
       return [];
     }
-    return data.pages.reduce<Array<TokenData>>((accum, current) => [...accum, ...current], []);
+    return data.pages.reduce<Array<TokenData>>(
+      (accum, current) => (current ? [...accum, ...current] : accum),
+      [],
+    );
   };
 
   const createHeaders = () => {

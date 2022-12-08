@@ -26,7 +26,7 @@ export const MainTotalDailyFee = () => {
   useEffect(() => {
     if (data) {
       const responseDatas = data.pages.reduce<Array<TotalDailyFeeResponse>>(
-        (accum, current) => [...accum, ...current],
+        (accum, current) => (current ? [...accum, ...current] : accum),
         [],
       );
       updatChartData(responseDatas);

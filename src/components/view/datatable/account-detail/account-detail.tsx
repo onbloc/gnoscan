@@ -75,7 +75,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       return [];
     }
     return data.pages.reduce<Array<AccountTransactionData>>(
-      (accum, current) => [...accum, ...current.txs],
+      (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
       [],
     );
   };

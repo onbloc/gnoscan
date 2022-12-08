@@ -73,7 +73,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       return [];
     }
     return data.pages.reduce<Array<RealmTransactionData>>(
-      (accum, current) => [...accum, ...current.txs],
+      (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
       [],
     );
   };

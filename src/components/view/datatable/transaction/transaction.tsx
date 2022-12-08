@@ -61,7 +61,7 @@ export const TransactionDatatable = () => {
       return [];
     }
     return data.pages.reduce((accum: Array<TransactionData>, current) => {
-      return [...accum, ...current];
+      return current ? [...accum, ...current] : accum;
     }, []);
   };
 

@@ -26,7 +26,7 @@ export const MainTotalTransaction = () => {
   useEffect(() => {
     if (data) {
       const responseDatas = data.pages.reduce<Array<TotalTransactionResponse>>(
-        (accum, current) => [...accum, ...current],
+        (accum, current) => (current ? [...accum, ...current] : accum),
         [],
       );
       updatChartData(responseDatas);

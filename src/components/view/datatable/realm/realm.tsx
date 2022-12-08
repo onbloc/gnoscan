@@ -46,7 +46,7 @@ export const RealmDatatable = () => {
       return [];
     }
     return data.pages.reduce((accum: Array<Realms>, current) => {
-      return [...accum, ...current.realms];
+      return current ? [...accum, ...current.realms] : accum;
     }, []);
   };
 

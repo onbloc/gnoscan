@@ -35,7 +35,7 @@ export const BlockDatatable = () => {
       return [];
     }
     return data.pages.reduce((accum: Array<BlockData>, current) => {
-      return [...accum, ...current];
+      return current ? [...accum, ...current] : accum;
     }, []);
   };
 

@@ -73,7 +73,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       return [];
     }
     return data.pages.reduce<Array<BlockTransactionData>>(
-      (accum, current) => [...accum, ...current.txs],
+      (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
       [],
     );
   };
