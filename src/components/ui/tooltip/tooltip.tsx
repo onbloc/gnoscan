@@ -55,7 +55,7 @@ const container = css`
 `;
 
 const activeTooltip = css`
-  transition: all 0.5s ease-in;
+  transition: none;
   visibility: visible;
   transform: translate(-50%, 0);
 `;
@@ -100,7 +100,7 @@ const TooltipContent = styled.div`
   ${container};
   /* width: 163px; */
   height: auto;
-  transition: all 0.5s ease-in;
+  transition: none;
   position: absolute;
   left: 50%;
   bottom: calc(100% + 10px);
