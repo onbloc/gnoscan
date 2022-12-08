@@ -1,5 +1,4 @@
 import {textEllipsis} from '@/common/utils/string-util';
-import Link from 'next/link';
 import React from 'react';
 
 interface Props {
@@ -9,7 +8,9 @@ interface Props {
 
 export const BlockHash = ({hash, height}: Props) => {
   return height ? (
-    <Link href={`/blocks/${height}`}>{textEllipsis(hash ?? '', 8)}</Link>
+    <a href={`/blocks/${height}`} target={'_blank'} rel={'noopener noreferrer'}>
+      {textEllipsis(hash ?? '', 8)}
+    </a>
   ) : (
     <span>-</span>
   );

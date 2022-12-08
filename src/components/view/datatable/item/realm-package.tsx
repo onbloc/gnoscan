@@ -7,10 +7,10 @@ interface Props {
 
 export const RealmPakage = ({packagePath}: Props) => {
   return (
-    <Link href={`/realms/details?path=${packagePath}`}>
+    <a href={`/realms/details?path=${packagePath}`} target={'_blank'} rel={'noopener noreferrer'}>
       <span className="ellipsis link">
         {packagePath ? packagePath.replace('gno.land', '') : '-'}
       </span>
-    </Link>
+    </a>
   );
 };

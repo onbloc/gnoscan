@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import IconSuccess from '@/assets/svgs/icon-status-success.svg';
 import IconFail from '@/assets/svgs/icon-status-fail.svg';
-import Link from 'next/link';
 
 interface Props {
   txHash: string;
@@ -12,9 +11,13 @@ interface Props {
 export const TxHash = ({txHash, success}: Props) => {
   return (
     <TxHashWrapper>
-      <Link className="ellipsis" href={`/transactions/${txHash}`}>
+      <a
+        className="ellipsis"
+        href={`/transactions/${txHash}`}
+        target={'_blank'}
+        rel={'noopener noreferrer'}>
         {txHash}
-      </Link>
+      </a>
       <span className="status">{success ? <IconSuccess /> : <IconFail />}</span>
     </TxHashWrapper>
   );

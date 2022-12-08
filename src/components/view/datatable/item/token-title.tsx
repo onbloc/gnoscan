@@ -1,6 +1,5 @@
 import Text from '@/components/ui/text';
 import IconTokenDefault from '@/assets/svgs/icon-token-default.svg';
-import Link from 'next/link';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -13,12 +12,12 @@ interface Props {
 
 export const TokenTitle = ({name, denom}: Props) => {
   return (
-    <Link href={`/tokens/${denom}`}>
+    <a href={`/tokens/${denom}`} target={'_blank'} rel={'noopener noreferrer'}>
       <TokenTitleWrapper>
         <IconTokenDefault />
         <Text type="p4">{`${name} (${denom})`}</Text>
       </TokenTitleWrapper>
-    </Link>
+    </a>
   );
 };
 

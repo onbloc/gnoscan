@@ -1,6 +1,5 @@
 import {textEllipsis} from '@/common/utils/string-util';
 import Tooltip from '@/components/ui/tooltip';
-import Link from 'next/link';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -28,7 +27,9 @@ export const Publisher = ({username, address}: Props) => {
 
   return address ? (
     <Tooltip content={renderTooltip()}>
-      <Link href={`/accounts/${address}`}>{getDisplayUsername(address)}</Link>
+      <a href={`/accounts/${address}`} target={'_blank'} rel={'noopener noreferrer'}>
+        {getDisplayUsername(address)}
+      </a>
     </Tooltip>
   ) : (
     <>{getDisplayUsername()}</>
