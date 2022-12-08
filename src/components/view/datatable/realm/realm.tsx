@@ -105,6 +105,7 @@ export const RealmDatatable = () => {
       .key('publisher')
       .name('Publisher')
       .width(201)
+      .colorName('blue')
       .renderOption((_, data) => (
         <DatatableItem.Publisher address={data.publisher} username={data.username} />
       ))
