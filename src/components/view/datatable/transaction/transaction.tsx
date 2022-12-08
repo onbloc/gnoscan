@@ -138,7 +138,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('time')
       .name('Time')
-      .width(130)
+      .width(204)
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };

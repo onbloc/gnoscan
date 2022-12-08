@@ -151,7 +151,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('time')
       .name('Time')
-      .width(130)
+      .width(204)
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };

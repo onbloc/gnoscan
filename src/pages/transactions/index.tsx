@@ -2,11 +2,15 @@ import useLoading from '@/common/hooks/use-loading';
 import Text from '@/components/ui/text';
 import {TransactionDatatable} from '@/components/view/datatable';
 import LoadingPage from '@/components/view/loading/page';
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 
 const Transactions = () => {
   const {loading} = useLoading();
+
+  useEffect(() => {
+    window?.dispatchEvent(new Event('resize'));
+  }, [loading]);
 
   return (
     <Container>

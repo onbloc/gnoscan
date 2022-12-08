@@ -55,7 +55,7 @@ export const BlockDatatable = () => {
     return DatatableOption.Builder.builder<BlockData>()
       .key('block_hash')
       .name('Block Hash')
-      .width(211 + PADDING)
+      .width(243)
       .colorName('blue')
       .renderOption((_, data) => (
         <DatatableItem.BlockHash hash={data.block_hash} height={data.height} />
@@ -67,7 +67,7 @@ export const BlockDatatable = () => {
     return DatatableOption.Builder.builder<BlockData>()
       .key('height')
       .name('Height')
-      .width(89 + PADDING)
+      .width(121)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -77,7 +77,7 @@ export const BlockDatatable = () => {
     return DatatableOption.Builder.builder<BlockData>()
       .key('time')
       .name('Time')
-      .width(194 + PADDING)
+      .width(226)
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
@@ -86,7 +86,7 @@ export const BlockDatatable = () => {
     return DatatableOption.Builder.builder<BlockData>()
       .key('tx_count')
       .name('Tx Count')
-      .width(`${134 + PADDING}px`)
+      .width(166)
       .renderOption(numberWithCommas)
       .build();
   };
@@ -95,7 +95,7 @@ export const BlockDatatable = () => {
     return DatatableOption.Builder.builder<BlockData>()
       .key('proposer')
       .name('Proposer')
-      .width(194 + PADDING)
+      .width(226)
       .colorName('blue')
       .renderOption((_, data) => (
         <DatatableItem.Publisher address={data.proposer} username={data.username} />
@@ -107,7 +107,7 @@ export const BlockDatatable = () => {
     return DatatableOption.Builder.builder<BlockData>()
       .key('total_fees')
       .name('Total Fees')
-      .width(131 + PADDING)
+      .width(163)
       .renderOption(tatalFees => <DatatableItem.Amount value={tatalFees} denom={'ugnot'} />)
       .build();
   };

@@ -153,7 +153,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('time')
       .name('Time')
-      .width(130)
+      .width(204)
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
