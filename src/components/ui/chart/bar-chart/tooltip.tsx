@@ -44,8 +44,12 @@ const TooltipContainer = styled.div<{light: boolean}>`
       height: 100%;
       padding: 6px 10px;
       align-items: center;
-      background-color: ${({light}) =>
-        light ? theme.lightTheme.dimmed50 : theme.darkTheme.dimmed50};
+      background-color: ${({light}) => {
+        if (light) {
+          return theme.lightTheme.dimmed50;
+        }
+        return theme.darkTheme.dimmed50;
+      }};
       color: ${({light}) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
       ${theme.fonts.p4};
     }
