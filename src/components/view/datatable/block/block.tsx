@@ -18,6 +18,7 @@ interface BlockData {
   time: string;
   tx_count: number;
   proposer: string;
+  username?: string;
   total_fees: number;
 }
 
@@ -96,10 +97,8 @@ export const BlockDatatable = () => {
       .name('Proposer')
       .width(194 + PADDING)
       .colorName('blue')
-      .renderOption(proposer => (
-        <span className="ellipsis">
-          <Link href={`/accounts/${proposer}`}>{proposer}</Link>
-        </span>
+      .renderOption((_, data) => (
+        <DatatableItem.Publisher address={data.proposer} username={data.username} />
       ))
       .build();
   };

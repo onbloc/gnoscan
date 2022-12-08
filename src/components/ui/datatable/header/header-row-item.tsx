@@ -108,7 +108,8 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
 const ItemContainer = styled(DatatableOption.ColumnOption)<{left: string; top: string}>`
   & {
     ${theme.fonts.p4};
-    font-weight: 600;
+    font-weight: 400;
+    color: ${({theme}) => theme.colors.tertiary};
     justify-content: ${({options}) => options.headerAlign};
 
     .tooltip-wrapper {
