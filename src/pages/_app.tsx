@@ -6,13 +6,11 @@ import {QueryClient, QueryClientProvider} from 'react-query';
 import {Layout} from '@/components/core/layout';
 import Head from 'next/head';
 import {ErrorBoundary} from '@/components/core/error-boundary';
-import LoadingPage from '@/components/view/loading/page';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      suspense: true,
     },
   },
 });
