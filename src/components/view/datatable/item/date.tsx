@@ -1,4 +1,4 @@
-import {getDateDiff} from '@/common/utils/date-util';
+import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import Tooltip from '@/components/ui/tooltip';
 import React from 'react';
 import styled from 'styled-components';
@@ -9,7 +9,7 @@ interface Props {
 
 export const Date = ({date}: Props) => {
   const renderTooltip = () => {
-    return <TooltipWrapper>{date.replace(/T|\:\d\dZ/g, ' ')}</TooltipWrapper>;
+    return <TooltipWrapper>{getLocalDateString(date)}</TooltipWrapper>;
   };
 
   return (
