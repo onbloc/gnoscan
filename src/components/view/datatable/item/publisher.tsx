@@ -31,7 +31,7 @@ export const Publisher = ({username, address}: Props) => {
       <Link href={`/accounts/${address}`}>{getDisplayUsername(address)}</Link>
     </Tooltip>
   ) : (
-    getDisplayUsername()
+    <>{getDisplayUsername()}</>
   );
 };
 
