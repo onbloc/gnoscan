@@ -37,10 +37,10 @@ const usePageQuery = <T extends {[key in string]: any}>({
   const [sortOption, setSortOption] = useState<SortOption>({field: 'none', order: 'none'});
   const [hasNext, setHasNext] = useState(false);
   const {data, fetchNextPage, refetch, isFetched} = useInfiniteQuery(
-    [key, sortOption],
+    [key, sortOption, uri],
     query => fetchData(query.pageParam),
     {
-      keepPreviousData: true,
+      keepPreviousData: false,
       getNextPageParam: (lastPage, pages) =>
         lastPage.length === 0 ? pages.length : pages.length + 1,
     },

@@ -13,6 +13,7 @@ import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
+import {RealmDetailDatatable} from '@/components/view/datatable';
 
 type RealmResultType = {
   name: string;
@@ -129,6 +130,10 @@ const RealmsDetails = () => {
               </dd>
             </DLWrap>
             {realm.log && <ShowLog isTabLog={true} tabData={realm.log} btnTextType="Contract" />}
+          </DataSection>
+
+          <DataSection title="Transactions">
+            {path && <RealmDetailDatatable pkgPath={`${path}`} />}
           </DataSection>
         </>
       )}

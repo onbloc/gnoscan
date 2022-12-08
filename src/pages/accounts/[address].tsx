@@ -16,6 +16,7 @@ import Tooltip from '@/components/ui/tooltip';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import {v1} from 'uuid';
 import DataSection from '@/components/view/details-data-section';
+import {AccountDetailDatatable} from '@/components/view/datatable';
 interface StyleProps {
   media?: string;
   padding?: string;
@@ -104,6 +105,10 @@ const AccountDetails = () => {
             ))}
           </Content>
         )}
+      </DataSection>
+
+      <DataSection title="Transactions">
+        {address && <AccountDetailDatatable address={`${address}`} />}
       </DataSection>
     </DetailsPageLayout>
   );

@@ -36,11 +36,11 @@ const TokenTitleWrapper = styled.div`
       margin-right: 10px;
 
       circle {
-        fill: #fff;
+        fill: ${({theme}) => theme.colors.primary};
       }
 
       path {
-        fill: #121212;
+        fill: ${({theme}) => theme.colors.base};
       }
     }
   }

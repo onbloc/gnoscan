@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {TotalDailyFeeModel} from './total-daily-fee-model';
 import dynamic from 'next/dynamic';
+import usePageQuery from '@/common/hooks/use-page-query';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
@@ -16,19 +17,21 @@ export const MainTotalDailyFee = () => {
     new TotalDailyFeeModel([]),
   );
 
-  useEffect(() => {
-    fetchGasShareData();
-  }, []);
+  const {data} = usePageQuery<Array<TotalDailyFeeResponse>>({
+    key: 'main/total-daily-fee',
+    uri: 'http://3.218.133.250:7677/latest/info/daily_fees',
+    pageable: false,
+  });
 
-  const fetchGasShareData = () => {
-    try {
-      fetch('http://3.218.133.250:7677/v3/info/daily_fees')
-        .then(res => res.json())
-        .then(res => updatChartData(res));
-    } catch (e) {
-      console.log(e);
+  useEffect(() => {
+    if (data) {
+      const responseDatas = data.pages.reduce<Array<TotalDailyFeeResponse>>(
+        (accum, current) => [...accum, ...current],
+        [],
+      );
+      updatChartData(responseDatas);
     }
-  };
+  }, [data]);
 
   const updatChartData = (responseDatas: Array<TotalDailyFeeResponse>) => {
     setTotalDailyFeeModel(new TotalDailyFeeModel(responseDatas));

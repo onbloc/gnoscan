@@ -19,12 +19,14 @@ export const Type = ({type, func, packagePath}: Props) => {
     );
   };
 
-  return (
+  return func ? (
     <TypeWrapper>
       <Tooltip content={renderTooltip()}>
         <span className="function">{func}</span>
       </Tooltip>
     </TypeWrapper>
+  ) : (
+    <span>-</span>
   );
 };
 

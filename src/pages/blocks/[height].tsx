@@ -18,6 +18,7 @@ import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-com
 import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
+import {BlockDetailDatatable} from '@/components/view/datatable';
 
 interface TitleOptionProps {
   prevProps: {
@@ -157,6 +158,10 @@ const BlockDetails = () => {
                 </Badge>
               </dd>
             </DLWrap>
+          </DataSection>
+
+          <DataSection title="Transactions">
+            {height && <BlockDetailDatatable height={`${height}`} />}
           </DataSection>
         </DetailsPageLayout>
       )}

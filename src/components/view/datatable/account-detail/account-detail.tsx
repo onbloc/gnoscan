@@ -64,7 +64,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
   const [theme] = useTheme();
   const media = eachMedia();
 
-  const {data, hasNext, fetchNextPage} = usePageQuery<ResponseData>({
+  const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'account-detail/transactions',
     uri: `http://3.218.133.250:7677/latest/account/txs/${address}`,
     pageable: true,
@@ -124,7 +124,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .name('Block')
       .width(93)
       .colorName('blue')
-      .renderOption(value => `${value ?? '-'}`)
+      .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
@@ -172,12 +172,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
 
   return (
     <Container>
-      <div className="title-wrapper">
-        <Text type="h4" color="primary">
-          {'Transactions'}
-        </Text>
-      </div>
       <Datatable
+        loading={!finished}
         headers={createHeaders().map(item => {
           return {
             ...item,
@@ -204,25 +200,20 @@ const Container = styled.div<{maxWidth?: number}>`
     flex-direction: column;
     width: 100%;
     height: auto;
-    background-color: ${({theme}) => theme.colors.base};
-    border-radius: 10px;
     align-items: center;
 
-    .title-wrapper {
-      width: 100%;
-      padding-top: 24px;
-      padding-left: 24px;
+    & > div {
+      padding: 0;
     }
 
     .more-button {
-      width: calc(100% - 32px);
+      width: 100%;
       padding: 16px;
       color: ${({theme}) => theme.colors.primary};
       background-color: ${({theme}) => theme.colors.surface};
       ${theme.fonts.p4}
       font-weight: 600;
       margin-top: 4px;
-      margin-bottom: 24px;
 
       &.desktop {
         width: 344px;
