@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {TotalGasShareModel} from './total-gas-share-model';
 import dynamic from 'next/dynamic';
+import usePageQuery from '@/common/hooks/use-page-query';
 
 const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
   ssr: false,
@@ -19,19 +20,21 @@ export const MainRealmTotalGasShare = () => {
     new TotalGasShareModel([]),
   );
 
-  useEffect(() => {
-    fetchGasShareData();
-  }, []);
+  const {data} = usePageQuery<Array<TotalGasShareResponse>>({
+    key: 'main/total-gas-share',
+    uri: 'http://3.218.133.250:7677/latest/info/realms_gas',
+    pageable: false,
+  });
 
-  const fetchGasShareData = () => {
-    try {
-      fetch('http://3.218.133.250:7677/v3/info/realms_gas')
-        .then(res => res.json())
-        .then(res => updatChartData(res));
-    } catch (e) {
-      console.log(e);
+  useEffect(() => {
+    if (data) {
+      const responseDatas = data.pages.reduce<Array<TotalGasShareResponse>>(
+        (accum, current) => [...accum, ...current],
+        [],
+      );
+      updatChartData(responseDatas);
     }
-  };
+  }, [data]);
 
   const updatChartData = (responseDatas: Array<TotalGasShareResponse>) => {
     setTotalGasShareModel(new TotalGasShareModel(responseDatas));
