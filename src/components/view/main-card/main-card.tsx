@@ -120,7 +120,7 @@ const MainCard = () => {
               <BundleDl>
                 <dt>
                   <Text type="p4" color="tertiary">
-                    Exitdroptotal_Supply
+                    Exitdrop Supply
                   </Text>
                 </dt>
                 <dd>
