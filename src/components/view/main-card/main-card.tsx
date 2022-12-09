@@ -135,7 +135,7 @@ const MainCard = () => {
                   <Text type="p4" color="tertiary">
                     Holders
                   </Text>
-                  <Tooltip content="Number of accounts with a positive GNOT Balance.">
+                  <Tooltip width={164} content="Number of accounts with a positive GNOT Balance.">
                     <Button width="16px" height="16px" radius="50%" bgColor="surface">
                       <IconInfo className="svg-info" />
                     </Button>
@@ -234,7 +234,7 @@ const MainCard = () => {
           <>
             <Text type="h5" color="primary" className="title-info">
               Total&nbsp;Accounts
-              <Tooltip content="Number of accounts included in at least 1 transaction.">
+              <Tooltip width={164} content="Number of accounts included in at least 1 transaction.">
                 <Button width="16px" height="16px" radius="50%" bgColor="base">
                   <IconInfo className="svg-info" />
                 </Button>
@@ -262,7 +262,9 @@ const MainCard = () => {
                   <Text type="p4" color="tertiary">
                     Total&nbsp;Users
                   </Text>
-                  <Tooltip content="Number of accounts registered as a user on/r/demo/users.">
+                  <Tooltip
+                    width={164}
+                    content="Number of accounts registered as a user on/r/demo/users.">
                     <Button width="16px" height="16px" radius="50%" bgColor="surface">
                       <IconInfo className="svg-info" />
                     </Button>

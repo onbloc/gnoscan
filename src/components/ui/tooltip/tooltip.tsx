@@ -9,6 +9,7 @@ interface TooltipProps {
   children: React.ReactNode;
   content: React.ReactNode | string;
   trigger?: TriggerType;
+  width?: number;
   copyText?: string;
   contentWidth?: string;
 }
@@ -18,6 +19,7 @@ const Tooltip = ({
   children,
   content,
   trigger = 'hover',
+  width,
   copyText = '',
 }: TooltipProps) => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
@@ -43,7 +45,7 @@ const Tooltip = ({
       <div onClick={buttonClickHandler} className="tooltip-button">
         {children}
       </div>
-      <TooltipContent className="tooltip" trigger={trigger}>
+      <TooltipContent className="tooltip" trigger={trigger} width={width}>
         <TooltipText type="body1">{content}</TooltipText>
       </TooltipContent>
     </Wrapper>
@@ -100,10 +102,11 @@ const TooltipText = styled(Text)`
   padding: 16px;
 `;
 
-const TooltipContent = styled.div<{trigger: TriggerType}>`
+const TooltipContent = styled.div<{trigger: TriggerType; width?: number}>`
   ${mixins.flexbox('row', 'center', 'center')};
   ${container};
-  width: ${({trigger}) => (trigger === 'hover' ? '163px' : 'auto')};
+  width: ${({trigger}) => (trigger === 'hover' ? 'fit-content' : 'auto')};
+  width: ${({trigger, width}) => (trigger === 'hover' && width ? `${width}px` : 'auto')};
   height: auto;
   transition: none;
   position: absolute;
