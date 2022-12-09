@@ -5,7 +5,7 @@ import useSearchQuery from '@/common/hooks/use-search-query';
 import {searchState} from '@/states';
 import mixins from '@/styles/mixins';
 import React, {useCallback, useEffect, useState} from 'react';
-import {useRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import styled, {css} from 'styled-components';
 import Text from '@/components/ui/text';
 import {v1} from 'uuid';
@@ -22,54 +22,75 @@ interface StyleProps {
 
 const SearchResult = ({isMain}: {isMain: boolean}) => {
   const desktop = isDesktop();
-  const [value, setValue] = useRecoilState(searchState);
+  const value = useRecoilValue(searchState);
   const {result} = useSearchQuery();
   const {route} = useRouter();
   const [open, setOpen] = useState(false);
-  const ref = useOutSideClick(() => resetValue());
+  const ref = useOutSideClick(() => setOpen(false));
 
   useEffect(() => {
-    setOpen(() => Boolean(result));
-  }, [result]);
+    setOpen(() => Boolean(value));
+  }, [value]);
 
   useEffect(() => resetValue(), [route]);
+  if (result) console.log(result);
 
   const resetValue = useCallback(() => setOpen(false), [value]);
-
+  if (!value) return;
   return (
     <>
-      {open && result && (
+      {open && (
         <Wrapper desktop={desktop} isMain={isMain} ref={ref}>
-          {Object.keys(result).map(v => (
-            <Section>
-              <Text type={isMain ? 'p4' : 'body1'} color="tertiary">
-                {v}
-              </Text>
-              <ListContainer>
-                {result[v].map((item: any, i: number) => (
-                  <List key={v1()}>
-                    {v === 'accounts' ? (
-                      <Link href={`/accounts/${item.address}`} passHref>
-                        <FitContentA>
-                          <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
-                            {item.address}
-                          </Text>
-                        </FitContentA>
-                      </Link>
-                    ) : (
-                      <Link href={`/realms/details?path=${item}`} passHref>
-                        <FitContentA>
-                          <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
-                            {item}
-                          </Text>
-                        </FitContentA>
-                      </Link>
-                    )}
-                  </List>
-                ))}
-              </ListContainer>
-            </Section>
-          ))}
+          {Boolean(result) ? (
+            Object.keys(result).map(v => (
+              <Section key={v1()}>
+                <Text type={isMain ? 'p4' : 'body1'} color="tertiary">
+                  {v}
+                </Text>
+                <ListContainer>
+                  {result[v].map((item: any, i: number) => (
+                    <List key={v1()}>
+                      {v === 'accounts' ? (
+                        <Link href={`/accounts/${item.address}`} passHref>
+                          <FitContentAStyle>
+                            <Text
+                              type={isMain ? 'p4' : 'body1'}
+                              color="primary"
+                              className="ellipsis">
+                              {item.address}
+                              {item.username && (
+                                <Text
+                                  type={isMain ? 'p4' : 'body1'}
+                                  color="primary"
+                                  display="inline-block">
+                                  {` (${item.username})`}
+                                </Text>
+                              )}
+                            </Text>
+                          </FitContentAStyle>
+                        </Link>
+                      ) : (
+                        <Link href={`/realms/details?path=${item}`} passHref>
+                          <FitContentA>
+                            <Text
+                              type={isMain ? 'p4' : 'body1'}
+                              color="primary"
+                              className="ellipsis">
+                              {item}
+                            </Text>
+                          </FitContentA>
+                        </Link>
+                      )}
+                    </List>
+                  ))}
+                </ListContainer>
+              </Section>
+            ))
+          ) : (
+            <Text type={isMain ? 'p4' : 'body1'} color="tertiary">
+              No match found
+            </Text>
+          )}
         </Wrapper>
       )}
     </>
@@ -115,6 +136,10 @@ const Wrapper = styled.div<StyleProps>`
   padding: 16px;
   overflow: auto;
   gap: 8px;
+`;
+
+const FitContentAStyle = styled(FitContentA)`
+  ${mixins.flexbox('row', 'center', 'center')}
 `;
 
 export default SearchResult;
