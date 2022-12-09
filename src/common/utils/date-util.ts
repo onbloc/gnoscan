@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
 
 const getDateUtcToLocal = (d: any) => {
+  const dotPosition = `${d}`.lastIndexOf('.');
+  const dateString = dotPosition > 2 ? `${d}`.substring(0, dotPosition + 2) : `${d}`;
   const timezoneOffset = new Date().getTimezoneOffset();
-  const currentDate = dayjs(d).subtract(timezoneOffset, 'minutes');
+  const currentDate = dayjs(dateString).subtract(timezoneOffset, 'minutes');
   return {
     value: currentDate.format('YYYY-MM-DD HH:mm:ss'),
     offsetHours: -timezoneOffset / 60,
