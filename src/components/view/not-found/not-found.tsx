@@ -8,7 +8,11 @@ import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
 import Link from 'next/link';
 
-const NotFound = () => {
+interface Props {
+  keyword?: string;
+}
+
+const NotFound = ({keyword}: Props) => {
   const media = eachMedia();
   return (
     <Wrapper className={media}>
@@ -17,7 +21,7 @@ const NotFound = () => {
         <div className="description">
           <span>{'There are no results found for'}</span>
           <span>
-            <b>{'“user input text”'}</b>
+            <b>{`${keyword}`}</b>
           </span>
           <span>{'Please make sure your input is valid and try again. '}</span>
         </div>
