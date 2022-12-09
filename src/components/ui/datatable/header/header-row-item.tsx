@@ -66,19 +66,35 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
     );
   };
 
-  const handleSortOption = () => {
-    let changedSortOption = {
+  const getChangedSortOption = () => {
+    const changedSortOption = {
       field: header.key,
       order: 'desc',
     };
 
-    if (sortOption?.order === 'desc') {
-      changedSortOption.order = 'asc';
-    } else if (sortOption?.order === 'asc') {
-      changedSortOption.field = 'none';
-      changedSortOption.order = 'none';
+    if (sortOption?.field !== header.key) {
+      return changedSortOption;
     }
 
+    if (sortOption?.order === 'desc') {
+      return {
+        ...changedSortOption,
+        order: 'asc',
+      };
+    }
+
+    if (sortOption?.order === 'asc') {
+      return {
+        field: 'none',
+        order: 'none',
+      };
+    }
+
+    return changedSortOption;
+  };
+
+  const handleSortOption = () => {
+    const changedSortOption = getChangedSortOption();
     setSortOption && setSortOption(changedSortOption);
   };
 
@@ -144,8 +160,8 @@ const ItemContainer = styled(DatatableOption.ColumnOption)<{left: string; top: s
   }
 `;
 
-const getSortIconColor = (active: boolean, order: string, theme: any) => {
-  if (active && order) {
+const getSortIconColor = (active: boolean, order: string, expectedOrder: string, theme: any) => {
+  if (active && order === expectedOrder) {
     return theme?.colors?.blue ?? '';
   }
   return theme?.colors?.pantone ?? '';
@@ -164,11 +180,11 @@ const SortContainer = styled.div<{active: boolean; order: string}>`
     ${theme.fonts.p4};
 
     .up {
-      fill: ${({active, order, theme}) => getSortIconColor(active, order, theme)};
+      fill: ${({active, order, theme}) => getSortIconColor(active, order, 'asc', theme)};
     }
 
     .down {
-      fill: ${({active, order, theme}) => getSortIconColor(active, order, theme)};
+      fill: ${({active, order, theme}) => getSortIconColor(active, order, 'desc', theme)};
     }
   }
 `;

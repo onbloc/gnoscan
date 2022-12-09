@@ -132,7 +132,7 @@ export const RealmDatatable = () => {
   };
 
   return (
-    <>
+    <Container>
       <Datatable
         headers={createHeaders().map(item => {
           return {
@@ -147,22 +147,38 @@ export const RealmDatatable = () => {
 
       {hasNext ? (
         <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
-          {'View More Transactions'}
+          {'View More Realms'}
         </Button>
       ) : (
         <></>
       )}
-    </>
+    </Container>
   );
 };
 
-const MoreButton = styled(Button)`
-  width: 344px;
-  padding: 16px;
-  color: ${({theme}) => theme.colors.primary};
-  background-color: ${({theme}) => theme.colors.surface};
-  ${theme.fonts.p4}
-  font-weight: 600;
-  margin-top: 4px;
-  margin-bottom: 24px;
+const Container = styled.div<{maxWidth?: number}>`
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    align-items: center;
+    background-color: ${({theme}) => theme.colors.base};
+    padding-bottom: 24px;
+    border-radius: 10px;
+
+    .more-button {
+      width: 100%;
+      padding: 16px;
+      color: ${({theme}) => theme.colors.primary};
+      background-color: ${({theme}) => theme.colors.surface};
+      ${theme.fonts.p4}
+      font-weight: 600;
+      margin-top: 4px;
+
+      &.desktop {
+        width: 344px;
+      }
+    }
+  }
 `;
