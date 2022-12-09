@@ -36,7 +36,7 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
   if (result) console.log(result);
 
   const resetValue = useCallback(() => setOpen(false), [value]);
-  if (!value) return;
+  if (!value) return <></>;
   return (
     <>
       {open && (
