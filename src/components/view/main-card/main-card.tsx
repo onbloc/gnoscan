@@ -76,7 +76,7 @@ const MainCard = () => {
       select: (res: any) => {
         const tx = res.data.tx;
         return {
-          avg_24hr: numberWithFixedCommas(tx.avg_24hr, 6),
+          avg_24hr: numberWithFixedCommas(tx.avg_24hr / 1000000, 6),
           total_fee: numberWithFixedCommas(tx.total_fee / 1000000, 2),
           total_txs: numberWithCommas(tx.total_txs),
         };
