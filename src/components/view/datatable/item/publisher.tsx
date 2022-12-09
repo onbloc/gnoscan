@@ -25,7 +25,7 @@ export const Publisher = ({username, address}: Props) => {
     return '-';
   };
 
-  return address ? (
+  return address && address !== 'genesis' ? (
     <Tooltip content={renderTooltip()}>
       <a href={`/accounts/${address}`} target={'_blank'} rel={'noopener noreferrer'}>
         {getDisplayUsername(address)}
