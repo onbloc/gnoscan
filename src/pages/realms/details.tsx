@@ -14,7 +14,6 @@ import ShowLog from '@/components/ui/show-log';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {RealmDetailDatatable} from '@/components/view/datatable';
-import useLoading from '@/common/hooks/use-loading';
 import {API_URI} from '@/common/values/constant-value';
 
 type RealmResultType = {
@@ -28,9 +27,12 @@ type RealmResultType = {
   gasUsed: string;
   log: LogDataType;
 };
+function unescapeHtml(text: string) {
+  var doc = new DOMParser().parseFromString(text, 'text/html');
+  return doc.documentElement.textContent;
+}
 
 const RealmsDetails = () => {
-  const {loading} = useLoading();
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
@@ -56,7 +58,7 @@ const RealmsDetails = () => {
           gasUsed: realmData.gas_used,
           log: {
             list: realmData.extra.files,
-            content: realmData.extra.contents,
+            content: realmData.extra.contents.map((v: any) => window.atob(v)),
           },
         };
       },
@@ -65,7 +67,7 @@ const RealmsDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Realm Details'} isFetched={isFetched}>
+    <DetailsPageLayout title={'Realm Details'} visible={!isFetched}>
       {realmSuccess && (
         <>
           <DataSection title="Summary">
@@ -131,7 +133,7 @@ const RealmsDetails = () => {
               <dt>Gas Used</dt>
               <dd>
                 <Badge>
-                  <AmountText minSize="body1" maxSize="p4" value={realm.gasUsed} denom="GNOT" />
+                  <AmountText minSize="body1" maxSize="p4" value={realm.gasUsed} />
                 </Badge>
               </dd>
             </DLWrap>

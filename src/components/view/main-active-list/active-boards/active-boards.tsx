@@ -28,7 +28,7 @@ interface BoardsResultType {
 const ActiveBoards = () => {
   const media = eachMedia();
   const {data: boards, isSuccess: boardsSuccess}: UseQueryResult<BoardsResultType> = useQuery(
-    'info/most_active_board',
+    ['info/most_active_board'],
     async () => await axios.get(API_URI + '/latest/info/most_active_board'),
     {
       select: (res: any) => {

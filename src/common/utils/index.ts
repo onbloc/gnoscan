@@ -36,6 +36,7 @@ export const decimalFixed = (v: number | string, fixed: number) => {
  * 정수일 경우에만 가능하며 comma 찍고 return.
  */
 export const numberWithCommas = (v: number | string) => {
+  if (v === '0' || !Boolean(v)) return '0';
   return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
@@ -43,6 +44,7 @@ export const numberWithCommas = (v: number | string) => {
  * 소수점이 0일 경우 없애기
  */
 export const parseFloatNum = (v: number | string): string => {
+  if (v === '0' || !Boolean(v)) return '0';
   return parseFloat(v.toString()).toString();
 };
 
@@ -87,4 +89,8 @@ export const statusObj = (status: StatusKeyType): StatusResultType => {
         color: 'primary',
       };
   }
+};
+
+export const isEmptyObj = <T extends {[key in string]: any}>(obj: T): boolean => {
+  return obj.constructor === Object && Object.keys(obj).length === 0 ? true : false;
 };

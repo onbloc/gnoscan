@@ -3,7 +3,7 @@ import axios from 'axios';
 import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
 import {useQuery, UseQueryResult} from 'react-query';
-import {decimalPointWithCommas, formatAddress, formatEllipsis} from '@/common/utils';
+import {formatAddress, formatEllipsis} from '@/common/utils';
 import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
 import {
@@ -37,11 +37,11 @@ interface AccountsResultType {
 const ActiveAccount = () => {
   const media = eachMedia();
   const {data: accounts, isSuccess: accountsSuccess}: UseQueryResult<AccountsResultType> = useQuery(
-    'info/most_active_account',
+    ['info/most_active_account'],
     async () => await axios.get(API_URI + '/latest/info/most_active_account'),
     {
       select: (res: any) => {
-        const accounts = res.data.accounts.map((v: any, i: number) => {
+        const accounts = res.data.accounts.map((v: any) => {
           return {
             no: v.idx,
             address: v.account_address,

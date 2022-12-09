@@ -65,7 +65,7 @@ const TokenDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Token Details'} isFetched={isFetched}>
+    <DetailsPageLayout title={'Token Details'} visible={!isFetched}>
       {tokenSuccess && (
         <>
           <DataSection title="Summary">

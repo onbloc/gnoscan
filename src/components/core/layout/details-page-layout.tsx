@@ -1,13 +1,11 @@
-import {eachMedia} from '@/common/hooks/use-media';
+import {isDesktop} from '@/common/hooks/use-media';
 import React from 'react';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
 import LoadingPage from '@/components/view/loading/page';
-import useLoading from '@/common/hooks/use-loading';
-
 interface StyleProps {
-  media?: string;
+  desktop?: boolean;
   titleAlign?: 'center' | 'flex-start' | 'flex-end' | 'space-between';
   visible?: boolean;
 }
@@ -15,7 +13,6 @@ interface DetailsLayoutProps extends StyleProps {
   children: React.ReactNode;
   title: string | React.ReactNode;
   titleOption?: React.ReactNode;
-  isFetched: boolean;
 }
 
 export const DetailsPageLayout = ({
@@ -23,19 +20,19 @@ export const DetailsPageLayout = ({
   title,
   titleOption,
   titleAlign = 'flex-start',
-  isFetched,
+  visible,
 }: DetailsLayoutProps) => {
-  const media = eachMedia();
-  // const {loading} = useLoading();
-  // console.log(loading);
+  const desktop = isDesktop();
+
   return (
-    <Wrapper media={media}>
+    <Wrapper>
       <div className="inner-layout">
-        <Content media={media} titleAlign={titleAlign}>
+        <LoadingPage visible={visible} />
+        <Content desktop={desktop} titleAlign={titleAlign} visible={!visible}>
           <Text
-            type={media === 'desktop' ? 'h2' : 'p2'}
+            type={desktop ? 'h2' : 'p2'}
             color="primary"
-            margin={media === 'desktop' ? '0px 0px 24px' : '0px 0px 16px'}
+            margin={desktop ? '0px 0px 24px' : '0px 0px 16px'}
             className="content-text">
             {title}
             {titleOption && titleOption}
@@ -47,18 +44,19 @@ export const DetailsPageLayout = ({
   );
 };
 
-const Wrapper = styled.main<StyleProps>`
+const Wrapper = styled.main`
   width: 100%;
   flex: 1;
-  padding: ${({media}) => (media === 'desktop' ? '40px 0px' : '24px 0px')};
 `;
 
 const Content = styled.div<StyleProps>`
   width: 100%;
   background-color: ${({theme}) => theme.colors.surface};
   border-radius: 10px;
-  padding: ${({media}) => (media === 'desktop' ? '24px' : '16px')};
+  padding: ${({desktop}) => (desktop ? '24px' : '16px')};
+  margin: ${({desktop}) => (desktop ? '40px 0px' : '24px 0px')};
   .content-text {
     ${({titleAlign}) => mixins.flexbox('row', 'center', titleAlign ?? 'center')};
   }
+  ${({visible}) => !visible && 'display: none;'}
 `;

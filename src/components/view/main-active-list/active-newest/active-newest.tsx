@@ -31,7 +31,7 @@ interface NewestResultType {
 const ActiveNewest = () => {
   const media = eachMedia();
   const {data: newest, isSuccess: newestSuccess}: UseQueryResult<NewestResultType> = useQuery(
-    'info/newest_realm',
+    ['info/newest_realm'],
     async () => await axios.get(API_URI + '/latest/info/newest_realm'),
     {
       select: (res: any) => {

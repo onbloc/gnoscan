@@ -18,6 +18,7 @@ import {v1} from 'uuid';
 import DataSection from '@/components/view/details-data-section';
 import {AccountDetailDatatable} from '@/components/view/datatable';
 import {API_URI} from '@/common/values/constant-value';
+import {toGnot} from '@/common/utils/gnot-util';
 interface StyleProps {
   media?: string;
   padding?: string;
@@ -49,23 +50,25 @@ const AccountDetails = () => {
     {
       enabled: !!address,
       select: (res: any) => {
+        console.log(res.data);
         return {
           ...res.data,
           username: res.data.username,
           assets: res.data.assets.map((v: any) => {
+            const convert = toGnot(v.value, v.denom);
             return {
               ...v,
-              value: v.denom === 'ugnot' ? v.value / 1000000 : v.value,
+              ...convert,
             };
           }),
         };
       },
-      // onSuccess: (res: any) => console.log('Detail Data : ', res.data),
+      // onSuccess: (res: any) => console.log('Detail Data : ', res),
     },
   );
 
   return (
-    <DetailsPageLayout title="Account Details" isFetched={isFetched}>
+    <DetailsPageLayout title="Account Details" visible={!isFetched}>
       <DataSection title="Address">
         {detailSuccess && (
           <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>

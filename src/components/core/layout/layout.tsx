@@ -24,8 +24,6 @@ export const Layout = ({children}: LayoutProps) => {
   const [themeMode] = useTheme();
   const {clearLoading} = useLoading();
 
-  useEffect(() => console.log(themeMode), [themeMode]);
-
   useEffect(() => {
     clearLoading();
   }, []);
