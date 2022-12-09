@@ -286,21 +286,45 @@ const TransactionDetails = () => {
               <AddPkgContract contract={tx.contract} desktop={desktop} />
             )}
             {!['Transfer', 'AddPkg'].includes(tx.contract.args.type) &&
-              Object.keys(tx.contract.args.data).map((v, i) => (
-                <DLWrap desktop={desktop} key={v1()}>
-                  <dt>{v}</dt>
-                  <dd>
-                    <Badge>
-                      <Text
-                        type="p4"
-                        color="inherit"
-                        className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                        {tx.contract.args.data[v] ?? '-'}
-                      </Text>
-                    </Badge>
-                  </dd>
-                </DLWrap>
-              ))}
+              Object.keys(tx.contract.args.data).map((v, i) =>
+                v === 'Caller' ? (
+                  <DLWrap desktop={desktop} key={v1()}>
+                    <dt>{v}</dt>
+                    <dd>
+                      <Badge>
+                        <Link href={`/accounts/${tx?.contract?.caller ?? ''}`} passHref>
+                          <FitContentA>
+                            <Text
+                              type="p4"
+                              color="blue"
+                              className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                              {tx.contract.args.data[v] ?? '-'}
+                            </Text>
+                          </FitContentA>
+                        </Link>
+                        <Text
+                          type="p4"
+                          color="blue"
+                          className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}></Text>
+                      </Badge>
+                    </dd>
+                  </DLWrap>
+                ) : (
+                  <DLWrap desktop={desktop} key={v1()}>
+                    <dt>{v}</dt>
+                    <dd>
+                      <Badge>
+                        <Text
+                          type="p4"
+                          color="inherit"
+                          className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                          {tx.contract.args.data[v] ?? '-'}
+                        </Text>
+                      </Badge>
+                    </dd>
+                  </DLWrap>
+                ),
+              )}
             {tx.log && <ShowLog isTabLog={false} logData={tx.log} btnTextType="Logs" />}
           </DataSection>
         </>
@@ -328,7 +352,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
               ) : (
                 <Text
                   type="p4"
-                  color="inherit"
+                  color={'inherit'}
                   className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
                   {contract.args.data[v] ?? '-'}
                 </Text>

@@ -84,11 +84,11 @@ const AccountDetails = () => {
               </Tooltip>
               {detail.username && (
                 <Text type="p4" color="blue" className="username-text">
-                  {detail.username}
                   <StyledA
                     href={`https://test3.gno.land/r/demo/users:${detail.username}`}
                     target="_blank"
                     rel="noreferrer">
+                    {detail.username}
                     <IconLink className="svg-icon" />
                   </StyledA>
                 </Text>
