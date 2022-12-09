@@ -9,6 +9,8 @@ import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import Link from 'next/link';
 import {API_URI} from '@/common/values/constant-value';
+import {getLocalDateString} from '@/common/utils/date-util';
+import IconLink from '@/assets/svgs/icon-link.svg';
 
 type NewestValueType = {
   no: number;
@@ -64,7 +66,7 @@ const ActiveNewest = () => {
             Newest Realms
             {media !== 'mobile' && (
               <Text type="body1" color="tertiary">
-                {`Last Updated: ${newest?.last_update}`}
+                {`Last Updated: ${getLocalDateString(newest?.last_update)}`}
               </Text>
             )}
           </Text>
@@ -72,7 +74,7 @@ const ActiveNewest = () => {
             <>
               {newest.data.map((v: NewestValueType, i: number) => (
                 <List key={v1()}>
-                  <StyledText type="p4" width={colWidth.newest[0]} color="reverse">
+                  <StyledText type="p4" width={colWidth.newest[0]} color="tertiary">
                     {v.no}
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[1]} color="blue">
@@ -110,7 +112,7 @@ const ActiveNewest = () => {
           </ActiveList>
           {media === 'mobile' && (
             <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-              {`Last Updated: ${newest?.last_update}`}
+              {`Last Updated: ${getLocalDateString(newest?.last_update)}`}
             </Text>
           )}
         </>

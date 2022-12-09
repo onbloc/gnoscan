@@ -17,6 +17,8 @@ import {
 import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
 import {API_URI} from '@/common/values/constant-value';
+import {getLocalDateString} from '@/common/utils/date-util';
+import Tooltip from '@/components/ui/tooltip';
 
 type AccountsValueType = {
   no: number;
@@ -68,7 +70,7 @@ const ActiveAccount = () => {
             Monthly Active Accounts
             {media !== 'mobile' && (
               <Text type="body1" color="tertiary">
-                {`Last Updated: ${accounts?.last_update}`}
+                {`Last Updated: ${getLocalDateString(accounts?.last_update)}`}
               </Text>
             )}
           </Text>
@@ -76,16 +78,20 @@ const ActiveAccount = () => {
             <>
               {accounts.data.map((v: AccountsValueType) => (
                 <List key={v1()}>
-                  <StyledText type="p4" width={colWidth.accounts[0]} color="reverse">
+                  <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
                     {v.no}
                   </StyledText>
-                  <Link href={`/accounts/${v.address}`} passHref>
-                    <a>
-                      <StyledText type="p4" width={colWidth.accounts[1]} color="blue">
-                        {v.account}
-                      </StyledText>
-                    </a>
-                  </Link>
+                  <StyledText
+                    className="with-link"
+                    type="p4"
+                    width={colWidth.accounts[1]}
+                    color="blue">
+                    <Link href={`/accounts/${v.address}`} passHref>
+                      <a>
+                        <Tooltip content={v.address}>{v.account}</Tooltip>
+                      </a>
+                    </Link>
+                  </StyledText>
                   <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
                     {v.totalTxs}
                   </StyledText>
@@ -105,7 +111,7 @@ const ActiveAccount = () => {
           </ActiveList>
           {media === 'mobile' && (
             <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-              {`Last Updated: ${accounts?.last_update}`}
+              {`Last Updated: ${getLocalDateString(accounts?.last_update)}`}
             </Text>
           )}
         </>

@@ -9,6 +9,7 @@ import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import {API_URI} from '@/common/values/constant-value';
+import {getLocalDateString} from '@/common/utils/date-util';
 
 type BoardsValueType = {
   no: number;
@@ -58,7 +59,7 @@ const ActiveBoards = () => {
             Monthly Active Boards
             {media !== 'mobile' && (
               <Text type="body1" color="tertiary">
-                {`Last Updated: ${boards?.last_update}`}
+                {`Last Updated: ${getLocalDateString(boards?.last_update)}`}
               </Text>
             )}
           </Text>
@@ -66,7 +67,7 @@ const ActiveBoards = () => {
             <>
               {boards.data.map((v: BoardsValueType) => (
                 <List key={v1()}>
-                  <StyledText type="p4" width={colWidth.boards[0]} color="reverse">
+                  <StyledText type="p4" width={colWidth.boards[0]} color="tertiary">
                     {v.no}
                   </StyledText>
                   <StyledText
@@ -98,7 +99,7 @@ const ActiveBoards = () => {
           </ActiveList>
           {media === 'mobile' && (
             <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-              {`Last Updated: ${boards?.last_update}`}
+              {`Last Updated: ${getLocalDateString(boards?.last_update)}`}
             </Text>
           )}
         </>

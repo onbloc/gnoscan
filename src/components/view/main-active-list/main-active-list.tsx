@@ -9,7 +9,7 @@ import Text from '@/components/ui/text';
 import {AmountText} from '@/components/ui/text/amount-text';
 
 export const listTitle = {
-  accounts: ['No.', 'Account', 'TotalTxs', 'Non-Transfer Txs', 'Balance (GNOT)'],
+  accounts: ['No.', 'Account', 'Total Txs', 'Non-Transfer Txs', 'Balance (GNOT)'],
   boards: ['No.', 'Name', 'Replies', 'Reposts', 'Unique Users'],
   newest: ['No.', 'Name', 'Publisher', 'Functions', 'Calls', 'Block'],
 };
@@ -76,6 +76,7 @@ const textStyle = css`
   &.with-link {
     a {
       ${mixins.flexbox('row', 'center', 'flex-start')};
+      width: 100%;
     }
   }
 `;
