@@ -17,6 +17,7 @@ import dynamic from 'next/dynamic';
 import {SubInput} from '@/components/ui/input';
 import Network from '@/components/ui/network';
 import {SubMenu} from './sub-menu';
+import {GNO_CHAIN_NAME} from '@/common/values/constant-value';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -60,8 +61,8 @@ export const TopNav = () => {
   const isMain = router.route === '/';
   const entry = router.route === '/' || (router.route !== '/' && theme === 'dark');
   const [network, setNetwork] = useState({
-    current: 'Mainnet',
-    all: ['Mainnet', 'Testnet 3', 'Testnet 4'],
+    current: GNO_CHAIN_NAME,
+    all: [GNO_CHAIN_NAME],
   });
   const [value, setValue] = useState('');
   const [toggle, setToggle] = useState<boolean>(false);
