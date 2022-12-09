@@ -49,7 +49,7 @@ export const Datatable = <T extends {[key in string]: any}>({
           <DatatableData.DataList headers={headers} datas={datas} />
         ) : (
           <div className="no-content-wrapper">
-            <span>{'No data'}</span>
+            <span>{'No data to display'}</span>
           </div>
         )}
       </div>
