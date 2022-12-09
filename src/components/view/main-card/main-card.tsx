@@ -13,6 +13,7 @@ import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
 import {API_URI} from '@/common/values/constant-value';
+import {denomConvert} from '@/common/utils/gnot-util';
 interface SupplyResultType {
   supply: string;
   exit: string;
@@ -29,6 +30,7 @@ interface TxResultType {
   avg_24hr: string;
   total_fee: string;
   total_txs: string;
+  denom: string;
 }
 
 interface AccountsResultType {
@@ -79,6 +81,7 @@ const MainCard = () => {
           avg_24hr: numberWithFixedCommas(tx.avg_24hr / 1000000, 6),
           total_fee: numberWithFixedCommas(tx.total_fee / 1000000, 2),
           total_txs: numberWithCommas(tx.total_txs),
+          denom: denomConvert('GNOT'),
         };
       },
     },
@@ -205,7 +208,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {card03?.avg_24hr}
+                    {`${card03?.avg_24hr} ${card03?.denom}`}
                   </Text>
                 </dd>
               </BundleDl>
@@ -218,7 +221,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {card03?.total_fee}
+                    {`${card03?.total_fee} ${card03?.denom}`}
                   </Text>
                 </dd>
               </BundleDl>
