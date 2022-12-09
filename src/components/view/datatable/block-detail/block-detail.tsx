@@ -210,7 +210,7 @@ const Container = styled.div<{maxWidth?: number}>`
       background-color: ${({theme}) => theme.colors.surface};
       ${theme.fonts.p4}
       font-weight: 600;
-      margin-top: 4px;
+      margin-top: 24px;
 
       &.desktop {
         width: 344px;

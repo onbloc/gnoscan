@@ -80,7 +80,7 @@ const RealmsDetails = () => {
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Function Type(s)</dt>
-              <dd>
+              <dd className="function-wrapper">
                 {realm.funcs.map((v: string) => (
                   <Badge type="blue" key={v1()}>
                     <Text type="p4" color="white">
@@ -94,13 +94,21 @@ const RealmsDetails = () => {
               <dt>Publisher</dt>
               <dd>
                 <Badge>
-                  <Link href={`/accounts/${realm.address}`} passHref>
+                  {realm.publisher === 'genesis' ? (
                     <FitContentA>
-                      <Text type="p4" color="blue" className="ellipsis">
+                      <Text type="p4" color="white" className="ellipsis">
                         {realm.publisher}
                       </Text>
                     </FitContentA>
-                  </Link>
+                  ) : (
+                    <Link href={`/accounts/${realm.address}`} passHref>
+                      <FitContentA>
+                        <Text type="p4" color="blue" className="ellipsis">
+                          {realm.publisher}
+                        </Text>
+                      </FitContentA>
+                    </Link>
+                  )}
                 </Badge>
               </dd>
             </DLWrap>
@@ -108,13 +116,21 @@ const RealmsDetails = () => {
               <dt>Block Published</dt>
               <dd>
                 <Badge>
-                  <Link href={`/blocks/${realm.blockPublished}`} passHref>
+                  {realm.blockPublished === 0 ? (
                     <FitContentA>
-                      <Text type="p4" color="blue">
-                        {realm.blockPublished}
+                      <Text type="p4" color="white" className="ellipsis">
+                        {'-'}
                       </Text>
                     </FitContentA>
-                  </Link>
+                  ) : (
+                    <Link href={`/blocks/${realm.blockPublished}`} passHref>
+                      <FitContentA>
+                        <Text type="p4" color="blue">
+                          {realm.blockPublished}
+                        </Text>
+                      </FitContentA>
+                    </Link>
+                  )}
                 </Badge>
               </dd>
             </DLWrap>
