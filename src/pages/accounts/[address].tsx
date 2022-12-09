@@ -56,6 +56,7 @@ const AccountDetails = () => {
           username: res.data.username,
           assets: res.data.assets.map((v: any) => {
             const convert = toGnot(v.value, v.denom);
+            console.log(convert);
             return {
               ...v,
               ...convert,

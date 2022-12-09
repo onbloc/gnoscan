@@ -45,7 +45,6 @@ const TypeWrapper = styled.div`
     .function {
       display: flex;
       padding: 4px 16px;
-      font-weight: 600;
       color: #fff;
       background-color: ${({theme}) => theme.colors.blue};
       border-radius: 4px;

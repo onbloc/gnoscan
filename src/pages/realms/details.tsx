@@ -47,6 +47,7 @@ const RealmsDetails = () => {
       enabled: !!path,
       select: (res: any) => {
         const realmData = res.data;
+        console.log(realmData);
         return {
           name: realmData.name,
           funcs: realmData.function_types,

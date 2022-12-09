@@ -151,6 +151,7 @@ const TransactionDetails = () => {
     {
       enabled: !!hash,
       select: (res: any) => {
+        console.log(res.data);
         const {summary, contract, log} = res.data;
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
