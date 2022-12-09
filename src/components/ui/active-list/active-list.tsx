@@ -1,5 +1,5 @@
 import {eachMedia} from '@/common/hooks/use-media';
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {v1} from 'uuid';
@@ -13,8 +13,21 @@ interface ActiveListProps {
 
 const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
   const media = eachMedia();
+  const [scrollVisible, setScrollVisible] = useState(false);
+
+  const onFocusIn = () => {
+    setScrollVisible(true);
+  };
+
+  const onFocusOut = () => {
+    setScrollVisible(false);
+  };
+
   return (
-    <ListContainer>
+    <ListContainer
+      className={!scrollVisible ? 'scroll-visible' : ''}
+      onMouseEnter={onFocusIn}
+      onMouseLeave={onFocusOut}>
       <ListTitleWrap>
         {title.map((v: string, i: number) => (
           <StyledText
@@ -39,6 +52,29 @@ const ListContainer = styled.div`
   margin-top: 16px;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.base};
+
+  &.scroll-visible {
+    overflow: hidden scroll;
+  }
+
+  &.scroll-visible::-webkit-scrollbar {
+    width: 5px;
+    display: block;
+  }
+
+  &.scroll-visible::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: black !important;
+    display: block !important;
+  }
+  ::-webkit-scrollbar-button {
+    width: 20px;
+    height: 10px;
+  }
 `;
 
 const ListTitleWrap = styled.div`
