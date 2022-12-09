@@ -1,20 +1,14 @@
 export const toGnot = (value: number, denom: string) => {
-  const denomValue = `${denom}`.toUpperCase().trim();
-  const changedValue = {
-    value,
-    denom,
+  return {
+    value: valueConvert(value, denom),
+    denom: denomConvert(denom),
   };
+};
 
-  if (denomValue === 'GNOT') {
-    changedValue.value = value;
-    changedValue.denom = denomValue;
-    return changedValue;
-  }
-  if (denomValue === 'UGNOT') {
-    changedValue.value = value / 1000000;
-    changedValue.denom = 'GNOT';
-    return changedValue;
-  }
+export const denomConvert = (denom: string) => {
+  return `${denom}`.toUpperCase().trim();
+};
 
-  return changedValue;
+export const valueConvert = (value: number, denom: string) => {
+  return ['ugnot', 'UGNOT'].includes(denom) ? value / 1000000 : value;
 };

@@ -6,16 +6,18 @@ import React from 'react';
 import styled from 'styled-components';
 import Search from '@/assets/svgs/icon-search.svg';
 import {isDesktop} from '@/common/hooks/use-media';
+import SearchResult from '../search-result';
 
 interface SubInputProps {
+  className?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const MainInput = ({value, onChange}: SubInputProps) => {
+export const MainInput = ({className = '', value, onChange}: SubInputProps) => {
   const desktop = isDesktop();
   return (
-    <Wrapper isDesktop={desktop}>
+    <Wrapper isDesktop={desktop} className={className}>
       <Input
         value={value}
         onChange={onChange}
@@ -25,12 +27,14 @@ export const MainInput = ({value, onChange}: SubInputProps) => {
       <Button>
         <Search className="search-icon" />
       </Button>
+      <SearchResult isMain={true} />
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div<{isDesktop: boolean}>`
   ${mixins.flexbox('row', 'center', 'space-between')};
+  position: relative;
   background-color: ${theme.darkTheme.dimmed200};
   padding: 10px;
   border-radius: 17px;
@@ -49,9 +53,11 @@ const Button = styled.button`
   height: 100%;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
+  cursor: default;
 `;
 
 const Input = styled.input`
+  ${({theme}) => theme.fonts.p4};
   border-top-left-radius: 7px;
   border-bottom-left-radius: 7px;
   border-top-right-radius: 0px;

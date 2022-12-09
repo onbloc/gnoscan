@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import {useRouter} from 'next/router';
 import GnoscanLogo from '@/assets/svgs/icon-gnoscan-logo.svg';
 import GnoscanLogoLight from '@/assets/svgs/icon-gnoscan-logo-light.svg';
-import {themeState} from '@/states';
-import {useRecoilValue} from 'recoil';
+import {searchState, themeState} from '@/states';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import Link from 'next/link';
 import Text from '@/components/ui/text';
 import {v1} from 'uuid';
@@ -17,6 +17,7 @@ import dynamic from 'next/dynamic';
 import {SubInput} from '@/components/ui/input';
 import Network from '@/components/ui/network';
 import {SubMenu} from './sub-menu';
+import {debounce} from '@/common/utils/string-util';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -63,7 +64,7 @@ export const TopNav = () => {
     current: 'Mainnet',
     all: ['Mainnet', 'Testnet 3', 'Testnet 4'],
   });
-  const [value, setValue] = useState('');
+  const [value, setValue] = useRecoilState(searchState);
   const [toggle, setToggle] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const desktop = isDesktop();
@@ -80,8 +81,11 @@ export const TopNav = () => {
     },
     [network, toggle],
   );
+
   const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      debounce(setValue(e.target.value), 1000);
+    },
     [value],
   );
 
@@ -93,7 +97,7 @@ export const TopNav = () => {
         <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
       )}
       <Desktop>
-        {!isMain && <SubInput className="top-search" value={value} onChange={onChange} />}
+        {!isMain && <SubInput className="sub-search" value={value} onChange={onChange} />}
         <Nav>
           {navItems.map(v => (
             <Link href={v.path} passHref key={v1()}>
@@ -138,7 +142,7 @@ const Wrapper = styled.div<EntryProps>`
     cursor: pointer;
     margin-right: ${({isDesktop}) => !isDesktop && 'auto'};
   }
-  .top-search {
+  .sub-search {
     width: 396px;
     margin-left: 64px;
   }

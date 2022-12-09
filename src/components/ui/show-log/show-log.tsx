@@ -81,7 +81,6 @@ const ShowLog = ({
               <TabLog hasRadius={index === 0} desktop={desktop} showLog={showLog}>
                 <Text type="p4" color="primary" className="inner-content">
                   {tabData.content[index]}
-                  {tabData.content[index]}
                 </Text>
               </TabLog>
             </div>

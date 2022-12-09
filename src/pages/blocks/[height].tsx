@@ -6,7 +6,7 @@ import mixins from '@/styles/mixins';
 import React from 'react';
 import styled from 'styled-components';
 import IconArrow from '@/assets/svgs/icon-arrow.svg';
-import {eachMedia, isDesktop} from '@/common/hooks/use-media';
+import {isDesktop} from '@/common/hooks/use-media';
 import {useRouter} from 'next/router';
 import {useQuery, UseQueryResult} from 'react-query';
 import axios from 'axios';
@@ -19,7 +19,6 @@ import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
-import useLoading from '@/common/hooks/use-loading';
 
 interface TitleOptionProps {
   prevProps: {
@@ -67,17 +66,18 @@ const BlockDetails = () => {
   const router = useRouter();
   const {height} = router.query;
   const {
-    data: summary,
-    isSuccess: summarySuccess,
+    data: block,
+    isSuccess: blockSuccess,
     isFetched,
   }: UseQueryResult<SummaryResultType> = useQuery(
-    ['summary/height', height],
+    ['block/height', height],
     async ({queryKey}) =>
       await axios.get(`http://3.218.133.250:7677/latest/block/summary/${queryKey[1]}`),
     {
       enabled: !!height,
       select: (res: any) => {
         const data = res.data;
+        console.log(data);
         const gasPercent = Number.isNaN(data.gas.used / data.gas.wanted)
           ? 0
           : data.gas.used / data.gas.wanted;
@@ -97,83 +97,79 @@ const BlockDetails = () => {
           next: !data.next,
         };
       },
-      onSuccess: () => {
-        // useLoading({finished: isFetched});
-      },
+      // onSuccess: (res: any) => console.log('Block Data : ', res),
     },
   );
-  // console.log('-------- : ', isFetched);
-  return (
-    <>
-      {summarySuccess && (
-        <DetailsPageLayout
-          title={`Block #${summary?.height}`}
-          titleOption={
-            <TitleOption
-              prevProps={{disabled: summary?.prev, path: `/blocks/${Number(summary?.height - 1)}`}}
-              nextProps={{disabled: summary?.next, path: `/blocks/${Number(summary?.height + 1)}`}}
-            />
-          }
-          titleAlign={desktop ? 'flex-start' : 'space-between'}
-          isFetched={isFetched}>
-          <DataSection title="Summary">
-            <DLWrap desktop={desktop}>
-              <dt>Timestamp</dt>
-              <dd>
-                <Badge>
-                  <Text type="p4" color="inherit" className="ellipsis">
-                    {summary?.timestamp}
-                  </Text>
-                  <DateDiffText>{summary?.dateDiff}</DateDiffText>
-                </Badge>
-              </dd>
-            </DLWrap>
-            <DLWrap desktop={desktop}>
-              <dt>Network</dt>
-              <dd>
-                <Badge>{summary?.network}</Badge>
-              </dd>
-            </DLWrap>
-            <DLWrap desktop={desktop}>
-              <dt>Height</dt>
-              <dd>
-                <Badge>{summary?.height}</Badge>
-              </dd>
-            </DLWrap>
-            <DLWrap desktop={desktop}>
-              <dt>Transactions</dt>
-              <dd>
-                <Badge>{summary?.txs}</Badge>
-              </dd>
-            </DLWrap>
-            <DLWrap desktop={desktop}>
-              <dt>Gas&nbsp;(Used/Wanted)</dt>
-              <dd>
-                <Badge>{summary?.gas}</Badge>
-              </dd>
-            </DLWrap>
-            <DLWrap desktop={desktop} multipleBadgeGap="24px">
-              <dt>Proposer</dt>
-              <dd>
-                <Badge>
-                  <Link href={`/accounts/${summary.address}`} passHref>
-                    <FitContentA>
-                      <Text type="p4" color="blue" className="ellipsis">
-                        {summary?.proposer}
-                      </Text>
-                    </FitContentA>
-                  </Link>
-                </Badge>
-              </dd>
-            </DLWrap>
-          </DataSection>
 
-          <DataSection title="Transactions">
-            {height && <BlockDetailDatatable height={`${height}`} />}
-          </DataSection>
-        </DetailsPageLayout>
-      )}
-    </>
+  return (
+    <DetailsPageLayout
+      title={`Block #${block?.height}`}
+      titleOption={
+        blockSuccess && (
+          <TitleOption
+            prevProps={{disabled: block?.prev, path: `/blocks/${Number(block?.height - 1)}`}}
+            nextProps={{disabled: block?.next, path: `/blocks/${Number(block?.height + 1)}`}}
+          />
+        )
+      }
+      titleAlign={desktop ? 'flex-start' : 'space-between'}
+      visible={!isFetched}>
+      <DataSection title="Summary">
+        <DLWrap desktop={desktop}>
+          <dt>Timestamp</dt>
+          <dd>
+            <Badge>
+              <Text type="p4" color="inherit" className="ellipsis">
+                {block?.timestamp}
+              </Text>
+              <DateDiffText>{block?.dateDiff}</DateDiffText>
+            </Badge>
+          </dd>
+        </DLWrap>
+        <DLWrap desktop={desktop}>
+          <dt>Network</dt>
+          <dd>
+            <Badge>{block?.network}</Badge>
+          </dd>
+        </DLWrap>
+        <DLWrap desktop={desktop}>
+          <dt>Height</dt>
+          <dd>
+            <Badge>{block?.height}</Badge>
+          </dd>
+        </DLWrap>
+        <DLWrap desktop={desktop}>
+          <dt>Transactions</dt>
+          <dd>
+            <Badge>{block?.txs}</Badge>
+          </dd>
+        </DLWrap>
+        <DLWrap desktop={desktop}>
+          <dt>Gas&nbsp;(Used/Wanted)</dt>
+          <dd>
+            <Badge>{block?.gas}</Badge>
+          </dd>
+        </DLWrap>
+        <DLWrap desktop={desktop} multipleBadgeGap="24px">
+          <dt>Proposer</dt>
+          <dd>
+            <Badge>
+              <Link href={`/accounts/${block?.address}`} passHref>
+                <FitContentA>
+                  <Text type="p4" color="blue" className="ellipsis">
+                    {block?.proposer}
+                  </Text>
+                </FitContentA>
+              </Link>
+            </Badge>
+          </dd>
+        </DLWrap>
+      </DataSection>
+
+      <DataSection title="Transactions">
+        {height && <BlockDetailDatatable height={`${height}`} />}
+      </DataSection>
+    </DetailsPageLayout>
   );
 };
 

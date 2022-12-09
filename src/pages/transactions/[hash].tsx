@@ -22,6 +22,7 @@ import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
 import useLoading from '@/common/hooks/use-loading';
 import LoadingPage from '@/components/view/loading/page';
+import {valueConvert} from '@/common/utils/gnot-util';
 
 type SummaryType = {
   statusType: StatusResultType;
@@ -56,7 +57,7 @@ type ContractKeyType =
 
 type KeyOfContract = {
   type: string;
-  data: {[T in string]: any};
+  data: {[i in string]: any};
 };
 
 const contractObj = {
@@ -100,10 +101,7 @@ const valueForContractType = (contract: any) => {
         To: contract.to_address,
         Amount: {
           denom: contract.amount.denom,
-          value:
-            contract.amount.denom === 'ugnot'
-              ? contract.amount.value / 1000000
-              : contract.amount.value,
+          value: valueConvert(contract.amount.value, contract.amount.denom),
         },
       },
     };
@@ -167,7 +165,7 @@ const TransactionDetails = () => {
           hash: summary.hash,
           network: summary.network,
           block: summary.block,
-          txFee: summary.fee.denom === 'ugnot' ? summary.fee.value / 1000000 : summary.fee.value,
+          txFee: valueConvert(summary.fee.value, summary.fee.denom),
           gas: `${numberWithCommas(summary.gas.used)}/${numberWithCommas(
             summary.gas.wanted,
           )} (${gasPercent}%)`,
@@ -186,12 +184,12 @@ const TransactionDetails = () => {
           log: log,
         };
       },
-      // onSuccess: (res: any) => console.log('Tx hash Data : ', res),
+      // onSuccess: () => useLoading({finished: true}),
     },
   );
 
   return (
-    <DetailsPageLayout title={'Transaction Details'} isFetched={isFetched}>
+    <DetailsPageLayout title={'Transaction Details'} visible={!isFetched}>
       {txSuccess && (
         <>
           <DataSection title="Summary">
@@ -281,9 +279,13 @@ const TransactionDetails = () => {
                 </Badge>
               </dd>
             </DLWrap>
-            {tx.contract.args.type === 'Transfer' ? (
+            {tx.contract.args.type === 'Transfer' && (
               <TransferContract contract={tx.contract} desktop={desktop} />
-            ) : (
+            )}
+            {tx.contract.args.type === 'AddPkg' && (
+              <AddPkgContract contract={tx.contract} desktop={desktop} />
+            )}
+            {!['Transfer', 'AddPkg'].includes(tx.contract.args.type) &&
               Object.keys(tx.contract.args.data).map((v, i) => (
                 <DLWrap desktop={desktop} key={v1()}>
                   <dt>{v}</dt>
@@ -298,13 +300,44 @@ const TransactionDetails = () => {
                     </Badge>
                   </dd>
                 </DLWrap>
-              ))
-            )}
+              ))}
             {tx.log && <ShowLog isTabLog={false} logData={tx.log} btnTextType="Logs" />}
           </DataSection>
         </>
       )}
     </DetailsPageLayout>
+  );
+};
+
+const AddPkgContract = ({contract, desktop}: any) => {
+  return (
+    <>
+      {Object.keys(contract.args.data).map((v, i) => (
+        <DLWrap desktop={desktop}>
+          <dt>{v}</dt>
+          <dd>
+            <Badge>
+              {v === 'Creator' ? (
+                <Link href={`/accounts/${contract.creator}`} passHref>
+                  <FitContentA>
+                    <Text type="p4" color="blue">
+                      {contract.args.data[v] ?? '-'}
+                    </Text>
+                  </FitContentA>
+                </Link>
+              ) : (
+                <Text
+                  type="p4"
+                  color="inherit"
+                  className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                  {contract.args.data[v] ?? '-'}
+                </Text>
+              )}
+            </Badge>
+          </dd>
+        </DLWrap>
+      ))}
+    </>
   );
 };
 

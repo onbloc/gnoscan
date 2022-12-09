@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Search from '@/assets/svgs/icon-search.svg';
 import mixins from '@/styles/mixins';
+import SearchResult from '../search-result';
+import theme from '@/styles/theme';
 
 interface SubInputProps {
   className?: string;
@@ -9,7 +11,7 @@ interface SubInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const SubInput = ({className, value, onChange}: SubInputProps) => {
+export const SubInput = ({className = '', value, onChange}: SubInputProps) => {
   return (
     <Wrapper className={className}>
       <Input
@@ -21,12 +23,14 @@ export const SubInput = ({className, value, onChange}: SubInputProps) => {
       <Button>
         <Search className="search-icon" />
       </Button>
+      <SearchResult isMain={false} />
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
   ${mixins.flexbox('row', 'center', 'center')};
+  position: relative;
   background-color: ${({theme}) => theme.colors.base};
   border-radius: 8px;
   height: 40px;
@@ -43,9 +47,11 @@ const Button = styled.button`
   background-color: inherit;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
+  cursor: default;
 `;
 
 const Input = styled.input`
+  ${({theme}) => theme.fonts.p4};
   flex-grow: 1;
   height: 100%;
   padding-left: 16px;

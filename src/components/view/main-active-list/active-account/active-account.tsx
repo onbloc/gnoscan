@@ -15,7 +15,6 @@ import {
   StyledText,
 } from '../main-active-list';
 import Link from 'next/link';
-import {AmountText} from '@/components/ui/text/amount-text';
 
 type AccountsValueType = {
   no: number;
@@ -30,6 +29,8 @@ interface AccountsResultType {
   last_update: string;
   data: AccountsValueType[];
 }
+
+const onSuccess = () => console.log('11111');
 
 const ActiveAccount = () => {
   const media = eachMedia();

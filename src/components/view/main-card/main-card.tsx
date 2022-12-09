@@ -39,7 +39,7 @@ interface AccountsResultType {
 const MainCard = () => {
   const media = eachMedia();
   const {data: card01, isSuccess: card01Success}: UseQueryResult<SupplyResultType> = useQuery(
-    'info/card01',
+    ['info/card01'],
     async () => await axios.get('http://3.218.133.250:7677/latest/info/card01'),
     {
       select: (res: any) => {
@@ -54,22 +54,22 @@ const MainCard = () => {
   );
 
   const {data: card02, isSuccess: card02Success}: UseQueryResult<HeightResultType> = useQuery(
-    'info/card02',
+    ['info/card02'],
     async () => await axios.get('http://3.218.133.250:7677/latest/info/card02'),
     {
       select: (res: any) => {
         const block = res.data.block;
         return {
           height: numberWithCommas(block.height),
-          avg_tx: numberWithFixedCommas(block.avg_time, 2),
-          avg_time: numberWithFixedCommas(block.avg_tx, 2),
+          avg_tx: numberWithFixedCommas(block.avg_tx, 2),
+          avg_time: numberWithFixedCommas(block.avg_time, 2),
         };
       },
     },
   );
 
   const {data: card03, isSuccess: card03Success}: UseQueryResult<TxResultType> = useQuery(
-    'info/card03',
+    ['info/card03'],
     async () => await axios.get('http://3.218.133.250:7677/latest/info/card03'),
     {
       select: (res: any) => {
@@ -84,7 +84,7 @@ const MainCard = () => {
   );
 
   const {data: card04, isSuccess: card04Success}: UseQueryResult<AccountsResultType> = useQuery(
-    'info/card04',
+    ['info/card04'],
     async () => await axios.get('http://3.218.133.250:7677/latest/info/card04'),
     {
       select: (res: any) => {
@@ -204,8 +204,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {/* {`${card03?.avg_24hr} GNOT`} */}
-                    123,456 GNOT
+                    {card03?.avg_24hr}
                   </Text>
                 </dd>
               </BundleDl>
@@ -218,7 +217,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {`${card03?.total_fee} GNOT`}
+                    {card03?.total_fee}
                   </Text>
                 </dd>
               </BundleDl>
@@ -249,7 +248,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {`${card04?.validators} GNOT`}
+                    {card04?.validators}
                   </Text>
                 </dd>
               </BundleDl>
@@ -267,7 +266,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {`${card04?.registered} GNOT`}
+                    {card04?.registered}
                   </Text>
                 </dd>
               </BundleDl>

@@ -18,8 +18,8 @@ const Home: React.FC = () => {
       <div className="inner-layout">
         <MainCard />
         <MainActiveList />
-        {/* <MainRealm />
-        <MainTransactionNews /> */}
+        <MainRealm />
+        <MainTransactionNews />
       </div>
     </Wrapper>
   );
