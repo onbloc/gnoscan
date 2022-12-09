@@ -5,7 +5,6 @@ import {AreaChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
-import {createRoot, Root} from 'react-dom/client';
 
 interface AreaChartProps {
   labels: Array<string>;
@@ -20,7 +19,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const [themeMode] = useTheme();
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
-  const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({
@@ -175,6 +173,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       pointHoverBackgroundColor: '#FFFFFF',
       pointRadius: 0,
       data: [],
+      tension: 0.4,
     };
 
     const chartColors = [
