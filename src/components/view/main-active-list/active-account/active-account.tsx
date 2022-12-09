@@ -15,7 +15,6 @@ import {
   StyledText,
 } from '../main-active-list';
 import Link from 'next/link';
-import {AmountText} from '@/components/ui/text/amount-text';
 import {API_URI} from '@/common/values/constant-value';
 import {getLocalDateString} from '@/common/utils/date-util';
 import Tooltip from '@/components/ui/tooltip';
