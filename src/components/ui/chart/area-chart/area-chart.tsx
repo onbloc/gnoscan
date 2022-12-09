@@ -22,6 +22,12 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const [chartHeight, setChartHeight] = useState(0);
   const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [currentValue, setCurrentValue] = useState({
+    title: '',
+    value: [] as any,
+  });
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => {
@@ -55,53 +61,37 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   }) => {
     const {chart, tooltip} = context;
 
-    let tooltipEl = document.getElementById('chartjs-tooltip');
-    if (!tooltipEl) {
-      tooltipEl = document.createElement('div');
-      tooltipEl.id = 'chartjs-tooltip';
-      tooltipEl.innerHTML = '<table></table>';
-      document.body.appendChild(tooltipEl);
-    }
-
-    // Hide if no tooltip
-    const tooltipModel = tooltip;
-    if (tooltipModel.opacity === 0) {
-      tooltipEl.style.opacity = '0';
-      tooltipEl.remove();
-      if (tooltipRoot) {
-        tooltipRoot?.unmount();
-      }
-      setTooltipRoot(undefined);
+    if (!tooltipRef.current) {
       return;
     }
 
-    // Set caret Position
-    tooltipEl.classList.remove('above', 'below', 'no-transform');
-    if (tooltipModel.yAlign) {
-      tooltipEl.classList.add(tooltipModel.yAlign);
-    } else {
-      tooltipEl.classList.add('no-transform');
+    const currentTooltip = tooltipRef.current;
+
+    const tooltipModel = tooltip;
+    if (tooltipModel.opacity === 0) {
+      currentTooltip.style.opacity = '0';
+      return;
     }
 
+    if (tooltip.title[0] !== currentValue.title) {
+      setCurrentValue({
+        title: tooltip.title[0],
+        value: tooltip.getActiveElements(),
+      });
+    }
+
+    currentTooltip.style.opacity = '1';
+
+    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
-    tooltipEl.style.opacity = `${tooltipModel.opacity}`;
-    tooltipEl.style.position = 'absolute';
+    currentTooltip.style.position = 'fixed';
+    currentTooltip.style.top = position.bottom - position.height - tooltipRect.height + 'px';
 
-    const top = position.top + window.pageYOffset + tooltipModel.caretY;
-    tooltipEl.style.top = top + 'px';
-
-    const left = position.left + window.pageXOffset + tooltipModel.caretX;
-    if (left + 260 > window.innerWidth) {
-      tooltipEl.style.right = '0';
+    const left = tooltipModel.caretX - position.width / 2;
+    if (left + tooltipRect.width > position.width) {
+      currentTooltip.style.marginRight = '0';
     } else {
-      tooltipEl.style.left = left + 'px';
-    }
-    tooltipEl.style.pointerEvents = 'none';
-
-    if (!tooltipRoot) {
-      const root = createRoot(tooltipEl);
-      setTooltipRoot(root);
-      root.render(<AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />);
+      currentTooltip.style.marginLeft = left + 'px';
     }
   };
 
@@ -220,6 +210,14 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
+      <div className="tooltip-container" ref={tooltipRef} style={{opacity: 0}}>
+        <AreaChartTooltip
+          themeMode={`${themeMode}`}
+          title={currentValue.title}
+          activeElements={currentValue.value}
+          datas={datas}
+        />
+      </div>
       <Line
         ref={chartRef}
         width={chartWidth}
@@ -239,5 +237,13 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     overflow: hidden;
+  }
+
+  .tooltip-container {
+    position: absolute;
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    z-index: 20;
   }
 `;

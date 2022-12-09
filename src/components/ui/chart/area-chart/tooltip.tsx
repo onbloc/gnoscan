@@ -1,21 +1,22 @@
-import React, {useEffect, useState} from 'react';
-import {TooltipModel} from 'chart.js';
+import React from 'react';
+import {ActiveElement} from 'chart.js';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
 
 interface TooltipProps {
-  tooltip: TooltipModel<'line'>;
+  activeElements: Array<ActiveElement>;
+  title: string;
   datas: {[key in string]: Array<{value: number; rate: number}>};
   themeMode: string;
 }
 
-export const AreaChartTooltip = ({tooltip, datas, themeMode}: TooltipProps) => {
+export const AreaChartTooltip = ({title, activeElements, datas, themeMode}: TooltipProps) => {
   const getTotalValue = () => {
-    if (tooltip.getActiveElements().length === 0) {
+    if (activeElements.length === 0) {
       return 0;
     }
     const totalValue = Object.keys(datas).reduce(
-      (d1, d2) => d1 + datas[d2][tooltip.getActiveElements()[0].index].value,
+      (d1, d2) => d1 + datas[d2][activeElements[0].index].value,
       0,
     );
     const {integer, decimal} = parseValue(totalValue);
@@ -28,11 +29,11 @@ export const AreaChartTooltip = ({tooltip, datas, themeMode}: TooltipProps) => {
   };
 
   const getTotalRate = () => {
-    if (tooltip.getActiveElements().length === 0) {
+    if (activeElements.length === 0) {
       return 0;
     }
     const totalRate = Object.keys(datas).reduce(
-      (d1, d2) => d1 + datas[d2][tooltip.getActiveElements()[0].index].rate,
+      (d1, d2) => d1 + datas[d2][activeElements[0].index].rate,
       0,
     );
     return `${Math.round(totalRate)}%`;
@@ -59,10 +60,10 @@ export const AreaChartTooltip = ({tooltip, datas, themeMode}: TooltipProps) => {
   };
 
   const renderRow = (packagePath: string, cIndex: number) => {
-    if (tooltip.getActiveElements().length === 0) {
+    if (activeElements.length === 0) {
       return <></>;
     }
-    const data = datas[packagePath][tooltip.getActiveElements()[0].index];
+    const data = datas[packagePath][activeElements[0].index];
     const {integer, decimal} = parseValue(data.value);
     return (
       <div key={cIndex} className="tooltip-row">
@@ -77,9 +78,9 @@ export const AreaChartTooltip = ({tooltip, datas, themeMode}: TooltipProps) => {
     );
   };
 
-  return tooltip.getActiveElements().length > 0 ? (
+  return activeElements.length > 0 ? (
     <TooltipContainer light={themeMode === 'light'}>
-      <p className="tooltip-title">{tooltip.title}</p>
+      <p className="tooltip-title">{title}</p>
       <div className="tooltip-header">
         <span className="title">{'Total:'}</span>
         <span className="value">{getTotalValue()}</span>
@@ -111,6 +112,7 @@ const TooltipContainer = styled.div<{light: boolean}>`
 
     .title {
       width: 90px;
+      margin-bottom: 0;
     }
 
     .value {
