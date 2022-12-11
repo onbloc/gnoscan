@@ -214,6 +214,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
           themeMode={`${themeMode}`}
           title={currentValue.title}
           activeElements={currentValue.value}
+          chartColors={[...colors, ...new Array(Object.keys(datas).length).fill('#2090F3')]}
           datas={datas}
         />
       </div>
