@@ -1,5 +1,5 @@
 import {eachMedia} from '@/common/hooks/use-media';
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {v1} from 'uuid';
@@ -24,10 +24,7 @@ const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
   };
 
   return (
-    <ListContainer
-      className={!scrollVisible ? 'scroll-visible' : ''}
-      onMouseEnter={onFocusIn}
-      onMouseLeave={onFocusOut}>
+    <ListContainer onMouseEnter={onFocusIn} onMouseLeave={onFocusOut}>
       <ListTitleWrap>
         {title.map((v: string, i: number) => (
           <StyledText
@@ -39,7 +36,9 @@ const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
           </StyledText>
         ))}
       </ListTitleWrap>
-      <ListContentWrap>{children}</ListContentWrap>
+      <ListContentWrap className={scrollVisible ? 'scroll-visible' : ''}>
+        {children}
+      </ListContentWrap>
     </ListContainer>
   );
 };
@@ -52,29 +51,7 @@ const ListContainer = styled.div`
   margin-top: 16px;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.base};
-
-  &.scroll-visible {
-    overflow: hidden scroll;
-  }
-
-  &.scroll-visible::-webkit-scrollbar {
-    width: 5px;
-    display: block;
-  }
-
-  &.scroll-visible::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    background-color: black !important;
-    display: block !important;
-  }
-  ::-webkit-scrollbar-button {
-    width: 20px;
-    height: 10px;
-  }
+  overflow-y: overlay;
 `;
 
 const ListTitleWrap = styled.div`
@@ -88,6 +65,32 @@ const ListContentWrap = styled.div`
   overflow: hidden auto;
   height: 240px;
   min-width: 100%;
+
+  &::-webkit-scrollbar {
+    display: block;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    display: none;
+  }
+
+  &.scroll-visible {
+    overflow: hidden auto;
+    overflow-y: overlay;
+  }
+
+  &.scroll-visible::-webkit-scrollbar {
+    display: block;
+    width: 4px;
+  }
+
+  &.scroll-visible::-webkit-scrollbar-thumb {
+    width: 4px;
+    position: absolute;
+    display: block;
+    border-radius: 8px;
+    background-color: ${({theme}) => theme.colors.dimmed50};
+  }
 `;
 
 export default ActiveList;
