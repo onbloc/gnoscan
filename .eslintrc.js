@@ -18,7 +18,7 @@ module.exports = {
     indent: ["error", 2, { SwitchCase: 1 }],
     quotes: ["error", "single", { avoidEscape: true }],
     semi: ["error", "always"],
-    "linebreak-style": ["error", "unix", "windows"],
+    "linebreak-style": 0
   },
   settings: {
     react: {
