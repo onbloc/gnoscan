@@ -102,192 +102,176 @@ const MainCard = () => {
   return (
     <Wrapper className={media}>
       <StyledCard>
-        {card01Success && (
-          <>
-            <Text type="h5" color="primary">
-              GNOT&nbsp;Supply
-              <Tooltip
-                width={229}
-                content="This number represents the total supply at Genesis in Testnet 3, which is subject to change in mainnet.">
-                <Button width="16px" height="16px" radius="50%" bgColor="base" margin="5px">
-                  <IconInfo className="svg-info" />
-                </Button>
-              </Tooltip>
-            </Text>
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card01?.supply}
-              <Text type="p4" display="inline-block" color="primary">
-                &nbsp;GNOT
+        <Text type="h5" color="primary">
+          GNOT&nbsp;Supply
+          <Tooltip
+            width={229}
+            content="This number represents the total supply at Genesis in Testnet 3, which is subject to change in mainnet.">
+            <Button width="16px" height="16px" radius="50%" bgColor="base">
+              <IconInfo className="svg-info" />
+            </Button>
+          </Tooltip>
+        </Text>
+        <Text type="h3" color="primary" margin="10px 0px 24px">
+          {card01?.supply}
+          <Text type="p4" display="inline-block" color="primary">
+            &nbsp;GNOT
+          </Text>
+        </Text>
+        <DataBox>
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Airdrop Supply
               </Text>
-            </Text>
-            <DataBox>
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    Airdrop Supply
-                  </Text>
-                  <Tooltip
-                    width={215}
-                    content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change.">
-                    <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                      <IconInfo className="svg-info" />
-                    </Button>
-                  </Tooltip>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {card01?.exit}
-                  </Text>
-                </dd>
-              </BundleDl>
-              <hr />
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    Holders
-                  </Text>
-                  <Tooltip content="Number of accounts with a positive GNOT Balance.">
-                    <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                      <IconInfo className="svg-info" />
-                    </Button>
-                  </Tooltip>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {card01?.holders}
-                  </Text>
-                </dd>
-              </BundleDl>
-            </DataBox>
-          </>
-        )}
-      </StyledCard>
-      <StyledCard>
-        {card02Success && (
-          <>
-            <Text type="h5" color="primary">
-              Block&nbsp;Height
-            </Text>
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card02.height}
-            </Text>
-            <DataBox>
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    Avg.&nbsp;Block Time
-                  </Text>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {`${card02?.avg_time} seconds`}
-                  </Text>
-                </dd>
-              </BundleDl>
-              <hr />
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    Avg.&nbsp;Tx/Block
-                  </Text>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {card02?.avg_tx}
-                  </Text>
-                </dd>
-              </BundleDl>
-            </DataBox>
-          </>
-        )}
-      </StyledCard>
-      <StyledCard>
-        {card03Success && (
-          <>
-            <Text type="h5" color="primary">
-              Total&nbsp;Transactions
-            </Text>
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card03?.total_txs}
-            </Text>
-            <DataBox>
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    24h&nbsp;Avg.&nbsp;Fee
-                  </Text>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {card03?.avg_24hr}
-                  </Text>
-                </dd>
-              </BundleDl>
-              <hr />
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    Total&nbsp;Fees
-                  </Text>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {card03?.total_fee}
-                  </Text>
-                </dd>
-              </BundleDl>
-            </DataBox>
-          </>
-        )}
-      </StyledCard>
-      <StyledCard>
-        {card04Success && (
-          <>
-            <Text type="h5" color="primary" className="title-info">
-              Total&nbsp;Accounts
-              <Tooltip content="Number of accounts included in at least 1 transaction.">
-                <Button width="16px" height="16px" radius="50%" bgColor="base">
+              <Tooltip
+                width={215}
+                content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change.">
+                <Button width="16px" height="16px" radius="50%" bgColor="surface">
                   <IconInfo className="svg-info" />
                 </Button>
               </Tooltip>
-            </Text>
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card04?.num}
-            </Text>
-            <DataBox>
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    Validators
-                  </Text>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {card04?.validators}
-                  </Text>
-                </dd>
-              </BundleDl>
-              <hr />
-              <BundleDl>
-                <dt>
-                  <Text type="p4" color="tertiary">
-                    Total&nbsp;Users
-                  </Text>
-                  <Tooltip content="Number of accounts registered as a user on /r/demo/users.">
-                    <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                      <IconInfo className="svg-info" />
-                    </Button>
-                  </Tooltip>
-                </dt>
-                <dd>
-                  <Text type="p4" color="primary">
-                    {card04?.registered}
-                  </Text>
-                </dd>
-              </BundleDl>
-            </DataBox>
-          </>
-        )}
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {card01?.exit}
+              </Text>
+            </dd>
+          </BundleDl>
+          <hr />
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Holders
+              </Text>
+              <Tooltip content="Number of accounts with a positive GNOT Balance.">
+                <Button width="16px" height="16px" radius="50%" bgColor="surface">
+                  <IconInfo className="svg-info" />
+                </Button>
+              </Tooltip>
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {card01?.holders}
+              </Text>
+            </dd>
+          </BundleDl>
+        </DataBox>
+      </StyledCard>
+      <StyledCard>
+        <Text type="h5" color="primary">
+          Block&nbsp;Height
+        </Text>
+        <Text type="h3" color="primary" margin="10px 0px 24px">
+          {card02?.height}
+        </Text>
+        <DataBox>
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Avg.&nbsp;Block Time
+              </Text>
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {`${card02?.avg_time} seconds`}
+              </Text>
+            </dd>
+          </BundleDl>
+          <hr />
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Avg.&nbsp;Tx/Block
+              </Text>
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {card02?.avg_tx}
+              </Text>
+            </dd>
+          </BundleDl>
+        </DataBox>
+      </StyledCard>
+      <StyledCard>
+        <Text type="h5" color="primary">
+          Total&nbsp;Transactions
+        </Text>
+        <Text type="h3" color="primary" margin="10px 0px 24px">
+          {card03?.total_txs}
+        </Text>
+        <DataBox>
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                24h&nbsp;Avg.&nbsp;Fee
+              </Text>
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {card03?.avg_24hr}
+              </Text>
+            </dd>
+          </BundleDl>
+          <hr />
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Total&nbsp;Fees
+              </Text>
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {card03?.total_fee}
+              </Text>
+            </dd>
+          </BundleDl>
+        </DataBox>
+      </StyledCard>
+      <StyledCard>
+        <Text type="h5" color="primary" className="title-info">
+          Total&nbsp;Accounts
+          <Tooltip content="Number of accounts included in at least 1 transaction.">
+            <Button width="16px" height="16px" radius="50%" bgColor="base">
+              <IconInfo className="svg-info" />
+            </Button>
+          </Tooltip>
+        </Text>
+        <Text type="h3" color="primary" margin="10px 0px 24px">
+          {card04?.num}
+        </Text>
+        <DataBox>
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Validators
+              </Text>
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {card04?.validators}
+              </Text>
+            </dd>
+          </BundleDl>
+          <hr />
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Total&nbsp;Users
+              </Text>
+              <Tooltip content="Number of accounts registered as a user on /r/demo/users.">
+                <Button width="16px" height="16px" radius="50%" bgColor="surface">
+                  <IconInfo className="svg-info" />
+                </Button>
+              </Tooltip>
+            </dt>
+            <dd>
+              <Text type="p4" color="primary">
+                {card04?.registered}
+              </Text>
+            </dd>
+          </BundleDl>
+        </DataBox>
       </StyledCard>
     </Wrapper>
   );
