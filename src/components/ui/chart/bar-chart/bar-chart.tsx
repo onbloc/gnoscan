@@ -5,14 +5,14 @@ import {BarChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
-import {createRoot, Root} from 'react-dom/client';
 
 interface BarChartProps {
   labels: Array<string>;
   datas: Array<{date: string; value: number}>;
+  isDenom?: boolean;
 }
 
-export const BarChart = ({labels, datas}: BarChartProps) => {
+export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart<'bar'>>(null);
   const [chartData, setChartData] = useState<ChartData<'bar'>>({labels: [], datasets: []});
@@ -21,7 +21,18 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
 
-  const [tooltipRoot, setTooltipRoot] = useState<Root>();
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [currentValue, setCurrentValue] = useState({
+    title: '',
+    value: '',
+  });
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleTooltipVisible);
+    return () => {
+      window.removeEventListener('scroll', handleTooltipVisible);
+    };
+  }, [tooltipRef]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -37,6 +48,12 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
     }
   }, [chartRef, labels, datas]);
 
+  const handleTooltipVisible = () => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.opacity = '0';
+    }
+  };
+
   const handleResize = () => {
     if (wrapperRef.current) {
       setChartWidth(wrapperRef.current.clientWidth);
@@ -51,57 +68,42 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
   const renderExternalTooltip = (context: {chart: Chart<'bar'>; tooltip: TooltipModel<'bar'>}) => {
     const {chart, tooltip} = context;
 
-    let tooltipEl = document.getElementById('chartjs-tooltip');
-    if (!tooltipEl) {
-      tooltipEl = document.createElement('div');
-      tooltipEl.id = 'chartjs-tooltip';
-      tooltipEl.innerHTML = '<table></table>';
-      document.body.appendChild(tooltipEl);
-    }
-
-    // Hide if no tooltip
-    const tooltipModel = tooltip;
-    if (tooltipModel.opacity === 0) {
-      tooltipEl.style.opacity = '0';
-      tooltipEl.remove();
-      tooltipRoot?.unmount();
-      setTooltipRoot(undefined);
+    if (!tooltipRef.current) {
       return;
     }
 
-    // Set caret Position
-    tooltipEl.classList.remove('above', 'below', 'no-transform');
-    if (tooltipModel.yAlign) {
-      tooltipEl.classList.add(tooltipModel.yAlign);
-    } else {
-      tooltipEl.classList.add('no-transform');
+    const currentTooltip = tooltipRef.current;
+
+    const tooltipModel = tooltip;
+    if (tooltipModel.opacity === 0) {
+      currentTooltip.style.opacity = '0';
+      return;
     }
 
+    if (
+      tooltip.title[0] !== currentValue.title ||
+      tooltip.dataPoints[0].formattedValue !== currentValue.value
+    ) {
+      setCurrentValue({
+        title: tooltip.title[0],
+        value: `${tooltip.dataPoints[0].formattedValue}`,
+      });
+    }
+
+    currentTooltip.style.opacity = '1';
+
+    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
-    tooltipEl.style.opacity = `${tooltipModel.opacity}`;
-    tooltipEl.style.position = 'absolute';
+    currentTooltip.style.position = 'absolute';
+    currentTooltip.style.marginTop = -position.height + 'px';
 
-    const top = position.top + window.pageYOffset + tooltipModel.caretY;
-    tooltipEl.style.top = top + 'px';
-
-    const left = position.left + window.pageXOffset + tooltipModel.caretX;
-    if (left + 156 > window.innerWidth) {
-      tooltipEl.style.right = '0';
+    const left = tooltipModel.caretX - tooltipModel.width / 2;
+    const leftLimit = position.width - tooltipRect.width + 20;
+    if (left + tooltipRect.width > position.width) {
+      currentTooltip.style.left = leftLimit + 'px';
     } else {
-      tooltipEl.style.left = left + 'px';
+      currentTooltip.style.left = left + 'px';
     }
-
-    if (!tooltipRoot) {
-      const root = createRoot(tooltipEl);
-      setTooltipRoot(root);
-    }
-    tooltipRoot?.render(
-      <BarChartTooltip
-        themeMode={`${themeMode}`}
-        title={tooltip.title[0]}
-        value={`${tooltip.dataPoints[0].formattedValue}`}
-      />,
-    );
   };
 
   const createChartOption = (): ChartOptions<'bar'> => {
@@ -113,7 +115,7 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
       scales: {
         yAxis: {
           ticks: {
-            color: themePallet.primary,
+            color: themePallet.tertiary,
             count: 5,
             format: {
               minimumFractionDigits: 0,
@@ -191,6 +193,14 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
+      <div className="tooltip-container" ref={tooltipRef} style={{opacity: 0}}>
+        <BarChartTooltip
+          isDenom={isDenom}
+          themeMode={`${themeMode}`}
+          title={currentValue.title}
+          value={currentValue.value}
+        />
+      </div>
       <Bar
         ref={chartRef}
         width={chartWidth}
@@ -198,7 +208,6 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
         options={createChartOption()}
         data={chartData}
       />
-      {/* {isTooltip && tooltipData && <BarChartTooltip {...tooltipData} />} */}
     </Wrapper>
   );
 };
@@ -211,5 +220,13 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     overflow: hidden;
+
+    .tooltip-container {
+      position: absolute;
+      display: flex;
+      width: fit-content;
+      height: fit-content;
+      z-index: 9;
+    }
   }
 `;

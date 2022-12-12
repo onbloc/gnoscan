@@ -6,13 +6,19 @@ import {useQuery, UseQueryResult} from 'react-query';
 import {formatAddress, formatEllipsis} from '@/common/utils';
 import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
-import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
+import {colWidth, FitContentA, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import Link from 'next/link';
+import {API_URI} from '@/common/values/constant-value';
+import {getLocalDateString} from '@/common/utils/date-util';
+import IconLink from '@/assets/svgs/icon-link.svg';
+import styled from 'styled-components';
+import Tooltip from '@/components/ui/tooltip';
 
 type NewestValueType = {
   no: number;
   originName: string;
   formatName: string;
+  originPkgName: string;
   originAddress: string;
   publisher: string;
   functions: number;
@@ -28,26 +34,25 @@ interface NewestResultType {
 const ActiveNewest = () => {
   const media = eachMedia();
   const {data: newest, isSuccess: newestSuccess}: UseQueryResult<NewestResultType> = useQuery(
-    'info/newest_realm',
-    async () => await axios.get('http://3.218.133.250:7677/v3/info/newest_realm'),
+    ['info/newest_realm'],
+    async () => await axios.get(API_URI + '/latest/info/newest_realm'),
     {
       select: (res: any) => {
         const realms = res.data.realms.map((v: any, i: number) => {
           return {
             no: v.idx,
-            originName: v.pkg_name,
+            originName: v.pkg_path,
             formatName: formatEllipsis(v.pkg_name),
+            originPkgName: v.pkg_name,
             originAddress: v.publisher_address,
-            publisher: Boolean(v.publisher)
-              ? formatEllipsis(v.publisher)
-              : formatAddress(v.publisher_address),
+            publisher: Boolean(v.publisher) ? v.publisher : formatAddress(v.publisher_address),
             functions: v.functions,
             calls: v.calls,
             block: v.block,
           };
         });
         return {
-          last_update: res.data.last_update,
+          last_update: getLocalDateString(res.data.last_update),
           data: realms,
         };
       },
@@ -71,38 +76,34 @@ const ActiveNewest = () => {
             <>
               {newest.data.map((v: NewestValueType, i: number) => (
                 <List key={v1()}>
-                  <StyledText type="p4" width={colWidth.newest[0]} color="reverse">
+                  <StyledText type="p4" width={colWidth.newest[0]} color="tertiary">
                     {v.no}
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[1]} color="blue">
-                    <a
-                      href={`https://test3.gno.land/${v.originName}`}
-                      target="_blank"
-                      rel="noreferrer">
-                      {v.formatName}
-                    </a>
+                    <Link href={`/realms/details?path=${v.originName}`}>
+                      <a target="_blank">
+                        <Tooltip content={v.originPkgName}>{v.formatName}</Tooltip>
+                      </a>
+                    </Link>
                   </StyledText>
-                  <Link href={`account/${v.originAddress}`} passHref>
-                    <a>
-                      <StyledText type="p4" width={colWidth.newest[2]} color="blue">
-                        {v.publisher}
-                      </StyledText>
-                    </a>
-                  </Link>
-
+                  <StyledText type="p4" width={colWidth.newest[2]} color="blue">
+                    <Link href={`/accounts/${v.originAddress}`} passHref>
+                      <FitContentA target="_blank">
+                        <Tooltip content={v.originAddress}>{v.publisher}</Tooltip>
+                      </FitContentA>
+                    </Link>
+                  </StyledText>
                   <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
                     {v.functions}
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
                     {v.calls}
                   </StyledText>
-                  <Link href={`blocks/${v.block}`} passHref>
-                    <a>
-                      <StyledText type="p4" width={colWidth.newest[5]} color="blue">
-                        {v.block}
-                      </StyledText>
-                    </a>
-                  </Link>
+                  <StyledText type="p4" width={colWidth.newest[5]} color="blue">
+                    <Link href={`/blocks/${v.block}`} passHref>
+                      <FitContentA target="_blank">{v.block}</FitContentA>
+                    </Link>
+                  </StyledText>
                 </List>
               ))}
             </>

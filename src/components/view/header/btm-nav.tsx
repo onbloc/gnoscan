@@ -8,6 +8,11 @@ import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import {MainInput, SubInput} from '@/components/ui/input';
 import {isDesktop} from '@/common/hooks/use-media';
+import useSearchQuery from '@/common/hooks/use-search-query';
+import {searchState} from '@/states';
+import {useRecoilState} from 'recoil';
+import {debounce} from '@/common/utils/string-util';
+import SearchResult from '@/components/ui/search-result';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -20,16 +25,23 @@ export const BtmNav = () => {
   const router = useRouter();
   const desktop = isDesktop();
   const entry = router.route === '/';
-  const [value, setValue] = useState('');
+  const [value, setValue] = useRecoilState(searchState);
+
   const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      debounce(setValue(e.target.value), 1000);
+    },
     [value],
   );
+
+  const clearValue = () => {
+    setValue('');
+  };
 
   return (
     <>
       {entry ? (
-        <Wrapper isMain={true}>
+        <Wrapper isMain={entry}>
           <Desktop>
             <Text type="h1" color="white" textAlign="center">
               The Gnoland Blockchain Explorer
@@ -40,15 +52,17 @@ export const BtmNav = () => {
               The Gnoland Blockchain Explorer
             </Text>
           </NotDesktop>
-          <InputContainer desktop={desktop}>
-            <MainInput value={value} onChange={onChange} />
-            {/* <SearchResult desktop={desktop}>test</SearchResult> */}
-          </InputContainer>
+          <MainInput
+            className="main-search"
+            value={value}
+            onChange={onChange}
+            clearValue={clearValue}
+          />
         </Wrapper>
       ) : (
         <NotDesktop>
-          <Wrapper isMain={false}>
-            <SubInput value={value} onChange={onChange} />
+          <Wrapper isMain={entry}>
+            <SubInput value={value} onChange={onChange} clearValue={clearValue} />
           </Wrapper>
         </NotDesktop>
       )}
@@ -62,25 +76,9 @@ const Wrapper = styled.div<{isMain: boolean}>`
   height: ${({isMain}) => (isMain ? '256px' : '64px')};
   padding: ${({isMain}) => !isMain && '8px 0px 16px'};
   width: 100%;
-`;
-
-const InputContainer = styled.div<{desktop: boolean}>`
-  ${mixins.flexbox('column', 'center', 'center')};
-  position: relative;
-  width: 100%;
-  max-width: ${({desktop}) => desktop && '910px'};
-  margin-top: 14px;
-`;
-
-const SearchResult = styled.div<{desktop: boolean}>`
-  max-width: ${({desktop}) => desktop && '890px'};
-  height: 276px;
-  border-radius: 8px;
-  background-color: ${({theme}) => theme.colors.surface};
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  position: absolute;
-  top: 64px;
-  left: 10px;
-  right: 10px;
-  z-index: 10;
+  .main-search {
+    width: 100%;
+    max-width: 910px;
+    margin-top: 14px;
+  }
 `;

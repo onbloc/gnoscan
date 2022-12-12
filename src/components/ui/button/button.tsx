@@ -4,7 +4,7 @@ import mixins from '@/styles/mixins';
 import {PaletteKeyType} from '@/styles/theme';
 import {XOR} from '@/types';
 
-type ButtonProps = XOR<
+export type ButtonProps = XOR<
   {
     fullWidth?: boolean;
     height?: CSSProperties['height'];
@@ -16,6 +16,7 @@ type ButtonProps = XOR<
     disabled?: boolean;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => unknown;
     as?: React.ElementType;
+    id?: string;
   },
   {
     width?: CSSProperties['width'];
@@ -28,6 +29,7 @@ type ButtonProps = XOR<
     disabled?: boolean;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => unknown;
     as?: React.ElementType;
+    id?: string;
   }
 >;
 

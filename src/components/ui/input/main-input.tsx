@@ -2,35 +2,63 @@
 
 import mixins from '@/styles/mixins';
 import theme from '@/styles/theme';
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import Search from '@/assets/svgs/icon-search.svg';
 import {isDesktop} from '@/common/hooks/use-media';
+import SearchResult from '../search-result';
+import {useRouter} from 'next/router';
 
 interface SubInputProps {
+  className?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  clearValue?: () => void;
 }
 
-export const MainInput = ({value, onChange}: SubInputProps) => {
+export const MainInput = ({className = '', value, onChange, clearValue}: SubInputProps) => {
   const desktop = isDesktop();
+  const router = useRouter();
+
+  useEffect(() => {
+    clearValue && clearValue();
+  }, [router.asPath]);
+
+  const moveSearchPage = () => {
+    const searchUrl = `/search?keyword=${value}`;
+    router.push(searchUrl);
+  };
+
+  const onKeyDownInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      moveSearchPage();
+    }
+  };
+
+  const onClickSearchButton = () => {
+    moveSearchPage();
+  };
+
   return (
-    <Wrapper isDesktop={desktop}>
+    <Wrapper isDesktop={desktop} className={className}>
       <Input
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDownInput}
         type="text"
         placeholder="Search by Account / Block / Realm / Tokens"
       />
-      <Button>
+      <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />
       </Button>
+      <SearchResult isMain={true} />
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div<{isDesktop: boolean}>`
   ${mixins.flexbox('row', 'center', 'space-between')};
+  position: relative;
   background-color: ${theme.darkTheme.dimmed200};
   padding: 10px;
   border-radius: 17px;
@@ -49,9 +77,11 @@ const Button = styled.button`
   height: 100%;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
+  cursor: pointer;
 `;
 
 const Input = styled.input`
+  ${({theme}) => theme.fonts.p4};
   border-top-left-radius: 7px;
   border-bottom-left-radius: 7px;
   border-top-right-radius: 0px;

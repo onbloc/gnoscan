@@ -1,14 +1,21 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import Card from '@/components/ui/card';
 import mixins from '@/styles/mixins';
 import {eachMedia} from '@/common/hooks/use-media';
 import ActiveAccount from './active-account';
 import ActiveBoards from './active-boards';
 import Text from '@/components/ui/text';
+import {AmountText} from '@/components/ui/text/amount-text';
+import {TextProps} from '@/components/ui/text/text';
+
+interface StyledTextProps extends TextProps {
+  width?: string;
+  gap?: string;
+}
 
 export const listTitle = {
-  accounts: ['No.', 'Account', 'TotalTxs', 'Non-Transfer Txs', 'Balance (GNOT)'],
+  accounts: ['No.', 'Account', 'Total Txs', 'Non-Transfer Txs', 'Balance (GNOT)'],
   boards: ['No.', 'Name', 'Replies', 'Reposts', 'Unique Users'],
   newest: ['No.', 'Name', 'Publisher', 'Functions', 'Calls', 'Block'],
 };
@@ -16,7 +23,7 @@ export const listTitle = {
 export const colWidth = {
   accounts: ['52px', '127px', '114px', '138px', '127px'],
   boards: ['52px', '126.5px', '126.5px', '126.5px', '126.5px'],
-  newest: ['52px', '101.2px', '101.2px', '101.2px', '101.2px', '101.2px'],
+  newest: ['52px', '101px', '101px', '101px', '101px', '102px'],
 };
 
 const MainActiveList = () => {
@@ -42,6 +49,9 @@ const Wrapper = styled.div`
     grid-gap: 32px;
     margin: 32px 0px;
   }
+  .svg-info-tooltip-icon {
+    fill: ${({theme}) => theme.colors.reverse};
+  }
 `;
 
 export const List = styled.div`
@@ -66,18 +76,36 @@ export const StyledCard = styled(Card)`
   }
 `;
 
-export const StyledText = styled(Text)<{width: string}>`
-  min-width: ${({width}) => width};
+const textStyle = css`
   padding: 12px;
   flex: 1;
+  ${mixins.flexbox('row', 'center', 'flex-start')};
   :first-of-type {
     max-width: 52px;
   }
   &.with-link {
     a {
-      ${mixins.flexbox('row', 'center', 'flex-start')};
+      ${mixins.flexbox('row', 'center', 'flex-start', false)};
+      width: fit-content;
     }
   }
+`;
+
+export const StyledText = styled(Text)<StyledTextProps>`
+  max-width: ${({width}) => width};
+  min-width: ${({width}) => width};
+  gap: ${({gap}) => gap && gap};
+  white-space: nowrap;
+  ${textStyle};
+`;
+
+export const StyledAmountText = styled(AmountText)<{width?: string}>`
+  min-width: ${({width}) => width};
+  ${textStyle};
+`;
+
+export const FitContentA = styled.a`
+  width: fit-content;
 `;
 
 export default MainActiveList;

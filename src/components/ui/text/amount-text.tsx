@@ -1,0 +1,55 @@
+import {FontsType, PaletteKeyType} from '@/styles';
+import mixins from '@/styles/mixins';
+import React from 'react';
+import styled from 'styled-components';
+import Text from '@/components/ui/text';
+import {decimalPointWithCommas} from '@/common/utils';
+
+interface AmountTextProps {
+  minSize: FontsType;
+  maxSize: FontsType;
+  value: string | number;
+  denom?: string;
+  color?: PaletteKeyType;
+  className?: string;
+}
+
+export const AmountText = ({
+  minSize,
+  maxSize,
+  value,
+  denom = '',
+  color = 'primary',
+  className,
+}: AmountTextProps) => {
+  const num: string[] | string = decimalPointWithCommas(value);
+
+  const decimalValue = (num: string[] | string) => {
+    if (!Array.isArray(num)) {
+      return ` ${denom}`;
+    }
+
+    if (num.length < 2) {
+      return ` ${denom}`;
+    }
+
+    return `.${num[1]} ${denom}`;
+  };
+
+  return (
+    <Wrapper className={className}>
+      {num && (
+        <Text type={maxSize} color={color} display="inline-block">
+          {num[0]}
+          <Text type={minSize} color={color} display="inline-block">
+            {decimalValue(num)}
+          </Text>
+        </Text>
+      )}
+    </Wrapper>
+  );
+};
+
+const Wrapper = styled.div`
+  ${mixins.flexbox('row', 'center', 'flex-start')};
+`;

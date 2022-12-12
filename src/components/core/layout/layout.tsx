@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled, {ThemeProvider} from 'styled-components';
 import Head from 'next/head';
 import theme from '@/styles/theme';
@@ -6,6 +6,7 @@ import {Header} from '@/components/view/header';
 import {Footer} from '@/components/view/footer';
 import mixins from '@/styles/mixins';
 import useTheme from '@/common/hooks/use-theme';
+import useLoading from '@/common/hooks/use-loading';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,8 +20,13 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const Layout = ({children}: LayoutProps) => {
+export const Layout = ({children}: LayoutProps) => {
   const [themeMode] = useTheme();
+  const {clearLoading} = useLoading();
+
+  useEffect(() => {
+    clearLoading();
+  }, []);
 
   return (
     <ThemeProvider
@@ -29,10 +35,6 @@ const Layout = ({children}: LayoutProps) => {
         fonts: theme.fonts,
         device: theme.device,
       }}>
-      <Head>
-        <title>Gnoscan</title>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      </Head>
       <Wrapper>
         <Header />
         {children}
@@ -41,5 +43,3 @@ const Layout = ({children}: LayoutProps) => {
     </ThemeProvider>
   );
 };
-
-export default Layout;

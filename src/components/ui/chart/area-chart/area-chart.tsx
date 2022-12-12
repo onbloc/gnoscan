@@ -5,7 +5,6 @@ import {AreaChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
-import {createRoot, Root} from 'react-dom/client';
 
 interface AreaChartProps {
   labels: Array<string>;
@@ -20,7 +19,19 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const [themeMode] = useTheme();
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
-  const [tooltipRoot, setTooltipRoot] = useState<Root>();
+
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [currentValue, setCurrentValue] = useState({
+    title: '',
+    value: [] as any,
+  });
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleTooltipVisible);
+    return () => {
+      window.removeEventListener('scroll', handleTooltipVisible);
+    };
+  }, [tooltipRef]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -45,6 +56,12 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     }
   };
 
+  const handleTooltipVisible = () => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.opacity = '0';
+    }
+  };
+
   const getThemePallet = () => {
     return themeMode === 'light' ? theme.lightTheme : theme.darkTheme;
   };
@@ -55,51 +72,37 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   }) => {
     const {chart, tooltip} = context;
 
-    let tooltipEl = document.getElementById('chartjs-tooltip');
-    if (!tooltipEl) {
-      tooltipEl = document.createElement('div');
-      tooltipEl.id = 'chartjs-tooltip';
-      tooltipEl.innerHTML = '<table></table>';
-      document.body.appendChild(tooltipEl);
-    }
-
-    // Hide if no tooltip
-    const tooltipModel = tooltip;
-    if (tooltipModel.opacity === 0) {
-      tooltipEl.style.opacity = '0';
-      tooltipEl.remove();
-      tooltipRoot?.unmount();
-      setTooltipRoot(undefined);
+    if (!tooltipRef.current) {
       return;
     }
 
-    // Set caret Position
-    tooltipEl.classList.remove('above', 'below', 'no-transform');
-    if (tooltipModel.yAlign) {
-      tooltipEl.classList.add(tooltipModel.yAlign);
-    } else {
-      tooltipEl.classList.add('no-transform');
+    const currentTooltip = tooltipRef.current;
+
+    const tooltipModel = tooltip;
+    if (tooltipModel.opacity === 0) {
+      currentTooltip.style.opacity = '0';
+      return;
     }
 
+    if (tooltip.title[0] !== currentValue.title) {
+      setCurrentValue({
+        title: tooltip.title[0],
+        value: tooltip.getActiveElements(),
+      });
+    }
+
+    currentTooltip.style.opacity = '1';
+
+    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
-    tooltipEl.style.opacity = `${tooltipModel.opacity}`;
-    tooltipEl.style.position = 'absolute';
+    currentTooltip.style.position = 'fixed';
+    currentTooltip.style.top = position.bottom - position.height - tooltip.height + 'px';
 
-    const top = position.top + window.pageYOffset + tooltipModel.caretY;
-    tooltipEl.style.top = top + 'px';
-
-    const left = position.left + window.pageXOffset + tooltipModel.caretX;
-    if (left + 260 > window.innerWidth) {
-      tooltipEl.style.right = '0';
+    const left = tooltipModel.caretX - position.width / 2;
+    if (left + tooltipRect.width > position.width) {
+      currentTooltip.style.marginRight = '0';
     } else {
-      tooltipEl.style.left = left + 'px';
-    }
-    tooltipEl.style.pointerEvents = 'none';
-
-    if (!tooltipRoot) {
-      const root = createRoot(tooltipEl);
-      setTooltipRoot(root);
-      root.render(<AreaChartTooltip themeMode={`${themeMode}`} tooltip={tooltip} datas={datas} />);
+      currentTooltip.style.marginLeft = left + 'px';
     }
   };
 
@@ -114,7 +117,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
           max: 100,
           min: 0,
           ticks: {
-            color: themePallet.primary,
+            color: themePallet.tertiary,
             count: 5,
           },
           grid: {
@@ -126,7 +129,19 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
         },
         xAxis: {
           ticks: {
-            color: themePallet.primary,
+            color: themePallet.tertiary,
+            maxTicksLimit: 8,
+            maxRotation: 0,
+            callback: (_, index) => {
+              try {
+                const formatter = new Intl.DateTimeFormat('en-us', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+                return formatter.format(new Date(labels[index]));
+              } catch (e) {}
+              return index;
+            },
           },
           grid: {
             color: '#00000000',
@@ -175,10 +190,15 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       yAxisID: 'yAxis',
       xAxisID: 'xAxis',
       fill: true,
-      borderWidth: 2,
-      pointBorderWidth: 1,
-      pointRadius: 1,
+      borderWidth: 1,
+      pointBorderWidth: 0,
+      pointHitRadius: 0,
+      pointHoverRadius: 2,
+      pointHoverBorderWidth: 1,
+      pointHoverBackgroundColor: '#FFFFFF',
+      pointRadius: 0,
       data: [],
+      tension: 0.4,
     };
 
     const chartColors = [
@@ -208,12 +228,21 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     const top = chart.chartArea.bottom - Math.round(chart.chartArea.bottom * (maxValue / 100));
     const gradient = chart.ctx.createLinearGradient(0, top, 0, chart.chartArea.bottom);
     gradient.addColorStop(0, colorStart);
-    gradient.addColorStop(1, `${colorStart.slice(0, 7)}22`);
+    gradient.addColorStop(1, `${colorStart.slice(0, 7)}00`);
     return gradient;
   };
 
   return (
     <Wrapper ref={wrapperRef}>
+      <div className="tooltip-container" ref={tooltipRef} style={{opacity: 0}}>
+        <AreaChartTooltip
+          themeMode={`${themeMode}`}
+          title={currentValue.title}
+          activeElements={currentValue.value}
+          chartColors={[...colors, ...new Array(Object.keys(datas).length).fill('#2090F3')]}
+          datas={datas}
+        />
+      </div>
       <Line
         ref={chartRef}
         width={chartWidth}
@@ -233,5 +262,14 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     overflow: hidden;
+  }
+
+  .tooltip-container {
+    position: absolute;
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    z-index: 20;
+    pointer-events: none;
   }
 `;

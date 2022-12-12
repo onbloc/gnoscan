@@ -36,5 +36,9 @@ const ItemContainer = styled(DatatableOption.ColumnOption)`
       justify-content: center;
       align-items: center;
     }
+
+    .link {
+      cursor: pointer;
+    }
   }
 `;

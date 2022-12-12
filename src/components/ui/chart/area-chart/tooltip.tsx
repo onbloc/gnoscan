@@ -1,41 +1,59 @@
-import React, {useEffect, useState} from 'react';
-import {TooltipModel} from 'chart.js';
+import React from 'react';
+import {ActiveElement} from 'chart.js';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
 
 interface TooltipProps {
-  tooltip: TooltipModel<'line'>;
+  activeElements: Array<ActiveElement>;
+  title: string;
   datas: {[key in string]: Array<{value: number; rate: number}>};
+  chartColors: Array<string>;
   themeMode: string;
 }
 
-export const AreaChartTooltip = ({tooltip, datas, themeMode}: TooltipProps) => {
+export const AreaChartTooltip = ({
+  title,
+  activeElements,
+  datas,
+  themeMode,
+  chartColors,
+}: TooltipProps) => {
   const getTotalValue = () => {
-    if (tooltip.getActiveElements().length === 0) {
+    if (activeElements.length === 0) {
       return 0;
     }
-    const totalValue = Object.keys(datas).reduce(
-      (d1, d2) => d1 + datas[d2][tooltip.getActiveElements()[0].index].value,
-      0,
-    );
-    const {integer, decimal} = parseValue(totalValue);
+    try {
+      const totalValue = Object.keys(datas).reduce(
+        (d1, d2) => d1 + datas[d2][activeElements[0].index].value,
+        0,
+      );
+      const {integer, decimal} = parseValue(totalValue);
+      return (
+        <>
+          <strong>{integer}</strong>
+          {`.${decimal}`}
+        </>
+      );
+    } catch (e) {}
     return (
       <>
-        <strong>{integer}</strong>
-        {`.${decimal}`}
+        <strong>{0}</strong>
       </>
     );
   };
 
   const getTotalRate = () => {
-    if (tooltip.getActiveElements().length === 0) {
+    if (activeElements.length === 0) {
       return 0;
     }
-    const totalRate = Object.keys(datas).reduce(
-      (d1, d2) => d1 + datas[d2][tooltip.getActiveElements()[0].index].rate,
-      0,
-    );
-    return `${Math.round(totalRate)}%`;
+    try {
+      const totalRate = Object.keys(datas).reduce(
+        (d1, d2) => d1 + datas[d2][activeElements[0].index].rate,
+        0,
+      );
+      return `${Math.round(totalRate)}%`;
+    } catch (e) {}
+    return '0%';
   };
 
   const parseValue = (value: number) => {
@@ -59,27 +77,29 @@ export const AreaChartTooltip = ({tooltip, datas, themeMode}: TooltipProps) => {
   };
 
   const renderRow = (packagePath: string, cIndex: number) => {
-    if (tooltip.getActiveElements().length === 0) {
+    if (activeElements.length === 0) {
       return <></>;
     }
-    const data = datas[packagePath][tooltip.getActiveElements()[0].index];
-    const {integer, decimal} = parseValue(data.value);
+    const data = datas[packagePath][activeElements[0].index];
+    const {integer, decimal} = parseValue(data?.value ?? 0);
     return (
       <div key={cIndex} className="tooltip-row">
-        <span className="dot"></span>
+        <span
+          className="dot"
+          style={{backgroundColor: `${chartColors[cIndex] ?? '#000000'}`}}></span>
         <span className="title">{packagePath}</span>
         <span className="value">
           <strong>{integer}</strong>
           {`.${decimal}`}
         </span>
-        <span className="rate">{`${Math.round(data.rate)}%`}</span>
+        <span className="rate">{`${Math.round(data?.rate ?? 0)}%`}</span>
       </div>
     );
   };
 
-  return tooltip.getActiveElements().length > 0 ? (
+  return activeElements.length > 0 ? (
     <TooltipContainer light={themeMode === 'light'}>
-      <p className="tooltip-title">{tooltip.title}</p>
+      <p className="tooltip-title">{title}</p>
       <div className="tooltip-header">
         <span className="title">{'Total:'}</span>
         <span className="value">{getTotalValue()}</span>
@@ -110,13 +130,15 @@ const TooltipContainer = styled.div<{light: boolean}>`
     }
 
     .title {
-      width: 90px;
+      width: 180px;
+      margin-bottom: 0;
     }
 
     .value {
       width: 90px;
-      justify-content: flex-end;
       font-size: 10px;
+      justify-content: center;
+      align-items: center;
 
       strong {
         font-weight: 600;
@@ -167,7 +189,28 @@ const TooltipContainer = styled.div<{light: boolean}>`
     line-height: 16px;
 
     .tooltip-row {
+      display: flex;
       padding: 3px 0;
+      width: 100%;
+      align-items: center;
+
+      span {
+        display: inline-flex;
+      }
+
+      .value {
+        justify-content: center;
+        align-items: center;
+      }
+
+      .dot {
+        display: inline-flex;
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        border-radius: 8px;
+        margin-right: 8px;
+      }
     }
   }
 `;

@@ -1,6 +1,12 @@
-import {BarChart} from '@/components/ui/chart';
 import React, {useEffect, useState} from 'react';
+import dynamic from 'next/dynamic';
 import {TotalTransactionModel} from './total-transaction-model';
+import usePageQuery from '@/common/hooks/use-page-query';
+import {API_URI} from '@/common/values/constant-value';
+
+const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
+  ssr: false,
+});
 
 interface TotalTransactionResponse {
   date: string;
@@ -12,19 +18,21 @@ export const MainTotalTransaction = () => {
     new TotalTransactionModel([]),
   );
 
-  useEffect(() => {
-    fetchGasShareData();
-  }, []);
+  const {data} = usePageQuery<Array<TotalTransactionResponse>>({
+    key: 'main/total-transaction',
+    uri: API_URI + '/latest/info/daily_txs',
+    pageable: false,
+  });
 
-  const fetchGasShareData = () => {
-    try {
-      fetch('http://3.218.133.250:7677/v3/info/daily_txs')
-        .then(res => res.json())
-        .then(res => updatChartData(res));
-    } catch (e) {
-      console.log(e);
+  useEffect(() => {
+    if (data) {
+      const responseDatas = data.pages.reduce<Array<TotalTransactionResponse>>(
+        (accum, current) => (current ? [...accum, ...current] : accum),
+        [],
+      );
+      updatChartData(responseDatas);
     }
-  };
+  }, [data]);
 
   const updatChartData = (responseDatas: Array<TotalTransactionResponse>) => {
     setTotalTransactionModel(new TotalTransactionModel(responseDatas));

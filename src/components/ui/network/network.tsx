@@ -55,11 +55,14 @@ const Network = ({
 };
 
 const NetworkButton = styled.button<StyleProps>`
+  position: relative;
+  display: flex;
   background-color: ${({entry}) => (entry ? theme.lightTheme.reverse : theme.lightTheme.base)};
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  position: relative;
+  justify-content: center;
+  align-items: center;
 `;
 
 const NetworkList = styled.ul<StyleProps>`

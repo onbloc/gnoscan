@@ -8,19 +8,13 @@ function useTheme() {
   const onChangeTheme = useCallback(() => {
     const updatedTheme = themeMode === 'light' ? 'dark' : 'light';
     setTheme(updatedTheme);
-    sessionStorage.setItem('theme', updatedTheme);
+    localStorage.setItem('theme', updatedTheme);
   }, [themeMode]);
 
   useLayoutEffect(() => {
-    const savedTheme = sessionStorage.getItem('theme');
+    const savedTheme = localStorage.getItem('theme') ?? 'dark';
     if (savedTheme && ['dark', 'light'].includes(savedTheme)) {
       setTheme(savedTheme);
-      return;
-    }
-    if (window.matchMedia) {
-      setTheme(() =>
-        window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
-      );
       return;
     }
   }, []);

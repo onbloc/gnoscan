@@ -1,31 +1,52 @@
 import React, {useEffect, useState} from 'react';
-import {AreaChart} from '@/components/ui/chart';
 import {TotalGasShareModel} from './total-gas-share-model';
+import dynamic from 'next/dynamic';
+import usePageQuery from '@/common/hooks/use-page-query';
+import {API_URI} from '@/common/values/constant-value';
+import styled from 'styled-components';
+import Text from '@/components/ui/text';
+import theme from '@/styles/theme';
+
+const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
+  ssr: false,
+});
 
 interface TotalGasShareResponse {
   date: string;
-  pkg_path: string;
-  pkg_daily_fee: number;
-  total_daily_fee: number;
-  pct: number;
+  daily_total_fee: number;
+  packages: Array<{
+    path: string;
+    daily_fee: number;
+    percent: number;
+  }>;
 }
 
 export const MainRealmTotalGasShare = () => {
+  const [period, setPeriod] = useState(7);
+
   const [totalGasShareModel, setTotalGasShareModel] = useState<TotalGasShareModel>(
     new TotalGasShareModel([]),
   );
 
-  useEffect(() => {
-    fetchGasShareData();
-  }, []);
+  const {data} = usePageQuery<Array<TotalGasShareResponse>>({
+    key: 'main/total-gas-share',
+    uri: API_URI + `/latest/info/realms_gas?period=${period}`,
+    pageable: false,
+  });
 
-  const fetchGasShareData = () => {
-    try {
-      fetch('http://3.218.133.250:7677/v3/info/realms_gas')
-        .then(res => res.json())
-        .then(res => updatChartData(res));
-    } catch (e) {
-      console.log(e);
+  useEffect(() => {
+    if (data) {
+      const responseDatas = data.pages.reduce<Array<TotalGasShareResponse>>(
+        (accum, current) => (current ? [...accum, ...current] : accum),
+        [],
+      );
+      updatChartData(responseDatas);
+    }
+  }, [data]);
+
+  const onClickPeriod = (currentPeriod: number) => {
+    if (period !== currentPeriod) {
+      setPeriod(currentPeriod);
     }
   };
 
@@ -34,10 +55,74 @@ export const MainRealmTotalGasShare = () => {
   };
 
   return (
-    <AreaChart
-      labels={totalGasShareModel.labels}
-      datas={totalGasShareModel.chartData}
-      colors={[]}
-    />
+    <Wrapper>
+      <div className="title-wrapper">
+        <Text className="title" type="h6" color="primary">
+          {'Total Gas Share By Realms (in GNOTs)'}
+        </Text>
+        <div className="period-selector">
+          <span className={period === 7 ? 'active' : ''} onClick={() => onClickPeriod(7)}>
+            7D
+          </span>
+          <span className={period === 30 ? 'active' : ''} onClick={() => onClickPeriod(30)}>
+            30D
+          </span>
+        </div>
+      </div>
+
+      <AreaChart
+        labels={totalGasShareModel.labels}
+        datas={totalGasShareModel.chartData}
+        colors={['#2090F3', '#786AEC', '#FDD15C', '#617BE3', '#30BDD2', '#83CFAA']}
+      />
+    </Wrapper>
   );
 };
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  & .title-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  & .period-selector {
+    display: flex;
+    color: ${({theme}) => theme.colors.tertiary};
+
+    span {
+      width: 60px;
+      height: 30px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid ${({theme}) => theme.colors.tertiary};
+      ${theme.fonts.p4};
+      cursor: pointer;
+
+      &.active {
+        cursor: auto;
+        background-color: ${({theme}) => theme.colors.select};
+      }
+
+      &:first-child {
+        border-top-left-radius: 30px;
+        border-bottom-left-radius: 30px;
+        border-right: none;
+      }
+
+      &:last-child {
+        border-top-right-radius: 30px;
+        border-bottom-right-radius: 30px;
+        border-left: none;
+      }
+    }
+    /* background-color: ${({theme}) => theme.colors.tertiary}; */
+  }
+`;
