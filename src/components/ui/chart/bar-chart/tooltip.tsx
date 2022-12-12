@@ -16,9 +16,9 @@ export const BarChartTooltip = ({themeMode, title, value}: TooltipProps) => {
         <p className="tooltip-title">{title}</p>
       </div>
       <div className="tooltip-body">
-        <p className="tooltip-content">
+        <div className="tooltip-content">
           <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={value} />
-        </p>
+        </div>
       </div>
     </TooltipContainer>
   );
