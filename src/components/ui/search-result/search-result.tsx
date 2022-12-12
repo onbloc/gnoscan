@@ -22,7 +22,7 @@ interface StyleProps {
 
 const SearchResult = ({isMain}: {isMain: boolean}) => {
   const desktop = isDesktop();
-  const value = useRecoilValue(searchState);
+  const [value, setValue] = useRecoilState(searchState);
   const {result} = useSearchQuery();
   const {route} = useRouter();
   const [open, setOpen] = useState(false);
@@ -33,10 +33,13 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
   }, [value]);
 
   useEffect(() => resetValue(), [route]);
-  if (result) console.log(result);
 
-  const resetValue = useCallback(() => setOpen(false), [value]);
-  if (!value) return;
+  const resetValue = useCallback(() => {
+    setOpen(false);
+    setValue('');
+  }, [value]);
+
+  if (!value) return <></>;
   return (
     <>
       {open && (

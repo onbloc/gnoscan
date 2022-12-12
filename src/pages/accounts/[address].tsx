@@ -75,11 +75,7 @@ const AccountDetails = () => {
           <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
             <AddressTextBox type={desktop ? 'p3' : 'p4'} color="primary" media={media}>
               {detail.address}
-              <Tooltip
-                content="Copied!"
-                trigger="click"
-                copyText={detail?.address}
-                className="address-tooltip">
+              <Tooltip content="Copied!" trigger="click" copyText={detail?.address} width={85}>
                 <IconCopy className="svg-icon" />
               </Tooltip>
               {detail.username && (

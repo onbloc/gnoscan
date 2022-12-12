@@ -13,7 +13,6 @@ import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
 import {API_URI} from '@/common/values/constant-value';
-import {denomConvert} from '@/common/utils/gnot-util';
 interface SupplyResultType {
   supply: string;
   exit: string;
@@ -30,7 +29,6 @@ interface TxResultType {
   avg_24hr: string;
   total_fee: string;
   total_txs: string;
-  denom: string;
 }
 
 interface AccountsResultType {
@@ -81,7 +79,6 @@ const MainCard = () => {
           avg_24hr: numberWithFixedCommas(tx.avg_24hr / 1000000, 6),
           total_fee: numberWithFixedCommas(tx.total_fee / 1000000, 2),
           total_txs: numberWithCommas(tx.total_txs),
-          denom: denomConvert('GNOT'),
         };
       },
     },
@@ -135,7 +132,7 @@ const MainCard = () => {
                   <Text type="p4" color="tertiary">
                     Holders
                   </Text>
-                  <Tooltip width={164} content="Number of accounts with a positive GNOT Balance.">
+                  <Tooltip content="Number of accounts<br/>with a positive GNOT<br/>Balance.">
                     <Button width="16px" height="16px" radius="50%" bgColor="surface">
                       <IconInfo className="svg-info" />
                     </Button>
@@ -208,7 +205,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {`${card03?.avg_24hr} ${card03?.denom}`}
+                    {card03?.avg_24hr}
                   </Text>
                 </dd>
               </BundleDl>
@@ -221,7 +218,7 @@ const MainCard = () => {
                 </dt>
                 <dd>
                   <Text type="p4" color="primary">
-                    {`${card03?.total_fee} ${card03?.denom}`}
+                    {card03?.total_fee}
                   </Text>
                 </dd>
               </BundleDl>
@@ -234,7 +231,7 @@ const MainCard = () => {
           <>
             <Text type="h5" color="primary" className="title-info">
               Total&nbsp;Accounts
-              <Tooltip width={164} content="Number of accounts included in at least 1 transaction.">
+              <Tooltip content="Number of accounts<br/>included in at least 1<br/>transaction.">
                 <Button width="16px" height="16px" radius="50%" bgColor="base">
                   <IconInfo className="svg-info" />
                 </Button>
@@ -262,9 +259,7 @@ const MainCard = () => {
                   <Text type="p4" color="tertiary">
                     Total&nbsp;Users
                   </Text>
-                  <Tooltip
-                    width={164}
-                    content="Number of accounts registered as a user on/r/demo/users.">
+                  <Tooltip content="Number of accounts<br/>registered as a user on<br/>/r/demo/users.">
                     <Button width="16px" height="16px" radius="50%" bgColor="surface">
                       <IconInfo className="svg-info" />
                     </Button>
