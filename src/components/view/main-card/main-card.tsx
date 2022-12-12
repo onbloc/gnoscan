@@ -102,7 +102,7 @@ const MainCard = () => {
   return (
     <Wrapper className={media}>
       <StyledCard>
-        <Text type="h5" color="primary">
+        <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply
           <Tooltip
             width={229}
