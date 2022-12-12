@@ -60,6 +60,15 @@ export async function getServerSideProps({query}: any) {
       };
     }
 
+    if (data.type === 'pkg_name') {
+      return {
+        redirect: {
+          permanent: false,
+          destination: `/realms/details?path=${data.extra_value}`,
+        },
+      };
+    }
+
     if (data.type === 'block') {
       return {
         redirect: {
