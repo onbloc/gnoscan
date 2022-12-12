@@ -58,7 +58,7 @@ export const MainRealmTotalGasShare = () => {
     <Wrapper>
       <div className="title-wrapper">
         <Text className="title" type="h6" color="primary">
-          {'Total Gas Share By Realms'}
+          {'Total Gas Share By Realms (in GNOTs)'}
         </Text>
         <div className="period-selector">
           <span className={period === 7 ? 'active' : ''} onClick={() => onClickPeriod(7)}>
