@@ -12,11 +12,13 @@ import {API_URI} from '@/common/values/constant-value';
 import {getLocalDateString} from '@/common/utils/date-util';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import styled from 'styled-components';
+import Tooltip from '@/components/ui/tooltip';
 
 type NewestValueType = {
   no: number;
   originName: string;
   formatName: string;
+  originPkgName: string;
   originAddress: string;
   publisher: string;
   functions: number;
@@ -41,6 +43,7 @@ const ActiveNewest = () => {
             no: v.idx,
             originName: v.pkg_path,
             formatName: formatEllipsis(v.pkg_name),
+            originPkgName: v.pkg_name,
             originAddress: v.publisher_address,
             publisher: Boolean(v.publisher) ? v.publisher : formatAddress(v.publisher_address),
             functions: v.functions,
@@ -78,12 +81,16 @@ const ActiveNewest = () => {
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[1]} color="blue">
                     <Link href={`/realms/details?path=${v.originName}`}>
-                      <a target="_blank">{v.formatName}</a>
+                      <a target="_blank">
+                        <Tooltip content={v.originPkgName}>{v.formatName}</Tooltip>
+                      </a>
                     </Link>
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[2]} color="blue">
                     <Link href={`/accounts/${v.originAddress}`} passHref>
-                      <FitContentA target="_blank">{v.publisher}</FitContentA>
+                      <FitContentA target="_blank">
+                        <Tooltip content={v.originAddress}>{v.publisher}</Tooltip>
+                      </FitContentA>
                     </Link>
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[3]} color="reverse">

@@ -7,6 +7,12 @@ import ActiveAccount from './active-account';
 import ActiveBoards from './active-boards';
 import Text from '@/components/ui/text';
 import {AmountText} from '@/components/ui/text/amount-text';
+import {TextProps} from '@/components/ui/text/text';
+
+interface StyledTextProps extends TextProps {
+  width?: string;
+  gap?: string;
+}
 
 export const listTitle = {
   accounts: ['No.', 'Account', 'Total Txs', 'Non-Transfer Txs', 'Balance (GNOT)'],
@@ -43,6 +49,9 @@ const Wrapper = styled.div`
     grid-gap: 32px;
     margin: 32px 0px;
   }
+  .svg-info-tooltip-icon {
+    fill: ${({theme}) => theme.colors.reverse};
+  }
 `;
 
 export const List = styled.div`
@@ -70,6 +79,7 @@ export const StyledCard = styled(Card)`
 const textStyle = css`
   padding: 12px;
   flex: 1;
+  ${mixins.flexbox('row', 'center', 'flex-start')};
   :first-of-type {
     max-width: 52px;
   }
@@ -81,9 +91,11 @@ const textStyle = css`
   }
 `;
 
-export const StyledText = styled(Text)<{width?: string}>`
+export const StyledText = styled(Text)<StyledTextProps>`
   max-width: ${({width}) => width};
   min-width: ${({width}) => width};
+  gap: ${({gap}) => gap && gap};
+  white-space: nowrap;
   ${textStyle};
 `;
 

@@ -4,12 +4,16 @@ import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {v1} from 'uuid';
 import {StyledText} from '@/components/view/main-active-list/main-active-list';
-
+import Tooltip from '../tooltip';
+import {Button} from '../button';
+import IconInfo from '@/assets/svgs/icon-info.svg';
 interface ActiveListProps {
   title: string[];
   colWidth: string[];
   children: React.ReactNode;
 }
+
+const hasTooltipTitle = ['Unique Users'];
 
 const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
   const media = eachMedia();
@@ -31,8 +35,18 @@ const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
             key={v1()}
             type={media === 'desktop' ? 'p4' : 'body1'}
             width={colWidth[i]}
-            color="tertiary">
+            color="tertiary"
+            gap={hasTooltipTitle.includes(v) ? '8px' : '0px'}>
             {v}
+            {hasTooltipTitle.includes(v) && (
+              <Tooltip
+                content="Number of users who created a thread, reply or repost 
+              (excl. duplicates) in the board.">
+                <Button width="16px" height="16px" radius="50%" bgColor="surface">
+                  <IconInfo className="svg-info-tooltip-icon" />
+                </Button>
+              </Tooltip>
+            )}
           </StyledText>
         ))}
       </ListTitleWrap>
