@@ -5,14 +5,14 @@ import {BarChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
-import {createRoot, Root} from 'react-dom/client';
 
 interface BarChartProps {
   labels: Array<string>;
   datas: Array<{date: string; value: number}>;
+  isDenom?: boolean;
 }
 
-export const BarChart = ({labels, datas}: BarChartProps) => {
+export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart<'bar'>>(null);
   const [chartData, setChartData] = useState<ChartData<'bar'>>({labels: [], datasets: []});
@@ -195,6 +195,7 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
     <Wrapper ref={wrapperRef}>
       <div className="tooltip-container" ref={tooltipRef} style={{opacity: 0}}>
         <BarChartTooltip
+          isDenom={isDenom}
           themeMode={`${themeMode}`}
           title={currentValue.title}
           value={currentValue.value}
