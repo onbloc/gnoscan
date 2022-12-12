@@ -7,6 +7,8 @@ import {Layout} from '@/components/core/layout';
 import Head from 'next/head';
 import {ErrorBoundary} from '@/components/core/error-boundary';
 
+import 'antd/dist/reset.css';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
