@@ -106,8 +106,10 @@ const MainCard = () => {
           <>
             <Text type="h5" color="primary">
               GNOT&nbsp;Supply
-              <Tooltip width={229} content="This number represents the total supply at Genesis in Testnet 3, which is subject to change in mainnet.">
-                <Button width="16px" height="16px" radius="50%" bgColor="base">
+              <Tooltip
+                width={229}
+                content="This number represents the total supply at Genesis in Testnet 3, which is subject to change in mainnet.">
+                <Button width="16px" height="16px" radius="50%" bgColor="base" margin="5px">
                   <IconInfo className="svg-info" />
                 </Button>
               </Tooltip>
@@ -124,7 +126,9 @@ const MainCard = () => {
                   <Text type="p4" color="tertiary">
                     Airdrop Supply
                   </Text>
-                  <Tooltip width={215} content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change.">
+                  <Tooltip
+                    width={215}
+                    content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change.">
                     <Button width="16px" height="16px" radius="50%" bgColor="surface">
                       <IconInfo className="svg-info" />
                     </Button>
