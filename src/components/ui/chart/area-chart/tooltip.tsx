@@ -72,7 +72,7 @@ export const AreaChartTooltip = ({
     }
     const data = datas[packagePath][activeElements[0].index];
     const {integer, decimal} = parseValue(data.value);
-    return packagePath !== 'rest' ? (
+    return (
       <div key={cIndex} className="tooltip-row">
         <span
           className="dot"
@@ -84,8 +84,6 @@ export const AreaChartTooltip = ({
         </span>
         <span className="rate">{`${Math.round(data.rate)}%`}</span>
       </div>
-    ) : (
-      <></>
     );
   };
 
