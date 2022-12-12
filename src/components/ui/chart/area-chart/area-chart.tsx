@@ -83,7 +83,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
     currentTooltip.style.position = 'fixed';
-    currentTooltip.style.top = position.bottom - position.height - tooltipRect.height + 'px';
+    currentTooltip.style.top = position.bottom - position.height - tooltip.height + 'px';
 
     const left = tooltipModel.caretX - position.width / 2;
     if (left + tooltipRect.width > position.width) {
@@ -245,5 +245,6 @@ const Wrapper = styled.div`
     width: fit-content;
     height: fit-content;
     z-index: 20;
+    pointer-events: none;
   }
 `;
