@@ -77,7 +77,7 @@ const Button = styled.button`
   height: 100%;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
-  cursor: default;
+  cursor: pointer;
 `;
 
 const Input = styled.input`

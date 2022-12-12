@@ -36,6 +36,7 @@ interface TransactionData {
   type: string;
   func: string;
   block: number;
+  from_username: string | undefined;
   from_address: string;
   pkg_path: string | null;
   amount: {
@@ -116,7 +117,9 @@ export const TransactionDatatable = () => {
       .name('From')
       .width(160)
       .colorName('blue')
-      .renderOption(address => <DatatableItem.Account address={address} />)
+      .renderOption((address, data) => (
+        <DatatableItem.Publisher address={address} username={data?.from_username} />
+      ))
       .build();
   };
 

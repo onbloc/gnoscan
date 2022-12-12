@@ -156,7 +156,7 @@ const TransactionDetails = () => {
         console.log(res.data);
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
-          : summary.gas.used / summary.gas.wanted;
+          : (summary.gas.used / summary.gas.wanted).toFixed(2);
 
         const summaryData: SummaryType = {
           ...summary,
