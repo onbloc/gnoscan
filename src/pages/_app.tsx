@@ -19,7 +19,7 @@ const App: React.FC<AppProps<any>> = ({Component, pageProps}: AppProps) => {
   return (
     <>
       <Head>
-        <title>Gnoscan</title>
+        <title>Gnoscan - Gnoland Blockchain Explorer</title>
       </Head>
       <GlobalStyle />
       <QueryClientProvider client={queryClient}>

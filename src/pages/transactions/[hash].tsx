@@ -432,7 +432,7 @@ const AddressTextBox = styled.div`
 
 const StyledIconCopy = styled(IconCopy)`
   stroke: ${({theme}) => theme.colors.primary};
-  margin-left: 6px;
+  margin-left: 10px;
 `;
 
 export default TransactionDetails;

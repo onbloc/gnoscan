@@ -17,7 +17,7 @@ export const listTitle = {
 export const colWidth = {
   accounts: ['52px', '127px', '114px', '138px', '127px'],
   boards: ['52px', '126.5px', '126.5px', '126.5px', '126.5px'],
-  newest: ['52px', '101.2px', '101.2px', '101.2px', '101.2px', '101.2px'],
+  newest: ['52px', '101px', '101px', '101px', '101px', '102px'],
 };
 
 const MainActiveList = () => {
@@ -75,20 +75,25 @@ const textStyle = css`
   }
   &.with-link {
     a {
-      ${mixins.flexbox('row', 'center', 'flex-start')};
-      width: 100%;
+      ${mixins.flexbox('row', 'center', 'flex-start', false)};
+      width: fit-content;
     }
   }
 `;
 
-export const StyledText = styled(Text)<{width: string}>`
+export const StyledText = styled(Text)<{width?: string}>`
+  max-width: ${({width}) => width};
   min-width: ${({width}) => width};
   ${textStyle};
 `;
 
-export const StyledAmountText = styled(AmountText)<{width: string}>`
+export const StyledAmountText = styled(AmountText)<{width?: string}>`
   min-width: ${({width}) => width};
   ${textStyle};
+`;
+
+export const FitContentA = styled.a`
+  width: fit-content;
 `;
 
 export default MainActiveList;

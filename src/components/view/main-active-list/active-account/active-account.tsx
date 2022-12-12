@@ -55,7 +55,7 @@ const ActiveAccount = () => {
           };
         });
         return {
-          last_update: res.data.last_update,
+          last_update: getLocalDateString(res.data.last_update),
           data: accounts,
         };
       },
@@ -88,7 +88,7 @@ const ActiveAccount = () => {
                     width={colWidth.accounts[1]}
                     color="blue">
                     <Link href={`/accounts/${v.address}`} passHref>
-                      <a>
+                      <a target="_blank">
                         {v.hovertext === '' ? (
                           v.account
                         ) : (

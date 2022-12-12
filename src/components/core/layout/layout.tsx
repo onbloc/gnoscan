@@ -35,10 +35,6 @@ export const Layout = ({children}: LayoutProps) => {
         fonts: theme.fonts,
         device: theme.device,
       }}>
-      <Head>
-        <title>Gnoscan</title>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      </Head>
       <Wrapper>
         <Header />
         {children}

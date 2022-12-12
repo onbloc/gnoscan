@@ -43,7 +43,7 @@ const ActiveBoards = () => {
           };
         });
         return {
-          last_update: res.data.last_update,
+          last_update: getLocalDateString(res.data.last_update),
           data: boards,
         };
       },
@@ -59,7 +59,7 @@ const ActiveBoards = () => {
             Monthly Active Boards
             {media !== 'mobile' && (
               <Text type="body1" color="tertiary">
-                {`Last Updated: ${getLocalDateString(boards?.last_update)}`}
+                {`Last Updated: ${boards?.last_update}`}
               </Text>
             )}
           </Text>
@@ -99,7 +99,7 @@ const ActiveBoards = () => {
           </ActiveList>
           {media === 'mobile' && (
             <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-              {`Last Updated: ${getLocalDateString(boards?.last_update)}`}
+              {`Last Updated: ${boards?.last_update}`}
             </Text>
           )}
         </>

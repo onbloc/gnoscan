@@ -129,7 +129,7 @@ const AddressTextBox = styled(Text)<StyleProps>`
   }
   .svg-icon {
     stroke: ${({theme}) => theme.colors.primary};
-    margin-left: 5px;
+    margin-left: 10px;
   }
   .username-text {
     ${mixins.flexbox('row', 'center', 'center', false)};
