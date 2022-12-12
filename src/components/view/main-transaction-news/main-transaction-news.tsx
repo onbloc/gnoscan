@@ -15,14 +15,14 @@ const MainTransactionNews = () => {
     <Wrapper className={media}>
       <Card height="274px" className="card-1">
         <Text className="title" type="h6" color="primary">
-          {'Total Transactions'}
+          {'Total Daily Transactions'}
         </Text>
         <MainTotalTransaction />
       </Card>
 
       <Card height="274px" className="card-2">
         <Text className="title" type="h6" color="primary">
-          {'TotalDaily Fees (in GNOTs)'}
+          {'Total Daily Fees (in GNOTs)'}
         </Text>
         <MainTotalDailyFee />
       </Card>

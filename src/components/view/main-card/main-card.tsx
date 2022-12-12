@@ -264,7 +264,7 @@ const MainCard = () => {
                   </Text>
                   <Tooltip
                     width={164}
-                    content="Number of accounts registered as a user on/r/demo/users.">
+                    content="Number of accounts registered as a user on /r/demo/users.">
                     <Button width="16px" height="16px" radius="50%" bgColor="surface">
                       <IconInfo className="svg-info" />
                     </Button>
