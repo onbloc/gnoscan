@@ -7,9 +7,10 @@ interface TooltipProps {
   title: string;
   value: string;
   themeMode: string;
+  isDenom?: boolean;
 }
 
-export const BarChartTooltip = ({themeMode, title, value}: TooltipProps) => {
+export const BarChartTooltip = ({themeMode, title, value, isDenom}: TooltipProps) => {
   return (
     <TooltipContainer light={themeMode === 'light'}>
       <div className="tooltip-header">
@@ -17,7 +18,11 @@ export const BarChartTooltip = ({themeMode, title, value}: TooltipProps) => {
       </div>
       <div className="tooltip-body">
         <div className="tooltip-content">
-          <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={value} />
+          {isDenom ? (
+            <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={value} />
+          ) : (
+            <span>{value}</span>
+          )}
         </div>
       </div>
     </TooltipContainer>
@@ -46,10 +51,16 @@ const TooltipContainer = styled.div<{light: boolean}>`
       width: 100%;
       height: 100%;
       padding: 6px 10px;
-      align-items: center;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
       background-color: ${({theme}) => theme.colors.dimmed50};
       color: ${({light}) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
       ${theme.fonts.p4};
+
+      span {
+        line-height: 24px;
+      }
     }
   }
 `;

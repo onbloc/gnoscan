@@ -38,5 +38,7 @@ export const MainTotalDailyFee = () => {
     setTotalDailyFeeModel(new TotalDailyFeeModel(responseDatas));
   };
 
-  return <BarChart labels={totalDailyFeeModel.labels} datas={totalDailyFeeModel.chartData} />;
+  return (
+    <BarChart isDenom labels={totalDailyFeeModel.labels} datas={totalDailyFeeModel.chartData} />
+  );
 };

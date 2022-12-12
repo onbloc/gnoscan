@@ -8,7 +8,7 @@ interface Props {
 export const Block = ({height}: Props) => {
   return height ? (
     <a href={`/blocks/${height}`} target={'_blank'} rel={'noopener noreferrer'}>
-      {numberWithCommas(height)}
+      {height}
     </a>
   ) : (
     <span>-</span>
