@@ -130,6 +130,18 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
         xAxis: {
           ticks: {
             color: themePallet.tertiary,
+            maxTicksLimit: 8,
+            maxRotation: 0,
+            callback: (_, index) => {
+              try {
+                const formatter = new Intl.DateTimeFormat('en-us', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+                return formatter.format(new Date(labels[index]));
+              } catch (e) {}
+              return index;
+            },
           },
           grid: {
             color: '#00000000',
