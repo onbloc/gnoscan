@@ -75,9 +75,9 @@ const BlockDetails = () => {
     async ({queryKey}) => await axios.get(API_URI + `/latest/block/summary/${queryKey[1]}`),
     {
       enabled: !!height,
+      retry: 0,
       select: (res: any) => {
         const data = res.data;
-        console.log(data);
         const gasPercent = Number.isNaN(data.gas.used / data.gas.wanted)
           ? 0
           : data.gas.used / data.gas.wanted;
@@ -113,7 +113,9 @@ const BlockDetails = () => {
         )
       }
       titleAlign={desktop ? 'flex-start' : 'space-between'}
-      visible={!isFetched}>
+      visible={!isFetched}
+      keyword={`Block #${height}`}
+      error={!blockSuccess}>
       <DataSection title="Summary">
         <DLWrap desktop={desktop}>
           <dt>Timestamp</dt>

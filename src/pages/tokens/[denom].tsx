@@ -15,6 +15,7 @@ import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {TokenDetailDatatable} from '@/components/view/datatable';
 import {API_URI} from '@/common/values/constant-value';
+import NotFound from '@/components/view/not-found/not-found';
 
 type TokenResultType = {
   name: string;
@@ -42,8 +43,26 @@ const TokenDetails = () => {
     async ({queryKey}) => await axios.get(API_URI + `/latest/token/summary/${queryKey[1]}`),
     {
       enabled: !!denom,
+      retry: 0,
       select: (res: any) => {
         const tokenData = res.data;
+        if (Object.keys(res.data).length === 0) {
+          return {
+            name: '',
+            symbol: '',
+            totalSupply: '',
+            decimals: '',
+            tokenPath: '',
+            funcs: [],
+            owner: '',
+            address: '',
+            holders: '0',
+            log: {
+              list: [],
+              content: '',
+            },
+          };
+        }
         return {
           name: tokenData.name,
           symbol: tokenData.symbol,
@@ -65,8 +84,12 @@ const TokenDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Token Details'} visible={!isFetched}>
-      {tokenSuccess && (
+    <DetailsPageLayout
+      title={'Token Details'}
+      visible={!isFetched}
+      error={isFetched && token?.tokenPath === ''}
+      keyword={`${denom}`}>
+      {tokenSuccess && token.tokenPath && (
         <>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>

@@ -7,10 +7,17 @@ interface TooltipProps {
   activeElements: Array<ActiveElement>;
   title: string;
   datas: {[key in string]: Array<{value: number; rate: number}>};
+  chartColors: Array<string>;
   themeMode: string;
 }
 
-export const AreaChartTooltip = ({title, activeElements, datas, themeMode}: TooltipProps) => {
+export const AreaChartTooltip = ({
+  title,
+  activeElements,
+  datas,
+  themeMode,
+  chartColors,
+}: TooltipProps) => {
   const getTotalValue = () => {
     if (activeElements.length === 0) {
       return 0;
@@ -67,7 +74,9 @@ export const AreaChartTooltip = ({title, activeElements, datas, themeMode}: Tool
     const {integer, decimal} = parseValue(data.value);
     return (
       <div key={cIndex} className="tooltip-row">
-        <span className="dot"></span>
+        <span
+          className="dot"
+          style={{backgroundColor: `${chartColors[cIndex] ?? '#000000'}`}}></span>
         <span className="title">{packagePath}</span>
         <span className="value">
           <strong>{integer}</strong>
@@ -111,14 +120,15 @@ const TooltipContainer = styled.div<{light: boolean}>`
     }
 
     .title {
-      width: 90px;
+      width: 180px;
       margin-bottom: 0;
     }
 
     .value {
       width: 90px;
-      justify-content: flex-end;
       font-size: 10px;
+      justify-content: center;
+      align-items: center;
 
       strong {
         font-weight: 600;
@@ -169,7 +179,28 @@ const TooltipContainer = styled.div<{light: boolean}>`
     line-height: 16px;
 
     .tooltip-row {
+      display: flex;
       padding: 3px 0;
+      width: 100%;
+      align-items: center;
+
+      span {
+        display: inline-flex;
+      }
+
+      .value {
+        justify-content: center;
+        align-items: center;
+      }
+
+      .dot {
+        display: inline-flex;
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        border-radius: 8px;
+        margin-right: 8px;
+      }
     }
   }
 `;

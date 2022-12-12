@@ -12,7 +12,10 @@ const DataSection = ({children, title}: DataSectionProps) => {
   const desktop = isDesktop();
   return (
     <DetailsContainer desktop={desktop}>
-      <Text type={desktop ? 'h4' : 'h6'} color="primary" margin={desktop ? '0 0 32px' : '0 0 18px'}>
+      <Text
+        type={desktop ? 'h4' : 'h6'}
+        color="primary"
+        margin={desktop ? '0 0 16px 0' : '0 0 16px 0'}>
         {title}
       </Text>
       {children}

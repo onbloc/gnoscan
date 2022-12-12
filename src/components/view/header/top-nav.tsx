@@ -98,7 +98,14 @@ export const TopNav = () => {
         <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
       )}
       <Desktop>
-        {!isMain && <SubInput className="sub-search" value={value} onChange={onChange} />}
+        {!isMain && (
+          <SubInput
+            className="sub-search"
+            value={value}
+            onChange={onChange}
+            clearValue={() => setValue('')}
+          />
+        )}
         <Nav>
           {navItems.map(v => (
             <Link href={v.path} passHref key={v1()}>

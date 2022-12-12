@@ -1,26 +1,50 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import Search from '@/assets/svgs/icon-search.svg';
 import mixins from '@/styles/mixins';
 import SearchResult from '../search-result';
 import theme from '@/styles/theme';
+import {useRouter} from 'next/router';
 
 interface SubInputProps {
   className?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  clearValue?: () => void;
 }
 
-export const SubInput = ({className = '', value, onChange}: SubInputProps) => {
+export const SubInput = ({className = '', value, onChange, clearValue}: SubInputProps) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    clearValue && clearValue();
+  }, [router.asPath]);
+
+  const moveSearchPage = () => {
+    const searchUrl = `/search?keyword=${value}`;
+    router.push(searchUrl);
+  };
+
+  const onKeyDownInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      moveSearchPage();
+    }
+  };
+
+  const onClickSearchButton = () => {
+    moveSearchPage();
+  };
+
   return (
     <Wrapper className={className}>
       <Input
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDownInput}
         type="text"
         placeholder="Search by Account / Block / Realm / Tokens"
       />
-      <Button>
+      <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />
       </Button>
       <SearchResult isMain={false} />

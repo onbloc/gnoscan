@@ -38,7 +38,7 @@ const ActiveNewest = () => {
         const realms = res.data.realms.map((v: any, i: number) => {
           return {
             no: v.idx,
-            originName: v.pkg_name,
+            originName: v.pkg_path,
             formatName: formatEllipsis(v.pkg_name),
             originAddress: v.publisher_address,
             publisher: Boolean(v.publisher)
@@ -78,12 +78,9 @@ const ActiveNewest = () => {
                     {v.no}
                   </StyledText>
                   <StyledText type="p4" width={colWidth.newest[1]} color="blue">
-                    <a
-                      href={`https://test3.gno.land/${v.originName}`}
-                      target="_blank"
-                      rel="noreferrer">
-                      {v.formatName}
-                    </a>
+                    <Link href={`/realms/details?path=${v.originName}`}>
+                      <a>{v.formatName}</a>
+                    </Link>
                   </StyledText>
                   <Link href={`/accounts/${v.originAddress}`} passHref>
                     <a>

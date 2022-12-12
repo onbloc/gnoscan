@@ -1,6 +1,7 @@
 import theme, {Palette} from '@/styles/theme';
 import React from 'react';
 import styled from 'styled-components';
+import {AmountText} from '../../text/amount-text';
 
 interface TooltipProps {
   title: string;
@@ -15,7 +16,9 @@ export const BarChartTooltip = ({themeMode, title, value}: TooltipProps) => {
         <p className="tooltip-title">{title}</p>
       </div>
       <div className="tooltip-body">
-        <p className="tooltip-content">{value}</p>
+        <div className="tooltip-content">
+          <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={value} />
+        </div>
       </div>
     </TooltipContainer>
   );

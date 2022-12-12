@@ -23,6 +23,7 @@ export const Datatable = <T extends {[key in string]: any}>({
   const datatableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    onHandleHideTooltips();
     datatableRef.current?.addEventListener('scroll', onHandleHideTooltips);
     return () => {
       datatableRef.current?.removeEventListener('scroll', onHandleHideTooltips);

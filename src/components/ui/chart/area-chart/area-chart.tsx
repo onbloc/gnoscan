@@ -5,7 +5,6 @@ import {AreaChartTooltip} from './tooltip';
 import {styled} from '@/styles';
 import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
-import {createRoot, Root} from 'react-dom/client';
 
 interface AreaChartProps {
   labels: Array<string>;
@@ -20,7 +19,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const [themeMode] = useTheme();
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
-  const [tooltipRoot, setTooltipRoot] = useState<Root>();
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({
@@ -85,7 +83,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
     const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
     currentTooltip.style.position = 'fixed';
-    currentTooltip.style.top = position.bottom - position.height - tooltipRect.height + 'px';
+    currentTooltip.style.top = position.bottom - position.height - tooltip.height + 'px';
 
     const left = tooltipModel.caretX - position.width / 2;
     if (left + tooltipRect.width > position.width) {
@@ -175,6 +173,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       pointHoverBackgroundColor: '#FFFFFF',
       pointRadius: 0,
       data: [],
+      tension: 0.4,
     };
 
     const chartColors = [
@@ -215,6 +214,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
           themeMode={`${themeMode}`}
           title={currentValue.title}
           activeElements={currentValue.value}
+          chartColors={[...colors, ...new Array(Object.keys(datas).length).fill('#2090F3')]}
           datas={datas}
         />
       </div>
@@ -245,5 +245,6 @@ const Wrapper = styled.div`
     width: fit-content;
     height: fit-content;
     z-index: 20;
+    pointer-events: none;
   }
 `;
