@@ -2,6 +2,7 @@ import React, {useState, useCallback, useEffect} from 'react';
 import styled, {css} from 'styled-components';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
+import {Tooltip as AntdTooltip} from 'antd';
 
 type TriggerType = 'click' | 'hover';
 interface TooltipProps {
@@ -42,12 +43,11 @@ const Tooltip = ({
 
   return (
     <Wrapper className={className} trigger={trigger} isClicked={isClicked}>
-      <div onClick={buttonClickHandler} className="tooltip-button">
-        {children}
-      </div>
-      <TooltipContent className="tooltip" trigger={trigger} width={width}>
-        <TooltipText type="body1">{content}</TooltipText>
-      </TooltipContent>
+      <AntdTooltip title={content}>
+        <div onClick={buttonClickHandler} className="tooltip-button">
+          {children}
+        </div>
+      </AntdTooltip>
     </Wrapper>
   );
 };
