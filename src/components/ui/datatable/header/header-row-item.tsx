@@ -19,45 +19,10 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
   sortOption,
   setSortOption,
 }: Props<T>) => {
-  const tooltipWrapperRef = useRef<HTMLDivElement>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{left: string; top: string}>({
-    left: '0',
-    top: '0',
-  });
-
-  useEffect(() => {
-    if (tooltipWrapperRef.current) {
-      updateTooltipPosition();
-      window.addEventListener('resize', updateTooltipPosition);
-      window.addEventListener('scroll', updateTooltipPosition);
-    }
-    return () => {
-      window?.removeEventListener('resize', updateTooltipPosition);
-      window?.removeEventListener('scroll', updateTooltipPosition);
-    };
-  }, [tooltipWrapperRef.current?.getBoundingClientRect().y]);
-
-  const updateTooltipPosition = () => {
-    const rect = tooltipWrapperRef.current?.getBoundingClientRect();
-    const childRect = tooltipWrapperRef.current?.children
-      .item(0)
-      ?.children.item(1)
-      ?.getBoundingClientRect();
-    if (!rect || !childRect) {
-      return;
-    }
-    const positionX = rect.x + 16;
-    const positionY = rect.y - childRect.height - 10;
-    setTooltipPosition({
-      left: `${positionX ?? 0}px`,
-      top: `${positionY ?? 0}px`,
-    });
-  };
-
   const renderTooltip = () => {
     return (
       header.tooltip && (
-        <div ref={tooltipWrapperRef} className="tooltip-wrapper">
+        <div className="tooltip-wrapper">
           <Tooltip content={header.tooltip}>
             <IconTooltip />
           </Tooltip>
@@ -113,7 +78,7 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
   };
 
   return (
-    <ItemContainer {...tooltipPosition} options={DatatableOption.headerOptionByHeader(header)}>
+    <ItemContainer options={DatatableOption.headerOptionByHeader(header)}>
       <div className="content">{header.name}</div>
       {renderSort()}
       {renderTooltip()}
@@ -121,7 +86,7 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
   );
 };
 
-const ItemContainer = styled(DatatableOption.ColumnOption)<{left: string; top: string}>`
+const ItemContainer = styled(DatatableOption.ColumnOption)`
   & {
     ${theme.fonts.p4};
     font-weight: 400;
@@ -142,19 +107,6 @@ const ItemContainer = styled(DatatableOption.ColumnOption)<{left: string; top: s
         & .icon-tooltip_svg__bg {
           fill: ${({theme}) => theme.colors.surface};
         }
-      }
-    }
-
-    .tooltip {
-      position: fixed;
-      width: fit-content;
-      height: fit-content;
-      left: ${({left}) => left};
-      top: ${({top}) => top};
-      transition: none !important;
-
-      b {
-        font-weight: 600;
       }
     }
   }

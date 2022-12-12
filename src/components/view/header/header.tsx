@@ -24,4 +24,5 @@ const Wrapper = styled.header<{isMain: boolean}>`
   background: ${({isMain, theme}) =>
     isMain ? 'url("/bg-header.svg") no-repeat center center' : theme.colors.surface};
   box-shadow: ${({isMain}) => isMain && '0px 4px 4px rgba(0, 0, 0, 0.25)'};
+  background-size: cover;
 `;

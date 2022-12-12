@@ -10,11 +10,15 @@ import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-
 import IconLink from '@/assets/svgs/icon-link.svg';
 import {API_URI} from '@/common/values/constant-value';
 import {getLocalDateString} from '@/common/utils/date-util';
+import {Button} from '@/components/ui/button';
+import IconInfo from '@/assets/svgs/icon-info.svg';
+import Tooltip from '@/components/ui/tooltip';
 
 type BoardsValueType = {
   no: number;
   originName: string;
   formatName: string;
+  hovertext: string;
   replies: number;
   reposts: number;
   uniqueUsers: number;
@@ -37,13 +41,14 @@ const ActiveBoards = () => {
             no: v.idx,
             originName: v.board_name,
             formatName: formatEllipsis(v.board_name),
+            hovertext: v.board_name,
             replies: v.replies,
             reposts: v.reposts,
             uniqueUsers: v.unique_users,
           };
         });
         return {
-          last_update: res.data.last_update,
+          last_update: getLocalDateString(res.data.last_update),
           data: boards,
         };
       },
@@ -59,7 +64,7 @@ const ActiveBoards = () => {
             Monthly Active Boards
             {media !== 'mobile' && (
               <Text type="body1" color="tertiary">
-                {`Last Updated: ${getLocalDateString(boards?.last_update)}`}
+                {`Last Updated: ${boards?.last_update}`}
               </Text>
             )}
           </Text>
@@ -79,11 +84,14 @@ const ActiveBoards = () => {
                       href={`https://test3.gno.land/r/demo/boards:${v.originName}`}
                       target="_blank"
                       rel="noreferrer">
-                      {v.formatName}
-                      <IconLink className="icon-link" />
+                      <Tooltip content={v.hovertext}>
+                        <>
+                          {v.formatName}
+                          <IconLink className="icon-link" />
+                        </>
+                      </Tooltip>
                     </a>
                   </StyledText>
-
                   <StyledText type="p4" width={colWidth.boards[2]} color="reverse">
                     {v.replies}
                   </StyledText>
@@ -99,7 +107,7 @@ const ActiveBoards = () => {
           </ActiveList>
           {media === 'mobile' && (
             <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-              {`Last Updated: ${getLocalDateString(boards?.last_update)}`}
+              {`Last Updated: ${boards?.last_update}`}
             </Text>
           )}
         </>

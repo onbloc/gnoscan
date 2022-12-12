@@ -27,6 +27,13 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   });
 
   useEffect(() => {
+    window.addEventListener('scroll', handleTooltipVisible);
+    return () => {
+      window.removeEventListener('scroll', handleTooltipVisible);
+    };
+  }, [tooltipRef]);
+
+  useEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -46,6 +53,12 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       if (wrapperRef.current.clientHeight > 250) {
         setChartHeight(wrapperRef.current.clientHeight);
       }
+    }
+  };
+
+  const handleTooltipVisible = () => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.opacity = '0';
     }
   };
 

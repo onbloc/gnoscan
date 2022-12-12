@@ -28,7 +28,10 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
   });
 
   useEffect(() => {
-    return () => {};
+    window.addEventListener('scroll', handleTooltipVisible);
+    return () => {
+      window.removeEventListener('scroll', handleTooltipVisible);
+    };
   }, [tooltipRef]);
 
   useEffect(() => {
@@ -44,6 +47,12 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
       setChartData(chartData);
     }
   }, [chartRef, labels, datas]);
+
+  const handleTooltipVisible = () => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.opacity = '0';
+    }
+  };
 
   const handleResize = () => {
     if (wrapperRef.current) {
@@ -88,11 +97,12 @@ export const BarChart = ({labels, datas}: BarChartProps) => {
     currentTooltip.style.position = 'absolute';
     currentTooltip.style.marginTop = -position.height + 'px';
 
-    const left = tooltipModel.caretX - position.width / 2;
+    const left = tooltipModel.caretX - tooltipModel.width / 2;
+    const leftLimit = position.width - tooltipRect.width + 20;
     if (left + tooltipRect.width > position.width) {
-      currentTooltip.style.marginRight = '0';
+      currentTooltip.style.left = leftLimit + 'px';
     } else {
-      currentTooltip.style.marginLeft = left + 'px';
+      currentTooltip.style.left = left + 'px';
     }
   };
 

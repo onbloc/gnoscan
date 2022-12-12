@@ -23,7 +23,6 @@ type AccountsValueType = {
   no: number;
   address: string;
   account: string;
-  hovertext: string;
   totalTxs: number;
   nonTxs: number;
   balance: number;
@@ -48,14 +47,13 @@ const ActiveAccount = () => {
             account: Boolean(v.account_name)
               ? formatEllipsis(v.account_name)
               : formatAddress(v.account_address),
-            hovertext: Boolean(v.account_name) ? formatAddress(v.account_address) : '',
             totalTxs: v.total_txs,
             nonTxs: v.non_transfer_txs,
             balance: v.balance.denom === 'ugnot' ? v.balance.value / 1000000 : v.balance.value,
           };
         });
         return {
-          last_update: res.data.last_update,
+          last_update: getLocalDateString(res.data.last_update),
           data: accounts,
         };
       },
@@ -88,12 +86,8 @@ const ActiveAccount = () => {
                     width={colWidth.accounts[1]}
                     color="blue">
                     <Link href={`/accounts/${v.address}`} passHref>
-                      <a>
-                        {v.hovertext === '' ? (
-                          v.account
-                        ) : (
-                          <Tooltip content={v.hovertext}>{v.account}</Tooltip>
-                        )}
+                      <a target="_blank">
+                        <Tooltip content={v.address}>{v.account}</Tooltip>
                       </a>
                     </Link>
                   </StyledText>

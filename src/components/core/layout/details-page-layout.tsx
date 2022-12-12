@@ -24,7 +24,7 @@ export const DetailsPageLayout = ({
   titleOption,
   titleAlign = 'flex-start',
   visible,
-  keyword,
+  keyword = '',
   error,
 }: DetailsLayoutProps) => {
   const desktop = isDesktop();

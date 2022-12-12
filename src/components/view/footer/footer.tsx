@@ -24,7 +24,11 @@ interface ModProps {
   isDesktop: boolean;
 }
 
-const termsText = ['Terms of Use', 'Contact', 'Feedback'];
+const termsText = [
+  {title: 'Terms of Use', path: '/terms/service'},
+  {title: 'Contract', path: 'mailto:info@gnoscan.io'},
+  {title: 'Feedback', path: ''},
+];
 
 const Definition = ({isDesktop}: ModProps) => (
   <DefinitionWrapper isDesktop={isDesktop}>
@@ -44,13 +48,11 @@ const Copyright = ({isDesktop}: ModProps) => (
 const Terms = ({isDesktop}: ModProps) => (
   <FTextWrapper isDesktop={isDesktop}>
     {termsText.map((v, i) => (
-      <Link href="#" passHref key={v1()}>
-        <a className="hr-text">
-          <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
-            {v}
-          </Text>
-        </a>
-      </Link>
+      <a className="hr-text" href={v.path} target="_blank" key={v1()}>
+        <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
+          {v.title}
+        </Text>
+      </a>
     ))}
   </FTextWrapper>
 );
@@ -60,16 +62,12 @@ const Community = ({isDesktop}: ModProps) => (
     <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary" className="hr-text">
       Community:
     </Text>
-    <Link href="#" passHref>
-      <SNS as="a">
-        <Twitter className="svg-icon" />
-      </SNS>
-    </Link>
-    <Link href="#" passHref>
-      <SNS as="a">
-        <Discord className="svg-icon" />
-      </SNS>
-    </Link>
+    <SNS href="https://twitter.com/gnoscan" target="_blank">
+      <Twitter className="svg-icon" />
+    </SNS>
+    <SNS href="https://discord.gg/Bhgkr7hMEz" target="_blank">
+      <Discord className="svg-icon" />
+    </SNS>
     <DarkModeToggle className="f-toggle" />
   </CommunityWrapper>
 );
@@ -169,7 +167,7 @@ const CommunityWrapper = styled(FTextWrapper)`
   }
 `;
 
-const SNS = styled.button`
+const SNS = styled.a`
   ${mixins.flexbox('row', 'center', 'center')};
   width: 32px;
   height: 32px;

@@ -16,6 +16,7 @@ export type ButtonProps = XOR<
     disabled?: boolean;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => unknown;
     as?: React.ElementType;
+    id?: string;
   },
   {
     width?: CSSProperties['width'];
@@ -28,6 +29,7 @@ export type ButtonProps = XOR<
     disabled?: boolean;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => unknown;
     as?: React.ElementType;
+    id?: string;
   }
 >;
 

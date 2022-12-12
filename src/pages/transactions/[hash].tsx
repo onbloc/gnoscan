@@ -153,6 +153,7 @@ const TransactionDetails = () => {
       retry: 0,
       select: (res: any) => {
         const {summary, contract, log} = res.data;
+        console.log(res.data);
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
           : summary.gas.used / summary.gas.wanted;
@@ -184,7 +185,7 @@ const TransactionDetails = () => {
           log: log,
         };
       },
-      // onSuccess: () => useLoading({finished: true}),
+      onSuccess: (res: any) => console.log(res),
     },
   );
 
@@ -302,7 +303,13 @@ const TransactionDetails = () => {
                               type="p4"
                               color="blue"
                               className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                              {tx.contract.args.data[v] ?? '-'}
+                              {tx.contract.args.data[v] ? (
+                                <Tooltip content={tx.contract.caller}>
+                                  {tx.contract.args.data[v]}
+                                </Tooltip>
+                              ) : (
+                                '-'
+                              )}
                             </Text>
                           </FitContentA>
                         </Link>
@@ -432,7 +439,7 @@ const AddressTextBox = styled.div`
 
 const StyledIconCopy = styled(IconCopy)`
   stroke: ${({theme}) => theme.colors.primary};
-  margin-left: 6px;
+  margin-left: 10px;
 `;
 
 export default TransactionDetails;
