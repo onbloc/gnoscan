@@ -34,6 +34,10 @@ export const BtmNav = () => {
     [value],
   );
 
+  const clearValue = () => {
+    setValue('');
+  };
+
   return (
     <>
       {entry ? (
@@ -48,12 +52,17 @@ export const BtmNav = () => {
               The Gnoland Blockchain Explorer
             </Text>
           </NotDesktop>
-          <MainInput className="main-search" value={value} onChange={onChange} />
+          <MainInput
+            className="main-search"
+            value={value}
+            onChange={onChange}
+            clearValue={clearValue}
+          />
         </Wrapper>
       ) : (
         <NotDesktop>
           <Wrapper isMain={entry}>
-            <SubInput value={value} onChange={onChange} />
+            <SubInput value={value} onChange={onChange} clearValue={clearValue} />
           </Wrapper>
         </NotDesktop>
       )}

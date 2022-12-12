@@ -43,6 +43,7 @@ const TokenDetails = () => {
     async ({queryKey}) => await axios.get(API_URI + `/latest/token/summary/${queryKey[1]}`),
     {
       enabled: !!denom,
+      retry: 0,
       select: (res: any) => {
         const tokenData = res.data;
         if (Object.keys(res.data).length === 0) {

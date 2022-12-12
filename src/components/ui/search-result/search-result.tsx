@@ -33,7 +33,6 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
   }, [value]);
 
   useEffect(() => resetValue(), [route]);
-  if (result) console.log(result);
 
   const resetValue = useCallback(() => setOpen(false), [value]);
   if (!value) return <></>;

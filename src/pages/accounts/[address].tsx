@@ -49,14 +49,13 @@ const AccountDetails = () => {
     async ({queryKey}) => await axios.get(API_URI + `/latest/account/detail/${queryKey[1]}`),
     {
       enabled: !!address,
+      retry: 0,
       select: (res: any) => {
-        console.log(res.data);
         return {
           ...res.data,
           username: res.data.username,
           assets: res.data.assets.map((v: any) => {
             const convert = toGnot(v.value, v.denom);
-            console.log(convert);
             return {
               ...v,
               ...convert,
@@ -69,7 +68,11 @@ const AccountDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title="Account Details" visible={!isFetched}>
+    <DetailsPageLayout
+      title="Account Details"
+      visible={!isFetched}
+      keyword={`${address}`}
+      error={!detailSuccess}>
       <DataSection title="Address">
         {detailSuccess && (
           <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>

@@ -150,8 +150,8 @@ const TransactionDetails = () => {
     async ({queryKey}) => await axios.get(API_URI + `/latest/tx/${queryKey[1]}`),
     {
       enabled: !!hash,
+      retry: 0,
       select: (res: any) => {
-        console.log(res.data);
         const {summary, contract, log} = res.data;
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
@@ -189,7 +189,11 @@ const TransactionDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Transaction Details'} visible={!isFetched}>
+    <DetailsPageLayout
+      title={'Transaction Details'}
+      visible={!isFetched}
+      keyword={`${hash}`}
+      error={!txSuccess}>
       {txSuccess && (
         <>
           <DataSection title="Summary">

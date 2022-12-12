@@ -47,7 +47,6 @@ const RealmsDetails = () => {
       enabled: !!path,
       select: (res: any) => {
         const realmData = res.data;
-        console.log(realmData);
         return {
           name: realmData.name,
           funcs: realmData.function_types,
@@ -68,7 +67,11 @@ const RealmsDetails = () => {
   );
 
   return (
-    <DetailsPageLayout title={'Realm Details'} visible={!isFetched}>
+    <DetailsPageLayout
+      title={'Realm Details'}
+      visible={!isFetched}
+      keyword={`${path}`}
+      error={!realmSuccess}>
       {realmSuccess && (
         <>
           <DataSection title="Summary">
