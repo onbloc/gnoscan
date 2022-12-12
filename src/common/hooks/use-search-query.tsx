@@ -14,7 +14,7 @@ const useSearchQuery = () => {
     ['info/search', value],
     async () => await axios.get(API_URI + `/latest/info/search/${value}?limit=5`),
     {
-      enabled: !!value,
+      enabled: value.length > 1,
       select: (res: any) => {
         const checkedObj = isEmptyObj(res.data);
         return checkedObj ? null : res.data;
