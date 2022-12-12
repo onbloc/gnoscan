@@ -7,7 +7,7 @@ interface TotalGasShareData {
 }
 
 export class TotalGasShareModel {
-  private static FILTERED_LIMIT = 4;
+  private static FILTERED_LIMIT = 100;
 
   private static NON_FILTERED_PACAKGE_PATH = 'rest';
 
@@ -15,14 +15,17 @@ export class TotalGasShareModel {
 
   constructor(
     responseDatas: Array<{
-      date?: string;
-      pkg_path?: string;
-      pkg_daily_fee?: number;
-      total_daily_fee?: number;
-      pct?: number;
+      date: string;
+      daily_total_fee: number;
+      packages: Array<{
+        path: string;
+        daily_fee: number;
+        percent: number;
+      }>;
     }>,
   ) {
-    this.datas = responseDatas.map(TotalGasShareModel.createData);
+    this.datas = [];
+    responseDatas.forEach(response => this.datas.push(...TotalGasShareModel.createDatas(response)));
   }
 
   public get = () => {
@@ -110,26 +113,27 @@ export class TotalGasShareModel {
     return datasets;
   }
 
-  private static createData = ({
+  private static createDatas = ({
     date,
-    pkg_path,
-    pkg_daily_fee,
-    total_daily_fee,
-    pct,
+    daily_total_fee,
+    packages,
   }: {
-    date?: string;
-    pkg_path?: string;
-    pkg_daily_fee?: number;
-    total_daily_fee?: number;
-    pct?: number;
+    date: string;
+    daily_total_fee: number;
+    packages: Array<{
+      path: string;
+      daily_fee: number;
+      percent: number;
+    }>;
   }) => {
-    const packagePath = !pkg_path || pkg_path === '' ? 'None' : pkg_path.replace('gno.land', '');
-    return {
-      date: date ?? '',
-      packagePath: packagePath,
-      packageDailyFee: pkg_daily_fee ?? 0,
-      totalDailyFee: total_daily_fee ?? 0,
-      percent: pct ?? 0,
-    };
+    return packages.map(item => {
+      return {
+        date: date ?? '',
+        packagePath: `${item.path}`.replace('gno.land', ''),
+        packageDailyFee: item.daily_fee ?? 0,
+        totalDailyFee: daily_total_fee ?? 0,
+        percent: item.percent ?? 0,
+      };
+    });
   };
 }

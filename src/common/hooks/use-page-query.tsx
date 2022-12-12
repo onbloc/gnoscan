@@ -66,8 +66,8 @@ const usePageQuery = <T extends {[key in string]: any}>({
   };
 
   const fetchData = async (page: number | undefined) => {
-    const params = `?${createParamPaging(page)}&${createParamSortOption(sortOption)}`;
-    const apiUri = uri + params;
+    const params = `${createParamPaging(page)}&${createParamSortOption(sortOption)}`;
+    const apiUri = uri.includes('?') ? `${uri}&${params}` : `${uri}?${params}`;
 
     const response = await axios.get<T>(apiUri);
     if (typeof response.data === 'string') {

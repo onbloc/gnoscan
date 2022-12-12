@@ -22,15 +22,22 @@ export const AreaChartTooltip = ({
     if (activeElements.length === 0) {
       return 0;
     }
-    const totalValue = Object.keys(datas).reduce(
-      (d1, d2) => d1 + datas[d2][activeElements[0].index].value,
-      0,
-    );
-    const {integer, decimal} = parseValue(totalValue);
+    try {
+      const totalValue = Object.keys(datas).reduce(
+        (d1, d2) => d1 + datas[d2][activeElements[0].index].value,
+        0,
+      );
+      const {integer, decimal} = parseValue(totalValue);
+      return (
+        <>
+          <strong>{integer}</strong>
+          {`.${decimal}`}
+        </>
+      );
+    } catch (e) {}
     return (
       <>
-        <strong>{integer}</strong>
-        {`.${decimal}`}
+        <strong>{0}</strong>
       </>
     );
   };
@@ -39,11 +46,14 @@ export const AreaChartTooltip = ({
     if (activeElements.length === 0) {
       return 0;
     }
-    const totalRate = Object.keys(datas).reduce(
-      (d1, d2) => d1 + datas[d2][activeElements[0].index].rate,
-      0,
-    );
-    return `${Math.round(totalRate)}%`;
+    try {
+      const totalRate = Object.keys(datas).reduce(
+        (d1, d2) => d1 + datas[d2][activeElements[0].index].rate,
+        0,
+      );
+      return `${Math.round(totalRate)}%`;
+    } catch (e) {}
+    return '0%';
   };
 
   const parseValue = (value: number) => {
@@ -71,7 +81,7 @@ export const AreaChartTooltip = ({
       return <></>;
     }
     const data = datas[packagePath][activeElements[0].index];
-    const {integer, decimal} = parseValue(data.value);
+    const {integer, decimal} = parseValue(data?.value ?? 0);
     return (
       <div key={cIndex} className="tooltip-row">
         <span
@@ -82,7 +92,7 @@ export const AreaChartTooltip = ({
           <strong>{integer}</strong>
           {`.${decimal}`}
         </span>
-        <span className="rate">{`${Math.round(data.rate)}%`}</span>
+        <span className="rate">{`${Math.round(data?.rate ?? 0)}%`}</span>
       </div>
     );
   };
