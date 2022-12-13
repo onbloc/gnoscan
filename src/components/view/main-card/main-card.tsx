@@ -13,6 +13,9 @@ import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
 import {API_URI} from '@/common/values/constant-value';
+import {SkeletonBoxStyle} from '@/components/ui/loading';
+import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
+import {JsxElement} from 'typescript';
 interface SupplyResultType {
   supply: string;
   exit: string;
@@ -39,7 +42,11 @@ interface AccountsResultType {
 
 const MainCard = () => {
   const media = eachMedia();
-  const {data: card01, isSuccess: card01Success}: UseQueryResult<SupplyResultType> = useQuery(
+  const {
+    data: card01,
+    isSuccess: card01Success,
+    isFetched: card01Fetched,
+  }: UseQueryResult<SupplyResultType> = useQuery(
     ['info/card01'],
     async () => await axios.get(API_URI + '/latest/info/card01'),
     {
@@ -54,7 +61,11 @@ const MainCard = () => {
     },
   );
 
-  const {data: card02, isSuccess: card02Success}: UseQueryResult<HeightResultType> = useQuery(
+  const {
+    data: card02,
+    isSuccess: card02Success,
+    isFetched: card02Fetched,
+  }: UseQueryResult<HeightResultType> = useQuery(
     ['info/card02'],
     async () => await axios.get(API_URI + '/latest/info/card02'),
     {
@@ -69,7 +80,11 @@ const MainCard = () => {
     },
   );
 
-  const {data: card03, isSuccess: card03Success}: UseQueryResult<TxResultType> = useQuery(
+  const {
+    data: card03,
+    isSuccess: card03Success,
+    isFetched: card03Fetched,
+  }: UseQueryResult<TxResultType> = useQuery(
     ['info/card03'],
     async () => await axios.get(API_URI + '/latest/info/card03'),
     {
@@ -84,7 +99,11 @@ const MainCard = () => {
     },
   );
 
-  const {data: card04, isSuccess: card04Success}: UseQueryResult<AccountsResultType> = useQuery(
+  const {
+    data: card04,
+    isSuccess: card04Success,
+    isFetched: card04Fetched,
+  }: UseQueryResult<AccountsResultType> = useQuery(
     ['info/card04'],
     async () => await axios.get(API_URI + '/latest/info/card04'),
     {
@@ -102,6 +121,7 @@ const MainCard = () => {
   return (
     <Wrapper className={media}>
       <StyledCard>
+        <SkeletonBoxStyle />
         <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply
           <Tooltip
@@ -112,12 +132,20 @@ const MainCard = () => {
             </Button>
           </Tooltip>
         </Text>
-        <Text type="h3" color="primary" margin="10px 0px 24px">
-          {card01?.supply}
-          <Text type="p4" display="inline-block" color="primary">
-            &nbsp;GNOT
-          </Text>
-        </Text>
+        <FetchedComp
+          skeletonWidth={130}
+          skeletonheight={28}
+          skeletonMargin="10px 0px 24px"
+          isFetched={card01Fetched}
+          renderComp={
+            <Text type="h3" color="primary" margin="10px 0px 24px">
+              {card01?.supply}
+              <Text type="p4" display="inline-block" color="primary">
+                &nbsp;GNOT
+              </Text>
+            </Text>
+          }
+        />
         <DataBox>
           <BundleDl>
             <dt>
@@ -133,9 +161,15 @@ const MainCard = () => {
               </Tooltip>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {card01?.exit}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card01Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {card01?.exit}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
           <hr />
@@ -151,9 +185,15 @@ const MainCard = () => {
               </Tooltip>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {card01?.holders}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card01Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {card01?.holders}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
         </DataBox>
@@ -162,9 +202,17 @@ const MainCard = () => {
         <Text type="h5" color="primary">
           Block&nbsp;Height
         </Text>
-        <Text type="h3" color="primary" margin="10px 0px 24px">
-          {card02?.height}
-        </Text>
+        <FetchedComp
+          skeletonWidth={130}
+          skeletonheight={28}
+          skeletonMargin="10px 0px 24px"
+          isFetched={card02Fetched}
+          renderComp={
+            <Text type="h3" color="primary" margin="10px 0px 24px">
+              {card02?.height}
+            </Text>
+          }
+        />
         <DataBox>
           <BundleDl>
             <dt>
@@ -173,9 +221,15 @@ const MainCard = () => {
               </Text>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {`${card02?.avg_time} seconds`}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card02Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {`${card02?.avg_time} seconds`}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
           <hr />
@@ -186,9 +240,15 @@ const MainCard = () => {
               </Text>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {card02?.avg_tx}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card02Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {card02?.avg_tx}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
         </DataBox>
@@ -197,9 +257,17 @@ const MainCard = () => {
         <Text type="h5" color="primary">
           Total&nbsp;Transactions
         </Text>
-        <Text type="h3" color="primary" margin="10px 0px 24px">
-          {card03?.total_txs}
-        </Text>
+        <FetchedComp
+          skeletonWidth={130}
+          skeletonheight={28}
+          skeletonMargin="10px 0px 24px"
+          isFetched={card03Fetched}
+          renderComp={
+            <Text type="h3" color="primary" margin="10px 0px 24px">
+              {card03?.total_txs}
+            </Text>
+          }
+        />
         <DataBox>
           <BundleDl>
             <dt>
@@ -208,9 +276,15 @@ const MainCard = () => {
               </Text>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {card03?.avg_24hr}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card03Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {card03?.avg_24hr}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
           <hr />
@@ -221,9 +295,15 @@ const MainCard = () => {
               </Text>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {card03?.total_fee}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card03Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {card03?.total_fee}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
         </DataBox>
@@ -237,9 +317,17 @@ const MainCard = () => {
             </Button>
           </Tooltip>
         </Text>
-        <Text type="h3" color="primary" margin="10px 0px 24px">
-          {card04?.num}
-        </Text>
+        <FetchedComp
+          skeletonWidth={130}
+          skeletonheight={28}
+          skeletonMargin="10px 0px 24px"
+          isFetched={card04Fetched}
+          renderComp={
+            <Text type="h3" color="primary" margin="10px 0px 24px">
+              {card04?.num}
+            </Text>
+          }
+        />
         <DataBox>
           <BundleDl>
             <dt>
@@ -248,9 +336,15 @@ const MainCard = () => {
               </Text>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {card04?.validators}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card04Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {card04?.validators}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
           <hr />
@@ -266,14 +360,44 @@ const MainCard = () => {
               </Tooltip>
             </dt>
             <dd>
-              <Text type="p4" color="primary">
-                {card04?.registered}
-              </Text>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={card04Fetched}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {card04?.registered}
+                  </Text>
+                }
+              />
             </dd>
           </BundleDl>
         </DataBox>
       </StyledCard>
     </Wrapper>
+  );
+};
+
+const FetchedComp = ({
+  skeletonWidth,
+  skeletonheight = 16,
+  skeletonMargin = '',
+  isFetched,
+  renderComp,
+}: {
+  skeletonWidth: number;
+  skeletonheight?: number;
+  skeletonMargin?: string;
+  isFetched: boolean;
+  renderComp: React.ReactNode;
+}) => {
+  return (
+    <>
+      {isFetched ? (
+        renderComp
+      ) : (
+        <SkeletonBar width={skeletonWidth} height={skeletonheight} margin={skeletonMargin} />
+      )}
+    </>
   );
 };
 

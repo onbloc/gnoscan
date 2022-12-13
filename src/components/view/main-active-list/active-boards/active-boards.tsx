@@ -13,6 +13,7 @@ import {getLocalDateString} from '@/common/utils/date-util';
 import {Button} from '@/components/ui/button';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import Tooltip from '@/components/ui/tooltip';
+import FetchedSkeleton from '../fetched-skeleton';
 
 type BoardsValueType = {
   no: number;
@@ -31,7 +32,11 @@ interface BoardsResultType {
 
 const ActiveBoards = () => {
   const media = eachMedia();
-  const {data: boards, isSuccess: boardsSuccess}: UseQueryResult<BoardsResultType> = useQuery(
+  const {
+    data: boards,
+    isSuccess: boardsSuccess,
+    isFetched: boardsFetched,
+  }: UseQueryResult<BoardsResultType> = useQuery(
     ['info/most_active_board'],
     async () => await axios.get(API_URI + '/latest/info/most_active_board'),
     {
@@ -58,59 +63,54 @@ const ActiveBoards = () => {
 
   return (
     <StyledCard>
-      {boardsSuccess && (
-        <>
-          <Text className="active-list-title" type="h6" color="primary">
-            Monthly Active Boards
-            {media !== 'mobile' && (
-              <Text type="body1" color="tertiary">
-                {`Last Updated: ${boards?.last_update}`}
-              </Text>
-            )}
+      <Text className="active-list-title" type="h6" color="primary">
+        Monthly Active Boards
+        {media !== 'mobile' && boardsFetched && (
+          <Text type="body1" color="tertiary">
+            {`Last Updated: ${boards?.last_update}`}
           </Text>
-          <ActiveList title={listTitle.boards} colWidth={colWidth.boards}>
-            <>
-              {boards.data.map((v: BoardsValueType) => (
-                <List key={v1()}>
-                  <StyledText type="p4" width={colWidth.boards[0]} color="tertiary">
-                    {v.no}
-                  </StyledText>
-                  <StyledText
-                    type="p4"
-                    width={colWidth.boards[1]}
-                    color="blue"
-                    className="with-link">
-                    <a
-                      href={`https://test3.gno.land/r/demo/boards:${v.originName}`}
-                      target="_blank"
-                      rel="noreferrer">
-                      <Tooltip content={v.hovertext}>
-                        <>
-                          {v.formatName}
-                          <IconLink className="icon-link" />
-                        </>
-                      </Tooltip>
-                    </a>
-                  </StyledText>
-                  <StyledText type="p4" width={colWidth.boards[2]} color="reverse">
-                    {v.replies}
-                  </StyledText>
-                  <StyledText type="p4" width={colWidth.boards[3]} color="reverse">
-                    {v.reposts}
-                  </StyledText>
-                  <StyledText type="p4" width={colWidth.boards[4]} color="reverse">
-                    {v.uniqueUsers}
-                  </StyledText>
-                </List>
-              ))}
-            </>
-          </ActiveList>
-          {media === 'mobile' && (
-            <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-              {`Last Updated: ${boards?.last_update}`}
-            </Text>
-          )}
-        </>
+        )}
+      </Text>
+      {boardsFetched ? (
+        <ActiveList title={listTitle.boards} colWidth={colWidth.boards}>
+          {boards?.data.map((v: BoardsValueType) => (
+            <List key={v1()}>
+              <StyledText type="p4" width={colWidth.boards[0]} color="tertiary">
+                {v.no}
+              </StyledText>
+              <StyledText type="p4" width={colWidth.boards[1]} color="blue" className="with-link">
+                <a
+                  href={`https://test3.gno.land/r/demo/boards:${v.originName}`}
+                  target="_blank"
+                  rel="noreferrer">
+                  <Tooltip content={v.hovertext}>
+                    <>
+                      {v.formatName}
+                      <IconLink className="icon-link" />
+                    </>
+                  </Tooltip>
+                </a>
+              </StyledText>
+              <StyledText type="p4" width={colWidth.boards[2]} color="reverse">
+                {v.replies}
+              </StyledText>
+              <StyledText type="p4" width={colWidth.boards[3]} color="reverse">
+                {v.reposts}
+              </StyledText>
+              <StyledText type="p4" width={colWidth.boards[4]} color="reverse">
+                {v.uniqueUsers}
+              </StyledText>
+            </List>
+          ))}
+        </ActiveList>
+      ) : (
+        <FetchedSkeleton />
+      )}
+
+      {media === 'mobile' && boardsFetched && (
+        <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
+          {`Last Updated: ${boards?.last_update}`}
+        </Text>
       )}
     </StyledCard>
   );

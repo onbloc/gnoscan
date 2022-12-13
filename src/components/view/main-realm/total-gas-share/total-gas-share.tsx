@@ -6,6 +6,8 @@ import {API_URI} from '@/common/values/constant-value';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import theme from '@/styles/theme';
+import {Spinner} from '@/components/ui/loading';
+import mixins from '@/styles/mixins';
 
 const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
   ssr: false,
@@ -28,7 +30,7 @@ export const MainRealmTotalGasShare = () => {
     new TotalGasShareModel([]),
   );
 
-  const {data} = usePageQuery<Array<TotalGasShareResponse>>({
+  const {data, finished} = usePageQuery<Array<TotalGasShareResponse>>({
     key: 'main/total-gas-share',
     uri: API_URI + `/latest/info/realms_gas?period=${period}`,
     pageable: false,
@@ -69,12 +71,15 @@ export const MainRealmTotalGasShare = () => {
           </span>
         </div>
       </div>
-
-      <AreaChart
-        labels={totalGasShareModel.labels}
-        datas={totalGasShareModel.chartData}
-        colors={['#2090F3', '#786AEC', '#FDD15C', '#617BE3', '#30BDD2', '#83CFAA']}
-      />
+      {finished ? (
+        <AreaChart
+          labels={totalGasShareModel.labels}
+          datas={totalGasShareModel.chartData}
+          colors={['#2090F3', '#786AEC', '#FDD15C', '#617BE3', '#30BDD2', '#83CFAA']}
+        />
+      ) : (
+        <Spinner position="center" />
+      )}
     </Wrapper>
   );
 };
