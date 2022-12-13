@@ -64,6 +64,7 @@ const Tooltip = ({
   return (
     <Wrapper className={className} trigger={trigger} isClicked={isClicked}>
       <AntdTooltip
+        trigger={trigger === 'click' ? 'click' : 'hover'}
         overlayInnerStyle={getTooltipStyle(width, trigger === 'click' ? 8 : 16)}
         color={getCurrentTheme().base}
         title={<TooltipWrapper>{content}</TooltipWrapper>}>
