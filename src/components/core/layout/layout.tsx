@@ -31,7 +31,7 @@ export const Layout = ({children}: LayoutProps) => {
   return (
     <ThemeProvider
       theme={{
-        colors: themeMode === 'dark' ? theme.darkTheme : theme.lightTheme,
+        colors: themeMode !== 'light' ? theme.darkTheme : theme.lightTheme,
         fonts: theme.fonts,
         device: theme.device,
       }}>

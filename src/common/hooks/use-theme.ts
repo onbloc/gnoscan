@@ -6,7 +6,7 @@ function useTheme() {
   const [themeMode, setTheme] = useRecoilState(themeState);
 
   const onChangeTheme = useCallback(() => {
-    const updatedTheme = themeMode === 'light' ? 'dark' : 'light';
+    const updatedTheme = themeMode !== 'dark' ? 'dark' : 'light';
     setTheme(updatedTheme);
     localStorage.setItem('theme', updatedTheme);
   }, [themeMode]);

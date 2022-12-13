@@ -60,7 +60,7 @@ export const TopNav = () => {
   const router = useRouter();
   const theme = useRecoilValue(themeState);
   const isMain = router.route === '/';
-  const entry = router.route === '/' || (router.route !== '/' && theme === 'dark');
+  const entry = router.route === '/' || (router.route !== '/' && theme !== 'light');
   const [network, setNetwork] = useState({
     current: GNO_CHAIN_NAME,
     all: [GNO_CHAIN_NAME],
@@ -131,7 +131,7 @@ export const TopNav = () => {
           entry={entry}
           open={open}
           onClick={toggleMenuHandler}
-          darkMode={theme === 'dark'}
+          darkMode={theme !== 'light'}
           currentPath={router.route}
         />
       </NotDesktop>
