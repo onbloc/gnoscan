@@ -86,6 +86,7 @@ const Wrapper = styled.div<{trigger: TriggerType; isClicked: boolean}>`
   position: relative;
   display: inline-block;
   z-index: 11;
+  vertical-align: top;
   .tooltip-button {
     ${mixins.flexbox('row', 'center', 'center')};
   }
