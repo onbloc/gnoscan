@@ -1,6 +1,5 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled, {ThemeProvider} from 'styled-components';
-import Head from 'next/head';
 import theme from '@/styles/theme';
 import {Header} from '@/components/view/header';
 import {Footer} from '@/components/view/footer';
@@ -31,17 +30,15 @@ export const Layout = ({children}: LayoutProps) => {
   return (
     <ThemeProvider
       theme={{
-        colors: themeMode !== 'light' ? theme.darkTheme : theme.lightTheme,
+        colors: themeMode === 'light' ? theme.lightTheme : theme.darkTheme,
         fonts: theme.fonts,
         device: theme.device,
       }}>
-      {/* {Boolean(themeMode) && ( */}
       <Wrapper>
         <Header />
         {children}
         <Footer />
       </Wrapper>
-      {/* )} */}
     </ThemeProvider>
   );
 };

@@ -15,7 +15,6 @@ import Tooltip from '@/components/ui/tooltip';
 import {API_URI} from '@/common/values/constant-value';
 import {SkeletonBoxStyle} from '@/components/ui/loading';
 import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
-import {JsxElement} from 'typescript';
 interface SupplyResultType {
   supply: string;
   exit: string;
@@ -176,9 +175,9 @@ const MainCard = () => {
           <BundleDl>
             <dt>
               <Text type="p4" color="tertiary">
-                Holders
+                Airdrop&nbsp;Recipients
               </Text>
-              <Tooltip content="Number of accounts with a positive GNOT Balance.">
+              <Tooltip content="Total accounts eligible for the GNOT airdrop. This number is not final and is subject to change.">
                 <Button width="16px" height="16px" radius="50%" bgColor="surface">
                   <IconInfo className="svg-info" />
                 </Button>
@@ -311,7 +310,7 @@ const MainCard = () => {
       <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           Total&nbsp;Accounts
-          <Tooltip content="Number of accounts included in at least 1 transaction.">
+          <Tooltip content="Total number of accounts included in at least 1 transaction.">
             <Button width="16px" height="16px" radius="50%" bgColor="base">
               <IconInfo className="svg-info" />
             </Button>

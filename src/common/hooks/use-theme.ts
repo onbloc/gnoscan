@@ -1,5 +1,5 @@
 import {themeState} from '@/states';
-import {useCallback, useLayoutEffect} from 'react';
+import {useCallback, useLayoutEffect, useState} from 'react';
 import {useRecoilState} from 'recoil';
 
 function useTheme() {
@@ -15,7 +15,6 @@ function useTheme() {
     const savedTheme = localStorage.getItem('theme') ?? 'dark';
     if (savedTheme && ['dark', 'light'].includes(savedTheme)) {
       setTheme(savedTheme);
-      return;
     }
   }, []);
 
