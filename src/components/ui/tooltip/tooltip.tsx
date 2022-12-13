@@ -32,7 +32,7 @@ const Tooltip = ({
     (e: React.MouseEvent<HTMLElement>) => {
       if (trigger !== 'click') return;
       setIsClicked(true);
-      navigator.clipboard.writeText(copyText);
+      navigator?.clipboard?.writeText(copyText);
     },
     [isClicked, copyText],
   );
