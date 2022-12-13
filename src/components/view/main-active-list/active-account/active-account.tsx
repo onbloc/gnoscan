@@ -58,7 +58,7 @@ const ActiveAccount = () => {
           };
         });
         return {
-          last_update: getLocalDateString(res.data.last_update),
+          last_update: res.data.last_update,
           data: accounts,
         };
       },
