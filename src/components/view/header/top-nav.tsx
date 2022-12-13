@@ -91,51 +91,55 @@ export const TopNav = () => {
   );
 
   return (
-    <Wrapper isDesktop={desktop} entry={entry}>
-      {entry ? (
-        <GnoscanLogo className="logo-icon" onClick={navigateToHomeHandler} />
-      ) : (
-        <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
-      )}
-      <Desktop>
-        {!isMain && (
-          <SubInput
-            className="sub-search"
-            value={value}
-            onChange={onChange}
-            clearValue={() => setValue('')}
+    <>
+      {desktop && entry && (
+        <Wrapper isDesktop={desktop} entry={entry}>
+          {entry ? (
+            <GnoscanLogo className="logo-icon" onClick={navigateToHomeHandler} />
+          ) : (
+            <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
+          )}
+          <Desktop>
+            {!isMain && (
+              <SubInput
+                className="sub-search"
+                value={value}
+                onChange={onChange}
+                clearValue={() => setValue('')}
+              />
+            )}
+            <Nav>
+              {navItems.map(v => (
+                <Link href={v.path} passHref key={v1()}>
+                  <a>
+                    <Text type="p4" color={entry ? 'white' : 'primary'}>
+                      {v.name}
+                    </Text>
+                  </a>
+                </Link>
+              ))}
+            </Nav>
+          </Desktop>
+          <Network
+            entry={entry}
+            data={network}
+            toggle={toggle}
+            toggleHandler={toggleHandler}
+            networkSettingHandler={networkSettingHandler}
+            setToggle={setToggle}
           />
-        )}
-        <Nav>
-          {navItems.map(v => (
-            <Link href={v.path} passHref key={v1()}>
-              <a>
-                <Text type="p4" color={entry ? 'white' : 'primary'}>
-                  {v.name}
-                </Text>
-              </a>
-            </Link>
-          ))}
-        </Nav>
-      </Desktop>
-      <Network
-        entry={entry}
-        data={network}
-        toggle={toggle}
-        toggleHandler={toggleHandler}
-        networkSettingHandler={networkSettingHandler}
-        setToggle={setToggle}
-      />
-      <NotDesktop>
-        <SubMenu
-          entry={entry}
-          open={open}
-          onClick={toggleMenuHandler}
-          darkMode={theme !== 'light'}
-          currentPath={router.route}
-        />
-      </NotDesktop>
-    </Wrapper>
+          <NotDesktop>
+            <SubMenu
+              entry={entry}
+              open={open}
+              onClick={toggleMenuHandler}
+              darkMode={theme !== 'light'}
+              currentPath={router.route}
+            />
+          </NotDesktop>
+        </Wrapper>
+      )}
+    </>
   );
 };
 

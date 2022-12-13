@@ -21,6 +21,9 @@ const Wrapper = styled.header<{isMain: boolean}>`
   ${mixins.flexbox('row', 'center', 'center')};
   width: 100%;
   height: 100%;
+  /* max-height: 336px;
+  min-height: 336px;
+  height: 336px; */
   background: ${({isMain, theme}) =>
     isMain ? 'url("/bg-header.svg") no-repeat center center' : theme.colors.surface};
   box-shadow: ${({isMain}) => isMain && '0px 4px 4px rgba(0, 0, 0, 0.25)'};

@@ -40,31 +40,22 @@ export const BtmNav = () => {
 
   return (
     <>
-      {entry ? (
+      {entry && desktop && (
         <Wrapper isMain={entry}>
-          <Desktop>
-            <Text type="h1" color="white" textAlign="center">
-              The Gnoland Blockchain Explorer
-            </Text>
-          </Desktop>
-          <NotDesktop>
-            <Text type="h2" color="white" textAlign="center">
-              The Gnoland Blockchain Explorer
-            </Text>
-          </NotDesktop>
-          <MainInput
-            className="main-search"
-            value={value}
-            onChange={onChange}
-            clearValue={clearValue}
-          />
-        </Wrapper>
-      ) : (
-        <NotDesktop>
-          <Wrapper isMain={entry}>
+          <Text type={desktop ? 'h1' : 'h2'} color="white" textAlign="center">
+            The Gnoland Blockchain Explorer
+          </Text>
+          {desktop ? (
+            <MainInput
+              className="main-search"
+              value={value}
+              onChange={onChange}
+              clearValue={clearValue}
+            />
+          ) : (
             <SubInput value={value} onChange={onChange} clearValue={clearValue} />
-          </Wrapper>
-        </NotDesktop>
+          )}
+        </Wrapper>
       )}
     </>
   );
