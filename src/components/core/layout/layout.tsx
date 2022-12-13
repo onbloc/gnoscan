@@ -35,11 +35,13 @@ export const Layout = ({children}: LayoutProps) => {
         fonts: theme.fonts,
         device: theme.device,
       }}>
+      {/* {Boolean(themeMode) && ( */}
       <Wrapper>
         <Header />
         {children}
         <Footer />
       </Wrapper>
+      {/* )} */}
     </ThemeProvider>
   );
 };
