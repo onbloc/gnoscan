@@ -17,7 +17,7 @@ interface StyledTextProps extends TextProps {
 export const listTitle = {
   accounts: ['No.', 'Account', 'Total Txs', 'Non-Transfer Txs', 'Balance (GNOT)'],
   boards: ['No.', 'Name', 'Replies', 'Reposts', 'Unique Users'],
-  newest: ['No.', 'Name', 'Publisher', 'Functions', 'Calls', 'Block'],
+  newest: ['No.', 'Path', 'Publisher', 'Functions', 'Calls', 'Block'],
 };
 
 export const colWidth = {
@@ -101,6 +101,7 @@ export const StyledText = styled(Text)<StyledTextProps>`
 
 export const StyledAmountText = styled(AmountText)<{width?: string}>`
   min-width: ${({width}) => width};
+  max-width: ${({width}) => width};
   ${textStyle};
 `;
 

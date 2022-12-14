@@ -157,10 +157,11 @@ const TabLog = styled(Log)<StyleProps>`
 `;
 
 const List = styled.li<StyleProps>`
+  ${({theme}) => theme.fonts.p4};
+  color: ${({active, theme}) => !active && theme.colors.tertiary};
   padding: 12px 16px;
   height: 44px;
   cursor: pointer;
-  color: ${({active, theme}) => !active && theme.colors.tertiary};
   &:last-of-type {
     border-top-right-radius: 10px;
   }

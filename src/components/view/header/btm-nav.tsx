@@ -1,18 +1,16 @@
 'use client';
 
 import mixins from '@/styles/mixins';
-import dynamic from 'next/dynamic';
 import {useRouter} from 'next/router';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import {MainInput, SubInput} from '@/components/ui/input';
-import {isDesktop} from '@/common/hooks/use-media';
-import useSearchQuery from '@/common/hooks/use-search-query';
+import {eachMedia, isDesktop} from '@/common/hooks/use-media';
 import {searchState} from '@/states';
 import {useRecoilState} from 'recoil';
 import {debounce} from '@/common/utils/string-util';
-import SearchResult from '@/components/ui/search-result';
+import dynamic from 'next/dynamic';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -22,9 +20,8 @@ const NotDesktop = dynamic(() => import('@/common/hooks/use-media').then(mod => 
 });
 
 export const BtmNav = () => {
-  const router = useRouter();
+  const {route} = useRouter();
   const desktop = isDesktop();
-  const entry = router.route === '/';
   const [value, setValue] = useRecoilState(searchState);
 
   const onChange = useCallback(
@@ -40,18 +37,11 @@ export const BtmNav = () => {
 
   return (
     <>
-      {entry ? (
-        <Wrapper isMain={entry}>
-          <Desktop>
-            <Text type="h1" color="white" textAlign="center">
-              The Gnoland Blockchain Explorer
-            </Text>
-          </Desktop>
-          <NotDesktop>
-            <Text type="h2" color="white" textAlign="center">
-              The Gnoland Blockchain Explorer
-            </Text>
-          </NotDesktop>
+      {route === '/' ? (
+        <Wrapper isMain={route === '/'}>
+          <Text type={desktop ? 'h1' : 'h2'} color="white">
+            The Gnoland Blockchain Explorer
+          </Text>
           <MainInput
             className="main-search"
             value={value}
@@ -61,7 +51,7 @@ export const BtmNav = () => {
         </Wrapper>
       ) : (
         <NotDesktop>
-          <Wrapper isMain={entry}>
+          <Wrapper isMain={route === '/'}>
             <SubInput value={value} onChange={onChange} clearValue={clearValue} />
           </Wrapper>
         </NotDesktop>

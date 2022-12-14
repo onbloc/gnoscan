@@ -18,7 +18,7 @@ import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
 interface SupplyResultType {
   supply: string;
   exit: string;
-  holders: string;
+  airdrop_recipients: string;
 }
 
 interface HeightResultType {
@@ -34,7 +34,7 @@ interface TxResultType {
 }
 
 interface AccountsResultType {
-  num: string;
+  total: string;
   registered: string;
   validators: string;
 }
@@ -54,7 +54,7 @@ const MainCard = () => {
         return {
           supply: numberWithCommas(supply.supply),
           exit: numberWithCommas(supply.exit),
-          holders: numberWithCommas(supply.holders),
+          airdrop_recipients: numberWithCommas(supply.airdrop_recipients),
         };
       },
     },
@@ -109,7 +109,7 @@ const MainCard = () => {
       select: (res: any) => {
         const account = res.data.account;
         return {
-          num: numberWithCommas(account.num),
+          total: numberWithCommas(account.total),
           registered: numberWithCommas(account.registered),
           validators: numberWithCommas(account.validators),
         };
@@ -189,7 +189,7 @@ const MainCard = () => {
                 isFetched={card01Fetched}
                 renderComp={
                   <Text type="p4" color="primary">
-                    {card01?.holders}
+                    {card01?.airdrop_recipients}
                   </Text>
                 }
               />
@@ -323,7 +323,7 @@ const MainCard = () => {
           isFetched={card04Fetched}
           renderComp={
             <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card04?.num}
+              {card04?.total}
             </Text>
           }
         />
