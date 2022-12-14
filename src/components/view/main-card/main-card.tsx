@@ -235,7 +235,7 @@ const MainCard = () => {
           <BundleDl>
             <dt>
               <Text type="p4" color="tertiary">
-                Avg.&nbsp;Tx/Block
+                Avg.&nbsp;Tx per Block
               </Text>
             </dt>
             <dd>
