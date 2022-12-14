@@ -29,7 +29,7 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
   const ref = useOutSideClick(() => setOpen(false));
 
   useEffect(() => {
-    setOpen(() => Boolean(result));
+    setOpen(() => Boolean(value.length > 1));
   }, [result]);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
 
   return (
     <>
-      {open && value && (
+      {open && (
         <Wrapper desktop={desktop} isMain={isMain} ref={ref}>
           {Boolean(result) ? (
             Object.keys(result).map(v => (
