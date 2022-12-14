@@ -3,124 +3,34 @@
 import React from 'react';
 import styled from 'styled-components';
 import Card from '@/components/ui/card';
-import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
-import axios from 'axios';
-import {useQuery, UseQueryResult} from 'react-query';
-import {numberWithCommas, numberWithFixedCommas} from '@/common/utils';
 import mixins from '@/styles/mixins';
+import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
+import dynamic from 'next/dynamic';
+import Text from '@/components/ui/text';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
-import {API_URI} from '@/common/values/constant-value';
-import {SkeletonBoxStyle} from '@/components/ui/loading';
-import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
-interface SupplyResultType {
-  supply: string;
-  exit: string;
-  airdrop_recipients: string;
-}
 
-interface HeightResultType {
-  height: string;
-  avg_tx: string;
-  avg_time: string;
-}
-
-interface TxResultType {
-  avg_24hr: string;
-  total_fee: string;
-  total_txs: string;
-}
-
-interface AccountsResultType {
-  total: string;
-  registered: string;
-  validators: string;
-}
+const SupplyCard = dynamic(() => import('./cards/supply-card').then(comp => comp.SupplyCard), {
+  ssr: false,
+});
+const BlockCard = dynamic(() => import('./cards/block-card').then(comp => comp.BlockCard), {
+  ssr: false,
+});
+const TxsCard = dynamic(() => import('./cards/txs-card').then(comp => comp.TxsCard), {
+  ssr: false,
+});
+const AccountCard = dynamic(() => import('./cards/account-card').then(comp => comp.AccountCard), {
+  ssr: false,
+});
 
 const MainCard = () => {
   const media = eachMedia();
-  const {
-    data: card01,
-    isSuccess: card01Success,
-    isFetched: card01Fetched,
-  }: UseQueryResult<SupplyResultType> = useQuery(
-    ['info/card01'],
-    async () => await axios.get(API_URI + '/latest/info/card01'),
-    {
-      select: (res: any) => {
-        const supply = res.data.gnot_supply;
-        return {
-          supply: numberWithCommas(supply.supply),
-          exit: numberWithCommas(supply.exit),
-          airdrop_recipients: numberWithCommas(supply.airdrop_recipients),
-        };
-      },
-    },
-  );
-
-  const {
-    data: card02,
-    isSuccess: card02Success,
-    isFetched: card02Fetched,
-  }: UseQueryResult<HeightResultType> = useQuery(
-    ['info/card02'],
-    async () => await axios.get(API_URI + '/latest/info/card02'),
-    {
-      select: (res: any) => {
-        const block = res.data.block;
-        return {
-          height: numberWithCommas(block.height),
-          avg_tx: numberWithFixedCommas(block.avg_tx, 2),
-          avg_time: numberWithFixedCommas(block.avg_time, 2),
-        };
-      },
-    },
-  );
-
-  const {
-    data: card03,
-    isSuccess: card03Success,
-    isFetched: card03Fetched,
-  }: UseQueryResult<TxResultType> = useQuery(
-    ['info/card03'],
-    async () => await axios.get(API_URI + '/latest/info/card03'),
-    {
-      select: (res: any) => {
-        const tx = res.data.tx;
-        return {
-          avg_24hr: numberWithFixedCommas(tx.avg_24hr / 1000000, 6),
-          total_fee: numberWithFixedCommas(tx.total_fee / 1000000, 2),
-          total_txs: numberWithCommas(tx.total_txs),
-        };
-      },
-    },
-  );
-
-  const {
-    data: card04,
-    isSuccess: card04Success,
-    isFetched: card04Fetched,
-  }: UseQueryResult<AccountsResultType> = useQuery(
-    ['info/card04'],
-    async () => await axios.get(API_URI + '/latest/info/card04'),
-    {
-      select: (res: any) => {
-        const account = res.data.account;
-        return {
-          total: numberWithCommas(account.total),
-          registered: numberWithCommas(account.registered),
-          validators: numberWithCommas(account.validators),
-        };
-      },
-    },
-  );
 
   return (
     <Wrapper className={media}>
-      <StyledCard>
-        <SkeletonBoxStyle />
+      <Card height="223px">
         <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply
           <Tooltip
@@ -131,183 +41,23 @@ const MainCard = () => {
             </Button>
           </Tooltip>
         </Text>
-        <FetchedComp
-          skeletonWidth={130}
-          skeletonheight={28}
-          skeletonMargin="10px 0px 24px"
-          isFetched={card01Fetched}
-          renderComp={
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card01?.supply}
-              <Text type="p4" display="inline-block" color="primary">
-                &nbsp;GNOT
-              </Text>
-            </Text>
-          }
-        />
-        <DataBox>
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                Airdrop Supply
-              </Text>
-              <Tooltip
-                width={215}
-                content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change.">
-                <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                  <IconInfo className="svg-info" />
-                </Button>
-              </Tooltip>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card01Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {card01?.exit}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-          <hr />
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                Airdrop&nbsp;Holders
-              </Text>
-              <Tooltip content="Total number of holders eligible for the GNOT airdrop. This number is not final and is subject to change.">
-                <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                  <IconInfo className="svg-info" />
-                </Button>
-              </Tooltip>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card01Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {card01?.airdrop_recipients}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-        </DataBox>
-      </StyledCard>
-      <StyledCard>
+        <SupplyCard />
+      </Card>
+
+      <Card height="223px">
         <Text type="h5" color="primary">
           Block&nbsp;Height
         </Text>
-        <FetchedComp
-          skeletonWidth={130}
-          skeletonheight={28}
-          skeletonMargin="10px 0px 24px"
-          isFetched={card02Fetched}
-          renderComp={
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card02?.height}
-            </Text>
-          }
-        />
-        <DataBox>
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                Avg.&nbsp;Block Time
-              </Text>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card02Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {`${card02?.avg_time} seconds`}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-          <hr />
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                Avg.&nbsp;Tx/Block
-              </Text>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card02Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {card02?.avg_tx}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-        </DataBox>
-      </StyledCard>
-      <StyledCard>
+        <BlockCard />
+      </Card>
+
+      <Card height="223px">
         <Text type="h5" color="primary">
           Total&nbsp;Transactions
         </Text>
-        <FetchedComp
-          skeletonWidth={130}
-          skeletonheight={28}
-          skeletonMargin="10px 0px 24px"
-          isFetched={card03Fetched}
-          renderComp={
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card03?.total_txs}
-            </Text>
-          }
-        />
-        <DataBox>
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                24h&nbsp;Avg.&nbsp;Fee
-              </Text>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card03Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {card03?.avg_24hr}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-          <hr />
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                Total&nbsp;Fees
-              </Text>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card03Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {card03?.total_fee}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-        </DataBox>
-      </StyledCard>
-      <StyledCard>
+        <TxsCard />
+      </Card>
+      <Card height="223px">
         <Text type="h5" color="primary" className="title-info">
           Total&nbsp;Accounts
           <Tooltip content="Total number of accounts included in at least 1 transaction.">
@@ -316,67 +66,13 @@ const MainCard = () => {
             </Button>
           </Tooltip>
         </Text>
-        <FetchedComp
-          skeletonWidth={130}
-          skeletonheight={28}
-          skeletonMargin="10px 0px 24px"
-          isFetched={card04Fetched}
-          renderComp={
-            <Text type="h3" color="primary" margin="10px 0px 24px">
-              {card04?.total}
-            </Text>
-          }
-        />
-        <DataBox>
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                Validators
-              </Text>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card04Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {card04?.validators}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-          <hr />
-          <BundleDl>
-            <dt>
-              <Text type="p4" color="tertiary">
-                Total&nbsp;Users
-              </Text>
-              <Tooltip content="Number of accounts registered as a user on /r/demo/users.">
-                <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                  <IconInfo className="svg-info" />
-                </Button>
-              </Tooltip>
-            </dt>
-            <dd>
-              <FetchedComp
-                skeletonWidth={60}
-                isFetched={card04Fetched}
-                renderComp={
-                  <Text type="p4" color="primary">
-                    {card04?.registered}
-                  </Text>
-                }
-              />
-            </dd>
-          </BundleDl>
-        </DataBox>
-      </StyledCard>
+        <AccountCard />
+      </Card>
     </Wrapper>
   );
 };
 
-const FetchedComp = ({
+export const FetchedComp = ({
   skeletonWidth,
   skeletonheight = 16,
   skeletonMargin = '',
@@ -400,11 +96,7 @@ const FetchedComp = ({
   );
 };
 
-const DataBox = ({children}: {children: React.ReactNode}) => {
-  return <DataBoxContainer>{children}</DataBoxContainer>;
-};
-
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr;
@@ -430,7 +122,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const DataBoxContainer = styled.div`
+export const DataBoxContainer = styled.div`
   background-color: ${({theme}) => theme.colors.base};
   border: 1px solid ${({theme}) => theme.colors.dimmed50};
   border-radius: 10px;
@@ -443,12 +135,7 @@ const DataBoxContainer = styled.div`
   }
 `;
 
-const StyledCard = styled(Card)`
-  width: 100%;
-  min-height: 223px;
-`;
-
-const BundleDl = styled.dl`
+export const BundleDl = styled.dl`
   ${mixins.flexbox('row', 'center', 'space-between')};
   dt {
     ${mixins.flexbox('row', 'center', 'flex-start')};
