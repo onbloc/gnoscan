@@ -3,6 +3,7 @@ import {TotalDailyFeeModel} from './total-daily-fee-model';
 import dynamic from 'next/dynamic';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {API_URI} from '@/common/values/constant-value';
+import {Spinner} from '@/components/ui/loading';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
@@ -18,7 +19,7 @@ export const MainTotalDailyFee = () => {
     new TotalDailyFeeModel([]),
   );
 
-  const {data} = usePageQuery<Array<TotalDailyFeeResponse>>({
+  const {data, finished} = usePageQuery<Array<TotalDailyFeeResponse>>({
     key: 'main/total-daily-fee',
     uri: API_URI + '/latest/info/daily_fees',
     pageable: false,
@@ -39,6 +40,12 @@ export const MainTotalDailyFee = () => {
   };
 
   return (
-    <BarChart isDenom labels={totalDailyFeeModel.labels} datas={totalDailyFeeModel.chartData} />
+    <>
+      {finished ? (
+        <BarChart isDenom labels={totalDailyFeeModel.labels} datas={totalDailyFeeModel.chartData} />
+      ) : (
+        <Spinner position="center" />
+      )}
+    </>
   );
 };

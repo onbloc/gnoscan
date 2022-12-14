@@ -19,8 +19,8 @@ export const DarkModeToggle = ({className}: ToggleButtonProps) => {
     <Wrapper
       onClick={() => typeof onChangeTheme !== 'string' && onChangeTheme()}
       className={className}>
-      <ToggleButton darkMode={themeMode === 'dark'}>
-        {themeMode === 'dark' ? <Moon /> : <Sun />}
+      <ToggleButton darkMode={themeMode !== 'light'}>
+        {themeMode !== 'light' ? <Moon /> : <Sun />}
       </ToggleButton>
     </Wrapper>
   );

@@ -78,7 +78,12 @@ const AccountDetails = () => {
           <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
             <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
               {detail.address}
-              <Tooltip content="Copied!" trigger="click" copyText={detail?.address} width={85}>
+              <Tooltip
+                className="address-copy-tooltip"
+                content="Copied!"
+                trigger="click"
+                copyText={detail?.address}
+                width={85}>
                 <IconCopy className="svg-icon" />
               </Tooltip>
               {detail.username && (
@@ -144,6 +149,13 @@ const AddressTextBox = styled(Text)<StyleProps>`
       ${mixins.posTopCenterLeft(0)};
       margin-left: ${({media}) => (media === 'mobile' ? '7px' : '20px')};
     }
+  }
+
+  .address-copy-tooltip {
+    display: inline-flex;
+    height: 20px;
+    justify-content: center;
+    align-items: center;
   }
 `;
 

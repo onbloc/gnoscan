@@ -4,6 +4,7 @@ import {useQuery, UseQueryResult} from 'react-query';
 import {useRecoilValue} from 'recoil';
 import {isEmptyObj} from '../utils';
 import {API_URI} from '@/common/values/constant-value';
+import {firstStrUpperCase} from '../utils/string-util';
 export interface keyOfSearch {
   [key: string]: any;
 }
@@ -17,7 +18,21 @@ const useSearchQuery = () => {
       enabled: value.length > 1,
       select: (res: any) => {
         const checkedObj = isEmptyObj(res.data);
-        return checkedObj ? null : res.data;
+        // const keyAsUppercase = firstStrUpperCase(Object.keys(res.data));
+        // const aa = Object.keys(res.data).map(v => {
+        //   const key = {
+        //     [v]: firstStrUpperCase(Object.keys(v)),
+        //   };
+        //   return key;
+        // });
+        if (checkedObj) {
+          return null;
+        } else {
+          const convert = Object.fromEntries(
+            Object.entries(res.data).map(([key]) => [firstStrUpperCase(key), res.data[key]]),
+          );
+          return convert;
+        }
       },
     },
   );

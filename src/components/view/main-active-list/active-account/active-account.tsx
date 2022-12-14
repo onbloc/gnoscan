@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import axios from 'axios';
 import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
@@ -18,6 +18,7 @@ import Link from 'next/link';
 import {API_URI} from '@/common/values/constant-value';
 import {getLocalDateString} from '@/common/utils/date-util';
 import Tooltip from '@/components/ui/tooltip';
+import FetchedSkeleton from '../fetched-skeleton';
 
 type AccountsValueType = {
   no: number;
@@ -35,7 +36,11 @@ interface AccountsResultType {
 
 const ActiveAccount = () => {
   const media = eachMedia();
-  const {data: accounts, isSuccess: accountsSuccess}: UseQueryResult<AccountsResultType> = useQuery(
+  const {
+    data: accounts,
+    isSuccess: accountsSuccess,
+    isFetched: accountsFetched,
+  }: UseQueryResult<AccountsResultType> = useQuery(
     ['info/most_active_account'],
     async () => await axios.get(API_URI + '/latest/info/most_active_account'),
     {
@@ -53,7 +58,7 @@ const ActiveAccount = () => {
           };
         });
         return {
-          last_update: getLocalDateString(res.data.last_update),
+          last_update: res.data.last_update,
           data: accounts,
         };
       },
@@ -63,57 +68,51 @@ const ActiveAccount = () => {
 
   return (
     <StyledCard>
-      {accountsSuccess && (
-        <>
-          <Text className="active-list-title" type="h6" color="primary">
-            Monthly Active Accounts
-            {media !== 'mobile' && (
-              <Text type="body1" color="tertiary">
-                {`Last Updated: ${getLocalDateString(accounts?.last_update)}`}
-              </Text>
-            )}
+      <Text className="active-list-title" type="h6" color="primary">
+        Monthly Active Accounts
+        {media !== 'mobile' && accountsFetched && (
+          <Text type="body1" color="tertiary">
+            {`Last Updated: ${getLocalDateString(accounts?.last_update)}`}
           </Text>
-          <ActiveList title={listTitle.accounts} colWidth={colWidth.accounts}>
-            <>
-              {accounts.data.map((v: AccountsValueType) => (
-                <List key={v1()}>
-                  <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
-                    {v.no}
-                  </StyledText>
-                  <StyledText
-                    className="with-link"
-                    type="p4"
-                    width={colWidth.accounts[1]}
-                    color="blue">
-                    <Link href={`/accounts/${v.address}`} passHref>
-                      <a target="_blank">
-                        <Tooltip content={v.address}>{v.account}</Tooltip>
-                      </a>
-                    </Link>
-                  </StyledText>
-                  <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
-                    {v.totalTxs}
-                  </StyledText>
-                  <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
-                    {v.nonTxs}
-                  </StyledText>
-                  <StyledAmountText
-                    minSize="body2"
-                    maxSize="p4"
-                    color="reverse"
-                    value={v.balance}
-                    width={colWidth.accounts[4]}
-                  />
-                </List>
-              ))}
-            </>
-          </ActiveList>
-          {media === 'mobile' && (
-            <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-              {`Last Updated: ${getLocalDateString(accounts?.last_update)}`}
-            </Text>
-          )}
-        </>
+        )}
+      </Text>
+      {accountsFetched ? (
+        <ActiveList title={listTitle.accounts} colWidth={colWidth.accounts}>
+          {accounts?.data.map((v: AccountsValueType) => (
+            <List key={v1()}>
+              <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
+                {v.no}
+              </StyledText>
+              <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
+                <Link href={`/accounts/${v.address}`} passHref>
+                  <a target="_blank">
+                    <Tooltip content={v.address}>{v.account}</Tooltip>
+                  </a>
+                </Link>
+              </StyledText>
+              <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
+                {v.totalTxs}
+              </StyledText>
+              <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
+                {v.nonTxs}
+              </StyledText>
+              <StyledAmountText
+                minSize="body2"
+                maxSize="p4"
+                color="reverse"
+                value={v.balance}
+                width={colWidth.accounts[4]}
+              />
+            </List>
+          ))}
+        </ActiveList>
+      ) : (
+        <FetchedSkeleton />
+      )}
+      {media === 'mobile' && accountsFetched && (
+        <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
+          {`Last Updated: ${getLocalDateString(accounts?.last_update)}`}
+        </Text>
       )}
     </StyledCard>
   );

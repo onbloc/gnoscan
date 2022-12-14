@@ -4,10 +4,9 @@ import {GlobalStyle} from '../styles';
 import {RecoilRoot} from 'recoil';
 import {QueryClient, QueryClientProvider} from 'react-query';
 import {Layout} from '@/components/core/layout';
-import Head from 'next/head';
 import {ErrorBoundary} from '@/components/core/error-boundary';
-
 import 'antd/dist/reset.css';
+import Meta from '@/components/core/layout/meta';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,9 +19,7 @@ const queryClient = new QueryClient({
 const App: React.FC<AppProps<any>> = ({Component, pageProps}: AppProps) => {
   return (
     <>
-      <Head>
-        <title>Gnoscan - Gnoland Blockchain Explorer</title>
-      </Head>
+      <Meta />
       <GlobalStyle />
       <QueryClientProvider client={queryClient}>
         <RecoilRoot>

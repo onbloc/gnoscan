@@ -258,7 +258,7 @@ const Wrapper = styled.div`
   & {
     display: flex;
     width: 100%;
-    height: calc(100% - 40px);
+    height: 280px;
     justify-content: center;
     align-items: center;
     overflow: hidden;

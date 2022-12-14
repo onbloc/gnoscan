@@ -1,6 +1,6 @@
 import {css, CSSProp} from 'styled-components';
 
-type MixinsKeyType =
+export type MixinsKeyType =
   | 'flexbox'
   | 'positionCenter'
   | 'posTopCenterRight'

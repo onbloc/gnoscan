@@ -80,7 +80,7 @@ const BlockDetails = () => {
         const data = res.data;
         const gasPercent = Number.isNaN(data.gas.used / data.gas.wanted)
           ? 0
-          : (data.gas.used / data.gas.wanted).toFixed(2);
+          : ((data.gas.used * 100) / data.gas.wanted).toFixed(2);
         return {
           ...data,
           timestamp: getLocalDateString(data.timestamp),

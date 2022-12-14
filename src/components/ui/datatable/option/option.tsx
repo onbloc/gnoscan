@@ -66,7 +66,7 @@ export const ColumnOption = styled.div<{options: Option<any>}>`
 `;
 
 const optionColor = (themeMode?: string, colorName?: PaletteKeyType) => {
-  const themeType = themeMode === 'dark' ? 'darkTheme' : 'lightTheme';
+  const themeType = themeMode !== 'light' ? 'darkTheme' : 'lightTheme';
   const colorType = colorName ?? 'primary';
   return `color: ${theme[themeType][colorType]};`;
 };

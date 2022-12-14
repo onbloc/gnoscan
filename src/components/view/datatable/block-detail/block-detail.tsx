@@ -17,6 +17,7 @@ interface BlockTransactionData {
   type: string;
   func: string;
   from_address: string;
+  from_username?: string;
   block: number;
   pkg_path: string | null;
   amount: {
@@ -132,7 +133,9 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .name('From')
       .width(160)
       .colorName('blue')
-      .renderOption(fromAddress => <DatatableItem.Account address={fromAddress} />)
+      .renderOption((fromAddress, data) => (
+        <DatatableItem.Publisher address={fromAddress} username={data.from_username} />
+      ))
       .build();
   };
 

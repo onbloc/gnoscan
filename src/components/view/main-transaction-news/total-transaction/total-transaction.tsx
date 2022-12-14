@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import {TotalTransactionModel} from './total-transaction-model';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {API_URI} from '@/common/values/constant-value';
+import {Spinner} from '@/components/ui/loading';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
@@ -18,7 +19,7 @@ export const MainTotalTransaction = () => {
     new TotalTransactionModel([]),
   );
 
-  const {data} = usePageQuery<Array<TotalTransactionResponse>>({
+  const {data, finished} = usePageQuery<Array<TotalTransactionResponse>>({
     key: 'main/total-transaction',
     uri: API_URI + '/latest/info/daily_txs',
     pageable: false,
@@ -38,5 +39,13 @@ export const MainTotalTransaction = () => {
     setTotalTransactionModel(new TotalTransactionModel(responseDatas));
   };
 
-  return <BarChart labels={totalTransactionModel.labels} datas={totalTransactionModel.chartData} />;
+  return (
+    <>
+      {finished ? (
+        <BarChart labels={totalTransactionModel.labels} datas={totalTransactionModel.chartData} />
+      ) : (
+        <Spinner position="center" />
+      )}
+    </>
+  );
 };

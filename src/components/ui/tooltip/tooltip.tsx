@@ -32,7 +32,7 @@ const Tooltip = ({
     (e: React.MouseEvent<HTMLElement>) => {
       if (trigger !== 'click') return;
       setIsClicked(true);
-      navigator.clipboard.writeText(copyText);
+      navigator?.clipboard?.writeText(copyText);
     },
     [isClicked, copyText],
   );
@@ -64,6 +64,7 @@ const Tooltip = ({
   return (
     <Wrapper className={className} trigger={trigger} isClicked={isClicked}>
       <AntdTooltip
+        trigger={trigger === 'click' ? 'click' : 'hover'}
         overlayInnerStyle={getTooltipStyle(width, trigger === 'click' ? 8 : 16)}
         color={getCurrentTheme().base}
         title={<TooltipWrapper>{content}</TooltipWrapper>}>
@@ -85,6 +86,7 @@ const Wrapper = styled.div<{trigger: TriggerType; isClicked: boolean}>`
   position: relative;
   display: inline-block;
   z-index: 11;
+  vertical-align: top;
   .tooltip-button {
     ${mixins.flexbox('row', 'center', 'center')};
   }
