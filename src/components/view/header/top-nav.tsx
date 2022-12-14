@@ -20,13 +20,6 @@ import {SubMenu} from './sub-menu';
 import {GNO_CHAIN_NAME} from '@/common/values/constant-value';
 import {debounce} from '@/common/utils/string-util';
 
-const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
-  ssr: false,
-});
-const NotDesktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.NotDesktop), {
-  ssr: false,
-});
-
 interface EntryProps {
   entry?: boolean;
   darkMode?: boolean;
@@ -91,62 +84,59 @@ export const TopNav = () => {
   );
 
   return (
-    <>
-      {desktop && entry && (
-        <Wrapper isDesktop={desktop} entry={entry}>
-          {entry ? (
-            <GnoscanLogo className="logo-icon" onClick={navigateToHomeHandler} />
-          ) : (
-            <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
-          )}
-          <Desktop>
-            {!isMain && (
-              <SubInput
-                className="sub-search"
-                value={value}
-                onChange={onChange}
-                clearValue={() => setValue('')}
-              />
-            )}
-            <Nav>
-              {navItems.map(v => (
-                <Link href={v.path} passHref key={v1()}>
-                  <a>
-                    <Text type="p4" color={entry ? 'white' : 'primary'}>
-                      {v.name}
-                    </Text>
-                  </a>
-                </Link>
-              ))}
-            </Nav>
-          </Desktop>
-          <Network
-            entry={entry}
-            data={network}
-            toggle={toggle}
-            toggleHandler={toggleHandler}
-            networkSettingHandler={networkSettingHandler}
-            setToggle={setToggle}
-          />
-          <NotDesktop>
-            <SubMenu
-              entry={entry}
-              open={open}
-              onClick={toggleMenuHandler}
-              darkMode={theme !== 'light'}
-              currentPath={router.route}
-            />
-          </NotDesktop>
-        </Wrapper>
+    <Wrapper isDesktop={desktop} entry={entry}>
+      {entry ? (
+        <GnoscanLogo className="logo-icon" onClick={navigateToHomeHandler} />
+      ) : (
+        <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
       )}
-    </>
+
+      {!isMain && desktop && (
+        <SubInput
+          className="sub-search"
+          value={value}
+          onChange={onChange}
+          clearValue={() => setValue('')}
+        />
+      )}
+      {desktop && (
+        <Nav>
+          {navItems.map(v => (
+            <Link href={v.path} passHref key={v1()}>
+              <a>
+                <Text type="p4" color={entry ? 'white' : 'primary'}>
+                  {v.name}
+                </Text>
+              </a>
+            </Link>
+          ))}
+        </Nav>
+      )}
+      <Network
+        entry={entry}
+        data={network}
+        toggle={toggle}
+        toggleHandler={toggleHandler}
+        networkSettingHandler={networkSettingHandler}
+        setToggle={setToggle}
+      />
+      {!desktop && (
+        <SubMenu
+          entry={entry}
+          open={open}
+          onClick={toggleMenuHandler}
+          darkMode={theme !== 'light'}
+          currentPath={router.route}
+        />
+      )}
+    </Wrapper>
   );
 };
 
 const Wrapper = styled.div<EntryProps>`
   ${mixins.flexbox('row', 'center', 'center')};
   position: relative;
-  height: ${({isDesktop}) => (isDesktop ? '80px' : '72px')};
+  height: 80px;
   .svg-icon {
     fill: ${({entry}) => (entry ? theme.darkTheme.reverse : theme.lightTheme.reverse)};
   }

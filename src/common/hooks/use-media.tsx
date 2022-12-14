@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {useMediaQuery} from 'react-responsive';
 
 interface Props {
@@ -26,10 +26,10 @@ export const NotDesktop = ({children}: Props) => {
 };
 
 export const isDesktop = () => {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
   const desktop = useMediaQuery({minWidth: 1280});
 
-  useEffect(() => setIsDesktop(desktop), [desktop]);
+  useLayoutEffect(() => setIsDesktop(desktop), [desktop]);
   return isDesktop;
 };
 
@@ -39,7 +39,7 @@ export const eachMedia = (): string => {
   const isTablet = useMediaQuery({minWidth: 768, maxWidth: 1279});
   const isDesktop = useMediaQuery({minWidth: 1280});
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isDesktop) {
       return setMedia('desktop');
     } else if (isTablet) {

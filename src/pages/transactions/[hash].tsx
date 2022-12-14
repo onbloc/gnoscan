@@ -153,7 +153,6 @@ const TransactionDetails = () => {
       retry: 0,
       select: (res: any) => {
         const {summary, contract, log} = res.data;
-        console.log(res.data);
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
           : (summary.gas.used / summary.gas.wanted).toFixed(2);
@@ -185,7 +184,7 @@ const TransactionDetails = () => {
           log: log,
         };
       },
-      onSuccess: (res: any) => console.log(res),
+      // onSuccess: (res: any) => console.log(res),
     },
   );
 

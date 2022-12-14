@@ -51,7 +51,6 @@ const MainCard = () => {
     {
       select: (res: any) => {
         const supply = res.data.gnot_supply;
-        console.log(supply);
         return {
           supply: numberWithCommas(supply.supply),
           exit: numberWithCommas(supply.exit),
