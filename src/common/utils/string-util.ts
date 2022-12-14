@@ -13,3 +13,7 @@ export const debounce = (callback: any, duration: number) => {
     timer = setTimeout(() => callback(v), duration);
   };
 };
+
+export const firstStrUpperCase = (v: string) => {
+  return v.replace(/^[a-z]/, char => char.toUpperCase());
+};

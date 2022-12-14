@@ -29,17 +29,14 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
   const ref = useOutSideClick(() => setOpen(false));
 
   useEffect(() => {
-    setOpen(() => Boolean(value));
-  }, [value]);
+    setOpen(() => Boolean(value.length > 1));
+  }, [result]);
 
-  useEffect(() => resetValue(), [route]);
-
-  const resetValue = useCallback(() => {
+  useEffect(() => {
     setOpen(false);
     setValue('');
-  }, [value]);
+  }, [route]);
 
-  if (!value) return <></>;
   return (
     <>
       {open && (
@@ -51,9 +48,9 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
                   {v}
                 </Text>
                 <ListContainer>
-                  {result[v].map((item: any, i: number) => (
+                  {result[v].map((item: any) => (
                     <List key={v1()}>
-                      {v === 'accounts' ? (
+                      {v === 'Accounts' ? (
                         <Link href={`/accounts/${item.address}`} passHref>
                           <FitContentAStyle>
                             <Text
