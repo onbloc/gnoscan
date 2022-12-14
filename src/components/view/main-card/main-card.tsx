@@ -175,9 +175,9 @@ const MainCard = () => {
           <BundleDl>
             <dt>
               <Text type="p4" color="tertiary">
-                Airdrop&nbsp;Recipients
+                Airdrop&nbsp;Holders
               </Text>
-              <Tooltip content="Total accounts eligible for the GNOT airdrop. This number is not final and is subject to change.">
+              <Tooltip content="Total number of holders eligible for the GNOT airdrop. This number is not final and is subject to change.">
                 <Button width="16px" height="16px" radius="50%" bgColor="surface">
                   <IconInfo className="svg-info" />
                 </Button>
