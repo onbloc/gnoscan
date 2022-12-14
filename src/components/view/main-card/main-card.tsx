@@ -18,7 +18,7 @@ import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
 interface SupplyResultType {
   supply: string;
   exit: string;
-  airdrop_recipients: string;
+  airdrop_holders: string;
 }
 
 interface HeightResultType {
@@ -54,7 +54,7 @@ const MainCard = () => {
         return {
           supply: numberWithCommas(supply.supply),
           exit: numberWithCommas(supply.exit),
-          airdrop_recipients: numberWithCommas(supply.airdrop_recipients),
+          airdrop_holders: numberWithCommas(supply.airdrop_holders),
         };
       },
     },
@@ -175,9 +175,9 @@ const MainCard = () => {
           <BundleDl>
             <dt>
               <Text type="p4" color="tertiary">
-                Airdrop&nbsp;Recipients
+                Airdrop&nbsp;Holders
               </Text>
-              <Tooltip content="Total accounts eligible for the GNOT airdrop. This number is not final and is subject to change.">
+              <Tooltip content="Total number of holders eligible for the GNOT airdrop. This number is not final and is subject to change.">
                 <Button width="16px" height="16px" radius="50%" bgColor="surface">
                   <IconInfo className="svg-info" />
                 </Button>
@@ -189,7 +189,7 @@ const MainCard = () => {
                 isFetched={card01Fetched}
                 renderComp={
                   <Text type="p4" color="primary">
-                    {card01?.airdrop_recipients}
+                    {card01?.airdrop_holders}
                   </Text>
                 }
               />
