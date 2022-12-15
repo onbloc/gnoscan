@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
@@ -55,6 +55,30 @@ export const TransactionDatatable = () => {
     pageable: true,
   });
   useLoading({finished});
+  const [development, setDevelopment] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeydownEvent);
+    window.addEventListener('keyup', handleKeyupEvent);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydownEvent);
+      window.removeEventListener('keyup', handleKeyupEvent);
+    };
+  }, []);
+
+  const handleKeydownEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(true);
+      setTimeout(() => setDevelopment(false), 500);
+    }
+  };
+
+  const handleKeyupEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(false);
+    }
+  };
 
   const getTransactions = (): Array<TransactionData> => {
     if (!data) {
@@ -83,7 +107,14 @@ export const TransactionDatatable = () => {
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={data.success} />)
+      .renderOption((value, data) => (
+        <DatatableItem.TxHash
+          txHash={value}
+          success={data.success}
+          development={development}
+          height={data.block}
+        />
+      ))
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
