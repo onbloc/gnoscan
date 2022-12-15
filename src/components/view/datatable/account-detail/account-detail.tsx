@@ -2,7 +2,6 @@
 
 import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
@@ -10,7 +9,8 @@ import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
 import {API_URI} from '@/common/values/constant-value';
-
+import {useRecoilState, useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 interface AccountTransactionData {
   hash: string;
   status: string;
@@ -60,7 +60,7 @@ const TOOLTIP_TYPE = (
 );
 
 export const AccountDetailDatatable = ({address}: Props) => {
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
   const media = eachMedia();
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
@@ -205,7 +205,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
         headers={createHeaders().map(item => {
           return {
             ...item,
-            themeMode: theme,
+            themeMode: themeMode,
           };
         })}
         datas={getTransactionDatas()}

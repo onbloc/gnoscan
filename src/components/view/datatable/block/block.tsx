@@ -2,13 +2,14 @@
 
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
 import {API_URI} from '@/common/values/constant-value';
+import {useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 
 const PADDING = 32;
 
@@ -23,7 +24,7 @@ interface BlockData {
 }
 
 export const BlockDatatable = () => {
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
   const {data, finished} = usePageQuery<Array<BlockData>>({
     key: 'block/block-list',
     uri: API_URI + '/latest/list/blocks',
@@ -117,7 +118,7 @@ export const BlockDatatable = () => {
       headers={createHeaders().map(item => {
         return {
           ...item,
-          themeMode: theme,
+          themeMode: themeMode,
         };
       })}
       datas={getBlocks()}

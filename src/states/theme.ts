@@ -1,3 +1,4 @@
+import theme from '@/styles/theme';
 import {atom} from 'recoil';
 import {v1} from 'uuid';
 

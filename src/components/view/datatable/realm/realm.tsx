@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import Link from 'next/link';
@@ -13,7 +12,8 @@ import {numberWithCommas} from '@/common/utils';
 import {eachMedia} from '@/common/hooks/use-media';
 import useLoading from '@/common/hooks/use-loading';
 import {API_URI} from '@/common/values/constant-value';
-
+import {useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 interface Realms {
   name: string;
   path: string;
@@ -33,7 +33,7 @@ interface ResponseData {
 
 export const RealmDatatable = () => {
   const media = eachMedia();
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
   const {data, hasNext, fetchNextPage, sortOption, setSortOption, finished} =
     usePageQuery<ResponseData>({
       key: 'realm/realm-list',
@@ -137,7 +137,7 @@ export const RealmDatatable = () => {
         headers={createHeaders().map(item => {
           return {
             ...item,
-            themeMode: theme,
+            themeMode: themeMode,
           };
         })}
         sortOption={sortOption}
