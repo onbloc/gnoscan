@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
@@ -10,7 +9,8 @@ import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
 import {API_URI} from '@/common/values/constant-value';
-
+import {useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 interface TokenTransactionData {
   tx_hash: string;
   success?: boolean;
@@ -59,7 +59,7 @@ const TOOLTIP_TYPE = (
 
 export const TokenDetailDatatable = ({denom}: Props) => {
   const media = eachMedia();
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'token-detail/transactions',
@@ -172,7 +172,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
         headers={createHeaders().map(item => {
           return {
             ...item,
-            themeMode: theme,
+            themeMode: themeMode,
           };
         })}
         datas={getTransactionDatas()}

@@ -29,7 +29,7 @@ export const isDesktop = () => {
   const [isDesktop, setIsDesktop] = useState(true);
   const desktop = useMediaQuery({minWidth: 1280});
 
-  useLayoutEffect(() => setIsDesktop(desktop), [desktop]);
+  useEffect(() => setIsDesktop(desktop), [desktop]);
   return isDesktop;
 };
 
@@ -39,7 +39,7 @@ export const eachMedia = (): string => {
   const isTablet = useMediaQuery({minWidth: 768, maxWidth: 1279});
   const isDesktop = useMediaQuery({minWidth: 1280});
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (isDesktop) {
       return setMedia('desktop');
     } else if (isTablet) {

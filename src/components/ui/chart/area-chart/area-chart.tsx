@@ -3,9 +3,9 @@ import {Line} from 'react-chartjs-2';
 import {Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
 import {AreaChartTooltip} from './tooltip';
 import {styled} from '@/styles';
-import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
-
+import {useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 interface AreaChartProps {
   labels: Array<string>;
   datas: {[key in string]: Array<{value: number; rate: number}>};
@@ -16,7 +16,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart<'line'>>(null);
   const [chartData, setChartData] = useState<ChartData<'line'>>({labels: [], datasets: []});
-  const [themeMode] = useTheme();
+  const themeMode = useRecoilValue(themeState);
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
 

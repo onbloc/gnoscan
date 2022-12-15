@@ -2,13 +2,14 @@
 
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
 import {DatatableItem} from '..';
 import styled from 'styled-components';
 import usePageQuery from '@/common/hooks/use-page-query';
 import useLoading from '@/common/hooks/use-loading';
 import {API_URI} from '@/common/values/constant-value';
+import {useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -48,7 +49,7 @@ interface TransactionData {
 }
 
 export const TransactionDatatable = () => {
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
   const {data, finished} = usePageQuery<Array<TransactionData>>({
     key: 'transaction/transaction-list',
     uri: API_URI + '/latest/list/txs',
@@ -160,7 +161,7 @@ export const TransactionDatatable = () => {
       headers={createHeaders().map(item => {
         return {
           ...item,
-          themeMode: theme,
+          themeMode: themeMode,
         };
       })}
       datas={getTransactions()}

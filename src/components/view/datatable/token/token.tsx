@@ -1,14 +1,14 @@
 'use client';
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
 import {API_URI} from '@/common/values/constant-value';
-
+import {useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 interface TokenData {
   token: string;
   img_path: string;
@@ -24,7 +24,7 @@ interface TokenData {
 }
 
 export const TokenDatatable = () => {
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
 
   const {data, finished} = usePageQuery<Array<TokenData>>({
     key: 'token/token-list',
@@ -118,7 +118,7 @@ export const TokenDatatable = () => {
       headers={createHeaders().map(item => {
         return {
           ...item,
-          themeMode: theme,
+          themeMode: themeMode,
         };
       })}
       datas={getTokens()}

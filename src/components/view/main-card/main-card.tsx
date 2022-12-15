@@ -11,26 +11,27 @@ import Text from '@/components/ui/text';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
+import {SupplyCard, BlockCard, TxsCard, AccountCard} from './cards';
 
-const SupplyCard = dynamic(() => import('./cards/supply-card').then(comp => comp.SupplyCard), {
-  ssr: false,
-});
-const BlockCard = dynamic(() => import('./cards/block-card').then(comp => comp.BlockCard), {
-  ssr: false,
-});
-const TxsCard = dynamic(() => import('./cards/txs-card').then(comp => comp.TxsCard), {
-  ssr: false,
-});
-const AccountCard = dynamic(() => import('./cards/account-card').then(comp => comp.AccountCard), {
-  ssr: false,
-});
+// const SupplyCard = dynamic(() => import('./cards/supply-card').then(comp => comp.SupplyCard), {
+//   ssr: false,
+// });
+// const BlockCard = dynamic(() => import('./cards/block-card').then(comp => comp.BlockCard), {
+//   ssr: false,
+// });
+// const TxsCard = dynamic(() => import('./cards/txs-card').then(comp => comp.TxsCard), {
+//   ssr: false,
+// });
+// const AccountCard = dynamic(() => import('./cards/account-card').then(comp => comp.AccountCard), {
+//   ssr: false,
+// });
 
 const MainCard = () => {
   const media = eachMedia();
 
   return (
     <Wrapper className={media}>
-      <Card height="223px">
+      <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply
           <Tooltip
@@ -42,22 +43,22 @@ const MainCard = () => {
           </Tooltip>
         </Text>
         <SupplyCard />
-      </Card>
+      </StyledCard>
 
-      <Card height="223px">
+      <StyledCard>
         <Text type="h5" color="primary">
           Block&nbsp;Height
         </Text>
         <BlockCard />
-      </Card>
+      </StyledCard>
 
-      <Card height="223px">
+      <StyledCard>
         <Text type="h5" color="primary">
           Total&nbsp;Transactions
         </Text>
         <TxsCard />
-      </Card>
-      <Card height="223px">
+      </StyledCard>
+      <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           Total&nbsp;Accounts
           <Tooltip content="Total number of accounts included in at least 1 transaction.">
@@ -67,7 +68,7 @@ const MainCard = () => {
           </Tooltip>
         </Text>
         <AccountCard />
-      </Card>
+      </StyledCard>
     </Wrapper>
   );
 };
@@ -118,8 +119,6 @@ export const Wrapper = styled.div`
   .svg-info {
     fill: ${({theme}) => theme.colors.reverse};
   }
-  .u-gnot {
-  }
 `;
 
 export const DataBoxContainer = styled.div`
@@ -141,6 +140,11 @@ export const BundleDl = styled.dl`
     ${mixins.flexbox('row', 'center', 'flex-start')};
     gap: 6px;
   }
+`;
+
+const StyledCard = styled(Card)`
+  width: 100%;
+  min-height: 223px;
 `;
 
 export default MainCard;
