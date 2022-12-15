@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
@@ -10,7 +9,8 @@ import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
 import {API_URI} from '@/common/values/constant-value';
-
+import {useRecoilState, useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 interface AccountTransactionData {
   hash: string;
   status: string;
@@ -60,7 +60,7 @@ const TOOLTIP_TYPE = (
 );
 
 export const AccountDetailDatatable = ({address}: Props) => {
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
   const media = eachMedia();
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
@@ -68,6 +68,30 @@ export const AccountDetailDatatable = ({address}: Props) => {
     uri: API_URI + `/latest/account/txs/${address}`,
     pageable: true,
   });
+  const [development, setDevelopment] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeydownEvent);
+    window.addEventListener('keyup', handleKeyupEvent);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydownEvent);
+      window.removeEventListener('keyup', handleKeyupEvent);
+    };
+  }, []);
+
+  const handleKeydownEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(true);
+      setTimeout(() => setDevelopment(false), 500);
+    }
+  };
+
+  const handleKeyupEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(false);
+    }
+  };
 
   const getTransactionDatas = () => {
     if (!data) {
@@ -98,7 +122,12 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .width(210)
       .colorName('blue')
       .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} success={data.status === 'success'} />
+        <DatatableItem.TxHash
+          txHash={value}
+          success={data.status === 'success'}
+          development={development}
+          height={data.height}
+        />
       ))
       .tooltip(TOOLTIP_TX_HASH)
       .build();
@@ -176,7 +205,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
         headers={createHeaders().map(item => {
           return {
             ...item,
-            themeMode: theme,
+            themeMode: themeMode,
           };
         })}
         datas={getTransactionDatas()}

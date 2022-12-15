@@ -23,7 +23,6 @@ export const BlockCard = () => {
     {
       select: (res: any) => {
         const block = res.data.block;
-        console.log(block);
         return {
           height: numberWithCommas(block.height),
           avg_tx: numberWithFixedCommas(block.avg_tx, 2),

@@ -3,9 +3,9 @@ import {Bar} from 'react-chartjs-2';
 import {Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
 import {BarChartTooltip} from './tooltip';
 import {styled} from '@/styles';
-import useTheme from '@/common/hooks/use-theme';
 import theme from '@/styles/theme';
-
+import {useRecoilState} from 'recoil';
+import {themeState} from '@/states';
 interface BarChartProps {
   labels: Array<string>;
   datas: Array<{date: string; value: number}>;
@@ -16,8 +16,7 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart<'bar'>>(null);
   const [chartData, setChartData] = useState<ChartData<'bar'>>({labels: [], datasets: []});
-  const [themeMode] = useTheme();
-
+  const [themeMode, setThemeMode] = useRecoilState(themeState);
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(0);
 
