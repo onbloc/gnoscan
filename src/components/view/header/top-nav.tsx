@@ -20,6 +20,12 @@ import {SubMenu} from './sub-menu';
 import {GNO_CHAIN_NAME} from '@/common/values/constant-value';
 import {debounce} from '@/common/utils/string-util';
 
+const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
+  ssr: false,
+});
+const NotDesktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.NotDesktop), {
+  ssr: false,
+});
 interface EntryProps {
   entry?: boolean;
   darkMode?: boolean;
@@ -51,9 +57,9 @@ export const navItems = [
 
 export const TopNav = () => {
   const router = useRouter();
-  const theme = useRecoilValue(themeState);
+  const themeMode = useRecoilValue(themeState);
   const isMain = router.route === '/';
-  const entry = router.route === '/' || (router.route !== '/' && theme !== 'light');
+  const entry = router.route === '/' || (router.route !== '/' && themeMode === 'dark');
   const [network, setNetwork] = useState({
     current: GNO_CHAIN_NAME,
     all: [GNO_CHAIN_NAME],
@@ -90,16 +96,15 @@ export const TopNav = () => {
       ) : (
         <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
       )}
-
-      {!isMain && desktop && (
-        <SubInput
-          className="sub-search"
-          value={value}
-          onChange={onChange}
-          clearValue={() => setValue('')}
-        />
-      )}
-      {desktop && (
+      <Desktop>
+        {!isMain && (
+          <SubInput
+            className="sub-search"
+            value={value}
+            onChange={onChange}
+            clearValue={() => setValue('')}
+          />
+        )}
         <Nav>
           {navItems.map(v => (
             <Link href={v.path} passHref key={v1()}>
@@ -111,7 +116,8 @@ export const TopNav = () => {
             </Link>
           ))}
         </Nav>
-      )}
+      </Desktop>
+
       <Network
         entry={entry}
         data={network}
@@ -120,15 +126,15 @@ export const TopNav = () => {
         networkSettingHandler={networkSettingHandler}
         setToggle={setToggle}
       />
-      {!desktop && (
+      <NotDesktop>
         <SubMenu
           entry={entry}
           open={open}
           onClick={toggleMenuHandler}
-          darkMode={theme !== 'light'}
+          darkMode={themeMode === 'dark'}
           currentPath={router.route}
         />
-      )}
+      </NotDesktop>
     </Wrapper>
   );
 };

@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, {useCallback} from 'react';
 import styled from 'styled-components';
 import Moon from '@/assets/svgs/icon-moon.svg';
 import Sun from '@/assets/svgs/icon-sun.svg';
 import mixins from '@/styles/mixins';
-import useTheme from '@/common/hooks/use-theme';
+import {useRecoilState} from 'recoil';
+import {themeState} from '@/states';
+import theme from '@/styles/theme';
 
 interface ToggleButtonProps {
   darkMode?: boolean;
@@ -13,14 +15,17 @@ interface ToggleButtonProps {
 }
 
 export const DarkModeToggle = ({className}: ToggleButtonProps) => {
-  const [themeMode, onChangeTheme] = useTheme();
+  const [themeMode, setThemeMode] = useRecoilState(themeState);
+  const toggleTheme = () => {
+    const updatedTheme = themeMode === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', updatedTheme);
+    setThemeMode(updatedTheme);
+  };
 
   return (
-    <Wrapper
-      onClick={() => typeof onChangeTheme !== 'string' && onChangeTheme()}
-      className={className}>
-      <ToggleButton darkMode={themeMode !== 'light'}>
-        {themeMode !== 'light' ? <Moon /> : <Sun />}
+    <Wrapper onClick={toggleTheme} className={className}>
+      <ToggleButton darkMode={themeMode === 'dark'}>
+        {themeMode === 'dark' ? <Moon /> : <Sun />}
       </ToggleButton>
     </Wrapper>
   );

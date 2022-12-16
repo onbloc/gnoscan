@@ -20,8 +20,8 @@ const NotDesktop = dynamic(() => import('@/common/hooks/use-media').then(mod => 
 });
 
 export const BtmNav = () => {
-  const {route} = useRouter();
-  const desktop = isDesktop();
+  const router = useRouter();
+  const entry = router.route === '/';
   const [value, setValue] = useRecoilState(searchState);
 
   const onChange = useCallback(
@@ -37,11 +37,18 @@ export const BtmNav = () => {
 
   return (
     <>
-      {route === '/' ? (
-        <Wrapper isMain={route === '/'}>
-          <Text type={desktop ? 'h1' : 'h2'} color="white">
-            The Gnoland Blockchain Explorer
-          </Text>
+      {entry ? (
+        <Wrapper isMain={entry}>
+          <Desktop>
+            <Text type="h1" color="white" textAlign="center">
+              The Gnoland Blockchain Explorer
+            </Text>
+          </Desktop>
+          <NotDesktop>
+            <Text type="h2" color="white" textAlign="center">
+              The Gnoland Blockchain Explorer
+            </Text>
+          </NotDesktop>
           <MainInput
             className="main-search"
             value={value}
@@ -51,7 +58,7 @@ export const BtmNav = () => {
         </Wrapper>
       ) : (
         <NotDesktop>
-          <Wrapper isMain={route === '/'}>
+          <Wrapper isMain={entry}>
             <SubInput value={value} onChange={onChange} clearValue={clearValue} />
           </Wrapper>
         </NotDesktop>

@@ -1,15 +1,13 @@
-import useTheme from '@/common/hooks/use-theme';
 import {Spinner} from '@/components/ui/loading';
 import {themeState} from '@/states';
 import React, {useEffect, useRef, useState} from 'react';
 import {TwitterTimelineEmbed} from 'react-twitter-embed';
-import {useRecoilState} from 'recoil';
+import {useRecoilValue} from 'recoil';
 import styled from 'styled-components';
 
 export const MainNewsTwitter = () => {
   const GNOSCAN_LIST_ID = '1597532886152151042';
-
-  const [themeMode] = useRecoilState(themeState);
+  const themeMode = useRecoilValue(themeState);
 
   const isLight = () => {
     return themeMode !== 'dark';

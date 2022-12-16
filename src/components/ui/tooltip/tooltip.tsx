@@ -3,8 +3,9 @@ import styled, {css} from 'styled-components';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
 import {Tooltip as AntdTooltip} from 'antd';
-import useTheme from '@/common/hooks/use-theme';
 import {default as themeStyle} from '@/styles/theme';
+import {useRecoilState, useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 
 type TriggerType = 'click' | 'hover';
 interface TooltipProps {
@@ -26,7 +27,7 @@ const Tooltip = ({
   copyText = '',
 }: TooltipProps) => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
 
   const buttonClickHandler = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
@@ -45,7 +46,7 @@ const Tooltip = ({
   }, [isClicked]);
 
   const getCurrentTheme = () => {
-    return theme === 'light' ? themeStyle.lightTheme : themeStyle.darkTheme;
+    return themeMode === 'dark' ? themeStyle.darkTheme : themeStyle.lightTheme;
   };
 
   const getTooltipStyle = (width?: number, padding?: number) => {

@@ -1,14 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import useTheme from '@/common/hooks/use-theme';
 import Link from 'next/link';
 import {DatatableItem} from '..';
 import styled from 'styled-components';
 import usePageQuery from '@/common/hooks/use-page-query';
 import useLoading from '@/common/hooks/use-loading';
 import {API_URI} from '@/common/values/constant-value';
+import {useRecoilValue} from 'recoil';
+import {themeState} from '@/states';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -48,13 +49,37 @@ interface TransactionData {
 }
 
 export const TransactionDatatable = () => {
-  const [theme] = useTheme();
+  const themeMode = useRecoilValue(themeState);
   const {data, finished} = usePageQuery<Array<TransactionData>>({
     key: 'transaction/transaction-list',
     uri: API_URI + '/latest/list/txs',
     pageable: true,
   });
   useLoading({finished});
+  const [development, setDevelopment] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeydownEvent);
+    window.addEventListener('keyup', handleKeyupEvent);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydownEvent);
+      window.removeEventListener('keyup', handleKeyupEvent);
+    };
+  }, []);
+
+  const handleKeydownEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(true);
+      setTimeout(() => setDevelopment(false), 500);
+    }
+  };
+
+  const handleKeyupEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(false);
+    }
+  };
 
   const getTransactions = (): Array<TransactionData> => {
     if (!data) {
@@ -83,7 +108,14 @@ export const TransactionDatatable = () => {
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={data.success} />)
+      .renderOption((value, data) => (
+        <DatatableItem.TxHash
+          txHash={value}
+          success={data.success}
+          development={development}
+          height={data.block}
+        />
+      ))
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
@@ -160,7 +192,7 @@ export const TransactionDatatable = () => {
       headers={createHeaders().map(item => {
         return {
           ...item,
-          themeMode: theme,
+          themeMode: themeMode,
         };
       })}
       datas={getTransactions()}
