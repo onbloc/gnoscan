@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
@@ -68,6 +68,30 @@ export const AccountDetailDatatable = ({address}: Props) => {
     uri: API_URI + `/latest/account/txs/${address}`,
     pageable: true,
   });
+  const [development, setDevelopment] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeydownEvent);
+    window.addEventListener('keyup', handleKeyupEvent);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydownEvent);
+      window.removeEventListener('keyup', handleKeyupEvent);
+    };
+  }, []);
+
+  const handleKeydownEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(true);
+      setTimeout(() => setDevelopment(false), 500);
+    }
+  };
+
+  const handleKeyupEvent = (event: KeyboardEvent) => {
+    if (event.code === 'Backquote') {
+      setDevelopment(false);
+    }
+  };
 
   const getTransactionDatas = () => {
     if (!data) {
@@ -98,7 +122,12 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .width(210)
       .colorName('blue')
       .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} success={data.status === 'success'} />
+        <DatatableItem.TxHash
+          txHash={value}
+          success={data.status === 'success'}
+          development={development}
+          height={data.height}
+        />
       ))
       .tooltip(TOOLTIP_TX_HASH)
       .build();

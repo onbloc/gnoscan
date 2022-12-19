@@ -39,7 +39,7 @@ export const AmountText = ({
   return (
     <Wrapper className={className}>
       {num && (
-        <Text type={maxSize} color={color} display="inline-block">
+        <Text className="text-wrapper" type={maxSize} color={color} display="inline-block">
           {num[0]}
           <Text type={minSize} color={color} display="inline-block">
             {decimalValue(num)}
@@ -52,4 +52,8 @@ export const AmountText = ({
 
 const Wrapper = styled.div`
   ${mixins.flexbox('row', 'center', 'flex-start')};
+
+  .text-wrapper {
+    white-space: nowrap;
+  }
 `;

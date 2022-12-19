@@ -63,10 +63,10 @@ const contractObj = {
   GetBoardIDFromName: ['Name'],
   CreateBoard: ['Name'],
   CreateThread: ['Board ID', 'Title', 'Body'],
-  CreateReply: ['Board ID', 'Thread Id', 'Post Id', 'Body'],
-  CreateRepost: ['Board ID', 'Post Id', 'Title', 'Body', 'Destination Board ID'],
-  DeletePost: ['Board ID', 'Thread Id', 'Post Id', 'Reason'],
-  EditPost: ['Board ID', 'Thread Id', 'Post Id', 'Title', 'Body'],
+  CreateReply: ['Board ID', 'Thread ID', 'Post ID', 'Body'],
+  CreateRepost: ['Board ID', 'Post ID', 'Title', 'Body', 'Destination Board ID'],
+  DeletePost: ['Board ID', 'Thread ID', 'Post ID', 'Reason'],
+  EditPost: ['Board ID', 'Thread ID', 'Post ID', 'Title', 'Body'],
   RenderBoard: ['Board ID'],
   Render: ['Path'],
   Register: ['Inviter', 'Name', 'Profile'],
@@ -105,18 +105,18 @@ const valueForContractType = (contract: any) => {
       },
     };
   } else if (type === '/vm.m_call') {
-    if (contract.pkg_path === '/r/demo/boards') {
-      return contractObj[type as ContractKeyType].forEach((v: string, i: number) => {
+    console.log(contract);
+
+    if (contract.pkg_path === 'gno.land/r/demo/boards') {
+      contractObj[func as ContractKeyType].forEach((v: string, i: number) => {
         map.type = contract.func;
         map.data[v] = contract.args[i];
       });
-    } else if (contract.pkg_path === '/r/demo/users') {
-      map = {
-        type: func,
-        data: {
-          Register: contract.args,
-        },
-      };
+    } else if (contract.pkg_path === 'gno.land/r/demo/users') {
+      contractObj[func as ContractKeyType].forEach((v: string, i: number) => {
+        map.type = contract.func;
+        map.data[v] = contract.args[i];
+      });
     } else {
       map = {
         type: func,
@@ -155,7 +155,7 @@ const TransactionDetails = () => {
         const {summary, contract, log} = res.data;
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
-          : (summary.gas.used / summary.gas.wanted).toFixed(2);
+          : ((summary.gas.used * 100) / summary.gas.wanted).toFixed(2);
 
         const summaryData: SummaryType = {
           ...summary,
@@ -184,7 +184,6 @@ const TransactionDetails = () => {
           log: log,
         };
       },
-      // onSuccess: (res: any) => console.log(res),
     },
   );
 
