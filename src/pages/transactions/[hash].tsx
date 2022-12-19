@@ -312,10 +312,6 @@ const TransactionDetails = () => {
                             </Text>
                           </FitContentA>
                         </Link>
-                        <Text
-                          type="p4"
-                          color="blue"
-                          className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}></Text>
                       </Badge>
                     </dd>
                   </DLWrap>

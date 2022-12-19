@@ -19,15 +19,6 @@ export const Header = () => {
           <TopNav />
           <BtmNav />
         </div>
-        {/* {entry && (
-          <Image
-            src="/bg-header.svg"
-            alt="Picture of the author"
-            layout="fill"
-            objectFit="cover"
-            objectPosition="center"
-          />
-        )} */}
       </Wrapper>
     </>
   );
