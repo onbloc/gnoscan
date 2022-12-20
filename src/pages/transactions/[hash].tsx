@@ -105,8 +105,6 @@ const valueForContractType = (contract: any) => {
       },
     };
   } else if (type === '/vm.m_call') {
-    console.log(contract);
-
     if (contract.pkg_path === 'gno.land/r/demo/boards') {
       contractObj[func as ContractKeyType].forEach((v: string, i: number) => {
         map.type = contract.func;
@@ -137,7 +135,6 @@ const valueForContractType = (contract: any) => {
 };
 
 const TransactionDetails = () => {
-  const {loading} = useLoading();
   const desktop = isDesktop();
   const router = useRouter();
   const {hash} = router.query;
@@ -156,7 +153,6 @@ const TransactionDetails = () => {
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
           : ((summary.gas.used * 100) / summary.gas.wanted).toFixed(2);
-
         const summaryData: SummaryType = {
           ...summary,
           statusType: statusObj(summary.status),
@@ -184,6 +180,7 @@ const TransactionDetails = () => {
           log: log,
         };
       },
+      // onSuccess: res => console.log('---- : ', res),
     },
   );
 
@@ -311,10 +308,6 @@ const TransactionDetails = () => {
                             </Text>
                           </FitContentA>
                         </Link>
-                        <Text
-                          type="p4"
-                          color="blue"
-                          className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}></Text>
                       </Badge>
                     </dd>
                   </DLWrap>
@@ -327,7 +320,7 @@ const TransactionDetails = () => {
                           type="p4"
                           color="inherit"
                           className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                          {tx.contract.args.data[v] ?? '-'}
+                          {tx.contract.args.data[v] || '-'}
                         </Text>
                       </Badge>
                     </dd>
@@ -354,7 +347,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
                 <Link href={`/accounts/${contract.creator}`} passHref>
                   <FitContentA>
                     <Text type="p4" color="blue">
-                      {contract.args.data[v] ?? '-'}
+                      {contract.args.data[v] || '-'}
                     </Text>
                   </FitContentA>
                 </Link>
@@ -363,7 +356,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
                   type="p4"
                   color={'inherit'}
                   className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                  {contract.args.data[v] ?? '-'}
+                  {contract.args.data[v] || '-'}
                 </Text>
               )}
             </Badge>
@@ -398,7 +391,7 @@ const TransferContract = ({contract, desktop}: any) => {
               <AddressTextBox>
                 <Text type="p4" color="blue" className="ellipsis">
                   <Link href={`/accounts/${contract.args.data[v]}`} passHref>
-                    <FitContentA>{contract.args.data[v]}</FitContentA>
+                    <FitContentA>{contract.args.data[v] || '-'}</FitContentA>
                   </Link>
                   {contract.from_username && v === 'From' && (
                     <Text type="p4" color="primary" display="inline-block">
