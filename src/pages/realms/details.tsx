@@ -99,7 +99,7 @@ const RealmsDetails = () => {
                 <Badge>
                   {realm.publisher === 'genesis' ? (
                     <FitContentA>
-                      <Text type="p4" color="white" className="ellipsis">
+                      <Text type="p4" color="blue" className="ellipsis">
                         {realm.publisher}
                       </Text>
                     </FitContentA>
@@ -121,7 +121,7 @@ const RealmsDetails = () => {
                 <Badge>
                   {realm.blockPublished === 0 ? (
                     <FitContentA>
-                      <Text type="p4" color="white" className="ellipsis">
+                      <Text type="p4" color="blue" className="ellipsis">
                         {'-'}
                       </Text>
                     </FitContentA>
