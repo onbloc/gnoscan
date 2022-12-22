@@ -3,11 +3,23 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.12.0
 
+commands:
+  init-slack:
+    steps:
+      - run:
+          name: Set Message Info
+          when: always
+          command: |
+            SLACK_TEMPLATE_SUCCESS=$(cat .circleci/template/slack-success.json)
+            echo "export SLACK_TEMPLATE_SUCCESS='${SLACK_TEMPLATE_SUCCESS}'" >> $BASH_ENV
+            source $BASH_ENV
+
 jobs:
   notify:
     docker:
       - image: 'cimg/base:stable'
     steps:
+      - init-slack
       - run:
           name: Run
           command: echo 'run'
@@ -37,7 +49,7 @@ jobs:
       - slack/notify:
           channel: 'C049P1BNSR3'
           event: pass
-          template: success_tagged_deploy_1
+          template: SLACK_TEMPLATE_SUCCESS
 
 workflows:
   notify:
