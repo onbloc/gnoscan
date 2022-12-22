@@ -27,10 +27,6 @@
                 {
                     "type": "mrkdwn",
                     "text": "*Author*: $CIRCLE_USERNAME"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*When*: $(date +'%m/%d/%Y %T')"
                 }
             ],
             "accessory": {
