@@ -54,6 +54,16 @@
                             },
                             "value": "current_version",
                             "url": "$CIRCLE_BUILD_URL"
+                        },
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Github 확인",
+                                "emoji": true
+                            },
+                            "value": "current_version",
+                            "url": "https://github.com/onbloc/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH"
                         }
                     ]
                 }
