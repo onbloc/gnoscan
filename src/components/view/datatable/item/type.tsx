@@ -2,14 +2,15 @@ import Tooltip from '@/components/ui/tooltip';
 import theme from '@/styles/theme';
 import React from 'react';
 import styled from 'styled-components';
-
+import Text from '@/components/ui/text';
 interface Props {
   type: string;
   func: string;
   packagePath?: string | null;
+  msgNum?: number;
 }
 
-export const Type = ({type, func, packagePath}: Props) => {
+export const Type = ({type, func, packagePath, msgNum}: Props) => {
   const renderTooltip = () => {
     return (
       <TooltipWrapper>
@@ -28,6 +29,11 @@ export const Type = ({type, func, packagePath}: Props) => {
       <Tooltip content={renderTooltip()}>
         <span className="function">{func}</span>
       </Tooltip>
+      {msgNum && msgNum > 1 && (
+        <Text type="p4" color="reverse" margin="0px 0px 0px 8px">
+          {`+${msgNum - 1}`}
+        </Text>
+      )}
     </TypeWrapper>
   ) : (
     <span>-</span>

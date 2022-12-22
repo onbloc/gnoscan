@@ -142,7 +142,12 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.path} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.func}
+          packagePath={data.path}
+          msgNum={data.msg_num}
+        />
       ))
       .build();
   };
