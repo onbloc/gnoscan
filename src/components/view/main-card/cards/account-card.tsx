@@ -6,7 +6,7 @@ import {numberWithCommas} from '@/common/utils';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
 
 interface AccountsResultType {
@@ -22,7 +22,7 @@ export const AccountCard = () => {
     isFetched: card04Fetched,
   }: UseQueryResult<AccountsResultType> = useQuery(
     ['info/card04'],
-    async () => await axios.get(API_URI + '/latest/info/card04'),
+    async () => await axios.get(API_URI + API_VERSION + '/info/card04'),
     {
       select: (res: any) => {
         const account = res.data.account;

@@ -3,7 +3,7 @@ import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
 import {useRecoilValue} from 'recoil';
 import {isEmptyObj} from '../utils';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {firstStrUpperCase} from '../utils/string-util';
 export interface keyOfSearch {
   [key: string]: any;
@@ -13,7 +13,7 @@ const useSearchQuery = () => {
   const value = useRecoilValue(searchState);
   const {data}: UseQueryResult<any> = useQuery(
     ['info/search', value],
-    async () => await axios.get(API_URI + `/latest/info/search/${value}?limit=5`),
+    async () => await axios.get(API_URI + API_VERSION + `/info/search/${value}?limit=5`),
     {
       enabled: value.length > 1,
       select: (res: any) => {

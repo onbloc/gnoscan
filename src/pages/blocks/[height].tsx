@@ -19,7 +19,7 @@ import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 
 interface TitleOptionProps {
   prevProps: {
@@ -72,7 +72,7 @@ const BlockDetails = () => {
     isFetched,
   }: UseQueryResult<SummaryResultType> = useQuery(
     ['block/height', height],
-    async ({queryKey}) => await axios.get(API_URI + `/latest/block/summary/${queryKey[1]}`),
+    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/block/summary/${queryKey[1]}`),
     {
       enabled: !!height,
       retry: 0,

@@ -3,7 +3,7 @@ import Text from '@/components/ui/text';
 import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
 import {numberWithCommas, numberWithFixedCommas} from '@/common/utils';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
 
 interface HeightResultType {
@@ -19,7 +19,7 @@ export const BlockCard = () => {
     isFetched: card02Fetched,
   }: UseQueryResult<HeightResultType> = useQuery(
     ['info/card02'],
-    async () => await axios.get(API_URI + '/latest/info/card02'),
+    async () => await axios.get(API_URI + API_VERSION + '/info/card02'),
     {
       select: (res: any) => {
         const block = res.data.block;

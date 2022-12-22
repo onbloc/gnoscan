@@ -8,7 +8,7 @@ import theme from '@/styles/theme';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 
@@ -20,6 +20,7 @@ interface RealmTransactionData {
   bloc: number;
   pkg_path: string | null;
   from_address: string;
+  msg_num: number;
   amount: {
     amount: string;
     denom: string;
@@ -64,7 +65,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'realm-detail/transactions',
-    uri: API_URI + `/latest/realm/txs/${pkgPath}`,
+    uri: API_URI + API_VERSION + `/realm/txs/${pkgPath}`,
     pageable: true,
   });
 
@@ -139,12 +140,16 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {amount: number; denom: string}) => (
-        <DatatableItem.Amount
-          value={amount.amount}
-          denom={amount.denom === '' ? 'gnot' : amount.denom}
-        />
-      ))
+      .renderOption((amount: {amount: number; denom: string}, data) =>
+        data.msg_num > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.tx_hash}`} />
+        ) : (
+          <DatatableItem.Amount
+            value={amount.amount}
+            denom={amount.denom === '' ? 'gnot' : amount.denom}
+          />
+        ),
+      )
       .build();
   };
 

@@ -8,7 +8,7 @@ import theme from '@/styles/theme';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 interface BlockTransactionData {
@@ -20,6 +20,7 @@ interface BlockTransactionData {
   from_username?: string;
   block: number;
   pkg_path: string | null;
+  msg_num: number;
   amount: {
     value: number;
     denom: string;
@@ -65,7 +66,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'block-detail/transactions',
-    uri: API_URI + `/latest/block/txs/${height}`,
+    uri: API_URI + API_VERSION + `/block/txs/${height}`,
     pageable: true,
   });
 
@@ -144,9 +145,13 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {value: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value} denom={amount.denom} />
-      ))
+      .renderOption((amount: {value: number; denom: string}, data) =>
+        data.msg_num > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+        ) : (
+          <DatatableItem.Amount value={amount.value} denom={amount.denom} />
+        ),
+      )
       .build();
   };
 

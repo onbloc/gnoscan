@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {TotalDailyFeeModel} from './total-daily-fee-model';
 import dynamic from 'next/dynamic';
 import usePageQuery from '@/common/hooks/use-page-query';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {Spinner} from '@/components/ui/loading';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
@@ -21,7 +21,7 @@ export const MainTotalDailyFee = () => {
 
   const {data, finished} = usePageQuery<Array<TotalDailyFeeResponse>>({
     key: 'main/total-daily-fee',
-    uri: API_URI + '/latest/info/daily_fees',
+    uri: API_URI + API_VERSION + '/info/daily_fees',
     pageable: false,
   });
 
