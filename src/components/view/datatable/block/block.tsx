@@ -7,7 +7,7 @@ import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 
@@ -27,7 +27,7 @@ export const BlockDatatable = () => {
   const themeMode = useRecoilValue(themeState);
   const {data, finished} = usePageQuery<Array<BlockData>>({
     key: 'block/block-list',
-    uri: API_URI + '/latest/list/blocks',
+    uri: API_URI + API_VERSION + '/list/blocks',
     pageable: true,
   });
   useLoading({finished});

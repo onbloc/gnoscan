@@ -17,7 +17,7 @@ import IconLink from '@/assets/svgs/icon-link.svg';
 import {v1} from 'uuid';
 import DataSection from '@/components/view/details-data-section';
 import {AccountDetailDatatable} from '@/components/view/datatable';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {toGnot} from '@/common/utils/gnot-util';
 interface StyleProps {
   media?: string;
@@ -46,7 +46,7 @@ const AccountDetails = () => {
     isFetched,
   }: UseQueryResult<DetailResultType> = useQuery(
     ['detail/address', address],
-    async ({queryKey}) => await axios.get(API_URI + `/latest/account/detail/${queryKey[1]}`),
+    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/account/detail/${queryKey[1]}`),
     {
       enabled: !!address,
       retry: 0,

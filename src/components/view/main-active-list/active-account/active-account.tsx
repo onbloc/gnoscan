@@ -15,7 +15,7 @@ import {
   StyledText,
 } from '../main-active-list';
 import Link from 'next/link';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {getLocalDateString} from '@/common/utils/date-util';
 import Tooltip from '@/components/ui/tooltip';
 import FetchedSkeleton from '../fetched-skeleton';
@@ -42,7 +42,7 @@ const ActiveAccount = () => {
     isFetched: accountsFetched,
   }: UseQueryResult<AccountsResultType> = useQuery(
     ['info/most_active_account'],
-    async () => await axios.get(API_URI + '/latest/info/most_active_account'),
+    async () => await axios.get(API_URI + API_VERSION + '/info/most_active_account'),
     {
       select: (res: any) => {
         const accounts = res.data.accounts.map((v: any) => {

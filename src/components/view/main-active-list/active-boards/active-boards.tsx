@@ -8,7 +8,7 @@ import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import IconLink from '@/assets/svgs/icon-link.svg';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {getLocalDateString} from '@/common/utils/date-util';
 import {Button} from '@/components/ui/button';
 import IconInfo from '@/assets/svgs/icon-info.svg';
@@ -38,7 +38,7 @@ const ActiveBoards = () => {
     isFetched: boardsFetched,
   }: UseQueryResult<BoardsResultType> = useQuery(
     ['info/most_active_board'],
-    async () => await axios.get(API_URI + '/latest/info/most_active_board'),
+    async () => await axios.get(API_URI + API_VERSION + '/info/most_active_board'),
     {
       select: (res: any) => {
         const boards = res.data.boards.map((v: any, i: number) => {

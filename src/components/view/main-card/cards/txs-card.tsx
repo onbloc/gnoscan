@@ -3,7 +3,7 @@ import Text from '@/components/ui/text';
 import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
 import {numberWithCommas, numberWithFixedCommas} from '@/common/utils';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
 
 interface TxResultType {
@@ -19,7 +19,7 @@ export const TxsCard = () => {
     isFetched: card03Fetched,
   }: UseQueryResult<TxResultType> = useQuery(
     ['info/card03'],
-    async () => await axios.get(API_URI + '/latest/info/card03'),
+    async () => await axios.get(API_URI + API_VERSION + '/info/card03'),
     {
       select: (res: any) => {
         const tx = res.data.tx;

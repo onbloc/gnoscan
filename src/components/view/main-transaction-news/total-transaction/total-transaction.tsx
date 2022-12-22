@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import dynamic from 'next/dynamic';
 import {TotalTransactionModel} from './total-transaction-model';
 import usePageQuery from '@/common/hooks/use-page-query';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {Spinner} from '@/components/ui/loading';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
@@ -21,7 +21,7 @@ export const MainTotalTransaction = () => {
 
   const {data, finished} = usePageQuery<Array<TotalTransactionResponse>>({
     key: 'main/total-transaction',
-    uri: API_URI + '/latest/info/daily_txs',
+    uri: API_URI + API_VERSION + '/info/daily_txs',
     pageable: false,
   });
 
