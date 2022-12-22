@@ -8,6 +8,9 @@ jobs:
     docker:
       - image: 'cimg/base:stable'
     steps:
+      - run:
+          name: Run
+          command: echo 'run'
       - slack/notify:
           custom: |
             {
