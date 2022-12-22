@@ -12,6 +12,7 @@ jobs:
           name: Run
           command: echo 'run'
       - slack/notify:
+          channel: 'C049P1BNSR3'
           custom: |
             {
               "blocks": [
@@ -30,10 +31,11 @@ jobs:
           event: always
       - run: echo "deploy my app"
       - slack/notify:
+          channel: 'C049P1BNSR3'
           event: fail
-          mentions: '@EngineeringTeam'
           template: basic_fail_1
       - slack/notify:
+          channel: 'C049P1BNSR3'
           event: pass
           template: success_tagged_deploy_1
 
