@@ -1,18 +1,18 @@
 {
-    "text": "[Gnoscan Front] Deploy succeeded!",
+    "text": "[Gnoscan Front] Deploy Failed T_T",
     "blocks": [
         {
             "type": "header",
             "text": {
                 "type": "plain_text",
-                "text": "[Gnoscan Front] Deploy Succeeded.",
+                "text": "[Gnoscan Front] Deploy Failed.",
                 "emoji": true
             }
         }
     ],
     "attachments": [
         {
-            "color": "#3ae98a",
+            "color": "#ff527d",
             "blocks": [
                 {
                     "type": "section",
@@ -55,26 +55,6 @@
                             },
                             "value": "current_version",
                             "url": "$CIRCLE_BUILD_URL"
-                        },
-                        {
-                            "type": "button",
-                            "text": {
-                                "type": "plain_text",
-                                "text": "Gnoscan QA 접속",
-                                "emoji": true
-                            },
-                            "value": "current_version",
-                            "url": "https://qa.gnoscan.io"
-                        },
-                        {
-                            "type": "button",
-                            "text": {
-                                "type": "plain_text",
-                                "text": "Gnoscan 접속",
-                                "emoji": true
-                            },
-                            "value": "current_version",
-                            "url": "https://gnoscan.io"
                         }
                     ]
                 }

@@ -11,53 +11,42 @@ commands:
           name: Set Message Info
           when: always
           command: |
+            SLACK_TEMPLATE_START=$(cat .circleci/template/slack-start.json)
             SLACK_TEMPLATE_SUCCESS=$(cat .circleci/template/slack-success.json)
+            SLACK_TEMPLATE_FAIL=$(cat .circleci/template/slack-fail.json)
+            echo "export SLACK_TEMPLATE_START='${SLACK_TEMPLATE_START}'" >> $BASH_ENV
             echo "export SLACK_TEMPLATE_SUCCESS='${SLACK_TEMPLATE_SUCCESS}'" >> $BASH_ENV
+            echo "export SLACK_TEMPLATE_FAIL='${SLACK_TEMPLATE_FAIL}'" >> $BASH_ENV
             source $BASH_ENV
-
-jobs:
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
+  notification-start:
     steps:
-      - init-slack
-      - run:
-          name: Run
-          command: echo 'run'
       - slack/notify:
           channel: 'C049P1BNSR3'
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "1",
-                      "text": "2",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
           event: always
-      - run: echo "deploy my app"
+          template: SLACK_TEMPLATE_START
+  notification-fail:
+    steps:
       - slack/notify:
           channel: 'C049P1BNSR3'
           event: fail
-          template: basic_fail_1
+          template: SLACK_TEMPLATE_FAIL
+  notification-success:
+    steps:
       - slack/notify:
           channel: 'C049P1BNSR3'
           event: pass
           template: SLACK_TEMPLATE_SUCCESS
 
+jobs:
+  notify-start:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - init-slack
+      - notification-start
+
 workflows:
   notify:
     jobs:
-      - notify:
+      - notify-start:
           context: SLACK_TEST
-          filters:
-            branches:
-              only:
-                - feature/environment
