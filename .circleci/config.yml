@@ -6,6 +6,7 @@ orbs:
 commands:
   init-slack:
     steps:
+      - checkout
       - run:
           name: Set Message Info
           when: always
