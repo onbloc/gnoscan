@@ -113,7 +113,12 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.pkg_path} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.func}
+          packagePath={data.pkg_path}
+          msgNum={data.msg_num}
+        />
       ))
       .build();
   };

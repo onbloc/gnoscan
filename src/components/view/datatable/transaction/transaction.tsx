@@ -129,7 +129,12 @@ export const TransactionDatatable = () => {
       .colorName('blue')
       .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.pkg_path} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.func}
+          packagePath={data.pkg_path}
+          msgNum={data.msg_num}
+        />
       ))
       .build();
   };
