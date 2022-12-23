@@ -1,17 +1,18 @@
 {
-    "text": "[Gnoscan Front] Start...",
+    "text": "[Gnoscan Front] Build Finished !",
     "blocks": [
         {
             "type": "header",
             "text": {
                 "type": "plain_text",
-                "text": "[Gnoscan Front] Start...",
+                "text": "[Gnoscan Front] Build Finished.",
                 "emoji": true
             }
         }
     ],
     "attachments": [
         {
+            "color": "#095bff",
             "blocks": [
                 {
                     "type": "section",
@@ -59,7 +60,7 @@
                             "type": "button",
                             "text": {
                                 "type": "plain_text",
-                                "text": "Github 확인",
+                                "text": "Github",
                                 "emoji": true
                             },
                             "value": "current_version",
