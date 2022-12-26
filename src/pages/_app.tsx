@@ -3,10 +3,11 @@ import type {AppProps} from 'next/app';
 import {GlobalStyle} from '../styles';
 import {RecoilRoot} from 'recoil';
 import {QueryClient, QueryClientProvider} from 'react-query';
-import {CustomThemeProvider, Layout} from '@/components/core/layout';
+import {Layout} from '@/components/core/layout';
 import {ErrorBoundary} from '@/components/core/error-boundary';
 import 'antd/dist/reset.css';
 import Meta from '@/components/core/layout/meta';
+import GoogleAnalytics from '@/components/core/layout/google-analytics';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,6 +21,7 @@ const App: React.FC<AppProps<any>> = ({Component, pageProps}: AppProps) => {
   return (
     <>
       <Meta />
+      <GoogleAnalytics />
       <GlobalStyle />
       <QueryClientProvider client={queryClient}>
         <RecoilRoot>
