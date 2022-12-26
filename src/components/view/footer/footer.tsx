@@ -25,7 +25,7 @@ interface ModProps {
 }
 
 const termsText = [
-  {title: 'Terms of Use', path: '/terms/service'},
+  {title: 'Terms of Service', path: '/terms/service'},
   {title: 'Contact', path: 'mailto:info@gnoscan.io'},
   {title: 'Feedback', path: 'https://forms.gle/6L2yop3bEMwxk3KJ6'},
 ];

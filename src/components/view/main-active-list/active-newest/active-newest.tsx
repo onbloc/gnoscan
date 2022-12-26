@@ -8,7 +8,7 @@ import ActiveList from '@/components/ui/active-list';
 import {v1} from 'uuid';
 import {colWidth, FitContentA, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import Link from 'next/link';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {getLocalDateString} from '@/common/utils/date-util';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import styled from 'styled-components';
@@ -40,7 +40,7 @@ const ActiveNewest = () => {
     isFetched: newestFetched,
   }: UseQueryResult<NewestResultType> = useQuery(
     ['info/newest_realm'],
-    async () => await axios.get(API_URI + '/latest/info/newest_realm'),
+    async () => await axios.get(API_URI + API_VERSION + '/info/newest_realm'),
     {
       select: (res: any) => {
         const realms = res.data.realms.map((v: any, i: number) => {

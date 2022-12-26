@@ -504,12 +504,12 @@ const TermsService = () => {
         </Text>
 
         <Text className="bold" type="h5" margin={'24px 0 18px 0'} color="primary">
-          18. ELECTRONIC COMMUNICATIONS, TRANSACTIONS, A
+          18. ELECTRONIC COMMUNICATIONS, TRANSACTIONS, AND SIGNATURES
         </Text>
         <Text type="p4" margin={'0 0 12px 0'} color="primary">
-          ND SIGNATURES Visiting the Site, sending us emails, and completing online forms constitute
-          electronic communications.You consent to receive electronic communications, and you agree
-          that all agreements, notices, disclosures, and other communications we provide to you
+          Visiting the Site, sending us emails, and completing online forms constitute electronic
+          communications.You consent to receive electronic communications, and you agree that all
+          agreements, notices, disclosures, and other communications we provide to you
           electronically, via email and on the Site, satisfy any legal requirement that such
           communication be in writing.YOU HEREBY AGREE TO THE USE OF ELECTRONIC SIGNATURES,
           CONTRACTS, ORDERS, AND OTHER RECORDS, AND TO ELECTRONIC DELIVERY OF NOTICES, POLICIES, AND
@@ -574,7 +574,7 @@ const Container = styled.main`
   flex: 1;
 
   .inner-layout {
-    padding: 40px 0;
+    padding: 40px 18px;
   }
 
   .bold {

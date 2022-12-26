@@ -11,7 +11,7 @@ import theme from '@/styles/theme';
 import {numberWithCommas} from '@/common/utils';
 import {eachMedia} from '@/common/hooks/use-media';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 interface Realms {
@@ -37,7 +37,7 @@ export const RealmDatatable = () => {
   const {data, hasNext, fetchNextPage, sortOption, setSortOption, finished} =
     usePageQuery<ResponseData>({
       key: 'realm/realm-list',
-      uri: API_URI + '/latest/list/realms',
+      uri: API_URI + API_VERSION + '/list/realms',
       pageable: true,
     });
   useLoading({finished});

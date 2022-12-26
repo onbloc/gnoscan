@@ -29,26 +29,16 @@ const Tooltip = ({
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const themeMode = useRecoilValue(themeState);
 
-  const buttonClickHandler = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      if (trigger !== 'click') return;
-      setIsClicked(true);
-      navigator?.clipboard?.writeText(copyText);
-    },
-    [isClicked, copyText],
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsClicked(false), 2000);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [isClicked]);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => setIsClicked(false), 2000);
+  //   return () => {
+  //     clearTimeout(timer);
+  //   };
+  // }, [isClicked]);
 
   const getCurrentTheme = () => {
     return themeMode === 'dark' ? themeStyle.darkTheme : themeStyle.lightTheme;
   };
-
   const getTooltipStyle = (width?: number, padding?: number) => {
     return {
       diplay: 'flex',
@@ -62,55 +52,57 @@ const Tooltip = ({
     };
   };
 
+  const clickTimer = (open: boolean) => {
+    setIsClicked(true);
+    navigator?.clipboard?.writeText(copyText);
+    const timer = setTimeout(() => setIsClicked(false), 2000);
+    return () => {
+      clearTimeout(timer);
+    };
+  };
+
   return (
-    <Wrapper className={className} trigger={trigger} isClicked={isClicked}>
-      <AntdTooltip
-        trigger={trigger === 'click' ? 'click' : 'hover'}
-        overlayInnerStyle={getTooltipStyle(width, trigger === 'click' ? 8 : 16)}
-        color={getCurrentTheme().base}
-        title={<TooltipWrapper>{content}</TooltipWrapper>}>
-        <div onClick={buttonClickHandler} className="tooltip-button">
-          {children}
-        </div>
-      </AntdTooltip>
+    <Wrapper className={className}>
+      {trigger === 'click' ? (
+        <AntdTooltip
+          trigger="click"
+          overlayInnerStyle={getTooltipStyle(width, 8)}
+          color={getCurrentTheme().base}
+          title={<TooltipWrapper>{content}</TooltipWrapper>}
+          open={isClicked}
+          onOpenChange={clickTimer}>
+          <div className="tooltip-button cursor">{children}</div>
+        </AntdTooltip>
+      ) : (
+        <AntdTooltip
+          trigger="hover"
+          overlayInnerStyle={getTooltipStyle(width, 16)}
+          color={getCurrentTheme().base}
+          title={<TooltipWrapper>{content}</TooltipWrapper>}>
+          <div className="tooltip-button">{children}</div>
+        </AntdTooltip>
+      )}
     </Wrapper>
   );
 };
 
-const activeTooltip = css`
-  transition: none;
-  visibility: visible;
-  transform: translate(-50%, 0);
-`;
-
-const Wrapper = styled.div<{trigger: TriggerType; isClicked: boolean}>`
+const Wrapper = styled.div`
   position: relative;
   display: inline-block;
   z-index: 11;
   vertical-align: top;
   .tooltip-button {
     ${mixins.flexbox('row', 'center', 'center')};
-  }
-  ${({trigger}) =>
-    trigger !== 'click'
-      ? css`
-          &:hover .tooltip {
-            ${activeTooltip};
-          }
-        `
-      : css`
-          & {
-            cursor: pointer;
-          }
-        `}
 
-  ${({isClicked}) =>
-    isClicked &&
-    css`
-      .tooltip {
-        ${activeTooltip};
-      }
-    `}
+    & button {
+      cursor: default;
+    }
+
+    &.cursor,
+    &.cursor button {
+      cursor: pointer;
+    }
+  }
 `;
 
 const TooltipWrapper = styled.div`

@@ -8,7 +8,7 @@ import theme from '@/styles/theme';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 interface TokenTransactionData {
@@ -18,6 +18,7 @@ interface TokenTransactionData {
   bloc: number;
   from: string;
   pkg_path: string | null;
+  msg_num: number;
   amount: {
     value: string;
     denom: string;
@@ -63,7 +64,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'token-detail/transactions',
-    uri: API_URI + `/latest/token/txs/${denom}`,
+    uri: API_URI + API_VERSION + `/token/txs/${denom}`,
     pageable: true,
   });
 
@@ -108,7 +109,12 @@ export const TokenDetailDatatable = ({denom}: Props) => {
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.type} packagePath={data.pkg_path} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.type}
+          packagePath={data.pkg_path}
+          msgNum={data.msg_num}
+        />
       ))
       .build();
   };
@@ -138,12 +144,16 @@ export const TokenDetailDatatable = ({denom}: Props) => {
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {amount: number; denom: string}) => (
-        <DatatableItem.Amount
-          value={amount.amount}
-          denom={amount.denom === '' ? 'gnot' : amount.denom}
-        />
-      ))
+      .renderOption((amount: {amount: number; denom: string}, data) =>
+        data.msg_num > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.tx_hash}`} />
+        ) : (
+          <DatatableItem.Amount
+            value={amount.amount}
+            denom={amount.denom === '' ? 'gnot' : amount.denom}
+          />
+        ),
+      )
       .build();
   };
 

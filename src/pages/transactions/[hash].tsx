@@ -20,7 +20,7 @@ import ShowLog from '@/components/ui/show-log';
 import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {valueConvert} from '@/common/utils/gnot-util';
 
 type SummaryType = {
@@ -82,7 +82,6 @@ const valueForContractType = (contract: any) => {
     data: {},
   };
   const {type, func} = contract;
-
   if (type === '/vm.m_addpkg' && func === 'AddPkg') {
     map = {
       type: func,
@@ -105,8 +104,6 @@ const valueForContractType = (contract: any) => {
       },
     };
   } else if (type === '/vm.m_call') {
-    console.log(contract);
-
     if (contract.pkg_path === 'gno.land/r/demo/boards') {
       contractObj[func as ContractKeyType].forEach((v: string, i: number) => {
         map.type = contract.func;
@@ -125,19 +122,11 @@ const valueForContractType = (contract: any) => {
         },
       };
     }
-  } else {
-    map = {
-      type: func,
-      data: {
-        Caller: contract.username ? contract.username : contract.caller,
-      },
-    };
   }
   return map;
 };
 
 const TransactionDetails = () => {
-  const {loading} = useLoading();
   const desktop = isDesktop();
   const router = useRouter();
   const {hash} = router.query;
@@ -147,7 +136,7 @@ const TransactionDetails = () => {
     isFetched,
   }: UseQueryResult<TxResultType> = useQuery(
     ['tx/hash', hash],
-    async ({queryKey}) => await axios.get(API_URI + `/latest/tx/${queryKey[1]}`),
+    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/tx/${queryKey[1]}`),
     {
       enabled: !!hash,
       retry: 0,
@@ -156,7 +145,6 @@ const TransactionDetails = () => {
         const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
           ? 0
           : ((summary.gas.used * 100) / summary.gas.wanted).toFixed(2);
-
         const summaryData: SummaryType = {
           ...summary,
           statusType: statusObj(summary.status),
@@ -174,9 +162,11 @@ const TransactionDetails = () => {
 
         const contractData = {
           ...contract,
-          args: valueForContractType(contract),
+          contract_list: contract.contract_list.map((v: any) => ({
+            ...v,
+            args: valueForContractType(v),
+          })),
         };
-
         return {
           ...res.data,
           summary: summaryData,
@@ -184,6 +174,7 @@ const TransactionDetails = () => {
           log: log,
         };
       },
+      // onSuccess: res => console.log('---- : ', res),
     },
   );
 
@@ -272,68 +263,26 @@ const TransactionDetails = () => {
             </DLWrap>
           </DataSection>
           <DataSection title="Contract">
-            <DLWrap desktop={desktop}>
-              <dt>Type</dt>
-              <dd>
-                <Badge type="blue">
-                  <Text type="p4" color="white">
-                    {tx.contract.args.type}
-                  </Text>
-                </Badge>
-              </dd>
-            </DLWrap>
-            {tx.contract.args.type === 'Transfer' && (
-              <TransferContract contract={tx.contract} desktop={desktop} />
-            )}
-            {tx.contract.args.type === 'AddPkg' && (
-              <AddPkgContract contract={tx.contract} desktop={desktop} />
-            )}
-            {!['Transfer', 'AddPkg'].includes(tx.contract.args.type) &&
-              Object.keys(tx.contract.args.data).map((v, i) =>
-                v === 'Caller' ? (
-                  <DLWrap desktop={desktop} key={v1()}>
-                    <dt>{v}</dt>
-                    <dd>
-                      <Badge>
-                        <Link href={`/accounts/${tx?.contract?.caller ?? ''}`} passHref>
-                          <FitContentA>
-                            <Text
-                              type="p4"
-                              color="blue"
-                              className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                              {tx.contract.args.data[v] ? (
-                                <Tooltip content={tx.contract.caller}>
-                                  {tx.contract.args.data[v]}
-                                </Tooltip>
-                              ) : (
-                                '-'
-                              )}
-                            </Text>
-                          </FitContentA>
-                        </Link>
-                        <Text
-                          type="p4"
-                          color="blue"
-                          className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}></Text>
-                      </Badge>
-                    </dd>
-                  </DLWrap>
-                ) : (
-                  <DLWrap desktop={desktop} key={v1()}>
-                    <dt>{v}</dt>
-                    <dd>
-                      <Badge>
-                        <Text
-                          type="p4"
-                          color="inherit"
-                          className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                          {tx.contract.args.data[v] ?? '-'}
-                        </Text>
-                      </Badge>
-                    </dd>
-                  </DLWrap>
-                ),
-              )}
+            {tx.contract.contract_list.map((v: any, i: number) => (
+              <ContractListBox key={v1()}>
+                <Text type="h6" color="tertiary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+                <DLWrap desktop={desktop}>
+                  <dt>Type</dt>
+                  <dd>
+                    <Badge type="blue">
+                      <Text type="p4" color="white">
+                        {v.args.type}
+                      </Text>
+                    </Badge>
+                  </dd>
+                </DLWrap>
+                {v.args.type === 'Transfer' && <TransferContract contract={v} desktop={desktop} />}
+                {v.args.type === 'AddPkg' && <AddPkgContract contract={v} desktop={desktop} />}
+                {!['Transfer', 'AddPkg'].includes(v.args.type) && (
+                  <CallerContract contract={v} desktop={desktop} />
+                )}
+              </ContractListBox>
+            ))}
             {tx.log && <ShowLog isTabLog={false} logData={tx.log} btnTextType="Logs" />}
           </DataSection>
         </>
@@ -342,11 +291,57 @@ const TransactionDetails = () => {
   );
 };
 
+const CallerContract = ({contract, desktop}: any) => {
+  return (
+    <>
+      {Object.keys(contract.args.data).map((v, i) =>
+        v === 'Caller' ? (
+          <DLWrap desktop={desktop} key={v1()}>
+            <dt>{v}</dt>
+            <dd>
+              <Badge>
+                <Link href={`/accounts/${contract.caller || '-'}`} passHref>
+                  <FitContentA>
+                    <Text
+                      type="p4"
+                      color="blue"
+                      className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                      {contract.args.data[v] ? (
+                        <Tooltip content={contract.caller}>{contract.args.data[v]}</Tooltip>
+                      ) : (
+                        '-'
+                      )}
+                    </Text>
+                  </FitContentA>
+                </Link>
+              </Badge>
+            </dd>
+          </DLWrap>
+        ) : (
+          <DLWrap desktop={desktop} key={v1()}>
+            <dt>{v}</dt>
+            <dd>
+              <Badge>
+                <Text
+                  type="p4"
+                  color="inherit"
+                  className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                  {contract.args.data[v] || '-'}
+                </Text>
+              </Badge>
+            </dd>
+          </DLWrap>
+        ),
+      )}
+    </>
+  );
+};
+
 const AddPkgContract = ({contract, desktop}: any) => {
   return (
     <>
-      {Object.keys(contract.args.data).map((v, i) => (
-        <DLWrap desktop={desktop}>
+      {Object.keys(contract.args.data).map(v => (
+        <DLWrap desktop={desktop} key={v1()}>
           <dt>{v}</dt>
           <dd>
             <Badge>
@@ -354,7 +349,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
                 <Link href={`/accounts/${contract.creator}`} passHref>
                   <FitContentA>
                     <Text type="p4" color="blue">
-                      {contract.args.data[v] ?? '-'}
+                      {contract.args.data[v] || '-'}
                     </Text>
                   </FitContentA>
                 </Link>
@@ -363,7 +358,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
                   type="p4"
                   color={'inherit'}
                   className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                  {contract.args.data[v] ?? '-'}
+                  {contract.args.data[v] || '-'}
                 </Text>
               )}
             </Badge>
@@ -398,7 +393,7 @@ const TransferContract = ({contract, desktop}: any) => {
               <AddressTextBox>
                 <Text type="p4" color="blue" className="ellipsis">
                   <Link href={`/accounts/${contract.args.data[v]}`} passHref>
-                    <FitContentA>{contract.args.data[v]}</FitContentA>
+                    <FitContentA>{contract.args.data[v] || '-'}</FitContentA>
                   </Link>
                   {contract.from_username && v === 'From' && (
                     <Text type="p4" color="primary" display="inline-block">
@@ -426,6 +421,14 @@ const TransferContract = ({contract, desktop}: any) => {
     </>
   );
 };
+
+const ContractListBox = styled.div`
+  width: 100%;
+  margin-top: 16px;
+  & + & {
+    margin-top: 32px;
+  }
+`;
 
 const AddressTextBox = styled.div`
   ${mixins.flexbox('row', 'center', 'center')}

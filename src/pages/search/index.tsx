@@ -1,5 +1,5 @@
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import Text from '@/components/ui/text';
 import {TokenDatatable} from '@/components/view/datatable/token';
 import LoadingPage from '@/components/view/loading/page';
@@ -30,7 +30,7 @@ export async function getServerSideProps({query}: any) {
   const keyword = query?.keyword ?? '';
 
   try {
-    const result = await axios.get(API_URI + `/latest/info/result/${keyword}`);
+    const result = await axios.get(API_URI + API_VERSION + `/info/result/${keyword}`);
     const data = result.data;
 
     if (data.type === 'username') {

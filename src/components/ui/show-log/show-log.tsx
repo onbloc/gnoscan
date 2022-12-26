@@ -110,13 +110,11 @@ const ShowLogsWrap = styled.div<StyleProps>`
   width: 100%;
   height: auto;
   margin-top: ${({showLog}) => (showLog ? '24px' : '8px')};
-  border-top: ${({showLog, theme}) => showLog && `1px solid ${theme.colors.dimmed100}`};
 `;
 
 const logWrapCommonStyle = css<StyleProps>`
   width: 100%;
   height: 0px;
-  margin-top: ${({showLog}) => (showLog ? '24px' : '0px')};
   transition: all 0.4s ease;
 `;
 

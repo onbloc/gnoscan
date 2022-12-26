@@ -8,7 +8,7 @@ import theme from '@/styles/theme';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 interface AccountTransactionData {
@@ -18,6 +18,7 @@ interface AccountTransactionData {
   path: string | null;
   func: string;
   height: number;
+  msg_num: number;
   amount: {
     value_out: number;
     value_in: number;
@@ -65,7 +66,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
 
   const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
     key: 'account-detail/transactions',
-    uri: API_URI + `/latest/account/txs/${address}`,
+    uri: API_URI + API_VERSION + `/account/txs/${address}`,
     pageable: true,
   });
   const [development, setDevelopment] = useState(false);
@@ -141,7 +142,12 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.path} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.func}
+          packagePath={data.path}
+          msgNum={data.msg_num}
+        />
       ))
       .build();
   };
@@ -161,9 +167,13 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .key('amount')
       .name('Amount (In)')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value_in} denom={amount.denom} />
-      ))
+      .renderOption((amount: {value_in: number; value_out: number; denom: string}, data) =>
+        data.msg_num > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+        ) : (
+          <DatatableItem.Amount value={amount.value_in} denom={amount.denom} />
+        ),
+      )
       .build();
   };
 
@@ -172,9 +182,13 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .key('amount')
       .name('Amount (Out)')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}) => (
-        <DatatableItem.Amount value={amount.value_out} denom={amount.denom} />
-      ))
+      .renderOption((amount: {value_in: number; value_out: number; denom: string}, data) =>
+        data.msg_num > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+        ) : (
+          <DatatableItem.Amount value={amount.value_out} denom={amount.denom} />
+        ),
+      )
       .build();
   };
 

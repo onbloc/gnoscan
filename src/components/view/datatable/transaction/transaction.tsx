@@ -7,7 +7,7 @@ import {DatatableItem} from '..';
 import styled from 'styled-components';
 import usePageQuery from '@/common/hooks/use-page-query';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 
@@ -46,13 +46,14 @@ interface TransactionData {
   };
   time: string;
   gas_used: number;
+  msg_num: number;
 }
 
 export const TransactionDatatable = () => {
   const themeMode = useRecoilValue(themeState);
   const {data, finished} = usePageQuery<Array<TransactionData>>({
     key: 'transaction/transaction-list',
-    uri: API_URI + '/latest/list/txs',
+    uri: API_URI + API_VERSION + '/list/txs',
     pageable: true,
   });
   useLoading({finished});
@@ -128,7 +129,12 @@ export const TransactionDatatable = () => {
       .colorName('blue')
       .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.func} packagePath={data.pkg_path} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.func}
+          packagePath={data.pkg_path}
+          msgNum={data.msg_num}
+        />
       ))
       .build();
   };
@@ -160,12 +166,16 @@ export const TransactionDatatable = () => {
       .key('amount')
       .name('Amount')
       .width(204)
-      .renderOption(amount => (
-        <DatatableItem.Amount
-          value={amount.value}
-          denom={amount.denom === '' ? 'ugnot' : amount.denom}
-        />
-      ))
+      .renderOption((_, data) =>
+        data.msg_num > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.tx_hash}`} />
+        ) : (
+          <DatatableItem.Amount
+            value={data.amount.value}
+            denom={data.amount.denom === '' ? 'ugnot' : data.amount.denom}
+          />
+        ),
+      )
       .build();
   };
 
