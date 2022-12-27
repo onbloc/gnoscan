@@ -80,12 +80,18 @@ jobs:
     steps:
       - init-slack
       - notification-build-start
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
   deploy-develop:
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true
     steps:
-      - init-develop
+      - attach_workspace:
+          at: .
       - aws-ecr/build-and-push-image:
           repo: '${SERVICE_NAME}'
           tag: 'latest,${DOCKER_TAG}'
@@ -93,6 +99,7 @@ jobs:
           name: Deploy Over SSH
           command: |
             ssh ubuntu@3.218.133.250 "./circle-ci-deploy.sh ${SERVICE_NAME} ${DOCKER_TAG} ${BRANCH_NAME} ${PORT}"
+      - init-slack
       - notification-deploy-success
       - notification-deploy-fail
 
