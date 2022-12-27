@@ -26,11 +26,9 @@ const App: React.FC<AppProps<any>> = ({Component, pageProps}: AppProps) => {
       <QueryClientProvider client={queryClient}>
         <RecoilRoot>
           <ErrorBoundary fallback={<div>ERROR</div>}>
-            {/* <CustomThemeProvider> */}
             <Layout>
               <Component {...pageProps} />
             </Layout>
-            {/* </CustomThemeProvider> */}
           </ErrorBoundary>
         </RecoilRoot>
       </QueryClientProvider>

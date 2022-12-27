@@ -49,7 +49,6 @@ export const DLWrap = styled.dl<StyleProps>`
     ${({theme}) => theme.fonts.p4};
     width: 100%;
     display: block;
-    /* overflow: hidden; */
 
     &.function-wrapper {
       line-height: 40px;

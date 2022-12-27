@@ -27,10 +27,6 @@ type RealmResultType = {
   gasUsed: string;
   log: LogDataType;
 };
-function unescapeHtml(text: string) {
-  var doc = new DOMParser().parseFromString(text, 'text/html');
-  return doc.documentElement.textContent;
-}
 
 const RealmsDetails = () => {
   const desktop = isDesktop();
