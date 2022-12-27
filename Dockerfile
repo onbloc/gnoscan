@@ -2,13 +2,11 @@ FROM node:18-alpine AS base
 LABEL maintainer="Onbloc Jinoo <jwchoi@onbloc.xyz>"
 LABEL description="gnoscan-front server with nextjs"
 
-ARG ENV_PATH=".env"
-
 WORKDIR /usr/app
 
 COPY ./package*.json .
 COPY ./yarn* .
-COPY "./${ENV_PATH}" ./.env
+COPY ".env.test3" ./.env
 
 FROM base AS build
 COPY . .
