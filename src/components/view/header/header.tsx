@@ -1,16 +1,14 @@
 'use client';
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {useRouter} from 'next/router';
 import {TopNav, BtmNav} from '.';
-import Image from 'next/image';
 
 export const Header = () => {
   const {route} = useRouter();
   const entry = route === '/' && route !== null && route !== undefined;
-  useEffect(() => console.log(route), [route]);
 
   return (
     <>

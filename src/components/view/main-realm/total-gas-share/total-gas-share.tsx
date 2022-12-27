@@ -128,6 +128,5 @@ const Wrapper = styled.div`
         border-left: none;
       }
     }
-    /* background-color: ${({theme}) => theme.colors.tertiary}; */
   }
 `;

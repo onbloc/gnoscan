@@ -1,5 +1,5 @@
 import Text from '@/components/ui/text';
-import React, {useEffect} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const TermsService = () => {

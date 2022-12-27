@@ -74,7 +74,6 @@ const List = styled.li<StyleProps>`
 const Content = styled.div<StyleProps>`
   width: 100%;
   height: ${({desktop}) => (desktop ? '508px' : '290px')};
-  /* padding: ${({desktop}) => (desktop ? '24px' : '16px')}; */
   background-color: ${({theme}) => theme.colors.surface};
   border-radius: 10px;
   border-top-left-radius: 0px;
