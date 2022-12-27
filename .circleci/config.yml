@@ -66,7 +66,7 @@ jobs:
       - init-slack
       - notification-build-start
 
-  deploy-develop:
+  deploy:
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true
@@ -95,7 +95,7 @@ workflows:
                 - main
                 - qa
                 - develop
-      - deploy-develop:
+      - deploy:
           context:
             - AWS_DEPLOY
             - SLACK_GNOSCAN
@@ -106,3 +106,14 @@ workflows:
             branches:
               only:
                 - develop
+      - deploy:
+          context:
+            - AWS_DEPLOY
+            - SLACK_GNOSCAN
+            - GNOSCAN_FRONT_MAIN_ARGS
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
