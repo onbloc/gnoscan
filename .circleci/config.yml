@@ -42,31 +42,31 @@ commands:
   notification-build-start:
     steps:
       - slack/notify:
-          channel: 'C049P1BNSR3'
+          channel: 'C04GFMSFVT4'
           event: always
           template: SLACK_TEMPLATE_BUILD_START
   notification-build-finish:
     steps:
       - slack/notify:
-          channel: 'C049P1BNSR3'
+          channel: 'C04GFMSFVT4'
           event: pass
           template: SLACK_TEMPLATE_BUILD_FINISH
   notification-build-fail:
     steps:
       - slack/notify:
-          channel: 'C049P1BNSR3'
+          channel: 'C04GFMSFVT4'
           event: fail
           template: SLACK_TEMPLATE_BUILD_FAIL
   notification-deploy-success:
     steps:
       - slack/notify:
-          channel: 'C049P1BNSR3'
+          channel: 'C04GFMSFVT4'
           event: pass
           template: SLACK_TEMPLATE_DEPLOY_SUCCESS
   notification-deploy-fail:
     steps:
       - slack/notify:
-          channel: 'C049P1BNSR3'
+          channel: 'C04GFMSFVT4'
           event: fail
           template: SLACK_TEMPLATE_DEPLOY_FAIL
 
@@ -87,6 +87,7 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - init-develop
       - aws-ecr/build-and-push-image:
           repo: '${SERVICE_NAME}'
           tag: 'latest,${DOCKER_TAG}'
