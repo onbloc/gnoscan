@@ -19,7 +19,6 @@ import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
-import useLoading from '@/common/hooks/use-loading';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {valueConvert} from '@/common/utils/gnot-util';
 
@@ -265,7 +264,9 @@ const TransactionDetails = () => {
           <DataSection title="Contract">
             {tx.contract.contract_list.map((v: any, i: number) => (
               <ContractListBox key={v1()}>
-                <Text type="h6" color="tertiary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+                {tx.contract.msg_msg < 1 && (
+                  <Text type="h6" color="tertiary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+                )}
                 <DLWrap desktop={desktop}>
                   <dt>Type</dt>
                   <dd>

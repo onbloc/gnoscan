@@ -1,16 +1,15 @@
 'use client';
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {useRouter} from 'next/router';
 import {TopNav, BtmNav} from '.';
-import Image from 'next/image';
+import {GetServerSideProps} from 'next';
 
 export const Header = () => {
   const {route} = useRouter();
   const entry = route === '/' && route !== null && route !== undefined;
-  useEffect(() => console.log(route), [route]);
 
   return (
     <>
@@ -32,7 +31,4 @@ const Wrapper = styled.header<{isMain: boolean}>`
     isMain ? 'url("/bg-header.svg") no-repeat center center' : theme.colors.surface};
   box-shadow: ${({isMain}) => isMain && '0px 4px 4px rgba(0, 0, 0, 0.25)'};
   background-size: cover;
-  .inner-layout {
-    z-index: 1;
-  }
 `;

@@ -6,7 +6,7 @@ import MainTransactionNews from '@/components/view/main-transaction-news/main-tr
 import MainActiveList from '@/components/view/main-active-list';
 import {eachMedia} from '@/common/hooks/use-media';
 
-const Home: React.FC = () => {
+const Home = () => {
   const media = eachMedia();
   return (
     <>

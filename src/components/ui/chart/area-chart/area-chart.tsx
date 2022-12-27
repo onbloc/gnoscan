@@ -6,6 +6,7 @@ import {styled} from '@/styles';
 import theme from '@/styles/theme';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import {zindex} from '@/common/values/z-index';
 interface AreaChartProps {
   labels: Array<string>;
   datas: {[key in string]: Array<{value: number; rate: number}>};
@@ -269,7 +270,7 @@ const Wrapper = styled.div`
     display: flex;
     width: fit-content;
     height: fit-content;
-    z-index: 20;
+    z-index: ${zindex.chart};
     pointer-events: none;
   }
 `;

@@ -1,13 +1,9 @@
-import useLoading from '@/common/hooks/use-loading';
+import useSearchHistory from '@/common/hooks/use-search-history';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
-import Text from '@/components/ui/text';
-import {TokenDatatable} from '@/components/view/datatable/token';
-import LoadingPage from '@/components/view/loading/page';
 import NotFound from '@/components/view/not-found/not-found';
 import axios from 'axios';
 import {useRouter} from 'next/router';
-import React, {useEffect} from 'react';
-import {QueryClient} from 'react-query';
+import React from 'react';
 import styled from 'styled-components';
 
 interface Props {
@@ -17,7 +13,6 @@ interface Props {
 const Search = (params: Props) => {
   const router = useRouter();
   const {keyword} = router.query;
-  useEffect(() => {}, [params]);
 
   return (
     <Container>
@@ -28,10 +23,15 @@ const Search = (params: Props) => {
 
 export async function getServerSideProps({query}: any) {
   const keyword = query?.keyword ?? '';
-
   try {
     const result = await axios.get(API_URI + API_VERSION + `/info/result/${keyword}`);
     const data = result.data;
+    useSearchHistory({
+      keyword: keyword,
+      type: data.type,
+      value: data.value,
+      memo1: data.type === 'username' ? data.extra_value : '',
+    });
 
     if (data.type === 'username') {
       return {

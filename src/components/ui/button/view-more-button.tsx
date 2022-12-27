@@ -35,10 +35,6 @@ const Wrapper = styled(Button)`
   border-radius: 4px;
   background-color: ${({theme}) => theme.colors.surface};
   margin: 24px auto 0px;
-  /* transition: background-color 0.4s ease; */
-  /* :hover:not(:disabled) {
-    background-color: ${({theme}) => theme.colors.reverse};
-  } */
   :disabled {
     opacity: 0.6;
     color: ${({theme}) => theme.colors.dimmed200};
