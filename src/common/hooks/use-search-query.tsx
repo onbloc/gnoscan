@@ -12,19 +12,12 @@ export interface keyOfSearch {
 const useSearchQuery = () => {
   const value = useRecoilValue(searchState);
   const {data}: UseQueryResult<any> = useQuery(
-    ['info/search', value],
+    ['info/search/keyword', value],
     async () => await axios.get(API_URI + API_VERSION + `/info/search/${value}?limit=5`),
     {
       enabled: value.length > 1,
       select: (res: any) => {
         const checkedObj = isEmptyObj(res.data);
-        // const keyAsUppercase = firstStrUpperCase(Object.keys(res.data));
-        // const aa = Object.keys(res.data).map(v => {
-        //   const key = {
-        //     [v]: firstStrUpperCase(Object.keys(v)),
-        //   };
-        //   return key;
-        // });
         if (checkedObj) {
           return null;
         } else {
