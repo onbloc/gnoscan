@@ -6,6 +6,7 @@ import {styled} from '@/styles';
 import theme from '@/styles/theme';
 import {useRecoilState} from 'recoil';
 import {themeState} from '@/states';
+import {zindex} from '@/common/values/z-index';
 interface BarChartProps {
   labels: Array<string>;
   datas: Array<{date: string; value: number}>;
@@ -225,7 +226,7 @@ const Wrapper = styled.div`
       display: flex;
       width: fit-content;
       height: fit-content;
-      z-index: 9;
+      z-index: ${zindex.tooltip};
     }
   }
 `;

@@ -5,6 +5,7 @@ import Text from '@/components/ui/text';
 import theme from '@/styles/theme';
 import mixins from '@/styles/mixins';
 import useOutSideClick from '@/common/hooks/use-outside-click';
+import {zindex} from '@/common/values/z-index';
 
 export interface NetworkData {
   all: string[];
@@ -74,7 +75,7 @@ const NetworkList = styled.ul<StyleProps>`
   padding: 8px;
   transition: all 0.3s ease;
   transform: ${({toggle}) => (toggle ? 'scale(1)' : 'scale(0.5)')};
-  z-index: 1;
+  z-index: ${zindex.scrollbar};
   width: 106px;
   ${({toggle}) => mixins.posMoveToTopAndRight(toggle ? '50px' : '0px')};
   & li {

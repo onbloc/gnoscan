@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {useRouter} from 'next/router';
 import {TopNav, BtmNav} from '.';
+import {GetServerSideProps} from 'next';
 
 export const Header = () => {
   const {route} = useRouter();
@@ -30,7 +31,4 @@ const Wrapper = styled.header<{isMain: boolean}>`
     isMain ? 'url("/bg-header.svg") no-repeat center center' : theme.colors.surface};
   box-shadow: ${({isMain}) => isMain && '0px 4px 4px rgba(0, 0, 0, 0.25)'};
   background-size: cover;
-  .inner-layout {
-    z-index: 1;
-  }
 `;

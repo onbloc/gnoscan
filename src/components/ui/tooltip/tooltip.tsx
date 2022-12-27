@@ -6,6 +6,7 @@ import {Tooltip as AntdTooltip} from 'antd';
 import {default as themeStyle} from '@/styles/theme';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import {zindex} from '@/common/values/z-index';
 
 type TriggerType = 'click' | 'hover';
 interface TooltipProps {
@@ -65,6 +66,7 @@ const Tooltip = ({
     <Wrapper className={className}>
       {trigger === 'click' ? (
         <AntdTooltip
+          zIndex={zindex.tooltip}
           trigger="click"
           overlayInnerStyle={getTooltipStyle(width, 8)}
           color={getCurrentTheme().base}
@@ -75,6 +77,7 @@ const Tooltip = ({
         </AntdTooltip>
       ) : (
         <AntdTooltip
+          zIndex={zindex.tooltip}
           trigger="hover"
           overlayInnerStyle={getTooltipStyle(width, 16)}
           color={getCurrentTheme().base}
@@ -89,7 +92,6 @@ const Tooltip = ({
 const Wrapper = styled.div`
   position: relative;
   display: inline-block;
-  z-index: 11;
   vertical-align: top;
   .tooltip-button {
     ${mixins.flexbox('row', 'center', 'center')};

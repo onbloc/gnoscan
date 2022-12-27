@@ -4,8 +4,8 @@ import {isDesktop} from '@/common/hooks/use-media';
 import useSearchQuery from '@/common/hooks/use-search-query';
 import {searchState} from '@/states';
 import mixins from '@/styles/mixins';
-import React, {useCallback, useEffect, useState} from 'react';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import React, {useEffect, useState} from 'react';
+import {useRecoilState} from 'recoil';
 import styled, {css} from 'styled-components';
 import Text from '@/components/ui/text';
 import {v1} from 'uuid';
@@ -13,6 +13,9 @@ import {FitContentA} from '../detail-page-common-styles';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import useOutSideClick from '@/common/hooks/use-outside-click';
+import {zindex} from '@/common/values/z-index';
+import useSearchHistory from '@/common/hooks/use-search-history';
+import {GetServerSideProps} from 'next';
 
 interface StyleProps {
   desktop?: boolean;
@@ -20,11 +23,21 @@ interface StyleProps {
   ref?: any;
 }
 
-const SearchResult = ({isMain}: {isMain: boolean}) => {
+interface NotRealmsObj {
+  username: string;
+  address: string;
+}
+
+const notRealmsType = (includesUsername: boolean) => {
+  return includesUsername ? 'username' : 'address';
+};
+
+const SearchResult = () => {
   const desktop = isDesktop();
   const [value, setValue] = useRecoilState(searchState);
   const {result} = useSearchQuery();
   const {route} = useRouter();
+  const isMain = route === '/';
   const [open, setOpen] = useState(false);
   const ref = useOutSideClick(() => setOpen(false));
 
@@ -34,8 +47,19 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
 
   useEffect(() => {
     setOpen(false);
-    setValue('');
   }, [route]);
+
+  const onClick = (v: string, item: any) => {
+    const typeToLowercase = v.toLowerCase();
+    const includesUsername = item.username.includes(value);
+    useSearchHistory({
+      keyword: value,
+      type: typeToLowercase === 'realms' ? 'realms' : notRealmsType(includesUsername),
+      value: includesUsername ? item.username : item.address,
+      memo1: includesUsername ? item.address : '',
+    });
+    setValue('');
+  };
 
   return (
     <>
@@ -52,7 +76,7 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
                     <List key={v1()}>
                       {v === 'Accounts' ? (
                         <Link href={`/accounts/${item.address}`} passHref>
-                          <FitContentAStyle>
+                          <FitContentAStyle onClick={() => onClick(v, item)}>
                             <Text
                               type={isMain ? 'p4' : 'body1'}
                               color="primary"
@@ -71,7 +95,7 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
                         </Link>
                       ) : (
                         <Link href={`/realms/details?path=${item}`} passHref>
-                          <FitContentA>
+                          <FitContentA onClick={() => onClick(v, item)}>
                             <Text
                               type={isMain ? 'p4' : 'body1'}
                               color="primary"
@@ -96,6 +120,11 @@ const SearchResult = ({isMain}: {isMain: boolean}) => {
     </>
   );
 };
+
+// SearchResult.getInitialProps = async ({req}: any) => {
+//   const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+//   return {ip};
+// };
 
 const commonContentStyle = css`
   ${mixins.flexbox('column', 'flex-start', 'center')};
@@ -132,7 +161,7 @@ const Wrapper = styled.div<StyleProps>`
   top: ${({isMain}) => (isMain ? '93%' : 'calc(100% + 6px)')};
   left: 50%;
   transform: translateX(-50%);
-  z-index: 20;
+  z-index: ${zindex.searchResult};
   padding: 16px;
   overflow: auto;
   gap: 8px;
