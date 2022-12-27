@@ -3,13 +3,30 @@ version: 2.1
 orbs:
   node: circleci/node@5.0.3
   slack: circleci/slack@4.12.0
+  aws-ecr: circleci/aws-ecr@8.2.1
+  aws-ecs: circleci/aws-ecs@3.2.0
 
 commands:
+  init-develop:
+    steps:
+      - run:
+          name: Setup Environment
+          when: always
+          command: |
+            SERVICE_NAME='gnoscan-front'
+            DOCKER_TAG=$(date "+%Y%m%d%H%M%S")
+            BRANCH_NAME='develop'
+            PORT='4000'
+            echo "export SERVICE_NAME='${SERVICE_NAME}'" >> $BASH_ENV
+            echo "export DOCKER_TAG='${DOCKER_TAG}'" >> $BASH_ENV
+            echo "export BRANCH_NAME='${BRANCH_NAME}'" >> $BASH_ENV
+            echo "export PORT='${PORT}'" >> $BASH_ENV
+            source $BASH_ENV
   init-slack:
     steps:
       - checkout
       - run:
-          name: Set Message Info
+          name: Setup Message Info
           when: always
           command: |
             SLACK_TEMPLATE_BUILD_START=$(cat .circleci/template/slack-build-start.json)
@@ -63,39 +80,41 @@ jobs:
     steps:
       - init-slack
       - notification-build-start
+  deploy-develop:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true
+    steps:
+      - init-develop
+      - aws-ecr/build-and-push-image:
+          repo: '${SERVICE_NAME}'
+          tag: 'latest,${DOCKER_TAG}'
       - run:
-          name: Current Files
+          name: Deploy Over SSH
           command: |
-            ls -al
-      - node/install:
-          install-yarn: true
-          node-version: '16.13'
-      - node/install-packages:
-          pkg-manager: yarn
-      - run:
-          name: Build
-          command: |
-            yarn run build
-      - run:
-          name: Compress Build File
-          command: |
-            mkdir -p build-files
-            cp -r .next build-files/.next
-            # cp -r scripts build-files/scripts
-            # cp appspec.yml build-files/appspec.yml
-            zip gnoscan-front.zip -r build-files
-            mkdir -p deploy
-            mv gnoscan-front.zip deploy/gnoscan-front.zip
-      - notification-build-finish
-      - notification-build-fail
+            ssh ubuntu@3.218.133.250 "./circle-ci-deploy.sh ${SERVICE_NAME} ${DOCKER_TAG} ${BRANCH_NAME} ${PORT}"
+      - notification-deploy-success
+      - notification-deploy-fail
+
 workflows:
-  build-deploy:
+  build-and-deploy:
     jobs:
       - build:
-          context: SLACK_GNOSCAN
+          context:
+            - SLACK_GNOSCAN
           filters:
             branches:
               only:
                 - main
                 - qa
+                - develop
+      - deploy-develop:
+          context:
+            - AWS_DEPLOY
+            - SLACK_GNOSCAN
+          requires:
+            - build
+          filters:
+            branches:
+              only:
                 - develop
