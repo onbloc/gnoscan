@@ -7,21 +7,6 @@ orbs:
   aws-ecs: circleci/aws-ecs@3.2.0
 
 commands:
-  init-develop:
-    steps:
-      - run:
-          name: Setup Environment
-          when: always
-          command: |
-            SERVICE_NAME='gnoscan-front'
-            DOCKER_TAG=$(date "+%Y%m%d%H%M%S")
-            BRANCH_NAME='develop'
-            PORT='4000'
-            echo "export SERVICE_NAME='${SERVICE_NAME}'" >> $BASH_ENV
-            echo "export DOCKER_TAG='${DOCKER_TAG}'" >> $BASH_ENV
-            echo "export BRANCH_NAME='${BRANCH_NAME}'" >> $BASH_ENV
-            echo "export PORT='${PORT}'" >> $BASH_ENV
-            source $BASH_ENV
   init-slack:
     steps:
       - run:
@@ -87,14 +72,13 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - init-develop
       - aws-ecr/build-and-push-image:
           repo: '${SERVICE_NAME}'
           tag: 'latest,${DOCKER_TAG}'
       - run:
           name: Deploy Over SSH
           command: |
-            ssh ubuntu@3.218.133.250 "./circle-ci-deploy.sh ${SERVICE_NAME} ${DOCKER_TAG} ${BRANCH_NAME} ${PORT}"
+            ssh "${SERVER_ADDRESS}" "./circle-ci-deploy.sh ${SERVICE_NAME} ${DOCKER_TAG} ${CIRCLE_BRANCH} ${PORT}"
       - init-slack
       - notification-deploy-success
       - notification-deploy-fail
@@ -115,6 +99,7 @@ workflows:
           context:
             - AWS_DEPLOY
             - SLACK_GNOSCAN
+            - GNOSCAN_FRONT_DEVELOP_ARGS
           requires:
             - build
           filters:
