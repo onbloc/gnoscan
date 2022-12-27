@@ -2,6 +2,7 @@ import React, {useEffect, useRef} from 'react';
 import styled from 'styled-components';
 import {DatatableData, DatatableHeader} from '.';
 import IconTabelLoading from '@/assets/svgs/icon-table-loading.svg';
+import {zindex} from '@/common/values/z-index';
 
 interface Props<T> {
   maxWidth?: number;
@@ -81,7 +82,7 @@ const Container = styled.div<{maxWidth?: number}>`
       flex-direction: column;
       width: 100%;
       min-width: ${({maxWidth}) => (maxWidth ? `${maxWidth}px` : '1150px')};
-      z-index: 5;
+      z-index: ${zindex.scrollbar};
     }
 
     @keyframes rotating {

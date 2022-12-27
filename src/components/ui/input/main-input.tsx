@@ -8,6 +8,9 @@ import Search from '@/assets/svgs/icon-search.svg';
 import {isDesktop} from '@/common/hooks/use-media';
 import SearchResult from '../search-result';
 import {useRouter} from 'next/router';
+import useSearchHistory from '@/common/hooks/use-search-history';
+import {useRecoilState} from 'recoil';
+import {searchState} from '@/states';
 
 interface SubInputProps {
   className?: string;
@@ -16,9 +19,10 @@ interface SubInputProps {
   clearValue?: () => void;
 }
 
-export const MainInput = ({className = '', value, onChange, clearValue}: SubInputProps) => {
+export const MainInput = ({className = '', onChange, clearValue}: SubInputProps) => {
   const desktop = isDesktop();
   const router = useRouter();
+  const [value, setValue] = useRecoilState(searchState);
 
   useEffect(() => {
     clearValue && clearValue();
@@ -32,6 +36,7 @@ export const MainInput = ({className = '', value, onChange, clearValue}: SubInpu
   const onKeyDownInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       moveSearchPage();
+      setValue('');
     }
   };
 
@@ -51,7 +56,7 @@ export const MainInput = ({className = '', value, onChange, clearValue}: SubInpu
       <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />
       </Button>
-      <SearchResult isMain={true} />
+      <SearchResult />
     </Wrapper>
   );
 };

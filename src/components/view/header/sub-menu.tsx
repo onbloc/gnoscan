@@ -12,6 +12,7 @@ import {navItems} from './top-nav';
 import Link from 'next/link';
 import {v1} from 'uuid';
 import Text from '@/components/ui/text';
+import {zindex} from '@/common/values/z-index';
 
 interface LinkStyleProps {
   current: boolean;
@@ -82,7 +83,7 @@ const Container = styled.div<{open: boolean}>`
   right: ${({open}) => (open ? '0px' : '100%')};
   width: 100%;
   height: 100%;
-  z-index: 99;
+  z-index: ${zindex.modal};
   transition: all 0.4s ease-out;
   padding: 20px 24px 20px;
   overflow: hidden;
