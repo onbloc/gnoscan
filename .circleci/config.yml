@@ -74,11 +74,11 @@ jobs:
       - checkout
       - aws-ecr/build-and-push-image:
           repo: '${SERVICE_NAME}'
-          tag: 'latest,$(date "+%Y%m%d%H%M%S")'
+          tag: '${CHAIN_ID}.${CIRCLE_BRANCH},$(date "+%Y%m%d%H%M%S")'
       - run:
           name: Deploy Over SSH
           command: |
-            ssh "${SERVER_ADDRESS}" './circle-ci-deploy.sh ${SERVICE_NAME} $(date "+%Y%m%d%H%M%S") ${CIRCLE_BRANCH} ${PORT}'
+            ssh "${SERVER_ADDRESS}" "./circle-ci-deploy.sh ${SERVICE_NAME} ${CHAIN_ID}.${CIRCLE_BRANCH} ${CIRCLE_BRANCH} ${PORT}"
       - init-slack
       - notification-deploy-success
       - notification-deploy-fail
