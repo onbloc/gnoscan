@@ -24,7 +24,6 @@ commands:
             source $BASH_ENV
   init-slack:
     steps:
-      - checkout
       - run:
           name: Setup Message Info
           when: always
@@ -43,31 +42,31 @@ commands:
   notification-build-start:
     steps:
       - slack/notify:
-          channel: 'C04GFMSFVT4'
+          channel: 'C049P1BNSR3'
           event: always
           template: SLACK_TEMPLATE_BUILD_START
   notification-build-finish:
     steps:
       - slack/notify:
-          channel: 'C04GFMSFVT4'
+          channel: 'C049P1BNSR3'
           event: pass
           template: SLACK_TEMPLATE_BUILD_FINISH
   notification-build-fail:
     steps:
       - slack/notify:
-          channel: 'C04GFMSFVT4'
+          channel: 'C049P1BNSR3'
           event: fail
           template: SLACK_TEMPLATE_BUILD_FAIL
   notification-deploy-success:
     steps:
       - slack/notify:
-          channel: 'C04GFMSFVT4'
+          channel: 'C049P1BNSR3'
           event: pass
           template: SLACK_TEMPLATE_DEPLOY_SUCCESS
   notification-deploy-fail:
     steps:
       - slack/notify:
-          channel: 'C04GFMSFVT4'
+          channel: 'C049P1BNSR3'
           event: fail
           template: SLACK_TEMPLATE_DEPLOY_FAIL
 
@@ -78,6 +77,7 @@ jobs:
         environment:
           TZ: 'Asia/Seoul'
     steps:
+      - checkout
       - init-slack
       - notification-build-start
       - persist_to_workspace:
