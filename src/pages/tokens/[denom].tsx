@@ -15,7 +15,6 @@ import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {TokenDetailDatatable} from '@/components/view/datatable';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
-import NotFound from '@/components/view/not-found/not-found';
 
 type TokenResultType = {
   name: string;

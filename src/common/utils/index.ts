@@ -6,11 +6,6 @@ export interface StatusResultType {
   color: PaletteKeyType;
 }
 
-/**
- * 소수점이 0이라면 0 제거.
- * 소수점이 없는 정수일 경우, 정수에 comma 찍고 return.
- * 소수점이 있는 경우, 소수점 기준으로 comma 찍고 소수점 slice 후 return.
- */
 export const numberWithFixedCommas = (v: number | string, fixed?: number): string => {
   const fix = fixed ?? 6;
   const floatNum = parseFloatNum(v);
@@ -25,24 +20,15 @@ export const numberWithFixedCommas = (v: number | string, fixed?: number): strin
   }
 };
 
-/**
- * 소수점이 반올림 없이 자르기
- */
 export const decimalFixed = (v: number | string, fixed: number) => {
   return String(v).slice(0, fixed);
 };
 
-/**
- * 정수일 경우에만 가능하며 comma 찍고 return.
- */
 export const numberWithCommas = (v: number | string) => {
   if (v === '0' || !Boolean(v)) return '0';
   return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-/**
- * 소수점이 0일 경우 없애기
- */
 export const parseFloatNum = (v: number | string): string => {
   if (v === '0' || !Boolean(v)) return '0';
   return parseFloat(v.toString()).toString();
@@ -56,9 +42,6 @@ export function formatEllipsis(v: string, num: number = 11) {
   return v.length > num ? `${v.slice(0, num)}..` : v;
 }
 
-/**
- * account-text에서 사용.
- */
 export const decimalPointWithCommas = (v: string | number, fixed?: number): string[] | string => {
   if (v === '0' || !Boolean(v)) return ['0'];
   const fix = fixed ?? 6;
