@@ -54,7 +54,7 @@ const SearchResult = () => {
     const includesUsername = item.username.includes(value);
     useSearchHistory({
       keyword: value,
-      type: typeToLowercase === 'realms' ? 'realms' : notRealmsType(includesUsername),
+      type: typeToLowercase === 'realms' ? 'pkg_path' : notRealmsType(includesUsername),
       value: includesUsername ? item.username : item.address,
       memo1: includesUsername ? item.address : '',
     });
