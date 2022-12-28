@@ -28,10 +28,6 @@ interface NotRealmsObj {
   address: string;
 }
 
-const notRealmsType = (includesUsername: boolean) => {
-  return includesUsername ? 'username' : 'address';
-};
-
 const SearchResult = () => {
   const desktop = isDesktop();
   const [value, setValue] = useRecoilState(searchState);
@@ -51,13 +47,22 @@ const SearchResult = () => {
 
   const onClick = (v: string, item: any) => {
     const typeToLowercase = v.toLowerCase();
-    const includesUsername = item.username.includes(value);
-    useSearchHistory({
-      keyword: value,
-      type: typeToLowercase === 'realms' ? 'pkg_path' : notRealmsType(includesUsername),
-      value: includesUsername ? item.username : item.address,
-      memo1: includesUsername ? item.address : '',
-    });
+    const includesUsername = item?.username?.includes(value);
+    if (typeToLowercase === 'realms') {
+      useSearchHistory({
+        keyword: value,
+        type: 'pkg_path',
+        value: item,
+        memo1: '',
+      });
+    } else {
+      useSearchHistory({
+        keyword: value,
+        type: includesUsername ? 'username' : 'address',
+        value: includesUsername ? item.username : item.address,
+        memo1: includesUsername ? item.address : '',
+      });
+    }
     setValue('');
   };
 
