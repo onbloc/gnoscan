@@ -12,6 +12,19 @@ import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
 import {SupplyCard, BlockCard, TxsCard, AccountCard} from './cards';
+import {dehydrate, QueryClient} from 'react-query';
+
+// export async function getStaticProps() {
+//   const queryClient = new QueryClient();
+
+//   await queryClient.prefetchQuery('posts', useInfoCard);
+
+//   return {
+//     props: {
+//       dehydratedState: dehydrate(queryClient),
+//     },
+//   };
+// }
 
 const MainCard = () => {
   const media = eachMedia();

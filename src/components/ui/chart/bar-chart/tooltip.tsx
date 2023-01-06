@@ -1,4 +1,5 @@
 import theme, {Palette} from '@/styles/theme';
+import BigNumber from 'bignumber.js';
 import React from 'react';
 import styled from 'styled-components';
 import {AmountText} from '../../text/amount-text';

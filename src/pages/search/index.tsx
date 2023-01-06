@@ -1,7 +1,6 @@
-import useSearchHistory from '@/common/hooks/use-search-history';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import NotFound from '@/components/view/not-found/not-found';
-import axios from 'axios';
+import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
+import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
 import {useRouter} from 'next/router';
 import React from 'react';
 import styled from 'styled-components';
@@ -24,9 +23,9 @@ const Search = (params: Props) => {
 export async function getServerSideProps({query}: any) {
   const keyword = query?.keyword ?? '';
   try {
-    const result = await axios.get(API_URI + API_VERSION + `/info/result/${keyword}`);
+    const result = await searchKeyword(keyword);
     const data = result.data;
-    useSearchHistory({
+    searchHistory({
       keyword: keyword,
       type: data.type,
       value: data.value,

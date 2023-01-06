@@ -1,3 +1,5 @@
+import {ValueWithDenomType} from '@/types/data-type';
+
 interface TotalGasShareData {
   date: string;
   packagePath: string;
@@ -16,7 +18,7 @@ export class TotalGasShareModel {
   constructor(
     responseDatas: Array<{
       date: string;
-      daily_total_fee: number;
+      daily_total_fee: ValueWithDenomType;
       packages: Array<{
         path: string;
         daily_fee: number;
@@ -119,7 +121,7 @@ export class TotalGasShareModel {
     packages,
   }: {
     date: string;
-    daily_total_fee: number;
+    daily_total_fee: ValueWithDenomType;
     packages: Array<{
       path: string;
       daily_fee: number;
@@ -131,7 +133,7 @@ export class TotalGasShareModel {
         date: date ?? '',
         packagePath: `${item.path}`.replace('gno.land', ''),
         packageDailyFee: item.daily_fee ?? 0,
-        totalDailyFee: daily_total_fee ?? 0,
+        totalDailyFee: daily_total_fee.value ?? 0,
         percent: item.percent ?? 0,
       };
     });

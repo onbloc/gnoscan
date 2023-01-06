@@ -8,29 +8,34 @@ import {ErrorBoundary} from '@/components/core/error-boundary';
 import 'antd/dist/reset.css';
 import Meta from '@/components/core/layout/meta';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
 const App: React.FC = ({Component, pageProps}: any) => {
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnMount: false,
+            refetchOnReconnect: false,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
+
   return (
     <>
       <Meta />
       <GlobalStyle />
       <QueryClientProvider client={queryClient}>
-        <RecoilRoot>
-          <ErrorBoundary fallback={<div>ERROR</div>}>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </ErrorBoundary>
-        </RecoilRoot>
+        <Hydrate state={pageProps.dehydratedState}>
+          <RecoilRoot>
+            <ErrorBoundary fallback={<div>ERROR</div>}>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </ErrorBoundary>
+          </RecoilRoot>
+        </Hydrate>
       </QueryClientProvider>
     </>
   );

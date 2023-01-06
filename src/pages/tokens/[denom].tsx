@@ -2,32 +2,19 @@ import React from 'react';
 import {useQuery, UseQueryResult} from 'react-query';
 import {useRouter} from 'next/router';
 import {isDesktop} from '@/common/hooks/use-media';
-import {numberWithCommas} from '@/common/utils';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
 import {DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';
-import axios from 'axios';
 import Text from '@/components/ui/text';
 import Link from 'next/link';
 import ShowLog from '@/components/ui/show-log';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {TokenDetailDatatable} from '@/components/view/datatable';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
-
-type TokenResultType = {
-  name: string;
-  symbol: string;
-  totalSupply: string;
-  decimals: number;
-  tokenPath: string;
-  funcs: string[];
-  owner: string;
-  address: string;
-  holders: string;
-  log: LogDataType;
-};
+import {getTokenDetails} from '@/repositories/api/fetchers/api-token-details';
+import {tokenDetailSelector} from '@/repositories/api/selector/select-token-details';
+import {TokenDetailsModel} from '@/models/token-details-model';
 
 const TokenDetails = () => {
   const desktop = isDesktop();
@@ -37,48 +24,13 @@ const TokenDetails = () => {
     data: token,
     isSuccess: tokenSuccess,
     isFetched,
-  }: UseQueryResult<TokenResultType> = useQuery(
+  }: UseQueryResult<TokenDetailsModel> = useQuery(
     ['token/denom', denom],
-    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/token/summary/${queryKey[1]}`),
+    async () => await getTokenDetails(denom),
     {
       enabled: !!denom,
       retry: 0,
-      select: (res: any) => {
-        const tokenData = res.data;
-        if (Object.keys(res.data).length === 0) {
-          return {
-            name: '',
-            symbol: '',
-            totalSupply: '',
-            decimals: '',
-            tokenPath: '',
-            funcs: [],
-            owner: '',
-            address: '',
-            holders: '0',
-            log: {
-              list: [],
-              content: '',
-            },
-          };
-        }
-        return {
-          name: tokenData.name,
-          symbol: tokenData.symbol,
-          totalSupply: numberWithCommas(tokenData.total_supply),
-          decimals: tokenData.decimals,
-          tokenPath: tokenData.token_path,
-          funcs: tokenData.funcs,
-          owner: Boolean(tokenData.owner_name) ? tokenData.owner_name : tokenData.owner_address,
-          address: tokenData.owner_adress,
-          holders: numberWithCommas(tokenData.holders),
-          log: {
-            list: tokenData.contract_list,
-            content: tokenData.contract_content,
-          },
-        };
-      },
-      // onSuccess: (res: any) => console.log('Token Data : ', res),
+      select: (res: any) => tokenDetailSelector(res.data),
     },
   );
 

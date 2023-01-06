@@ -11,22 +11,20 @@ import {eachMedia} from '@/common/hooks/use-media';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import {ValueWithDenomType} from '@/types/data-type';
 
 interface RealmTransactionData {
-  tx_hash: string;
-  success: boolean;
+  hash: string;
+  status: string;
   type: string;
-  func: string;
-  bloc: number;
+  pkg_func: string;
+  height: number;
   pkg_path: string | null;
-  from_address: string;
+  caller_address: string;
   msg_num: number;
-  amount: {
-    amount: string;
-    denom: string;
-  };
+  amount: ValueWithDenomType;
   time: string;
-  fee: number;
+  fee: ValueWithDenomType;
 }
 
 interface ResponseData {
@@ -93,11 +91,11 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
 
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
-      .key('tx_hash')
+      .key('hash')
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={data.success} />)
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={data.status} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
@@ -110,19 +108,14 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type
-          type={data.type}
-          func={data.func}
-          packagePath={data.pkg_path}
-          msgNum={data.msg_num}
-        />
+        <DatatableItem.Type type={data.type} func={data.pkg_func} packagePath={data.pkg_path} />
       ))
       .build();
   };
 
   const createHeaderBlock = () => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
-      .key('block')
+      .key('height')
       .name('Block')
       .width(93)
       .colorName('blue')
@@ -132,7 +125,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
 
   const createHeaderFrom = () => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
-      .key('from_address')
+      .key('caller_address')
       .name('From')
       .width(160)
       .colorName('blue')
@@ -145,14 +138,11 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {amount: number; denom: string}, data) =>
+      .renderOption((amount: {value: number; denom: string}, data) =>
         data.msg_num > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/${data.tx_hash}`} />
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
-          <DatatableItem.Amount
-            value={amount.amount}
-            denom={amount.denom === '' ? 'gnot' : amount.denom}
-          />
+          <DatatableItem.Amount value={amount.value} denom={amount.denom} />
         ),
       )
       .build();
@@ -172,7 +162,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(value => <DatatableItem.Amount value={value} denom={'ugnot'} />)
+      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };
 

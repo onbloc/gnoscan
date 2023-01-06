@@ -3,6 +3,7 @@ import {ThemeProvider} from 'styled-components';
 import theme, {Palette} from '@/styles/theme';
 import {useRecoilState} from 'recoil';
 import {themeState} from '@/states';
+import {setItem, getItem} from '@/repositories/storage/storage';
 
 export const CustomThemeProvider = ({children}: {children: React.ReactElement}) => {
   const [mounted, setMounted] = useState(false);
@@ -11,9 +12,9 @@ export const CustomThemeProvider = ({children}: {children: React.ReactElement}) 
 
   useLayoutEffect(() => {
     setMounted(true);
-    const localThemeValue = window.localStorage.getItem('theme');
+    const localThemeValue = getItem('theme');
     if (!localThemeValue) {
-      window.localStorage.setItem('theme', 'dark');
+      setItem('theme', 'dark');
       setPalette(theme.darkTheme);
       setThemeMode('dark');
     } else {
