@@ -1,9 +1,9 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {useEffect, useState} from 'react';
-import {} from 'react-query';
+import {UseQueryOptions, UseQueryResult} from 'react-query';
 
-const useFetchQuery = () => {
-  // return useQuery();
-};
+// const useFetchQuery = (options?: UseQueryOptions<any, AxiosError>): UseQueryResult<any, AxiosError> => {
+//   // return useQuery();
+// };
 
-export default useFetchQuery;
+// export default useFetchQuery;

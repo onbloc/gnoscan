@@ -34,6 +34,7 @@ export const TokenDatatable = () => {
   useLoading({finished});
 
   const getTokens = () => {
+    console.log(data);
     if (!data) {
       return [];
     }

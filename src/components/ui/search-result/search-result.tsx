@@ -14,8 +14,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/router';
 import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
-import useSearchHistory from '@/common/hooks/use-search-history';
-import {GetServerSideProps} from 'next';
+import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
 
 interface StyleProps {
   desktop?: boolean;
@@ -49,14 +48,14 @@ const SearchResult = () => {
     const typeToLowercase = v.toLowerCase();
     const includesUsername = item?.username?.includes(value);
     if (typeToLowercase === 'realms') {
-      useSearchHistory({
+      searchHistory({
         keyword: value,
         type: 'pkg_path',
         value: item,
         memo1: '',
       });
     } else {
-      useSearchHistory({
+      searchHistory({
         keyword: value,
         type: includesUsername ? 'username' : 'address',
         value: includesUsername ? item.username : item.address,

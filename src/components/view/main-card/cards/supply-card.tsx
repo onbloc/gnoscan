@@ -1,37 +1,20 @@
 import React from 'react';
 import Text from '@/components/ui/text';
-import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
-import {numberWithCommas} from '@/common/utils';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-
-interface SupplyResultType {
-  supply: string;
-  exit: string;
-  airdrop_recipients: string;
-}
+import {getSupplyCard} from '@/repositories/api/fetchers/api-info-card';
+import {supplyCardSelector} from '@/repositories/api/selector/select-info-card';
+import {SupplyCardModel} from '@/models';
 
 export const SupplyCard = () => {
-  const {
-    data: card01,
-    isSuccess: card01Success,
-    isFetched: card01Fetched,
-  }: UseQueryResult<SupplyResultType> = useQuery(
+  const {data: card01, isFetched: card01Fetched}: UseQueryResult<SupplyCardModel> = useQuery(
     ['info/card01'],
-    async () => await axios.get(API_URI + API_VERSION + '/info/card01'),
+    async () => await getSupplyCard(),
     {
-      select: (res: any) => {
-        const supply = res.data.gnot_supply;
-        return {
-          supply: numberWithCommas(supply.supply),
-          exit: numberWithCommas(supply.exit),
-          airdrop_recipients: numberWithCommas(supply.airdrop_recipients),
-        };
-      },
+      select: (res: any) => supplyCardSelector(res.data.gnot_supply),
     },
   );
 
@@ -95,7 +78,7 @@ export const SupplyCard = () => {
               isFetched={card01Fetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {card01?.airdrop_recipients}
+                  {card01?.airdrop_holders}
                 </Text>
               }
             />

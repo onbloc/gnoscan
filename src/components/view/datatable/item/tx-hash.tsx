@@ -6,12 +6,12 @@ import {RPC_URI} from '@/common/values/constant-value';
 
 interface Props {
   txHash: string;
-  success: boolean;
+  status: string;
   development?: boolean;
   height?: number;
 }
 
-export const TxHash = ({txHash, success, development, height}: Props) => {
+export const TxHash = ({txHash, status, development, height}: Props) => {
   const onClickIcon = () => {
     if (!development || !height) {
       return;
@@ -29,7 +29,7 @@ export const TxHash = ({txHash, success, development, height}: Props) => {
         {txHash}
       </a>
       <span className="status" onClick={onClickIcon}>
-        {success ? <IconSuccess /> : <IconFail />}
+        {status === 'failure' ? <IconFail /> : <IconSuccess />}
       </span>
     </TxHashWrapper>
   );

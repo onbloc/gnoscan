@@ -1,34 +1,17 @@
 import React from 'react';
 import Text from '@/components/ui/text';
-import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
-import {numberWithCommas, numberWithFixedCommas} from '@/common/utils';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-
-interface HeightResultType {
-  height: string;
-  avg_tx: string;
-  avg_time: string;
-}
+import {BlockCardModel} from '@/models';
+import {getBlockCard} from '@/repositories/api/fetchers/api-info-card';
+import {blockCardSelector} from '@/repositories/api/selector/select-info-card';
 
 export const BlockCard = () => {
-  const {
-    data: card02,
-    isSuccess: card02Success,
-    isFetched: card02Fetched,
-  }: UseQueryResult<HeightResultType> = useQuery(
+  const {data: card02, isFetched: card02Fetched}: UseQueryResult<BlockCardModel> = useQuery(
     ['info/card02'],
-    async () => await axios.get(API_URI + API_VERSION + '/info/card02'),
+    async () => await getBlockCard(),
     {
-      select: (res: any) => {
-        const block = res.data.block;
-        return {
-          height: numberWithCommas(block.height),
-          avg_tx: numberWithFixedCommas(block.avg_tx, 2),
-          avg_time: numberWithFixedCommas(block.avg_time, 2),
-        };
-      },
+      select: (res: any) => blockCardSelector(res.data.block),
     },
   );
 

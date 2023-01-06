@@ -127,6 +127,7 @@ const TabLogWrap = styled.div<StyleProps>`
     ul {
       width: 100%;
       ${mixins.flexbox('row', 'center', 'flex-start')};
+      overflow-x: auto;
     }
   }
 `;
@@ -143,6 +144,8 @@ const Log = styled.div<StyleProps>`
   padding: ${({showLog}) => (showLog ? '24px' : '0px 24px')};
   word-break: keep-all;
   word-wrap: break-word;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 `;
 
 const TabLog = styled(Log)<StyleProps>`
@@ -150,8 +153,6 @@ const TabLog = styled(Log)<StyleProps>`
   max-height: ${({desktop}) => (desktop ? '528px' : '292px')};
   overflow: auto;
   background-color: ${({theme}) => theme.colors.surface};
-  border-radius: 10px;
-  border-top-left-radius: 0px;
 `;
 
 const List = styled.li<StyleProps>`
@@ -160,12 +161,8 @@ const List = styled.li<StyleProps>`
   padding: 12px 16px;
   height: 44px;
   cursor: pointer;
-  &:last-of-type {
-    border-top-right-radius: 10px;
-  }
-  &:first-of-type {
-    border-top-left-radius: 10px;
-  }
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   ${({active, theme}) =>
     active &&
     css`

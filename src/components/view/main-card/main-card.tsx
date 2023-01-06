@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useMemo} from 'react';
 import styled from 'styled-components';
 import Card from '@/components/ui/card';
 import {eachMedia} from '@/common/hooks/use-media';
@@ -12,19 +12,19 @@ import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
 import {SupplyCard, BlockCard, TxsCard, AccountCard} from './cards';
+import {dehydrate, QueryClient} from 'react-query';
 
-// const SupplyCard = dynamic(() => import('./cards/supply-card').then(comp => comp.SupplyCard), {
-//   ssr: false,
-// });
-// const BlockCard = dynamic(() => import('./cards/block-card').then(comp => comp.BlockCard), {
-//   ssr: false,
-// });
-// const TxsCard = dynamic(() => import('./cards/txs-card').then(comp => comp.TxsCard), {
-//   ssr: false,
-// });
-// const AccountCard = dynamic(() => import('./cards/account-card').then(comp => comp.AccountCard), {
-//   ssr: false,
-// });
+// export async function getStaticProps() {
+//   const queryClient = new QueryClient();
+
+//   await queryClient.prefetchQuery('posts', useInfoCard);
+
+//   return {
+//     props: {
+//       dehydratedState: dehydrate(queryClient),
+//     },
+//   };
+// }
 
 const MainCard = () => {
   const media = eachMedia();
