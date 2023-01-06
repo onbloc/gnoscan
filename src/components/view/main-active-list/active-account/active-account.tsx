@@ -65,7 +65,7 @@ const ActiveAccount = () => {
                 minSize="body2"
                 maxSize="p4"
                 color="reverse"
-                value={BigNumber(v.balance)}
+                value={v.balance}
                 width={colWidth.accounts[4]}
               />
             </List>

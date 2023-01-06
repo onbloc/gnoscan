@@ -96,7 +96,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={true} />)
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={'Success'} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
