@@ -4,32 +4,32 @@ import {AccountCardModel, BlockCardModel, SupplyCardModel, TxsCardModel} from '@
 
 export const supplyCardSelector = (data: any): SupplyCardModel => {
   return {
-    supply: numberWithCommas(data.supply),
-    exit: numberWithCommas(data.exit),
-    airdrop_holders: numberWithCommas(data.airdrop_holders),
+    supply: numberWithCommas(BigNumber(data.supply)),
+    exit: numberWithCommas(BigNumber(data.exit)),
+    airdrop_holders: numberWithCommas(BigNumber(data.airdrop_holders)),
   };
 };
 
 export const blockCardSelector = (data: any): BlockCardModel => {
   return {
-    height: numberWithCommas(data.height),
-    avg_tx: numberWithFixedCommas(data.avg_tx, 2),
-    avg_time: numberWithFixedCommas(data.avg_time, 2),
+    height: numberWithCommas(BigNumber(data.height)),
+    avg_tx: numberWithFixedCommas(BigNumber(data.avg_tx), 2),
+    avg_time: numberWithFixedCommas(BigNumber(data.avg_time), 2),
   };
 };
 
 export const txsCardSelector = (data: any): TxsCardModel => {
+  console.log('---- ', data);
   return {
-    avg_24hr: numberWithFixedCommas(BigNumber(data.avg_24hr / 1000000), 6),
-    total_fee: numberWithFixedCommas(BigNumber(data.total_fee / 1000000), 2),
-    total_txs: numberWithCommas(data.total_txs),
+    avg_24hr: numberWithFixedCommas(BigNumber(data.avg_24hr), 6),
+    total_fee: numberWithFixedCommas(BigNumber(data.total_fee), 2),
+    total_txs: numberWithCommas(BigNumber(data.total_txs)),
   };
 };
 
 export const accountCardSelector = (data: any): AccountCardModel => {
-  console.log('$ ', data);
   return {
-    totalAccounts: numberWithCommas(data.total_accounts),
+    totalAccounts: numberWithCommas(BigNumber(data.total_accounts)),
     totalUsers: numberWithCommas(data.total_users),
     validators: numberWithCommas(data.validators),
   };

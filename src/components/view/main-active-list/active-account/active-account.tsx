@@ -19,7 +19,6 @@ import FetchedSkeleton from '../fetched-skeleton';
 import {AccountDataType, AccountListModel} from '@/models/active-list-model';
 import {getAccountList} from '@/repositories/api/fetchers/api-active-list';
 import {accountListSelector} from '@/repositories/api/selector/select-active-list';
-import BigNumber from 'bignumber.js';
 
 const ActiveAccount = () => {
   const media = eachMedia();

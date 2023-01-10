@@ -23,6 +23,20 @@ interface ShowLogProps {
   btnTextType: string;
 }
 
+const throttle = (func: Function, ms: number) => {
+  let throttled = false;
+  return (...args: any) => {
+    if (!throttled) {
+      throttled = true;
+      setTimeout(() => {
+        func(...args);
+        throttled = false;
+      }, ms);
+    }
+  };
+};
+const delay = 10;
+
 const ShowLog = ({
   isTabLog,
   logData = '',
@@ -34,6 +48,31 @@ const ShowLog = ({
   const [index, setIndex] = useState(0);
   const logWrapRef = useRef<HTMLDivElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
+  const draggable = useRef<HTMLUListElement>(null);
+  const [isDrag, setIsDrag] = useState(false);
+  const [startX, setStartX] = useState<number>(0);
+
+  const onDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!draggable.current) return;
+    setIsDrag(true);
+    setStartX(e.pageX + draggable.current.scrollLeft);
+  };
+
+  const onDragEnd = () => setIsDrag(false);
+
+  const onDragMove = (e: React.MouseEvent) => {
+    if (!draggable.current) return;
+    if (isDrag) {
+      const {scrollWidth, clientWidth, scrollLeft} = draggable.current;
+      draggable.current.scrollLeft = startX - e.pageX;
+      if (scrollLeft === 0) {
+        setStartX(e.pageX);
+      } else if (scrollWidth <= clientWidth + scrollLeft) {
+        setStartX(e.pageX + scrollLeft);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!showLog) return;
@@ -65,15 +104,27 @@ const ShowLog = ({
     logWrapRef.current.style.maxHeight = height;
   };
 
+  const activeListHandler = (i: number) => {
+    console.log(i);
+    setIndex(i);
+  };
+
+  const onThrottleDragMove = throttle(onDragMove, delay);
+
   return (
     <>
       <ShowLogsWrap showLog={showLog}>
         {isTabLog ? (
           <TabLogWrap desktop={desktop} ref={logWrapRef} showLog={showLog}>
             <div className="inner-tab" ref={logRef}>
-              <ul>
+              <ul
+                ref={draggable}
+                onMouseDown={onDragStart}
+                onMouseMove={onThrottleDragMove}
+                onMouseUp={onDragEnd}
+                onMouseLeave={onDragEnd}>
                 {tabData.list.map((v: string, i: number) => (
-                  <List key={v1()} active={i === index} onClick={() => setIndex(i)}>
+                  <List key={v1()} active={i === index} onMouseDown={() => activeListHandler(i)}>
                     {v}
                   </List>
                 ))}
@@ -128,6 +179,7 @@ const TabLogWrap = styled.div<StyleProps>`
       width: 100%;
       ${mixins.flexbox('row', 'center', 'flex-start')};
       overflow-x: auto;
+      user-select: none;
     }
   }
 `;

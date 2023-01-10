@@ -1,6 +1,5 @@
 import {toGnot} from '@/common/utils/gnot-util';
 import {AmountText} from '@/components/ui/text/amount-text';
-import BigNumber from 'bignumber.js';
 import React from 'react';
 
 interface Props {

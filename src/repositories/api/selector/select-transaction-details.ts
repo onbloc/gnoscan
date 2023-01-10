@@ -1,13 +1,12 @@
-import {BigNumber} from 'bignumber.js';
-import {numberWithCommas, statusObj} from '@/common/utils';
+import {numberWithCommas, numberWithFixedCommas, statusObj} from '@/common/utils';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
-import {valueConvert} from '@/common/utils/gnot-util';
 import {
   ContractKeyType,
   contractObj,
   KeyOfContract,
   SummaryDataType,
 } from '@/models/transaction-details-model';
+import BigNumber from 'bignumber.js';
 
 const valueForContractType = (contract: any) => {
   let map: KeyOfContract = {
@@ -32,7 +31,7 @@ const valueForContractType = (contract: any) => {
         To: contract.to_address,
         Amount: {
           denom: contract.amount.denom,
-          value: BigNumber(contract.amount.value),
+          value: contract.amount.value,
         },
       },
     };
@@ -44,7 +43,7 @@ const valueForContractType = (contract: any) => {
       });
     } else if (contract.pkg_path === 'gno.land/r/demo/users') {
       contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
-        map.type = contract.func;
+        map.type = contract.pkg_func;
         map.data[v] = contract.args[i];
       });
     } else {
@@ -61,9 +60,14 @@ const valueForContractType = (contract: any) => {
 
 export const transactionDetailSelector = (data: any) => {
   const {summary, contract, log} = data;
-  const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
+  console.log(';;;;;; ', data);
+  const bigNumUsed = BigNumber(summary.gas.used);
+  const bigNumWanted = BigNumber(summary.gas.wanted);
+  const bigNumMultiplied = bigNumUsed.multipliedBy(100);
+  const isNaNCheck = Number.isNaN(bigNumUsed.dividedBy(bigNumWanted));
+  const gasPercent = isNaNCheck
     ? 0
-    : BigNumber((summary.gas.used * 100) / summary.gas.wanted).toFixed(2);
+    : numberWithFixedCommas(bigNumMultiplied.dividedBy(bigNumWanted), 2);
   const summaryData: SummaryDataType = {
     ...summary,
     statusType: statusObj(summary.status),
@@ -72,7 +76,7 @@ export const transactionDetailSelector = (data: any) => {
     hash: summary.hash,
     network: summary.network,
     height: summary.height,
-    txFee: BigNumber(summary.fee.value),
+    txFee: summary.fee.value,
     gas: `${numberWithCommas(summary.gas.used)}/${numberWithCommas(
       summary.gas.wanted,
     )} (${gasPercent}%)`,
