@@ -7,7 +7,7 @@ import mixins from '@/styles/mixins';
 import Tabs from '@/components/view/tabs';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
-
+import {scrollbarStyle, useScrollbar} from '@/common/hooks/use-scroll-bar';
 interface StyleProps {
   desktop?: boolean;
   showLog?: boolean;
@@ -49,6 +49,7 @@ const ShowLog = ({
   const draggable = useRef<HTMLUListElement>(null);
   const [isDrag, setIsDrag] = useState(false);
   const [startX, setStartX] = useState<number>(0);
+  const [scrollVisible, onFocusIn, onFocusOut] = useScrollbar();
 
   const onDragStart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -136,7 +137,13 @@ const ShowLog = ({
                   </List>
                 ))}
               </ul>
-              <TabLog hasRadius={index === 0} desktop={desktop} showLog={showLog}>
+              <TabLog
+                onMouseEnter={onFocusIn}
+                onMouseLeave={onFocusOut}
+                hasRadius={index === 0}
+                desktop={desktop}
+                showLog={showLog}
+                className={scrollVisible ? 'scroll-visible' : ''}>
                 <Text type="p4" color="primary" className="inner-content">
                   {tabData.content[index]}
                 </Text>
@@ -145,7 +152,12 @@ const ShowLog = ({
           </TabLogWrap>
         ) : (
           <LogWrap desktop={desktop} showLog={showLog}>
-            <Log desktop={desktop} showLog={showLog}>
+            <Log
+              onMouseEnter={onFocusIn}
+              onMouseLeave={onFocusOut}
+              desktop={desktop}
+              showLog={showLog}
+              className={scrollVisible ? 'scroll-visible' : ''}>
               <pre>
                 <Text type="p4" color="primary">
                   {JSON.stringify(logData, null, 2)}
@@ -212,6 +224,7 @@ const LogWrap = styled.div<StyleProps>`
 `;
 
 const Log = styled.div<StyleProps>`
+  ${scrollbarStyle};
   width: 100%;
   padding: ${({showLog}) => (showLog ? '24px' : '0px 24px')};
   word-break: keep-all;
@@ -221,6 +234,7 @@ const Log = styled.div<StyleProps>`
 `;
 
 const TabLog = styled(Log)<StyleProps>`
+  ${scrollbarStyle};
   /* height: 100%; */
   /* max-height: ${({desktop}) => (desktop ? '528px' : '292px')}; */
   height: ${({showLog, desktop}) => {
