@@ -10,6 +10,7 @@ export type SummaryDataType = {
   network: string;
   height: number;
   txFee: string;
+  denom: string;
   gas: string;
   memo: string;
 };

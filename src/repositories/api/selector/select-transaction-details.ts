@@ -77,6 +77,7 @@ export const transactionDetailSelector = (data: any) => {
     network: summary.network,
     height: summary.height,
     txFee: summary.fee.value,
+    denom: summary.fee.denom,
     gas: `${numberWithCommas(summary.gas.used)}/${numberWithCommas(
       summary.gas.wanted,
     )} (${gasPercent}%)`,
@@ -90,6 +91,7 @@ export const transactionDetailSelector = (data: any) => {
       args: valueForContractType(v),
     })),
   };
+
   return {
     ...data,
     summary: summaryData,
