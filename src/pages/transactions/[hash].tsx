@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import {useQuery, UseQueryResult} from 'react-query';
 import {useRouter} from 'next/router';
@@ -163,14 +163,14 @@ const CallerContract = ({contract, desktop}: any) => {
             <dt>{v}</dt>
             <dd>
               <Badge>
-                <Link href={`/accounts/${contract.caller || '-'}`} passHref>
+                <Link href={`/accounts/${contract.caller_address || '-'}`} passHref>
                   <FitContentA>
                     <Text
                       type="p4"
                       color="blue"
                       className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
                       {contract.args.data[v] ? (
-                        <Tooltip content={contract.caller}>{contract.args.data[v]}</Tooltip>
+                        <Tooltip content={contract.caller_address}>{contract.args.data[v]}</Tooltip>
                       ) : (
                         '-'
                       )}
@@ -209,7 +209,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
           <dd>
             <Badge>
               {v === 'Creator' ? (
-                <Link href={`/accounts/${contract.creator}`} passHref>
+                <Link href={`/accounts/${contract.creator_address}`} passHref>
                   <FitContentA>
                     <Text type="p4" color="blue">
                       {contract.args.data[v] || '-'}
