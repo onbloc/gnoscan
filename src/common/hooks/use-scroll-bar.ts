@@ -40,5 +40,9 @@ export const useScrollbar = () => {
     setScrollVisible(false);
   };
 
-  return [scrollVisible, onFocusIn, onFocusOut];
+  return {
+    scrollVisible,
+    onFocusIn,
+    onFocusOut,
+  };
 };
