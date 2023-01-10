@@ -18,7 +18,7 @@ const hasTooltipTitle = ['Unique Users'];
 
 const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
   const media = eachMedia();
-  const [scrollVisible, onFocusIn, onFocusOut] = useScrollbar();
+  const {scrollVisible, onFocusIn, onFocusOut} = useScrollbar();
 
   return (
     <ListContainer onMouseEnter={onFocusIn} onMouseLeave={onFocusOut}>

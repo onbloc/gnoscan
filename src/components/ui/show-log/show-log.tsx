@@ -49,7 +49,7 @@ const ShowLog = ({
   const draggable = useRef<HTMLUListElement>(null);
   const [isDrag, setIsDrag] = useState(false);
   const [startX, setStartX] = useState<number>(0);
-  const [scrollVisible, onFocusIn, onFocusOut] = useScrollbar();
+  const {scrollVisible, onFocusIn, onFocusOut} = useScrollbar();
 
   const onDragStart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -73,41 +73,11 @@ const ShowLog = ({
     }
   };
 
-  // useEffect(() => {
-  //   if (!showLog) return;
-  //   heightSet();
-  // }, [index, showLog]);
-
   const showLogHandler = useCallback(() => {
     console.log(index, showLog);
     setIndex(0);
     setShowLog((prev: boolean) => !prev);
   }, [showLog, index]);
-
-  // const showLogHandler = useCallback(() => {
-  //   if (logWrapRef.current === null || logRef.current === null) return;
-  //   if (showLog) {
-  //     logRef.current.scrollTo(0, 0);
-  //     setIndex(0);
-  //     logWrapRef.current.style.height = '0px';
-  //     logWrapRef.current.style.maxHeight = '0px';
-  //   } else {
-  //     heightSet();
-  //   }
-  //   setShowLog((prev: boolean) => !prev);
-  // }, [showLog, desktop, isTabLog]);
-
-  // const heightSet = () => {
-  //   if (logWrapRef.current === null || logRef.current === null) return;
-  //   let height = '0px';
-  //   if (isTabLog) {
-  //     height = desktop ? '572px' : '336px';
-  //   } else {
-  //     height = desktop ? '528px' : '292px';
-  //   }
-  //   logWrapRef.current.style.height = `${logRef.current.clientHeight}px`;
-  //   logWrapRef.current.style.maxHeight = height;
-  // };
 
   const activeListHandler = (i: number) => {
     setIndex(i);
