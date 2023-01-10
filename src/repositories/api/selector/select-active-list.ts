@@ -3,7 +3,6 @@ import {formatAddress, formatEllipsis} from '@/common/utils';
 import {getLocalDateString} from '@/common/utils/date-util';
 
 export const accountListSelector = (data: any) => {
-  console.log('111', data);
   const accounts = data.accounts.map((v: any) => {
     return {
       no: v.idx,
