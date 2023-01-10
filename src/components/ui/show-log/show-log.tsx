@@ -46,8 +46,6 @@ const ShowLog = ({
   const desktop: boolean = isDesktop();
   const [showLog, setShowLog] = useState(false);
   const [index, setIndex] = useState(0);
-  const logWrapRef = useRef<HTMLDivElement>(null);
-  const logRef = useRef<HTMLDivElement>(null);
   const draggable = useRef<HTMLUListElement>(null);
   const [isDrag, setIsDrag] = useState(false);
   const [startX, setStartX] = useState<number>(0);
@@ -74,35 +72,41 @@ const ShowLog = ({
     }
   };
 
-  useEffect(() => {
-    if (!showLog) return;
-    heightSet();
-  }, [index, showLog]);
+  // useEffect(() => {
+  //   if (!showLog) return;
+  //   heightSet();
+  // }, [index, showLog]);
 
   const showLogHandler = useCallback(() => {
-    if (logWrapRef.current === null || logRef.current === null) return;
-    if (showLog) {
-      logRef.current.scrollTo(0, 0);
-      setIndex(0);
-      logWrapRef.current.style.height = '0px';
-      logWrapRef.current.style.maxHeight = '0px';
-    } else {
-      heightSet();
-    }
+    console.log(index, showLog);
+    setIndex(0);
     setShowLog((prev: boolean) => !prev);
-  }, [showLog, desktop, isTabLog]);
+  }, [showLog, index]);
 
-  const heightSet = () => {
-    if (logWrapRef.current === null || logRef.current === null) return;
-    let height = '0px';
-    if (isTabLog) {
-      height = desktop ? '572px' : '336px';
-    } else {
-      height = desktop ? '528px' : '292px';
-    }
-    logWrapRef.current.style.height = `${logRef.current.clientHeight}px`;
-    logWrapRef.current.style.maxHeight = height;
-  };
+  // const showLogHandler = useCallback(() => {
+  //   if (logWrapRef.current === null || logRef.current === null) return;
+  //   if (showLog) {
+  //     logRef.current.scrollTo(0, 0);
+  //     setIndex(0);
+  //     logWrapRef.current.style.height = '0px';
+  //     logWrapRef.current.style.maxHeight = '0px';
+  //   } else {
+  //     heightSet();
+  //   }
+  //   setShowLog((prev: boolean) => !prev);
+  // }, [showLog, desktop, isTabLog]);
+
+  // const heightSet = () => {
+  //   if (logWrapRef.current === null || logRef.current === null) return;
+  //   let height = '0px';
+  //   if (isTabLog) {
+  //     height = desktop ? '572px' : '336px';
+  //   } else {
+  //     height = desktop ? '528px' : '292px';
+  //   }
+  //   logWrapRef.current.style.height = `${logRef.current.clientHeight}px`;
+  //   logWrapRef.current.style.maxHeight = height;
+  // };
 
   const activeListHandler = (i: number) => {
     setIndex(i);
@@ -114,8 +118,8 @@ const ShowLog = ({
     <>
       <ShowLogsWrap showLog={showLog}>
         {isTabLog ? (
-          <TabLogWrap desktop={desktop} ref={logWrapRef} showLog={showLog}>
-            <div className="inner-tab" ref={logRef}>
+          <TabLogWrap desktop={desktop} showLog={showLog}>
+            <div className="inner-tab">
               <ul
                 ref={draggable}
                 onMouseDown={onDragStart}
@@ -123,7 +127,11 @@ const ShowLog = ({
                 onMouseUp={onDragEnd}
                 onMouseLeave={onDragEnd}>
                 {tabData.list.map((v: string, i: number) => (
-                  <List key={v1()} active={i === index} onMouseDown={() => activeListHandler(i)}>
+                  <List
+                    key={v1()}
+                    active={i === index}
+                    onMouseDown={() => activeListHandler(i)}
+                    showLog={showLog}>
                     {v}
                   </List>
                 ))}
@@ -136,8 +144,8 @@ const ShowLog = ({
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap ref={logWrapRef} desktop={desktop} showLog={showLog}>
-            <Log ref={logRef} desktop={desktop} showLog={showLog}>
+          <LogWrap desktop={desktop} showLog={showLog}>
+            <Log desktop={desktop} showLog={showLog}>
               <pre>
                 <Text type="p4" color="primary">
                   {JSON.stringify(logData, null, 2)}
@@ -158,13 +166,12 @@ const ShowLog = ({
 const ShowLogsWrap = styled.div<StyleProps>`
   ${mixins.flexbox('column', 'center', 'center')}
   width: 100%;
-  height: auto;
+  /* height: auto; */
   margin-top: ${({showLog}) => (showLog ? '24px' : '8px')};
 `;
 
 const logWrapCommonStyle = css<StyleProps>`
   width: 100%;
-  height: 0px;
   transition: all 0.4s ease;
 `;
 
@@ -172,6 +179,13 @@ const TabLogWrap = styled.div<StyleProps>`
   ${logWrapCommonStyle};
   overflow: hidden;
   color: ${({theme}) => theme.colors.reverse};
+  height: ${({showLog, desktop}) => {
+    if (showLog) {
+      return desktop ? '572px' : '336px';
+    } else {
+      return '0px';
+    }
+  }};
   .inner-tab {
     width: 100%;
     ul {
@@ -188,6 +202,13 @@ const LogWrap = styled.div<StyleProps>`
   overflow: auto;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.surface};
+  height: ${({showLog, desktop}) => {
+    if (showLog) {
+      return desktop ? '528px' : '292px';
+    } else {
+      return '0px';
+    }
+  }};
 `;
 
 const Log = styled.div<StyleProps>`
@@ -200,8 +221,15 @@ const Log = styled.div<StyleProps>`
 `;
 
 const TabLog = styled(Log)<StyleProps>`
-  height: 100%;
-  max-height: ${({desktop}) => (desktop ? '528px' : '292px')};
+  /* height: 100%; */
+  /* max-height: ${({desktop}) => (desktop ? '528px' : '292px')}; */
+  height: ${({showLog, desktop}) => {
+    if (showLog) {
+      return desktop ? '528px' : '292px';
+    } else {
+      return '0px';
+    }
+  }};
   overflow: auto;
   background-color: ${({theme}) => theme.colors.surface};
 `;

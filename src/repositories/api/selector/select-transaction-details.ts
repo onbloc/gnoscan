@@ -60,6 +60,7 @@ const valueForContractType = (contract: any) => {
 
 export const transactionDetailSelector = (data: any) => {
   const {summary, contract, log} = data;
+
   const bigNumUsed = BigNumber(summary.gas.used);
   const bigNumWanted = BigNumber(summary.gas.wanted);
   const bigNumMultiplied = bigNumUsed.multipliedBy(100);
