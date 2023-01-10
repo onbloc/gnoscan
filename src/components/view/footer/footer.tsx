@@ -39,11 +39,14 @@ const Definition = ({isDesktop}: ModProps) => (
   </DefinitionWrapper>
 );
 
-const Copyright = ({isDesktop}: ModProps) => (
-  <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary" margin="0 9px 0 0">
-    @ 2022 Gnoscan
-  </Text>
-);
+const Copyright = ({isDesktop}: ModProps) => {
+  const year = new Date().getFullYear();
+  return (
+    <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary" margin="0 9px 0 0">
+      {`@ ${year} Gnoscan`}
+    </Text>
+  );
+};
 
 const Terms = ({isDesktop}: ModProps) => (
   <FTextWrapper isDesktop={isDesktop}>

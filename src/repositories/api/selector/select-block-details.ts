@@ -3,7 +3,6 @@ import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import BigNumber from 'bignumber.js';
 
 export const blockDetailSelector = (data: any) => {
-  console.log('11111 ', data);
   const bigNumPlus = BigNumber(data.gas.used).multipliedBy(100);
   const gasPercent = Number.isNaN(data.gas.used / data.gas.wanted)
     ? 0

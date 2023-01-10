@@ -105,7 +105,6 @@ const ShowLog = ({
   };
 
   const activeListHandler = (i: number) => {
-    console.log(i);
     setIndex(i);
   };
 

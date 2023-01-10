@@ -84,7 +84,6 @@ export const TransactionDatatable = () => {
     if (!data) {
       return [];
     }
-    console.log(';;;;', data);
     return data.pages.reduce((accum: Array<TransactionData>, current) => {
       return current ? [...accum, ...current] : accum;
     }, []);
