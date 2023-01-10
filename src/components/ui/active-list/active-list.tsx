@@ -1,12 +1,13 @@
 import {eachMedia} from '@/common/hooks/use-media';
 import React, {useState} from 'react';
-import styled from 'styled-components';
+import styled, {CSSProperties} from 'styled-components';
 import mixins from '@/styles/mixins';
 import {v1} from 'uuid';
 import {StyledText} from '@/components/view/main-active-list/main-active-list';
 import Tooltip from '../tooltip';
 import {Button} from '../button';
 import IconInfo from '@/assets/svgs/icon-info.svg';
+import {scrollbarStyle, useScrollbar} from '@/common/hooks/use-scroll-bar';
 interface ActiveListProps {
   title: string[];
   colWidth: string[];
@@ -17,15 +18,7 @@ const hasTooltipTitle = ['Unique Users'];
 
 const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
   const media = eachMedia();
-  const [scrollVisible, setScrollVisible] = useState(false);
-
-  const onFocusIn = () => {
-    setScrollVisible(true);
-  };
-
-  const onFocusOut = () => {
-    setScrollVisible(false);
-  };
+  const [scrollVisible, onFocusIn, onFocusOut] = useScrollbar();
 
   return (
     <ListContainer onMouseEnter={onFocusIn} onMouseLeave={onFocusOut}>
@@ -59,6 +52,7 @@ const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
 
 const ListContainer = styled.div`
   ${mixins.flexbox('column', 'flex-start', 'flex-start')};
+  ${scrollbarStyle};
   width: 100%;
   height: 280px;
   overflow: auto hidden;
