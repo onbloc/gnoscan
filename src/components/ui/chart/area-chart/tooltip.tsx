@@ -59,7 +59,6 @@ export const AreaChartTooltip = ({
   const parseValue = (value: number) => {
     let integer = '0';
     let decimal = '0';
-
     try {
       if (value > 0) {
         decimal = `000000${value}`.slice(-6);

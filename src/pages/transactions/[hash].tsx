@@ -106,7 +106,12 @@ const TransactionDetails = () => {
               <dt>Transaction Fee</dt>
               <dd>
                 <Badge>
-                  <AmountText minSize="body2" maxSize="p4" value={tx.summary.txFee} denom="GNOT" />
+                  <AmountText
+                    minSize="body2"
+                    maxSize="p4"
+                    value={tx.summary.txFee}
+                    denom={tx.summary.denom.toUpperCase()}
+                  />
                 </Badge>
               </dd>
             </DLWrap>
@@ -201,6 +206,7 @@ const CallerContract = ({contract, desktop}: any) => {
 };
 
 const AddPkgContract = ({contract, desktop}: any) => {
+  console.log('-00 ', contract);
   return (
     <>
       {Object.keys(contract.args.data).map(v => (
@@ -210,6 +216,14 @@ const AddPkgContract = ({contract, desktop}: any) => {
             <Badge>
               {v === 'Creator' ? (
                 <Link href={`/accounts/${contract.creator_address}`} passHref>
+                  <FitContentA>
+                    <Text type="p4" color="blue">
+                      {contract.args.data[v] || '-'}
+                    </Text>
+                  </FitContentA>
+                </Link>
+              ) : v === 'Path' ? (
+                <Link href={`/realms/details?path=${contract.pkg_path}`} passHref>
                   <FitContentA>
                     <Text type="p4" color="blue">
                       {contract.args.data[v] || '-'}
