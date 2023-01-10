@@ -130,7 +130,7 @@ const ShowLog = ({
               className={scrollVisible ? 'scroll-visible' : ''}>
               <pre>
                 <Text type="p4" color="primary">
-                  {JSON.stringify(logData, null, 2)}
+                  {window.atob(logData)}
                 </Text>
               </pre>
             </Log>
