@@ -1,4 +1,5 @@
 import {LogDataType} from '@/components/view/tabs/tabs';
+import BigNumber from 'bignumber.js';
 
 export interface RealmDetailsModel {
   name: string;
@@ -8,6 +9,6 @@ export interface RealmDetailsModel {
   blockPublished: number;
   path: string;
   ContractCalls: number;
-  gasUsed: string;
+  gasUsed: BigNumber;
   log: LogDataType;
 }

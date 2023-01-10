@@ -19,7 +19,6 @@ import {AccountDetailDatatable} from '@/components/view/datatable';
 import {getAccountDetails} from '@/repositories/api/fetchers/api-account-details';
 import {accountDetailSelector} from '@/repositories/api/selector/select-account-details';
 import {AccountDetailsModel, AssetsDataType} from '@/models/account-details-model';
-import BigNumber from 'bignumber.js';
 interface StyleProps {
   media?: string;
   padding?: string;

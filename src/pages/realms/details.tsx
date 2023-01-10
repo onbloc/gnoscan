@@ -15,7 +15,6 @@ import {RealmDetailDatatable} from '@/components/view/datatable';
 import {RealmDetailsModel} from '@/models/realm-details-model';
 import {getRealmDetails} from '@/repositories/api/fetchers/api-realm-details';
 import {realmDetailSelector} from '@/repositories/api/selector/select-realm-details';
-import BigNumber from 'bignumber.js';
 
 const RealmsDetails = () => {
   const desktop = isDesktop();
@@ -121,7 +120,7 @@ const RealmsDetails = () => {
               <dt>Gas Used</dt>
               <dd>
                 <Badge>
-                  <AmountText minSize="body1" maxSize="p4" value={realm.gasUsed} />
+                  <AmountText minSize="body1" maxSize="p4" value={realm.gasUsed} denom="GNOT" />
                 </Badge>
               </dd>
             </DLWrap>

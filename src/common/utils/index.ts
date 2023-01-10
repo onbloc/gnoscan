@@ -7,29 +7,16 @@ export interface StatusResultType {
   color: PaletteKeyType;
 }
 
-export const numberWithFixedCommas = (v: string | number | BigNumber, fixed?: number): string => {
-  const fix = fixed ?? 6;
-  const bigNum = BigNumber(v);
-  const integerCheck = Number.isInteger(Number(bigNum));
-  if (integerCheck) {
-    return numberWithCommas(v);
-  } else {
-    const split = bigNum.toString().split('.');
-    const commasNum = numberWithCommas(split[0]);
-    const fixedNum = decimalFixed(split[1], fix);
-    return `${commasNum}.${fixedNum}`;
-  }
-};
-
-export const decimalFixed = (v: string | number, fixed: number) => {
-  const bigNum = BigNumber(v);
-  return String(bigNum).slice(0, fixed);
-};
-
 export const numberWithCommas = (v: string | number | BigNumber) => {
-  if (!Boolean(v)) return '0';
   const bigNum = BigNumber(v);
-  return bigNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const toFormatVal = bigNum.toFormat();
+  return toFormatVal;
+};
+
+export const numberWithFixedCommas = (v: BigNumber, fixed?: number): string => {
+  const fix = fixed ?? 6;
+  const toFormatVal = v.toFormat(fix).replace(/\.?0+$/, '');
+  return toFormatVal;
 };
 
 export function formatAddress(v: string, num: number = 4): string {
@@ -40,16 +27,11 @@ export function formatEllipsis(v: string, num: number = 11) {
   return v.length > num ? `${v.slice(0, num)}..` : v;
 }
 
-export const decimalPointWithCommas = (v: number | string, fixed?: number): string[] | string => {
+export const decimalPointWithCommas = (v: BigNumber, fixed?: number): string[] | string => {
   if (!Boolean(v)) return ['0'];
   const fix = fixed ?? 6;
-  const splitDot = v.toString().split('.');
-
-  if (splitDot.length > 1) {
-    return [...numberWithCommas(splitDot[0]), splitDot[1]];
-  } else {
-    return [numberWithCommas(splitDot[0])];
-  }
+  const commasNum = numberWithFixedCommas(v, fix);
+  return commasNum.split('.');
 };
 
 export const statusObj = (status: StatusKeyType): StatusResultType => {

@@ -9,7 +9,7 @@ export const realmDetailSelector = (data: any) => {
     blockPublished: data.height,
     path: data.path,
     ContractCalls: data.total_calls,
-    gasUsed: data.gas_used,
+    gasUsed: BigNumber(data.gas_used),
     log: {
       list: data.extra.files,
       content: data.extra.contents.map((v: any) => window.atob(v)),

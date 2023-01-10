@@ -1,11 +1,13 @@
-import {numberWithCommas} from '@/common/utils';
+import {numberWithCommas, numberWithFixedCommas} from '@/common/utils';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import BigNumber from 'bignumber.js';
 
 export const blockDetailSelector = (data: any) => {
+  console.log('11111 ', data);
+  const bigNumPlus = BigNumber(data.gas.used).multipliedBy(100);
   const gasPercent = Number.isNaN(data.gas.used / data.gas.wanted)
     ? 0
-    : BigNumber((data.gas.used * 100) / data.gas.wanted).toFixed(2);
+    : numberWithFixedCommas(bigNumPlus.dividedBy(data.gas.wanted), 2);
   return {
     ...data,
     timestamp: getLocalDateString(data.time),

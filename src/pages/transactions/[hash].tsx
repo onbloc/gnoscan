@@ -18,7 +18,7 @@ import mixins from '@/styles/mixins';
 import {TransactionDetailsModel} from '@/models/transaction-details-model';
 import {getTransactionDetails} from '@/repositories/api/fetchers/api-transaction-details';
 import {transactionDetailSelector} from '@/repositories/api/selector/select-transaction-details';
-import BigNumber from 'bignumber.js';
+
 const ellipsisTextKey = ['Caller', 'Body'];
 
 const TransactionDetails = () => {

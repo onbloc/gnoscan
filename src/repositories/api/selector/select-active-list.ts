@@ -1,9 +1,9 @@
+import {BigNumber} from 'bignumber.js';
 import {formatAddress, formatEllipsis} from '@/common/utils';
 import {getLocalDateString} from '@/common/utils/date-util';
-import BigNumber from 'bignumber.js';
 
 export const accountListSelector = (data: any) => {
-  console.log(data, '....');
+  console.log('111', data);
   const accounts = data.accounts.map((v: any) => {
     return {
       no: v.idx,
