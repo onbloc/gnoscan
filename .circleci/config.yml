@@ -74,7 +74,7 @@ jobs:
       - checkout
       - aws-ecr/build-and-push-image:
           repo: '${SERVICE_NAME}'
-          path: $DOCKERFILE
+          dockerfile: $DOCKERFILE
           tag: '${CHAIN_ID}.${CIRCLE_BRANCH},$(date "+%Y%m%d%H%M%S")'
       - run:
           name: Deploy Over SSH
