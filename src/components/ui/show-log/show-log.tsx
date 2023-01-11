@@ -131,7 +131,7 @@ const ShowLog = ({
               showLog={showLog}>
               <pre>
                 <Text type="p4" color="primary">
-                  {JSON.stringify(logData, null, 2)}
+                  {logData}
                 </Text>
               </pre>
             </Log>

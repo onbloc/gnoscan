@@ -2,6 +2,7 @@ import React from 'react';
 import {ActiveElement} from 'chart.js';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
+import BigNumber from 'bignumber.js';
 
 interface TooltipProps {
   activeElements: Array<ActiveElement>;
@@ -24,10 +25,10 @@ export const AreaChartTooltip = ({
     }
     try {
       const totalValue = Object.keys(datas).reduce(
-        (d1, d2) => d1 + datas[d2][activeElements[0].index].value,
-        0,
+        (d1, d2) => d1.plus(BigNumber(datas[d2][activeElements[0].index].value)),
+        BigNumber(0),
       );
-      const {integer, decimal} = parseValue(totalValue);
+      const {integer, decimal} = parseValue(totalValue.toNumber());
       return (
         <>
           <strong>{integer}</strong>
@@ -59,14 +60,21 @@ export const AreaChartTooltip = ({
   const parseValue = (value: number) => {
     let integer = '0';
     let decimal = '0';
+    const valueStr = `${value}`;
+
     try {
-      if (value > 0) {
-        decimal = `000000${value}`.slice(-6);
-        if (`${value}`.length > 6) {
-          integer = `${value}`.slice(0, `${value}`.length - 6);
-          decimal = `${value}`.slice(-6);
-        }
+      const dotIndex = valueStr.indexOf('.');
+      if (dotIndex < 0) {
+        return {
+          integer: valueStr,
+          decimal: '0',
+        };
       }
+
+      return {
+        integer: valueStr.substring(0, dotIndex),
+        decimal: valueStr.substring(dotIndex + 1, valueStr.length),
+      };
     } catch (e) {}
 
     return {
@@ -134,10 +142,10 @@ const TooltipContainer = styled.div<{light: boolean}>`
     }
 
     .value {
+      display: inline-flex;
+      flex-direction: row;
       width: 90px;
       font-size: 10px;
-      justify-content: center;
-      align-items: center;
 
       strong {
         font-weight: 600;
@@ -198,8 +206,14 @@ const TooltipContainer = styled.div<{light: boolean}>`
       }
 
       .value {
-        justify-content: center;
-        align-items: center;
+        font-size: 10px;
+        line-height: 20px;
+
+        strong {
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 18px;
+        }
       }
 
       .dot {

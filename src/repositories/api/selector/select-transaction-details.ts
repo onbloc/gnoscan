@@ -95,6 +95,6 @@ export const transactionDetailSelector = (data: any) => {
     ...data,
     summary: summaryData,
     contract: contractData,
-    log: decodeURIComponent(window.atob(log)),
+    log: window.atob(log),
   };
 };

@@ -73,7 +73,7 @@ const Tooltip = ({
           title={<TooltipWrapper>{content}</TooltipWrapper>}
           open={isClicked}
           onOpenChange={clickTimer}>
-          <div className="tooltip-button">{children}</div>
+          <div className="tooltip-button cursor">{children}</div>
         </AntdTooltip>
       ) : (
         <AntdTooltip
@@ -95,6 +95,15 @@ const Wrapper = styled.div`
   vertical-align: top;
   .tooltip-button {
     ${mixins.flexbox('row', 'center', 'center')};
+
+    & button {
+      cursor: default;
+    }
+
+    &.cursor,
+    &.cursor button {
+      cursor: pointer;
+    }
   }
 `;
 
