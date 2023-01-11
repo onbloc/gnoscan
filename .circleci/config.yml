@@ -60,7 +60,7 @@ commands:
           name: Initialize Deploy Environment
           when: always
           command: |
-            mv Docerfile.${CIRCLE_BRANCH} Dockerfile
+            mv "Dockerfile.${CIRCLE_BRANCH}" "Dockerfile"
 
 jobs:
   build:
