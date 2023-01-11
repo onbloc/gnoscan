@@ -66,7 +66,7 @@ jobs:
       - init-slack
       - notification-build-start
 
-  deploy:
+  deploy-develop:
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true
@@ -74,7 +74,25 @@ jobs:
       - checkout
       - aws-ecr/build-and-push-image:
           repo: '${SERVICE_NAME}'
-          dockerfile: $DOCKERFILE
+          dockerfile: 'Dockerfile.develop'
+          tag: '${CHAIN_ID}.${CIRCLE_BRANCH},$(date "+%Y%m%d%H%M%S")'
+      - run:
+          name: Deploy Over SSH
+          command: |
+            ssh "${SERVER_ADDRESS}" "./circle-ci-deploy.sh ${SERVICE_NAME} ${CHAIN_ID}.${CIRCLE_BRANCH} ${CIRCLE_BRANCH} ${PORT}"
+      - init-slack
+      - notification-deploy-success
+      - notification-deploy-fail
+
+  deploy-main:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - aws-ecr/build-and-push-image:
+          repo: '${SERVICE_NAME}'
+          dockerfile: 'Dockerfile.main'
           tag: '${CHAIN_ID}.${CIRCLE_BRANCH},$(date "+%Y%m%d%H%M%S")'
       - run:
           name: Deploy Over SSH
@@ -95,7 +113,7 @@ workflows:
               only:
                 - main
                 - develop
-      - deploy:
+      - deploy-develop:
           context:
             - AWS_DEPLOY
             - SLACK_GNOSCAN
@@ -106,7 +124,7 @@ workflows:
             branches:
               only:
                 - develop
-      - deploy:
+      - deploy-main:
           context:
             - AWS_DEPLOY
             - SLACK_GNOSCAN
