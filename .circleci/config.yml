@@ -54,6 +54,13 @@ commands:
           channel: 'C04GFMSFVT4'
           event: fail
           template: SLACK_TEMPLATE_DEPLOY_FAIL
+  init-deploy-environment:
+    steps:
+      - run:
+          name: Initialize Deploy Environment
+          when: always
+          command: |
+            mv Docerfile.${CIRCLE_BRANCH} Dockerfile
 
 jobs:
   build:
@@ -66,33 +73,15 @@ jobs:
       - init-slack
       - notification-build-start
 
-  deploy-develop:
+  deploy:
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true
     steps:
       - checkout
+      - init-deploy-environment
       - aws-ecr/build-and-push-image:
           repo: '${SERVICE_NAME}'
-          dockerfile: 'Dockerfile.develop'
-          tag: '${CHAIN_ID}.${CIRCLE_BRANCH},$(date "+%Y%m%d%H%M%S")'
-      - run:
-          name: Deploy Over SSH
-          command: |
-            ssh "${SERVER_ADDRESS}" "./circle-ci-deploy.sh ${SERVICE_NAME} ${CHAIN_ID}.${CIRCLE_BRANCH} ${CIRCLE_BRANCH} ${PORT}"
-      - init-slack
-      - notification-deploy-success
-      - notification-deploy-fail
-
-  deploy-main:
-    machine:
-      image: ubuntu-2004:current
-      docker_layer_caching: true
-    steps:
-      - checkout
-      - aws-ecr/build-and-push-image:
-          repo: '${SERVICE_NAME}'
-          dockerfile: 'Dockerfile.main'
           tag: '${CHAIN_ID}.${CIRCLE_BRANCH},$(date "+%Y%m%d%H%M%S")'
       - run:
           name: Deploy Over SSH
@@ -113,7 +102,7 @@ workflows:
               only:
                 - main
                 - develop
-      - deploy-develop:
+      - deploy:
           context:
             - AWS_DEPLOY
             - SLACK_GNOSCAN
@@ -124,7 +113,7 @@ workflows:
             branches:
               only:
                 - develop
-      - deploy-main:
+      - deploy:
           context:
             - AWS_DEPLOY
             - SLACK_GNOSCAN
