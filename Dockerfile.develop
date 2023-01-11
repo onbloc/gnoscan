@@ -11,7 +11,7 @@ COPY ./env* .
 FROM base AS build
 COPY . .
 RUN yarn install
-RUN yarn run build
+RUN yarn run build:develop
 
 FROM base AS release
 COPY --from=build /usr/app/node_modules ./node_modules
