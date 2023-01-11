@@ -1,4 +1,5 @@
 import {PaletteKeyType} from '@/styles/theme';
+import BigNumber from 'bignumber.js';
 
 export type StatusKeyType = 'success' | 'failure';
 export interface StatusResultType {
@@ -6,32 +7,16 @@ export interface StatusResultType {
   color: PaletteKeyType;
 }
 
-export const numberWithFixedCommas = (v: number | string, fixed?: number): string => {
+export const numberWithCommas = (v: string | number | BigNumber) => {
+  const bigNum = BigNumber(v);
+  const toFormatVal = bigNum.toFormat();
+  return toFormatVal;
+};
+
+export const numberWithFixedCommas = (v: BigNumber, fixed?: number): string => {
   const fix = fixed ?? 6;
-  const floatNum = parseFloatNum(v);
-  const integerCheck = Number.isInteger(Number(floatNum));
-  if (integerCheck) {
-    return numberWithCommas(floatNum);
-  } else {
-    const split = floatNum.split('.');
-    const commasNum = numberWithCommas(split[0]);
-    const fixedNum = decimalFixed(split[1], fix);
-    return `${commasNum}.${fixedNum}`;
-  }
-};
-
-export const decimalFixed = (v: number | string, fixed: number) => {
-  return String(v).slice(0, fixed);
-};
-
-export const numberWithCommas = (v: number | string) => {
-  if (v === '0' || !Boolean(v)) return '0';
-  return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
-
-export const parseFloatNum = (v: number | string): string => {
-  if (v === '0' || !Boolean(v)) return '0';
-  return parseFloat(v.toString()).toString();
+  const toFormatVal = v.toFormat(fix).replace(/\.?0+$/, '');
+  return toFormatVal;
 };
 
 export function formatAddress(v: string, num: number = 4): string {
@@ -42,16 +27,11 @@ export function formatEllipsis(v: string, num: number = 11) {
   return v.length > num ? `${v.slice(0, num)}..` : v;
 }
 
-export const decimalPointWithCommas = (v: string | number, fixed?: number): string[] | string => {
-  if (v === '0' || !Boolean(v)) return ['0'];
+export const decimalPointWithCommas = (v: BigNumber, fixed?: number): string[] | string => {
+  if (!Boolean(v)) return ['0'];
   const fix = fixed ?? 6;
-  const integerCheck = Number.isInteger(v);
-  if (integerCheck) {
-    return [numberWithCommas(v)];
-  } else {
-    const result = numberWithFixedCommas(v, fix);
-    return result.split('.');
-  }
+  const commasNum = numberWithFixedCommas(v, fix);
+  return commasNum.split('.');
 };
 
 export const statusObj = (status: StatusKeyType): StatusResultType => {

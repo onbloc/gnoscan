@@ -6,27 +6,15 @@ import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
 import {DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';
-import axios from 'axios';
 import Text from '@/components/ui/text';
 import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
-import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {RealmDetailDatatable} from '@/components/view/datatable';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
-
-type RealmResultType = {
-  name: string;
-  funcs: string[];
-  publisher: string;
-  address: string;
-  blockPublished: number;
-  path: string;
-  ContractCalls: number;
-  gasUsed: string;
-  log: LogDataType;
-};
+import {RealmDetailsModel} from '@/models/realm-details-model';
+import {getRealmDetails} from '@/repositories/api/fetchers/api-realm-details';
+import {realmDetailSelector} from '@/repositories/api/selector/select-realm-details';
 
 const RealmsDetails = () => {
   const desktop = isDesktop();
@@ -36,29 +24,12 @@ const RealmsDetails = () => {
     data: realm,
     isSuccess: realmSuccess,
     isFetched,
-  }: UseQueryResult<RealmResultType> = useQuery(
+  }: UseQueryResult<RealmDetailsModel> = useQuery(
     ['realm/path', path],
-    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/realm/summary/${queryKey[1]}`),
+    async () => await getRealmDetails(path),
     {
       enabled: !!path,
-      select: (res: any) => {
-        const realmData = res.data;
-        return {
-          name: realmData.name,
-          funcs: realmData.function_types,
-          publisher: Boolean(realmData.username) ? realmData.username : realmData.publisher,
-          address: realmData.address,
-          blockPublished: realmData.block_published,
-          path: realmData.path,
-          ContractCalls: realmData.contract_calls,
-          gasUsed: realmData.gas_used,
-          log: {
-            list: realmData.extra.files,
-            content: realmData.extra.contents.map((v: any) => window.atob(v)),
-          },
-        };
-      },
-      // onSuccess: (res: any) => console.log('Realms Data : ', res),
+      select: (res: any) => realmDetailSelector(res.data),
     },
   );
 
@@ -149,7 +120,7 @@ const RealmsDetails = () => {
               <dt>Gas Used</dt>
               <dd>
                 <Badge>
-                  <AmountText minSize="body1" maxSize="p4" value={realm.gasUsed} />
+                  <AmountText minSize="body1" maxSize="p4" value={realm.gasUsed} denom="GNOT" />
                 </Badge>
               </dd>
             </DLWrap>

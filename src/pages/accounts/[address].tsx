@@ -3,7 +3,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
-import axios from 'axios';
 import {useRouter} from 'next/router';
 import {useQuery, UseQueryResult} from 'react-query';
 import {DetailsPageLayout} from '@/components/core/layout';
@@ -17,22 +16,13 @@ import IconLink from '@/assets/svgs/icon-link.svg';
 import {v1} from 'uuid';
 import DataSection from '@/components/view/details-data-section';
 import {AccountDetailDatatable} from '@/components/view/datatable';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
-import {toGnot} from '@/common/utils/gnot-util';
+import {getAccountDetails} from '@/repositories/api/fetchers/api-account-details';
+import {accountDetailSelector} from '@/repositories/api/selector/select-account-details';
+import {AccountDetailsModel, AssetsDataType} from '@/models/account-details-model';
 interface StyleProps {
   media?: string;
   padding?: string;
   isDesktop?: boolean;
-}
-interface AssetsType {
-  denom: string;
-  value: number | string;
-  name: string;
-}
-interface DetailResultType {
-  address: string;
-  username: string;
-  assets: AssetsType[];
 }
 
 const AccountDetails = () => {
@@ -44,26 +34,13 @@ const AccountDetails = () => {
     data: detail,
     isSuccess: detailSuccess,
     isFetched,
-  }: UseQueryResult<DetailResultType> = useQuery(
+  }: UseQueryResult<AccountDetailsModel> = useQuery(
     ['detail/address', address],
-    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/account/detail/${queryKey[1]}`),
+    async () => await getAccountDetails(address),
     {
       enabled: !!address,
       retry: 0,
-      select: (res: any) => {
-        return {
-          ...res.data,
-          username: res.data.username,
-          assets: res.data.assets.map((v: any) => {
-            const convert = toGnot(v.value, v.denom);
-            return {
-              ...v,
-              ...convert,
-            };
-          }),
-        };
-      },
-      // onSuccess: (res: any) => console.log('Detail Data : ', res),
+      select: (res: any) => accountDetailSelector(res.data),
     },
   );
 
@@ -104,7 +81,7 @@ const AccountDetails = () => {
       <DataSection title="Assets">
         {detailSuccess && (
           <Content className={media}>
-            {detail.assets.map((v: AssetsType) => (
+            {detail.assets.map((v: AssetsDataType) => (
               <GrayBox key={v1()} padding={desktop ? '16px 24px' : '12px 16px'}>
                 <LogoImg>
                   <GnoscanSymbol className="logo-icon" width="21" height="21" />

@@ -14,8 +14,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/router';
 import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
-import useSearchHistory from '@/common/hooks/use-search-history';
-import {GetServerSideProps} from 'next';
+import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
 
 interface StyleProps {
   desktop?: boolean;
@@ -27,10 +26,6 @@ interface NotRealmsObj {
   username: string;
   address: string;
 }
-
-const notRealmsType = (includesUsername: boolean) => {
-  return includesUsername ? 'username' : 'address';
-};
 
 const SearchResult = () => {
   const desktop = isDesktop();
@@ -51,13 +46,22 @@ const SearchResult = () => {
 
   const onClick = (v: string, item: any) => {
     const typeToLowercase = v.toLowerCase();
-    const includesUsername = item.username.includes(value);
-    useSearchHistory({
-      keyword: value,
-      type: typeToLowercase === 'realms' ? 'realms' : notRealmsType(includesUsername),
-      value: includesUsername ? item.username : item.address,
-      memo1: includesUsername ? item.address : '',
-    });
+    const includesUsername = item?.username?.includes(value);
+    if (typeToLowercase === 'realms') {
+      searchHistory({
+        keyword: value,
+        type: 'pkg_path',
+        value: item,
+        memo1: '',
+      });
+    } else {
+      searchHistory({
+        keyword: value,
+        type: includesUsername ? 'username' : 'address',
+        value: includesUsername ? item.username : item.address,
+        memo1: includesUsername ? item.address : '',
+      });
+    }
     setValue('');
   };
 

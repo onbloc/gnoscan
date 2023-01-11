@@ -15,12 +15,12 @@ interface BlockTransactionData {
   hash: string;
   status: string;
   type: string;
-  func: string;
+  pkg_func: string;
   from_address: string;
   from_username?: string;
-  block: number;
+  height: number;
   pkg_path: string | null;
-  msg_num: number;
+  num_msgs: number;
   amount: {
     value: number;
     denom: string;
@@ -98,9 +98,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} success={data.status === 'success'} />
-      ))
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={data.status} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
@@ -115,9 +113,9 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .renderOption((_, data) => (
         <DatatableItem.Type
           type={data.type}
-          func={data.func}
+          func={data.pkg_func}
           packagePath={data.pkg_path}
-          msgNum={data.msg_num}
+          msgNum={data.num_msgs}
         />
       ))
       .build();
@@ -125,7 +123,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
 
   const createHeaderBlock = () => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
-      .key('block')
+      .key('height')
       .name('Block')
       .width(93)
       .colorName('blue')
@@ -151,7 +149,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .name('Amount')
       .width(160)
       .renderOption((amount: {value: number; denom: string}, data) =>
-        data.msg_num > 1 ? (
+        data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={amount.value} denom={amount.denom} />

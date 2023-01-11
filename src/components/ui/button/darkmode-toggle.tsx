@@ -8,6 +8,7 @@ import mixins from '@/styles/mixins';
 import {useRecoilState} from 'recoil';
 import {themeState} from '@/states';
 import theme from '@/styles/theme';
+import {setItem} from '@/repositories/storage/storage';
 
 interface ToggleButtonProps {
   darkMode?: boolean;
@@ -18,7 +19,7 @@ export const DarkModeToggle = ({className}: ToggleButtonProps) => {
   const [themeMode, setThemeMode] = useRecoilState(themeState);
   const toggleTheme = () => {
     const updatedTheme = themeMode === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', updatedTheme);
+    setItem('theme', updatedTheme);
     setThemeMode(updatedTheme);
   };
 
