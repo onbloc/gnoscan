@@ -181,6 +181,8 @@ const TabLogWrap = styled.div<StyleProps>`
 
 const LogWrap = styled.div<StyleProps>`
   ${logWrapCommonStyle};
+  ${scrollbarStyle};
+  width: 100%;
   overflow: auto;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.surface};
@@ -194,7 +196,6 @@ const LogWrap = styled.div<StyleProps>`
 `;
 
 const Log = styled.div<StyleProps>`
-  ${scrollbarStyle};
   width: 100%;
   padding: ${({showLog}) => (showLog ? '24px' : '0px 24px')};
   word-break: keep-all;
