@@ -74,7 +74,6 @@ const ShowLog = ({
   };
 
   const showLogHandler = useCallback(() => {
-    console.log(index, showLog);
     setIndex(0);
     setShowLog((prev: boolean) => !prev);
   }, [showLog, index]);
@@ -121,13 +120,15 @@ const ShowLog = ({
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap desktop={desktop} showLog={showLog}>
+          <LogWrap
+            desktop={desktop}
+            showLog={showLog}
+            className={scrollVisible ? 'scroll-visible' : ''}>
             <Log
               onMouseEnter={onFocusIn}
               onMouseLeave={onFocusOut}
               desktop={desktop}
-              showLog={showLog}
-              className={scrollVisible ? 'scroll-visible' : ''}>
+              showLog={showLog}>
               <pre>
                 <Text type="p4" color="primary">
                   {JSON.stringify(logData, null, 2)}
@@ -148,7 +149,6 @@ const ShowLog = ({
 const ShowLogsWrap = styled.div<StyleProps>`
   ${mixins.flexbox('column', 'center', 'center')}
   width: 100%;
-  /* height: auto; */
   margin-top: ${({showLog}) => (showLog ? '24px' : '8px')};
 `;
 
@@ -205,8 +205,6 @@ const Log = styled.div<StyleProps>`
 
 const TabLog = styled(Log)<StyleProps>`
   ${scrollbarStyle};
-  /* height: 100%; */
-  /* max-height: ${({desktop}) => (desktop ? '528px' : '292px')}; */
   height: ${({showLog, desktop}) => {
     if (showLog) {
       return desktop ? '528px' : '292px';
