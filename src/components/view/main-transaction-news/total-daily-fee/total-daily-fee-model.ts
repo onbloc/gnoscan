@@ -41,7 +41,7 @@ export class TotalDailyFeeModel {
     date?: string;
     fee?: ValueWithDenomType;
   }): TotalDailyFeeData => {
-    const gasFee = fee?.value ? fee.value / 1000000 : 0;
+    const gasFee = fee?.value ?? 0;
     return {
       date: date ?? '',
       fee: gasFee,
