@@ -74,7 +74,6 @@ const ShowLog = ({
   };
 
   const showLogHandler = useCallback(() => {
-    console.log(index, showLog);
     setIndex(0);
     setShowLog((prev: boolean) => !prev);
   }, [showLog, index]);
@@ -121,16 +120,18 @@ const ShowLog = ({
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap desktop={desktop} showLog={showLog}>
+          <LogWrap
+            desktop={desktop}
+            showLog={showLog}
+            className={scrollVisible ? 'scroll-visible' : ''}>
             <Log
               onMouseEnter={onFocusIn}
               onMouseLeave={onFocusOut}
               desktop={desktop}
-              showLog={showLog}
-              className={scrollVisible ? 'scroll-visible' : ''}>
+              showLog={showLog}>
               <pre>
                 <Text type="p4" color="primary">
-                  {window.atob(logData)}
+                  {logData}
                 </Text>
               </pre>
             </Log>
@@ -148,7 +149,6 @@ const ShowLog = ({
 const ShowLogsWrap = styled.div<StyleProps>`
   ${mixins.flexbox('column', 'center', 'center')}
   width: 100%;
-  /* height: auto; */
   margin-top: ${({showLog}) => (showLog ? '24px' : '8px')};
 `;
 
@@ -181,6 +181,8 @@ const TabLogWrap = styled.div<StyleProps>`
 
 const LogWrap = styled.div<StyleProps>`
   ${logWrapCommonStyle};
+  ${scrollbarStyle};
+  width: 100%;
   overflow: auto;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.surface};
@@ -194,7 +196,6 @@ const LogWrap = styled.div<StyleProps>`
 `;
 
 const Log = styled.div<StyleProps>`
-  ${scrollbarStyle};
   width: 100%;
   padding: ${({showLog}) => (showLog ? '24px' : '0px 24px')};
   word-break: keep-all;
@@ -205,8 +206,6 @@ const Log = styled.div<StyleProps>`
 
 const TabLog = styled(Log)<StyleProps>`
   ${scrollbarStyle};
-  /* height: 100%; */
-  /* max-height: ${({desktop}) => (desktop ? '528px' : '292px')}; */
   height: ${({showLog, desktop}) => {
     if (showLog) {
       return desktop ? '528px' : '292px';

@@ -206,7 +206,6 @@ const CallerContract = ({contract, desktop}: any) => {
 };
 
 const AddPkgContract = ({contract, desktop}: any) => {
-  console.log('-00 ', contract);
   return (
     <>
       {Object.keys(contract.args.data).map(v => (
@@ -247,6 +246,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
 };
 
 const TransferContract = ({contract, desktop}: any) => {
+  console.log('-00 ', contract);
   return (
     <>
       <DLWrap desktop={desktop}>
@@ -257,7 +257,7 @@ const TransferContract = ({contract, desktop}: any) => {
               minSize="body2"
               maxSize="p4"
               value={contract.args.data.Amount['value']}
-              denom="GNOT"
+              denom={contract.amount.denom.toUpperCase()}
             />
           </Badge>
         </dd>

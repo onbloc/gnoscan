@@ -91,11 +91,10 @@ export const transactionDetailSelector = (data: any) => {
       args: valueForContractType(v),
     })),
   };
-
   return {
     ...data,
     summary: summaryData,
     contract: contractData,
-    log: log,
+    log: window.atob(log),
   };
 };
