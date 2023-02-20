@@ -6,7 +6,7 @@ WORKDIR /usr/app
 
 COPY ./package*.json .
 COPY ./yarn* .
-COPY ./env* .
+COPY .env .env.main
 
 FROM base AS build
 COPY . .

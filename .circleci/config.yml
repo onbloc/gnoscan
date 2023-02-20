@@ -1,10 +1,8 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.3
-  slack: circleci/slack@4.12.0
+  slack: circleci/slack@4.12.1
   aws-ecr: circleci/aws-ecr@8.2.1
-  aws-ecs: circleci/aws-ecs@3.2.0
 
 commands:
   init-slack:
