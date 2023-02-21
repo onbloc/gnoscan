@@ -25,7 +25,7 @@ export const scrollbarStyle = css`
     position: absolute;
     display: block;
     border-radius: 8px;
-    background-color: ${({theme}) => theme.colors.dimmed50};
+    background-color: ${({theme}) => theme.colors.scrollbar};
   }
 `;
 

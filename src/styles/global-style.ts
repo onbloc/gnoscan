@@ -73,4 +73,5 @@ export const GlobalStyle = createGlobalStyle`
     background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
   };
+  
 `;

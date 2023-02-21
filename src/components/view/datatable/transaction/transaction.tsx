@@ -14,6 +14,7 @@ import {ValueWithDenomType} from '@/types/data-type';
 import theme from '@/styles/theme';
 import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
+import {scrollbarStyle} from '@/common/hooks/use-scroll-bar';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -217,7 +218,7 @@ export const TransactionDatatable = () => {
       {hasNextPage ? (
         <div className="button-wrapper">
           <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
-            {'View More Realms'}
+            {'View More Transactions'}
           </Button>
         </div>
       ) : (

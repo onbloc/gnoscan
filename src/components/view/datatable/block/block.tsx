@@ -141,7 +141,7 @@ export const BlockDatatable = () => {
       {hasNextPage ? (
         <div className="button-wrapper">
           <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
-            {'View More Realms'}
+            {'View More Blocks'}
           </Button>
         </div>
       ) : (
