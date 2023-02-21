@@ -9,6 +9,12 @@ import useLoading from '@/common/hooks/use-loading';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+
+interface ResponseData {
+  hits: number;
+  next: boolean;
+  tokens: Array<TokenData>;
+}
 interface TokenData {
   token: string;
   img_path: string;
@@ -26,8 +32,8 @@ interface TokenData {
 export const TokenDatatable = () => {
   const themeMode = useRecoilValue(themeState);
 
-  const {data, finished} = usePageQuery<Array<TokenData>>({
-    key: 'token/token-list',
+  const {data, finished, hasNextPage} = usePageQuery<ResponseData>({
+    key: ['token/token-list'],
     uri: API_URI + API_VERSION + '/list/tokens',
     pageable: true,
   });
@@ -37,8 +43,9 @@ export const TokenDatatable = () => {
     if (!data) {
       return [];
     }
+    console.log('daata:', data);
     return data.pages.reduce<Array<TokenData>>(
-      (accum, current) => (current ? [...accum, ...current] : accum),
+      (accum, current) => (current ? [...accum, ...current.tokens] : accum),
       [],
     );
   };
