@@ -19,7 +19,6 @@ import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BlockDetailsModel} from '@/models/block-details-model';
 import {getBlockDetails} from '@/repositories/api/fetchers/api-block-details';
 import {blockDetailSelector} from '@/repositories/api/selector/select-block-details';

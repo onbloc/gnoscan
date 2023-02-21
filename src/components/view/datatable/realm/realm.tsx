@@ -35,9 +35,9 @@ interface ResponseData {
 export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data, hasNext, fetchNextPage, sortOption, setSortOption, finished} =
+  const {data, fetchNextPage, sortOption, setSortOption, finished, hasNextPage} =
     usePageQuery<ResponseData>({
-      key: 'realm/realm-list',
+      key: ['realm/realm-list', API_URI + API_VERSION + '/list/realms'],
       uri: API_URI + API_VERSION + '/list/realms',
       pageable: true,
     });
@@ -146,7 +146,7 @@ export const RealmDatatable = () => {
         datas={getRealms()}
       />
 
-      {hasNext ? (
+      {hasNextPage ? (
         <div className="button-wrapper">
           <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
             {'View More Realms'}
