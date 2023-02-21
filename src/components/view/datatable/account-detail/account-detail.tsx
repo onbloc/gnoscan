@@ -64,7 +64,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const media = eachMedia();
 
-  const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
+  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'account-detail/transactions',
     uri: API_URI + API_VERSION + `/account/txs/${address}`,
     pageable: true,
@@ -98,7 +98,6 @@ export const AccountDetailDatatable = ({address}: Props) => {
     if (!data) {
       return [];
     }
-
     return data.pages.reduce<Array<AccountTransactionData>>(
       (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
       [],
@@ -226,7 +225,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
         datas={getTransactionDatas()}
       />
 
-      {hasNext ? (
+      {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
           {'View More Transactions'}
         </Button>

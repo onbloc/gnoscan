@@ -40,7 +40,7 @@ const usePageQuery = <T extends {[key in string]: any}>({
     {
       keepPreviousData: false,
       getNextPageParam: (lastPage, pages) =>
-        !lastPage || lastPage.length === 0 ? pages.length : pages.length + 1,
+        !lastPage || !lastPage.next ? false : pages.length + 1,
     },
   );
 

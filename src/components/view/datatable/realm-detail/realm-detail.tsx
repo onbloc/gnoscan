@@ -61,7 +61,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
-  const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
+  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'realm-detail/transactions',
     uri: API_URI + API_VERSION + `/realm/txs/${pkgPath}`,
     pageable: true,
@@ -179,7 +179,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
         datas={getTransactionDatas()}
       />
 
-      {hasNext ? (
+      {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
           {'View More Transactions'}
         </Button>
