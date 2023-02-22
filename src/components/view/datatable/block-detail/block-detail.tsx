@@ -64,7 +64,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const media = eachMedia();
 
-  const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
+  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'block-detail/transactions',
     uri: API_URI + API_VERSION + `/block/txs/${height}`,
     pageable: true,
@@ -191,7 +191,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
         datas={getTransactionDatas()}
       />
 
-      {hasNext ? (
+      {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
           {'View More Transactions'}
         </Button>

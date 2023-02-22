@@ -11,6 +11,10 @@ import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {ValueWithDenomType} from '@/types/data-type';
+import theme from '@/styles/theme';
+import {Button} from '@/components/ui/button';
+import {eachMedia} from '@/common/hooks/use-media';
+import {scrollbarStyle} from '@/common/hooks/use-scroll-bar';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -32,6 +36,11 @@ const TOOLTIP_TYPE = (
   </>
 );
 
+interface ResponseData {
+  hits: number;
+  next: boolean;
+  txs: Array<TransactionData>;
+}
 interface TransactionData {
   hash: string;
   status: string;
@@ -48,12 +57,14 @@ interface TransactionData {
 }
 
 export const TransactionDatatable = () => {
+  const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data, finished} = usePageQuery<Array<TransactionData>>({
-    key: 'transaction/transaction-list',
-    uri: API_URI + API_VERSION + '/list/txs',
-    pageable: true,
-  });
+  const {data, fetchNextPage, sortOption, setSortOption, finished, hasNextPage} =
+    usePageQuery<ResponseData>({
+      key: ['transaction/transaction-list', API_URI + API_VERSION + '/list/txs'],
+      uri: API_URI + API_VERSION + '/list/txs',
+      pageable: true,
+    });
   useLoading({finished});
   const [development, setDevelopment] = useState(false);
 
@@ -84,8 +95,9 @@ export const TransactionDatatable = () => {
     if (!data) {
       return [];
     }
+
     return data.pages.reduce((accum: Array<TransactionData>, current) => {
-      return current ? [...accum, ...current] : accum;
+      return current ? [...accum, ...current.txs] : accum;
     }, []);
   };
 
@@ -193,17 +205,63 @@ export const TransactionDatatable = () => {
   };
 
   return (
-    <Datatable
-      headers={createHeaders().map(item => {
-        return {
-          ...item,
-          themeMode: themeMode,
-        };
-      })}
-      datas={getTransactions()}
-    />
+    <Container>
+      <Datatable
+        headers={createHeaders().map(item => {
+          return {
+            ...item,
+            themeMode: themeMode,
+          };
+        })}
+        datas={getTransactions()}
+      />
+      {hasNextPage ? (
+        <div className="button-wrapper">
+          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+            {'View More Transactions'}
+          </Button>
+        </div>
+      ) : (
+        <></>
+      )}
+    </Container>
   );
 };
+
+const Container = styled.div<{maxWidth?: number}>`
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    align-items: center;
+    background-color: ${({theme}) => theme.colors.base};
+    padding-bottom: 24px;
+    border-radius: 10px;
+
+    .button-wrapper {
+      display: flex;
+      width: 100%;
+      height: auto;
+      margin-top: 4px;
+      padding: 0 20px;
+      justify-content: center;
+
+      .more-button {
+        width: 100%;
+        padding: 16px;
+        color: ${({theme}) => theme.colors.primary};
+        background-color: ${({theme}) => theme.colors.surface};
+        ${theme.fonts.p4}
+        font-weight: 600;
+
+        &.desktop {
+          width: 344px;
+        }
+      }
+    }
+  }
+`;
 
 const TooltipContainer = styled.div`
   min-width: 132px;

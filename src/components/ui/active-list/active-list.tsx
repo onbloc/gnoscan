@@ -52,14 +52,11 @@ const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
 
 const ListContainer = styled.div`
   ${mixins.flexbox('column', 'flex-start', 'flex-start')};
-  ${scrollbarStyle};
   width: 100%;
   height: 280px;
-  overflow: auto hidden;
   margin-top: 16px;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.base};
-  overflow-y: overlay;
 `;
 
 const ListTitleWrap = styled.div`
@@ -73,32 +70,7 @@ const ListContentWrap = styled.div`
   overflow: hidden auto;
   height: 240px;
   min-width: 100%;
-
-  &::-webkit-scrollbar {
-    display: block;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    display: none;
-  }
-
-  &.scroll-visible {
-    overflow: hidden auto;
-    overflow-y: overlay;
-  }
-
-  &.scroll-visible::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-
-  &.scroll-visible::-webkit-scrollbar-thumb {
-    width: 4px;
-    position: absolute;
-    display: block;
-    border-radius: 8px;
-    background-color: ${({theme}) => theme.colors.dimmed50};
-  }
+  ${scrollbarStyle};
 `;
 
 export default ActiveList;
