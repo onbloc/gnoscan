@@ -28,7 +28,6 @@ const lightTheme: Palette = {
   dimmed200: 'rgba(0, 0, 0, 0.2)',
   dimmed600: 'rgba(0, 0, 0, 0.6)',
   linear: 'linear-gradient(359.87deg, #FFFFFF 8.53%, rgba(255, 255, 255, 0) 69.1%)',
-  scrollbar: '#F7F7F7',
 } as const;
 
 const darkTheme: Palette = {
@@ -55,7 +54,6 @@ const darkTheme: Palette = {
   dimmed200: 'rgba(255, 255, 255, 0.2)',
   dimmed600: 'rgba(0, 0, 0, 0.6)',
   linear: 'linear-gradient(359.87deg, #232323 8.53%, rgba(35, 35, 35, 0) 69.1%)',
-  scrollbar: '#232323',
 } as const;
 
 const fonts: FontsKeyType = {
@@ -170,8 +168,7 @@ export type PaletteKeyType =
   | 'dimmed100'
   | 'dimmed200'
   | 'dimmed600'
-  | 'linear'
-  | 'scrollbar';
+  | 'linear';
 
 const device: DeviceValueType = {
   desktop: '(minWidth: 1280)',

@@ -1,3 +1,4 @@
+import {scrollbarStyle} from '@/common/hooks/use-scroll-bar';
 import {createGlobalStyle} from 'styled-components';
 import reset from 'styled-reset';
 
@@ -9,6 +10,13 @@ export const GlobalStyle = createGlobalStyle`
     position: relative;
     font-family: Roboto, sans-serif;
   };
+
+  body {
+    ${scrollbarStyle};
+    &.scroll-visible::-webkit-scrollbar {
+      width: 8px;
+    }
+  }
 
   #__next {
     width: 100%;
@@ -59,10 +67,9 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
     border: none;
   };
-
-  ::-webkit-scrollbar {
+  /* ::-webkit-scrollbar {
     width: 0px;
-    display: none;
+    display: block;
   };
 
   ::-webkit-scrollbar-track {
@@ -72,6 +79,6 @@ export const GlobalStyle = createGlobalStyle`
   ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-  };
+  }; */
   
 `;

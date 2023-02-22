@@ -27,12 +27,12 @@ const App: React.FC = ({Component, pageProps}: any) => {
     <>
       <Meta />
       <GoogleAnalytics />
-      <GlobalStyle />
       <QueryClientProvider client={queryClient}>
         <Hydrate state={pageProps.dehydratedState}>
           <RecoilRoot>
             <ErrorBoundary fallback={<div>ERROR</div>}>
               <Layout>
+                <GlobalStyle />
                 <Component {...pageProps} />
               </Layout>
             </ErrorBoundary>
