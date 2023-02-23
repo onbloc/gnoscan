@@ -67,18 +67,5 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
     border: none;
   };
-  /* ::-webkit-scrollbar {
-    width: 0px;
-    display: block;
-  };
-
-  ::-webkit-scrollbar-track {
-    background-color: transparent;
-  };
-
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 10px;
-  }; */
   
 `;
