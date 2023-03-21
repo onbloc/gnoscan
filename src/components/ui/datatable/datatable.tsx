@@ -60,6 +60,11 @@ export const Datatable = <T extends {[key in string]: any}>({
 };
 
 const Container = styled.div<{maxWidth?: number}>`
+  ::-webkit-scrollbar {
+    width: 0px;
+    display: none;
+  }
+
   * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;

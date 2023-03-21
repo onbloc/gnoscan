@@ -8,7 +8,6 @@ import Search from '@/assets/svgs/icon-search.svg';
 import {isDesktop} from '@/common/hooks/use-media';
 import SearchResult from '../search-result';
 import {useRouter} from 'next/router';
-import useSearchHistory from '@/common/hooks/use-search-history';
 import {useRecoilState} from 'recoil';
 import {searchState} from '@/states';
 

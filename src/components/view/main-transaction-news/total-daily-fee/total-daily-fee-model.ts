@@ -1,6 +1,8 @@
+import {ValueWithDenomType} from '@/types/data-type';
+
 interface TotalDailyFeeData {
   date: string;
-  gasFee: number;
+  fee: number;
 }
 
 export class TotalDailyFeeModel {
@@ -9,7 +11,7 @@ export class TotalDailyFeeModel {
   constructor(
     responseDatas: Array<{
       date?: string;
-      gas_fee?: number;
+      fee?: ValueWithDenomType;
     }>,
   ) {
     this.datas = responseDatas.map(TotalDailyFeeModel.createData);
@@ -27,22 +29,22 @@ export class TotalDailyFeeModel {
     return this.sortedData.map(data => {
       return {
         date: data.date,
-        value: data.gasFee,
+        value: data.fee,
       };
     });
   }
 
   private static createData = ({
     date,
-    gas_fee,
+    fee,
   }: {
     date?: string;
-    gas_fee?: number;
+    fee?: ValueWithDenomType;
   }): TotalDailyFeeData => {
-    const gasFee = gas_fee ? gas_fee / 1000000 : 0;
+    const gasFee = fee?.value ?? 0;
     return {
       date: date ?? '',
-      gasFee: gasFee,
+      fee: gasFee,
     };
   };
 }

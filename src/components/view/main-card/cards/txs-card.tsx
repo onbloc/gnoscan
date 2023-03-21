@@ -1,34 +1,17 @@
 import React from 'react';
 import Text from '@/components/ui/text';
-import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
-import {numberWithCommas, numberWithFixedCommas} from '@/common/utils';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-
-interface TxResultType {
-  avg_24hr: string;
-  total_fee: string;
-  total_txs: string;
-}
+import {getTxsCard} from '@/repositories/api/fetchers/api-info-card';
+import {txsCardSelector} from '@/repositories/api/selector/select-info-card';
+import {TxsCardModel} from '@/models';
 
 export const TxsCard = () => {
-  const {
-    data: card03,
-    isSuccess: card03Success,
-    isFetched: card03Fetched,
-  }: UseQueryResult<TxResultType> = useQuery(
+  const {data: card03, isFetched: card03Fetched}: UseQueryResult<TxsCardModel> = useQuery(
     ['info/card03'],
-    async () => await axios.get(API_URI + API_VERSION + '/info/card03'),
+    async () => await getTxsCard(),
     {
-      select: (res: any) => {
-        const tx = res.data.tx;
-        return {
-          avg_24hr: numberWithFixedCommas(tx.avg_24hr / 1000000, 6),
-          total_fee: numberWithFixedCommas(tx.total_fee / 1000000, 2),
-          total_txs: numberWithCommas(tx.total_txs),
-        };
-      },
+      select: (res: any) => txsCardSelector(res.data.tx),
     },
   );
 

@@ -5,7 +5,6 @@ import mixins from '@/styles/mixins';
 import SearchResult from '../search-result';
 import theme from '@/styles/theme';
 import {useRouter} from 'next/router';
-import useSearchHistory from '@/common/hooks/use-search-history';
 
 interface SubInputProps {
   className?: string;

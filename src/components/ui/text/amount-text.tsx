@@ -4,11 +4,12 @@ import React from 'react';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import {decimalPointWithCommas} from '@/common/utils';
+import BigNumber from 'bignumber.js';
 
 interface AmountTextProps {
   minSize: FontsType;
   maxSize: FontsType;
-  value: string | number;
+  value: number | string | BigNumber;
   denom?: string;
   color?: PaletteKeyType;
   className?: string;
@@ -22,8 +23,7 @@ export const AmountText = ({
   color = 'primary',
   className,
 }: AmountTextProps) => {
-  const num: string[] | string = decimalPointWithCommas(value);
-
+  const num: string[] | string = decimalPointWithCommas(BigNumber(value));
   const decimalValue = (num: string[] | string) => {
     if (!Array.isArray(num)) {
       return ` ${denom}`;

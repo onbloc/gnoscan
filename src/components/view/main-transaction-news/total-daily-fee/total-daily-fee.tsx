@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {Spinner} from '@/components/ui/loading';
+import {ValueWithDenomType} from '@/types/data-type';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
@@ -11,7 +12,7 @@ const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.B
 
 interface TotalDailyFeeResponse {
   date: string;
-  gas_fee: number;
+  fee: ValueWithDenomType;
 }
 
 export const MainTotalDailyFee = () => {

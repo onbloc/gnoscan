@@ -10,7 +10,7 @@ export const Functions = ({functions}: Props) => {
   const renderItems = () => {
     return (
       <>
-        {functions.map((func, index) => (
+        {functions?.map((func, index) => (
           <span key={index}>{func}</span>
         ))}
       </>
@@ -20,7 +20,7 @@ export const Functions = ({functions}: Props) => {
   const renderOverflowItems = () => {
     return (
       <>
-        {functions.slice(0, 3).map((func, index) => (
+        {functions?.slice(0, 3).map((func, index) => (
           <span key={index}>{func}</span>
         ))}
         ...
@@ -30,7 +30,7 @@ export const Functions = ({functions}: Props) => {
 
   return (
     <FunctionsWrapper>
-      {functions.length > 3 ? renderOverflowItems() : renderItems()}
+      {functions?.length > 3 ? renderOverflowItems() : renderItems()}
     </FunctionsWrapper>
   );
 };

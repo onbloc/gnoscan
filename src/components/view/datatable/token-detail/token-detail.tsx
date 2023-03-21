@@ -62,7 +62,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
-  const {data, hasNext, fetchNextPage, finished} = usePageQuery<ResponseData>({
+  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'token-detail/transactions',
     uri: API_URI + API_VERSION + `/token/txs/${denom}`,
     pageable: true,
@@ -96,7 +96,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} success={true} />)
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={'Success'} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
@@ -188,7 +188,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
         datas={getTransactionDatas()}
       />
 
-      {hasNext ? (
+      {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
           {'View More Transactions'}
         </Button>

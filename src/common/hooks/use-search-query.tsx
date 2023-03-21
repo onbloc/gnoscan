@@ -1,10 +1,8 @@
 import {searchState} from '@/states';
-import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
 import {useRecoilValue} from 'recoil';
-import {isEmptyObj} from '../utils';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
-import {firstStrUpperCase} from '../utils/string-util';
+import {searhQuery} from '@/repositories/api/fetchers/api-search-query';
+import {searchQuerySelector} from '@/repositories/api/selector/select-search-query';
 export interface keyOfSearch {
   [key: string]: any;
 }
@@ -13,20 +11,10 @@ const useSearchQuery = () => {
   const value = useRecoilValue(searchState);
   const {data}: UseQueryResult<any> = useQuery(
     ['info/search/keyword', value],
-    async () => await axios.get(API_URI + API_VERSION + `/info/search/${value}?limit=5`),
+    async () => searhQuery(value),
     {
       enabled: value.length > 1,
-      select: (res: any) => {
-        const checkedObj = isEmptyObj(res.data);
-        if (checkedObj) {
-          return null;
-        } else {
-          const convert = Object.fromEntries(
-            Object.entries(res.data).map(([key]) => [firstStrUpperCase(key), res.data[key]]),
-          );
-          return convert;
-        }
-      },
+      select: (res: any) => searchQuerySelector(res.data),
     },
   );
 

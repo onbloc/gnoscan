@@ -7,7 +7,7 @@ import mixins from '@/styles/mixins';
 import Tabs from '@/components/view/tabs';
 import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
-
+import {scrollbarStyle, useScrollbar} from '@/common/hooks/use-scroll-bar';
 interface StyleProps {
   desktop?: boolean;
   showLog?: boolean;
@@ -23,6 +23,20 @@ interface ShowLogProps {
   btnTextType: string;
 }
 
+const throttle = (func: Function, ms: number) => {
+  let throttled = false;
+  return (...args: any) => {
+    if (!throttled) {
+      throttled = true;
+      setTimeout(() => {
+        func(...args);
+        throttled = false;
+      }, ms);
+    }
+  };
+};
+const delay = 10;
+
 const ShowLog = ({
   isTabLog,
   logData = '',
@@ -32,53 +46,73 @@ const ShowLog = ({
   const desktop: boolean = isDesktop();
   const [showLog, setShowLog] = useState(false);
   const [index, setIndex] = useState(0);
-  const logWrapRef = useRef<HTMLDivElement>(null);
-  const logRef = useRef<HTMLDivElement>(null);
+  const draggable = useRef<HTMLUListElement>(null);
+  const [isDrag, setIsDrag] = useState(false);
+  const [startX, setStartX] = useState<number>(0);
+  const {scrollVisible, onFocusIn, onFocusOut} = useScrollbar();
 
-  useEffect(() => {
-    if (!showLog) return;
-    heightSet();
-  }, [index, showLog]);
+  const onDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!draggable.current) return;
+    setIsDrag(true);
+    setStartX(e.pageX + draggable.current.scrollLeft);
+  };
+
+  const onDragEnd = () => setIsDrag(false);
+
+  const onDragMove = (e: React.MouseEvent) => {
+    if (!draggable.current) return;
+    if (isDrag) {
+      const {scrollWidth, clientWidth, scrollLeft} = draggable.current;
+      draggable.current.scrollLeft = startX - e.pageX;
+      if (scrollLeft === 0) {
+        setStartX(e.pageX);
+      } else if (scrollWidth <= clientWidth + scrollLeft) {
+        setStartX(e.pageX + scrollLeft);
+      }
+    }
+  };
 
   const showLogHandler = useCallback(() => {
-    if (logWrapRef.current === null || logRef.current === null) return;
-    if (showLog) {
-      logRef.current.scrollTo(0, 0);
-      setIndex(0);
-      logWrapRef.current.style.height = '0px';
-      logWrapRef.current.style.maxHeight = '0px';
-    } else {
-      heightSet();
-    }
+    setIndex(0);
     setShowLog((prev: boolean) => !prev);
-  }, [showLog, desktop, isTabLog]);
+  }, [showLog, index]);
 
-  const heightSet = () => {
-    if (logWrapRef.current === null || logRef.current === null) return;
-    let height = '0px';
-    if (isTabLog) {
-      height = desktop ? '572px' : '336px';
-    } else {
-      height = desktop ? '528px' : '292px';
-    }
-    logWrapRef.current.style.height = `${logRef.current.clientHeight}px`;
-    logWrapRef.current.style.maxHeight = height;
+  const activeListHandler = (i: number) => {
+    setIndex(i);
   };
+
+  const onThrottleDragMove = throttle(onDragMove, delay);
 
   return (
     <>
       <ShowLogsWrap showLog={showLog}>
         {isTabLog ? (
-          <TabLogWrap desktop={desktop} ref={logWrapRef} showLog={showLog}>
-            <div className="inner-tab" ref={logRef}>
-              <ul>
+          <TabLogWrap desktop={desktop} showLog={showLog}>
+            <div className="inner-tab">
+              <ul
+                ref={draggable}
+                onMouseDown={onDragStart}
+                onMouseMove={onThrottleDragMove}
+                onMouseUp={onDragEnd}
+                onMouseLeave={onDragEnd}>
                 {tabData.list.map((v: string, i: number) => (
-                  <List key={v1()} active={i === index} onClick={() => setIndex(i)}>
+                  <List
+                    key={v1()}
+                    active={i === index}
+                    onMouseDown={() => activeListHandler(i)}
+                    showLog={showLog}>
                     {v}
                   </List>
                 ))}
               </ul>
-              <TabLog hasRadius={index === 0} desktop={desktop} showLog={showLog}>
+              <TabLog
+                onMouseEnter={onFocusIn}
+                onMouseLeave={onFocusOut}
+                hasRadius={index === 0}
+                desktop={desktop}
+                showLog={showLog}
+                className={scrollVisible ? 'scroll-visible' : ''}>
                 <Text type="p4" color="primary" className="inner-content">
                   {tabData.content[index]}
                 </Text>
@@ -86,11 +120,18 @@ const ShowLog = ({
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap ref={logWrapRef} desktop={desktop} showLog={showLog}>
-            <Log ref={logRef} desktop={desktop} showLog={showLog}>
+          <LogWrap
+            desktop={desktop}
+            showLog={showLog}
+            className={scrollVisible ? 'scroll-visible' : ''}>
+            <Log
+              onMouseEnter={onFocusIn}
+              onMouseLeave={onFocusOut}
+              desktop={desktop}
+              showLog={showLog}>
               <pre>
                 <Text type="p4" color="primary">
-                  {JSON.stringify(logData, null, 2)}
+                  {logData}
                 </Text>
               </pre>
             </Log>
@@ -108,13 +149,11 @@ const ShowLog = ({
 const ShowLogsWrap = styled.div<StyleProps>`
   ${mixins.flexbox('column', 'center', 'center')}
   width: 100%;
-  height: auto;
   margin-top: ${({showLog}) => (showLog ? '24px' : '8px')};
 `;
 
 const logWrapCommonStyle = css<StyleProps>`
   width: 100%;
-  height: 0px;
   transition: all 0.4s ease;
 `;
 
@@ -122,20 +161,38 @@ const TabLogWrap = styled.div<StyleProps>`
   ${logWrapCommonStyle};
   overflow: hidden;
   color: ${({theme}) => theme.colors.reverse};
+  height: ${({showLog, desktop}) => {
+    if (showLog) {
+      return desktop ? '572px' : '336px';
+    } else {
+      return '0px';
+    }
+  }};
   .inner-tab {
     width: 100%;
     ul {
       width: 100%;
       ${mixins.flexbox('row', 'center', 'flex-start')};
+      overflow-x: auto;
+      user-select: none;
     }
   }
 `;
 
 const LogWrap = styled.div<StyleProps>`
   ${logWrapCommonStyle};
+  ${scrollbarStyle};
+  width: 100%;
   overflow: auto;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.surface};
+  height: ${({showLog, desktop}) => {
+    if (showLog) {
+      return desktop ? '528px' : '292px';
+    } else {
+      return '0px';
+    }
+  }};
 `;
 
 const Log = styled.div<StyleProps>`
@@ -143,15 +200,21 @@ const Log = styled.div<StyleProps>`
   padding: ${({showLog}) => (showLog ? '24px' : '0px 24px')};
   word-break: keep-all;
   word-wrap: break-word;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 `;
 
 const TabLog = styled(Log)<StyleProps>`
-  height: 100%;
-  max-height: ${({desktop}) => (desktop ? '528px' : '292px')};
+  ${scrollbarStyle};
+  height: ${({showLog, desktop}) => {
+    if (showLog) {
+      return desktop ? '528px' : '292px';
+    } else {
+      return '0px';
+    }
+  }};
   overflow: auto;
   background-color: ${({theme}) => theme.colors.surface};
-  border-radius: 10px;
-  border-top-left-radius: 0px;
 `;
 
 const List = styled.li<StyleProps>`
@@ -160,12 +223,8 @@ const List = styled.li<StyleProps>`
   padding: 12px 16px;
   height: 44px;
   cursor: pointer;
-  &:last-of-type {
-    border-top-right-radius: 10px;
-  }
-  &:first-of-type {
-    border-top-left-radius: 10px;
-  }
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   ${({active, theme}) =>
     active &&
     css`

@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:main": "env-cmd -f .env.main next build",
+    "build:develop": "env-cmd -f .env.develop next build",
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky install"
@@ -16,8 +18,10 @@
     "@types/react-dom": "18.0.9",
     "antd": "^5.0.5",
     "axios": "^1.2.0",
+    "bignumber.js": "^9.1.1",
     "chart.js": "^4.0.1",
     "dayjs": "^1.11.6",
+    "env-cmd": "^10.1.0",
     "eslint-config-next": "13.0.4",
     "next": "^12.3.3",
     "react": "18.2.0",

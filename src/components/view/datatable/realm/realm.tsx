@@ -14,15 +14,16 @@ import useLoading from '@/common/hooks/use-loading';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import {ValueWithDenomType} from '@/types/data-type';
 interface Realms {
   name: string;
   path: string;
-  functions: number;
-  block: number;
+  num_funcs: number;
+  height: number;
   publisher: string;
-  username: string;
+  publisher_username: string;
   total_calls: number;
-  total_gas_used: number;
+  total_fees: ValueWithDenomType;
 }
 
 interface ResponseData {
@@ -34,9 +35,9 @@ interface ResponseData {
 export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data, hasNext, fetchNextPage, sortOption, setSortOption, finished} =
+  const {data, fetchNextPage, sortOption, setSortOption, finished, hasNextPage} =
     usePageQuery<ResponseData>({
-      key: 'realm/realm-list',
+      key: ['realm/realm-list', API_URI + API_VERSION + '/list/realms'],
       uri: API_URI + API_VERSION + '/list/realms',
       pageable: true,
     });
@@ -84,7 +85,7 @@ export const RealmDatatable = () => {
 
   const createHeaderFunctions = () => {
     return DatatableOption.Builder.builder<Realms>()
-      .key('functions')
+      .key('num_funcs')
       .name('Functions')
       .width(121)
       .build();
@@ -92,7 +93,7 @@ export const RealmDatatable = () => {
 
   const createHeaderBlock = () => {
     return DatatableOption.Builder.builder<Realms>()
-      .key('block')
+      .key('height')
       .name('Block')
       .width(93)
       .colorName('blue')
@@ -107,7 +108,7 @@ export const RealmDatatable = () => {
       .width(201)
       .colorName('blue')
       .renderOption((_, data) => (
-        <DatatableItem.Publisher address={data.publisher} username={data.username} />
+        <DatatableItem.Publisher address={data.publisher} username={data.publisher_username} />
       ))
       .build();
   };
@@ -124,10 +125,10 @@ export const RealmDatatable = () => {
 
   const createHeaderTotalGasUsed = () => {
     return DatatableOption.Builder.builder<Realms>()
-      .key('total_gas_used')
+      .key('total_fees')
       .name('Total Gas Used')
       .width(166)
-      .renderOption(gasUsed => <DatatableItem.Amount value={gasUsed} denom={'ugnot'} />)
+      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };
 
@@ -145,7 +146,7 @@ export const RealmDatatable = () => {
         datas={getRealms()}
       />
 
-      {hasNext ? (
+      {hasNextPage ? (
         <div className="button-wrapper">
           <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
             {'View More Realms'}

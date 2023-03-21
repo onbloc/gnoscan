@@ -1,15 +1,14 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.3
-  slack: circleci/slack@4.12.0
+  slack: circleci/slack@4.12.1
+  aws-ecr: circleci/aws-ecr@8.2.1
 
 commands:
   init-slack:
     steps:
-      - checkout
       - run:
-          name: Set Message Info
+          name: Setup Message Info
           when: always
           command: |
             SLACK_TEMPLATE_BUILD_START=$(cat .circleci/template/slack-build-start.json)
@@ -53,6 +52,13 @@ commands:
           channel: 'C04GFMSFVT4'
           event: fail
           template: SLACK_TEMPLATE_DEPLOY_FAIL
+  init-deploy-environment:
+    steps:
+      - run:
+          name: Initialize Deploy Environment
+          when: always
+          command: |
+            mv "Dockerfile.${CIRCLE_BRANCH}" "Dockerfile"
 
 jobs:
   build:
@@ -61,41 +67,58 @@ jobs:
         environment:
           TZ: 'Asia/Seoul'
     steps:
+      - checkout
       - init-slack
       - notification-build-start
+
+  deploy:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - init-deploy-environment
+      - aws-ecr/build-and-push-image:
+          repo: '${SERVICE_NAME}'
+          tag: '${CHAIN_ID}.${CIRCLE_BRANCH},$(date "+%Y%m%d%H%M%S")'
       - run:
-          name: Current Files
+          name: Deploy Over SSH
           command: |
-            ls -al
-      - node/install:
-          install-yarn: true
-          node-version: '16.13'
-      - node/install-packages:
-          pkg-manager: yarn
-      - run:
-          name: Build
-          command: |
-            yarn run build
-      - run:
-          name: Compress Build File
-          command: |
-            mkdir -p build-files
-            cp -r .next build-files/.next
-            # cp -r scripts build-files/scripts
-            # cp appspec.yml build-files/appspec.yml
-            zip gnoscan-front.zip -r build-files
-            mkdir -p deploy
-            mv gnoscan-front.zip deploy/gnoscan-front.zip
-      - notification-build-finish
-      - notification-build-fail
+            ssh "${SERVER_ADDRESS}" "./circle-ci-deploy.sh ${SERVICE_NAME} ${CHAIN_ID}.${CIRCLE_BRANCH} ${CIRCLE_BRANCH} ${PORT}"
+      - init-slack
+      - notification-deploy-success
+      - notification-deploy-fail
+
 workflows:
-  build-deploy:
+  build-and-deploy:
     jobs:
       - build:
-          context: SLACK_GNOSCAN
+          context:
+            - SLACK_GNOSCAN
           filters:
             branches:
               only:
                 - main
-                - qa
                 - develop
+      - deploy:
+          context:
+            - AWS_DEPLOY
+            - SLACK_GNOSCAN
+            - GNOSCAN_FRONT_DEVELOP_ARGS
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+      - deploy:
+          context:
+            - AWS_DEPLOY
+            - SLACK_GNOSCAN
+            - GNOSCAN_FRONT_MAIN_ARGS
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main

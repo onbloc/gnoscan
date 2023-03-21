@@ -1,16 +1,12 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import {useQuery, UseQueryResult} from 'react-query';
 import {useRouter} from 'next/router';
 import {isDesktop} from '@/common/hooks/use-media';
-import {numberWithCommas, StatusResultType, statusObj} from '@/common/utils';
-import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
 import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';
-import {PaletteKeyType} from '@/styles';
-import axios from 'axios';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
@@ -19,111 +15,11 @@ import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
-import {valueConvert} from '@/common/utils/gnot-util';
-
-type SummaryType = {
-  statusType: StatusResultType;
-  statusColor: PaletteKeyType;
-  timestamp: string;
-  dateDiff: string;
-  hash: string;
-  network: string;
-  block: number;
-  txFee: string;
-  gas: string;
-  memo: string;
-};
-
-interface TxResultType {
-  summary: SummaryType;
-  contract: any;
-  log: string;
-}
-
-type ContractKeyType =
-  | 'GetBoardIDFromName'
-  | 'CreateBoard'
-  | 'CreateThread'
-  | 'CreateReply'
-  | 'CreateRepost'
-  | 'DeletePost'
-  | 'EditPost'
-  | 'RenderBoard'
-  | 'Render'
-  | 'Register';
-
-type KeyOfContract = {
-  type: string;
-  data: {[i in string]: any};
-};
-
-const contractObj = {
-  GetBoardIDFromName: ['Name'],
-  CreateBoard: ['Name'],
-  CreateThread: ['Board ID', 'Title', 'Body'],
-  CreateReply: ['Board ID', 'Thread ID', 'Post ID', 'Body'],
-  CreateRepost: ['Board ID', 'Post ID', 'Title', 'Body', 'Destination Board ID'],
-  DeletePost: ['Board ID', 'Thread ID', 'Post ID', 'Reason'],
-  EditPost: ['Board ID', 'Thread ID', 'Post ID', 'Title', 'Body'],
-  RenderBoard: ['Board ID'],
-  Render: ['Path'],
-  Register: ['Inviter', 'Name', 'Profile'],
-  AddPkg: ['Creator', 'Name', 'Path'],
-  Transfer: ['From', 'To', 'Amount'],
-} as const;
+import {TransactionDetailsModel} from '@/models/transaction-details-model';
+import {getTransactionDetails} from '@/repositories/api/fetchers/api-transaction-details';
+import {transactionDetailSelector} from '@/repositories/api/selector/select-transaction-details';
 
 const ellipsisTextKey = ['Caller', 'Body'];
-
-const valueForContractType = (contract: any) => {
-  let map: KeyOfContract = {
-    type: '',
-    data: {},
-  };
-  const {type, func} = contract;
-  if (type === '/vm.m_addpkg' && func === 'AddPkg') {
-    map = {
-      type: func,
-      data: {
-        Creator: contract.username ? contract.username : contract.creator,
-        Name: contract.pkg_name,
-        Path: contract.pkg_path,
-      },
-    };
-  } else if (type === '/bank.MsgSend' && func === 'Transfer') {
-    map = {
-      type: func,
-      data: {
-        From: contract.from_address,
-        To: contract.to_address,
-        Amount: {
-          denom: contract.amount.denom,
-          value: valueConvert(contract.amount.value, contract.amount.denom),
-        },
-      },
-    };
-  } else if (type === '/vm.m_call') {
-    if (contract.pkg_path === 'gno.land/r/demo/boards') {
-      contractObj[func as ContractKeyType].forEach((v: string, i: number) => {
-        map.type = contract.func;
-        map.data[v] = contract.args[i];
-      });
-    } else if (contract.pkg_path === 'gno.land/r/demo/users') {
-      contractObj[func as ContractKeyType].forEach((v: string, i: number) => {
-        map.type = contract.func;
-        map.data[v] = contract.args[i];
-      });
-    } else {
-      map = {
-        type: func,
-        data: {
-          Caller: contract.username ? contract.username : contract.caller,
-        },
-      };
-    }
-  }
-  return map;
-};
 
 const TransactionDetails = () => {
   const desktop = isDesktop();
@@ -133,47 +29,13 @@ const TransactionDetails = () => {
     data: tx,
     isSuccess: txSuccess,
     isFetched,
-  }: UseQueryResult<TxResultType> = useQuery(
+  }: UseQueryResult<TransactionDetailsModel> = useQuery(
     ['tx/hash', hash],
-    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/tx/${queryKey[1]}`),
+    async () => await getTransactionDetails(hash),
     {
       enabled: !!hash,
       retry: 0,
-      select: (res: any) => {
-        const {summary, contract, log} = res.data;
-        const gasPercent = Number.isNaN(summary.gas.used / summary.gas.wanted)
-          ? 0
-          : ((summary.gas.used * 100) / summary.gas.wanted).toFixed(2);
-        const summaryData: SummaryType = {
-          ...summary,
-          statusType: statusObj(summary.status),
-          timestamp: getLocalDateString(summary.timestamp),
-          dateDiff: getDateDiff(summary.timestamp),
-          hash: summary.hash,
-          network: summary.network,
-          block: summary.block,
-          txFee: valueConvert(summary.fee.value, summary.fee.denom),
-          gas: `${numberWithCommas(summary.gas.used)}/${numberWithCommas(
-            summary.gas.wanted,
-          )} (${gasPercent}%)`,
-          memo: summary.memo || '-',
-        };
-
-        const contractData = {
-          ...contract,
-          contract_list: contract.contract_list.map((v: any) => ({
-            ...v,
-            args: valueForContractType(v),
-          })),
-        };
-        return {
-          ...res.data,
-          summary: summaryData,
-          contract: contractData,
-          log: log,
-        };
-      },
-      // onSuccess: res => console.log('---- : ', res),
+      select: (res: any) => transactionDetailSelector(res.data),
     },
   );
 
@@ -230,10 +92,10 @@ const TransactionDetails = () => {
               <dt>Block</dt>
               <dd>
                 <Badge>
-                  <Link href={`/blocks/${tx.summary.block}`} passHref>
+                  <Link href={`/blocks/${tx.summary.height}`} passHref>
                     <FitContentA>
                       <Text type="p4" color="blue">
-                        {tx.summary.block}
+                        {tx.summary.height}
                       </Text>
                     </FitContentA>
                   </Link>
@@ -244,7 +106,12 @@ const TransactionDetails = () => {
               <dt>Transaction Fee</dt>
               <dd>
                 <Badge>
-                  <AmountText minSize="body2" maxSize="p4" value={tx.summary.txFee} denom="GNOT" />
+                  <AmountText
+                    minSize="body2"
+                    maxSize="p4"
+                    value={tx.summary.txFee}
+                    denom={tx.summary.denom.toUpperCase()}
+                  />
                 </Badge>
               </dd>
             </DLWrap>
@@ -264,7 +131,7 @@ const TransactionDetails = () => {
           <DataSection title="Contract">
             {tx.contract.contract_list.map((v: any, i: number) => (
               <ContractListBox key={v1()}>
-                {tx.contract.msg_msg < 1 && (
+                {tx.contract.num_msgs > 1 && (
                   <Text type="h6" color="tertiary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
                 )}
                 <DLWrap desktop={desktop}>
@@ -301,14 +168,14 @@ const CallerContract = ({contract, desktop}: any) => {
             <dt>{v}</dt>
             <dd>
               <Badge>
-                <Link href={`/accounts/${contract.caller || '-'}`} passHref>
+                <Link href={`/accounts/${contract.caller_address || '-'}`} passHref>
                   <FitContentA>
                     <Text
                       type="p4"
                       color="blue"
                       className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
                       {contract.args.data[v] ? (
-                        <Tooltip content={contract.caller}>{contract.args.data[v]}</Tooltip>
+                        <Tooltip content={contract.caller_address}>{contract.args.data[v]}</Tooltip>
                       ) : (
                         '-'
                       )}
@@ -347,7 +214,15 @@ const AddPkgContract = ({contract, desktop}: any) => {
           <dd>
             <Badge>
               {v === 'Creator' ? (
-                <Link href={`/accounts/${contract.creator}`} passHref>
+                <Link href={`/accounts/${contract.creator_address}`} passHref>
+                  <FitContentA>
+                    <Text type="p4" color="blue">
+                      {contract.args.data[v] || '-'}
+                    </Text>
+                  </FitContentA>
+                </Link>
+              ) : v === 'Path' ? (
+                <Link href={`/realms/details?path=${contract.pkg_path}`} passHref>
                   <FitContentA>
                     <Text type="p4" color="blue">
                       {contract.args.data[v] || '-'}
@@ -371,6 +246,7 @@ const AddPkgContract = ({contract, desktop}: any) => {
 };
 
 const TransferContract = ({contract, desktop}: any) => {
+  console.log('-00 ', contract);
   return (
     <>
       <DLWrap desktop={desktop}>
@@ -381,7 +257,7 @@ const TransferContract = ({contract, desktop}: any) => {
               minSize="body2"
               maxSize="p4"
               value={contract.args.data.Amount['value']}
-              denom="GNOT"
+              denom={contract.amount.denom.toUpperCase()}
             />
           </Badge>
         </dd>

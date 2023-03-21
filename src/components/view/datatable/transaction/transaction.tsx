@@ -10,6 +10,11 @@ import useLoading from '@/common/hooks/use-loading';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import {ValueWithDenomType} from '@/types/data-type';
+import theme from '@/styles/theme';
+import {Button} from '@/components/ui/button';
+import {eachMedia} from '@/common/hooks/use-media';
+import {scrollbarStyle} from '@/common/hooks/use-scroll-bar';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -31,31 +36,35 @@ const TOOLTIP_TYPE = (
   </>
 );
 
+interface ResponseData {
+  hits: number;
+  next: boolean;
+  txs: Array<TransactionData>;
+}
 interface TransactionData {
-  tx_hash: string;
-  success: boolean;
+  hash: string;
+  status: string;
   type: string;
-  func: string;
-  block: number;
+  pkg_func: string;
+  height: number;
   from_username: string | undefined;
   from_address: string;
   pkg_path: string | null;
-  amount: {
-    value: number;
-    denom: string;
-  };
+  amount: ValueWithDenomType;
   time: string;
-  gas_used: number;
-  msg_num: number;
+  fee: ValueWithDenomType;
+  num_msgs: number;
 }
 
 export const TransactionDatatable = () => {
+  const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data, finished} = usePageQuery<Array<TransactionData>>({
-    key: 'transaction/transaction-list',
-    uri: API_URI + API_VERSION + '/list/txs',
-    pageable: true,
-  });
+  const {data, fetchNextPage, sortOption, setSortOption, finished, hasNextPage} =
+    usePageQuery<ResponseData>({
+      key: ['transaction/transaction-list', API_URI + API_VERSION + '/list/txs'],
+      uri: API_URI + API_VERSION + '/list/txs',
+      pageable: true,
+    });
   useLoading({finished});
   const [development, setDevelopment] = useState(false);
 
@@ -86,8 +95,9 @@ export const TransactionDatatable = () => {
     if (!data) {
       return [];
     }
+
     return data.pages.reduce((accum: Array<TransactionData>, current) => {
-      return current ? [...accum, ...current] : accum;
+      return current ? [...accum, ...current.txs] : accum;
     }, []);
   };
 
@@ -105,16 +115,16 @@ export const TransactionDatatable = () => {
 
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<TransactionData>()
-      .key('tx_hash')
+      .key('hash')
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
       .renderOption((value, data) => (
         <DatatableItem.TxHash
           txHash={value}
-          success={data.success}
+          status={data.status}
           development={development}
-          height={data.block}
+          height={data.height}
         />
       ))
       .tooltip(TOOLTIP_TX_HASH)
@@ -131,9 +141,9 @@ export const TransactionDatatable = () => {
       .renderOption((_, data) => (
         <DatatableItem.Type
           type={data.type}
-          func={data.func}
+          func={data.pkg_func}
           packagePath={data.pkg_path}
-          msgNum={data.msg_num}
+          msgNum={data.num_msgs}
         />
       ))
       .build();
@@ -141,7 +151,7 @@ export const TransactionDatatable = () => {
 
   const createHeaderBlock = () => {
     return DatatableOption.Builder.builder<TransactionData>()
-      .key('block')
+      .key('height')
       .name('Block')
       .width(93)
       .colorName('blue')
@@ -167,13 +177,10 @@ export const TransactionDatatable = () => {
       .name('Amount')
       .width(204)
       .renderOption((_, data) =>
-        data.msg_num > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/${data.tx_hash}`} />
+        data.num_msgs > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
-          <DatatableItem.Amount
-            value={data.amount.value}
-            denom={data.amount.denom === '' ? 'ugnot' : data.amount.denom}
-          />
+          <DatatableItem.Amount value={data.amount.value} denom={data.amount.denom} />
         ),
       )
       .build();
@@ -190,25 +197,71 @@ export const TransactionDatatable = () => {
 
   const createHeaderFee = () => {
     return DatatableOption.Builder.builder<TransactionData>()
-      .key('gas_used')
+      .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(value => <DatatableItem.Amount value={value} denom={'ugnot'} />)
+      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };
 
   return (
-    <Datatable
-      headers={createHeaders().map(item => {
-        return {
-          ...item,
-          themeMode: themeMode,
-        };
-      })}
-      datas={getTransactions()}
-    />
+    <Container>
+      <Datatable
+        headers={createHeaders().map(item => {
+          return {
+            ...item,
+            themeMode: themeMode,
+          };
+        })}
+        datas={getTransactions()}
+      />
+      {hasNextPage ? (
+        <div className="button-wrapper">
+          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+            {'View More Transactions'}
+          </Button>
+        </div>
+      ) : (
+        <></>
+      )}
+    </Container>
   );
 };
+
+const Container = styled.div<{maxWidth?: number}>`
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    align-items: center;
+    background-color: ${({theme}) => theme.colors.base};
+    padding-bottom: 24px;
+    border-radius: 10px;
+
+    .button-wrapper {
+      display: flex;
+      width: 100%;
+      height: auto;
+      margin-top: 4px;
+      padding: 0 20px;
+      justify-content: center;
+
+      .more-button {
+        width: 100%;
+        padding: 16px;
+        color: ${({theme}) => theme.colors.primary};
+        background-color: ${({theme}) => theme.colors.surface};
+        ${theme.fonts.p4}
+        font-weight: 600;
+
+        &.desktop {
+          width: 344px;
+        }
+      }
+    }
+  }
+`;
 
 const TooltipContainer = styled.div`
   min-width: 132px;

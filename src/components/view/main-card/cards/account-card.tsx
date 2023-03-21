@@ -1,37 +1,20 @@
 import React from 'react';
 import Text from '@/components/ui/text';
-import axios from 'axios';
 import {useQuery, UseQueryResult} from 'react-query';
-import {numberWithCommas} from '@/common/utils';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-
-interface AccountsResultType {
-  total: string;
-  registered: string;
-  validators: string;
-}
+import {getAccountCard} from '@/repositories/api/fetchers/api-info-card';
+import {accountCardSelector} from '@/repositories/api/selector/select-info-card';
+import {AccountCardModel} from '@/models';
 
 export const AccountCard = () => {
-  const {
-    data: card04,
-    isSuccess: card04Success,
-    isFetched: card04Fetched,
-  }: UseQueryResult<AccountsResultType> = useQuery(
+  const {data: card04, isFetched: card04Fetched}: UseQueryResult<AccountCardModel> = useQuery(
     ['info/card04'],
-    async () => await axios.get(API_URI + API_VERSION + '/info/card04'),
+    async () => await getAccountCard(),
     {
-      select: (res: any) => {
-        const account = res.data.account;
-        return {
-          total: numberWithCommas(account.total),
-          registered: numberWithCommas(account.registered),
-          validators: numberWithCommas(account.validators),
-        };
-      },
+      select: (res: any) => accountCardSelector(res.data.account),
     },
   );
 
@@ -44,7 +27,7 @@ export const AccountCard = () => {
         isFetched={card04Fetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {card04?.total}
+            {card04?.totalAccounts}
           </Text>
         }
       />
@@ -85,7 +68,7 @@ export const AccountCard = () => {
               isFetched={card04Fetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {card04?.registered}
+                  {card04?.totalUsers}
                 </Text>
               }
             />

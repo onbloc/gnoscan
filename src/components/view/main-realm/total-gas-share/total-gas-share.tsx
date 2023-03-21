@@ -7,15 +7,14 @@ import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import theme from '@/styles/theme';
 import {Spinner} from '@/components/ui/loading';
-import mixins from '@/styles/mixins';
+import {ValueWithDenomType} from '@/types/data-type';
 
 const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
   ssr: false,
 });
-
 interface TotalGasShareResponse {
   date: string;
-  daily_total_fee: number;
+  daily_total_fee: ValueWithDenomType;
   packages: Array<{
     path: string;
     daily_fee: number;

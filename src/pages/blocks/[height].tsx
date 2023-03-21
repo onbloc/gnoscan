@@ -19,7 +19,9 @@ import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
+import {BlockDetailsModel} from '@/models/block-details-model';
+import {getBlockDetails} from '@/repositories/api/fetchers/api-block-details';
+import {blockDetailSelector} from '@/repositories/api/selector/select-block-details';
 
 interface TitleOptionProps {
   prevProps: {
@@ -30,19 +32,6 @@ interface TitleOptionProps {
     disabled: boolean;
     path: string;
   };
-}
-
-interface SummaryResultType {
-  timestamp: string;
-  dateDiff: string;
-  network: string;
-  height: number;
-  txs: number;
-  gas: string;
-  proposer: string;
-  address: string;
-  prev: boolean;
-  next: boolean;
 }
 
 const TitleOption = ({prevProps, nextProps}: TitleOptionProps) => {
@@ -70,34 +59,13 @@ const BlockDetails = () => {
     data: block,
     isSuccess: blockSuccess,
     isFetched,
-  }: UseQueryResult<SummaryResultType> = useQuery(
+  }: UseQueryResult<BlockDetailsModel> = useQuery(
     ['block/height', height],
-    async ({queryKey}) => await axios.get(API_URI + API_VERSION + `/block/summary/${queryKey[1]}`),
+    async () => await getBlockDetails(height),
     {
       enabled: !!height,
       retry: 0,
-      select: (res: any) => {
-        const data = res.data;
-        const gasPercent = Number.isNaN(data.gas.used / data.gas.wanted)
-          ? 0
-          : ((data.gas.used * 100) / data.gas.wanted).toFixed(2);
-        return {
-          ...data,
-          timestamp: getLocalDateString(data.timestamp),
-          dateDiff: getDateDiff(data.timestamp),
-          network: data.network,
-          height: data.height,
-          txs: data.num_txs,
-          gas: `${numberWithCommas(data.gas.used)}/${numberWithCommas(
-            data.gas.wanted,
-          )} (${gasPercent}%)`,
-          proposer: Boolean(data.username) ? data.username : data.proposer,
-          address: data.proposer,
-          prev: data.height === 1,
-          next: !data.next,
-        };
-      },
-      // onSuccess: (res: any) => console.log('Block Data : ', res),
+      select: (res: any) => blockDetailSelector(res.data),
     },
   );
 
