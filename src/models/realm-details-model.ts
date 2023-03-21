@@ -9,6 +9,9 @@ export interface RealmDetailsModel {
   blockPublished: number;
   path: string;
   ContractCalls: number;
-  gasUsed: BigNumber;
+  totalUsedFee: {
+    value: BigNumber;
+    denom: string;
+  };
   log: LogDataType;
 }

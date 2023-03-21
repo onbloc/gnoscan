@@ -117,10 +117,15 @@ const RealmsDetails = () => {
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
-              <dt>Gas Used</dt>
+              <dt>Total Used Fees</dt>
               <dd>
                 <Badge>
-                  <AmountText minSize="body1" maxSize="p4" value={realm.gasUsed} denom="GNOT" />
+                  <AmountText
+                    minSize="body1"
+                    maxSize="p4"
+                    value={realm.totalUsedFee.value}
+                    denom={realm.totalUsedFee.denom}
+                  />
                 </Badge>
               </dd>
             </DLWrap>
