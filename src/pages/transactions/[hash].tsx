@@ -144,7 +144,9 @@ const TransactionDetails = () => {
                     </Badge>
                   </dd>
                 </DLWrap>
-                {v.args.type === 'Transfer' && <TransferContract contract={v} desktop={desktop} />}
+                {v.type == '/bank.MsgSend' && v.args.type === 'Transfer' && (
+                  <TransferContract contract={v} desktop={desktop} />
+                )}
                 {v.args.type === 'AddPkg' && <AddPkgContract contract={v} desktop={desktop} />}
                 {!['Transfer', 'AddPkg'].includes(v.args.type) && (
                   <CallerContract contract={v} desktop={desktop} />
