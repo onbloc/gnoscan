@@ -9,7 +9,9 @@
     "build:develop": "env-cmd -f .env.develop next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.6",
@@ -38,6 +40,13 @@
     "typescript": "4.9.3"
   },
   "devDependencies": {
+    "@storybook/addon-essentials": "^7.0.8",
+    "@storybook/addon-interactions": "^7.0.8",
+    "@storybook/addon-links": "^7.0.8",
+    "@storybook/blocks": "^7.0.8",
+    "@storybook/nextjs": "^7.0.8",
+    "@storybook/react": "^7.0.8",
+    "@storybook/testing-library": "^0.0.14-next.2",
     "@svgr/webpack": "^6.5.1",
     "@types/react-responsive": "^8.0.5",
     "@types/styled-components": "^5.1.26",
@@ -49,9 +58,11 @@
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-storybook": "^0.6.12",
     "husky": "^8.0.2",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
+    "storybook": "^7.0.8",
     "uuid": "^9.0.0"
   },
   "lint-staged": {
