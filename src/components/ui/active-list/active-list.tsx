@@ -57,6 +57,7 @@ const ListContainer = styled.div`
   margin-top: 16px;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.base};
+  overflow: auto;
 `;
 
 const ListTitleWrap = styled.div`
