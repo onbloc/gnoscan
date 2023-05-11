@@ -27,7 +27,8 @@ export const DataRowItem = <T extends {[key in string]: any}>({header, data}: Pr
 const ItemContainer = styled(DatatableOption.ColumnOption)`
   & {
     ${theme.fonts.p4};
-
+    width: ${({options}) => options.width};
+    max-width: ${({options}) => options.width};
     .tooltip-wrapper {
       display: flex;
       flex: 0 0 auto;

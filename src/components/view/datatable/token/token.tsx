@@ -6,9 +6,13 @@ import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
+import {API_URI, API_V2_URI, API_V2_VERSION, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import theme from '@/styles/theme';
+import styled from 'styled-components';
+import {eachMedia} from '@/common/hooks/use-media';
+import {Button} from '@/components/ui/button';
 
 interface ResponseData {
   hits: number;
@@ -20,7 +24,6 @@ interface TokenData {
   img_path: string;
   name: string;
   denom: string;
-  symbol: string;
   holders: number;
   functions: Array<string>;
   decimals: number;
@@ -28,14 +31,18 @@ interface TokenData {
   min_decimal: number;
   total_supply: number;
   pkg_path: string;
+  symbol: string;
+  publisher: string;
+  publisher_username: string;
 }
 
 export const TokenDatatable = () => {
+  const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
-  const {data, finished, hasNextPage} = usePageQuery<ResponseData>({
+  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: ['token/token-list'],
-    uri: API_URI + API_VERSION + '/list/tokens',
+    uri: 'https://dev-api.gnoscan.io/v2' + '/list/tokens',
     pageable: true,
   });
   useLoading({finished});
@@ -54,6 +61,7 @@ export const TokenDatatable = () => {
     return [
       createHeaderToken(),
       createHeaderHolder(),
+      createHeaderOwner(),
       createHeaderFunction(),
       createHeaderDecimal(),
       createHeaderTotalSupply(),
@@ -65,7 +73,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('token')
       .name('Token')
-      .width(230)
+      .width(210)
       .renderOption((_, data) => (
         <DatatableItem.TokenTitle
           token={data.token}
@@ -80,10 +88,24 @@ export const TokenDatatable = () => {
 
   const createHeaderHolder = () => {
     return DatatableOption.Builder.builder<TokenData>()
-      .key('holders')
+      .key('holders_count')
       .name('Holders')
-      .width(100)
+      .width(120)
       .renderOption(numberWithCommas)
+      .build();
+  };
+
+  const createHeaderOwner = () => {
+    return DatatableOption.Builder.builder<TokenData>()
+      .key('name')
+      .name('Owner')
+      .width(180)
+      .renderOption((_, data) => (
+        <DatatableItem.Owner
+          publisher={data.publisher}
+          publisherUsername={data.publisher_username}
+        />
+      ))
       .build();
   };
 
@@ -91,8 +113,8 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('functions')
       .name('Functions')
-      .width(329)
-      .renderOption(functions => <DatatableItem.Functions functions={functions} />)
+      .width(100)
+      .renderOption(functions => <DatatableItem.Functions funcLength={functions.length} />)
       .build();
   };
 
@@ -100,7 +122,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('decimals')
       .name('Decimals')
-      .width(90)
+      .width(100)
       .build();
   };
 
@@ -108,8 +130,10 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('total_supply')
       .name('Total Supply')
-      .width(210)
-      .renderOption(numberWithCommas)
+      .width(188)
+      .renderOption((_, data) => (
+        <DatatableItem.Amount value={data.total_supply} denom={''} maxSize="p4" minSize="body3" />
+      ))
       .build();
   };
 
@@ -117,19 +141,66 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('pkg_path')
       .name('Pkg Path')
-      .width(210)
+      .width(248)
+      .renderOption((_, data) => <DatatableItem.PkgPath pkgPath={data.pkg_path} />)
       .build();
   };
 
   return (
-    <Datatable
-      headers={createHeaders().map(item => {
-        return {
-          ...item,
-          themeMode: themeMode,
-        };
-      })}
-      datas={getTokens()}
-    />
+    <Container>
+      <Datatable
+        headers={createHeaders().map(item => {
+          return {
+            ...item,
+            themeMode: themeMode,
+          };
+        })}
+        datas={getTokens()}
+      />
+      {hasNextPage ? (
+        <div className="button-wrapper">
+          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+            {'View More Transactions'}
+          </Button>
+        </div>
+      ) : (
+        <></>
+      )}
+    </Container>
   );
 };
+
+const Container = styled.div<{maxWidth?: number}>`
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    align-items: center;
+    background-color: ${({theme}) => theme.colors.base};
+    padding-bottom: 24px;
+    border-radius: 10px;
+
+    .button-wrapper {
+      display: flex;
+      width: 100%;
+      height: auto;
+      margin-top: 4px;
+      padding: 0 20px;
+      justify-content: center;
+
+      .more-button {
+        width: 100%;
+        padding: 16px;
+        color: ${({theme}) => theme.colors.primary};
+        background-color: ${({theme}) => theme.colors.surface};
+        ${theme.fonts.p4}
+        font-weight: 600;
+
+        &.desktop {
+          width: 344px;
+        }
+      }
+    }
+  }
+`;

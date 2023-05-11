@@ -92,7 +92,7 @@ const ItemContainer = styled(DatatableOption.ColumnOption)`
     font-weight: 400;
     color: ${({theme}) => theme.colors.tertiary};
     justify-content: ${({options}) => options.headerAlign};
-
+    max-width: ${({options}) => options.width};
     .tooltip-wrapper {
       position: inherit;
       display: flex;

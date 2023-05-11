@@ -47,11 +47,10 @@ export const ColumnOption = styled.div<{options: Option<any>}>`
     flex-direction: row;
     flex-grow: 1;
     flex-basis: auto;
-    min-width: 0;
     height: 100%;
     padding: 16px;
     align-items: center;
-
+    min-width: ${({options}) => options.width};
     ${({options}) => optionColor(options.themeMode, options.colorName)};
     ${({options}) => optionWidth(options.width)};
     ${({options}) => optionFlex(options.flex)};

@@ -127,6 +127,11 @@ const fonts: FontsKeyType = {
     font-weight: 400;
     line-height: 16px;
   `,
+  body3: css`
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 12px;
+  `,
 } as const;
 
 export type FontsType =
@@ -143,7 +148,8 @@ export type FontsType =
   | 'p3'
   | 'p4'
   | 'body1'
-  | 'body2';
+  | 'body2'
+  | 'body3';
 
 export type PaletteKeyType =
   | 'main'
