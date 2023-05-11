@@ -8,7 +8,7 @@ import theme from '@/styles/theme';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
+import {API_V2_URI, API_V2_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 interface TokenTransactionData {
@@ -35,7 +35,7 @@ interface ResponseData {
 }
 
 interface Props {
-  denom: string;
+  path: string[] | any;
 }
 
 const TOOLTIP_TX_HASH = (
@@ -58,13 +58,13 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const TokenDetailDatatable = ({denom}: Props) => {
+export const TokenDetailDatatable = ({path}: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
   const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'token-detail/transactions',
-    uri: API_URI + API_VERSION + `/token/txs/${denom}`,
+    uri: API_V2_URI + API_V2_VERSION + `/token/txs/${path.join('/')}`,
     pageable: true,
   });
 
@@ -92,7 +92,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
 
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<TokenTransactionData>()
-      .key('tx_hash')
+      .key('hash')
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
@@ -121,7 +121,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
 
   const createHeaderBlock = () => {
     return DatatableOption.Builder.builder<TokenTransactionData>()
-      .key('block')
+      .key('height')
       .name('Block')
       .width(93)
       .colorName('blue')
@@ -144,12 +144,12 @@ export const TokenDetailDatatable = ({denom}: Props) => {
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {amount: number; denom: string}, data) =>
+      .renderOption((amount: {value: number; denom: string}, data) =>
         data.msg_num > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.tx_hash}`} />
         ) : (
           <DatatableItem.Amount
-            value={amount.amount}
+            value={amount.value}
             denom={amount.denom === '' ? 'gnot' : amount.denom}
           />
         ),
@@ -171,7 +171,7 @@ export const TokenDetailDatatable = ({denom}: Props) => {
       .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(value => <DatatableItem.Amount value={value} denom={'ugnot'} />)
+      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };
 

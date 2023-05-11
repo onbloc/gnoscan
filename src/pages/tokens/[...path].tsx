@@ -9,7 +9,6 @@ import DataSection from '@/components/view/details-data-section';
 import Text from '@/components/ui/text';
 import Link from 'next/link';
 import ShowLog from '@/components/ui/show-log';
-import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {TokenDetailDatatable} from '@/components/view/datatable';
 import {getTokenDetails} from '@/repositories/api/fetchers/api-token-details';
@@ -19,16 +18,17 @@ import {TokenDetailsModel} from '@/models/token-details-model';
 const TokenDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
-  const {denom} = router.query;
+  const {path} = router.query;
+
   const {
     data: token,
     isSuccess: tokenSuccess,
     isFetched,
   }: UseQueryResult<TokenDetailsModel> = useQuery(
-    ['token/denom', denom],
-    async () => await getTokenDetails(denom),
+    ['token/pkgPath', path],
+    async () => await getTokenDetails(path),
     {
-      enabled: !!denom,
+      enabled: !!path,
       retry: 0,
       select: (res: any) => tokenDetailSelector(res.data),
     },
@@ -38,9 +38,9 @@ const TokenDetails = () => {
     <DetailsPageLayout
       title={'Token Details'}
       visible={!isFetched}
-      error={isFetched && token?.tokenPath === ''}
-      keyword={`${denom}`}>
-      {tokenSuccess && token.tokenPath && (
+      error={isFetched && token?.pkgPath === ''}
+      keyword={`${path}`}>
+      {tokenSuccess && token.pkgPath && (
         <>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
@@ -70,12 +70,12 @@ const TokenDetails = () => {
             <DLWrap desktop={desktop}>
               <dt>Path</dt>
               <dd>
-                <Badge>{token.tokenPath}</Badge>
+                <Badge>{token.pkgPath}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Function Type(s)</dt>
-              <dd>
+              <dd className="function-wrapper">
                 {token.funcs.map((v: string) => (
                   <Badge type="blue" key={v1()}>
                     <Text type="p4" color="white">
@@ -109,7 +109,7 @@ const TokenDetails = () => {
           </DataSection>
 
           <DataSection title="Transactions">
-            {denom && <TokenDetailDatatable denom={`${denom}`} />}
+            {path && <TokenDetailDatatable path={path} />}
           </DataSection>
         </>
       )}
