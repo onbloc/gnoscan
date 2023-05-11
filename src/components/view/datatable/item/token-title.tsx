@@ -7,15 +7,16 @@ interface Props {
   token: string | undefined;
   imagePath: string | undefined;
   name: string | undefined;
-  denom: string;
+  symbol: string;
+  pkgPath: string;
 }
 
-export const TokenTitle = ({name, denom}: Props) => {
+export const TokenTitle = ({name, symbol, pkgPath}: Props) => {
   return (
-    <a href={`/tokens/${denom}`} target={'_blank'} rel={'noopener noreferrer'}>
+    <a href={`/tokens/${pkgPath}`} target={'_blank'} rel={'noopener noreferrer'}>
       <TokenTitleWrapper>
         <IconTokenDefault />
-        <Text type="p4">{`${name} (${denom})`}</Text>
+        <Text type="p4">{`${name} (${symbol})`}</Text>
       </TokenTitleWrapper>
     </a>
   );

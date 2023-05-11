@@ -7,30 +7,31 @@ export const tokenDetailSelector = (data: any) => {
       symbol: '',
       totalSupply: '',
       decimals: '',
-      tokenPath: '',
+      pkgPath: '',
       funcs: [],
       owner: '',
       address: '',
       holders: '0',
       log: {
         list: [],
-        content: '',
+        content: [],
       },
     };
   }
+
   return {
     name: data.name,
     symbol: data.symbol,
     totalSupply: numberWithCommas(data.total_supply),
     decimals: data.decimals,
-    tokenPath: data.token_path,
-    funcs: data.funcs,
-    owner: Boolean(data.owner_name) ? data.owner_name : data.owner_address,
-    address: data.owner_adress,
-    holders: numberWithCommas(data.holders),
+    pkgPath: data.pkg_path,
+    funcs: data.functions,
+    owner: Boolean(data.publisher_username) ? data.publisher_username : data.publisher,
+    address: data.publisher,
+    holders: numberWithCommas(data.holders_count),
     log: {
-      list: data.contract_list,
-      content: data.contract_content,
+      list: data.extra.files,
+      content: data.extra.contents,
     },
   };
 };
