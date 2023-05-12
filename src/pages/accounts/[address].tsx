@@ -8,7 +8,7 @@ import {useQuery, UseQueryResult} from 'react-query';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
-import GnoscanSymbol from '@/assets/svgs/icon-gnoscan-symbol.svg';
+import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {AmountText} from '@/components/ui/text/amount-text';
 import Tooltip from '@/components/ui/tooltip';
@@ -44,6 +44,7 @@ const AccountDetails = () => {
     },
   );
 
+  if (detail) console.log('Account detail : ', detail);
   return (
     <DetailsPageLayout
       title="Account Details"
@@ -84,7 +85,7 @@ const AccountDetails = () => {
             {detail.assets.map((v: AssetsDataType) => (
               <GrayBox key={v1()} padding={desktop ? '16px 24px' : '12px 16px'}>
                 <LogoImg>
-                  <GnoscanSymbol className="logo-icon" width="21" height="21" />
+                  <UnknownToken className="unknown-token" width="40" height="40" />
                 </LogoImg>
                 <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
                   {v.name}

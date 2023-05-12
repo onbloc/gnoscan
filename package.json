@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "env-cmd -f .env.develop next dev",
     "build": "next build",
     "build:main": "env-cmd -f .env.main next build",
     "build:develop": "env-cmd -f .env.develop next build",
