@@ -144,6 +144,9 @@ const TransactionDetails = () => {
                     </Badge>
                   </dd>
                 </DLWrap>
+                {v.type == '/vm.m_call' && v.args.type === 'Transfer' && (
+                  <TransferContract contract={v} desktop={desktop} />
+                )}
                 {v.type == '/bank.MsgSend' && v.args.type === 'Transfer' && (
                   <TransferContract contract={v} desktop={desktop} />
                 )}
@@ -248,7 +251,6 @@ const AddPkgContract = ({contract, desktop}: any) => {
 };
 
 const TransferContract = ({contract, desktop}: any) => {
-  console.log('-00 ', contract);
   return (
     <>
       <DLWrap desktop={desktop}>
@@ -258,8 +260,8 @@ const TransferContract = ({contract, desktop}: any) => {
             <AmountText
               minSize="body2"
               maxSize="p4"
-              value={contract.args.data.Amount['value']}
-              denom={contract.amount.denom.toUpperCase()}
+              value={contract.args.data.Amount ? contract.args.data.Amount['value'] : 0}
+              denom={contract.amount ? contract.amount.denom.toUpperCase() : ''}
             />
           </Badge>
         </dd>
@@ -270,28 +272,34 @@ const TransferContract = ({contract, desktop}: any) => {
           <dd>
             <Badge>
               <AddressTextBox>
-                <Text type="p4" color="blue" className="ellipsis">
-                  <Link href={`/accounts/${contract.args.data[v]}`} passHref>
-                    <FitContentA>{contract.args.data[v] || '-'}</FitContentA>
-                  </Link>
-                  {contract.from_username && v === 'From' && (
-                    <Text type="p4" color="primary" display="inline-block">
-                      {` (${contract.from_username})`}
+                {contract.args.data[v] ? (
+                  <>
+                    <Text type="p4" color="blue" className="ellipsis">
+                      <Link href={`/accounts/${contract.args.data[v]}`} passHref>
+                        <FitContentA>{contract.args.data[v]}</FitContentA>
+                      </Link>
+                      {contract.from_username && v === 'From' && (
+                        <Text type="p4" color="primary" display="inline-block">
+                          {` (${contract.from_username})`}
+                        </Text>
+                      )}
+                      {contract.to_username && v === 'To' && (
+                        <Text type="p4" color="primary" display="inline-block">
+                          {` (${contract.to_username})`}
+                        </Text>
+                      )}
                     </Text>
-                  )}
-                  {contract.to_username && v === 'To' && (
-                    <Text type="p4" color="primary" display="inline-block">
-                      {` (${contract.to_username})`}
-                    </Text>
-                  )}
-                </Text>
-                <Tooltip
-                  content="Copied!"
-                  trigger="click"
-                  copyText={contract.args.data[v]}
-                  className="address-tooltip">
-                  <StyledIconCopy />
-                </Tooltip>
+                    <Tooltip
+                      content="Copied!"
+                      trigger="click"
+                      copyText={contract.args.data[v]}
+                      className="address-tooltip">
+                      <StyledIconCopy />
+                    </Tooltip>
+                  </>
+                ) : (
+                  <Text type="p4">-</Text>
+                )}
               </AddressTextBox>
             </Badge>
           </dd>
