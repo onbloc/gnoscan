@@ -66,11 +66,11 @@ export const AccountDetailDatatable = ({address}: Props) => {
 
   const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'account-detail/transactions',
-    uri: API_URI + API_VERSION + `/account/txs/${address}`,
+    uri: 'https://dev-api.gnoscan.io/v2' + `/account/txs/${address}`,
     pageable: true,
   });
   const [development, setDevelopment] = useState(false);
-
+  if (data) console.log('Amount : ', data);
   useEffect(() => {
     window.addEventListener('keydown', handleKeydownEvent);
     window.addEventListener('keyup', handleKeyupEvent);
