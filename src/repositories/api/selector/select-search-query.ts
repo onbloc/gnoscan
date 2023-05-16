@@ -7,8 +7,12 @@ export const searchQuerySelector = (data: any) => {
     return null;
   } else {
     const convert = Object.fromEntries(
-      Object.entries(data).map(([key]) => [firstStrUpperCase(key), data[key]]),
+      Object.entries(data).filter(([key, value]) => {
+        if (value === null) return;
+        return [firstStrUpperCase(key), value];
+      }),
     );
+
     return convert;
   }
 };
