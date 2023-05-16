@@ -37,7 +37,8 @@
     "recoil": "^0.7.6",
     "styled-components": "^5.3.6",
     "styled-reset": "^4.4.2",
-    "typescript": "4.9.3"
+    "typescript": "4.9.3",
+    "utility-types": "^3.10.0"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.0.10",
