@@ -14,17 +14,18 @@ const valueForContractType = (contract: any) => {
     data: {},
   };
   const {type, pkg_func} = contract;
+
   if (type === '/vm.m_addpkg' && pkg_func === 'AddPkg') {
-    map = {
+    return (map = {
       type: pkg_func,
       data: {
         Creator: contract.creator_username ? contract.creator_username : contract.creator_address,
         Name: contract.pkg_name,
         Path: contract.pkg_path,
       },
-    };
+    });
   } else if (type === '/bank.MsgSend' && pkg_func === 'Transfer') {
-    map = {
+    return (map = {
       type: pkg_func,
       data: {
         From: contract.from_address,
@@ -34,25 +35,38 @@ const valueForContractType = (contract: any) => {
           value: contract.amount.value,
         },
       },
-    };
+    });
   } else if (type === '/vm.m_call') {
+    if (pkg_func === 'Transfer') {
+      return (map = {
+        type: pkg_func,
+        data: {
+          From: contract.from_address,
+          To: contract.to_address,
+          Amount: {
+            denom: contract.amount.denom,
+            value: contract.amount.value,
+          },
+        },
+      });
+    }
     if (contract.pkg_path === 'gno.land/r/demo/boards') {
-      contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
+      return contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
         map.type = contract.pkg_func;
         map.data[v] = contract.args[i];
       });
     } else if (contract.pkg_path === 'gno.land/r/demo/users') {
-      contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
+      return contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
         map.type = contract.pkg_func;
         map.data[v] = contract.args[i];
       });
     } else {
-      map = {
+      return (map = {
         type: pkg_func,
         data: {
           Caller: contract.caller_username ? contract.caller_username : contract.caller_address,
         },
-      };
+      });
     }
   }
   return map;
