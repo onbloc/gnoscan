@@ -1,4 +1,5 @@
 import {ValueWithDenomType} from '@/types/data-type';
+import BigNumber from 'bignumber.js';
 
 interface TotalGasShareData {
   date: string;
@@ -8,10 +9,16 @@ interface TotalGasShareData {
   percent: number;
 }
 
+type GraphDataSet = {[key in string]: GraphData[]};
+
+interface GraphData {
+  value: number;
+  stackedValue: number;
+  rate: number;
+}
+
 export class TotalGasShareModel {
   private static FILTERED_LIMIT = 100;
-
-  private static NON_FILTERED_PACAKGE_PATH = 'rest';
 
   private datas: Array<TotalGasShareData>;
 
@@ -74,44 +81,48 @@ export class TotalGasShareModel {
     );
 
     return packagePathOfDailyFee
-      .sort((d1, d2) => d2.dailyFee - d1.dailyFee)
+      .sort((d1, d2) => d1.dailyFee - d2.dailyFee)
       .map(data => data.packagePath);
   }
 
   public get chartData() {
     const labels = this.labels;
-    const sortedPackagePaths = this.sortedPackagePath;
-    const filteredPackagePaths = sortedPackagePaths.slice(
-      0,
-      sortedPackagePaths.length > TotalGasShareModel.FILTERED_LIMIT
-        ? TotalGasShareModel.FILTERED_LIMIT
-        : sortedPackagePaths.length,
-    );
+    const rankPackagePaths = this.sortedPackagePath.reverse();
 
-    const datasets = this.datas.reduce(
-      (accum: {[key in string]: Array<{value: number; rate: number}>}, current) => {
-        let packagePath = current.packagePath;
-        if (!filteredPackagePaths.includes(packagePath)) {
-          packagePath = TotalGasShareModel.NON_FILTERED_PACAKGE_PATH;
-        }
-        if (!accum[packagePath]) {
-          accum[packagePath] = new Array(labels.length).fill({
-            value: 0,
-            rate: 0,
-          });
-        }
+    const datasets = rankPackagePaths.reduce((accum: GraphDataSet, currentPackagePath) => {
+      if (!accum[currentPackagePath]) {
+        accum[currentPackagePath] = new Array(labels.length).fill({
+          value: 0,
+          stackedValue: 0,
+          rate: 0,
+        });
+      }
 
-        const dateIndex = labels.findIndex(label => label === current.date);
-        if (dateIndex > -1) {
-          accum[packagePath][dateIndex] = {
-            value: current.packageDailyFee,
-            rate: current.percent,
-          };
-        }
-        return accum;
-      },
-      {},
-    );
+      for (let dateIndex = 0; dateIndex < labels.length; dateIndex++) {
+        // Filter all data by comparing dates to the package paths that need to be calculated cumulatively.
+        const result = this.datas
+          .filter(({date}) => date === labels[dateIndex])
+          .filter(({packagePath}) =>
+            rankPackagePaths
+              .slice(
+                0,
+                rankPackagePaths.findIndex(filteredPath => filteredPath === currentPackagePath) + 1,
+              )
+              .includes(packagePath),
+          );
+
+        const currentData = result.find(data => data.packagePath === currentPackagePath);
+        const dailyFessOfDate = result.map(data => data.packageDailyFee);
+
+        accum[currentPackagePath][dateIndex] = {
+          value: currentData?.packageDailyFee ?? 0,
+          stackedValue: dailyFessOfDate.reduce((a, b) => BigNumber(a).plus(b).toNumber(), 0),
+          rate: currentData?.percent ?? 0,
+        };
+      }
+      return accum;
+    }, {});
+
     return datasets;
   }
 
