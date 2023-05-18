@@ -9,7 +9,7 @@ import {themeState} from '@/states';
 import {zindex} from '@/common/values/z-index';
 interface AreaChartProps {
   labels: Array<string>;
-  datas: {[key in string]: Array<{value: number; rate: number}>};
+  datas: {[key in string]: Array<{value: number; stackedValue: number; rate: number}>};
   colors?: Array<string>;
 }
 
@@ -113,13 +113,16 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       responsive: true,
       maintainAspectRatio: false,
       aspectRatio: 2,
+      animation: false,
       scales: {
         yAxis: {
-          max: 100,
-          min: 0,
           ticks: {
             color: themePallet.tertiary,
             count: 5,
+            callback: (tickValue, index) => {
+              if (index === 0) return '';
+              return tickValue;
+            },
           },
           grid: {
             color: themePallet.dimmed50,
@@ -131,7 +134,8 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
         xAxis: {
           ticks: {
             color: themePallet.tertiary,
-            maxTicksLimit: 8,
+            count: 1,
+            maxTicksLimit: 10,
             maxRotation: 0,
             callback: (_, index) => {
               try {
@@ -179,7 +183,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   const createChartData = (
     labels: Array<string>,
-    datasets: {[key in string]: Array<{value: number; rate: number}>},
+    datasets: {[key in string]: Array<{value: number; stackedValue: number; rate: number}>},
   ): ChartData<'line'> => {
     const themePallet = getThemePallet();
     if (!chartRef.current || !labels || !datasets) {
@@ -207,14 +211,14 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       ...new Array(Object.keys(datasets).length).fill(themePallet.blue),
     ];
     const mappedDatasets = Object.keys(datasets).map((datasetName, index) => {
-      const currentDataset = datasets[datasetName].map(dataset => dataset.rate);
+      const currentDataset = datasets[datasetName].map(dataset => dataset.stackedValue);
       return {
         ...defaultChartData,
         label: datasetName,
         data: currentDataset,
         borderColor: chartColors[index],
         pointBackgroundColor: chartColors[index],
-        backgroundColor: createGradient(chart, currentDataset, chartColors[index]),
+        backgroundColor: chartColors[index],
       };
     });
 
@@ -222,15 +226,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       labels,
       datasets: mappedDatasets,
     };
-  };
-
-  const createGradient = (chart: Chart<'line'>, datas: Array<number>, colorStart: string) => {
-    const maxValue = Math.max(...datas);
-    const top = chart.chartArea.bottom - Math.round(chart.chartArea.bottom * (maxValue / 100));
-    const gradient = chart.ctx.createLinearGradient(0, top, 0, chart.chartArea.bottom);
-    gradient.addColorStop(0, colorStart);
-    gradient.addColorStop(1, `${colorStart.slice(0, 7)}00`);
-    return gradient;
   };
 
   return (
