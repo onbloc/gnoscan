@@ -5,7 +5,7 @@ export interface TokenDetailsModel {
   symbol: string;
   totalSupply: string;
   decimals: number;
-  tokenPath: string;
+  pkgPath: string;
   funcs: string[];
   owner: string;
   address: string;

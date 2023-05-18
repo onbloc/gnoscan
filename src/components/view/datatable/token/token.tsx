@@ -20,6 +20,7 @@ interface TokenData {
   img_path: string;
   name: string;
   denom: string;
+  symbol: string;
   holders: number;
   functions: Array<string>;
   decimals: number;
@@ -71,7 +72,8 @@ export const TokenDatatable = () => {
           token={data.token}
           imagePath={data.img_path}
           name={data.name}
-          denom={data.denom}
+          symbol={data.symbol}
+          pkgPath={data.pkg_path}
         />
       ))
       .build();
