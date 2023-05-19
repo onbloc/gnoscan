@@ -1,25 +1,25 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Line} from 'react-chartjs-2';
 import {Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
 import {AreaChartTooltip} from './tooltip';
-import {styled} from '@/styles';
 import theme from '@/styles/theme';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {zindex} from '@/common/values/z-index';
+import styled from 'styled-components';
+import BigNumber from 'bignumber.js';
 interface AreaChartProps {
   labels: Array<string>;
-  datas: {[key in string]: Array<{value: number; stackedValue: number; rate: number}>};
+  datas: {[key in string]: Array<{value: number; rate: number}>};
   colors?: Array<string>;
 }
 
 export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart<'line'>>(null);
+  const [excludedDatasets, setExcludedDatasets] = useState<ChartDataset[]>([]);
   const [chartData, setChartData] = useState<ChartData<'line'>>({labels: [], datasets: []});
   const themeMode = useRecoilValue(themeState);
-  const [chartWidth, setChartWidth] = useState(0);
-  const [chartHeight, setChartHeight] = useState(0);
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({
@@ -35,27 +35,27 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
   }, [tooltipRef]);
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [wrapperRef.current?.clientWidth, wrapperRef.current?.clientHeight]);
-
-  useEffect(() => {
     if (chartRef.current) {
       const chartData = createChartData(labels, datas);
       setChartData(chartData);
     }
-  }, [chartRef, labels, datas]);
+  }, [chartRef, labels, datas, excludedDatasets]);
 
-  const handleResize = () => {
-    if (wrapperRef.current) {
-      setChartWidth(wrapperRef.current.clientWidth);
-      if (wrapperRef.current.clientHeight > 250) {
-        setChartHeight(wrapperRef.current.clientHeight);
+  const onClickLegend = useCallback(
+    (dataset: ChartDataset) => {
+      const index = excludedDatasets.findIndex(
+        excludedDataset => excludedDataset.label === dataset.label,
+      );
+      if (index > -1) {
+        const changedDatasets = [...excludedDatasets];
+        changedDatasets.splice(index, 1);
+        setExcludedDatasets(changedDatasets);
+        return;
       }
-    }
-  };
+      setExcludedDatasets([...excludedDatasets, dataset]);
+    },
+    [excludedDatasets],
+  );
 
   const handleTooltipVisible = () => {
     if (tooltipRef.current) {
@@ -113,7 +113,6 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       responsive: true,
       maintainAspectRatio: false,
       aspectRatio: 2,
-      animation: false,
       scales: {
         yAxis: {
           ticks: {
@@ -121,7 +120,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
             count: 5,
             callback: (tickValue, index) => {
               if (index === 0) return '';
-              return tickValue;
+              return BigNumber(tickValue).shiftedBy(-6).toString();
             },
           },
           grid: {
@@ -159,14 +158,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       },
       plugins: {
         legend: {
-          position: 'bottom' as const,
-          labels: {
-            boxHeight: 4,
-            boxWidth: 4,
-            color: themePallet.primary,
-            pointStyle: 'circle',
-            usePointStyle: true,
-          },
+          display: false,
         },
         tooltip: {
           enabled: false,
@@ -183,14 +175,13 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   const createChartData = (
     labels: Array<string>,
-    datasets: {[key in string]: Array<{value: number; stackedValue: number; rate: number}>},
+    datasets: {[key in string]: Array<{value: number; rate: number}>},
   ): ChartData<'line'> => {
     const themePallet = getThemePallet();
     if (!chartRef.current || !labels || !datasets) {
       return {labels: [], datasets: []};
     }
 
-    const chart = chartRef.current;
     const defaultChartData: ChartDataset<'line'> = {
       yAxisID: 'yAxis',
       xAxisID: 'xAxis',
@@ -211,7 +202,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       ...new Array(Object.keys(datasets).length).fill(themePallet.blue),
     ];
     const mappedDatasets = Object.keys(datasets).map((datasetName, index) => {
-      const currentDataset = datasets[datasetName].map(dataset => dataset.stackedValue);
+      const currentDataset = datasets[datasetName].map(dataset => dataset.value);
       return {
         ...defaultChartData,
         label: datasetName,
@@ -222,9 +213,25 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       };
     });
 
+    const stackedDatasets = mappedDatasets.map((dataset, datasetIndex) => {
+      const data = dataset.data.map((_, dataIndex) => {
+        let result = BigNumber(0);
+        for (let i = 0; i <= datasetIndex; i++) {
+          if (excludedDatasets.findIndex(item => item.label === mappedDatasets[i].label) === -1) {
+            result = result.plus(mappedDatasets[i].data[dataIndex]);
+          }
+        }
+        return result.shiftedBy(6).toNumber();
+      });
+      return {
+        ...dataset,
+        data,
+      };
+    });
+
     return {
       labels,
-      datasets: mappedDatasets,
+      datasets: stackedDatasets,
     };
   };
 
@@ -239,25 +246,59 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
           datas={datas}
         />
       </div>
+
       <Line
         ref={chartRef}
-        width={chartWidth}
-        height={chartHeight}
+        className="area-chart"
+        width={'100%'}
+        height={'100%'}
         options={createChartOption()}
         data={chartData}
       />
+
+      <div className="legend-list-wrapper">
+        {chartData.datasets.map((dataset, index) => (
+          <LegendWrapper
+            key={index}
+            fill={`${dataset?.borderColor}`}
+            disabled={excludedDatasets.findIndex(item => item.label === dataset.label) > -1}
+            onClick={() => onClickLegend(dataset)}>
+            <span className="legend-mark"></span>
+            <span className="legend-name">{dataset.label}</span>
+          </LegendWrapper>
+        ))}
+      </div>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
   & {
+    position: relative;
     display: flex;
-    width: 100%;
-    height: 280px;
+    flex-direction: column;
+    height: calc(100% - 75px);
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
+  }
+
+  .area-chart {
+    display: block;
+  }
+
+  .legend-list-wrapper {
+    position: absolute;
+    bottom: -50px;
+    display: flex;
+    flex-flow: row wrap;
+    flex-direction: row;
+    width: 100%;
+    height: 40px;
+    color: ${({theme}) => theme.colors.white};
+    ${({theme}) => theme.fonts.body1};
+    align-items: flex-start;
+    justify-content: center;
   }
 
   .tooltip-container {
@@ -267,5 +308,26 @@ const Wrapper = styled.div`
     height: fit-content;
     z-index: ${zindex.chart};
     pointer-events: none;
+  }
+`;
+
+const LegendWrapper = styled.div<{fill: string; disabled: boolean}>`
+  display: flex;
+  height: 20px;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 10px;
+  cursor: pointer;
+  user-select: none;
+
+  ${({disabled}) => disabled && 'text-decoration: line-through;'}
+
+  .legend-mark {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    background-color: ${({fill}) => fill};
+    margin-right: 5px;
   }
 `;
