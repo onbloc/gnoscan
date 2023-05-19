@@ -87,13 +87,22 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
 
   & .title-wrapper {
     display: flex;
     flex-direction: row;
     width: 100%;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+
+    .title {
+      width: calc(100% - 120px);
+      max-height: 40px;
+      margin-bottom: 16px;
+      word-break: normal;
+      line-height: 1em;
+    }
   }
 
   & .period-selector {

@@ -1,5 +1,4 @@
 import {ValueWithDenomType} from '@/types/data-type';
-import BigNumber from 'bignumber.js';
 
 interface TotalGasShareData {
   date: string;
@@ -13,13 +12,10 @@ type GraphDataSet = {[key in string]: GraphData[]};
 
 interface GraphData {
   value: number;
-  stackedValue: number;
   rate: number;
 }
 
 export class TotalGasShareModel {
-  private static FILTERED_LIMIT = 100;
-
   private datas: Array<TotalGasShareData>;
 
   constructor(
@@ -93,7 +89,6 @@ export class TotalGasShareModel {
       if (!accum[currentPackagePath]) {
         accum[currentPackagePath] = new Array(labels.length).fill({
           value: 0,
-          stackedValue: 0,
           rate: 0,
         });
       }
@@ -112,11 +107,9 @@ export class TotalGasShareModel {
           );
 
         const currentData = result.find(data => data.packagePath === currentPackagePath);
-        const dailyFessOfDate = result.map(data => data.packageDailyFee);
 
         accum[currentPackagePath][dateIndex] = {
           value: currentData?.packageDailyFee ?? 0,
-          stackedValue: dailyFessOfDate.reduce((a, b) => BigNumber(a).plus(b).toNumber(), 0),
           rate: currentData?.percent ?? 0,
         };
       }
