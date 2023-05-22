@@ -23,8 +23,9 @@ export function formatAddress(v: string, num: number = 4): string {
   return v.length < 40 ? v : `${v.slice(0, num)}...${v.slice(-num)}`;
 }
 
-export function formatEllipsis(v: string, num: number = 11) {
-  return v.length > num ? `${v.slice(0, num)}..` : v;
+export function formatEllipsis(v: string, num: number = 11, ellipsis: number = 2) {
+  const formatEllipsis = '.'.repeat(ellipsis);
+  return v.length > num ? `${v.slice(0, num)}${formatEllipsis}` : v;
 }
 
 export const decimalPointWithCommas = (v: BigNumber, fixed?: number): string[] | string => {
