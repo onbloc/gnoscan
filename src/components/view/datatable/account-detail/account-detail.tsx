@@ -66,7 +66,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
 
   const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'account-detail/transactions',
-    uri: 'https://dev-api.gnoscan.io/v2' + `/account/txs/${address}`,
+    uri: API_URI + API_VERSION + `/account/txs/${address}`,
     pageable: true,
   });
   const [development, setDevelopment] = useState(false);
