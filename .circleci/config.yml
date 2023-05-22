@@ -99,7 +99,8 @@ workflows:
             branches:
               only:
                 - main
-                - develop
+                # - develop
+                - release-v0.3.0
       - deploy:
           context:
             - AWS_DEPLOY
@@ -110,7 +111,8 @@ workflows:
           filters:
             branches:
               only:
-                - develop
+                # - develop
+                - release-v0.3.0
       - deploy:
           context:
             - AWS_DEPLOY
