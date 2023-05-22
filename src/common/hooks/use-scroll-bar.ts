@@ -4,6 +4,8 @@ import {css} from 'styled-components';
 export const scrollbarStyle = css`
   &::-webkit-scrollbar {
     display: block;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   &::-webkit-scrollbar-thumb {
