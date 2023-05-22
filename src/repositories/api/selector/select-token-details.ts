@@ -31,7 +31,7 @@ export const tokenDetailSelector = (data: any) => {
     holders: numberWithCommas(data.holders_count),
     log: {
       list: data.extra.files,
-      content: data.extra.contents,
+      content: data.extra.contents.map((v: string) => window.atob(v)),
     },
   };
 };
