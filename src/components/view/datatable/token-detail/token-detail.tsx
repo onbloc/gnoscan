@@ -8,7 +8,7 @@ import theme from '@/styles/theme';
 import {DatatableItem} from '..';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
-import {API_V2_URI, API_V2_VERSION} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 interface TokenTransactionData {
@@ -64,7 +64,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
 
   const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: 'token-detail/transactions',
-    uri: API_V2_URI + API_V2_VERSION + `/token/txs/${path.join('/')}`,
+    uri: API_URI + API_VERSION + `/token/txs/${path.join('/')}`,
     pageable: true,
   });
 
@@ -131,7 +131,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
 
   const createHeaderFrom = () => {
     return DatatableOption.Builder.builder<TokenTransactionData>()
-      .key('from')
+      .key('caller_address')
       .name('From')
       .width(160)
       .colorName('blue')
