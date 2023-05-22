@@ -11,3 +11,4 @@ export * from './owner';
 export * from './date';
 export * from './has-link';
 export * from './pkg-path';
+export * from './publisher';
