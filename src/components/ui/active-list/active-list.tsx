@@ -68,7 +68,7 @@ const ListTitleWrap = styled.div`
 
 const ListContentWrap = styled.div`
   ${mixins.flexbox('column', 'flex-start', 'flex-start')};
-  overflow: hidden auto;
+  /* overflow: hidden auto; */
   height: 240px;
   min-width: 100%;
   ${scrollbarStyle};
