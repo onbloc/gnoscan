@@ -15,6 +15,7 @@ import {useRouter} from 'next/router';
 import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
 import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
+import {ValuesType} from 'utility-types';
 
 interface StyleProps {
   desktop?: boolean;
@@ -22,10 +23,19 @@ interface StyleProps {
   ref?: any;
 }
 
-interface NotRealmsObj {
-  username: string;
-  address: string;
+interface SearchResultProps {
+  item: any;
+  isMain: boolean;
+  searchTitle: SEARCH_TITLE;
+  onClick: (v: SEARCH_TITLE, item: any) => void;
 }
+
+export const SEARCH_TITLE = {
+  ACCOUNTS: 'accounts',
+  REALMS: 'realms',
+  TOKENS: 'tokens',
+} as const;
+export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
 const SearchResult = () => {
   const desktop = isDesktop();
@@ -70,44 +80,37 @@ const SearchResult = () => {
       {open && (
         <Wrapper desktop={desktop} isMain={isMain} ref={ref}>
           {Boolean(result) ? (
-            Object.keys(result).map(v => (
+            Object.keys(result).map(searchTitle => (
               <Section key={v1()}>
                 <Text type={isMain ? 'p4' : 'body1'} color="tertiary">
-                  {v}
+                  {searchTitle}
                 </Text>
                 <ListContainer>
-                  {result[v].map((item: any) => (
+                  {result[searchTitle].map((item: any) => (
                     <List key={v1()}>
-                      {v === 'Accounts' ? (
-                        <Link href={`/accounts/${item.address}`} passHref>
-                          <FitContentAStyle onClick={() => onClick(v, item)}>
-                            <Text
-                              type={isMain ? 'p4' : 'body1'}
-                              color="primary"
-                              className="ellipsis">
-                              {item.address}
-                              {item.username && (
-                                <Text
-                                  type={isMain ? 'p4' : 'body1'}
-                                  color="primary"
-                                  display="inline-block">
-                                  {` (${item.username})`}
-                                </Text>
-                              )}
-                            </Text>
-                          </FitContentAStyle>
-                        </Link>
-                      ) : (
-                        <Link href={`/realms/details?path=${item}`} passHref>
-                          <FitContentA onClick={() => onClick(v, item)}>
-                            <Text
-                              type={isMain ? 'p4' : 'body1'}
-                              color="primary"
-                              className="ellipsis">
-                              {item}
-                            </Text>
-                          </FitContentA>
-                        </Link>
+                      {searchTitle === SEARCH_TITLE.ACCOUNTS && (
+                        <AccountsList
+                          item={item}
+                          isMain={isMain}
+                          searchTitle={searchTitle}
+                          onClick={onClick}
+                        />
+                      )}
+                      {searchTitle === SEARCH_TITLE.REALMS && (
+                        <RealmsList
+                          item={item}
+                          isMain={isMain}
+                          searchTitle={searchTitle}
+                          onClick={onClick}
+                        />
+                      )}
+                      {searchTitle === SEARCH_TITLE.TOKENS && (
+                        <TokensList
+                          item={item}
+                          isMain={isMain}
+                          searchTitle={searchTitle}
+                          onClick={onClick}
+                        />
                       )}
                     </List>
                   ))}
@@ -125,10 +128,43 @@ const SearchResult = () => {
   );
 };
 
-// SearchResult.getInitialProps = async ({req}: any) => {
-//   const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
-//   return {ip};
-// };
+const AccountsList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => (
+  <Link href={`/accounts/${item.address}`} passHref>
+    <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+      <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
+        {item.address}
+        {item.username && (
+          <Text type={isMain ? 'p4' : 'body1'} color="primary" display="inline-block">
+            {` (${item.username})`}
+          </Text>
+        )}
+      </Text>
+    </FitContentAStyle>
+  </Link>
+);
+
+const RealmsList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => (
+  <Link href={`/realms/details?path=${item}`} passHref>
+    <FitContentA onClick={() => onClick(searchTitle, item)}>
+      <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
+        {item}
+      </Text>
+    </FitContentA>
+  </Link>
+);
+
+const TokensList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => (
+  <Link href={`/tokens/${item.pkg_path}`} passHref>
+    <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+      <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
+        {item.name}
+        <Text type={isMain ? 'p4' : 'body1'} color="primary" display="inline-block">
+          {` (${item.pkg_path})`}
+        </Text>
+      </Text>
+    </FitContentAStyle>
+  </Link>
+);
 
 const commonContentStyle = css`
   ${mixins.flexbox('column', 'flex-start', 'center')};

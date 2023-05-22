@@ -44,7 +44,6 @@ export const TokenDatatable = () => {
     if (!data) {
       return [];
     }
-    console.log('daata:', data);
     return data.pages.reduce<Array<TokenData>>(
       (accum, current) => (current ? [...accum, ...current.tokens] : accum),
       [],
