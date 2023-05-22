@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {TotalGasShareModel} from './total-gas-share-model';
 import dynamic from 'next/dynamic';
 import usePageQuery from '@/common/hooks/use-page-query';
-import {API_V2_URI, API_V2_VERSION} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import theme from '@/styles/theme';
@@ -31,7 +31,7 @@ export const MainRealmTotalGasShare = () => {
 
   const {data, finished} = usePageQuery<Array<TotalGasShareResponse>>({
     key: 'main/total-gas-share',
-    uri: API_V2_URI + API_V2_VERSION + `/info/realms_gas?period=${period - 1}`,
+    uri: API_URI + API_VERSION + `/info/realms_gas?period=${period - 1}`,
     pageable: false,
   });
 

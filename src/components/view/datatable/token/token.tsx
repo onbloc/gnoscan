@@ -6,7 +6,7 @@ import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_V2_URI, API_V2_VERSION, API_VERSION} from '@/common/values/constant-value';
+import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import theme from '@/styles/theme';
@@ -42,7 +42,7 @@ export const TokenDatatable = () => {
 
   const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: ['token/token-list'],
-    uri: 'https://dev-api.gnoscan.io/v2' + '/list/tokens',
+    uri: API_URI + API_VERSION + '/list/tokens',
     pageable: true,
   });
   useLoading({finished});
