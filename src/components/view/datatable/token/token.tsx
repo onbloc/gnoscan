@@ -160,7 +160,7 @@ export const TokenDatatable = () => {
       {hasNextPage ? (
         <div className="button-wrapper">
           <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
-            {'View More Transactions'}
+            {'View More Tokens'}
           </Button>
         </div>
       ) : (
