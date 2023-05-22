@@ -60,7 +60,8 @@ const usePageQuery = <T extends {[key in string]: any}>({
 
     const currentPage = page ?? 1;
     const currentSkip = (currentPage - 1) * 30;
-    return `skip=${currentSkip}&size=30`;
+    const pagingSize = key[0] === 'token/token-list' ? 20 : 30;
+    return `skip=${currentSkip}&size=${pagingSize}`;
   };
 
   const fetchData = async (page: number | undefined) => {
