@@ -11,12 +11,14 @@ import {eachMedia} from '@/common/hooks/use-media';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import {StatusKeyType, statusObj} from '@/common/utils';
 interface TokenTransactionData {
   tx_hash: string;
-  success?: boolean;
+  status: StatusKeyType;
   type: string;
   bloc: number;
   from: string;
+  pkg_func: string;
   pkg_path: string | null;
   msg_num: number;
   amount: {
@@ -67,7 +69,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
     uri: API_URI + API_VERSION + `/token/txs/${path.join('/')}`,
     pageable: true,
   });
-
+  if (data) console.log(data);
   const getTransactionDatas = () => {
     if (!data) {
       return [];
@@ -96,7 +98,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={'Success'} />)
+      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={data.status} />)
       .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
@@ -111,7 +113,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
       .renderOption((_, data) => (
         <DatatableItem.Type
           type={data.type}
-          func={data.type}
+          func={data.pkg_func}
           packagePath={data.pkg_path}
           msgNum={data.msg_num}
         />
