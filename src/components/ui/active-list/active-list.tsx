@@ -71,7 +71,7 @@ const ListContentWrap = styled.div`
   overflow: hidden auto;
   height: 240px;
   min-width: 100%;
-  ${scrollbarStyle};
+  /* ${scrollbarStyle}; */
 `;
 
 export default ActiveList;
