@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useCallback} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
@@ -8,11 +8,12 @@ import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
-import {themeState} from '@/states';
+import {themeState, tokenState} from '@/states';
 import theme from '@/styles/theme';
 import styled from 'styled-components';
 import {eachMedia} from '@/common/hooks/use-media';
 import {Button} from '@/components/ui/button';
+import {isGRC20TokenModel, TokenModel} from '@/repositories/api/models/meta-token-model';
 
 interface ResponseData {
   hits: number;
@@ -39,6 +40,7 @@ interface TokenData {
 export const TokenDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
+  const tokenInfos = useRecoilValue(tokenState);
 
   const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
     key: ['token/token-list'],
@@ -51,11 +53,28 @@ export const TokenDatatable = () => {
     if (!data) {
       return [];
     }
-    return data.pages.reduce<Array<TokenData>>(
-      (accum, current) => (current ? [...accum, ...current.tokens] : accum),
-      [],
-    );
+    return data.pages.reduce<Array<TokenData>>((accum, current) => {
+      const latest =
+        current?.tokens.map(token => ({
+          ...token,
+          img_path: getTokenMetaInfo(token),
+        })) ?? [];
+      return [...accum, ...latest];
+    }, []);
   };
+
+  const getTokenMetaInfo = useCallback(
+    (token: TokenData) => {
+      const tokenInfo = tokenInfos.find(tokenInfo => {
+        if (!isGRC20TokenModel(tokenInfo)) {
+          return false;
+        }
+        return `${tokenInfo.symbol}`.toUpperCase() === `${token.symbol}`.toUpperCase();
+      });
+      return tokenInfo?.image ?? '';
+    },
+    [tokenInfos],
+  );
 
   const createHeaders = () => {
     return [
