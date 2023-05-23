@@ -16,6 +16,7 @@ export const scrollbarStyle = css`
   }
 
   &.scroll-visible::-webkit-scrollbar {
+    position: absolute;
     width: 4px;
     background-color: transparent;
   }
