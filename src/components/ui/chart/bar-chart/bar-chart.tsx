@@ -18,8 +18,6 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
   const chartRef = useRef<Chart<'bar'>>(null);
   const [chartData, setChartData] = useState<ChartData<'bar'>>({labels: [], datasets: []});
   const [themeMode, setThemeMode] = useRecoilState(themeState);
-  const [chartWidth, setChartWidth] = useState(0);
-  const [chartHeight, setChartHeight] = useState(0);
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({
@@ -35,13 +33,6 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
   }, [tooltipRef]);
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [wrapperRef.current?.clientWidth, wrapperRef.current?.clientHeight]);
-
-  useEffect(() => {
     if (chartRef.current) {
       const chartData = createChartData(labels, datas);
       setChartData(chartData);
@@ -51,13 +42,6 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
   const handleTooltipVisible = () => {
     if (tooltipRef.current) {
       tooltipRef.current.style.opacity = '0';
-    }
-  };
-
-  const handleResize = () => {
-    if (wrapperRef.current) {
-      setChartWidth(wrapperRef.current.clientWidth);
-      setChartHeight(wrapperRef.current.clientHeight);
     }
   };
 
@@ -203,8 +187,8 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
       </div>
       <Bar
         ref={chartRef}
-        width={chartWidth}
-        height={chartHeight}
+        width={'100%'}
+        height={'100%'}
         options={createChartOption()}
         data={chartData}
       />
