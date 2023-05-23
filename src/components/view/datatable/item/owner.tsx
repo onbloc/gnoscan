@@ -34,7 +34,7 @@ export const Owner = ({publisher, publisherUsername}: Props) => {
           </OwnerLink>
         </Tooltip>
       ) : (
-        <OwnerText className="genesisT-type">{getDisplayUsername()}</OwnerText>
+        <OwnerText>{getDisplayUsername()}</OwnerText>
       )}
     </Container>
   );
@@ -51,14 +51,11 @@ const OwnerLink = styled.a`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: ${({theme}) => theme.colors.blue};
 `;
 
 const OwnerText = styled.span`
   width: 100%;
-  &.genesisT-type {
-    color: ${({theme}) => theme.colors.reverse};
-  }
+  color: ${({theme}) => theme.colors.blue};
 `;
 
 const TooltipWrapper = styled.span`
