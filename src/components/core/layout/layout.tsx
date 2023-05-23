@@ -7,16 +7,24 @@ import {Footer} from '@/components/view/footer';
 import mixins from '@/styles/mixins';
 import useLoading from '@/common/hooks/use-loading';
 import {CustomThemeProvider} from './CustomThemeProvider';
+import {useSetRecoilState} from 'recoil';
+import {tokenState} from '@/states';
+import {getAllTokens} from '@/repositories/api/fetchers/api-meta-tokens';
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout = ({children}: LayoutProps) => {
   const {clearLoading} = useLoading();
+  const setTokenInfo = useSetRecoilState(tokenState);
 
   useEffect(() => {
     clearLoading();
   }, []);
+
+  useEffect(() => {
+    getAllTokens().then(setTokenInfo);
+  });
 
   return (
     <CustomThemeProvider>
