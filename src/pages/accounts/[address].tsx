@@ -49,8 +49,6 @@ const AccountDetails = () => {
     },
   );
 
-  if (detail) console.log('Detial : ', detail);
-
   return (
     <DetailsPageLayout
       title="Account Details"
