@@ -89,13 +89,19 @@ const TokenDetails = () => {
               <dt>Owner</dt>
               <dd>
                 <Badge>
-                  <Link href={`/accounts/${token.address}`} passHref>
-                    <FitContentA>
-                      <Text type="p4" color="blue">
-                        {token.owner}
-                      </Text>
-                    </FitContentA>
-                  </Link>
+                  {token.owner && token.owner === 'genesis' ? (
+                    <Text type="p4" color="blue">
+                      {token.owner}
+                    </Text>
+                  ) : (
+                    <Link href={`/accounts/${token.address}`} passHref>
+                      <FitContentA>
+                        <Text type="p4" color="blue">
+                          {token.owner}
+                        </Text>
+                      </FitContentA>
+                    </Link>
+                  )}
                 </Badge>
               </dd>
             </DLWrap>
