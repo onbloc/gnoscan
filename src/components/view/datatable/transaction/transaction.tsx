@@ -15,6 +15,7 @@ import theme from '@/styles/theme';
 import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
 import {scrollbarStyle} from '@/common/hooks/use-scroll-bar';
+import {StatusKeyType} from '@/common/utils';
 
 const TOOLTIP_TX_HASH = (
   <>
@@ -43,7 +44,7 @@ interface ResponseData {
 }
 interface TransactionData {
   hash: string;
-  status: string;
+  status: StatusKeyType;
   type: string;
   pkg_func: string;
   height: number;
