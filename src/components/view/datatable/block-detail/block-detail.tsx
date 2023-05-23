@@ -11,9 +11,10 @@ import {eachMedia} from '@/common/hooks/use-media';
 import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
+import {StatusKeyType} from '@/common/utils';
 interface BlockTransactionData {
   hash: string;
-  status: string;
+  status: StatusKeyType;
   type: string;
   pkg_func: string;
   from_address: string;
