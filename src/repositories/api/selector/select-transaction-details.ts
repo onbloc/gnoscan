@@ -91,10 +91,24 @@ export const transactionDetailSelector = (data: any) => {
       args: valueForContractType(v),
     })),
   };
+
   return {
     ...data,
     summary: summaryData,
     contract: contractData,
-    log: decodeURIComponent(window.atob(log)),
+    log: decodeUnicode(log),
   };
 };
+
+function decodeUnicode(str: string) {
+  // Going backward: from byte-stream to percent-encoding, to original string.
+  return decodeURIComponent(
+    window
+      .atob(str)
+      .split('')
+      .map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join(''),
+  );
+}
