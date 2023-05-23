@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
 import {useRouter} from 'next/router';
@@ -19,6 +19,10 @@ import {AccountDetailDatatable} from '@/components/view/datatable';
 import {getAccountDetails} from '@/repositories/api/fetchers/api-account-details';
 import {accountDetailSelector} from '@/repositories/api/selector/select-account-details';
 import {AccountDetailsModel, AssetsDataType} from '@/models/account-details-model';
+import {useRecoilValue} from 'recoil';
+import {tokenState} from '@/states';
+// import {saveAllTokens, tokensMapper} from '@/repositories/api/selector/select-meta-token';
+
 interface StyleProps {
   media?: string;
   padding?: string;
@@ -29,6 +33,7 @@ const AccountDetails = () => {
   const media = eachMedia();
   const desktop = isDesktop();
   const router = useRouter();
+  const tokens = useRecoilValue(tokenState);
   const {address} = router.query;
   const {
     data: detail,
@@ -38,11 +43,13 @@ const AccountDetails = () => {
     ['detail/address', address],
     async () => await getAccountDetails(address),
     {
-      enabled: !!address,
+      enabled: !!address && tokens.length > 0,
       retry: 0,
-      select: (res: any) => accountDetailSelector(res.data),
+      select: (res: any) => accountDetailSelector(res.data, tokens),
     },
   );
+
+  if (detail) console.log('Detial : ', detail);
 
   return (
     <DetailsPageLayout
@@ -84,8 +91,13 @@ const AccountDetails = () => {
             {detail.assets.map((v: AssetsDataType) => (
               <GrayBox key={v1()} padding={desktop ? '16px 24px' : '12px 16px'}>
                 <LogoImg>
-                  <UnknownToken className="unknown-token" width="40" height="40" />
+                  {v.image ? (
+                    <img src={v.image} alt="token-image" />
+                  ) : (
+                    <UnknownToken className="unknown-token" width="40" height="40" />
+                  )}
                 </LogoImg>
+
                 <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
                   {v.name}
                 </Text>
@@ -161,12 +173,14 @@ const StyledA = styled.a`
 
 const LogoImg = styled.div`
   ${mixins.flexbox('row', 'center', 'center')};
-  width: 40px;
-  height: 40px;
   border-radius: 50%;
   background-color: ${({theme}) => theme.colors.base};
   .logo-icon {
     fill: ${({theme}) => theme.colors.primary};
+  }
+  img {
+    width: 40px;
+    height: 40px;
   }
 `;
 

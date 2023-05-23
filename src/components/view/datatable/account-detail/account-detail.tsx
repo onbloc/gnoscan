@@ -70,7 +70,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     pageable: true,
   });
   const [development, setDevelopment] = useState(false);
-  if (data) console.log('Amount : ', data);
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeydownEvent);
     window.addEventListener('keyup', handleKeyupEvent);
