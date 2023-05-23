@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import IconSuccess from '@/assets/svgs/icon-status-success.svg';
 import IconFail from '@/assets/svgs/icon-status-fail.svg';
 import {RPC_URI} from '@/common/values/constant-value';
+import {StatusKeyType} from '@/common/utils';
 
 interface Props {
   txHash: string;
-  status: string;
+  status: StatusKeyType;
   development?: boolean;
   height?: number;
 }
