@@ -51,12 +51,12 @@ const valueForContractType = (contract: any) => {
       });
     }
     if (contract.pkg_path === 'gno.land/r/demo/boards') {
-      return contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
+      contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
         map.type = contract.pkg_func;
         map.data[v] = contract.args[i];
       });
     } else if (contract.pkg_path === 'gno.land/r/demo/users') {
-      return contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
+      contractObj[pkg_func as ContractKeyType].forEach((v: string, i: number) => {
         map.type = contract.pkg_func;
         map.data[v] = contract.args[i];
       });
