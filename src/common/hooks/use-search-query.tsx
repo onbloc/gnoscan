@@ -17,7 +17,6 @@ const useSearchQuery = () => {
       select: (res: any) => searchQuerySelector(res.data),
     },
   );
-
   return {
     result: data,
   };
