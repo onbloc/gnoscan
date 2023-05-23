@@ -31,9 +31,9 @@ interface SearchResultProps {
 }
 
 export const SEARCH_TITLE = {
-  ACCOUNTS: 'accounts',
-  REALMS: 'realms',
-  TOKENS: 'tokens',
+  ACCOUNTS: 'Accounts',
+  REALMS: 'Realms',
+  TOKENS: 'Tokens',
 } as const;
 export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
@@ -79,7 +79,7 @@ const SearchResult = () => {
     <>
       {open && (
         <Wrapper desktop={desktop} isMain={isMain} ref={ref}>
-          {Boolean(result) ? (
+          {result && Object.keys(result).length !== 0 ? (
             Object.keys(result).map(searchTitle => (
               <Section key={v1()}>
                 <Text type={isMain ? 'p4' : 'body1'} color="tertiary">

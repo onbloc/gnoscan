@@ -1,18 +1,13 @@
-import {isEmptyObj} from '@/common/utils';
 import {firstStrUpperCase} from '@/common/utils/string-util';
 
 export const searchQuerySelector = (data: any) => {
-  const checkedObj = isEmptyObj(data);
-  if (checkedObj) {
-    return null;
-  } else {
-    const convert = Object.fromEntries(
-      Object.entries(data).filter(([key, value]) => {
-        if (value === null) return;
-        return [firstStrUpperCase(key), value];
-      }),
-    );
-
-    return convert;
-  }
+  let result: {[key in string]: any} = {};
+  Object.entries(data).filter((v, i) => {
+    if (v[1] !== null) {
+      const key = firstStrUpperCase(v[0]);
+      const value = v[1];
+      return (result[key] = value);
+    }
+  });
+  return result;
 };
