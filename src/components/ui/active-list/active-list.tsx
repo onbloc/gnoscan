@@ -57,7 +57,7 @@ const ListContainer = styled.div`
   margin-top: 16px;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.base};
-  overflow: auto;
+  overflow: auto hidden;
 `;
 
 const ListTitleWrap = styled.div`
@@ -68,7 +68,7 @@ const ListTitleWrap = styled.div`
 
 const ListContentWrap = styled.div`
   ${mixins.flexbox('column', 'flex-start', 'flex-start')};
-  /* overflow: hidden auto; */
+  overflow: hidden auto;
   height: 240px;
   min-width: 100%;
   ${scrollbarStyle};
