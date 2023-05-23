@@ -22,30 +22,32 @@ const ActiveList = ({title, colWidth, children}: ActiveListProps) => {
 
   return (
     <ListContainer onMouseEnter={onFocusIn} onMouseLeave={onFocusOut}>
-      <ListTitleWrap>
-        {title.map((v: string, i: number) => (
-          <StyledText
-            key={v1()}
-            type={media === 'desktop' ? 'p4' : 'body1'}
-            width={colWidth[i]}
-            color="tertiary"
-            gap={hasTooltipTitle.includes(v) ? '8px' : '0px'}>
-            {v}
-            {hasTooltipTitle.includes(v) && (
-              <Tooltip
-                content="Number of users who created a thread, reply or repost 
+      <div className="scroll-wrap">
+        <ListTitleWrap>
+          {title.map((v: string, i: number) => (
+            <StyledText
+              key={v1()}
+              type={media === 'desktop' ? 'p4' : 'body1'}
+              width={colWidth[i]}
+              color="tertiary"
+              gap={hasTooltipTitle.includes(v) ? '8px' : '0px'}>
+              {v}
+              {hasTooltipTitle.includes(v) && (
+                <Tooltip
+                  content="Number of users who created a thread, reply or repost 
               (excl. duplicates) in the board.">
-                <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                  <IconInfo className="svg-info-tooltip-icon" />
-                </Button>
-              </Tooltip>
-            )}
-          </StyledText>
-        ))}
-      </ListTitleWrap>
-      <ListContentWrap className={scrollVisible ? 'scroll-visible' : ''}>
-        {children}
-      </ListContentWrap>
+                  <Button width="16px" height="16px" radius="50%" bgColor="surface">
+                    <IconInfo className="svg-info-tooltip-icon" />
+                  </Button>
+                </Tooltip>
+              )}
+            </StyledText>
+          ))}
+        </ListTitleWrap>
+        <ListContentWrap className={scrollVisible ? 'scroll-visible' : ''}>
+          {children}
+        </ListContentWrap>
+      </div>
     </ListContainer>
   );
 };
@@ -57,7 +59,19 @@ const ListContainer = styled.div`
   margin-top: 16px;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.base};
-  overflow: auto hidden;
+  overflow: hidden;
+
+  .scroll-wrap {
+    ${mixins.flexbox('column', 'flex-start', 'flex-start')};
+    width: 100%;
+    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 `;
 
 const ListTitleWrap = styled.div`
@@ -68,10 +82,10 @@ const ListTitleWrap = styled.div`
 
 const ListContentWrap = styled.div`
   ${mixins.flexbox('column', 'flex-start', 'flex-start')};
-  overflow: hidden auto;
+  overflow: hidden;
   height: 240px;
   min-width: 100%;
-  /* ${scrollbarStyle}; */
+  ${scrollbarStyle};
 `;
 
 export default ActiveList;
