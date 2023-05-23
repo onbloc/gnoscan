@@ -12,10 +12,10 @@ export const GlobalStyle = createGlobalStyle`
   };
 
   body {
-    /* ${scrollbarStyle};
+    ${scrollbarStyle};
     &.scroll-visible::-webkit-scrollbar {
       width: 8px;
-    } */
+    }
   }
 
   #__next {
