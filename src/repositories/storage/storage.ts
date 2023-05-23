@@ -1,12 +1,11 @@
-type StorageType = 'theme';
+export const getItem = (key: string) => localStorage.getItem(key);
 
-export const getItem = (key: StorageType) => localStorage.getItem(key);
+export const setItem = (key: string, value: any) =>
+  localStorage.setItem(key, JSON.stringify(value));
 
-export const setItem = (key: StorageType, value: any) => localStorage.setItem(key, `${value}`);
+export const removeItem = (key: string) => localStorage.removeItem(key);
 
-export const removeItem = (key: StorageType) => localStorage.removeItem(key);
-
-export const exists = (key: StorageType) => {
+export const exists = (key: string) => {
   const value = getItem(key);
   if (!value) {
     return false;
