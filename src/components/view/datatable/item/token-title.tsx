@@ -1,5 +1,5 @@
 import Text from '@/components/ui/text';
-import IconTokenDefault from '@/assets/svgs/icon-token-default.svg';
+import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -11,11 +11,18 @@ interface Props {
   pkgPath: string;
 }
 
-export const TokenTitle = ({name, symbol, pkgPath}: Props) => {
+export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
   return (
     <a href={`/tokens/${pkgPath}`} target={'_blank'} rel={'noopener noreferrer'}>
       <TokenTitleWrapper>
-        <IconTokenDefault />
+        {imagePath && imagePath !== '' ? (
+          <img className="token" src={imagePath} alt="token logo" />
+        ) : (
+          <div className="unknown-token">
+            <UnknownToken width="20" height="20" />
+          </div>
+        )}
+
         <Text type="p4">{`${name} (${symbol})`}</Text>
       </TokenTitleWrapper>
     </a>
@@ -32,9 +39,14 @@ const TokenTitleWrapper = styled.div`
     color: ${({theme}) => theme.colors.blue};
     cursor: pointer;
 
-    svg {
+    .token,
+    .unknown-token {
+      width: 20px;
+      height: 20px;
       margin-right: 10px;
+    }
 
+    svg {
       circle {
         fill: ${({theme}) => theme.colors.primary};
       }
