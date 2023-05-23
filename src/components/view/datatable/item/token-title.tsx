@@ -45,15 +45,5 @@ const TokenTitleWrapper = styled.div`
       height: 20px;
       margin-right: 10px;
     }
-
-    svg {
-      circle {
-        fill: ${({theme}) => theme.colors.primary};
-      }
-
-      path {
-        fill: ${({theme}) => theme.colors.base};
-      }
-    }
   }
 `;
