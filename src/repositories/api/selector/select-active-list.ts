@@ -48,7 +48,9 @@ export const newestListSelector = (data: any) => {
       formatName: formatEllipsis(v.pkg_name),
       originPkgName: v.pkg_name,
       originAddress: v.publisher,
-      publisher: Boolean(v.publisher_username) ? v.publisher_username : formatAddress(v.publisher),
+      publisher: Boolean(v.publisher_username)
+        ? formatEllipsis(v.publisher_username)
+        : formatAddress(v.publisher),
       functions: v.num_funcs,
       calls: v.calls,
       block: v.block,
