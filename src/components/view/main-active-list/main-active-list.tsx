@@ -56,7 +56,9 @@ const Wrapper = styled.div`
 
 export const List = styled.div`
   ${mixins.flexbox('row', 'center', 'space-between')};
+  /* max-width: 100%; */
   min-width: 100%;
+  width: 100%;
   &:not(:last-of-type) {
     border-bottom: 1px solid ${({theme}) => theme.colors.dimmed50};
   }
