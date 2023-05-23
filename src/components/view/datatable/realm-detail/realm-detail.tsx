@@ -12,10 +12,11 @@ import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {ValueWithDenomType} from '@/types/data-type';
+import {StatusKeyType} from '@/common/utils';
 
 interface RealmTransactionData {
   hash: string;
-  status: string;
+  status: StatusKeyType;
   type: string;
   pkg_func: string;
   height: number;
@@ -67,6 +68,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
     pageable: true,
   });
 
+  if (data) console.log(data);
   const getTransactionDatas = () => {
     if (!data) {
       return [];
