@@ -110,19 +110,35 @@ export const transactionDetailSelector = (data: any) => {
     ...data,
     summary: summaryData,
     contract: contractData,
-    log: decodeUnicode(log),
+    log: decode(log),
   };
 };
 
-function decodeUnicode(str: string) {
-  // Going backward: from byte-stream to percent-encoding, to original string.
-  return decodeURIComponent(
-    window
-      .atob(str)
-      .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join(''),
-  );
+function decode(str: string) {
+  const base64decoded = window.atob(str);
+
+  const original = JSON.parse(base64decoded);
+
+  const msg = original.msg;
+
+  const bodys: {[index: string]: string} = {};
+
+  for (let i = 0; i < msg.length; i++) {
+    if (msg[i]['@type'] !== '/vm.m_addpkg') continue;
+
+    const files = msg[i].package.Files;
+
+    for (let j = 0; j < files.length; j++) {
+      bodys[`{{${i}-${j}}}`] = files[j].Body;
+      files[j] = `{{${i}-${j}}}`;
+    }
+  }
+
+  let result = JSON.stringify(original, null, 2);
+
+  for (const key of Object.keys(bodys)) {
+    result = result.replace(key, bodys[key]);
+  }
+
+  return result;
 }
