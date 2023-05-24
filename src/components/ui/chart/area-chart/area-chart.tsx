@@ -330,4 +330,7 @@ const LegendWrapper = styled.div<{fill: string; disabled: boolean}>`
     background-color: ${({fill}) => fill};
     margin-right: 5px;
   }
+  .legend-name {
+    color: ${({theme}) => theme.colors.primary};
+  }
 `;
