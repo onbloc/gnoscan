@@ -121,7 +121,7 @@ function decode(str: string) {
 
   const msg = original.msg;
 
-  const bodys: {[index: string]: string} = {};
+  const bodies: {[index: string]: string} = {};
 
   for (let i = 0; i < msg.length; i++) {
     if (msg[i]['@type'] !== '/vm.m_addpkg') continue;
@@ -129,15 +129,15 @@ function decode(str: string) {
     const files = msg[i].package.Files;
 
     for (let j = 0; j < files.length; j++) {
-      bodys[`{{${i}-${j}}}`] = files[j].Body;
+      bodies[`{{${i}-${j}}}`] = files[j].Body;
       files[j] = `{{${i}-${j}}}`;
     }
   }
 
   let result = JSON.stringify(original, null, 2);
 
-  for (const key of Object.keys(bodys)) {
-    result = result.replace(key, bodys[key]);
+  for (const key of Object.keys(bodies)) {
+    result = result.replace(key, bodies[key]);
   }
 
   return result;
