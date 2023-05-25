@@ -31,7 +31,14 @@ export type ContractKeyType =
   | 'EditPost'
   | 'RenderBoard'
   | 'Render'
-  | 'Register';
+  | 'Register'
+  | 'Invite'
+  | 'GrantInvites'
+  | 'SetMinFee'
+  | 'SetMaxFeeMultiple'
+  | 'GetUserByName'
+  | 'GetUserByAddress'
+  | 'GetUserByAddressOrName';
 
 export type KeyOfContract = {
   type: string;
@@ -49,6 +56,13 @@ export const contractObj = {
   RenderBoard: ['Board ID'],
   Render: ['Path'],
   Register: ['Inviter', 'Name', 'Profile'],
+  Invite: ['Invitee'],
+  GrantInvites: ['Invites'],
+  SetMinFee: ['New Min Fee'],
+  SetMaxFeeMultiple: ['New Max Fee Mult'],
+  GetUserByName: ['Name'],
+  GetUserByAddress: ['Addr'],
+  GetUserByAddressOrName: ['Input'],
   AddPkg: ['Creator', 'Name', 'Path'],
   Transfer: ['From', 'To', 'Amount'],
 } as const;
