@@ -39,7 +39,7 @@ $ yarn build && yarn start
 
 ## Contributing & Support
 If you would like to contribute to Gnoscan or need support, please consider the following options:
-- Read our contributing guidelines: The [CONTRIBUTING.md](CONTRIBUTING) file provides detailed information on how to contribute to the project, including submitting pull requests, reporting issues, and suggesting improvements.
+- Read our contributing guidelines: The [CONTRIBUTING.md](https://github.com/onbloc/gnoscan/blob/main/CONTRIBUTING.md) file provides detailed information on how to contribute to the project, including submitting pull requests, reporting issues, and suggesting improvements.
 - Open an issue: If you encounter a bug, have a feature request, or want to suggest improvements, feel free to open an [issue](https://github.com/onbloc/gnoscan/issues) in this repository.
 - Join our community: For discussions, questions, or support, join our [channel](https://discord.gg/A6SQamyeEJ) on Gnoland's Discord server. We're open to collaborations!
 
