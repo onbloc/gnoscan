@@ -9,7 +9,7 @@ To set up the development environment, make sure you have Node.js version 18.14.
 
 ```bash
 # Install Node.js version 18.14.2 (if not already installed)
-$ nvm use 18.14.2
+$ nvm install 18.14.2
 
 # Use Node.js version 18.14.2
 $ nvm use 18.14.2
