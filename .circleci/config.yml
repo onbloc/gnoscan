@@ -99,11 +99,8 @@ workflows:
             branches:
               only:
                 - main
-                # - develop
-                # - release-v0.3.0
+                - develop
                 # - /^release/\.*/
-                # - /^hotfix/\.*/
-                - hotfix-0.3.1
       - deploy:
           context:
             - AWS_DEPLOY
@@ -114,11 +111,8 @@ workflows:
           filters:
             branches:
               only:
-                # - develop
-                # - release-v0.3.0
+                - develop
                 # - /^release/\.*/
-                # - /^hotfix/\.*/
-                - hotfix-0.3.1
       - deploy:
           context:
             - AWS_DEPLOY
