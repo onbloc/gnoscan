@@ -164,7 +164,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('from_address')
       .name('From')
-      .width(160)
+      .width(170)
       .colorName('blue')
       .renderOption((address, data) => (
         <DatatableItem.Publisher address={address} username={data?.from_username} />
@@ -176,7 +176,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('amount')
       .name('Amount')
-      .width(160)
+      .width(180)
       .renderOption((_, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
@@ -191,7 +191,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('time')
       .name('Time')
-      .width(204)
+      .width(180)
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
@@ -200,7 +200,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('fee')
       .name('Fee')
-      .width(129)
+      .width(123)
       .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };
