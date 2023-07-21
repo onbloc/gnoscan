@@ -30,7 +30,7 @@ const BadgeWrapper = styled.div<BadgeProps>`
   max-width: fit-content;
   height: 28px;
   background-color: ${({type, theme}) => (type ? theme.colors[type] : theme.colors.surface)};
-  padding: ${({padding}) => (padding ? padding : '0px 16px')};
+  padding: ${({padding}) => (padding ? padding : '4px 16px')};
   margin-right: ${({desktop}) => (desktop ? '15px' : '10px')};
   border-radius: 4px;
   margin-top: ${({desktop}) => !desktop && '12px'};

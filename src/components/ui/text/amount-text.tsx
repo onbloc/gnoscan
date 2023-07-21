@@ -55,7 +55,9 @@ export const AmountText = ({
 const Wrapper = styled.div`
   ${mixins.flexbox('row', 'center', 'flex-start')};
 
-  .text-wrapper {
-    white-space: nowrap;
+  &,
+  & * {
+    display: contents;
+    word-break: break-all;
   }
 `;
