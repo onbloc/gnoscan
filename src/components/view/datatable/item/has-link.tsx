@@ -14,7 +14,7 @@ interface Props {
 export const HasLink = ({text, textSize = 'p4', path, color = 'blue'}: Props) => {
   return (
     <Link href={path} passHref>
-      <StyledA target="_blank">
+      <StyledA>
         <Text type={textSize} color={color}>
           {text}
         </Text>

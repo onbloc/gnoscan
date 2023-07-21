@@ -51,7 +51,7 @@ const Copyright = ({isDesktop}: ModProps) => {
 const Terms = ({isDesktop}: ModProps) => (
   <FTextWrapper isDesktop={isDesktop}>
     {termsText.map((v, i) => (
-      <a className="hr-text" href={v.path} target="_blank" key={v1()}>
+      <a className="hr-text" href={v.path} key={v1()}>
         <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
           {v.title}
         </Text>
