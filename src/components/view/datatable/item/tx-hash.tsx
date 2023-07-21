@@ -40,14 +40,18 @@ export const TxHash = ({txHash, status, development, height}: Props) => {
 const TxHashWrapper = styled.div`
   & {
     display: flex;
-    width: fit-content;
+    width: 100%;
     height: auto;
     justify-content: center;
     align-items: center;
 
+    a {
+      width: 100%;
+    }
+
     .status {
       display: flex;
-      padding: 0 16px;
+      padding-left: 16px;
       justify-content: center;
       align-items: center;
     }

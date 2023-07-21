@@ -26,8 +26,8 @@ export const Type = ({type, func, packagePath, msgNum}: Props) => {
 
   return func ? (
     <TypeWrapper>
-      <Tooltip content={renderTooltip()}>
-        <span className="function">{func}</span>
+      <Tooltip className={'ellipsis'} content={renderTooltip()}>
+        <span className="function ellipsis">{func}</span>
       </Tooltip>
       {msgNum && msgNum > 1 && (
         <Text type="p4" color="reverse" margin="0px 0px 0px 8px">
@@ -44,12 +44,14 @@ const TypeWrapper = styled.div`
   & {
     display: flex;
     width: fit-content;
+    max-width: 100%;
     height: auto;
     justify-content: center;
     align-items: center;
 
     .function {
-      display: flex;
+      display: block;
+      width: 100%;
       padding: 4px 16px;
       color: #fff;
       background-color: ${({theme}) => theme.colors.blue};
