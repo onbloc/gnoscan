@@ -151,7 +151,12 @@ export const TokenDatatable = () => {
       .name('Total Supply')
       .width(188)
       .renderOption((_, data) => (
-        <DatatableItem.Amount value={data.total_supply} denom={''} maxSize="p4" minSize="body3" />
+        <DatatableItem.Amount
+          value={`${data.total_supply}`}
+          denom={''}
+          maxSize="p4"
+          minSize="body3"
+        />
       ))
       .build();
   };

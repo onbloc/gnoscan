@@ -4,7 +4,7 @@ import {FontsType} from '@/styles';
 import React from 'react';
 
 interface Props {
-  value: number;
+  value: string;
   denom: string;
   maxSize?: FontsType;
   minSize?: FontsType;

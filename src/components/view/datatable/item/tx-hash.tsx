@@ -4,6 +4,7 @@ import IconSuccess from '@/assets/svgs/icon-status-success.svg';
 import IconFail from '@/assets/svgs/icon-status-fail.svg';
 import {RPC_URI} from '@/common/values/constant-value';
 import {StatusKeyType} from '@/common/utils';
+import {textEllipsis} from '@/common/utils/string-util';
 
 interface Props {
   txHash: string;
@@ -27,7 +28,7 @@ export const TxHash = ({txHash, status, development, height}: Props) => {
         href={`/transactions/${txHash}`}
         target={'_blank'}
         rel={'noopener noreferrer'}>
-        {txHash}
+        {textEllipsis(txHash ?? '', 8)}
       </a>
       <span className="status" onClick={onClickIcon}>
         {status === 'failure' ? <IconFail /> : <IconSuccess />}

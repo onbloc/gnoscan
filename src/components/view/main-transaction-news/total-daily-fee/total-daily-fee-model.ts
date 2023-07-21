@@ -1,4 +1,5 @@
 import {ValueWithDenomType} from '@/types/data-type';
+import BigNumber from 'bignumber.js';
 
 interface TotalDailyFeeData {
   date: string;
@@ -41,10 +42,10 @@ export class TotalDailyFeeModel {
     date?: string;
     fee?: ValueWithDenomType;
   }): TotalDailyFeeData => {
-    const gasFee = fee?.value ?? 0;
+    const gasFee = fee?.value || '0';
     return {
       date: date ?? '',
-      fee: gasFee,
+      fee: new BigNumber(gasFee).toNumber(),
     };
   };
 }
