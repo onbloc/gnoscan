@@ -4,7 +4,6 @@ import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
-import Link from 'next/link';
 import {Button} from '@/components/ui/button';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
@@ -76,7 +75,7 @@ export const RealmDatatable = () => {
       .key('name')
       .name('Name')
       .sort()
-      .width(172)
+      .width(174)
       .build();
   };
 
@@ -84,10 +83,12 @@ export const RealmDatatable = () => {
     return DatatableOption.Builder.builder<Realms>()
       .key('path')
       .name('Path')
-      .width(200)
+      .width(202)
       .colorName('blue')
       .tooltip(TOOLTIP_PATH)
-      .renderOption(packagePath => <DatatableItem.RealmPakage packagePath={packagePath} />)
+      .renderOption(packagePath => (
+        <DatatableItem.RealmPakage packagePath={packagePath} maxWidth={186} />
+      ))
       .build();
   };
 
@@ -103,7 +104,7 @@ export const RealmDatatable = () => {
     return DatatableOption.Builder.builder<Realms>()
       .key('height')
       .name('Block')
-      .width(93)
+      .width(121)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -113,7 +114,7 @@ export const RealmDatatable = () => {
     return DatatableOption.Builder.builder<Realms>()
       .key('publisher')
       .name('Publisher')
-      .width(201)
+      .width(202)
       .colorName('blue')
       .renderOption((_, data) => (
         <DatatableItem.Publisher address={data.publisher} username={data.publisher_username} />
@@ -126,7 +127,7 @@ export const RealmDatatable = () => {
       .key('total_calls')
       .name('Total Calls')
       .sort()
-      .width(166)
+      .width(163)
       .renderOption(numberWithCommas)
       .build();
   };
@@ -135,7 +136,7 @@ export const RealmDatatable = () => {
     return DatatableOption.Builder.builder<Realms>()
       .key('total_fees')
       .name('Total Gas Used')
-      .width(166)
+      .width(163)
       .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };

@@ -136,5 +136,9 @@ const Container = styled.div<{maxWidth?: number}>`
     .fee {
       padding: 16px 0 16px 8px;
     }
+
+    .functions {
+      padding: 16px 0 16px 16px;
+    }
   }
 `;

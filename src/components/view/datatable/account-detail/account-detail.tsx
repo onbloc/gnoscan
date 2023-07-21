@@ -121,7 +121,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('hash')
       .name('Tx Hash')
-      .width(210)
+      .width(215)
       .colorName('blue')
       .renderOption((value, data) => (
         <DatatableItem.TxHash

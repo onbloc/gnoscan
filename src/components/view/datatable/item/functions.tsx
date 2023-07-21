@@ -11,7 +11,7 @@ export const Functions = ({functions}: Props) => {
   return (
     <FunctionsWrapper className="ellipsis">
       {functions.map((func, index) => (
-        <Badge type="blue" key={index}>
+        <Badge className="function" type="blue" key={index}>
           <Text type="p4" color="white">
             {func}
           </Text>
@@ -36,17 +36,7 @@ const FunctionsWrapper = styled.span`
     }
 
     .function {
-      display: block;
-      width: 100%;
-      padding: 4px 16px;
-      color: #fff;
-      background-color: ${({theme}) => theme.colors.blue};
-      border-radius: 4px;
       margin-right: 8px;
-
-      &:last-child {
-        margin-right: 0;
-      }
     }
   }
 `;

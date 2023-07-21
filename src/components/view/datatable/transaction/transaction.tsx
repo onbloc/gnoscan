@@ -118,7 +118,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('hash')
       .name('Tx Hash')
-      .width(210)
+      .width(215)
       .colorName('blue')
       .renderOption((value, data) => (
         <DatatableItem.TxHash

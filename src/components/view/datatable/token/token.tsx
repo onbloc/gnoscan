@@ -98,7 +98,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('token')
       .name('Token')
-      .width(229)
+      .width(220)
       .renderOption((_, data) => (
         <DatatableItem.TokenTitle
           token={data.token}
@@ -115,7 +115,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('holders_count')
       .name('Holders')
-      .width(100)
+      .width(110)
       .renderOption(numberWithCommas)
       .build();
   };
@@ -124,7 +124,8 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('functions')
       .name('Functions')
-      .width(304)
+      .width(350)
+      .className('functions')
       .renderOption(functions => <DatatableItem.Functions functions={functions} />)
       .build();
   };
@@ -133,7 +134,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('decimals')
       .name('Decimals')
-      .width(96)
+      .width(110)
       .build();
   };
 
@@ -141,7 +142,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('total_supply')
       .name('Total Supply')
-      .width(209)
+      .width(180)
       .renderOption((_, data) => (
         <DatatableItem.Amount
           value={`${data.total_supply}`}
@@ -157,11 +158,11 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('pkg_path')
       .name('Path')
-      .width(208)
+      .width(176)
       .colorName('blue')
       .tooltip(TOOLTIP_PACAKGE_PATH)
       .renderOption((_, data) => (
-        <DatatableItem.RealmPakage packagePath={data.pkg_path} maxWidth={192} />
+        <DatatableItem.RealmPakage packagePath={data.pkg_path} maxWidth={160} />
       ))
       .build();
   };
