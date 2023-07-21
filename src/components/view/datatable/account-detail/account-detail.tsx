@@ -129,6 +129,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
           status={data.status}
           development={development}
           height={data.height}
+          paddingRight={5}
         />
       ))
       .tooltip(TOOLTIP_TX_HASH)
@@ -167,7 +168,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('amount')
       .name('Amount (In)')
-      .width(160)
+      .width(175)
       .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
@@ -182,7 +183,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('amount')
       .name('Amount (Out)')
-      .width(160)
+      .width(175)
       .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
@@ -197,7 +198,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('time')
       .name('Time')
-      .width(204)
+      .width(180)
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
@@ -206,7 +207,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('fee')
       .name('Fee')
-      .width(129)
+      .width(123)
       .renderOption(({value, denom}: {value: string; denom: string}) => (
         <DatatableItem.Amount value={value} denom={denom} />
       ))

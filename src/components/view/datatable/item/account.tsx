@@ -14,7 +14,11 @@ export const Account = ({address}: Props) => {
 
   return (
     <Tooltip content={renderTooltip()}>
-      <a href={`/accounts/${address}`} target={'_blank'} rel={'noopener noreferrer'}>
+      <a
+        className="ellipsis"
+        href={`/accounts/${address}`}
+        target={'_blank'}
+        rel={'noopener noreferrer'}>
         {textEllipsis(address ?? '', 6)}
       </a>
     </Tooltip>
@@ -31,5 +35,9 @@ const TooltipWrapper = styled.span`
     align-items: center;
     word-break: keep-all;
     white-space: nowrap;
+
+    .ellipsis {
+      max-width: 128px;
+    }
   }
 `;
