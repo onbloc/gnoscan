@@ -54,6 +54,15 @@ export const DLWrap = styled.dl<StyleProps>`
       line-height: 40px;
     }
   }
+
+  .badge {
+    height: auto;
+
+    .multi-line {
+      word-break: break-all;
+      white-space: pre-line;
+    }
+  }
 `;
 
 export const DateDiffText = styled.span`

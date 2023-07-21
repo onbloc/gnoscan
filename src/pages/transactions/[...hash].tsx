@@ -19,7 +19,7 @@ import {TransactionDetailsModel} from '@/models/transaction-details-model';
 import {getTransactionDetails} from '@/repositories/api/fetchers/api-transaction-details';
 import {transactionDetailSelector} from '@/repositories/api/selector/select-transaction-details';
 
-const ellipsisTextKey = ['Caller', 'Body'];
+const ellipsisTextKey = ['Caller'];
 
 const TransactionDetails = () => {
   const desktop = isDesktop();
@@ -177,7 +177,7 @@ const CallerContract = ({contract, desktop}: any) => {
                     <Text
                       type="p4"
                       color="blue"
-                      className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                      className={ellipsisTextKey.includes(v) ? 'ellipsis' : 'multi-line'}>
                       {contract.args.data[v] ? (
                         <Tooltip content={contract.caller_address}>{contract.args.data[v]}</Tooltip>
                       ) : (
@@ -197,7 +197,7 @@ const CallerContract = ({contract, desktop}: any) => {
                 <Text
                   type="p4"
                   color="inherit"
-                  className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
+                  className={ellipsisTextKey.includes(v) ? 'ellipsis' : 'multi-line'}>
                   {contract.args.data[v] || '-'}
                 </Text>
               </Badge>
