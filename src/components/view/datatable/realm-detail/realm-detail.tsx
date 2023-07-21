@@ -129,7 +129,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('caller_address')
       .name('From')
-      .width(160)
+      .width(170)
       .colorName('blue')
       .renderOption(address => <DatatableItem.Account address={address} />)
       .build();
@@ -139,7 +139,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('amount')
       .name('Amount')
-      .width(160)
+      .width(180)
       .renderOption((amount: {value: string; denom: string}, data) =>
         data.msg_num > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
@@ -154,7 +154,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('time')
       .name('Time')
-      .width(204)
+      .width(180)
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
@@ -163,7 +163,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
     return DatatableOption.Builder.builder<RealmTransactionData>()
       .key('fee')
       .name('Fee')
-      .width(129)
+      .width(123)
       .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };
