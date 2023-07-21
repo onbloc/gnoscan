@@ -176,7 +176,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('amount')
       .name('Amount')
-      .width(204)
+      .width(160)
       .renderOption((_, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
