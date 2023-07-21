@@ -23,12 +23,12 @@ interface BlockTransactionData {
   pkg_path: string | null;
   num_msgs: number;
   amount: {
-    value: number;
+    value: string;
     denom: string;
   };
   time: string;
   fee: {
-    value: number;
+    value: string;
     denom: string;
   };
 }
@@ -149,7 +149,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {value: number; denom: string}, data) =>
+      .renderOption((amount: {value: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
@@ -173,7 +173,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(({value, denom}: {value: number; denom: string}) => (
+      .renderOption(({value, denom}: {value: string; denom: string}) => (
         <DatatableItem.Amount value={value} denom={denom} />
       ))
       .build();

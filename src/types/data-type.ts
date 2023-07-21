@@ -1,4 +1,4 @@
 export interface ValueWithDenomType {
-  value: number;
+  value: string;
   denom: string;
 }

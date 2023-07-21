@@ -146,7 +146,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
       .key('amount')
       .name('Amount')
       .width(160)
-      .renderOption((amount: {value: number; denom: string}, data) =>
+      .renderOption((amount: {value: string; denom: string}, data) =>
         data.msg_num > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.tx_hash}`} />
         ) : (

@@ -21,13 +21,13 @@ interface AccountTransactionData {
   height: number;
   num_msgs: number;
   amount: {
-    value_out: number;
-    value_in: number;
+    value_out: string;
+    value_in: string;
     denom: string;
   };
   time: string;
   fee: {
-    value: number;
+    value: string;
     denom: string;
   };
 }
@@ -168,7 +168,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .key('amount')
       .name('Amount (In)')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}, data) =>
+      .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
@@ -183,7 +183,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .key('amount')
       .name('Amount (Out)')
       .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}, data) =>
+      .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
@@ -207,7 +207,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .key('fee')
       .name('Fee')
       .width(129)
-      .renderOption(({value, denom}: {value: number; denom: string}) => (
+      .renderOption(({value, denom}: {value: string; denom: string}) => (
         <DatatableItem.Amount value={value} denom={denom} />
       ))
       .build();
