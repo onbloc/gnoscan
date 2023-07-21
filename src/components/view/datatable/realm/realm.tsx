@@ -32,6 +32,13 @@ interface ResponseData {
   realms: Array<Realms>;
 }
 
+const TOOLTIP_PATH = (
+  <>
+    A unique identifier tha serves as
+    <br />a contract address on Gnoland.
+  </>
+);
+
 export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
@@ -79,6 +86,7 @@ export const RealmDatatable = () => {
       .name('Path')
       .width(200)
       .colorName('blue')
+      .tooltip(TOOLTIP_PATH)
       .renderOption(packagePath => <DatatableItem.RealmPakage packagePath={packagePath} />)
       .build();
   };

@@ -68,4 +68,32 @@ const Content = styled.div<StyleProps>`
     ${({titleAlign}) => mixins.flexbox('row', 'center', titleAlign ?? 'center')};
   }
   ${({visible}) => !visible && 'display: none;'}
+
+  .address-tooltip {
+    vertical-align: text-bottom;
+  }
+  .svg-icon {
+    stroke: ${({theme}) => theme.colors.primary};
+    margin-left: 5px;
+  }
+
+  dt {
+    display: flex;
+  }
+
+  .tooltip-wrapper {
+    position: inherit;
+    display: inline-flex;
+    width: 32px;
+    height: 24px;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      fill: ${({theme}) => theme.colors.tertiary};
+      & .icon-tooltip_svg__bg {
+        fill: ${({theme}) => theme.colors.surface};
+      }
+    }
+  }
 `;

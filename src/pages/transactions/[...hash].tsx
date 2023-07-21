@@ -131,7 +131,7 @@ const TransactionDetails = () => {
             {tx.contract.contract_list.map((v: any, i: number) => (
               <ContractListBox key={v1()}>
                 {tx.contract.num_msgs > 1 && (
-                  <Text type="h6" color="tertiary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+                  <Text type="h6" color="white" margin="0px 0px 12px">{`#${i + 1}`}</Text>
                 )}
                 <DLWrap desktop={desktop}>
                   <dt>Type</dt>
@@ -326,7 +326,7 @@ const AddressTextBox = styled.div`
 
 const StyledIconCopy = styled(IconCopy)`
   stroke: ${({theme}) => theme.colors.primary};
-  margin-left: 10px;
+  margin-left: 5px;
 `;
 
 export default TransactionDetails;

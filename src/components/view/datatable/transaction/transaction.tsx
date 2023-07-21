@@ -191,7 +191,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('time')
       .name('Time')
-      .width(162)
+      .width(160)
       .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
@@ -201,7 +201,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('fee')
       .name('Fee')
-      .width(123)
+      .width(113)
       .className('fee')
       .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();

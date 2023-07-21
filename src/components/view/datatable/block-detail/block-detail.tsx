@@ -126,7 +126,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('height')
       .name('Block')
-      .width(93)
+      .width(113)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -148,7 +148,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('amount')
       .name('Amount')
-      .width(180)
+      .width(190)
       .renderOption((amount: {value: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
@@ -163,7 +163,8 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('time')
       .name('Time')
-      .width(180)
+      .width(160)
+      .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
@@ -172,7 +173,8 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('fee')
       .name('Fee')
-      .width(123)
+      .width(113)
+      .className('fee')
       .renderOption(({value, denom}: {value: string; denom: string}) => (
         <DatatableItem.Amount value={value} denom={denom} />
       ))

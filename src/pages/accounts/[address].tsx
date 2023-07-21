@@ -66,7 +66,7 @@ const AccountDetails = () => {
                 trigger="click"
                 copyText={detail?.address}
                 width={85}>
-                <IconCopy className="svg-icon" />
+                <IconCopy className={`svg-icon ${detail.username ? '' : 'tidy'}`} />
               </Tooltip>
               {detail.username && (
                 <Text type="p4" color="blue" className="username-text">
@@ -122,6 +122,10 @@ const AddressTextBox = styled(Text)<StyleProps>`
   .svg-icon {
     stroke: ${({theme}) => theme.colors.primary};
     margin-left: 10px;
+
+    &.tidy {
+      margin-left: 4px;
+    }
   }
   .username-text {
     ${mixins.flexbox('row', 'center', 'center', false)};

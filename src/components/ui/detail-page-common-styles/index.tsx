@@ -42,6 +42,7 @@ export const DLWrap = styled.dl<StyleProps>`
     }
   }
   dt {
+    color: ${({theme}) => theme.colors.tertiary};
     width: ${({desktop}) => (desktop ? '200px' : '100%')};
     ${({desktop, theme}) => (desktop ? theme.fonts.p3 : theme.fonts.p4)};
   }

@@ -157,7 +157,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('height')
       .name('Block')
-      .width(103)
+      .width(113)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -197,7 +197,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('time')
       .name('Time')
-      .width(162)
+      .width(160)
       .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();

@@ -14,6 +14,18 @@ import {TokenDetailDatatable} from '@/components/view/datatable';
 import {getTokenDetails} from '@/repositories/api/fetchers/api-token-details';
 import {tokenDetailSelector} from '@/repositories/api/selector/select-token-details';
 import {TokenDetailsModel} from '@/models/token-details-model';
+import Tooltip from '@/components/ui/tooltip';
+import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
+import IconCopy from '@/assets/svgs/icon-copy.svg';
+import styled from 'styled-components';
+import mixins from '@/styles/mixins';
+
+const TOOLTIP_PACKAGE_PATH = (
+  <>
+    A unique identifier that serves as
+    <br />a contract address on Gnoland.
+  </>
+);
 
 const TokenDetails = () => {
   const desktop = isDesktop();
@@ -68,9 +80,30 @@ const TokenDetails = () => {
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
-              <dt>Path</dt>
+              <dt>
+                Path
+                <div className="tooltip-wrapper">
+                  <Tooltip content={TOOLTIP_PACKAGE_PATH}>
+                    <IconTooltip />
+                  </Tooltip>
+                </div>
+              </dt>
               <dd>
-                <Badge>{token.pkgPath}</Badge>
+                <Badge>
+                  <Text type="p4" color="blue" className="username-text">
+                    <StyledA href={`/realms/details?path=${token.pkgPath}`}>
+                      {token.pkgPath}
+                    </StyledA>
+                  </Text>
+                  <Tooltip
+                    className="path-copy-tooltip"
+                    content="Copied!"
+                    trigger="click"
+                    copyText={token.pkgPath}
+                    width={85}>
+                    <IconCopy className="svg-icon" />
+                  </Tooltip>
+                </Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -122,5 +155,9 @@ const TokenDetails = () => {
     </DetailsPageLayout>
   );
 };
+
+const StyledA = styled.a`
+  ${mixins.flexbox('row', 'center', 'center')};
+`;
 
 export default TokenDetails;

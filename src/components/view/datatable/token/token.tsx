@@ -37,6 +37,13 @@ interface TokenData {
   publisher_username: string;
 }
 
+const TOOLTIP_PACAKGE_PATH = (
+  <>
+    A unique identifier tha serves as
+    <br />a contract address on Gnoland.
+  </>
+);
+
 export const TokenDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
@@ -80,7 +87,6 @@ export const TokenDatatable = () => {
     return [
       createHeaderToken(),
       createHeaderHolder(),
-      createHeaderOwner(),
       createHeaderFunction(),
       createHeaderDecimal(),
       createHeaderTotalSupply(),
@@ -92,7 +98,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('token')
       .name('Token')
-      .width(210)
+      .width(229)
       .renderOption((_, data) => (
         <DatatableItem.TokenTitle
           token={data.token}
@@ -109,22 +115,8 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('holders_count')
       .name('Holders')
-      .width(120)
+      .width(100)
       .renderOption(numberWithCommas)
-      .build();
-  };
-
-  const createHeaderOwner = () => {
-    return DatatableOption.Builder.builder<TokenData>()
-      .key('name')
-      .name('Owner')
-      .width(180)
-      .renderOption((_, data) => (
-        <DatatableItem.Owner
-          publisher={data.publisher}
-          publisherUsername={data.publisher_username}
-        />
-      ))
       .build();
   };
 
@@ -132,8 +124,8 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('functions')
       .name('Functions')
-      .width(100)
-      .renderOption(functions => <DatatableItem.Functions funcLength={functions.length} />)
+      .width(304)
+      .renderOption(functions => <DatatableItem.Functions functions={functions} />)
       .build();
   };
 
@@ -141,7 +133,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('decimals')
       .name('Decimals')
-      .width(100)
+      .width(96)
       .build();
   };
 
@@ -149,7 +141,7 @@ export const TokenDatatable = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('total_supply')
       .name('Total Supply')
-      .width(188)
+      .width(209)
       .renderOption((_, data) => (
         <DatatableItem.Amount
           value={`${data.total_supply}`}
@@ -164,9 +156,12 @@ export const TokenDatatable = () => {
   const createHeaderPkgPath = () => {
     return DatatableOption.Builder.builder<TokenData>()
       .key('pkg_path')
-      .name('Pkg Path')
-      .width(248)
-      .renderOption((_, data) => <DatatableItem.PkgPath pkgPath={data.pkg_path} />)
+      .name('Path')
+      .width(208)
+      .tooltip(TOOLTIP_PACAKGE_PATH)
+      .renderOption((_, data) => (
+        <DatatableItem.RealmPakage packagePath={data.pkg_path} maxWidth={192} />
+      ))
       .build();
   };
 
