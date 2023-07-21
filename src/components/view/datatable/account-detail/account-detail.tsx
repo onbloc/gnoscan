@@ -21,13 +21,13 @@ interface AccountTransactionData {
   height: number;
   num_msgs: number;
   amount: {
-    value_out: number;
-    value_in: number;
+    value_out: string;
+    value_in: string;
     denom: string;
   };
   time: string;
   fee: {
-    value: number;
+    value: string;
     denom: string;
   };
 }
@@ -121,7 +121,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('hash')
       .name('Tx Hash')
-      .width(210)
+      .width(215)
       .colorName('blue')
       .renderOption((value, data) => (
         <DatatableItem.TxHash
@@ -157,7 +157,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('height')
       .name('Block')
-      .width(93)
+      .width(113)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -167,8 +167,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('amount')
       .name('Amount (In)')
-      .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}, data) =>
+      .width(180)
+      .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
@@ -182,8 +182,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('amount')
       .name('Amount (Out)')
-      .width(160)
-      .renderOption((amount: {value_in: number; value_out: number; denom: string}, data) =>
+      .width(180)
+      .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
@@ -197,7 +197,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('time')
       .name('Time')
-      .width(204)
+      .width(160)
+      .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
@@ -206,8 +207,9 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('fee')
       .name('Fee')
-      .width(129)
-      .renderOption(({value, denom}: {value: number; denom: string}) => (
+      .className('fee')
+      .width(113)
+      .renderOption(({value, denom}: {value: string; denom: string}) => (
         <DatatableItem.Amount value={value} denom={denom} />
       ))
       .build();

@@ -40,7 +40,7 @@ const ActiveBoards = () => {
                 {v.no}
               </StyledText>
               <StyledText type="p4" width={colWidth.boards[1]} color="blue" className="with-link">
-                <a href={v.boardLink} target="_blank" rel="noreferrer">
+                <a href={v.boardLink}>
                   <Tooltip content={v.hovertext}>
                     <>
                       {v.formatName}

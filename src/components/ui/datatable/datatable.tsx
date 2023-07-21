@@ -77,7 +77,7 @@ const Container = styled.div<{maxWidth?: number}>`
     flex-direction: column;
     width: 100%;
     height: auto;
-    padding: 20px;
+    padding: 20px 24px;
     background-color: ${({theme}) => theme.colors.base};
     border-radius: 10px;
     overflow-x: auto;
@@ -86,7 +86,7 @@ const Container = styled.div<{maxWidth?: number}>`
       display: flex;
       flex-direction: column;
       width: 100%;
-      min-width: ${({maxWidth}) => (maxWidth ? `${maxWidth}px` : '1150px')};
+      min-width: ${({maxWidth}) => (maxWidth ? `${maxWidth}px` : '1146px')};
       z-index: ${zindex.scrollbar};
     }
 
@@ -130,6 +130,15 @@ const Container = styled.div<{maxWidth?: number}>`
         color: ${({theme}) => theme.colors.tertiary};
         font-weight: 400;
       }
+    }
+
+    .time,
+    .fee {
+      padding: 16px 0 16px 8px;
+    }
+
+    .functions {
+      padding: 16px 0 16px 16px;
     }
   }
 `;

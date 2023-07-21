@@ -27,20 +27,14 @@ export const Publisher = ({username, address}: Props) => {
 
   return address && address !== 'genesis' ? (
     <Tooltip content={renderTooltip()}>
-      <a href={`/accounts/${address}`} target={'_blank'} rel={'noopener noreferrer'}>
+      <PublisherLink className="ellipsis" href={`/accounts/${address}`}>
         {getDisplayUsername(address)}
-      </a>
+      </PublisherLink>
     </Tooltip>
   ) : (
     <>{getDisplayUsername()}</>
   );
 };
-
-const PublisherWrapper = styled.span`
-  & a {
-    color: ${({theme}) => theme.colors.blue};
-  }
-`;
 
 const TooltipWrapper = styled.span`
   & {
@@ -53,4 +47,8 @@ const TooltipWrapper = styled.span`
     word-break: keep-all;
     white-space: nowrap;
   }
+`;
+
+const PublisherLink = styled.a`
+  max-width: 128px;
 `;

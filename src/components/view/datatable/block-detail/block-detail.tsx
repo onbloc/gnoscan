@@ -23,12 +23,12 @@ interface BlockTransactionData {
   pkg_path: string | null;
   num_msgs: number;
   amount: {
-    value: number;
+    value: string;
     denom: string;
   };
   time: string;
   fee: {
-    value: number;
+    value: string;
     denom: string;
   };
 }
@@ -126,7 +126,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('height')
       .name('Block')
-      .width(93)
+      .width(113)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -136,7 +136,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('from_address')
       .name('From')
-      .width(160)
+      .width(170)
       .colorName('blue')
       .renderOption((fromAddress, data) => (
         <DatatableItem.Publisher address={fromAddress} username={data.from_username} />
@@ -148,8 +148,8 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('amount')
       .name('Amount')
-      .width(160)
-      .renderOption((amount: {value: number; denom: string}, data) =>
+      .width(190)
+      .renderOption((amount: {value: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
         ) : (
@@ -163,7 +163,8 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('time')
       .name('Time')
-      .width(204)
+      .width(160)
+      .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
@@ -172,8 +173,9 @@ export const BlockDetailDatatable = ({height}: Props) => {
     return DatatableOption.Builder.builder<BlockTransactionData>()
       .key('fee')
       .name('Fee')
-      .width(129)
-      .renderOption(({value, denom}: {value: number; denom: string}) => (
+      .width(113)
+      .className('fee')
+      .renderOption(({value, denom}: {value: string; denom: string}) => (
         <DatatableItem.Amount value={value} denom={denom} />
       ))
       .build();

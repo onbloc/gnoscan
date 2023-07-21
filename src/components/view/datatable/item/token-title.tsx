@@ -13,7 +13,7 @@ interface Props {
 
 export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
   return (
-    <a href={`/tokens/${pkgPath}`} target={'_blank'} rel={'noopener noreferrer'}>
+    <a href={`/tokens/${pkgPath}`}>
       <TokenTitleWrapper>
         {imagePath && imagePath !== '' ? (
           <img className="token" src={imagePath} alt="token logo" />

@@ -12,12 +12,14 @@ interface Props<T> {
   header: Header<T>;
   sortOption?: {field: string; order: string};
   setSortOption?: (sortOption: {field: string; order: string}) => void;
+  className?: string;
 }
 
 export const HeaderRowItem = <T extends {[key in string]: any}>({
   header,
   sortOption,
   setSortOption,
+  className,
 }: Props<T>) => {
   const renderTooltip = () => {
     return (
@@ -78,7 +80,9 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
   };
 
   return (
-    <ItemContainer options={DatatableOption.headerOptionByHeader(header)}>
+    <ItemContainer
+      className={className || ''}
+      options={DatatableOption.headerOptionByHeader(header)}>
       <div className="content">{header.name}</div>
       {renderSort()}
       {renderTooltip()}

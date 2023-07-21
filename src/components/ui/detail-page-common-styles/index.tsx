@@ -42,6 +42,7 @@ export const DLWrap = styled.dl<StyleProps>`
     }
   }
   dt {
+    color: ${({theme}) => theme.colors.tertiary};
     width: ${({desktop}) => (desktop ? '200px' : '100%')};
     ${({desktop, theme}) => (desktop ? theme.fonts.p3 : theme.fonts.p4)};
   }
@@ -52,6 +53,15 @@ export const DLWrap = styled.dl<StyleProps>`
 
     &.function-wrapper {
       line-height: 40px;
+    }
+  }
+
+  .badge {
+    height: auto;
+
+    .multi-line {
+      word-break: break-all;
+      white-space: pre-line;
     }
   }
 `;

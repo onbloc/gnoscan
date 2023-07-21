@@ -10,6 +10,7 @@ export interface Option<T> {
   align?: 'left' | 'center' | 'right';
   flex?: boolean;
   sort?: boolean;
+  itemClassName?: string;
   renderOption?: (value: any, data: T) => React.ReactNode;
 }
 

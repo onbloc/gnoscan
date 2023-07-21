@@ -22,6 +22,7 @@ export const HeaderRow = <T extends {[key in string]: any}>({
           header={header}
           sortOption={sortOption}
           setSortOption={setSortOption}
+          className={header.itemClassName}
         />
       ))}
     </HeaderRowContainer>

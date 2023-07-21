@@ -15,6 +15,16 @@ import {RealmDetailDatatable} from '@/components/view/datatable';
 import {RealmDetailsModel} from '@/models/realm-details-model';
 import {getRealmDetails} from '@/repositories/api/fetchers/api-realm-details';
 import {realmDetailSelector} from '@/repositories/api/selector/select-realm-details';
+import Tooltip from '@/components/ui/tooltip';
+import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
+import IconCopy from '@/assets/svgs/icon-copy.svg';
+
+const TOOLTIP_PACKAGE_PATH = (
+  <>
+    A unique identifier that serves as
+    <br />a contract address on Gnoland.
+  </>
+);
 
 const RealmsDetails = () => {
   const desktop = isDesktop();
@@ -105,9 +115,26 @@ const RealmsDetails = () => {
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
-              <dt>Path</dt>
+              <dt>
+                Path
+                <div className="tooltip-wrapper">
+                  <Tooltip content={TOOLTIP_PACKAGE_PATH}>
+                    <IconTooltip />
+                  </Tooltip>
+                </div>
+              </dt>
               <dd>
-                <Badge>{realm.path}</Badge>
+                <Badge>
+                  {realm.path}
+                  <Tooltip
+                    className="path-copy-tooltip"
+                    content="Copied!"
+                    trigger="click"
+                    copyText={realm.path}
+                    width={85}>
+                    <IconCopy className="svg-icon" />
+                  </Tooltip>
+                </Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>

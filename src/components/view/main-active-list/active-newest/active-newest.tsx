@@ -41,14 +41,14 @@ const ActiveNewest = () => {
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[1]} color="blue">
                 <Link href={`/realms/details?path=${v.originName}`}>
-                  <a target="_blank">
+                  <a>
                     <Tooltip content={v.originPkgName}>{v.formatName}</Tooltip>
                   </a>
                 </Link>
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">
                 <Link href={`/accounts/${v.originAddress}`} passHref>
-                  <FitContentA target="_blank">
+                  <FitContentA>
                     <Tooltip content={v.originAddress}>{v.publisher}</Tooltip>
                   </FitContentA>
                 </Link>
@@ -61,7 +61,7 @@ const ActiveNewest = () => {
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[5]} color="blue">
                 <Link href={`/blocks/${v.block}`} passHref>
-                  <FitContentA target="_blank">{v.block}</FitContentA>
+                  <FitContentA>{v.block}</FitContentA>
                 </Link>
               </StyledText>
             </List>

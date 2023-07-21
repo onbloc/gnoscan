@@ -41,7 +41,7 @@ export class TotalTransactionModel {
   }): TotalTransactionData => {
     return {
       date: date ?? '',
-      transactionCount: num_txs ?? 0,
+      transactionCount: num_txs || 0,
     };
   };
 }

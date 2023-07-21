@@ -49,7 +49,7 @@ const ActiveAccount = () => {
               </StyledText>
               <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
                 <Link href={`/accounts/${v.address}`} passHref>
-                  <a target="_blank">
+                  <a>
                     <Tooltip content={v.address}>{v.account}</Tooltip>
                   </a>
                 </Link>

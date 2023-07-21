@@ -24,29 +24,34 @@ export const AmountText = ({
   className,
 }: AmountTextProps) => {
   // console.log('Value: ', value);
-  const num: string[] | string = decimalPointWithCommas(BigNumber(value));
+  const num: string[] | string = decimalPointWithCommas(BigNumber(value === '' ? 0 : value));
   const decimalValue = (num: string[] | string) => {
     if (denom === '' && num[1]) return `.${num[1]}`;
     if (!Array.isArray(num)) {
-      return ` ${denom}`;
+      return '';
     }
 
     if (num.length < 2) {
-      return ` ${denom}`;
+      return '';
     }
 
-    return `.${num[1]} ${denom}`;
+    return `.${num[1]}`;
   };
 
   return (
     <Wrapper className={className}>
       {num && (
-        <Text className="text-wrapper" type={maxSize} color={color} display="inline-block">
-          {num[0]}
-          <Text type={minSize} color={color} display="inline-block">
+        <>
+          <Text className="text-wrapper" type={maxSize} color={color} display="contents">
+            {num[0]}
+          </Text>
+          <Text type={minSize} color={color} display="contents" className="decimals">
             {decimalValue(num)}
           </Text>
-        </Text>
+          <Text type={maxSize} color={color} display="contents">
+            {denom}
+          </Text>
+        </>
       )}
     </Wrapper>
   );
@@ -55,7 +60,13 @@ export const AmountText = ({
 const Wrapper = styled.div`
   ${mixins.flexbox('row', 'center', 'flex-start')};
 
-  .text-wrapper {
-    white-space: nowrap;
+  &,
+  & * {
+    display: inline;
+    word-break: break-all;
+  }
+
+  .decimals::after {
+    content: ' ';
   }
 `;

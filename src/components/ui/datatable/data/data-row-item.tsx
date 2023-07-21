@@ -7,14 +7,19 @@ import {DatatableOption} from '..';
 interface Props<T> {
   header: DatatableHeader.Header<T>;
   data: T;
+  className?: string;
 }
 
-export const DataRowItem = <T extends {[key in string]: any}>({header, data}: Props<T>) => {
+export const DataRowItem = <T extends {[key in string]: any}>({
+  header,
+  data,
+  className,
+}: Props<T>) => {
   const option = DatatableOption.dataOptionByHeader(header);
   const value = data[header.key];
 
   return (
-    <ItemContainer options={option}>
+    <ItemContainer className={className || ''} options={option}>
       {option.renderOption ? (
         option.renderOption(value, data)
       ) : (

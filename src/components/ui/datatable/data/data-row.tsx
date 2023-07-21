@@ -12,7 +12,7 @@ export const DataRow = <T extends {[key in string]: any}>({headers, data}: Props
   return (
     <DataRowContainer>
       {headers.map((header, index) => (
-        <DataRowItem key={index} header={header} data={data} />
+        <DataRowItem key={index} header={header} data={data} className={header.itemClassName} />
       ))}
     </DataRowContainer>
   );

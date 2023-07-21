@@ -6,11 +6,5 @@ interface Props {
 }
 
 export const Block = ({height}: Props) => {
-  return height ? (
-    <a href={`/blocks/${height}`} target={'_blank'} rel={'noopener noreferrer'}>
-      {height}
-    </a>
-  ) : (
-    <span>-</span>
-  );
+  return height ? <a href={`/blocks/${height}`}>{height}</a> : <span>-</span>;
 };
