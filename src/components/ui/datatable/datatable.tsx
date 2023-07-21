@@ -131,5 +131,9 @@ const Container = styled.div<{maxWidth?: number}>`
         font-weight: 400;
       }
     }
+
+    .time {
+      padding: 16px 0 16px 8px;
+    }
   }
 `;

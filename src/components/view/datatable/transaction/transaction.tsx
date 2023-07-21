@@ -154,7 +154,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('height')
       .name('Block')
-      .width(93)
+      .width(103)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -176,7 +176,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('amount')
       .name('Amount')
-      .width(180)
+      .width(190)
       .renderOption((_, data) =>
         data.num_msgs > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
@@ -191,7 +191,8 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('time')
       .name('Time')
-      .width(180)
+      .width(160)
+      .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };

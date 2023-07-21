@@ -11,10 +11,9 @@ interface Props {
   status: StatusKeyType;
   development?: boolean;
   height?: number;
-  paddingRight?: number;
 }
 
-export const TxHash = ({txHash, status, development, height, paddingRight}: Props) => {
+export const TxHash = ({txHash, status, development, height}: Props) => {
   const onClickIcon = () => {
     if (!development || !height) {
       return;
@@ -23,7 +22,7 @@ export const TxHash = ({txHash, status, development, height, paddingRight}: Prop
   };
 
   return (
-    <TxHashWrapper paddingRight={paddingRight}>
+    <TxHashWrapper>
       <a
         className="ellipsis"
         href={`/transactions/${txHash}`}
@@ -38,7 +37,7 @@ export const TxHash = ({txHash, status, development, height, paddingRight}: Prop
   );
 };
 
-const TxHashWrapper = styled.div<{paddingRight?: number}>`
+const TxHashWrapper = styled.div`
   & {
     display: flex;
     width: 100%;
@@ -54,7 +53,7 @@ const TxHashWrapper = styled.div<{paddingRight?: number}>`
       display: flex;
       justify-content: center;
       align-items: center;
-      padding-right: ${props => `${props.paddingRight}px` || '0px'};
+      padding-right: 5px;
     }
   }
 `;

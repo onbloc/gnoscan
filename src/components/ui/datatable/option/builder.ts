@@ -98,6 +98,14 @@ export class Builder<T> {
     return this;
   }
 
+  public className(className: string) {
+    this.options = {
+      ...this.options,
+      itemClassName: className,
+    };
+    return this;
+  }
+
   public renderOption(renderOption: (value: any, data: T) => React.ReactNode) {
     this.options = {
       ...this.options,
