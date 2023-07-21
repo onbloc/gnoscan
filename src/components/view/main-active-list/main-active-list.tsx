@@ -74,7 +74,7 @@ export const StyledCard = styled(Card)`
   }
   .icon-link {
     stroke: ${({theme}) => theme.colors.reverse};
-    margin-left: 4px;
+    margin-left: 5px;
   }
 `;
 

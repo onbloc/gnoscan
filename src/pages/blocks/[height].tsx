@@ -9,10 +9,6 @@ import IconArrow from '@/assets/svgs/icon-arrow.svg';
 import {isDesktop} from '@/common/hooks/use-media';
 import {useRouter} from 'next/router';
 import {useQuery, UseQueryResult} from 'react-query';
-import axios from 'axios';
-import dayjs from 'dayjs';
-import {numberWithCommas} from '@/common/utils';
-import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import Text from '@/components/ui/text';
 import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';
@@ -22,6 +18,7 @@ import {BlockDetailDatatable} from '@/components/view/datatable';
 import {BlockDetailsModel} from '@/models/block-details-model';
 import {getBlockDetails} from '@/repositories/api/fetchers/api-block-details';
 import {blockDetailSelector} from '@/repositories/api/selector/select-block-details';
+import IconCopy from '@/assets/svgs/icon-copy.svg';
 
 interface TitleOptionProps {
   prevProps: {
@@ -164,6 +161,11 @@ const ArrowButton = styled.a<ButtonProps>`
       transform: rotate(180deg);
     }
   }
+`;
+
+const StyledIconCopy = styled(IconCopy)`
+  stroke: ${({theme}) => theme.colors.primary};
+  margin-left: 5px;
 `;
 
 export default BlockDetails;

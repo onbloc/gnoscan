@@ -34,7 +34,7 @@ interface ResponseData {
 
 const TOOLTIP_PATH = (
   <>
-    A unique identifier tha serves as
+    A unique identifier that serves as
     <br />a contract address on Gnoland.
   </>
 );

@@ -39,7 +39,7 @@ interface TokenData {
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
-    A unique identifier tha serves as
+    A unique identifier that serves as
     <br />a contract address on Gnoland.
   </>
 );
@@ -158,6 +158,7 @@ export const TokenDatatable = () => {
       .key('pkg_path')
       .name('Path')
       .width(208)
+      .colorName('blue')
       .tooltip(TOOLTIP_PACAKGE_PATH)
       .renderOption((_, data) => (
         <DatatableItem.RealmPakage packagePath={data.pkg_path} maxWidth={192} />

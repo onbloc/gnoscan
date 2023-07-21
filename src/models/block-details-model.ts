@@ -9,4 +9,5 @@ export interface BlockDetailsModel {
   address: string;
   prev: boolean;
   next: boolean;
+  hash: string;
 }
