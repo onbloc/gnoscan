@@ -24,7 +24,7 @@ export const AmountText = ({
   className,
 }: AmountTextProps) => {
   // console.log('Value: ', value);
-  const num: string[] | string = decimalPointWithCommas(BigNumber(value));
+  const num: string[] | string = decimalPointWithCommas(BigNumber(value === '' ? 0 : value));
   const decimalValue = (num: string[] | string) => {
     if (denom === '' && num[1]) return `.${num[1]}`;
     if (!Array.isArray(num)) {

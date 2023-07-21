@@ -1,4 +1,5 @@
 import {ValueWithDenomType} from '@/types/data-type';
+import BigNumber from 'bignumber.js';
 
 interface TotalGasShareData {
   date: string;
@@ -109,8 +110,8 @@ export class TotalGasShareModel {
         const currentData = result.find(data => data.packagePath === currentPackagePath);
 
         accum[currentPackagePath][dateIndex] = {
-          value: currentData?.packageDailyFee ?? 0,
-          rate: currentData?.percent ?? 0,
+          value: currentData?.packageDailyFee || 0,
+          rate: currentData?.percent || 0,
         };
       }
       return accum;
@@ -136,9 +137,9 @@ export class TotalGasShareModel {
       return {
         date: date ?? '',
         packagePath: `${item.path}`.replace('gno.land', ''),
-        packageDailyFee: item.daily_fee ?? 0,
-        totalDailyFee: daily_total_fee.value ?? 0,
-        percent: item.percent ?? 0,
+        packageDailyFee: BigNumber(item.daily_fee || 0).toNumber(),
+        totalDailyFee: BigNumber(daily_total_fee.value || 0).toNumber(),
+        percent: BigNumber(item.percent || 0).toNumber(),
       };
     });
   };

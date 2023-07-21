@@ -10,7 +10,7 @@ export const realmDetailSelector = (data: any) => {
     path: data.path,
     ContractCalls: data.total_calls,
     totalUsedFee: {
-      value: BigNumber(data.total_used_fees?.value ?? 0),
+      value: BigNumber(data.total_used_fees?.value || '0'),
       denom: `${data.total_used_fees?.denom ?? ''}`.toUpperCase(),
     },
     log: {
