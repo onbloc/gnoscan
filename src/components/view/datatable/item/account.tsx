@@ -14,11 +14,7 @@ export const Account = ({address}: Props) => {
 
   return (
     <Tooltip content={renderTooltip()}>
-      <a
-        className="ellipsis"
-        href={`/accounts/${address}`}
-        target={'_blank'}
-        rel={'noopener noreferrer'}>
+      <a className="ellipsis" href={`/accounts/${address}`}>
         {textEllipsis(address ?? '', 6)}
       </a>
     </Tooltip>

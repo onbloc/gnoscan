@@ -7,11 +7,5 @@ interface Props {
 }
 
 export const BlockHash = ({hash, height}: Props) => {
-  return height ? (
-    <a href={`/blocks/${height}`} target={'_blank'} rel={'noopener noreferrer'}>
-      {textEllipsis(hash ?? '', 8)}
-    </a>
-  ) : (
-    <span>-</span>
-  );
+  return height ? <a href={`/blocks/${height}`}>{textEllipsis(hash ?? '', 8)}</a> : <span>-</span>;
 };

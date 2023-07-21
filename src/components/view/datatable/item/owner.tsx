@@ -29,7 +29,7 @@ export const Owner = ({publisher, publisherUsername}: Props) => {
     <Container>
       {publisher && publisher !== 'genesis' ? (
         <Tooltip content={renderTooltip()}>
-          <OwnerLink href={`/accounts/${publisher}`} target={'_blank'} rel={'noopener noreferrer'}>
+          <OwnerLink href={`/accounts/${publisher}`}>
             <OwnerText>{getDisplayUsername(publisher)}</OwnerText>
           </OwnerLink>
         </Tooltip>

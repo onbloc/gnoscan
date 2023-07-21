@@ -27,11 +27,7 @@ export const Publisher = ({username, address}: Props) => {
 
   return address && address !== 'genesis' ? (
     <Tooltip content={renderTooltip()}>
-      <PublisherLink
-        className="ellipsis"
-        href={`/accounts/${address}`}
-        target={'_blank'}
-        rel={'noopener noreferrer'}>
+      <PublisherLink className="ellipsis" href={`/accounts/${address}`}>
         {getDisplayUsername(address)}
       </PublisherLink>
     </Tooltip>

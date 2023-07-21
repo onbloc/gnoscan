@@ -23,11 +23,7 @@ export const TxHash = ({txHash, status, development, height}: Props) => {
 
   return (
     <TxHashWrapper>
-      <a
-        className="ellipsis"
-        href={`/transactions/${txHash}`}
-        target={'_blank'}
-        rel={'noopener noreferrer'}>
+      <a className="ellipsis" href={`/transactions/${txHash}`}>
         {textEllipsis(txHash ?? '', 8)}
       </a>
       <span className="status" onClick={onClickIcon}>
