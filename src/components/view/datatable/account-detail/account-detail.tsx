@@ -197,7 +197,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('time')
       .name('Time')
-      .width(160)
+      .width(162)
       .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
@@ -207,7 +207,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
     return DatatableOption.Builder.builder<AccountTransactionData>()
       .key('fee')
       .name('Fee')
-      .width(123)
+      .className('fee')
+      .width(113)
       .renderOption(({value, denom}: {value: string; denom: string}) => (
         <DatatableItem.Amount value={value} denom={denom} />
       ))

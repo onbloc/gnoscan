@@ -132,7 +132,8 @@ const Container = styled.div<{maxWidth?: number}>`
       }
     }
 
-    .time {
+    .time,
+    .fee {
       padding: 16px 0 16px 8px;
     }
   }

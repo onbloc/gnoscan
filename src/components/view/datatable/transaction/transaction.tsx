@@ -154,7 +154,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('height')
       .name('Block')
-      .width(103)
+      .width(113)
       .colorName('blue')
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -191,7 +191,7 @@ export const TransactionDatatable = () => {
     return DatatableOption.Builder.builder<TransactionData>()
       .key('time')
       .name('Time')
-      .width(160)
+      .width(162)
       .className('time')
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
@@ -202,6 +202,7 @@ export const TransactionDatatable = () => {
       .key('fee')
       .name('Fee')
       .width(123)
+      .className('fee')
       .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
       .build();
   };
