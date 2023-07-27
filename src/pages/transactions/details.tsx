@@ -21,10 +21,28 @@ import {transactionDetailSelector} from '@/repositories/api/selector/select-tran
 
 const ellipsisTextKey = ['Caller'];
 
+function parseTxHash(url: string) {
+  if (!url.includes('txhash=')) {
+    return '';
+  }
+  const params = url.split('txhash=');
+  if (params.length < 2) return '';
+
+  const txHash = params[1].split('&')[0];
+  return txHash;
+}
+
 const TransactionDetails = () => {
   const desktop = isDesktop();
-  const router = useRouter();
-  const {hash} = router.query;
+  const {asPath, push} = useRouter();
+  const hash = parseTxHash(asPath);
+
+  useEffect(() => {
+    if (hash === '') {
+      push('/transactions');
+    }
+  });
+
   const {
     data: tx,
     isSuccess: txSuccess,
@@ -33,11 +51,12 @@ const TransactionDetails = () => {
     ['tx/hash', hash],
     async () => await getTransactionDetails(hash),
     {
-      enabled: !!hash,
+      enabled: hash !== '',
       retry: 0,
       select: (res: any) => transactionDetailSelector(res.data),
     },
   );
+
   return (
     <DetailsPageLayout
       title={'Transaction Details'}

@@ -170,7 +170,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .width(180)
       .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+          <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={amount.value_in} denom={amount.denom} />
         ),
@@ -185,7 +185,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .width(180)
       .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+          <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={amount.value_out} denom={amount.denom} />
         ),
