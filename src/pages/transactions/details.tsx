@@ -37,7 +37,7 @@ function parseTxHash(url: string) {
   if (params.length < 2) return '';
 
   const txHash = params[1].split('&')[0];
-  return txHash;
+  return decodeURIComponent(txHash);
 }
 
 const TransactionDetails = () => {
