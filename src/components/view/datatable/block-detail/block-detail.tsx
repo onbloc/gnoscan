@@ -151,7 +151,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .width(190)
       .renderOption((amount: {value: string; denom: string}, data) =>
         data.num_msgs > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+          <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={amount.value} denom={amount.denom} />
         ),

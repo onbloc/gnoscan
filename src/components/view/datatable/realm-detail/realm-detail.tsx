@@ -142,7 +142,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .width(190)
       .renderOption((amount: {value: string; denom: string}, data) =>
         data.msg_num > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+          <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={amount.value} denom={amount.denom} />
         ),

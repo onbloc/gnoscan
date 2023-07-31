@@ -179,7 +179,7 @@ export const TransactionDatatable = () => {
       .width(190)
       .renderOption((_, data) =>
         data.num_msgs > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/${data.hash}`} />
+          <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={data.amount.value} denom={data.amount.denom} />
         ),
