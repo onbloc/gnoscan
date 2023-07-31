@@ -278,41 +278,20 @@ const CallerContract = ({contract, desktop}: any) => {
 
 const AddPkgContract = ({contract, desktop}: any) => {
   return (
-    <>
-      {Object.keys(contract.args.data).map(v => (
-        <DLWrap desktop={desktop} key={v1()}>
-          <dt>{v}</dt>
-          <dd>
-            <Badge>
-              {v === 'Creator' ? (
-                <Link href={`/accounts/${contract.creator_address}`} passHref>
-                  <FitContentA>
-                    <Text type="p4" color="blue">
-                      {contract.args.data[v] || '-'}
-                    </Text>
-                  </FitContentA>
-                </Link>
-              ) : v === 'Path' ? (
-                <Link href={`/realms/details?path=${contract.pkg_path}`} passHref>
-                  <FitContentA>
-                    <Text type="p4" color="blue">
-                      {contract.args.data[v] || '-'}
-                    </Text>
-                  </FitContentA>
-                </Link>
-              ) : (
-                <Text
-                  type="p4"
-                  color={'inherit'}
-                  className={ellipsisTextKey.includes(v) ? 'ellipsis' : ''}>
-                  {contract.args.data[v] || '-'}
-                </Text>
-              )}
-            </Badge>
-          </dd>
-        </DLWrap>
-      ))}
-    </>
+    <DLWrap desktop={desktop} key={v1()}>
+      <dt>Creator</dt>
+      <dd>
+        <Badge>
+          <Link href={`/accounts/${contract?.creator_address}`} passHref>
+            <FitContentA>
+              <Text type="p4" color="blue">
+                {contract?.args?.data?.Creator || '-'}
+              </Text>
+            </FitContentA>
+          </Link>
+        </Badge>
+      </dd>
+    </DLWrap>
   );
 };
 
