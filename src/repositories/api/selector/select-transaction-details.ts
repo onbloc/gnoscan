@@ -13,7 +13,7 @@ const valueForContractType = (contract: any) => {
     type: '',
     data: {},
   };
-  const {type, pkg_func} = contract;
+  const {type, pkg_func, grc20} = contract;
 
   if (type === '/vm.m_addpkg' && pkg_func === 'AddPkg') {
     return (map = {
@@ -37,7 +37,7 @@ const valueForContractType = (contract: any) => {
       },
     });
   } else if (type === '/vm.m_call') {
-    if (pkg_func === 'Transfer') {
+    if (grc20 === true && pkg_func === 'Transfer') {
       return (map = {
         type: pkg_func,
         data: {

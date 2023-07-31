@@ -210,7 +210,7 @@ const TransactionDetails = () => {
                     </Badge>
                   </dd>
                 </DLWrap>
-                {v.type === '/vm.m_call' && v.args.type === 'Transfer' && (
+                {v.grc20 === true && v.type === '/vm.m_call' && v.args.type === 'Transfer' && (
                   <TransferContract contract={v} desktop={desktop} />
                 )}
                 {v.type === '/bank.MsgSend' && v.args.type === 'Transfer' && (
