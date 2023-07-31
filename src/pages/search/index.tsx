@@ -1,18 +1,26 @@
 import NotFound from '@/components/view/not-found/not-found';
 import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
 import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
-import {useRouter} from 'next/router';
 import React from 'react';
 import styled from 'styled-components';
 
 interface Props {
+  keyword: string;
   redirectUrl: string;
 }
 
-const Search = (params: Props) => {
-  const router = useRouter();
-  const {keyword} = router.query;
+function parseKeyword(url: string) {
+  if (!url.includes('keyword=')) {
+    return '';
+  }
+  const params = url.split('keyword=');
+  if (params.length < 2) return '';
 
+  const keyword = decodeURIComponent(params[1].split('&')[0]);
+  return keyword;
+}
+
+const Search = ({keyword}: Props) => {
   return (
     <Container>
       <NotFound keyword={`${keyword}`} />
@@ -20,8 +28,16 @@ const Search = (params: Props) => {
   );
 };
 
-export async function getServerSideProps({query}: any) {
-  const keyword = query?.keyword ?? '';
+export async function getServerSideProps({req}: any) {
+  const keyword = parseKeyword(req.url);
+  if (keyword === '') {
+    return {
+      props: {
+        keyword: '',
+        redirectUrl: null,
+      },
+    };
+  }
   try {
     const result = await searchKeyword(keyword);
     const data = result.data;
@@ -35,6 +51,7 @@ export async function getServerSideProps({query}: any) {
     if (data.type === 'username') {
       return {
         redirect: {
+          keyword,
           permanent: false,
           destination: `/accounts/${data.extra_value}`,
         },
@@ -44,6 +61,7 @@ export async function getServerSideProps({query}: any) {
     if (data.type === 'address') {
       return {
         redirect: {
+          keyword,
           permanent: false,
           destination: `/accounts/${data.value}`,
         },
@@ -53,6 +71,7 @@ export async function getServerSideProps({query}: any) {
     if (data.type === 'pkg_path') {
       return {
         redirect: {
+          keyword,
           permanent: false,
           destination: `/realms/details?path=${data.value}`,
         },
@@ -62,6 +81,7 @@ export async function getServerSideProps({query}: any) {
     if (data.type === 'pkg_name') {
       return {
         redirect: {
+          keyword,
           permanent: false,
           destination: `/realms/details?path=${data.extra_value}`,
         },
@@ -71,6 +91,7 @@ export async function getServerSideProps({query}: any) {
     if (data.type === 'block') {
       return {
         redirect: {
+          keyword,
           permanent: false,
           destination: `/blocks/${data.value}`,
         },
@@ -80,8 +101,9 @@ export async function getServerSideProps({query}: any) {
     if (data.type === 'tx') {
       return {
         redirect: {
+          keyword,
           permanent: false,
-          destination: `/transactions/${data.value}`,
+          destination: `/transactions/details?txhash=${data.value}`,
         },
       };
     }
@@ -89,6 +111,7 @@ export async function getServerSideProps({query}: any) {
     if (data.type === 'tokens') {
       return {
         redirect: {
+          keyword,
           permanent: false,
           destination: `/tokens/${data.value}`,
         },
@@ -100,6 +123,7 @@ export async function getServerSideProps({query}: any) {
 
   return {
     props: {
+      keyword,
       redirectUrl: null,
     },
   };
