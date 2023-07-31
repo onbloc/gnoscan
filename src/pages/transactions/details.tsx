@@ -10,6 +10,7 @@ import DataSection from '@/components/view/details-data-section';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
+import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
@@ -18,6 +19,13 @@ import mixins from '@/styles/mixins';
 import {TransactionDetailsModel} from '@/models/transaction-details-model';
 import {getTransactionDetails} from '@/repositories/api/fetchers/api-transaction-details';
 import {transactionDetailSelector} from '@/repositories/api/selector/select-transaction-details';
+
+const TOOLTIP_PACKAGE_PATH = (
+  <>
+    A unique identifier that serves as
+    <br />a contract address on Gnoland.
+  </>
+);
 
 const ellipsisTextKey = ['Caller'];
 
@@ -151,6 +159,46 @@ const TransactionDetails = () => {
               <ContractListBox key={v1()}>
                 {tx.contract.num_msgs > 1 && (
                   <Text type="h6" color="white" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+                )}
+                {(v?.grc20 === true || v?.pkg_path !== '/bank.MsgSend') && (
+                  <>
+                    <DLWrap desktop={desktop}>
+                      <dt>Name</dt>
+                      <dd>
+                        <Badge>
+                          <Text type="p4" color="white">
+                            {v?.pkg_name || '-'}
+                          </Text>
+                        </Badge>
+                      </dd>
+                    </DLWrap>
+                    <DLWrap desktop={desktop}>
+                      <dt>
+                        Path
+                        <div className="tooltip-wrapper">
+                          <Tooltip content={TOOLTIP_PACKAGE_PATH}>
+                            <IconTooltip />
+                          </Tooltip>
+                        </div>
+                      </dt>
+                      <dd>
+                        <Badge>
+                          <Text type="p4" color="blue" className="ellipsis">
+                            <Link href={`/realms/details?path=${v.pkg_path}`} passHref>
+                              <FitContentA>{v.pkg_path}</FitContentA>
+                            </Link>
+                          </Text>
+                          <Tooltip
+                            content="Copied!"
+                            trigger="click"
+                            copyText={v.pkg_path}
+                            className="address-tooltip">
+                            <StyledIconCopy />
+                          </Tooltip>
+                        </Badge>
+                      </dd>
+                    </DLWrap>
+                  </>
                 )}
                 <DLWrap desktop={desktop}>
                   <dt>Type</dt>

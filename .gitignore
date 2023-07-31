@@ -38,5 +38,4 @@ next-env.d.ts
 
 # .envs
 .env
-.env.main
 .env.test*
