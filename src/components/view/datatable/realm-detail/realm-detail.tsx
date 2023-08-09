@@ -38,18 +38,6 @@ interface Props {
   pkgPath: string;
 }
 
-const TOOLTIP_TX_HASH = (
-  <>
-    Transctions have been temporarily <br />
-    assigned with values in <b>[height_order]</b>
-    <br />
-    format, as the tx hashing function is
-    <br />
-    still under development on Gnoland.
-    <br />
-  </>
-);
-
 const TOOLTIP_TYPE = (
   <>
     Hover on each value to <br />
@@ -98,7 +86,6 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .width(210)
       .colorName('blue')
       .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={data.status} />)
-      .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
 

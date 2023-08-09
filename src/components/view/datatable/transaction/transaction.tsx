@@ -2,7 +2,6 @@
 
 import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import Link from 'next/link';
 import {DatatableItem} from '..';
 import styled from 'styled-components';
 import usePageQuery from '@/common/hooks/use-page-query';
@@ -14,20 +13,7 @@ import {ValueWithDenomType} from '@/types/data-type';
 import theme from '@/styles/theme';
 import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
-import {scrollbarStyle} from '@/common/hooks/use-scroll-bar';
 import {StatusKeyType} from '@/common/utils';
-
-const TOOLTIP_TX_HASH = (
-  <>
-    Transctions have been temporarily <br />
-    assigned with values in <b>[height_order]</b>
-    <br />
-    format, as the tx hashing function is
-    <br />
-    still under development on Gnoland.
-    <br />
-  </>
-);
 
 const TOOLTIP_TYPE = (
   <>
@@ -128,7 +114,6 @@ export const TransactionDatatable = () => {
           height={data.height}
         />
       ))
-      .tooltip(TOOLTIP_TX_HASH)
       .build();
   };
 
