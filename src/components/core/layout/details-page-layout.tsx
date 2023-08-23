@@ -81,6 +81,14 @@ const Content = styled.div<StyleProps>`
     display: flex;
   }
 
+  .badge {
+    display: inline-flex;
+    line-height: 1em;
+    height: 28px;
+    justify-content: center;
+    align-items: center;
+  }
+
   .tooltip-wrapper {
     position: inherit;
     display: inline-flex;
