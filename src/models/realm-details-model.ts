@@ -4,7 +4,8 @@ import BigNumber from 'bignumber.js';
 export interface RealmDetailsModel {
   name: string;
   funcs: string[];
-  publisher: string;
+  publisherAddress: string;
+  publisherName: string;
   address: string;
   blockPublished: number;
   path: string;
@@ -13,5 +14,11 @@ export interface RealmDetailsModel {
     value: BigNumber;
     denom: string;
   };
+  assets: {
+    type: string;
+    denom: string;
+    value: string;
+    name: string;
+  }[];
   log: LogDataType;
 }
