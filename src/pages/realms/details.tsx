@@ -1,6 +1,5 @@
 import React from 'react';
 import {useQuery, UseQueryResult} from 'react-query';
-import {useRouter} from 'next/router';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
@@ -18,6 +17,7 @@ import {realmDetailSelector} from '@/repositories/api/selector/select-realm-deta
 import Tooltip from '@/components/ui/tooltip';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
+import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -26,10 +26,21 @@ const TOOLTIP_PACKAGE_PATH = (
   </>
 );
 
-const RealmsDetails = () => {
+const TOOLTIP_BALANCE = (
+  <>
+    Balances available to be spent
+    <br />
+    by this realm.
+  </>
+);
+
+interface RealmsDetailsPageProps {
+  path: string;
+  redirectUrl: string | null;
+}
+
+const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   const desktop = isDesktop();
-  const router = useRouter();
-  const {path} = router.query;
   const {
     data: realm,
     isSuccess: realmSuccess,
@@ -59,6 +70,45 @@ const RealmsDetails = () => {
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
+              <dt>
+                Path
+                <div className="tooltip-wrapper">
+                  <Tooltip content={TOOLTIP_PACKAGE_PATH}>
+                    <IconTooltip />
+                  </Tooltip>
+                </div>
+              </dt>
+              <dd>
+                <Badge>
+                  {realm.path}
+                  <Tooltip
+                    className="path-copy-tooltip"
+                    content="Copied!"
+                    trigger="click"
+                    copyText={realm.path}
+                    width={85}>
+                    <IconCopy className="svg-icon" />
+                  </Tooltip>
+                </Badge>
+              </dd>
+            </DLWrap>
+            <DLWrap desktop={desktop}>
+              <dt>Realm Address</dt>
+              <dd>
+                <Badge>
+                  {realm.address}
+                  <Tooltip
+                    className="path-copy-tooltip"
+                    content="Copied!"
+                    trigger="click"
+                    copyText={realm.address}
+                    width={85}>
+                    <IconCopy className="svg-icon" />
+                  </Tooltip>
+                </Badge>
+              </dd>
+            </DLWrap>
+            <DLWrap desktop={desktop}>
               <dt>Function Type(s)</dt>
               <dd className="function-wrapper">
                 {realm.funcs.map((v: string) => (
@@ -74,17 +124,17 @@ const RealmsDetails = () => {
               <dt>Publisher</dt>
               <dd>
                 <Badge>
-                  {realm.publisher === 'genesis' ? (
+                  {realm.publisherName === 'genesis' ? (
                     <FitContentA>
                       <Text type="p4" color="blue" className="ellipsis">
-                        {realm.publisher}
+                        {realm.publisherName}
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={`/accounts/${realm.address}`} passHref>
+                    <Link href={`/accounts/${realm.publisherAddress}`} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue" className="ellipsis">
-                          {realm.publisher}
+                          {realm.publisherName}
                         </Text>
                       </FitContentA>
                     </Link>
@@ -116,25 +166,17 @@ const RealmsDetails = () => {
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>
-                Path
+                Balance
                 <div className="tooltip-wrapper">
-                  <Tooltip content={TOOLTIP_PACKAGE_PATH}>
+                  <Tooltip content={TOOLTIP_BALANCE}>
                     <IconTooltip />
                   </Tooltip>
                 </div>
               </dt>
               <dd>
-                <Badge>
-                  {realm.path}
-                  <Tooltip
-                    className="path-copy-tooltip"
-                    content="Copied!"
-                    trigger="click"
-                    copyText={realm.path}
-                    width={85}>
-                    <IconCopy className="svg-icon" />
-                  </Tooltip>
-                </Badge>
+                {realm.assets.map((asset, index) => (
+                  <Badge key={index}>{`${asset.value} ${asset.denom}`}</Badge>
+                ))}
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -167,5 +209,27 @@ const RealmsDetails = () => {
     </DetailsPageLayout>
   );
 };
+
+export async function getServerSideProps({query}: any) {
+  const keyword = query?.path;
+  try {
+    const result = await searchKeyword(keyword);
+    const data = result.data;
+    if (data?.type === 'pkg_path') {
+      return {
+        props: {
+          path: data.value,
+          redirectUrl: null,
+        },
+      };
+    }
+  } catch {}
+  return {
+    props: {
+      path: keyword,
+      redirectUrl: null,
+    },
+  };
+}
 
 export default RealmsDetails;

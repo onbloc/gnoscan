@@ -3,7 +3,6 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
-import {useRouter} from 'next/router';
 import {useQuery, UseQueryResult} from 'react-query';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Text from '@/components/ui/text';
@@ -21,7 +20,12 @@ import {accountDetailSelector} from '@/repositories/api/selector/select-account-
 import {AccountDetailsModel, AssetsDataType} from '@/models/account-details-model';
 import {useRecoilValue} from 'recoil';
 import {tokenState} from '@/states';
-// import {saveAllTokens, tokensMapper} from '@/repositories/api/selector/select-meta-token';
+import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
+
+interface AccountDetailsPageProps {
+  address: string;
+  redirectUrl: string | null;
+}
 
 interface StyleProps {
   media?: string;
@@ -29,12 +33,10 @@ interface StyleProps {
   isDesktop?: boolean;
 }
 
-const AccountDetails = () => {
+const AccountDetails = ({address}: AccountDetailsPageProps) => {
   const media = eachMedia();
   const desktop = isDesktop();
-  const router = useRouter();
   const tokens = useRecoilValue(tokenState);
-  const {address} = router.query;
   const {
     data: detail,
     isSuccess: detailSuccess,
@@ -112,6 +114,29 @@ const AccountDetails = () => {
     </DetailsPageLayout>
   );
 };
+
+export async function getServerSideProps({params}: any) {
+  const keyword = params.address;
+  try {
+    const result = await searchKeyword(keyword);
+    const data = result.data;
+    if (data?.type === 'pkg_path') {
+      return {
+        redirect: {
+          keyword,
+          permanent: false,
+          destination: `/realms/details?path=${data?.value}`,
+        },
+      };
+    }
+  } catch {}
+  return {
+    props: {
+      address: keyword,
+      redirectUrl: null,
+    },
+  };
+}
 
 const AddressTextBox = styled(Text)<StyleProps>`
   display: block;
