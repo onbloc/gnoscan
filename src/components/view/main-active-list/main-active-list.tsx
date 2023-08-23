@@ -8,6 +8,7 @@ import ActiveBoards from './active-boards';
 import Text from '@/components/ui/text';
 import {AmountText} from '@/components/ui/text/amount-text';
 import {TextProps} from '@/components/ui/text/text';
+import {PaletteKeyType} from '@/styles';
 
 interface StyledTextProps extends TextProps {
   width?: string;
@@ -101,10 +102,22 @@ export const StyledText = styled(Text)<StyledTextProps>`
   ${textStyle};
 `;
 
-export const StyledAmountText = styled(AmountText)<{width?: string}>`
+export const StyledAmountText = styled(AmountText)<{width?: string; color?: PaletteKeyType}>`
   min-width: ${({width}) => width};
   max-width: ${({width}) => width};
-  ${textStyle};
+  ${textStyle}
+
+  & .amount-wrapper {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: ${({theme, color}) => theme.colors[color ?? 'reverse']};
+    & * {
+      display: inline;
+      white-space: nowrap;
+    }
+  }
 `;
 
 export const FitContentA = styled.a`
