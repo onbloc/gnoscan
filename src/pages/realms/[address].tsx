@@ -7,11 +7,9 @@ interface RealmsDetailsPageProps {
 }
 
 const RealmsAddressDetails = ({path}: RealmsDetailsPageProps) => (
-  <DetailsPageLayout
-    title={'Realm Details'}
-    visible={false}
-    keyword={`${path}`}
-    error={true}></DetailsPageLayout>
+  <DetailsPageLayout title={'Realm Details'} visible={false} keyword={`${path}`} error={true}>
+    <div></div>
+  </DetailsPageLayout>
 );
 
 export async function getServerSideProps({params}: any) {
