@@ -25,17 +25,13 @@ Next, install the prerequisite packages:
 $ yarn install
 ```
 
-To run the development environment, execute the following command:
+execute the following command:
 ```bash
+$ cp .env.example .env
 $ yarn dev
 # Access http://localhost:3000
 ```
 
-To run the production environment, execute the following command:
-```bash
-$ yarn build && yarn start
-# Access http://localhost:3000
-```
 
 ## Contributing & Support
 If you would like to contribute to Gnoscan or need support, please consider the following options:
