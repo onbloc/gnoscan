@@ -21,7 +21,7 @@ export const blockCardSelector = (data: any): BlockCardModel => {
 export const txsCardSelector = (data: any): TxsCardModel => {
   return {
     avg_24hr: numberWithFixedCommas(BigNumber(data.avg_24hr), 6),
-    total_fee: numberWithFixedCommas(BigNumber(data.total_fee), 2),
+    total_fee: numberWithFixedCommas(BigNumber(data.total_fee), 6),
     total_txs: numberWithCommas(BigNumber(data.total_txs)),
   };
 };
