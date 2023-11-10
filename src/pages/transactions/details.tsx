@@ -158,7 +158,7 @@ const TransactionDetails = () => {
             {tx.contract.contract_list.map((v: any, i: number) => (
               <ContractListBox key={v1()}>
                 {tx.contract.num_msgs > 1 && (
-                  <Text type="h6" color="white" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+                  <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
                 )}
                 {(v?.grc20 === true || v?.pkg_path !== '/bank.MsgSend') && (
                   <>
@@ -166,7 +166,7 @@ const TransactionDetails = () => {
                       <dt>Name</dt>
                       <dd>
                         <Badge>
-                          <Text type="p4" color="white">
+                          <Text type="p4" color="primary">
                             {v?.pkg_name || '-'}
                           </Text>
                         </Badge>
