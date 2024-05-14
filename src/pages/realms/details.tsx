@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {useQuery, UseQueryResult} from 'react-query';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
-import {DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
+import {DLWrap, FitContentA, LinkWrapper} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';
 import Text from '@/components/ui/text';
 import Link from 'next/link';
@@ -18,6 +18,13 @@ import Tooltip from '@/components/ui/tooltip';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
+import {useNetwork} from '@/common/hooks/use-network';
+import {
+  GNOSTUDIO_REALM_FUNCTION_TEMPLATE,
+  GNOSTUDIO_REALM_TEMPLATE,
+} from '@/common/values/url.constant';
+import {makeTemplate} from '@/common/utils/template.utils';
+import IconLink from '@/assets/svgs/icon-link.svg';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -41,6 +48,7 @@ interface RealmsDetailsPageProps {
 
 const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   const desktop = isDesktop();
+  const {currentNetwork} = useNetwork();
   const {
     data: realm,
     isSuccess: realmSuccess,
@@ -52,6 +60,26 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
       enabled: !!path,
       select: (res: any) => realmDetailSelector(res.data),
     },
+  );
+
+  const moveGnoStudioViewRealm = useCallback(() => {
+    const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
+      PACKAGE_PATH: path,
+      NETWORK: currentNetwork,
+    });
+    window.open(url, '_blank');
+  }, [path, currentNetwork]);
+
+  const moveGnoStudioViewRealmFunction = useCallback(
+    (functionName: string) => {
+      const url = makeTemplate(GNOSTUDIO_REALM_FUNCTION_TEMPLATE, {
+        PACKAGE_PATH: path,
+        NETWORK: currentNetwork,
+        FUNCTION_NAME: functionName,
+      });
+      window.open(url, '_blank');
+    },
+    [path, currentNetwork],
   );
 
   return (
@@ -78,7 +106,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                   </Tooltip>
                 </div>
               </dt>
-              <dd>
+              <dd className="path-wrapper">
                 <Badge>
                   {realm.path}
                   <Tooltip
@@ -90,6 +118,13 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                     <IconCopy className="svg-icon" />
                   </Tooltip>
                 </Badge>
+
+                <LinkWrapper onClick={moveGnoStudioViewRealm}>
+                  <Text type="p4" className="ellipsis">
+                    Try in GnoStudio
+                  </Text>
+                  <IconLink className="icon-link" />
+                </LinkWrapper>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -112,7 +147,11 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Function Type(s)</dt>
               <dd className="function-wrapper">
                 {realm.funcs.map((v: string) => (
-                  <Badge type="blue" key={v1()}>
+                  <Badge
+                    className="link"
+                    type="blue"
+                    key={v1()}
+                    onClick={() => moveGnoStudioViewRealmFunction(v)}>
                     <Text type="p4" color="white">
                       {v}
                     </Text>

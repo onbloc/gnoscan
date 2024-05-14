@@ -23,6 +23,7 @@ const lightTheme: Palette = {
   pantone: '#DFDFDF',
   gray100: '#F5F5F5',
   gray200: '#ADADAD',
+  gray300: '#8F8F8F',
   dimmed50: 'rgba(0, 0, 0, 0.05)',
   dimmed100: 'rgba(0, 0, 0, 0.1)',
   dimmed200: 'rgba(0, 0, 0, 0.2)',
@@ -49,6 +50,7 @@ const darkTheme: Palette = {
   pantone: '#292929',
   gray100: '#2C2C2C',
   gray200: '#7B7B7B',
+  gray300: '#8F8F8F',
   dimmed50: 'rgba(255, 255, 255, 0.05)',
   dimmed100: 'rgba(255, 255, 255, 0.1)',
   dimmed200: 'rgba(255, 255, 255, 0.2)',
@@ -170,6 +172,7 @@ export type PaletteKeyType =
   | 'pantone'
   | 'gray100'
   | 'gray200'
+  | 'gray300'
   | 'dimmed50'
   | 'dimmed100'
   | 'dimmed200'
