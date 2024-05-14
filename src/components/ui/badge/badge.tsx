@@ -10,6 +10,7 @@ type BadgeProps = {
   padding?: CSSProperties['padding'];
   className?: string;
   desktop?: boolean;
+  onClick?: () => void;
 };
 
 const Badge = (props: BadgeProps) => {
@@ -18,7 +19,8 @@ const Badge = (props: BadgeProps) => {
     <BadgeWrapper
       {...props}
       className={props.className ? `badge ${props.className}` : 'badge'}
-      desktop={desktop}>
+      desktop={desktop}
+      onClick={props.onClick}>
       {props.children}
     </BadgeWrapper>
   );
@@ -34,6 +36,15 @@ const BadgeWrapper = styled.div<BadgeProps>`
   margin-right: ${({desktop}) => (desktop ? '15px' : '10px')};
   border-radius: 4px;
   margin-top: ${({desktop}) => !desktop && '12px'};
+
+  &.link {
+    transition: 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.6;
+    }
+  }
 `;
 
 export default Badge;
