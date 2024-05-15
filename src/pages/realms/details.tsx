@@ -146,15 +146,17 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
             <DLWrap desktop={desktop}>
               <dt>Function Type(s)</dt>
               <dd className="function-wrapper">
-                {realm.funcs.map((v: string) => (
+                {realm.funcs.map((v: string, index: number) => (
                   <Badge
                     className="link"
+                    key={index}
                     type="blue"
-                    key={v1()}
                     onClick={() => moveGnoStudioViewRealmFunction(v)}>
-                    <Text type="p4" color="white">
-                      {v}
-                    </Text>
+                    <Tooltip className="tooltip" content="Try in GnoStudio">
+                      <Text type="p4" color="white">
+                        {v}
+                      </Text>
+                    </Tooltip>
                   </Badge>
                 ))}
               </dd>

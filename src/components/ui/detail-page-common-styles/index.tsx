@@ -53,6 +53,26 @@ export const DLWrap = styled.dl<StyleProps>`
 
     &.function-wrapper {
       line-height: 40px;
+
+      .link {
+        padding: 0;
+        transition: 0.2s;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.6;
+        }
+      }
+
+      .tooltip {
+        display: block;
+        width: 100%;
+        height: 100%;
+
+        .tooltip-button {
+          padding: 4px 16px;
+        }
+      }
     }
 
     &.path-wrapper {
