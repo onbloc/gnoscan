@@ -152,7 +152,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                     key={index}
                     type="blue"
                     onClick={() => moveGnoStudioViewRealmFunction(v)}>
-                    <Tooltip className="tooltip" content="Try in GnoStudio">
+                    <Tooltip className="tooltip" content="Click to try in GnoStudio">
                       <Text type="p4" color="white">
                         {v}
                       </Text>
