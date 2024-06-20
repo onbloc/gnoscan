@@ -8,33 +8,24 @@ import {ErrorBoundary} from '@/components/core/error-boundary';
 import 'antd/dist/reset.css';
 import Meta from '@/components/core/layout/meta';
 import GoogleAnalytics from '@/components/core/layout/google-analytics';
+import GnoscanProvider from '@/providers/gnoscan-provider';
+import ChainData from 'public/resource/chains.json';
 
 const App: React.FC = ({Component, pageProps}: any) => {
-  const [queryClient] = React.useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            refetchOnMount: false,
-            refetchOnReconnect: false,
-            refetchOnWindowFocus: false,
-          },
-        },
-      }),
-  );
-
   return (
     <>
       <Meta />
       <GoogleAnalytics />
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={new QueryClient()}>
         <Hydrate state={pageProps.dehydratedState}>
           <RecoilRoot>
             <ErrorBoundary fallback={<div>ERROR</div>}>
-              <Layout>
-                <GlobalStyle />
-                <Component {...pageProps} />
-              </Layout>
+              <GnoscanProvider chains={ChainData}>
+                <Layout>
+                  <GlobalStyle />
+                  <Component {...pageProps} />
+                </Layout>
+              </GnoscanProvider>
             </ErrorBoundary>
           </RecoilRoot>
         </Hydrate>

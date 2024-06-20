@@ -1,19 +1,28 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Text from '@/components/ui/text';
 import {useQuery, UseQueryResult} from 'react-query';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
 import {BlockCardModel} from '@/models';
 import {getBlockCard} from '@/repositories/api/fetchers/api-info-card';
 import {blockCardSelector} from '@/repositories/api/selector/select-info-card';
+import {useGnoscanProvider} from '@/common/hooks/use-gnoscan-provider';
 
 export const BlockCard = () => {
+  const {nodeRepository} = useGnoscanProvider();
   const {data: card02, isFetched: card02Fetched}: UseQueryResult<BlockCardModel> = useQuery(
     ['info/card02'],
-    async () => await getBlockCard(),
+    async () => {
+      const result = await getBlockCard();
+      return result;
+    },
     {
       select: (res: any) => blockCardSelector(res.data.block),
     },
   );
+
+  useEffect(() => {
+    nodeRepository && nodeRepository?.health().then(console.log);
+  }, [nodeRepository]);
 
   return (
     <>

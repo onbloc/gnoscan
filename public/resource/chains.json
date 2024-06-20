@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Testnet 3",
+    "chainId": "test3",
+    "apiUrl": "http://test3.onbloc-api.c2.onbloc.xyz/v1",
+    "rpcUrl": null,
+    "indexerUrl": null
+  }, {
+    "name": "Portal Loop",
+    "chainId": "portal-loop",
+    "apiUrl": "http://portal-loop.onbloc-api.c2.onbloc.xyz/v1",
+    "rpcUrl": null,
+    "indexerUrl": null
+  }
+]
