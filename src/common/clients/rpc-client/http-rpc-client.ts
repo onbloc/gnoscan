@@ -15,7 +15,7 @@ export class HttpRPCClient implements RPCClient {
     });
   }
 
-  call<T>(path: string, request: RPCRequest): Promise<RPCResponse<T>> {
-    return this.client.post<RPCResponse<T>>(path, request).then(data => data.data);
+  call<T>(request: RPCRequest): Promise<RPCResponse<T>> {
+    return this.client.post<RPCResponse<T>>('', request).then(data => data.data);
   }
 }

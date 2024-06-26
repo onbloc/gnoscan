@@ -14,6 +14,9 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@apollo/client": "^3.10.6",
+    "@gnolang/gno-js-client": "^1.2.3",
+    "@gnolang/tm2-js-client": "^1.2.0",
     "@popperjs/core": "^2.11.6",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
@@ -25,6 +28,8 @@
     "dayjs": "^1.11.6",
     "env-cmd": "^10.1.0",
     "eslint-config-next": "13.0.4",
+    "graphql": "^16.9.0",
+    "isomorphic-ws": "^5.0.0",
     "next": "^12.3.3",
     "react": "18.2.0",
     "react-chartjs-2": "^5.0.1",
@@ -38,7 +43,8 @@
     "styled-components": "^5.3.6",
     "styled-reset": "^4.4.2",
     "typescript": "4.9.3",
-    "utility-types": "^3.10.0"
+    "utility-types": "^3.10.0",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.0.10",
@@ -49,9 +55,11 @@
     "@storybook/react": "^7.0.10",
     "@storybook/testing-library": "^0.0.14-next.2",
     "@svgr/webpack": "^6.5.1",
+    "@types/graphql": "^14.5.0",
     "@types/react-responsive": "^8.0.5",
     "@types/styled-components": "^5.1.26",
     "@types/uuid": "^8.3.4",
+    "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
     "babel-loader": "^9.1.0",
