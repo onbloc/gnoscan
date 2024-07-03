@@ -11,6 +11,8 @@ export interface NodeClient {
 
   blockchain(minHeight: number, maxHeight: number): Promise<NodeResponseBlockchainInfo>;
 
+  validators(height: number): Promise<NodeResponseValidators>;
+
   abciQuery(path: string, data: string): Promise<NodeResponseABCIQuery>;
 
   abciQueryAuthAccount(address: string): Promise<NodeResponseABCIQuery>;
@@ -47,12 +49,17 @@ export interface NodeResponseBlock {
 
 export interface NodeResponseBlockResults {
   height: string;
-  results: Results;
+  results: BlockResults;
 }
 
 export interface NodeResponseBlockchainInfo {
   last_height: string;
   block_metas: BlockMeta[];
+}
+
+export interface NodeResponseValidators {
+  block_height: string;
+  validators: ValidatorInfo[];
 }
 
 export interface NodeResponseABCIInfo {
@@ -75,7 +82,7 @@ interface LastCommit {
 interface Data {
   txs: string[] | null;
 }
-interface BlockMeta {
+export interface BlockMeta {
   block_id: BlockId;
   header: Header;
 }
@@ -95,7 +102,7 @@ interface Header {
   consensus_hash: string;
   app_hash?: any;
   last_results_hash?: any;
-  proposer_address: string;
+  proposer_address: number[];
 }
 interface LastBlockId {
   hash?: any;
@@ -120,7 +127,7 @@ interface PreCommit {
   signature: string;
 }
 
-interface Results {
+export interface BlockResults {
   deliver_tx: DeliverTx[];
   end_block: Endblock;
   begin_block: BeginBlock;

@@ -10,6 +10,7 @@ import {
   NodeResponseBlockchainInfo,
   NodeResponseGenesis,
   NodeResponseStatus,
+  NodeResponseValidators,
 } from './types';
 import {
   makeRPCUrl,
@@ -34,6 +35,7 @@ export class NodeRPCClient implements NodeClient {
   constructor(rpcUrl: string, chainId?: string) {
     const currentRPCUrl = makeRPCUrl(rpcUrl);
     this.rpcClient = new WsRPCClient(currentRPCUrl.wsUrl);
+    // this.rpcClient = new HttpRPCClient(currentRPCUrl.httpUrl);
     this.chainId = chainId || '';
   }
 
@@ -93,6 +95,15 @@ export class NodeRPCClient implements NodeClient {
     });
 
     return this.rpcClient.call<NodeResponseBlockchainInfo>(request).then(handleResponse);
+  }
+
+  validators(height: number): Promise<NodeResponseValidators> {
+    const request = makeRPCRequest({
+      method: 'validators',
+      params: [height.toString()],
+    });
+
+    return this.rpcClient.call<NodeResponseValidators>(request).then(handleResponse);
   }
 
   abciInfo(): Promise<NodeResponseABCIInfo> {

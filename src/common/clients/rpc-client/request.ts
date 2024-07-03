@@ -4,7 +4,7 @@ export interface RPCRequest {
   id: string;
   jsonrpc: string;
   method: string;
-  params: string[];
+  params: any[];
 }
 
 export function makeRPCRequest({
@@ -14,7 +14,7 @@ export function makeRPCRequest({
 }: {
   id?: string;
   method: string;
-  params?: string[];
+  params?: any[];
 }): RPCRequest {
   return {
     id: id || v1().toString(),
