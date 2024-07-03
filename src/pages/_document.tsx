@@ -1,4 +1,3 @@
-import Meta from '@/components/core/layout/meta';
 import Document, {
   Html,
   Head,
@@ -7,9 +6,7 @@ import Document, {
   DocumentContext,
   DocumentInitialProps,
 } from 'next/document';
-import router from 'next/router';
 import {ServerStyleSheet} from 'styled-components';
-// import thumb from '/gnoscan-thumb.png';
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
