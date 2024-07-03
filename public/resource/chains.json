@@ -1,15 +1,16 @@
 [
   {
-    "name": "Testnet 3",
-    "chainId": "test3",
-    "apiUrl": "http://test3.onbloc-api.c2.onbloc.xyz/v1",
-    "rpcUrl": null,
-    "indexerUrl": null
-  }, {
     "name": "Portal Loop",
     "chainId": "portal-loop",
     "apiUrl": "http://portal-loop.onbloc-api.c2.onbloc.xyz/v1",
     "rpcUrl": null,
-    "indexerUrl": null
+    "indexerUrl": "http://portal-loop.tx-indexer.c2.onbloc.xyz"
+  },
+  {
+    "name": "Testnet 3",
+    "chainId": "test3",
+    "apiUrl": "http://test3.onbloc-api.c2.onbloc.xyz/v1",
+    "rpcUrl": null,
+    "indexerUrl": "http://test3.tx-indexer.c2.onbloc.xyz"
   }
 ]
