@@ -7,7 +7,7 @@ import React from 'react';
 import styled from 'styled-components';
 import IconArrow from '@/assets/svgs/icon-arrow.svg';
 import {isDesktop} from '@/common/hooks/use-media';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import Text from '@/components/ui/text';
 import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';

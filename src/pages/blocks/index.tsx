@@ -7,14 +7,13 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Block = () => {
-  // const {loading} = useLoading();
-  const {isFetched} = useBlocks();
+  const {loading} = useLoading();
 
   return (
     <Container>
       <div className="inner-layout">
-        <LoadingPage visible={!isFetched} />
-        <Wrapper visible={isFetched}>
+        <LoadingPage visible={loading} />
+        <Wrapper visible={!loading}>
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Blocks'}
           </Text>

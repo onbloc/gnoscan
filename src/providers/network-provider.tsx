@@ -1,5 +1,5 @@
 'use client';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import {createContext, useMemo} from 'react';
 
 import {ChainModel, getChainSupportType} from '@/models/chain-model';

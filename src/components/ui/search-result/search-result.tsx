@@ -11,7 +11,7 @@ import Text from '@/components/ui/text';
 import {v1} from 'uuid';
 import {FitContentA} from '../detail-page-common-styles';
 import Link from 'next/link';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
 import {searchHistory} from '@/repositories/api/fetchers/api-search-history';

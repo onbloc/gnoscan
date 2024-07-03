@@ -9,7 +9,6 @@ import Text from '@/components/ui/text';
 import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
-import {v1} from 'uuid';
 import {RealmDetailDatatable} from '@/components/view/datatable';
 import {RealmDetailsModel} from '@/models/realm-details-model';
 import {getRealmDetails} from '@/repositories/api/fetchers/api-realm-details';

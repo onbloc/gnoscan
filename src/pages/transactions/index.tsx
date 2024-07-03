@@ -1,3 +1,4 @@
+import {useTransactions} from '@/common/hooks/transactions/use-transactions';
 import useLoading from '@/common/hooks/use-loading';
 import Text from '@/components/ui/text';
 import {TransactionDatatable} from '@/components/view/datatable';
@@ -6,17 +7,18 @@ import React, {useEffect} from 'react';
 import styled from 'styled-components';
 
 const Transactions = () => {
-  const {loading} = useLoading();
+  const {isFetched} = useTransactions({enabled: false});
 
   useEffect(() => {
+    console.log(isFetched);
     window?.dispatchEvent(new Event('resize'));
-  }, [loading]);
+  }, [isFetched]);
 
   return (
     <Container>
       <div className="inner-layout">
-        <LoadingPage visible={loading} />
-        <Wrapper visible={!loading}>
+        <LoadingPage visible={!isFetched} />
+        <Wrapper visible={isFetched}>
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Transactions'}
           </Text>

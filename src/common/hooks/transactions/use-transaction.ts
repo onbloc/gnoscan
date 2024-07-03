@@ -1,19 +1,10 @@
-import {
-  useGetTransactionBlockHeightQuery,
-  useGetTransactionsQuery,
-} from '@/common/react-query/transaction';
-import {useMemo, useState} from 'react';
-import {useBlock} from '../blocks/use-block';
+import {useGetTransactionBlockHeightQuery} from '@/common/react-query/transaction';
+import {useMemo} from 'react';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import {decodeTransaction, makeTransactionMessageInfo} from '@/common/utils/transaction.utility';
 import {Transaction} from '@/types/data-type';
-import {
-  makeDisplayNumber,
-  makeDisplayNumberWithDefault,
-  makeDisplayTokenAmount,
-} from '@/common/utils/string-util';
+import {makeDisplayNumber, makeDisplayTokenAmount} from '@/common/utils/string-util';
 import BigNumber from 'bignumber.js';
-import {toBech32Address} from '@/common/utils/bech32.utility';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 
 export const useTransaction = (hash: string) => {

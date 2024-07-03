@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import Search from '@/assets/svgs/icon-search.svg';
 import {isDesktop} from '@/common/hooks/use-media';
 import SearchResult from '../search-result';
-import {useRouter} from 'next/router';
 import {useRecoilState} from 'recoil';
 import {searchState} from '@/states';
+import {useRouter} from '@/common/hooks/common/use-router';
 
 interface SubInputProps {
   className?: string;

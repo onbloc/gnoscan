@@ -4,7 +4,6 @@ import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import {DatatableItem} from '..';
 import styled from 'styled-components';
-import useLoading from '@/common/hooks/use-loading';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {Transaction} from '@/types/data-type';
@@ -21,14 +20,23 @@ const TOOLTIP_TYPE = (
   </>
 );
 
+function mapDisplayFunctionName(type: string, functionName: string) {
+  switch (type) {
+    case 'MsgAddPackage':
+      return 'AddPkg';
+    case 'BankMsgSend':
+      return 'Transfer';
+    default:
+      return functionName;
+  }
+}
+
 export const TransactionDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
-  const {transactions, isFetched, hasNextPage, nextPage} = useTransactions();
+  const {transactions, hasNextPage, nextPage} = useTransactions({enabled: true});
   const [development, setDevelopment] = useState(false);
-
-  useLoading({finished: isFetched});
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeydownEvent);
@@ -90,12 +98,7 @@ export const TransactionDatatable = () => {
       .colorName('blue')
       .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => {
-        const displayFunctionName =
-          data.type === 'MsgAddPackage'
-            ? 'AddPkg'
-            : data.type === 'BankMsgSend'
-            ? 'Transfer'
-            : data.functionName;
+        const displayFunctionName = mapDisplayFunctionName(data.type, data.functionName);
         return (
           <DatatableItem.Type
             type={data.type}

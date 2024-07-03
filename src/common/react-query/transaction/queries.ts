@@ -39,25 +39,24 @@ export const useGetTransactionBlockHeightQuery = (
   });
 };
 
-export const useGetTransactionsQuery = (options?: UseQueryOptions<Transaction[] | null, Error>) => {
+export const useGetTransactionsQuery = (
+  totalTx: string | null,
+  options?: UseQueryOptions<Transaction[] | null, Error>,
+) => {
   const {currentNetwork} = useNetworkProvider();
   const {transactionRepository} = useServiceProvider();
 
   return useQuery<Transaction[] | null, Error>({
-    queryKey: [QUERY_KEY.getTransactions, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.getTransactions, currentNetwork.chainId, totalTx],
     queryFn: () => {
       if (!transactionRepository) {
         return null;
       }
-      return transactionRepository.getTransactions(0, 0);
+      return transactionRepository
+        .getTransactions(0, 0)
+        .then(txs => txs.sort((a1, a2) => a2.blockHeight - a1.blockHeight));
     },
-    select: data => {
-      if (!data) {
-        return [];
-      }
-      return data.sort((a1, a2) => a2.blockHeight - a1.blockHeight);
-    },
-    enabled: !!transactionRepository,
+    enabled: !!transactionRepository && options?.enabled,
     ...options,
   });
 };

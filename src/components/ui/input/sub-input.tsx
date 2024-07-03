@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import Search from '@/assets/svgs/icon-search.svg';
 import mixins from '@/styles/mixins';
 import SearchResult from '../search-result';
-import theme from '@/styles/theme';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 
 interface SubInputProps {
   className?: string;

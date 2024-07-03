@@ -2,14 +2,12 @@
 
 import React, {useCallback, useState} from 'react';
 import styled from 'styled-components';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import GnoscanLogo from '@/assets/svgs/icon-gnoscan-logo.svg';
 import GnoscanLogoLight from '@/assets/svgs/icon-gnoscan-logo-light.svg';
 import {searchState, themeState} from '@/states';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import Link from 'next/link';
 import Text from '@/components/ui/text';
-import {v1} from 'uuid';
 import theme from '@/styles/theme';
 import mixins from '@/styles/mixins';
 import {isDesktop} from '@/common/hooks/use-media';
@@ -17,7 +15,6 @@ import dynamic from 'next/dynamic';
 import {SubInput} from '@/components/ui/input';
 import Network from '@/components/ui/network';
 import {SubMenu} from './sub-menu';
-import {GNO_CHAIN_NAME} from '@/common/values/constant-value';
 import {debounce} from '@/common/utils/string-util';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 
@@ -72,6 +69,10 @@ export const TopNav = () => {
   const {chains, currentNetwork} = useNetworkProvider();
   const {basePath, replace} = useRouter();
 
+  const movePage = (url: string) => {
+    router.push(url);
+  };
+
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       debounce(setValue(e.target.value), 1000);
@@ -101,14 +102,12 @@ export const TopNav = () => {
           />
         )}
         <Nav>
-          {navItems.map(v => (
-            <Link href={v.path} passHref key={v1()}>
-              <a>
-                <Text type="p4" color={entry ? 'white' : 'primary'}>
-                  {v.name}
-                </Text>
-              </a>
-            </Link>
+          {navItems.map((v, index) => (
+            <div className="navigation-item" onClick={() => movePage(v.path)} key={index}>
+              <Text type="p4" color={entry ? 'white' : 'primary'}>
+                {v.name}
+              </Text>
+            </div>
           ))}
         </Nav>
       </Desktop>
@@ -157,4 +156,8 @@ const Nav = styled.nav`
   margin-left: auto;
   gap: 40px;
   margin-right: 40px;
+
+  .navigation-item {
+    cursor: pointer;
+  }
 `;

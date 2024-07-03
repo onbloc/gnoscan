@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import {useQuery, UseQueryResult} from 'react-query';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';

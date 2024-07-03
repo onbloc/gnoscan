@@ -1,8 +1,13 @@
+import {useEffect, useMemo, useState} from 'react';
 import {useGetTransactionsQuery} from '@/common/react-query/transaction';
-import {useMemo, useState} from 'react';
+import {useGetLatestBlock} from '../common/use-get-latest-block';
 
-export const useTransactions = () => {
-  const {data, isFetched} = useGetTransactionsQuery();
+export const useTransactions = ({enabled = true}) => {
+  const {latestBlock} = useGetLatestBlock();
+  const {data, isFetched} = useGetTransactionsQuery(
+    latestBlock?.block_meta.header.total_txs || null,
+    {enabled},
+  );
   const [currentPage, setCurrentPage] = useState(0);
 
   const hasNextPage = useMemo(() => {

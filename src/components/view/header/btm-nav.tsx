@@ -1,7 +1,7 @@
 'use client';
 
 import mixins from '@/styles/mixins';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
