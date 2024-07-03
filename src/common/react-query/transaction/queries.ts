@@ -57,6 +57,7 @@ export const useGetTransactionsQuery = (
         .then(txs => txs.sort((a1, a2) => a2.blockHeight - a1.blockHeight));
     },
     enabled: !!transactionRepository && options?.enabled,
+    keepPreviousData: true,
     ...options,
   });
 };

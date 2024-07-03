@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useGetTransactionsQuery} from '@/common/react-query/transaction';
 import {useGetLatestBlock} from '../common/use-get-latest-block';
 
@@ -16,7 +16,7 @@ export const useTransactions = ({enabled = true}) => {
     }
 
     return data.length > (currentPage + 1) * 20;
-  }, [currentPage, data?.length]);
+  }, [currentPage, data]);
 
   const transactions = useMemo(() => {
     if (!data) {
@@ -26,7 +26,7 @@ export const useTransactions = ({enabled = true}) => {
     const nextIndex = (currentPage + 1) * 20;
     const endIndex = data.length > nextIndex ? nextIndex : data.length;
     return data.filter((_, index) => index < endIndex);
-  }, [data?.length, currentPage]);
+  }, [data, currentPage]);
 
   function nextPage() {
     setCurrentPage(prev => prev + 1);
@@ -34,7 +34,7 @@ export const useTransactions = ({enabled = true}) => {
 
   return {
     transactions,
-    isFetched,
+    isFetched: !!data || isFetched,
     nextPage,
     hasNextPage,
   };

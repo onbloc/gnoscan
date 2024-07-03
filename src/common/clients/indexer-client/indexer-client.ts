@@ -1,11 +1,4 @@
-import {
-  ApolloClient,
-  DocumentNode,
-  InMemoryCache,
-  OperationVariables,
-  TypedDocumentNode,
-  gql,
-} from '@apollo/client';
+import {ApolloClient, DocumentNode, InMemoryCache} from '@apollo/client';
 
 export class IndexerClient {
   public apolloClient: ApolloClient<unknown>;
@@ -20,6 +13,7 @@ export class IndexerClient {
   public query(qry: DocumentNode) {
     return this.apolloClient.query({
       query: qry,
+      fetchPolicy: 'no-cache',
     });
   }
 }

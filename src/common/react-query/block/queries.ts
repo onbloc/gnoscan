@@ -46,6 +46,7 @@ export const useGetBlockQuery = (
       return blockRepository.getBlock(blockHeight);
     },
     enabled: !!blockRepository && !!blockHeight,
+    keepPreviousData: true,
     ...options,
   });
 };
@@ -59,7 +60,6 @@ export const useGetBlocksQuery = (
 
   return useInfiniteQuery<Block[] | null, Error>({
     queryKey: [QUERY_KEY.getBlocks, currentNetwork.chainId, latestHeight],
-    keepPreviousData: true,
     getNextPageParam: (lastPage, pages) => {
       if (!lastPage) {
         return false;
@@ -92,6 +92,7 @@ export const useGetBlocksQuery = (
         }),
       );
     },
+    keepPreviousData: true,
     enabled: !!blockRepository || !!latestHeight,
     ...options,
   });
@@ -113,6 +114,7 @@ export const useGetBlockResultQuery = (
       return blockRepository.getBlockResult(height);
     },
     enabled: !!blockRepository && height > 0,
+    keepPreviousData: true,
     ...options,
   });
 };

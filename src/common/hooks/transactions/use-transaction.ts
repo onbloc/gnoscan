@@ -46,8 +46,6 @@ export const useTransaction = (hash: string) => {
     return Number(block.block.header.height);
   }, [block]);
 
-  const blockHeightStr = useMemo(() => blockHeight?.toString(), [blockHeight]);
-
   const transactions = useMemo(() => {
     if (!block) {
       return [];
@@ -105,7 +103,7 @@ export const useTransaction = (hash: string) => {
         2,
       ),
     };
-  }, [transactions, txResult]);
+  }, [block, transactions, txResult]);
 
   const transactionGasInfo = useMemo(() => {
     if (!txResult) {
@@ -118,7 +116,7 @@ export const useTransaction = (hash: string) => {
       gasWanted: Number(txResult.GasWanted),
       gasUsed: Number(txResult.GasUsed),
     };
-  }, [blockResult]);
+  }, [txResult]);
 
   const gas = useMemo(() => {
     const gasWanted = makeDisplayNumber(transactionGasInfo.gasWanted);
@@ -138,6 +136,6 @@ export const useTransaction = (hash: string) => {
     timeStamp,
     gas,
     transactionItem,
-    isFetched,
+    isFetched: data?.block || isFetched,
   };
 };

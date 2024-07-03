@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import styled from 'styled-components';
 import {useQuery, UseQueryResult} from 'react-query';
 import {useRouter} from '@/common/hooks/common/use-router';
@@ -231,23 +231,23 @@ const TransactionDetails = () => {
 };
 
 const CallerContract = ({message, desktop}: any) => {
+  const caller = useMemo(() => {
+    return message?.caller || message?.creator;
+  }, [message]);
+
   if (!message) return <></>;
   return (
     <DLWrap desktop={desktop} key={v1()}>
       <dt>Caller</dt>
       <dd>
         <Badge>
-          <Link href={`/accounts/${message.caller || '-'}`} passHref>
+          <Link href={`/accounts/${caller || '-'}`} passHref>
             <FitContentA>
               <Text
                 type="p4"
                 color="blue"
                 className={ellipsisTextKey.includes('Caller') ? 'ellipsis' : 'multi-line'}>
-                {message.caller ? (
-                  <Tooltip content={message.caller}>{message.caller}</Tooltip>
-                ) : (
-                  '-'
-                )}
+                {caller ? <Tooltip content={caller}>{caller}</Tooltip> : '-'}
               </Text>
             </FitContentA>
           </Link>
