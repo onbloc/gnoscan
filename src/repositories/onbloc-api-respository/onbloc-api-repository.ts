@@ -7,6 +7,7 @@ export class OnblocAPIRepository implements IOnblocAPIRepository {
   getGRC20Tokens(): Promise<OnblocAPIResultGRC20Token[]> {
     throw new Error('Method not implemented.');
   }
+
   getUsernames(): Promise<Record<string, OnblocAPIResultUsername>> {
     throw new Error('Method not implemented.');
   }
