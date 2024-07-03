@@ -10,6 +10,7 @@ type BadgeProps = {
   padding?: CSSProperties['padding'];
   className?: string;
   desktop?: boolean;
+  onClick?: () => void;
 };
 
 const Badge = (props: BadgeProps) => {
@@ -18,7 +19,8 @@ const Badge = (props: BadgeProps) => {
     <BadgeWrapper
       {...props}
       className={props.className ? `badge ${props.className}` : 'badge'}
-      desktop={desktop}>
+      desktop={desktop}
+      onClick={props.onClick}>
       {props.children}
     </BadgeWrapper>
   );

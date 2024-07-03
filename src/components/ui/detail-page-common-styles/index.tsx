@@ -53,6 +53,32 @@ export const DLWrap = styled.dl<StyleProps>`
 
     &.function-wrapper {
       line-height: 40px;
+
+      .link {
+        padding: 0;
+        transition: 0.2s;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.6;
+        }
+      }
+
+      .tooltip {
+        display: block;
+        width: 100%;
+        height: 100%;
+
+        .tooltip-button {
+          padding: 4px 16px;
+        }
+      }
+    }
+
+    &.path-wrapper {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
     }
   }
 
@@ -84,4 +110,31 @@ export const DateDiffText = styled.span`
 export const FitContentA = styled.a`
   width: 100%;
   max-width: fit-content;
+`;
+
+export const LinkWrapper = styled.a`
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  width: 100%;
+  max-width: fit-content;
+  height: 28px;
+  align-self: flex-end;
+  align-items: center;
+  transition: 0.2s;
+  color: ${({theme}) => theme.colors.gray300};
+  cursor: pointer;
+
+  :hover {
+    opacity: 0.6;
+  }
+
+  .icon-link {
+    display: flex;
+    width: 18px;
+    height: 18px;
+    * {
+      stroke: ${({theme}) => theme.colors.gray300};
+    }
+  }
 `;
