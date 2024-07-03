@@ -19,6 +19,7 @@ import Network from '@/components/ui/network';
 import {SubMenu} from './sub-menu';
 import {GNO_CHAIN_NAME} from '@/common/values/constant-value';
 import {debounce} from '@/common/utils/string-util';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -60,10 +61,6 @@ export const TopNav = () => {
   const themeMode = useRecoilValue(themeState);
   const isMain = router.route === '/';
   const entry = router.route === '/' || (router.route !== '/' && themeMode === 'dark');
-  const [network, setNetwork] = useState({
-    current: GNO_CHAIN_NAME,
-    all: [GNO_CHAIN_NAME],
-  });
   const [value, setValue] = useRecoilState(searchState);
   const [toggle, setToggle] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
@@ -71,16 +68,9 @@ export const TopNav = () => {
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
   const navigateToHomeHandler = () => router.push('/');
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
-  const networkSettingHandler = useCallback(
-    (v: string) => {
-      setNetwork(prev => ({
-        ...prev,
-        current: v,
-      }));
-      setToggle(false);
-    },
-    [network, toggle],
-  );
+
+  const {chains, currentNetwork} = useNetworkProvider();
+  const {basePath, replace} = useRouter();
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,6 +78,11 @@ export const TopNav = () => {
     },
     [value],
   );
+
+  const networkSettingHandler = useCallback((chainId: string) => {
+    window.location.replace(basePath + '?chainId=' + chainId);
+    setOpen(false);
+  }, []);
 
   return (
     <Wrapper isDesktop={desktop} entry={entry}>
@@ -120,7 +115,8 @@ export const TopNav = () => {
 
       <Network
         entry={entry}
-        data={network}
+        currentChainId={currentNetwork.chainId}
+        chains={chains}
         toggle={toggle}
         toggleHandler={toggleHandler}
         networkSettingHandler={networkSettingHandler}

@@ -1,3 +1,4 @@
+import {useBlocks} from '@/common/hooks/blocks/use-blocks';
 import useLoading from '@/common/hooks/use-loading';
 import Text from '@/components/ui/text';
 import {BlockDatatable} from '@/components/view/datatable';
@@ -6,13 +7,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Block = () => {
-  const {loading} = useLoading();
+  // const {loading} = useLoading();
+  const {isFetched} = useBlocks();
 
   return (
     <Container>
       <div className="inner-layout">
-        <LoadingPage visible={loading} />
-        <Wrapper visible={!loading}>
+        <LoadingPage visible={!isFetched} />
+        <Wrapper visible={isFetched}>
           <Text type="h2" margin={'0 0 24px 0'} color="primary">
             {'Blocks'}
           </Text>

@@ -10,6 +10,8 @@ import {CustomThemeProvider} from './CustomThemeProvider';
 import {useSetRecoilState} from 'recoil';
 import {tokenState} from '@/states';
 import {getAllTokens} from '@/repositories/api/fetchers/api-meta-tokens';
+import {useGetLatestBlockHeightIntervalQuery} from '@/common/react-query/block/queries';
+import {useGetLatestBlock} from '@/common/hooks/common/use-get-latest-block';
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -18,13 +20,20 @@ export const Layout = ({children}: LayoutProps) => {
   const {clearLoading} = useLoading();
   const setTokenInfo = useSetRecoilState(tokenState);
 
-  useEffect(() => {
-    clearLoading();
-  }, []);
+  useGetLatestBlockHeightIntervalQuery();
+  const {latestBlock} = useGetLatestBlock();
 
   useEffect(() => {
-    getAllTokens().then(setTokenInfo);
-  });
+    console.log('block', latestBlock?.block.header.height, latestBlock);
+  }, [latestBlock]);
+
+  // useEffect(() => {
+  //   clearLoading();
+  // }, []);
+
+  // useEffect(() => {
+  //   getAllTokens().then(setTokenInfo);
+  // });
 
   return (
     <CustomThemeProvider>

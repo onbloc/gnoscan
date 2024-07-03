@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useMemo} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
@@ -12,30 +12,9 @@ import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {StatusKeyType} from '@/common/utils';
-interface BlockTransactionData {
-  hash: string;
-  status: StatusKeyType;
-  type: string;
-  pkg_func: string;
-  from_address: string;
-  from_username?: string;
-  height: number;
-  pkg_path: string | null;
-  num_msgs: number;
-  amount: {
-    value: string;
-    denom: string;
-  };
-  time: string;
-  fee: {
-    value: string;
-    denom: string;
-  };
-}
-
-interface ResponseData {
-  txs: Array<BlockTransactionData>;
-}
+import {useBlock} from '@/common/hooks/blocks/use-block';
+import {Transaction} from '@/types/data-type';
+import {makeDisplayTokenAmount} from '@/common/utils/string-util';
 
 interface Props {
   height: string | number;
@@ -53,21 +32,11 @@ export const BlockDetailDatatable = ({height}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const media = eachMedia();
 
-  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
-    key: 'block-detail/transactions',
-    uri: API_URI + API_VERSION + `/block/txs/${height}`,
-    pageable: true,
-  });
+  const {isFetched, isFetchedBlockResult, transactionItems} = useBlock(Number(height));
 
-  const getTransactionDatas = () => {
-    if (!data) {
-      return [];
-    }
-    return data.pages.reduce<Array<BlockTransactionData>>(
-      (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
-      [],
-    );
-  };
+  const loaded = useMemo(() => {
+    return isFetched && isFetchedBlockResult;
+  }, [isFetched, isFetchedBlockResult]);
 
   const createHeaders = () => {
     return [
@@ -82,17 +51,19 @@ export const BlockDetailDatatable = ({height}: Props) => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('hash')
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={data.status} />)
+      .renderOption((value, data) => (
+        <DatatableItem.TxHash txHash={value} status={data.success ? 'success' : 'failure'} />
+      ))
       .build();
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('type')
       .name('Type')
       .width(190)
@@ -101,17 +72,17 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .renderOption((_, data) => (
         <DatatableItem.Type
           type={data.type}
-          func={data.pkg_func}
-          packagePath={data.pkg_path}
-          msgNum={data.num_msgs}
+          func={data.functionName}
+          packagePath={data.packagePath}
+          msgNum={data.numOfMessage}
         />
       ))
       .build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
-      .key('height')
+    return DatatableOption.Builder.builder<Transaction>()
+      .key('blockHeight')
       .name('Block')
       .width(113)
       .colorName('blue')
@@ -120,24 +91,24 @@ export const BlockDetailDatatable = ({height}: Props) => {
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
-      .key('from_address')
+    return DatatableOption.Builder.builder<Transaction>()
+      .key('from')
       .name('From')
       .width(170)
       .colorName('blue')
-      .renderOption((fromAddress, data) => (
-        <DatatableItem.Publisher address={fromAddress} username={data.from_username} />
-      ))
+      .renderOption((fromAddress, data) => {
+        return <DatatableItem.Publisher address={fromAddress} username={undefined} />;
+      })
       .build();
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('amount')
       .name('Amount')
       .width(190)
       .renderOption((amount: {value: string; denom: string}, data) =>
-        data.num_msgs > 1 ? (
+        data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={amount.value} denom={amount.denom} />
@@ -147,7 +118,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('time')
       .name('Time')
       .width(160)
@@ -157,7 +128,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<BlockTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('fee')
       .name('Fee')
       .width(113)
@@ -171,23 +142,15 @@ export const BlockDetailDatatable = ({height}: Props) => {
   return (
     <Container>
       <Datatable
-        loading={!finished}
+        loading={!loaded}
         headers={createHeaders().map(item => {
           return {
             ...item,
             themeMode: themeMode,
           };
         })}
-        datas={getTransactionDatas()}
+        datas={transactionItems}
       />
-
-      {hasNextPage ? (
-        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
-          {'View More Transactions'}
-        </Button>
-      ) : (
-        <></>
-      )}
     </Container>
   );
 };

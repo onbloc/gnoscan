@@ -8,8 +8,9 @@ import {ErrorBoundary} from '@/components/core/error-boundary';
 import 'antd/dist/reset.css';
 import Meta from '@/components/core/layout/meta';
 import GoogleAnalytics from '@/components/core/layout/google-analytics';
-import GnoscanProvider from '@/providers/gnoscan-provider';
 import ChainData from 'public/resource/chains.json';
+import NetworkProvider from '@/providers/network-provider';
+import ServiceProvider from '@/providers/service-provider';
 
 const App: React.FC = ({Component, pageProps}: any) => {
   return (
@@ -20,12 +21,14 @@ const App: React.FC = ({Component, pageProps}: any) => {
         <Hydrate state={pageProps.dehydratedState}>
           <RecoilRoot>
             <ErrorBoundary fallback={<div>ERROR</div>}>
-              <GnoscanProvider chains={ChainData}>
-                <Layout>
-                  <GlobalStyle />
-                  <Component {...pageProps} />
-                </Layout>
-              </GnoscanProvider>
+              <NetworkProvider chains={ChainData}>
+                <ServiceProvider>
+                  <Layout>
+                    <GlobalStyle />
+                    <Component {...pageProps} />
+                  </Layout>
+                </ServiceProvider>
+              </NetworkProvider>
             </ErrorBoundary>
           </RecoilRoot>
         </Hydrate>

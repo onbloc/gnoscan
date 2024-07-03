@@ -4,16 +4,14 @@ import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import {DatatableItem} from '..';
 import styled from 'styled-components';
-import usePageQuery from '@/common/hooks/use-page-query';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
-import {ValueWithDenomType} from '@/types/data-type';
+import {Transaction} from '@/types/data-type';
 import theme from '@/styles/theme';
 import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
-import {StatusKeyType} from '@/common/utils';
+import {useTransactions} from '@/common/hooks/transactions/use-transactions';
 
 const TOOLTIP_TYPE = (
   <>
@@ -23,37 +21,14 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-interface ResponseData {
-  hits: number;
-  next: boolean;
-  txs: Array<TransactionData>;
-}
-interface TransactionData {
-  hash: string;
-  status: StatusKeyType;
-  type: string;
-  pkg_func: string;
-  height: number;
-  from_username: string | undefined;
-  from_address: string;
-  pkg_path: string | null;
-  amount: ValueWithDenomType;
-  time: string;
-  fee: ValueWithDenomType;
-  num_msgs: number;
-}
-
 export const TransactionDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data, fetchNextPage, sortOption, setSortOption, finished, hasNextPage} =
-    usePageQuery<ResponseData>({
-      key: ['transaction/transaction-list', API_URI + API_VERSION + '/list/txs'],
-      uri: API_URI + API_VERSION + '/list/txs',
-      pageable: true,
-    });
-  useLoading({finished});
+
+  const {transactions, isFetched, hasNextPage, nextPage} = useTransactions();
   const [development, setDevelopment] = useState(false);
+
+  useLoading({finished: isFetched});
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeydownEvent);
@@ -78,16 +53,6 @@ export const TransactionDatatable = () => {
     }
   };
 
-  const getTransactions = (): Array<TransactionData> => {
-    if (!data) {
-      return [];
-    }
-
-    return data.pages.reduce((accum: Array<TransactionData>, current) => {
-      return current ? [...accum, ...current.txs] : accum;
-    }, []);
-  };
-
   const createHeaders = () => {
     return [
       createHeaderTxHash(),
@@ -101,7 +66,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<TransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('hash')
       .name('Tx Hash')
       .width(215)
@@ -109,35 +74,43 @@ export const TransactionDatatable = () => {
       .renderOption((value, data) => (
         <DatatableItem.TxHash
           txHash={value}
-          status={data.status}
+          status={data.success ? 'success' : 'failure'}
           development={development}
-          height={data.height}
+          height={data.blockHeight}
         />
       ))
       .build();
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<TransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('type')
       .name('Type')
       .width(190)
       .colorName('blue')
       .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
-      .renderOption((_, data) => (
-        <DatatableItem.Type
-          type={data.type}
-          func={data.pkg_func}
-          packagePath={data.pkg_path}
-          msgNum={data.num_msgs}
-        />
-      ))
+      .renderOption((_, data) => {
+        const displayFunctionName =
+          data.type === 'MsgAddPackage'
+            ? 'AddPkg'
+            : data.type === 'BankMsgSend'
+            ? 'Transfer'
+            : data.functionName;
+        return (
+          <DatatableItem.Type
+            type={data.type}
+            func={displayFunctionName}
+            packagePath={data.packagePath}
+            msgNum={data.numOfMessage}
+          />
+        );
+      })
       .build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<TransactionData>()
-      .key('height')
+    return DatatableOption.Builder.builder<Transaction>()
+      .key('blockHeight')
       .name('Block')
       .width(113)
       .colorName('blue')
@@ -146,24 +119,24 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<TransactionData>()
-      .key('from_address')
+    return DatatableOption.Builder.builder<Transaction>()
+      .key('from')
       .name('From')
       .width(170)
       .colorName('blue')
       .renderOption((address, data) => (
-        <DatatableItem.Publisher address={address} username={data?.from_username} />
+        <DatatableItem.Publisher address={address} username={data.from} />
       ))
       .build();
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<TransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('amount')
       .name('Amount')
       .width(190)
       .renderOption((_, data) =>
-        data.num_msgs > 1 ? (
+        data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
           <DatatableItem.Amount value={data.amount.value} denom={data.amount.denom} />
@@ -173,7 +146,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<TransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('time')
       .name('Time')
       .width(160)
@@ -183,7 +156,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<TransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('fee')
       .name('Fee')
       .width(113)
@@ -201,11 +174,11 @@ export const TransactionDatatable = () => {
             themeMode: themeMode,
           };
         })}
-        datas={getTransactions()}
+        datas={transactions}
       />
       {hasNextPage ? (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => nextPage()}>
             {'View More Transactions'}
           </Button>
         </div>

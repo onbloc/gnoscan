@@ -1,22 +1,13 @@
 import React from 'react';
 import Text from '@/components/ui/text';
-import {useQuery, UseQueryResult} from 'react-query';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
+import {useGNOTSupply} from '@/common/hooks/main/use-gnot-supply-info';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-import {getSupplyCard} from '@/repositories/api/fetchers/api-info-card';
-import {supplyCardSelector} from '@/repositories/api/selector/select-info-card';
-import {SupplyCardModel} from '@/models';
 
 export const SupplyCard = () => {
-  const {data: card01, isFetched: card01Fetched}: UseQueryResult<SupplyCardModel> = useQuery(
-    ['info/card01'],
-    async () => await getSupplyCard(),
-    {
-      select: (res: any) => supplyCardSelector(res.data.gnot_supply),
-    },
-  );
+  const {isFetched, supplyInfo} = useGNOTSupply();
 
   return (
     <>
@@ -24,10 +15,10 @@ export const SupplyCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={card01Fetched}
+        isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {card01?.supply}
+            {supplyInfo.totalSupplyAmount}
             <Text type="p4" display="inline-block" color="primary">
               &nbsp;GNOT
             </Text>
@@ -51,10 +42,10 @@ export const SupplyCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={card01Fetched}
+              isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {card01?.exit}
+                  {supplyInfo.airdropSupplyAmount}
                 </Text>
               }
             />
@@ -75,10 +66,10 @@ export const SupplyCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={card01Fetched}
+              isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {card01?.airdrop_holders}
+                  {supplyInfo.airdropHolder}
                 </Text>
               }
             />

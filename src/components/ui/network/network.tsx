@@ -6,6 +6,7 @@ import theme from '@/styles/theme';
 import mixins from '@/styles/mixins';
 import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
+import {ChainModel} from '@/models/chain-model';
 
 export interface NetworkData {
   all: string[];
@@ -19,15 +20,17 @@ interface StyleProps {
 }
 
 interface NetworkProps extends StyleProps {
-  data: NetworkData;
+  chains: ChainModel[];
+  currentChainId: string;
   toggleHandler: () => void;
-  networkSettingHandler: (v: string) => void;
+  networkSettingHandler: (chainId: string) => void;
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Network = ({
   entry,
-  data,
+  currentChainId,
+  chains,
   toggle,
   toggleHandler,
   networkSettingHandler,
@@ -39,15 +42,15 @@ const Network = ({
     <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
       <GnoscanSymbol className="svg-icon" width="24" height="24" />
       <NetworkList toggle={toggle} entry={entry}>
-        {data?.all?.map((v: string, i: number) => (
+        {chains.map((chain: ChainModel, index: number) => (
           <li
             onClick={e => {
               e.stopPropagation();
-              networkSettingHandler(v);
+              networkSettingHandler(chain.chainId);
             }}
-            key={i}
-            className={data.current === v ? 'selected' : ''}>
-            <Text type="p4">{v}</Text>
+            key={index}
+            className={currentChainId === chain.chainId ? 'selected' : ''}>
+            <Text type="p4">{chain.name}</Text>
           </li>
         ))}
       </NetworkList>

@@ -8,17 +8,14 @@ import styled from 'styled-components';
 import IconArrow from '@/assets/svgs/icon-arrow.svg';
 import {isDesktop} from '@/common/hooks/use-media';
 import {useRouter} from 'next/router';
-import {useQuery, UseQueryResult} from 'react-query';
 import Text from '@/components/ui/text';
 import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
-import {BlockDetailsModel} from '@/models/block-details-model';
-import {getBlockDetails} from '@/repositories/api/fetchers/api-block-details';
-import {blockDetailSelector} from '@/repositories/api/selector/select-block-details';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
+import {useBlock} from '@/common/hooks/blocks/use-block';
 
 interface TitleOptionProps {
   prevProps: {
@@ -52,63 +49,57 @@ const BlockDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
   const {height} = router.query;
-  const {
-    data: block,
-    isSuccess: blockSuccess,
-    isFetched,
-  }: UseQueryResult<BlockDetailsModel> = useQuery(
-    ['block/height', height],
-    async () => await getBlockDetails(height),
-    {
-      enabled: !!height,
-      retry: 0,
-      select: (res: any) => blockDetailSelector(res.data),
-    },
-  );
+  const {block, isFetched} = useBlock(Number(height));
 
   return (
     <DetailsPageLayout
-      title={`Block #${block?.height}`}
+      title={`Block #${block.blockHeight}`}
       titleOption={
-        blockSuccess && (
+        isFetched && (
           <TitleOption
-            prevProps={{disabled: block?.prev, path: `/blocks/${Number(block?.height - 1)}`}}
-            nextProps={{disabled: block?.next, path: `/blocks/${Number(block?.height + 1)}`}}
+            prevProps={{
+              disabled: !block?.hasPreviousBlock,
+              path: `/blocks/${Number(block.blockHeight) - 1}`,
+            }}
+            nextProps={{
+              disabled: !block?.hasNextBlock,
+              path: `/blocks/${Number(block.blockHeight) + 1}`,
+            }}
           />
         )
       }
       titleAlign={desktop ? 'flex-start' : 'space-between'}
       visible={!isFetched}
       keyword={`Block #${height}`}
-      error={!blockSuccess}>
+      error={!isFetched}>
       <DataSection title="Summary">
         <DLWrap desktop={desktop}>
           <dt>Timestamp</dt>
           <dd>
             <Badge>
               <Text type="p4" color="inherit" className="ellipsis">
-                {block?.timestamp}
+                {block.timeStamp.time}
               </Text>
-              <DateDiffText>{block?.dateDiff}</DateDiffText>
+              <DateDiffText>{block.timeStamp.passedTime}</DateDiffText>
             </Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
           <dt>Network</dt>
           <dd>
-            <Badge>{block?.network}</Badge>
+            <Badge>{block.network}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
           <dt>Height</dt>
           <dd>
-            <Badge>{block?.height}</Badge>
+            <Badge>{block.blockHeightStr}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
           <dt>Transactions</dt>
           <dd>
-            <Badge>{block?.txs}</Badge>
+            <Badge>{block.numberOfTransactions}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
@@ -121,10 +112,10 @@ const BlockDetails = () => {
           <dt>Proposer</dt>
           <dd>
             <Badge>
-              <Link href={`/accounts/${block?.address}`} passHref>
+              <Link href={`/accounts/${block?.proposerAddress}`} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue" className="ellipsis">
-                    {block?.proposer}
+                    {block?.proposerAddress}
                   </Text>
                 </FitContentA>
               </Link>

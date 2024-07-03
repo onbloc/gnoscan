@@ -1,28 +1,10 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Text from '@/components/ui/text';
-import {useQuery, UseQueryResult} from 'react-query';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-import {BlockCardModel} from '@/models';
-import {getBlockCard} from '@/repositories/api/fetchers/api-info-card';
-import {blockCardSelector} from '@/repositories/api/selector/select-info-card';
-import {useGnoscanProvider} from '@/common/hooks/use-gnoscan-provider';
+import {useBlockSummaryInfo} from '@/common/hooks/main/use-block-summary-info';
 
 export const BlockCard = () => {
-  const {nodeRepository} = useGnoscanProvider();
-  const {data: card02, isFetched: card02Fetched}: UseQueryResult<BlockCardModel> = useQuery(
-    ['info/card02'],
-    async () => {
-      const result = await getBlockCard();
-      return result;
-    },
-    {
-      select: (res: any) => blockCardSelector(res.data.block),
-    },
-  );
-
-  useEffect(() => {
-    nodeRepository && nodeRepository?.health().then(console.log);
-  }, [nodeRepository]);
+  const {isFetched, summaryInfo} = useBlockSummaryInfo();
 
   return (
     <>
@@ -30,10 +12,10 @@ export const BlockCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={card02Fetched}
+        isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {card02?.height}
+            {summaryInfo.blockHeight}
           </Text>
         }
       />
@@ -47,10 +29,10 @@ export const BlockCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={card02Fetched}
+              isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {`${card02?.avg_time} seconds`}
+                  {`${summaryInfo.blockTimeAverage} seconds`}
                 </Text>
               }
             />
@@ -66,10 +48,10 @@ export const BlockCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={card02Fetched}
+              isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {card02?.avg_tx}
+                  {summaryInfo.txPerBlockAverage}
                 </Text>
               }
             />
