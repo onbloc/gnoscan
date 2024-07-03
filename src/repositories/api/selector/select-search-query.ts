@@ -1,7 +1,7 @@
 import {firstStrUpperCase} from '@/common/utils/string-util';
 
 export const searchQuerySelector = (data: any) => {
-  let result: {[key in string]: any} = {};
+  const result: {[key in string]: any} = {};
   Object.entries(data).filter((v, i) => {
     if (v[1] !== null) {
       const key = firstStrUpperCase(v[0]);

@@ -1,4 +1,5 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+/* eslint-disable react-hooks/rules-of-hooks */
+import React, {useEffect, useState} from 'react';
 import {useMediaQuery} from 'react-responsive';
 
 interface Props {

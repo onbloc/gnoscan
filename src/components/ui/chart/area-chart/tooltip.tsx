@@ -58,8 +58,8 @@ export const AreaChartTooltip = ({
   };
 
   const parseValue = (value: number) => {
-    let integer = '0';
-    let decimal = '0';
+    const integer = '0';
+    const decimal = '0';
     const valueStr = `${value}`;
 
     try {

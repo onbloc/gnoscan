@@ -19,11 +19,11 @@ export const numberWithFixedCommas = (v: BigNumber, fixed?: number): string => {
   return toFormatVal;
 };
 
-export function formatAddress(v: string, num: number = 4): string {
+export function formatAddress(v: string, num = 4): string {
   return v.length < 40 ? v : `${v.slice(0, num)}...${v.slice(-num)}`;
 }
 
-export function formatEllipsis(v: string, num: number = 11, ellipsis: number = 2) {
+export function formatEllipsis(v: string, num = 11, ellipsis = 2) {
   const formatEllipsis = '.'.repeat(ellipsis);
   return v.length > num ? `${v.slice(0, num)}${formatEllipsis}` : v;
 }

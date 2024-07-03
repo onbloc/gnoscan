@@ -79,7 +79,7 @@ export class RealmRepository implements IRealmRepository {
     throw new Error('Method not implemented.');
   }
 
-  getToken(tokenPath: string): Promise<any> {
+  getToken(): Promise<any> {
     throw new Error('Method not implemented.');
   }
 }
