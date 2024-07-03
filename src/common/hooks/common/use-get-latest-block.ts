@@ -2,7 +2,8 @@ import {useGetBlockQuery, useGetLatestBlockHeightQuery} from '@/common/react-que
 
 export const useGetLatestBlock = () => {
   const {data: latestBlockHeight, isFetched: isFetchedLatestBlockHeight} =
-    useGetLatestBlockHeightQuery({enabled: true});
+    useGetLatestBlockHeightQuery();
+
   const {data: latestBlock, isFetched: isFetchedLatestBlock} = useGetBlockQuery(
     latestBlockHeight || null,
     {

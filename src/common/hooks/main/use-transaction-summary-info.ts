@@ -6,8 +6,8 @@ export const useTransactionSummaryInfo = () => {
   const {isFetched: isFetchedLatestBlock, latestBlock} = useGetLatestBlock();
 
   const isFetched = useMemo(() => {
-    return isFetchedLatestBlock;
-  }, [isFetchedLatestBlock]);
+    return isFetchedLatestBlock || !!latestBlock;
+  }, [isFetchedLatestBlock, latestBlock]);
 
   const totalTransactions = useMemo(() => {
     if (!latestBlock) {

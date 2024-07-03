@@ -10,8 +10,11 @@ export const useBlockSummaryInfo = () => {
   const {latestBlock, isFetched: isFetchedLatestBlock} = useGetLatestBlock();
 
   const isFetched = useMemo(() => {
+    if (latestBlock) {
+      return true;
+    }
     return isFetchedFirstBlock && isFetchedLatestBlock;
-  }, [isFetchedFirstBlock, isFetchedLatestBlock]);
+  }, [isFetchedFirstBlock, isFetchedLatestBlock, latestBlock]);
 
   const blockHeight = useMemo(() => {
     if (!latestBlock) {
@@ -42,19 +45,14 @@ export const useBlockSummaryInfo = () => {
     return BigNumber(latestBlock.block.header.total_txs)
       .dividedBy(latestBlock.block.header.height)
       .toFormat(2);
-  }, [firstBlock, latestBlock]);
-
-  const summaryInfo = useMemo(
-    () => ({
-      blockHeight,
-      blockTimeAverage,
-      txPerBlockAverage,
-    }),
-    [blockHeight, blockTimeAverage, txPerBlockAverage],
-  );
+  }, [latestBlock]);
 
   return {
     isFetched,
-    summaryInfo,
+    summaryInfo: {
+      blockHeight,
+      blockTimeAverage,
+      txPerBlockAverage,
+    },
   };
 };
