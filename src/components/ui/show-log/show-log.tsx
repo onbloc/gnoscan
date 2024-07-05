@@ -4,8 +4,6 @@ import {isDesktop} from '@/common/hooks/use-media';
 import Text from '@/components/ui/text';
 import {ViewMoreButton} from '@/components/ui/button';
 import mixins from '@/styles/mixins';
-import Tabs from '@/components/view/tabs';
-import {LogDataType} from '@/components/view/tabs/tabs';
 import {v1} from 'uuid';
 import {scrollbarStyle, useScrollbar} from '@/common/hooks/use-scroll-bar';
 interface StyleProps {
@@ -19,7 +17,10 @@ interface StyleProps {
 interface ShowLogProps {
   isTabLog: boolean;
   logData?: string;
-  tabData?: LogDataType;
+  files?: {
+    name: string;
+    body: string;
+  }[];
   btnTextType: string;
 }
 
@@ -37,12 +38,7 @@ const throttle = (func: Function, ms: number) => {
 };
 const delay = 10;
 
-const ShowLog = ({
-  isTabLog,
-  logData = '',
-  tabData = {list: [], content: []},
-  btnTextType = '',
-}: ShowLogProps) => {
+const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps) => {
   const desktop: boolean = isDesktop();
   const [showLog, setShowLog] = useState(false);
   const [index, setIndex] = useState(0);
@@ -96,27 +92,42 @@ const ShowLog = ({
                 onMouseMove={onThrottleDragMove}
                 onMouseUp={onDragEnd}
                 onMouseLeave={onDragEnd}>
-                {tabData.list.map((v: string, i: number) => (
+                {files?.map((file, i) => (
                   <List
                     key={v1()}
                     active={i === index}
                     onMouseDown={() => activeListHandler(i)}
                     showLog={showLog}>
-                    {v}
+                    {file.name}
                   </List>
                 ))}
               </ul>
-              <TabLog
-                onMouseEnter={onFocusIn}
-                onMouseLeave={onFocusOut}
-                hasRadius={index === 0}
-                desktop={desktop}
-                showLog={showLog}
-                className={scrollVisible ? 'scroll-visible' : ''}>
-                <Text type="p4" color="primary" className="inner-content">
-                  {tabData.content[index]}
-                </Text>
-              </TabLog>
+              {files && (
+                <TabLog
+                  onMouseEnter={onFocusIn}
+                  onMouseLeave={onFocusOut}
+                  hasRadius={index === 0}
+                  desktop={desktop}
+                  showLog={showLog}
+                  className={scrollVisible ? 'scroll-visible' : ''}>
+                  <Text type="p4" color="primary" className="inner-content">
+                    {files[index].body}
+                  </Text>
+                </TabLog>
+              )}
+              {logData && (
+                <TabLog
+                  onMouseEnter={onFocusIn}
+                  onMouseLeave={onFocusOut}
+                  hasRadius={index === 0}
+                  desktop={desktop}
+                  showLog={showLog}
+                  className={scrollVisible ? 'scroll-visible' : ''}>
+                  <Text type="p4" color="primary" className="inner-content">
+                    {logData}
+                  </Text>
+                </TabLog>
+              )}
             </div>
           </TabLogWrap>
         ) : (

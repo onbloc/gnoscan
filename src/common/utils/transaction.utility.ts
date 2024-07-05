@@ -19,6 +19,15 @@ export function makeHash(bytes: Uint8Array) {
   return crypto.createHash('sha256').setEncoding('utf-8').update(bytes).digest('base64');
 }
 
+/**
+ * Converts a base64-encoded hash to hex.
+ * Use when calling the tx endpoint of an RPC.
+ */
+export function makeHexByBase64(base64Hash: string) {
+  const buffer = Buffer.from(base64Hash, 'base64');
+  return '0x' + buffer.toString('hex');
+}
+
 export function makeTransactionMessageInfo(message: any) {
   switch (message['@type']) {
     case '/vm.m_call': {

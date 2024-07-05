@@ -1,6 +1,5 @@
 import React, {useEffect, useMemo} from 'react';
 import styled from 'styled-components';
-import {useQuery, UseQueryResult} from 'react-query';
 import {useRouter} from '@/common/hooks/common/use-router';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
@@ -16,9 +15,6 @@ import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
-import {TransactionDetailsModel} from '@/models/transaction-details-model';
-import {getTransactionDetails} from '@/repositories/api/fetchers/api-transaction-details';
-import {transactionDetailSelector} from '@/repositories/api/selector/select-transaction-details';
 import {useTransaction} from '@/common/hooks/transactions/use-transaction';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {makeDisplayTokenAmount} from '@/common/utils/string-util';
@@ -212,10 +208,10 @@ const TransactionDetails = () => {
                 {message['@type'] === '/bank.MsgSend' && (
                   <TransferContract message={message} desktop={desktop} />
                 )}
-                {message['@type'] === '/vm.m_addPkg' && (
+                {message['@type'] === '/vm.m_addpkg' && (
                   <AddPkgContract message={message} desktop={desktop} />
                 )}
-                {!['/bank.MsgSend', '/vm.m_addPkg'].includes(message['@type']) && (
+                {!['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type']) && (
                   <CallerContract message={message} desktop={desktop} />
                 )}
               </ContractListBox>
@@ -266,7 +262,7 @@ const AddPkgContract = ({message, desktop}: any) => {
           <Link href={`/accounts/${message?.package?.creator}`} passHref>
             <FitContentA>
               <Text type="p4" color="blue">
-                {message?.args?.package?.creator || '-'}
+                {message?.creator || '-'}
               </Text>
             </FitContentA>
           </Link>

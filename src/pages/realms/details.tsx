@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {useQuery, UseQueryResult} from 'react-query';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
@@ -24,6 +24,8 @@ import {
 } from '@/common/values/url.constant';
 import {makeTemplate} from '@/common/utils/template.utils';
 import IconLink from '@/assets/svgs/icon-link.svg';
+import {useRealm} from '@/common/hooks/realms/use-realm';
+import {makeDisplayTokenAmount} from '@/common/utils/string-util';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -48,18 +50,8 @@ interface RealmsDetailsPageProps {
 const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   const desktop = isDesktop();
   const {currentNetwork} = useNetwork();
-  const {
-    data: realm,
-    isSuccess: realmSuccess,
-    isFetched,
-  }: UseQueryResult<RealmDetailsModel> = useQuery(
-    ['realm/path', path],
-    async () => await getRealmDetails(path),
-    {
-      enabled: !!path,
-      select: (res: any) => realmDetailSelector(res.data),
-    },
-  );
+
+  const {summary, isFetched} = useRealm(path);
 
   const moveGnoStudioViewRealm = useCallback(() => {
     const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
@@ -86,14 +78,14 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
       title={'Realm Details'}
       visible={!isFetched}
       keyword={`${path}`}
-      error={!realmSuccess}>
-      {realmSuccess && (
+      error={!isFetched}>
+      {isFetched && (
         <>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Name</dt>
               <dd>
-                <Badge>{realm.name}</Badge>
+                <Badge>{summary?.name}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -107,12 +99,12 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               </dt>
               <dd className="path-wrapper">
                 <Badge>
-                  {realm.path}
+                  {summary?.path}
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
                     trigger="click"
-                    copyText={realm.path}
+                    copyText={summary?.path}
                     width={85}>
                     <IconCopy className="svg-icon" />
                   </Tooltip>
@@ -130,12 +122,12 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Realm Address</dt>
               <dd>
                 <Badge>
-                  {realm.address}
+                  {summary?.realmAddress || ''}
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
                     trigger="click"
-                    copyText={realm.address}
+                    copyText={summary?.realmAddress || ''}
                     width={85}>
                     <IconCopy className="svg-icon" />
                   </Tooltip>
@@ -145,7 +137,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
             <DLWrap desktop={desktop}>
               <dt>Function Type(s)</dt>
               <dd className="function-wrapper">
-                {realm.funcs.map((v: string, index: number) => (
+                {summary?.funcs?.map((v: string, index: number) => (
                   <Badge
                     className="link"
                     key={index}
@@ -164,17 +156,17 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Publisher</dt>
               <dd>
                 <Badge>
-                  {realm.publisherName === 'genesis' ? (
+                  {summary?.publisherAddress === 'genesis' ? (
                     <FitContentA>
                       <Text type="p4" color="blue" className="ellipsis">
-                        {realm.publisherName}
+                        {summary?.publisherAddress}
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={`/accounts/${realm.publisherAddress}`} passHref>
+                    <Link href={`/accounts/${summary?.publisherAddress}`} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue" className="ellipsis">
-                          {realm.publisherName}
+                          {summary?.publisherAddress}
                         </Text>
                       </FitContentA>
                     </Link>
@@ -186,17 +178,17 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Block Published</dt>
               <dd>
                 <Badge>
-                  {realm.blockPublished === 0 ? (
+                  {summary?.blockPublished === 0 ? (
                     <FitContentA>
                       <Text type="p4" color="blue" className="ellipsis">
                         {'-'}
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={`/blocks/${realm.blockPublished}`} passHref>
+                    <Link href={`/blocks/${summary?.blockPublished}`} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue">
-                          {realm.blockPublished}
+                          {summary?.blockPublished}
                         </Text>
                       </FitContentA>
                     </Link>
@@ -214,15 +206,15 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                 </div>
               </dt>
               <dd>
-                {realm.assets.map((asset, index) => (
-                  <Badge key={index}>{`${asset.value} ${asset.denom}`}</Badge>
-                ))}
+                <Badge>
+                  {summary?.balance ? `${makeDisplayTokenAmount(summary.balance.value)} GNOT` : '-'}
+                </Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Contract Calls</dt>
               <dd>
-                <Badge>{realm.ContractCalls}</Badge>
+                <Badge>{summary?.contractCalls || '0'}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -232,13 +224,15 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                   <AmountText
                     minSize="body1"
                     maxSize="p4"
-                    value={realm.totalUsedFee.value}
-                    denom={realm.totalUsedFee.denom}
+                    value={summary?.totalUsedFees?.value || 0}
+                    denom={summary?.totalUsedFees?.denom || 'GNOT'}
                   />
                 </Badge>
               </dd>
             </DLWrap>
-            {realm.log && <ShowLog isTabLog={true} tabData={realm.log} btnTextType="Contract" />}
+            {summary?.files && (
+              <ShowLog isTabLog={true} files={summary?.files} btnTextType="Contract" />
+            )}
           </DataSection>
 
           <DataSection title="Transactions">

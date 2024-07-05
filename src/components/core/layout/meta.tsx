@@ -7,7 +7,6 @@ const Meta = () => (
       <link rel="icon" href="https://gnoscan.io/favicon.ico" />
       <meta charSet="utf-8" />
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
       <meta property="author" content="onbloc" />
       <meta
         name="description"

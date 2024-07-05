@@ -17,7 +17,6 @@ export class WsRPCClient implements RPCClient {
 
   constructor(connectUrl: string) {
     this.ws = new WebSocket(connectUrl);
-
     this.ws.addEventListener('message', event => {
       const response = JSON.parse(event.data as string) as RPCResponse<any>;
       const request = this.requestMap.get(response.id);

@@ -1,4 +1,3 @@
-import {useBlocks} from '@/common/hooks/blocks/use-blocks';
 import useLoading from '@/common/hooks/use-loading';
 import Text from '@/components/ui/text';
 import {BlockDatatable} from '@/components/view/datatable';

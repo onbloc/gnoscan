@@ -1,7 +1,7 @@
+import axios, {AxiosInstance} from 'axios';
 import {RPCClient} from './rpc-client';
 import {RPCRequest} from './request';
 import {RPCResponse} from './response';
-import axios, {AxiosInstance} from 'axios';
 
 export class HttpRPCClient implements RPCClient {
   private client: AxiosInstance;

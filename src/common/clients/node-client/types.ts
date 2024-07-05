@@ -62,6 +62,14 @@ export interface NodeResponseValidators {
   validators: ValidatorInfo[];
 }
 
+export interface NodeResponseTx {
+  hash: string;
+  height: string;
+  index: number;
+  tx_result: ABCIResponse;
+  tx: string;
+}
+
 export interface NodeResponseABCIInfo {
   response: ABCIResponse;
 }

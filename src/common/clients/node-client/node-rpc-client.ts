@@ -1,3 +1,4 @@
+import {makeHexByBase64} from '@/common/utils/transaction.utility';
 import {RPCClient, RPCResponse, makeRPCRequest} from '../rpc-client';
 import {HttpRPCClient} from '../rpc-client/http-rpc-client';
 import {WsRPCClient} from '../rpc-client/ws-rpc-client';
@@ -10,6 +11,7 @@ import {
   NodeResponseBlockchainInfo,
   NodeResponseGenesis,
   NodeResponseStatus,
+  NodeResponseTx,
   NodeResponseValidators,
 } from './types';
 import {
@@ -106,6 +108,16 @@ export class NodeRPCClient implements NodeClient {
     return this.rpcClient.call<NodeResponseValidators>(request).then(handleResponse);
   }
 
+  tx(hash: string): Promise<NodeResponseTx> {
+    const hexValue = makeHexByBase64(hash);
+    const request = makeRPCRequest({
+      method: 'tx',
+      params: [hexValue],
+    });
+
+    return this.rpcClient.call<NodeResponseTx>(request).then(handleResponse);
+  }
+
   abciInfo(): Promise<NodeResponseABCIInfo> {
     const request = makeRPCRequest({
       method: 'abci_info',
@@ -134,7 +146,7 @@ export class NodeRPCClient implements NodeClient {
   }
 
   abciQueryVMQueryFuncs(packagePath: string): Promise<NodeResponseABCIQuery> {
-    const path = 'vm/qfunc';
+    const path = 'vm/qfuncs';
 
     const request = makeRPCRequest({
       method: 'abci_query',

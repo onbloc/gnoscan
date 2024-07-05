@@ -31,10 +31,34 @@ export function makeDisplayNumberWithDefault(
   value: string | number | null | undefined,
   defaultValue = '-',
 ) {
-  console.log(value);
   if (value === null || value === undefined || BigNumber(value).isNaN()) {
     return defaultValue;
   }
 
   return makeDisplayNumber(value);
+}
+
+export function toString(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return value.toString();
+}
+
+export function toNumber(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+
+  const bn = BigNumber(value);
+  if (bn.isNaN()) {
+    return 0;
+  }
+
+  return bn.toNumber();
 }

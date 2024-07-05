@@ -31,6 +31,7 @@ export interface Transaction {
   amount: Amount;
   time: string;
   fee: Amount;
+  gasUsed?: Amount;
   memo?: string;
   rawContent?: string;
   messages?: any[];

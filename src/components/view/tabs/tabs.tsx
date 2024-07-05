@@ -1,17 +1,15 @@
 import {isDesktop} from '@/common/hooks/use-media';
 import mixins from '@/styles/mixins';
-import theme from '@/styles/theme';
 import {useState} from 'react';
 import styled, {css} from 'styled-components';
 import {v1} from 'uuid';
 import Text from '@/components/ui/text';
 
-export type LogDataType = {
-  list: string[];
-  content: string[];
-};
 interface TabsProps {
-  logData: LogDataType;
+  files: {
+    name: string;
+    body: string;
+  }[];
 }
 
 interface StyleProps {
@@ -20,22 +18,22 @@ interface StyleProps {
   desktop?: boolean;
 }
 
-const Tabs = ({logData}: TabsProps) => {
+const Tabs = ({files}: TabsProps) => {
   const desktop = isDesktop();
   const [index, setIndex] = useState(0);
 
   return (
     <Wrapper>
       <ul>
-        {logData.list.map((v: string, i: number) => (
+        {files.map((file, i) => (
           <List key={v1()} active={i === index} onClick={() => setIndex(i)}>
-            {v}
+            {file.name}
           </List>
         ))}
       </ul>
       <Content hasRadius={index === 0} desktop={desktop}>
         <Text type="p4" color="primary" className="inner-content">
-          {logData.content[index]}
+          {files[index].body}
         </Text>
       </Content>
     </Wrapper>

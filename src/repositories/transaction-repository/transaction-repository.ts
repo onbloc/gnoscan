@@ -1,7 +1,6 @@
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {ITransactionRepository} from './types';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
-import {gql} from '@apollo/client';
 import {TRANSACTIONS_QUERY, makeTransactionHashQuery} from './query';
 import {Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
@@ -46,7 +45,7 @@ export class TransactionRepository implements ITransactionRepository {
 
     return this.indexerClient
       ?.query(TRANSACTIONS_QUERY)
-      .then(result => result.data.transactions.map(mapTransaction));
+      .then(result => result?.data?.transactions?.map(mapTransaction) || []);
   }
 
   async getTransactionBlockHeight(transactionHash: string): Promise<number | null> {

@@ -27,8 +27,8 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
   );
 
   const realmRepository = useMemo(
-    () => new RealmRepository(indexerQueryClient),
-    [indexerQueryClient],
+    () => new RealmRepository(nodeRPCClient, indexerQueryClient),
+    [nodeRPCClient, indexerQueryClient],
   );
 
   return (

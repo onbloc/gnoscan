@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {Button} from '@/components/ui/button';
 import styled from 'styled-components';
@@ -10,10 +9,8 @@ import theme from '@/styles/theme';
 import {numberWithCommas} from '@/common/utils';
 import {eachMedia} from '@/common/hooks/use-media';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
-import {ValueWithDenomType} from '@/types/data-type';
 import {useRealms} from '@/common/hooks/realms/use-realms';
 
 const TOOLTIP_PATH = (
@@ -27,13 +24,6 @@ export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const {realms, isFetched, hasNextPage, nextPage: fetchNextPage} = useRealms();
-
-  // const {data, fetchNextPage, sortOption, setSortOption, finished, hasNextPage} =
-  //   usePageQuery<ResponseData>({
-  //     key: ['realm/realm-list', API_URI + API_VERSION + '/list/realms'],
-  //     uri: API_URI + API_VERSION + '/list/realms',
-  //     pageable: true,
-  //   });
   useLoading({finished: isFetched});
 
   const createHeaders = () => {
