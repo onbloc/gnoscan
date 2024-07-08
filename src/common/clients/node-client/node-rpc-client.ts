@@ -1,7 +1,5 @@
 import {makeHexByBase64} from '@/common/utils/transaction.utility';
-import {RPCClient, RPCResponse, makeRPCRequest} from '../rpc-client';
-import {HttpRPCClient} from '../rpc-client/http-rpc-client';
-import {WsRPCClient} from '../rpc-client/ws-rpc-client';
+import {HttpRPCClient, RPCClient, RPCResponse, makeRPCRequest} from '../rpc-client';
 import {
   NodeClient,
   NodeResponseABCIInfo,
@@ -19,7 +17,6 @@ import {
   prepareVMABCIEvaluateExpressionQuery,
   prepareVMABCIQuery,
   prepareVMABCIQueryWithSeparator,
-  prepareVMABCIRenderQuery,
 } from './utility';
 
 function handleResponse<T>(response: RPCResponse<T>): T {
@@ -36,7 +33,6 @@ export class NodeRPCClient implements NodeClient {
 
   constructor(rpcUrl: string, chainId?: string) {
     const currentRPCUrl = makeRPCUrl(rpcUrl);
-    // this.rpcClient = new WsRPCClient(currentRPCUrl.wsUrl);
     this.rpcClient = new HttpRPCClient(currentRPCUrl.httpUrl);
     this.chainId = chainId || '';
   }
@@ -109,10 +105,9 @@ export class NodeRPCClient implements NodeClient {
   }
 
   tx(hash: string): Promise<NodeResponseTx> {
-    const hexValue = makeHexByBase64(hash);
     const request = makeRPCRequest({
       method: 'tx',
-      params: [hexValue],
+      params: [hash],
     });
 
     return this.rpcClient.call<NodeResponseTx>(request).then(handleResponse);

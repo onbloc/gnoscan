@@ -4,16 +4,21 @@ import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {
   TRANSACTIONS_QUERY,
   makeGRC20ReceivedTransactionsByAddressQuery,
-  makeTransactionHashQuery,
+  makeNativeTokenReceivedTransactionsByAddressQuery,
+  makeNativeTokenSendTransactionsByAddressQuery,
+  makeVMTransactionsByAddressQuery,
 } from './query';
 import {Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
 import {parseABCI} from '@gnolang/tm2-js-client';
+import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
 import {
-  extractStringFromResponse,
-  parseABCIQueryNumberResponse,
-} from '@/common/clients/node-client/utility';
+  mapReceivedTransactionByBankMsgSend,
+  mapReceivedTransactionByMsgCall,
+  mapSendTransactionByBankMsgSend,
+  mapVMTransaction,
+} from '../response/transaction.mapper';
 
 function mapTransaction(data: any): Transaction {
   const firstMessage = data.messages[0]?.value;
@@ -95,7 +100,18 @@ export class AccountRepository implements IAccountRepository {
     return this.indexerClient
       ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
-      .then(transactions => transactions.map(mapTransactionByRealm));
+      .then(transactions => transactions.map(mapReceivedTransactionByMsgCall));
+  }
+
+  async getNativeTokenSendTransactionsByAddress(address: string): Promise<Transaction[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient
+      ?.query(makeNativeTokenSendTransactionsByAddressQuery(address))
+      .then(result => result.data?.transactions || [])
+      .then(transactions => transactions.map(mapSendTransactionByBankMsgSend));
   }
 
   async getNativeTokenReceivedTransactionsByAddress(
@@ -106,8 +122,19 @@ export class AccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address))
+      ?.query(makeNativeTokenReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
-      .then(transactions => transactions.map(mapTransactionByRealm));
+      .then(transactions => transactions.map(mapReceivedTransactionByBankMsgSend));
+  }
+
+  async getVMTransactionsByAddress(address: string): Promise<Transaction[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient
+      ?.query(makeVMTransactionsByAddressQuery(address))
+      .then(result => result.data?.transactions || [])
+      .then(transactions => transactions.map(mapVMTransaction));
   }
 }

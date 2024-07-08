@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
@@ -22,6 +22,8 @@ import {makeTemplate} from '@/common/utils/template.utils';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import {useRealm} from '@/common/hooks/realms/use-realm';
 import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {EventDatatable} from '@/components/view/datatable/event';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -46,10 +48,21 @@ interface RealmsDetailsPageProps {
 const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   const desktop = isDesktop();
   const {currentNetwork} = useNetwork();
-
-  const {summary, isFetched} = useRealm(path);
-
+  const {summary, transactionEvents, isFetched} = useRealm(path);
   const {getTokenAmount} = useTokenMeta();
+  const [currentTab, setCurrentTab] = useState('Transactions');
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Transactions',
+      },
+      {
+        tabName: 'Events',
+        size: transactionEvents.length,
+      },
+    ];
+  }, [transactionEvents]);
 
   const balanceStr = useMemo(() => {
     if (!summary?.balance) {
@@ -239,9 +252,12 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
             )}
           </DataSection>
 
-          <DataSection title="Transactions">
-            {path && <RealmDetailDatatable pkgPath={`${path}`} />}
-          </DataSection>
+          <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+            {currentTab === 'Transactions' && <RealmDetailDatatable pkgPath={`${path}`} />}
+            {currentTab === 'Events' && (
+              <EventDatatable isFetched={isFetched} events={transactionEvents} />
+            )}
+          </DataListSection>
         </>
       )}
     </DetailsPageLayout>

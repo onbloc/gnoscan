@@ -78,7 +78,7 @@ export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => 
     messages {
       value {
         __typename
-        ...on  MsgCall{
+        ...on MsgCall {
           caller
           send
           pkg_path
@@ -86,6 +86,182 @@ export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => 
           args
         }
       }
+    }
+  }
+}
+`;
+
+export const makeNativeTokenSendTransactionsByAddressQuery = (address: string) => gql`
+{
+  transactions(filter: {
+    message: {
+      type_url: send
+      bank_param: {
+        send: {
+          from_address: "${address}"
+        }
+      }
+    }
+  }) {
+    hash
+    index
+    success
+    block_height
+    gas_wanted
+    response {
+      events {
+        __typename
+        ...on GnoEvent {
+          type
+          pkg_path
+          func
+          attrs {
+            key
+            value
+          }
+        }
+      }
+    }
+    gas_used
+    gas_fee {
+      amount
+      denom
+    }
+    messages {
+      value {
+        __typename
+        ...on BankMsgSend{
+          from_address
+          to_address
+          amount
+        }
+      }
+    }
+  }
+}
+`;
+
+export const makeNativeTokenReceivedTransactionsByAddressQuery = (address: string) => gql`
+{
+  transactions(filter: {
+    message: {
+      type_url: send
+      bank_param: {
+        send: {
+          to_address: "${address}"
+        }
+      }
+    }
+  }) {
+    hash
+    index
+    success
+    block_height
+    gas_wanted
+    response {
+      events {
+        __typename
+        ...on GnoEvent {
+          type
+          pkg_path
+          func
+          attrs {
+            key
+            value
+          }
+        }
+      }
+    }
+    gas_used
+    gas_fee {
+      amount
+      denom
+    }
+    messages {
+      value {
+        __typename
+        ...on BankMsgSend{
+          from_address
+          to_address
+          amount
+        }
+      }
+    }
+  }
+}
+`;
+
+export const makeVMTransactionsByAddressQuery = (address: string) => gql`
+{
+  transactions(filter: {
+    message: {
+      route: vm
+      vm_param: {
+        exec: {
+          caller: "${address}"
+        }
+        add_package: {
+          creator: "${address}"
+        }
+        run: {
+          caller: "${address}"
+        }
+      }
+    }
+  }) {
+    hash
+    index
+    success
+    block_height
+    gas_wanted
+    response {
+      events {
+        __typename
+        ...on GnoEvent {
+          type
+          pkg_path
+          func
+          attrs {
+            key
+            value
+          }
+        }
+      }
+    }
+    gas_used
+    gas_fee {
+      amount
+      denom
+    }
+    messages {
+        value {
+          __typename
+          ... on BankMsgSend {
+            from_address
+            to_address
+            amount
+          }
+          ... on MsgCall {
+            caller
+            send
+            func
+            pkg_path
+            args
+          }
+          ... on MsgAddPackage {
+            creator
+            package {
+              path
+            }
+          }
+          ... on MsgRun {
+            caller
+            send
+            package {
+              path
+            }
+          }
+        }
     }
   }
 }

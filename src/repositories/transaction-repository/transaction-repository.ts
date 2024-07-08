@@ -53,15 +53,25 @@ export class TransactionRepository implements ITransactionRepository {
   }
 
   async getTransactionBlockHeight(transactionHash: string): Promise<number | null> {
-    if (!this.indexerClient) {
-      return null;
+    if (this.nodeRPCClient) {
+      const height = await this.nodeRPCClient
+        .tx(transactionHash)
+        .then(response => Number(response.height))
+        .catch(() => null);
+      if (height) {
+        return height;
+      }
     }
 
-    return this.indexerClient
-      ?.query(makeTransactionHashQuery(transactionHash))
-      .then(result =>
-        result.data.transactions.length > 0 ? result.data.transactions[0].block_height : null,
-      );
+    if (this.indexerClient) {
+      return this.indexerClient
+        ?.query(makeTransactionHashQuery(transactionHash))
+        .then(result =>
+          result.data.transactions.length > 0 ? result.data.transactions[0].block_height : null,
+        );
+    }
+
+    return null;
   }
 
   async getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {

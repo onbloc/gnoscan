@@ -66,10 +66,6 @@ const BlockDetails = () => {
     ];
   }, [events]);
 
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
-
   return (
     <DetailsPageLayout
       title={`Block #${block.blockHeight}`}

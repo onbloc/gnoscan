@@ -62,7 +62,7 @@ export const useTransaction = (hash: string) => {
 
     const txIndex = transactions.findIndex((tx: any) => tx.hash === hash);
     return blockResult.deliver_tx.find((_: any, index: number) => txIndex === index) || null;
-  }, [transactions, blockResult]);
+  }, [transactions, blockResult, hash]);
 
   const transactionItem: Transaction | null = useMemo(() => {
     const transaction = transactions.find((tx: any) => tx.hash === hash) || null;
@@ -91,6 +91,17 @@ export const useTransaction = (hash: string) => {
       time: block?.block_meta.header.time || '',
       fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
       memo: transaction.memo || '-',
+      events: ((txResult?.ResponseBase?.Events as any[]) || [])?.map((event, index) => ({
+        id: `${transaction.hash}_${index}`,
+        blockHeight: blockHeight || 0,
+        transactionHash: transaction.hash,
+        type: event.type,
+        packagePath: event.pkg_path,
+        functionName: event.func,
+        attrs: event.attrs,
+        time: block.block.header.time,
+        caller: firstMessage?.from || '',
+      })),
       rawContent: JSON.stringify(
         {
           messages: transaction?.messages || '',
@@ -130,6 +141,13 @@ export const useTransaction = (hash: string) => {
     return `${gasUsed}/${gasWanted} (${rate}%)`;
   }, [transactionGasInfo]);
 
+  const transactionEvents = useMemo(() => {
+    if (!transactionItem?.events) {
+      return [];
+    }
+    return transactionItem.events;
+  }, [transactionItem?.events]);
+
   const isError = useMemo(() => {
     if (!isFetched) {
       return false;
@@ -142,6 +160,7 @@ export const useTransaction = (hash: string) => {
     timeStamp,
     gas,
     transactionItem,
+    transactionEvents,
     isFetched: data?.block || isFetched,
     isError,
   };

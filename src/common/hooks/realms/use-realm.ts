@@ -8,6 +8,8 @@ import {toNumber, toString} from '@/common/utils/string-util';
 import {useMemo, useState} from 'react';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
+const GNO_ADDRESS_PREFIX = 'g';
+
 export const useRealm = (packagePath: string) => {
   const {getTokenAmount} = useTokenMeta();
   const {data: realm, isFetched: isFetchedRealm} = useGetRealmQuery(packagePath);
@@ -41,7 +43,10 @@ export const useRealm = (packagePath: string) => {
     return {
       name: toString(addPackageMessage.package?.name),
       path: toString(addPackageMessage.package?.path),
-      realmAddress: toBech32AddressByPackagePath('g', addPackageMessage.package?.path || ''),
+      realmAddress: toBech32AddressByPackagePath(
+        GNO_ADDRESS_PREFIX,
+        addPackageMessage.package?.path || '',
+      ),
       publisherAddress: toString(addPackageMessage.creator),
       funcs: realmFunctions?.map(func => func.functionName),
       blockPublished: toNumber(realm.block_height),
@@ -82,6 +87,14 @@ export const useRealm = (packagePath: string) => {
       }));
   }, [realmTransactions?.length, currentPage]);
 
+  const transactionEvents = useMemo(() => {
+    if (!realmTransactions) {
+      return [];
+    }
+
+    return realmTransactions.flatMap(transaction => transaction.events?.map(event => event) || []);
+  }, [realmTransactions]);
+
   function nextPage() {
     setCurrentPage(prev => prev + 1);
   }
@@ -89,6 +102,7 @@ export const useRealm = (packagePath: string) => {
   return {
     summary,
     realmTransactions: transactions || [],
+    transactionEvents,
     isFetched: isFetchedRealm && isFetchedRealmTransactions && isFetchedRealmFunctions,
     nextPage,
     hasNextPage,

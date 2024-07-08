@@ -49,16 +49,19 @@ export interface Transaction {
   from: string;
   to?: string;
   amount: Amount;
+  amountOut?: Amount;
   time: string;
   fee: Amount;
   gasUsed?: Amount;
   memo?: string;
   rawContent?: string;
   messages?: any[];
+  events?: GnoEvent[];
 }
 
 export interface GnoEvent {
   id: string;
+  blockHeight: number;
   transactionHash: string;
   caller: string;
   type: string;

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
 import {useRouter} from '@/common/hooks/common/use-router';
 import {isDesktop} from '@/common/hooks/use-media';
@@ -18,6 +18,9 @@ import mixins from '@/styles/mixins';
 import {useTransaction} from '@/common/hooks/transactions/use-transaction';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {Transaction} from '@/types/data-type';
+import {EventDatatable} from '@/components/view/datatable/event';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -43,13 +46,27 @@ const TransactionDetails = () => {
   const desktop = isDesktop();
   const {asPath, push} = useRouter();
   const hash = parseTxHash(asPath);
-  const {gas, network, timeStamp, transactionItem, isFetched, isError} = useTransaction(hash);
+  const {gas, network, timeStamp, transactionItem, transactionEvents, isFetched, isError} =
+    useTransaction(hash);
+  const [currentTab, setCurrentTab] = useState('Contract');
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Contract',
+      },
+      {
+        tabName: 'Events',
+        size: transactionEvents.length,
+      },
+    ];
+  }, [transactionEvents]);
 
   useEffect(() => {
     if (hash === '') {
       push('/transactions');
     }
-  });
+  }, [hash]);
 
   return (
     <DetailsPageLayout
@@ -58,7 +75,7 @@ const TransactionDetails = () => {
       keyword={`${hash}`}
       error={isError}>
       {!isError && transactionItem && (
-        <>
+        <React.Fragment>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Success</dt>
@@ -140,89 +157,130 @@ const TransactionDetails = () => {
               </dd>
             </DLWrap>
           </DataSection>
-          <DataSection title="Contract">
-            {transactionItem?.messages?.map((message: any, i: number) => (
-              <ContractListBox key={v1()}>
-                {transactionItem.numOfMessage > 1 && (
-                  <Text type="h6" color="white" margin="0px 0px 12px">{`#${i + 1}`}</Text>
-                )}
-                {message['@type'] !== '/bank.MsgSend' && (
-                  <>
-                    <DLWrap desktop={desktop}>
-                      <dt>Name</dt>
-                      <dd>
-                        <Badge>
-                          <Text type="p4" color="white">
-                            {message?.package?.name || message?.func || '-'}
-                          </Text>
-                        </Badge>
-                      </dd>
-                    </DLWrap>
-                    <DLWrap desktop={desktop}>
-                      <dt>
-                        Path
-                        <div className="tooltip-wrapper">
-                          <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-                            <IconTooltip />
-                          </Tooltip>
-                        </div>
-                      </dt>
-                      <dd>
-                        <Badge>
-                          <Text type="p4" color="blue" className="ellipsis">
-                            <Link
-                              href={`/realms/details?path=${
-                                message?.package?.path || message?.pkg_path || '-'
-                              }`}
-                              passHref>
-                              <FitContentA>
-                                {message?.package?.path || message?.pkg_path || '-'}
-                              </FitContentA>
-                            </Link>
-                          </Text>
-                          <Tooltip
-                            content="Copied!"
-                            trigger="click"
-                            copyText={message?.package?.path || message?.pkg_path || '-'}
-                            className="address-tooltip">
-                            <StyledIconCopy />
-                          </Tooltip>
-                        </Badge>
-                      </dd>
-                    </DLWrap>
-                  </>
-                )}
-                <DLWrap desktop={desktop}>
-                  <dt>Type</dt>
-                  <dd>
-                    <Badge type="blue">
-                      <Text type="p4" color="white">
-                        {message['@type'] === '/vm.m_call' ? message?.func : message['@type']}
-                      </Text>
-                    </Badge>
-                  </dd>
-                </DLWrap>
-                {/* {v.grc20 === true && v.type === '/vm.m_call' && v.type === 'Transfer' && (
-                  <TransferContract contract={v} desktop={desktop} />
-                )} */}
-                {message['@type'] === '/bank.MsgSend' && (
-                  <TransferContract message={message} desktop={desktop} />
-                )}
-                {message['@type'] === '/vm.m_addpkg' && (
-                  <AddPkgContract message={message} desktop={desktop} />
-                )}
-                {!['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type']) && (
-                  <CallerContract message={message} desktop={desktop} />
-                )}
-              </ContractListBox>
-            ))}
-            {transactionItem?.rawContent && (
-              <ShowLog isTabLog={false} logData={transactionItem.rawContent} btnTextType="Logs" />
+
+          <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+            {currentTab === 'Contract' && (
+              <ContractDetails transactionItem={transactionItem} desktop={desktop} />
             )}
-          </DataSection>
-        </>
+            {currentTab === 'Events' && (
+              <EventDatatable events={transactionEvents} isFetched={isFetched} />
+            )}
+          </DataListSection>
+        </React.Fragment>
       )}
     </DetailsPageLayout>
+  );
+};
+
+const ContractDetails: React.FC<{
+  transactionItem: Transaction | null;
+  desktop: boolean;
+}> = ({transactionItem, desktop}) => {
+  const messages = useMemo(() => {
+    if (!transactionItem?.messages) {
+      return [];
+    }
+    return transactionItem?.messages;
+  }, [transactionItem?.messages]);
+
+  const getContractType = useCallback((message: any) => {
+    switch (message['@type']) {
+      case '/bank.MsgSend':
+        return 'Transfer';
+      case '/vm.m_addpkg':
+        return 'AddPackage';
+      case '/vm.m_call':
+        return message['func'] || message['@type'];
+      case '/vm.m_run':
+        return 'MsgRun';
+    }
+  }, []);
+
+  if (!transactionItem) {
+    return <React.Fragment />;
+  }
+
+  return (
+    <React.Fragment>
+      {messages.map((message: any, i: number) => (
+        <ContractListBox key={v1()}>
+          {transactionItem.numOfMessage > 1 && (
+            <Text type="h6" color="white" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+          )}
+          {message['@type'] !== '/bank.MsgSend' && (
+            <>
+              <DLWrap desktop={desktop}>
+                <dt>Name</dt>
+                <dd>
+                  <Badge>
+                    <Text type="p4" color="white">
+                      {message?.package?.name || message?.func || '-'}
+                    </Text>
+                  </Badge>
+                </dd>
+              </DLWrap>
+              <DLWrap desktop={desktop}>
+                <dt>
+                  Path
+                  <div className="tooltip-wrapper">
+                    <Tooltip content={TOOLTIP_PACKAGE_PATH}>
+                      <IconTooltip />
+                    </Tooltip>
+                  </div>
+                </dt>
+                <dd>
+                  <Badge>
+                    <Text type="p4" color="blue" className="ellipsis">
+                      <Link
+                        href={`/realms/details?path=${
+                          message?.package?.path || message?.pkg_path || '-'
+                        }`}
+                        passHref>
+                        <FitContentA>
+                          {message?.package?.path || message?.pkg_path || '-'}
+                        </FitContentA>
+                      </Link>
+                    </Text>
+                    <Tooltip
+                      content="Copied!"
+                      trigger="click"
+                      copyText={message?.package?.path || message?.pkg_path || '-'}
+                      className="address-tooltip">
+                      <StyledIconCopy />
+                    </Tooltip>
+                  </Badge>
+                </dd>
+              </DLWrap>
+            </>
+          )}
+          <DLWrap desktop={desktop}>
+            <dt>Type</dt>
+            <dd>
+              <Badge type="blue">
+                <Text type="p4" color="white">
+                  {getContractType(message)}
+                </Text>
+              </Badge>
+            </dd>
+          </DLWrap>
+          {/* {v.grc20 === true && v.type === '/vm.m_call' && v.type === 'Transfer' && (
+                  <TransferContract contract={v} desktop={desktop} />
+                )} */}
+          {message['@type'] === '/bank.MsgSend' && (
+            <TransferContract message={message} desktop={desktop} />
+          )}
+          {message['@type'] === '/vm.m_addpkg' && (
+            <AddPkgContract message={message} desktop={desktop} />
+          )}
+          {!['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type']) && (
+            <CallerContract message={message} desktop={desktop} />
+          )}
+        </ContractListBox>
+      ))}
+      {transactionItem?.rawContent && (
+        <ShowLog isTabLog={false} logData={transactionItem.rawContent} btnTextType="Logs" />
+      )}
+    </React.Fragment>
   );
 };
 

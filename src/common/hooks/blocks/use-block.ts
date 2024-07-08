@@ -6,16 +6,11 @@ import {
 } from '@/common/react-query/block';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import {makeDisplayNumber, makeDisplayNumberWithDefault} from '@/common/utils/string-util';
-import {
-  decodeTransaction,
-  makeHash,
-  makeTransactionMessageInfo,
-} from '@/common/utils/transaction.utility';
+import {decodeTransaction, makeTransactionMessageInfo} from '@/common/utils/transaction.utility';
 import BigNumber from 'bignumber.js';
 import {GnoEvent, Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {GNOTToken} from '../common/use-token-meta';
-import {base64ToUint8Array} from '@gnolang/tm2-js-client';
 
 export const useBlock = (height: number) => {
   const {data: latestBlockHeight} = useGetLatestBlockHeightQuery();
@@ -160,6 +155,7 @@ export const useBlock = (height: number) => {
               return {
                 id: eventId,
                 transactionHash: transaction.hash,
+                blockHeight: blockHeight || 0,
                 type: event.type,
                 packagePath: event.pkg_path,
                 functionName: event.func,

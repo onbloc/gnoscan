@@ -12,30 +12,9 @@ import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {StatusKeyType} from '@/common/utils';
-interface AccountTransactionData {
-  hash: string;
-  status: StatusKeyType;
-  type: string;
-  pkg_path: string | null;
-  pkg_func: string;
-  height: number;
-  num_msgs: number;
-  amount: {
-    value_out: string;
-    value_in: string;
-    denom: string;
-  };
-  time: string;
-  fee: {
-    value: string;
-    denom: string;
-  };
-}
-
-interface ResponseData {
-  total_hits: number;
-  txs: Array<AccountTransactionData>;
-}
+import {useAccount} from '@/common/hooks/account/use-account';
+import {Amount, Transaction} from '@/types/data-type';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 interface Props {
   address: string;
@@ -53,11 +32,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const media = eachMedia();
 
-  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
-    key: 'account-detail/transactions',
-    uri: API_URI + API_VERSION + `/account/txs/${address}`,
-    pageable: true,
-  });
+  const {getTokenAmount} = useTokenMeta();
+  const {isFetchedAccountTransactions, accountTransactions} = useAccount(address);
   const [development, setDevelopment] = useState(false);
 
   useEffect(() => {
@@ -83,16 +59,6 @@ export const AccountDetailDatatable = ({address}: Props) => {
     }
   };
 
-  const getTransactionDatas = () => {
-    if (!data) {
-      return [];
-    }
-    return data.pages.reduce<Array<AccountTransactionData>>(
-      (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
-      [],
-    );
-  };
-
   const createHeaders = () => {
     return [
       createHeaderTxHash(),
@@ -106,7 +72,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('hash')
       .name('Tx Hash')
       .width(215)
@@ -114,16 +80,16 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .renderOption((value, data) => (
         <DatatableItem.TxHash
           txHash={value}
-          status={data.status}
+          status={data.success ? 'success' : 'failure'}
           development={development}
-          height={data.height}
+          height={data.blockHeight}
         />
       ))
       .build();
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('type')
       .name('Type')
       .width(190)
@@ -132,17 +98,17 @@ export const AccountDetailDatatable = ({address}: Props) => {
       .renderOption((_, data) => (
         <DatatableItem.Type
           type={data.type}
-          func={data.pkg_func}
-          packagePath={data.pkg_path}
-          msgNum={data.num_msgs}
+          func={data.functionName}
+          packagePath={data.packagePath}
+          msgNum={data.numOfMessage}
         />
       ))
       .build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
-      .key('height')
+    return DatatableOption.Builder.builder<Transaction>()
+      .key('blockHeight')
       .name('Block')
       .width(113)
       .colorName('blue')
@@ -151,37 +117,37 @@ export const AccountDetailDatatable = ({address}: Props) => {
   };
 
   const createHeaderAmountIn = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('amount')
       .name('Amount (In)')
       .width(180)
-      .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
-        data.num_msgs > 1 ? (
+      .renderOption((amount: Amount, data) =>
+        data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount value={amount.value_in} denom={amount.denom} />
+          <DatatableItem.Amount {...getTokenAmount(amount?.denom || '', amount?.value || 0)} />
         ),
       )
       .build();
   };
 
   const createHeaderAmountOut = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
-      .key('amount')
+    return DatatableOption.Builder.builder<Transaction>()
+      .key('amountOut')
       .name('Amount (Out)')
       .width(180)
-      .renderOption((amount: {value_in: string; value_out: string; denom: string}, data) =>
-        data.num_msgs > 1 ? (
+      .renderOption((amount: Amount, data) =>
+        data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount value={amount.value_out} denom={amount.denom} />
+          <DatatableItem.Amount {...getTokenAmount(amount?.denom || '', amount?.value || 0)} />
         ),
       )
       .build();
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('time')
       .name('Time')
       .width(160)
@@ -191,13 +157,13 @@ export const AccountDetailDatatable = ({address}: Props) => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<AccountTransactionData>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key('fee')
       .name('Fee')
       .className('fee')
       .width(113)
       .renderOption(({value, denom}: {value: string; denom: string}) => (
-        <DatatableItem.Amount value={value} denom={denom} />
+        <DatatableItem.Amount {...getTokenAmount(denom, value)} />
       ))
       .build();
   };
@@ -205,23 +171,23 @@ export const AccountDetailDatatable = ({address}: Props) => {
   return (
     <Container>
       <Datatable
-        loading={!finished}
+        loading={!isFetchedAccountTransactions}
         headers={createHeaders().map(item => {
           return {
             ...item,
             themeMode: themeMode,
           };
         })}
-        datas={getTransactionDatas()}
+        datas={accountTransactions}
       />
-
+      {/* 
       {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
           {'View More Transactions'}
         </Button>
       ) : (
         <></>
-      )}
+      )} */}
     </Container>
   );
 };

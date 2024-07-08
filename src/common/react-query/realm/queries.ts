@@ -11,6 +11,7 @@ import {
 } from '@/repositories/realm-repository.ts';
 import {Transaction} from '@/types/data-type';
 import {mapTransactionByRealm} from '@/repositories/realm-repository.ts/mapper';
+import {mapVMTransaction} from '@/repositories/response/transaction.mapper';
 
 export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
   const {currentNetwork} = useNetworkProvider();
@@ -139,7 +140,7 @@ export const useGetRealmTransactionsQuery = (
         return [];
       }
 
-      return transactions.map(mapTransactionByRealm);
+      return transactions.map(mapVMTransaction);
     },
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository && !!realmPath,

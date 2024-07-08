@@ -18,6 +18,7 @@ import {isAddPackageMessageValue} from './mapper';
 import {GRC20_FUNCTIONS, parseGRC20InfoByFile} from '@/common/utils/realm.utility';
 import {message} from 'antd';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
+import {TransactionWithEvent} from '../response/transaction.types';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
@@ -169,7 +170,7 @@ export class RealmRepository implements IRealmRepository {
     }
   }
 
-  async getRealmTransactions(realmPath: string): Promise<RealmTransaction[] | null> {
+  async getRealmTransactions(realmPath: string): Promise<TransactionWithEvent[] | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -197,6 +198,20 @@ export class RealmRepository implements IRealmRepository {
     success
     block_height
     gas_wanted
+    response {
+      events {
+        __typename
+        ...on GnoEvent {
+          type
+          pkg_path
+          func
+          attrs {
+            key
+            value
+          }
+        }
+      }
+    }
     gas_used
     gas_fee {
       amount

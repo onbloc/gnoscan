@@ -1,4 +1,5 @@
 import {Amount} from '@/types/data-type';
+import {TransactionWithEvent} from '../response/transaction.types';
 
 export interface IRealmRepository {
   getRealms(): Promise<any | null>;
@@ -7,7 +8,7 @@ export interface IRealmRepository {
 
   getRealmFunctions(realmPath: string): Promise<RealmFunction[] | null>;
 
-  getRealmTransactions(realmPath: string): Promise<RealmTransaction[] | null>;
+  getRealmTransactions(realmPath: string): Promise<TransactionWithEvent[] | null>;
 
   getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null>;
 
