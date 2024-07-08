@@ -4,10 +4,12 @@ import {
   useGetRealmTransactionsQuery,
 } from '@/common/react-query/realm';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
-import {makeDisplayTokenAmount, toNumber, toString} from '@/common/utils/string-util';
+import {toNumber, toString} from '@/common/utils/string-util';
 import {useMemo, useState} from 'react';
+import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useRealm = (packagePath: string) => {
+  const {getTokenAmount} = useTokenMeta();
   const {data: realm, isFetched: isFetchedRealm} = useGetRealmQuery(packagePath);
   const {data: realmFunctions, isFetched: isFetchedRealmFunctions} =
     useGetRealmFunctionsQuery(packagePath);
@@ -26,12 +28,9 @@ export const useRealm = (packagePath: string) => {
       .reduce((accum, current) => accum + current, 0);
     return {
       totalCount,
-      totalUsedFees: {
-        value: makeDisplayTokenAmount(totalUsedFeeAmount),
-        denom: 'GNOT',
-      },
+      totalUsedFees: getTokenAmount(GNOTToken.denom, totalUsedFeeAmount),
     };
-  }, [realmTransactions]);
+  }, [realmTransactions, getTokenAmount]);
 
   const summary = useMemo(() => {
     if (!realm) {
@@ -73,12 +72,12 @@ export const useRealm = (packagePath: string) => {
       .map(tx => ({
         ...tx,
         amount: {
-          value: makeDisplayTokenAmount(tx.amount.value),
+          value: tx.amount.value,
           denom: tx.amount.denom,
         },
         fee: {
-          value: makeDisplayTokenAmount(tx.fee.value),
-          denom: 'GNOT',
+          value: tx.fee.value,
+          denom: 'ugnot',
         },
       }));
   }, [realmTransactions?.length, currentPage]);

@@ -3,11 +3,13 @@ import {useMemo} from 'react';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
 import {decodeTransaction, makeTransactionMessageInfo} from '@/common/utils/transaction.utility';
 import {Transaction} from '@/types/data-type';
-import {makeDisplayNumber, makeDisplayTokenAmount} from '@/common/utils/string-util';
+import {makeDisplayNumber} from '@/common/utils/string-util';
 import BigNumber from 'bignumber.js';
 import {parseTokenAmount} from '@/common/utils/token.utility';
+import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useTransaction = (hash: string) => {
+  const {getTokenAmount} = useTokenMeta();
   const {data, isFetched} = useGetTransactionBlockHeightQuery(hash);
 
   const block = useMemo(() => {
@@ -74,7 +76,7 @@ export const useTransaction = (hash: string) => {
     return {
       hash: transaction.hash,
       messages: transaction?.messages,
-      success: !txResult?.ResponseBase?.Error,
+      success: !txResult?.Error && !txResult?.ResponseBase?.Error,
       numOfMessage: transaction.messages.length,
       type: firstMessage?.type || '',
       packagePath: firstMessage?.packagePath || '',
@@ -87,10 +89,7 @@ export const useTransaction = (hash: string) => {
         denom: 'GNOT',
       },
       time: block?.block_meta.header.time || '',
-      fee: {
-        value: makeDisplayTokenAmount(feeAmount) || '0',
-        denom: 'GNOT',
-      },
+      fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
       memo: transaction.memo || '-',
       rawContent: JSON.stringify(
         {
@@ -103,7 +102,7 @@ export const useTransaction = (hash: string) => {
         2,
       ),
     };
-  }, [block, transactions, txResult]);
+  }, [block, transactions, txResult, getTokenAmount]);
 
   const transactionGasInfo = useMemo(() => {
     if (!txResult) {
@@ -131,11 +130,19 @@ export const useTransaction = (hash: string) => {
     return `${gasUsed}/${gasWanted} (${rate}%)`;
   }, [transactionGasInfo]);
 
+  const isError = useMemo(() => {
+    if (!isFetched) {
+      return false;
+    }
+    return !txResult || !transactionItem;
+  }, [isFetched, transactionItem, txResult]);
+
   return {
     network,
     timeStamp,
     gas,
     transactionItem,
     isFetched: data?.block || isFetched,
+    isError,
   };
 };

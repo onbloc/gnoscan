@@ -36,8 +36,8 @@ export class NodeRPCClient implements NodeClient {
 
   constructor(rpcUrl: string, chainId?: string) {
     const currentRPCUrl = makeRPCUrl(rpcUrl);
-    this.rpcClient = new WsRPCClient(currentRPCUrl.wsUrl);
-    // this.rpcClient = new HttpRPCClient(currentRPCUrl.httpUrl);
+    // this.rpcClient = new WsRPCClient(currentRPCUrl.wsUrl);
+    this.rpcClient = new HttpRPCClient(currentRPCUrl.httpUrl);
     this.chainId = chainId || '';
   }
 

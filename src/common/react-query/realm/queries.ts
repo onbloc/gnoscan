@@ -81,7 +81,7 @@ export const useGetRealmQuery = (
 };
 
 export const useGetRealmFunctionsQuery = (
-  packagePath: string,
+  packagePath: string | null,
   options?: UseQueryOptions<RealmFunction[] | null, Error>,
 ) => {
   const {currentNetwork} = useNetworkProvider();
@@ -90,13 +90,13 @@ export const useGetRealmFunctionsQuery = (
   return useQuery<RealmFunction[] | null, Error>({
     queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork.chainId, packagePath],
     queryFn: async () => {
-      if (!realmRepository) {
+      if (!realmRepository || !packagePath) {
         return null;
       }
       const result = await realmRepository.getRealmFunctions(packagePath);
       return result;
     },
-    enabled: !!realmRepository,
+    enabled: !!realmRepository && !!packagePath,
     ...options,
   });
 };
@@ -147,6 +147,32 @@ export const useGetRealmTransactionsQuery = (
   });
 };
 
+export const useGetRealmTransactionsWithArgsQuery = (
+  realmPath: string | null,
+  options?: UseQueryOptions<Transaction[], Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<Transaction[], Error>({
+    queryKey: [QUERY_KEY.getRealmTransactionsWithArgs, currentNetwork.chainId, realmPath],
+    queryFn: async () => {
+      if (!realmRepository || !realmPath) {
+        return [];
+      }
+      const transactions = await realmRepository.getRealmTransactionsWithArgs(realmPath);
+      if (!transactions) {
+        return [];
+      }
+
+      return transactions.map(mapTransactionByRealm);
+    },
+    select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
+    enabled: !!realmRepository && !!realmPath,
+    ...options,
+  });
+};
+
 export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>) => {
   const {currentNetwork} = useNetworkProvider();
   const {realmRepository} = useServiceProvider();
@@ -161,6 +187,44 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
       return tokens || [];
     },
     enabled: !!realmRepository,
+    ...options,
+  });
+};
+
+export const useGetGRC20Token = (
+  packagePath: string | null,
+  options?: UseQueryOptions<
+    {
+      realmTransaction: RealmTransaction<AddPackageValue>;
+      tokenInfo: GRC20Info;
+    } | null,
+    Error
+  >,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<
+    {
+      realmTransaction: RealmTransaction<AddPackageValue>;
+      tokenInfo: GRC20Info;
+    } | null,
+    Error
+  >({
+    queryKey: [QUERY_KEY.getGRC20Token, currentNetwork.chainId, packagePath],
+    queryFn: async () => {
+      if (!realmRepository || !packagePath) {
+        return null;
+      }
+
+      const result = await realmRepository.getToken(packagePath);
+      if (!result) {
+        return null;
+      }
+
+      return result;
+    },
+    enabled: !!realmRepository && !!packagePath,
     ...options,
   });
 };

@@ -1,12 +1,10 @@
-import {
-  useGetRealmTransactionInfosQuery,
-  useGetRealmTransactionsQuery,
-  useGetRealmsQuery,
-} from '@/common/react-query/realm';
-import {makeDisplayNumberWithDefault, makeDisplayTokenAmount} from '@/common/utils/string-util';
+import {useGetRealmTransactionInfosQuery, useGetRealmsQuery} from '@/common/react-query/realm';
+import {makeDisplayNumberWithDefault} from '@/common/utils/string-util';
 import {useMemo, useState} from 'react';
+import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useRealms = () => {
+  const {getTokenAmount} = useTokenMeta();
   const {data, isFetched} = useGetRealmsQuery();
   const {data: realmTransactionInfos, isFetched: isFetchedRealmTransactionInfos} =
     useGetRealmTransactionInfosQuery();
@@ -34,12 +32,12 @@ export const useRealms = () => {
         totalCalls: makeDisplayNumberWithDefault(
           realmTransactionInfos[realm.packagePath]?.msgCallCount.toString(),
         ),
-        totalGasUsed: {
-          value: makeDisplayTokenAmount(realmTransactionInfos[realm.packagePath].gasUsed),
-          denom: 'GNOT',
-        },
+        totalGasUsed: getTokenAmount(
+          GNOTToken.denom,
+          realmTransactionInfos[realm.packagePath].gasUsed,
+        ),
       }));
-  }, [data, realmTransactionInfos, currentPage]);
+  }, [data, realmTransactionInfos, currentPage, getTokenAmount]);
 
   function nextPage() {
     setCurrentPage(prev => prev + 1);

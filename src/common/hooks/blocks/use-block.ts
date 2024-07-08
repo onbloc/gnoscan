@@ -4,17 +4,18 @@ import {
   useGetBlockResultQuery,
   useGetLatestBlockHeightQuery,
 } from '@/common/react-query/block';
-import {toBech32Address} from '@/common/utils/bech32.utility';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
+import {makeDisplayNumber, makeDisplayNumberWithDefault} from '@/common/utils/string-util';
 import {
-  makeDisplayNumber,
-  makeDisplayNumberWithDefault,
-  makeDisplayTokenAmount,
-} from '@/common/utils/string-util';
-import {decodeTransaction, makeTransactionMessageInfo} from '@/common/utils/transaction.utility';
+  decodeTransaction,
+  makeHash,
+  makeTransactionMessageInfo,
+} from '@/common/utils/transaction.utility';
 import BigNumber from 'bignumber.js';
-import {Transaction} from '@/types/data-type';
+import {GnoEvent, Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
+import {GNOTToken} from '../common/use-token-meta';
+import {base64ToUint8Array} from '@gnolang/tm2-js-client';
 
 export const useBlock = (height: number) => {
   const {data: latestBlockHeight} = useGetLatestBlockHeightQuery();
@@ -79,12 +80,12 @@ export const useBlock = (height: number) => {
         to: firstMessage?.to || '',
         amount: firstMessage?.amount || {
           value: '0',
-          denom: 'GNOT',
+          denom: GNOTToken.denom,
         },
         time: block?.block_meta.header.time || '',
         fee: {
-          value: makeDisplayTokenAmount(feeAmount) || '0',
-          denom: 'GNOT',
+          value: feeAmount.toString(),
+          denom: GNOTToken.denom,
         },
       };
     });
@@ -136,8 +137,41 @@ export const useBlock = (height: number) => {
     if (!block) {
       return '-';
     }
-    return toBech32Address('g', block.block.header.proposer_address);
+    return block.block.header.proposer_address;
   }, [block]);
+
+  const events: GnoEvent[] = useMemo(() => {
+    if (!blockResult) {
+      return [];
+    }
+
+    return (
+      (blockResult?.deliver_tx
+        ?.flatMap(
+          (result, index) =>
+            result?.ResponseBase?.Events?.map((event, eventIndex) => {
+              if (!block?.block.data.txs || !block?.block.data.txs?.[index]) {
+                return null;
+              }
+
+              const transaction = decodeTransaction(block?.block.data.txs?.[index]);
+              const eventId = transaction.hash + '_' + index + '_' + eventIndex;
+              const caller = transaction?.messages?.[0]?.caller || '';
+              return {
+                id: eventId,
+                transactionHash: transaction.hash,
+                type: event.type,
+                packagePath: event.pkg_path,
+                functionName: event.func,
+                attrs: event.attrs,
+                time: block.block.header.time,
+                caller,
+              };
+            }) || [],
+        )
+        .filter(event => !!event) as GnoEvent[]) || []
+    );
+  }, [block?.block.data.txs, blockResult]);
 
   const hasPreviousBlock = useMemo(() => {
     if (!block) {
@@ -168,6 +202,7 @@ export const useBlock = (height: number) => {
       hasPreviousBlock,
       hasNextBlock,
     },
+    events,
     transactionItems,
   };
 };

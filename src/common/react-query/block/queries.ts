@@ -75,7 +75,7 @@ export const useGetBlocksQuery = (
       }
 
       const maxHeight = latestHeight - (page - 1) * 20;
-      const minHeight = maxHeight - 20;
+      const minHeight = maxHeight - 20 > 0 ? maxHeight - 20 : 0;
       return blockRepository.getBlocks(minHeight + 1, maxHeight).then(blockMetas =>
         blockMetas.map(block => {
           const proposerAddress = toBech32Address('g', block.header.proposer_address);
