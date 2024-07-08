@@ -38,6 +38,13 @@ export const useAccount = (address: string) => {
     return transactions.sort((t1, t2) => t2.blockHeight - t1.blockHeight);
   }, [transactions]);
 
+  const transactionEvents = useMemo(() => {
+    if (!accountTransactions) {
+      return [];
+    }
+    return accountTransactions.flatMap(transaction => transaction.events || []);
+  }, [accountTransactions]);
+
   return {
     isFetched:
       isFetchedNativeTokenBalance &&
@@ -45,6 +52,7 @@ export const useAccount = (address: string) => {
       isFetchedGRC20Tokens &&
       isFetchedTokenMeta,
     accountTransactions,
+    transactionEvents,
     isFetchedAccountTransactions: isFetchedTransactions,
     tokenBalances,
     username: undefined,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
 import {useQuery, UseQueryResult} from 'react-query';
@@ -25,6 +25,8 @@ import {useGetGRC20TokenBalances, useGetNativeTokenBalance} from '@/common/react
 import {useAccount} from '@/common/hooks/account/use-account';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {Amount} from '@/types/data-type';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {EventDatatable} from '@/components/view/datatable/event';
 
 interface AccountDetailsPageProps {
   address: string;
@@ -40,14 +42,25 @@ interface StyleProps {
 const AccountDetails = ({address}: AccountDetailsPageProps) => {
   const media = eachMedia();
   const desktop = isDesktop();
-  const tokens = useRecoilValue(tokenState);
   const {getTokenImage, getTokenAmount, getTokenInfo} = useTokenMeta();
-
   const bech32Address = useMemo(() => {
     return address;
   }, [address]);
 
-  const {isFetched, tokenBalances, username} = useAccount(bech32Address);
+  const {isFetched, tokenBalances, username, transactionEvents} = useAccount(bech32Address);
+  const [currentTab, setCurrentTab] = useState('Transactions');
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Transactions',
+      },
+      {
+        tabName: 'Events',
+        size: transactionEvents.length,
+      },
+    ];
+  }, [transactionEvents]);
 
   return (
     <DetailsPageLayout title="Account Details" visible={!isFetched} keyword={`${address}`}>
@@ -102,9 +115,12 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
         </Content>
       </DataSection>
 
-      <DataSection title="Transactions">
-        {address && <AccountDetailDatatable address={`${address}`} />}
-      </DataSection>
+      <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+        {currentTab === 'Transactions' && <AccountDetailDatatable address={`${address}`} />}
+        {currentTab === 'Events' && (
+          <EventDatatable isFetched={isFetched} events={transactionEvents} />
+        )}
+      </DataListSection>
     </DetailsPageLayout>
   );
 };

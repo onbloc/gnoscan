@@ -1,4 +1,3 @@
-import {makeHexByBase64} from '@/common/utils/transaction.utility';
 import {HttpRPCClient, RPCClient, RPCResponse, makeRPCRequest} from '../rpc-client';
 import {
   NodeClient,
