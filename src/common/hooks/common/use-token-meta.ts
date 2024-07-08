@@ -3,6 +3,7 @@ import {useGetGRC20Tokens} from '@/common/react-query/realm';
 import {makeDisplayTokenAmount} from '@/common/utils/string-util';
 import {GNO_TOKEN_RESOURCE_BASE_URI} from '@/common/values/constant-value';
 import {Amount, TokenInfo} from '@/types/data-type';
+import BigNumber from 'bignumber.js';
 import {useCallback, useMemo} from 'react';
 
 export const GNOTToken: TokenInfo = {
@@ -75,7 +76,9 @@ export const useTokenMeta = () => {
         };
       }
       return {
-        value: makeDisplayTokenAmount(amountRaw, tokenInfo.decimals),
+        value: BigNumber(amountRaw)
+          .shiftedBy(tokenInfo.decimals * -1)
+          .toString(),
         denom: tokenInfo.symbol,
       };
     },

@@ -49,10 +49,6 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
 
   const {isFetched, tokenBalances, username} = useAccount(bech32Address);
 
-  useEffect(() => {
-    console.log('data', tokenBalances);
-  }, [tokenBalances]);
-
   return (
     <DetailsPageLayout title="Account Details" visible={!isFetched} keyword={`${address}`}>
       <DataSection title="Address">

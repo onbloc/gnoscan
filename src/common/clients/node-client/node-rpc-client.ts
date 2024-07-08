@@ -129,7 +129,7 @@ export class NodeRPCClient implements NodeClient {
   abciQuery(path: string, data = ''): Promise<NodeResponseABCIQuery> {
     const request = makeRPCRequest({
       method: 'abci_query',
-      params: [path, data],
+      params: [path, data, '0', false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
@@ -150,7 +150,7 @@ export class NodeRPCClient implements NodeClient {
 
     const request = makeRPCRequest({
       method: 'abci_query',
-      params: [path, prepareVMABCIQuery([packagePath])],
+      params: [path, prepareVMABCIQuery([packagePath]), '0', false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
@@ -161,7 +161,7 @@ export class NodeRPCClient implements NodeClient {
 
     const request = makeRPCRequest({
       method: 'abci_query',
-      params: [path, prepareVMABCIQuery([packagePath])],
+      params: [path, prepareVMABCIQuery([packagePath]), '0', false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
@@ -175,7 +175,7 @@ export class NodeRPCClient implements NodeClient {
 
     const request = makeRPCRequest({
       method: 'abci_query',
-      params: [path, paramQueryString],
+      params: [path, paramQueryString, '0', false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
@@ -195,7 +195,7 @@ export class NodeRPCClient implements NodeClient {
 
     const request = makeRPCRequest({
       method: 'abci_query',
-      params: [path, paramQueryString],
+      params: [path, paramQueryString, '0', false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
