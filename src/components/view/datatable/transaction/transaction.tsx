@@ -11,6 +11,7 @@ import theme from '@/styles/theme';
 import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
 import {useTransactions} from '@/common/hooks/transactions/use-transactions';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 const TOOLTIP_TYPE = (
   <>
@@ -35,6 +36,7 @@ export const TransactionDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
+  const {getTokenAmount} = useTokenMeta();
   const {transactions, hasNextPage, nextPage} = useTransactions({enabled: true});
   const [development, setDevelopment] = useState(false);
 
@@ -142,7 +144,7 @@ export const TransactionDatatable = () => {
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount value={data.amount.value} denom={data.amount.denom} />
+          <DatatableItem.Amount {...getTokenAmount(data.amount.denom, data.amount.value)} />
         ),
       )
       .build();
@@ -164,7 +166,7 @@ export const TransactionDatatable = () => {
       .name('Fee')
       .width(113)
       .className('fee')
-      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
+      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
       .build();
   };
 

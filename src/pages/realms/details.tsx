@@ -1,5 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
-import {useQuery, UseQueryResult} from 'react-query';
+import React, {useCallback, useMemo} from 'react';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
@@ -10,9 +9,6 @@ import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {RealmDetailDatatable} from '@/components/view/datatable';
-import {RealmDetailsModel} from '@/models/realm-details-model';
-import {getRealmDetails} from '@/repositories/api/fetchers/api-realm-details';
-import {realmDetailSelector} from '@/repositories/api/selector/select-realm-details';
 import Tooltip from '@/components/ui/tooltip';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
@@ -25,7 +21,7 @@ import {
 import {makeTemplate} from '@/common/utils/template.utils';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import {useRealm} from '@/common/hooks/realms/use-realm';
-import {makeDisplayTokenAmount} from '@/common/utils/string-util';
+import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -52,6 +48,16 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   const {currentNetwork} = useNetwork();
 
   const {summary, isFetched} = useRealm(path);
+
+  const {getTokenAmount} = useTokenMeta();
+
+  const balanceStr = useMemo(() => {
+    if (!summary?.balance) {
+      return '-';
+    }
+    const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
+    return `${amount.value} ${amount.denom}`;
+  }, [getTokenAmount, summary?.balance]);
 
   const moveGnoStudioViewRealm = useCallback(() => {
     const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
@@ -206,9 +212,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                 </div>
               </dt>
               <dd>
-                <Badge>
-                  {summary?.balance ? `${makeDisplayTokenAmount(summary.balance.value)} GNOT` : '-'}
-                </Badge>
+                <Badge>{balanceStr}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>

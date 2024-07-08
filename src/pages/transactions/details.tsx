@@ -17,7 +17,7 @@ import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
 import {useTransaction} from '@/common/hooks/transactions/use-transaction';
 import {parseTokenAmount} from '@/common/utils/token.utility';
-import {makeDisplayTokenAmount} from '@/common/utils/string-util';
+import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -43,7 +43,7 @@ const TransactionDetails = () => {
   const desktop = isDesktop();
   const {asPath, push} = useRouter();
   const hash = parseTxHash(asPath);
-  const {gas, network, timeStamp, transactionItem, isFetched} = useTransaction(hash);
+  const {gas, network, timeStamp, transactionItem, isFetched, isError} = useTransaction(hash);
 
   useEffect(() => {
     if (hash === '') {
@@ -56,16 +56,16 @@ const TransactionDetails = () => {
       title={'Transaction Details'}
       visible={!isFetched}
       keyword={`${hash}`}
-      error={!transactionItem?.success}>
-      {transactionItem?.success && (
+      error={isError}>
+      {!isError && transactionItem && (
         <>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Success</dt>
               <dd>
-                <Badge type={transactionItem?.success ? 'green' : 'failed'}>
+                <Badge type={transactionItem.success ? 'green' : 'failed'}>
                   <Text type="p4" color="white">
-                    {transactionItem?.success ? 'Success' : 'Failure'}
+                    {transactionItem.success ? 'Success' : 'Failure'}
                   </Text>
                 </Badge>
               </dd>
@@ -273,6 +273,8 @@ const AddPkgContract = ({message, desktop}: any) => {
 };
 
 const TransferContract = ({message, desktop}: any) => {
+  const {getTokenAmount} = useTokenMeta();
+
   return (
     <>
       <DLWrap desktop={desktop}>
@@ -282,8 +284,7 @@ const TransferContract = ({message, desktop}: any) => {
             <AmountText
               minSize="body2"
               maxSize="p4"
-              value={makeDisplayTokenAmount(parseTokenAmount(message?.amount || '0ugnot'))}
-              denom={'GNOT'}
+              {...getTokenAmount(GNOTToken.denom, parseTokenAmount(message?.amount || '0ugnot'))}
             />
           </Badge>
         </dd>

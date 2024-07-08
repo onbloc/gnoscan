@@ -1,5 +1,5 @@
 import mixins from '@/styles/mixins';
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 
 interface StyleProps {
   media?: string;
@@ -15,6 +15,32 @@ export const DetailsContainer = styled.div<StyleProps>`
   width: 100%;
   &:not(:first-of-type) {
     margin-top: ${({desktop}) => (desktop ? '24px' : '16px')};
+  }
+
+  .tab-area {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+
+    .tab-item {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      justify-content: center;
+      cursor: pointer;
+
+      .badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 14px;
+        background-color: ${({theme}) => theme.colors.surface};
+
+        &.small {
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
   }
 `;
 

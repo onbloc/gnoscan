@@ -3,18 +3,13 @@
 import React, {useEffect, useMemo} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import styled from 'styled-components';
-import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
 import {DatatableItem} from '..';
-import usePageQuery from '@/common/hooks/use-page-query';
-import {eachMedia} from '@/common/hooks/use-media';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
-import {StatusKeyType} from '@/common/utils';
 import {useBlock} from '@/common/hooks/blocks/use-block';
 import {Transaction} from '@/types/data-type';
-import {makeDisplayTokenAmount} from '@/common/utils/string-util';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 interface Props {
   height: string | number;
@@ -30,7 +25,7 @@ const TOOLTIP_TYPE = (
 
 export const BlockDetailDatatable = ({height}: Props) => {
   const themeMode = useRecoilValue(themeState);
-  const media = eachMedia();
+  const {getTokenAmount} = useTokenMeta();
 
   const {isFetched, isFetchedBlockResult, transactionItems} = useBlock(Number(height));
 
@@ -111,7 +106,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount value={amount.value} denom={amount.denom} />
+          <DatatableItem.Amount {...getTokenAmount(amount.denom, amount.value)} />
         ),
       )
       .build();
@@ -134,7 +129,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .width(113)
       .className('fee')
       .renderOption(({value, denom}: {value: string; denom: string}) => (
-        <DatatableItem.Amount value={value} denom={denom} />
+        <DatatableItem.Amount {...getTokenAmount(denom, value)} />
       ))
       .build();
   };

@@ -11,6 +11,7 @@ interface Props<T> {
   loading?: boolean;
   sortOption?: {field: string; order: string};
   setSortOption?: (sortOption: {field: any; order: any}) => void;
+  renderDetails?: (data: T) => React.ReactNode;
 }
 
 export const Datatable = <T extends {[key in string]: any}>({
@@ -20,6 +21,7 @@ export const Datatable = <T extends {[key in string]: any}>({
   sortOption,
   loading,
   setSortOption,
+  renderDetails,
 }: Props<T>) => {
   const datatableRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +50,7 @@ export const Datatable = <T extends {[key in string]: any}>({
             <IconTabelLoading />
           </div>
         ) : datas?.length > 0 ? (
-          <DatatableData.DataList headers={headers} datas={datas} />
+          <DatatableData.DataList headers={headers} datas={datas} renderDetails={renderDetails} />
         ) : (
           <div className="no-content-wrapper">
             <span>{'No data to display'}</span>

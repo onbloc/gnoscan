@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
 import {useQuery, UseQueryResult} from 'react-query';
@@ -21,6 +21,10 @@ import {AccountDetailsModel, AssetsDataType} from '@/models/account-details-mode
 import {useRecoilValue} from 'recoil';
 import {tokenState} from '@/states';
 import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
+import {useGetGRC20TokenBalances, useGetNativeTokenBalance} from '@/common/react-query/account';
+import {useAccount} from '@/common/hooks/account/use-account';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {Amount} from '@/types/data-type';
 
 interface AccountDetailsPageProps {
   address: string;
@@ -37,75 +41,69 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
   const media = eachMedia();
   const desktop = isDesktop();
   const tokens = useRecoilValue(tokenState);
-  const {
-    data: detail,
-    isSuccess: detailSuccess,
-    isFetched,
-  }: UseQueryResult<AccountDetailsModel> = useQuery(
-    ['detail/address', address],
-    async () => await getAccountDetails(address),
-    {
-      enabled: !!address && tokens.length > 0,
-      retry: 0,
-      select: (res: any) => accountDetailSelector(res.data, tokens),
-    },
-  );
+  const {getTokenImage, getTokenAmount, getTokenInfo} = useTokenMeta();
+
+  const bech32Address = useMemo(() => {
+    return address;
+  }, [address]);
+
+  const {isFetched, tokenBalances, username} = useAccount(bech32Address);
+
+  useEffect(() => {
+    console.log('data', tokenBalances);
+  }, [tokenBalances]);
 
   return (
-    <DetailsPageLayout
-      title="Account Details"
-      visible={!isFetched}
-      keyword={`${address}`}
-      error={!detailSuccess}>
+    <DetailsPageLayout title="Account Details" visible={!isFetched} keyword={`${address}`}>
       <DataSection title="Address">
-        {detailSuccess && (
-          <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
-            <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
-              {detail.address}
-              <Tooltip
-                className="address-copy-tooltip"
-                content="Copied!"
-                trigger="click"
-                copyText={detail?.address}
-                width={85}>
-                <IconCopy className={`svg-icon ${detail.username ? '' : 'tidy'}`} />
-              </Tooltip>
-              {detail.username && (
-                <Text type="p4" color="blue" className="username-text">
-                  <StyledA
-                    href={`https://test3.gno.land/r/demo/users:${detail.username}`}
-                    target="_blank"
-                    rel="noreferrer">
-                    {detail.username}
-                    <IconLink className="svg-icon" />
-                  </StyledA>
-                </Text>
-              )}
-            </AddressTextBox>
-          </GrayBox>
-        )}
+        <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
+          <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
+            {bech32Address}
+            <Tooltip
+              className="address-copy-tooltip"
+              content="Copied!"
+              trigger="click"
+              copyText={bech32Address}
+              width={85}>
+              <IconCopy className={`svg-icon ${username ? '' : 'tidy'}`} />
+            </Tooltip>
+            {/* {username && (
+              <Text type="p4" color="blue" className="username-text">
+                <StyledA
+                  href={`https://test3.gno.land/r/demo/users:${username}`}
+                  target="_blank"
+                  rel="noreferrer">
+                  {username}
+                  <IconLink className="svg-icon" />
+                </StyledA>
+              </Text>
+            )} */}
+          </AddressTextBox>
+        </GrayBox>
       </DataSection>
       <DataSection title="Assets">
-        {detailSuccess && (
-          <Content className={media}>
-            {detail.assets.map((v: AssetsDataType) => (
-              <GrayBox key={v1()} padding={desktop ? '16px 24px' : '12px 16px'}>
-                <LogoImg>
-                  {v.image ? (
-                    <img src={v.image} alt="token-image" />
-                  ) : (
-                    <UnknownToken className="unknown-token" width="40" height="40" />
-                  )}
-                </LogoImg>
+        <Content className={media}>
+          {tokenBalances.map((amount: Amount, index: number) => (
+            <GrayBox key={index} padding={desktop ? '16px 24px' : '12px 16px'}>
+              <LogoImg>
+                {getTokenImage(amount.denom) ? (
+                  <img src={getTokenImage(amount.denom)} alt="token-image" />
+                ) : (
+                  <UnknownToken className="unknown-token" width="40" height="40" />
+                )}
+              </LogoImg>
 
-                <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
-                  {v.name}
-                </Text>
-                <AmountText minSize="p4" maxSize="p3" value={v.value} />
-              </GrayBox>
-            ))}
-          </Content>
-        )}
+              <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
+                {getTokenInfo(amount.denom)?.name || ''}
+              </Text>
+              <AmountText
+                minSize="p4"
+                maxSize="p3"
+                {...getTokenAmount(amount.denom, amount.value)}
+              />
+            </GrayBox>
+          ))}
+        </Content>
       </DataSection>
 
       <DataSection title="Transactions">

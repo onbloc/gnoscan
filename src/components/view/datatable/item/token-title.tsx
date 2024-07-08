@@ -1,7 +1,8 @@
 import Text from '@/components/ui/text';
 import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 interface Props {
   token: string | undefined;
@@ -12,11 +13,21 @@ interface Props {
 }
 
 export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
+  const {getTokenImage} = useTokenMeta();
+
+  const imageUrl = useMemo(() => {
+    if (!imagePath) {
+      return null;
+    }
+    console.log(imagePath, getTokenImage(imagePath));
+    return getTokenImage(imagePath);
+  }, [getTokenImage, imagePath]);
+
   return (
     <a href={`/tokens/${pkgPath}`}>
       <TokenTitleWrapper>
-        {imagePath && imagePath !== '' ? (
-          <img className="token" src={imagePath} alt="token logo" />
+        {imageUrl ? (
+          <img className="token" src={getTokenImage(imageUrl)} alt="token logo" />
         ) : (
           <div className="unknown-token">
             <UnknownToken width="20" height="20" />

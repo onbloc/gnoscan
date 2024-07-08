@@ -1,5 +1,4 @@
 import {useTransactions} from '@/common/hooks/transactions/use-transactions';
-import useLoading from '@/common/hooks/use-loading';
 import Text from '@/components/ui/text';
 import {TransactionDatatable} from '@/components/view/datatable';
 import LoadingPage from '@/components/view/loading/page';

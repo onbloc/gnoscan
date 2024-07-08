@@ -11,6 +11,7 @@ import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {Transaction} from '@/types/data-type';
 import {useRealm} from '@/common/hooks/realms/use-realm';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 interface Props {
   pkgPath: string;
@@ -27,6 +28,7 @@ const TOOLTIP_TYPE = (
 export const RealmDetailDatatable = ({pkgPath}: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
+  const {getTokenAmount} = useTokenMeta();
 
   const {isFetched, realmTransactions, hasNextPage, nextPage} = useRealm(pkgPath);
 
@@ -100,7 +102,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount value={amount?.value || '0'} denom={amount?.denom || 'ugnot'} />
+          <DatatableItem.Amount {...getTokenAmount(amount.denom, amount.value)} />
         ),
       )
       .build();
@@ -122,7 +124,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
       .name('Fee')
       .width(113)
       .className('fee')
-      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
+      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
       .build();
   };
 

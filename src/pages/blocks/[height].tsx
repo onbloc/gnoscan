@@ -3,7 +3,7 @@
 import {DetailsPageLayout} from '@/components/core/layout';
 import {ButtonProps} from '@/components/ui/button';
 import mixins from '@/styles/mixins';
-import React from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
 import IconArrow from '@/assets/svgs/icon-arrow.svg';
 import {isDesktop} from '@/common/hooks/use-media';
@@ -16,6 +16,8 @@ import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {useBlock} from '@/common/hooks/blocks/use-block';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {BlockEventDatatable} from '@/components/view/datatable/block-detail/block-event-datatable';
 
 interface TitleOptionProps {
   prevProps: {
@@ -49,7 +51,24 @@ const BlockDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
   const {height} = router.query;
-  const {block, isFetched} = useBlock(Number(height));
+  const {block, events, isFetched} = useBlock(Number(height));
+  const [currentTab, setCurrentTab] = useState('Transactions');
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Transactions',
+      },
+      {
+        tabName: 'Events',
+        size: events.length,
+      },
+    ];
+  }, [events]);
+
+  useEffect(() => {
+    console.log(events);
+  }, [events]);
 
   return (
     <DetailsPageLayout
@@ -124,9 +143,10 @@ const BlockDetails = () => {
         </DLWrap>
       </DataSection>
 
-      <DataSection title="Transactions">
-        {height && <BlockDetailDatatable height={`${height}`} />}
-      </DataSection>
+      <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+        {currentTab === 'Transactions' && <BlockDetailDatatable height={`${height}`} />}
+        {currentTab === 'Events' && <BlockEventDatatable height={`${height}`} />}
+      </DataListSection>
     </DetailsPageLayout>
   );
 };

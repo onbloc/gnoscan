@@ -1,20 +1,17 @@
 'use client';
 
-import React, {useCallback} from 'react';
+import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
-import {themeState, tokenState} from '@/states';
+import {themeState} from '@/states';
 import theme from '@/styles/theme';
 import styled from 'styled-components';
 import {eachMedia} from '@/common/hooks/use-media';
 import {Button} from '@/components/ui/button';
 import {useTokens} from '@/common/hooks/tokens/use-tokens';
-import {GRC20Info} from '@/repositories/realm-repository.ts';
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -26,7 +23,6 @@ const TOOLTIP_PACAKGE_PATH = (
 export const TokenDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const tokenInfos = useRecoilValue(tokenState);
 
   const {tokens, hasNextPage, isFetched, nextPage} = useTokens();
 
@@ -51,7 +47,7 @@ export const TokenDatatable = () => {
       .renderOption((_, data: any) => (
         <DatatableItem.TokenTitle
           token={data.symbol}
-          imagePath={undefined}
+          imagePath={data.packagePath}
           name={data.name}
           symbol={data.symbol}
           pkgPath={data.packagePath}
