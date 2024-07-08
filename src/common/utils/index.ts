@@ -29,7 +29,7 @@ export function formatEllipsis(v: string, num = 11, ellipsis = 2) {
 }
 
 export const decimalPointWithCommas = (v: BigNumber, fixed?: number): string[] | string => {
-  if (!Boolean(v)) return ['0'];
+  if (!Boolean(v) || BigNumber(v).isNaN()) return ['0'];
   const fix = fixed ?? 6;
   const commasNum = numberWithFixedCommas(v, fix);
   return commasNum.split('.');

@@ -11,20 +11,31 @@ export function parseGRC20InfoByFile(file: string): {
   name: string;
   symbol: string;
   decimals: number;
+  owner: string;
 } | null {
   const constructRegexp = /\((.*)\)/;
   const constructFunctionName = '.NewAdminToken';
   const functionRegexp = /([a-zA-Z0-9])+/;
+  const adminRegexp = /(\w+)\s+std\.Address\s*=\s*"([^"]*)"/;
 
   let grc20Info: {
     name: string;
     symbol: string;
     decimals: number;
+    owner: string;
   } | null = null;
+  let owner: string | null = '';
   const functions: string[] = [];
 
   for (const line of file.split('\n')) {
     const trimLine = line.replaceAll('\t', '').trim();
+
+    if (!owner) {
+      const adminParams = trimLine.match(adminRegexp);
+      if (adminParams && adminParams.length > 2) {
+        owner = adminParams[2];
+      }
+    }
 
     if (!grc20Info && trimLine.includes(constructFunctionName)) {
       const exec = constructRegexp.exec(trimLine);
@@ -37,6 +48,7 @@ export function parseGRC20InfoByFile(file: string): {
             name: params[0],
             symbol: params[1],
             decimals: Number(params[2]),
+            owner: '',
           };
         }
       }
@@ -51,12 +63,12 @@ export function parseGRC20InfoByFile(file: string): {
     }
   }
 
-  if (!grc20Info) {
+  if (!grc20Info || !owner) {
     return null;
   }
 
   if (!GRC20_FUNCTIONS.every(func => functions.includes(func))) {
     return null;
   }
-  return grc20Info;
+  return {...grc20Info, owner};
 }
