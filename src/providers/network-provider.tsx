@@ -34,21 +34,31 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   const {query} = useRouter();
 
   const currentChainInfo = useMemo(() => {
-    const chainIds = chains.map(chain => chain.chainId);
-    const chainId = chainIds.includes(query?.chainId?.toString() || '')
-      ? query?.chainId?.toString()
-      : 'portal-loop';
+    if (query?.type === 'custom') {
+      return {
+        chainId: '',
+        name: 'Custom Network',
+        isCustom: true,
+        rpcUrl: `${query?.rpcUrl}` || null,
+        indexerUrl: `${query?.indexerUrl}` || null,
+        apiUrl: null,
+      };
+    }
+
+    const chain = chains.find(chain => chain.chainId === query?.chainId?.toString()) || chains[0];
 
     return {
-      chainId,
-      isCustom: query?.type === 'custom',
-      rpcUrl: query?.rpcUrl || null,
-      indexerUrl: query?.indexerUrl || null,
+      chainId: chain.chainId,
+      name: chain.name,
+      isCustom: false,
+      rpcUrl: chain.rpcUrl,
+      indexerUrl: chain.indexerUrl,
+      apiUrl: chain.apiUrl,
     };
-  }, [query]);
+  }, [chains, query]);
 
   const currentNetwork: ChainModel = useMemo(() => {
-    return chains.find(chain => chain.chainId === currentChainInfo.chainId) || chains[0];
+    return currentChainInfo;
   }, [currentChainInfo]);
 
   const nodeRPCClient = useMemo(() => {

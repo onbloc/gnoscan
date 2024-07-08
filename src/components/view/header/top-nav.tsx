@@ -81,8 +81,8 @@ export const TopNav = () => {
   );
 
   const networkSettingHandler = useCallback((chainId: string) => {
-    window.location.replace(basePath + '?chainId=' + chainId);
-    setOpen(false);
+    replace(basePath + '?chainId=' + chainId);
+    setToggle(false);
   }, []);
 
   return (
@@ -114,7 +114,6 @@ export const TopNav = () => {
 
       <Network
         entry={entry}
-        currentChainId={currentNetwork.chainId}
         chains={chains}
         toggle={toggle}
         toggleHandler={toggleHandler}

@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useMemo, useState} from 'react';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 import {
   useGetAccountTransactions,
@@ -13,6 +13,7 @@ export const useAccount = (address: string) => {
   const {data: grc20Balances, isFetched: isFetchedGRC20TokenBalance} =
     useGetGRC20TokenBalances(address);
   const {data: transactions, isFetched: isFetchedTransactions} = useGetAccountTransactions(address);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const tokenBalances = useMemo(() => {
     if (!nativeBalance) {
@@ -38,6 +39,16 @@ export const useAccount = (address: string) => {
     return transactions.sort((t1, t2) => t2.blockHeight - t1.blockHeight);
   }, [transactions]);
 
+  const accountDisplayTransactions = useMemo(() => {
+    if (!accountTransactions) {
+      return [];
+    }
+    const nextIndex = (currentPage + 1) * 20;
+    const endIndex =
+      accountTransactions.length > nextIndex ? nextIndex : accountTransactions.length;
+    return accountTransactions.filter((_: unknown, index: number) => index < endIndex);
+  }, [accountTransactions, currentPage]);
+
   const transactionEvents = useMemo(() => {
     if (!accountTransactions) {
       return [];
@@ -45,16 +56,30 @@ export const useAccount = (address: string) => {
     return accountTransactions.flatMap(transaction => transaction.events || []);
   }, [accountTransactions]);
 
+  const hasNextPage = useMemo(() => {
+    if (!accountTransactions) {
+      return false;
+    }
+
+    return accountTransactions.length > (currentPage + 1) * 20;
+  }, [currentPage, accountTransactions?.length]);
+
+  function nextPage() {
+    setCurrentPage(prev => prev + 1);
+  }
+
   return {
     isFetched:
       isFetchedNativeTokenBalance &&
       isFetchedGRC20TokenBalance &&
       isFetchedGRC20Tokens &&
       isFetchedTokenMeta,
-    accountTransactions,
+    accountTransactions: accountDisplayTransactions,
     transactionEvents,
     isFetchedAccountTransactions: isFetchedTransactions,
     tokenBalances,
     username: undefined,
+    hasNextPage,
+    nextPage,
   };
 };

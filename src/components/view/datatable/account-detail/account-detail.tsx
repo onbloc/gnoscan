@@ -33,7 +33,8 @@ export const AccountDetailDatatable = ({address}: Props) => {
   const media = eachMedia();
 
   const {getTokenAmount} = useTokenMeta();
-  const {isFetchedAccountTransactions, accountTransactions} = useAccount(address);
+  const {isFetchedAccountTransactions, accountTransactions, hasNextPage, nextPage} =
+    useAccount(address);
   const [development, setDevelopment] = useState(false);
 
   useEffect(() => {
@@ -180,14 +181,13 @@ export const AccountDetailDatatable = ({address}: Props) => {
         })}
         datas={accountTransactions}
       />
-      {/* 
       {hasNextPage ? (
-        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => nextPage()}>
           {'View More Transactions'}
         </Button>
       ) : (
-        <></>
-      )} */}
+        <React.Fragment />
+      )}
     </Container>
   );
 };
