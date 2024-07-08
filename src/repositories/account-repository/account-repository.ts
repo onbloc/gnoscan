@@ -1,5 +1,5 @@
 import {NodeRPCClient} from '@/common/clients/node-client';
-import {ITransactionRepository} from './types';
+import {IAccountRepository} from './types';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {
   TRANSACTIONS_QUERY,
@@ -9,6 +9,11 @@ import {
 import {Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
+import {parseABCI} from '@gnolang/tm2-js-client';
+import {
+  extractStringFromResponse,
+  parseABCIQueryNumberResponse,
+} from '@/common/clients/node-client/utility';
 
 function mapTransaction(data: any): Transaction {
   const firstMessage = data.messages[0]?.value;
@@ -36,11 +41,41 @@ function mapTransaction(data: any): Transaction {
   };
 }
 
-export class TransactionRepository implements ITransactionRepository {
+export class AccountRepository implements IAccountRepository {
   constructor(
     private nodeRPCClient: NodeRPCClient | null,
     private indexerClient: IndexerClient | null,
   ) {}
+
+  async getNativeTokensBalances(address: string): Promise<any> {
+    if (!this.nodeRPCClient) {
+      return null;
+    }
+
+    return this.nodeRPCClient
+      .abciQueryBankBalances(address)
+      .then(response =>
+        response.response.ResponseBase.Data ? parseABCI(response.response.ResponseBase.Data) : null,
+      );
+  }
+
+  async getGRC20TokensBalances(address: string, tokenPaths: string[]): Promise<any> {
+    if (!this.nodeRPCClient) {
+      return null;
+    }
+
+    const fetchers = tokenPaths.map(path =>
+      this.nodeRPCClient?.abciQueryVMQueryEvaluation(path, 'BalanceOf', [address]).then(response =>
+        response.response.ResponseBase.Data
+          ? {
+              denom: path,
+              value: parseABCIQueryNumberResponse(response.response.ResponseBase.Data).toString(),
+            }
+          : null,
+      ),
+    );
+    return Promise.all(fetchers).then(results => results.filter(result => !!result));
+  }
 
   async getTransactions(minBlockHeight: number, maxBlockHeight: number): Promise<Transaction[]> {
     if (!this.indexerClient) {
@@ -50,18 +85,6 @@ export class TransactionRepository implements ITransactionRepository {
     return this.indexerClient
       ?.query(TRANSACTIONS_QUERY)
       .then(result => result?.data?.transactions?.map(mapTransaction) || []);
-  }
-
-  async getTransactionBlockHeight(transactionHash: string): Promise<number | null> {
-    if (!this.indexerClient) {
-      return null;
-    }
-
-    return this.indexerClient
-      ?.query(makeTransactionHashQuery(transactionHash))
-      .then(result =>
-        result.data.transactions.length > 0 ? result.data.transactions[0].block_height : null,
-      );
   }
 
   async getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {

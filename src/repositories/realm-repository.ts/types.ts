@@ -9,13 +9,20 @@ export interface IRealmRepository {
 
   getRealmTransactions(realmPath: string): Promise<RealmTransaction[] | null>;
 
+  getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null>;
+
   getRealmTransactionInfos(): Promise<{[key in string]: RealmTransactionInfo} | null>;
 
   getRealmBalance(realmPath: string): Promise<Amount | null>;
 
-  getTokens(): Promise<any>;
+  getTokens(): Promise<GRC20Info[] | null>;
 
-  getToken(tokenPath: string): Promise<any>;
+  getToken(tokenPath: string): Promise<{
+    realmTransaction: RealmTransaction<AddPackageValue>;
+    tokenInfo: GRC20Info;
+  } | null>;
+
+  getUsernames(): Promise<{[key in string]: string}>;
 }
 
 export interface RealmFunction {
@@ -60,6 +67,7 @@ export interface MsgCallValue {
   send?: string;
   pkg_path?: string;
   func?: string;
+  args?: string[];
 }
 
 export interface AddPackageValue {
@@ -80,6 +88,7 @@ export interface Package {
 
 export interface GRC20Info {
   packagePath: string;
+  owner: string;
   name: string;
   symbol: string;
   decimals: number;

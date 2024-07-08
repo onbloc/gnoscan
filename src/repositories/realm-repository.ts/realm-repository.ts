@@ -3,6 +3,7 @@ import {
   AddPackageValue,
   GRC20Info,
   IRealmRepository,
+  MsgCallValue,
   RealmFunction,
   RealmTransaction,
   RealmTransactionInfo,
@@ -14,7 +15,9 @@ import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {Amount} from '@/types/data-type';
 import {isAddPackageMessageValue} from './mapper';
-import {parseGRC20InfoByFile} from '@/common/utils/realm.utility';
+import {GRC20_FUNCTIONS, parseGRC20InfoByFile} from '@/common/utils/realm.utility';
+import {message} from 'antd';
+import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
@@ -125,8 +128,8 @@ export class RealmRepository implements IRealmRepository {
       .then(data =>
         data
           ? ({
-              value: parseTokenAmount(data),
-              denom: 'ugnot',
+              value: parseTokenAmount(data).toString(),
+              denom: GNOTToken.denom,
             } as Amount)
           : null,
       )
@@ -215,6 +218,65 @@ export class RealmRepository implements IRealmRepository {
           send
           pkg_path
           func
+        }
+      }
+    }
+  }
+}`,
+      )
+      .then(result => result?.data?.transactions || []);
+  }
+
+  async getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient
+      .query(
+        gql`
+{
+  transactions(filter: {
+    message: {
+      vm_param: {
+				add_package: {
+          package: {
+            path: "${realmPath}"
+          }
+        }
+        exec: {
+          pkg_path: "${realmPath}"
+        }
+      }
+    }
+  }) {
+    hash
+    index
+    success
+    block_height
+    gas_wanted
+    gas_used
+    gas_fee {
+      amount
+      denom
+    }
+    messages {
+      value {
+        __typename
+        ...on MsgAddPackage {
+          creator
+          deposit
+          package {
+            name
+            path
+          }
+        }
+        ...on  MsgCall{
+          caller
+          send
+          pkg_path
+          func
+          args
         }
       }
     }
@@ -353,7 +415,155 @@ export class RealmRepository implements IRealmRepository {
       .filter(info => !!info) as GRC20Info[];
   }
 
-  getToken(): Promise<any> {
-    throw new Error('Method not implemented.');
+  async getToken(packagePath: string): Promise<{
+    realmTransaction: RealmTransaction<AddPackageValue>;
+    tokenInfo: GRC20Info;
+  } | null> {
+    if (!this.nodeClient || !this.indexerClient) {
+      return null;
+    }
+
+    const transactions = await this.indexerClient
+      .query(
+        gql`
+          {
+            transactions(
+              filter: {
+                success: true
+                message: {
+                  type_url: add_package
+                  vm_param: {add_package: {package: {path: "gno.land/r/demo/tong"}}}
+                }
+              }
+            ) {
+              hash
+              index
+              success
+              block_height
+              messages {
+                value {
+                  __typename
+                  ... on MsgAddPackage {
+                    creator
+                    package {
+                      name
+                      path
+                      files {
+                        name
+                        body
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+      )
+      .then(result => (result?.data?.transactions as RealmTransaction<AddPackageValue>[]) || null)
+      .catch(() => null);
+    if (!transactions || transactions?.length < 1) {
+      return null;
+    }
+
+    const realmTransaction = transactions[0];
+    const tokenInfo = realmTransaction.messages
+      .map(message => {
+        const files = message.value.package?.files;
+        if (!files) {
+          return null;
+        }
+
+        for (const file of files) {
+          const tokenInfo = parseGRC20InfoByFile(file.body);
+          const tokenPath = message.value.package?.path;
+          if (tokenInfo && tokenPath === packagePath) {
+            return {
+              ...tokenInfo,
+              packagePath,
+            };
+          }
+        }
+
+        return null;
+      })
+      .filter(info => !!info)[0];
+
+    if (!tokenInfo) {
+      return null;
+    }
+
+    return {
+      realmTransaction,
+      tokenInfo: {
+        name: tokenInfo.name,
+        symbol: tokenInfo.symbol,
+        decimals: tokenInfo.decimals,
+        owner: tokenInfo.owner,
+        holders: 0,
+        functions: GRC20_FUNCTIONS,
+        totalSupply: 0,
+        packagePath,
+      },
+    };
+  }
+
+  async getUsernames(): Promise<{[key in string]: string}> {
+    if (!this.indexerClient) {
+      return {};
+    }
+
+    const transactions = await this.indexerClient
+      .query(
+        gql`
+          {
+            transactions(
+              filter: {
+                success: true
+                message: {
+                  type_url: add_package
+                  vm_param: {add_package: {package: {path: "gno.land/r/demo/tong"}}}
+                }
+              }
+            ) {
+              hash
+              index
+              success
+              block_height
+              messages {
+                value {
+                  __typename
+                  ... on MsgAddPackage {
+                    creator
+                    package {
+                      name
+                      path
+                      files {
+                        name
+                        body
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+      )
+      .then(result => (result?.data?.transactions as RealmTransaction<MsgCallValue>[]) || null)
+      .catch(() => null);
+
+    if (!transactions) {
+      return {};
+    }
+
+    return transactions
+      .flatMap(tx => tx.messages)
+      .reduce<{[key in string]: string}>((accum, current) => {
+        if (current.value.caller && current.value.args) {
+          accum[current.value.caller] = current.value.args?.[1] || current.value.caller;
+        }
+        return accum;
+      }, {});
   }
 }

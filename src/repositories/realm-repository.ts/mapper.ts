@@ -37,6 +37,30 @@ export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
     };
   }
 
+  if (tx.messages.length === 1 && firstMessage.value.func === 'Transfer') {
+    return {
+      hash: tx.hash,
+      success: tx.success,
+      numOfMessage: tx.messages.length,
+      type: '/vm.m_call',
+      packagePath: toString(firstMessage.value.pkg_path),
+      functionName: toString(firstMessage.value.func),
+      blockHeight: toNumber(tx.block_height),
+      from: toString(firstMessage.value.caller),
+      to: firstMessage.value.args?.[1] || '',
+      amount: {
+        value: toString(firstMessage.value.args?.[1] || 0),
+        denom: firstMessage.value.pkg_path || '',
+      },
+      time: '',
+      fee: {
+        value: toString(tx.gas_fee.amount),
+        denom: 'ugnot',
+      },
+      messages: tx.messages,
+    };
+  }
+
   return {
     hash: tx.hash,
     success: tx.success,

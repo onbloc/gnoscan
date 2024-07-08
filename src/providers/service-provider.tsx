@@ -1,4 +1,5 @@
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {AccountRepository, IAccountRepository} from '@/repositories/account-repository';
 import {BlockRepository, IBlockRepository} from '@/repositories/block-repository';
 import {ChainRepository, IChainRepository} from '@/repositories/chain-repository';
 import {IRealmRepository, RealmRepository} from '@/repositories/realm-repository.ts';
@@ -10,12 +11,13 @@ interface ServiceContextProps {
   blockRepository: IBlockRepository | null;
   transactionRepository: ITransactionRepository | null;
   realmRepository: IRealmRepository | null;
+  accountRepository: IAccountRepository | null;
 }
 
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
 
 const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
-  const {currentNetwork, indexerQueryClient, nodeRPCClient, onblocRPCClient} = useNetworkProvider();
+  const {indexerQueryClient, nodeRPCClient} = useNetworkProvider();
 
   const chainRepository = useMemo(() => new ChainRepository(nodeRPCClient), [nodeRPCClient]);
 
@@ -31,6 +33,11 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
     [nodeRPCClient, indexerQueryClient],
   );
 
+  const accountRepository = useMemo(
+    () => new AccountRepository(nodeRPCClient, indexerQueryClient),
+    [nodeRPCClient, indexerQueryClient],
+  );
+
   return (
     <ServiceContext.Provider
       value={{
@@ -38,6 +45,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
         blockRepository,
         transactionRepository,
         realmRepository,
+        accountRepository,
       }}>
       {children}
     </ServiceContext.Provider>
