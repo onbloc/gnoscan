@@ -17,8 +17,8 @@ export const useMonthlyActiveBoards = () => {
         uniqueUsers: string[];
       };
     } = {};
-    // AddReply
-    data.forEach(tx => {
+
+    data?.forEach(tx => {
       const matchedMessage = tx.messages.find(message => {
         return message.value.func === 'gno.land/r/demo/boards';
       });

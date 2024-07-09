@@ -61,3 +61,26 @@ export const useGetTransactionsQuery = (
     ...options,
   });
 };
+
+export const useGetUsingAccountTransactionCount = (options?: UseQueryOptions<number, Error>) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {transactionRepository} = useServiceProvider();
+
+  return useQuery<number, Error>({
+    queryKey: [QUERY_KEY.useGetUsingAccountTransactionCount, currentNetwork?.chainId || ''],
+    queryFn: async () => {
+      if (!transactionRepository) {
+        return 0;
+      }
+      const transactions = await transactionRepository.getTransactions(0, 0);
+      const allAccounts: string[] = transactions
+        .flatMap(tx => [tx?.from, tx?.to || ''])
+        .filter(account => !!account);
+
+      return [...new Set(allAccounts)].length;
+    },
+    enabled: !!transactionRepository && options?.enabled,
+    keepPreviousData: true,
+    ...options,
+  });
+};

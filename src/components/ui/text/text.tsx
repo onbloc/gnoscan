@@ -1,7 +1,6 @@
 import styled, {css} from 'styled-components';
 import React, {CSSProperties, PropsWithChildren} from 'react';
-import theme, {FontsType} from '@/styles/theme';
-import {eachMedia} from '@/common/hooks/use-media';
+import {FontsType} from '@/styles/theme';
 
 export interface TextProps extends React.ComponentPropsWithoutRef<'div'> {
   className?: string;

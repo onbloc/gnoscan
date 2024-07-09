@@ -1,19 +1,14 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Text from '@/components/ui/text';
 import IconInfo from '@/assets/svgs/icon-info.svg';
 import {Button} from '@/components/ui/button';
 import Tooltip from '@/components/ui/tooltip';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
 import {useAccountSummaryInfo} from '@/common/hooks/main/use-account-summary-info';
-import {useGetBefore30DBlock} from '@/common/hooks/common/use-get-before-30d-block';
+import {makeDisplayNumber} from '@/common/utils/string-util';
 
 export const AccountCard = () => {
-  const {data} = useGetBefore30DBlock();
   const {isFetched, accountSummaryInfo} = useAccountSummaryInfo();
-
-  useEffect(() => {
-    console.log('data', data);
-  }, [data]);
 
   return (
     <>
@@ -24,7 +19,7 @@ export const AccountCard = () => {
         isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {accountSummaryInfo.totalAccounts}
+            {makeDisplayNumber(accountSummaryInfo.totalAccounts || 0)}
           </Text>
         }
       />

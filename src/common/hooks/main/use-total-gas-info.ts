@@ -17,7 +17,7 @@ export const useTotalGasInfo = () => {
     const dateTotalGas: {[key in string]: number} = {};
     const realmTotalGas: {[key in string]: number} = {};
 
-    data.forEach(tx => {
+    data?.forEach(tx => {
       const blockTime = new Date(tx.time || '');
       const pkgPath = tx.messages?.[0].value.pkg_path;
       if (!pkgPath) {

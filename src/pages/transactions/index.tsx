@@ -9,7 +9,6 @@ const Transactions = () => {
   const {isFetched} = useTransactions({enabled: false});
 
   useEffect(() => {
-    console.log(isFetched);
     window?.dispatchEvent(new Event('resize'));
   }, [isFetched]);
 

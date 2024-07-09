@@ -52,7 +52,7 @@ export const useTransactions = ({enabled = true}) => {
 
   return {
     transactions: transactionWithTimes,
-    isFetched: !!transactionWithTimes && isFetched && isFetchedTransactionWithTimes,
+    isFetched: isFetchedTransactionWithTimes,
     nextPage,
     hasNextPage,
   };

@@ -17,7 +17,7 @@ export const useMonthlyActiveAccounts = () => {
       };
     } = {};
 
-    data.forEach(tx => {
+    data?.forEach(tx => {
       const matchedMessage = tx.messages.find(message => {
         const account =
           message.value.caller || message.value.creator || message.value.from_address || null;

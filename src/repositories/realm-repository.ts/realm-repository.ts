@@ -589,28 +589,20 @@ export class RealmRepository implements IRealmRepository {
               filter: {
                 success: true
                 message: {
-                  type_url: add_package
-                  vm_param: {add_package: {package: {path: "gno.land/r/demo/tong"}}}
+                  type_url: exec
+                  vm_param: {exec: {pkg_path: "gno.land/r/demo/users", func: "Register"}}
                 }
               }
             ) {
               hash
               index
               success
-              block_height
               messages {
                 value {
                   __typename
-                  ... on MsgAddPackage {
-                    creator
-                    package {
-                      name
-                      path
-                      files {
-                        name
-                        body
-                      }
-                    }
+                  ... on MsgCall {
+                    args
+                    caller
                   }
                 }
               }

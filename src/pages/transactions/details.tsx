@@ -207,9 +207,9 @@ const ContractDetails: React.FC<{
   return (
     <React.Fragment>
       {messages.map((message: any, i: number) => (
-        <ContractListBox key={v1()}>
+        <ContractListBox key={i}>
           {transactionItem.numOfMessage > 1 && (
-            <Text type="h6" color="white" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+            <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
           )}
           {message['@type'] !== '/bank.MsgSend' && (
             <>
@@ -217,7 +217,7 @@ const ContractDetails: React.FC<{
                 <dt>Name</dt>
                 <dd>
                   <Badge>
-                    <Text type="p4" color="white">
+                    <Text type="p4" color="secondary">
                       {message?.package?.name || message?.func || '-'}
                     </Text>
                   </Badge>

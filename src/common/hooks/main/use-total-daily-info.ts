@@ -20,7 +20,8 @@ export const useTotalDailyInfo = () => {
         totalTxs: number;
       };
     } = {};
-    data.forEach(tx => {
+
+    data?.forEach(tx => {
       const blockTime = new Date(tx.time || '');
       const dateKey = [blockTime.getFullYear(), blockTime.getMonth() + 1, blockTime.getDate()].join(
         '-',

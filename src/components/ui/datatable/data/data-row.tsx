@@ -49,7 +49,6 @@ const DataRowContainer = styled.div`
       width: 100%;
       height: auto;
       align-items: center;
-      padding: 0 16px 10px 16px;
     }
   }
 `;

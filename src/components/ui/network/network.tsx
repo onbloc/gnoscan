@@ -123,7 +123,7 @@ const Network = ({
                 }}
                 placeholder="Tx Indexer URL (Optional)"
               />
-              <button
+              <div
                 className={availCustomConnect ? 'connect active' : 'connect'}
                 onClick={e => {
                   e.stopPropagation();
@@ -132,7 +132,7 @@ const Network = ({
                 <Text type="body1" color="primary">
                   Connect
                 </Text>
-              </button>
+              </div>
             </div>
           </div>
         </li>

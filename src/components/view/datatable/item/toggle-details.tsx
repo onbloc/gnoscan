@@ -12,7 +12,7 @@ export const ToggleDetails = ({active, onClick}: Props) => {
   return (
     <ToggleDetailsWrapper className="ellipsis">
       <Badge className="badge" type="base" margin={'0'} onClick={onClick}>
-        <Text type="p4" color="white">
+        <Text type="p4" color="primary">
           {active ? 'Hide' : 'Details'}
         </Text>
       </Badge>
@@ -33,7 +33,7 @@ const ToggleDetailsWrapper = styled.span`
       display: flex;
       width: 75px;
       max-width: 75px;
-      border: 1px solid ${({theme}) => theme.colors.surface};
+      border: 1px solid ${({theme}) => theme.colors.pantone};
       cursor: pointer;
     }
   }
