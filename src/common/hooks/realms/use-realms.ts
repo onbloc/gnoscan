@@ -29,9 +29,7 @@ export const useRealms = () => {
       .filter((_: any, index: number) => index < endIndex)
       .map((realm: any) => ({
         ...realm,
-        totalCalls: makeDisplayNumberWithDefault(
-          realmTransactionInfos[realm.packagePath]?.msgCallCount.toString(),
-        ),
+        totalCalls: realmTransactionInfos[realm.packagePath]?.msgCallCount || '0',
         totalGasUsed: getTokenAmount(
           GNOTToken.denom,
           realmTransactionInfos[realm.packagePath].gasUsed,

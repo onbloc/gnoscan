@@ -347,10 +347,10 @@ export class RealmRepository implements IRealmRepository {
     return transactions.reduce<{[key in string]: RealmTransactionInfo}>(
       (accum: {[key in string]: RealmTransactionInfo}, current: RealmTransaction) => {
         let packagePath: string | null = null;
-        let msgCallCount = 0;
-        let gasUsed = current.gas_used;
 
         for (const message of current.messages) {
+          let msgCallCount = 0;
+          let gasUsed = current.gas_used;
           if (isAddPackageMessageValue(message.value)) {
             packagePath = message.value.package?.path || null;
           } else if (message.value.__typename === 'MsgCall') {

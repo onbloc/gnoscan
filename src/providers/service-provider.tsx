@@ -19,24 +19,36 @@ export const ServiceContext = createContext<ServiceContextProps | null>(null);
 const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
   const {indexerQueryClient, nodeRPCClient} = useNetworkProvider();
 
-  const chainRepository = useMemo(() => new ChainRepository(nodeRPCClient), [nodeRPCClient]);
-
-  const blockRepository = useMemo(() => new BlockRepository(nodeRPCClient), [nodeRPCClient]);
-
-  const transactionRepository = useMemo(
-    () => new TransactionRepository(nodeRPCClient, indexerQueryClient),
-    [nodeRPCClient, indexerQueryClient],
+  const chainRepository = useMemo(
+    () => (nodeRPCClient ? new ChainRepository(nodeRPCClient) : null),
+    [nodeRPCClient],
   );
 
-  const realmRepository = useMemo(
-    () => new RealmRepository(nodeRPCClient, indexerQueryClient),
-    [nodeRPCClient, indexerQueryClient],
+  const blockRepository = useMemo(
+    () => (nodeRPCClient ? new BlockRepository(nodeRPCClient) : null),
+    [nodeRPCClient],
   );
 
-  const accountRepository = useMemo(
-    () => new AccountRepository(nodeRPCClient, indexerQueryClient),
-    [nodeRPCClient, indexerQueryClient],
-  );
+  const transactionRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+    return new TransactionRepository(nodeRPCClient, indexerQueryClient);
+  }, [nodeRPCClient, indexerQueryClient]);
+
+  const realmRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+    return new RealmRepository(nodeRPCClient, indexerQueryClient);
+  }, [nodeRPCClient, indexerQueryClient]);
+
+  const accountRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+    return new AccountRepository(nodeRPCClient, indexerQueryClient);
+  }, [nodeRPCClient, indexerQueryClient]);
 
   return (
     <ServiceContext.Provider
