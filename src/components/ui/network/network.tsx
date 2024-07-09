@@ -8,7 +8,6 @@ import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
 import {ChainModel} from '@/models/chain-model';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {useRouter} from '@/common/hooks/common/use-router';
 import {useNetwork} from '@/common/hooks/use-network';
 
 export interface NetworkData {
@@ -70,7 +69,7 @@ const Network = ({
   return (
     <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
       <NetworkInfoWrapper>
-        <GnoscanSymbol className="svg-icon" width="24" height="24" />
+        <GnoscanSymbol className="svg-icon" />
         <Text type="h7" color="primary">
           {currentNetwork?.name || ''}
         </Text>
@@ -85,7 +84,7 @@ const Network = ({
             }}
             className={currentNetwork?.chainId === chain.chainId ? 'selected' : ''}>
             <div className="item row">
-              <GnoscanSymbol className="svg-icon" width="24" height="24" />
+              <GnoscanSymbol className="svg-icon" />
               <div className="info-wrapper">
                 <Text type="h7" color="primary">
                   {chain.name}
@@ -151,6 +150,11 @@ const NetworkButton = styled.button<StyleProps>`
   justify-content: center;
   align-items: center;
   z-index: 99;
+
+  .svg-icon {
+    width: 24px;
+    height: 24px;
+  }
 `;
 
 const NetworkInfoWrapper = styled.div<StyleProps>`
