@@ -52,12 +52,14 @@ export class BlockRepository implements IBlockRepository {
   }
 
   async getBlockTime(height: number): Promise<string | null> {
-    if (!this.nodeRPCClient && !this.indexerClient) {
+    if (!this.nodeRPCClient) {
       return null;
     }
 
     if (!this.indexerClient) {
-      const time = this.getBlock(height).then(block => block?.block_meta?.header?.time || null);
+      const time = this.getBlock(height)
+        .then(block => block?.block_meta?.header?.time || null)
+        .catch(() => null);
       if (!time) {
         this.blockTimeMap[height] = time;
       }

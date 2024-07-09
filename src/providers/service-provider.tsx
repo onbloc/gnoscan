@@ -24,10 +24,12 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
     [nodeRPCClient],
   );
 
-  const blockRepository = useMemo(
-    () => (nodeRPCClient ? new BlockRepository(nodeRPCClient, indexerQueryClient) : null),
-    [nodeRPCClient, indexerQueryClient],
-  );
+  const blockRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+    return new BlockRepository(nodeRPCClient, indexerQueryClient);
+  }, [nodeRPCClient, indexerQueryClient]);
 
   const transactionRepository = useMemo(() => {
     if (!nodeRPCClient) {

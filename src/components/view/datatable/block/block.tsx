@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useMemo} from 'react';
+import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';

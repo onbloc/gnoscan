@@ -6,4 +6,6 @@ export interface ITransactionRepository {
   getTransactionBlockHeight(transactionHash: string): Promise<number | null>;
 
   getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null>;
+
+  getSimpleTransactionsByFromHeight(height: number): Promise<any[]>;
 }

@@ -90,3 +90,39 @@ export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => 
   }
 }
 `;
+
+export const makeSimpleTransactionsByFromHeight = (height: number) => gql`
+{
+  transactions(filter: {
+    from_block_height: ${height}
+  }) {
+    success
+    block_height
+    messages {
+      value {
+        ...on BankMsgSend {
+          from_address
+        }
+        ...on MsgCall {
+          caller
+          pkg_path
+          func
+          args
+        }
+        ...on MsgAddPackage {
+          creator
+        }
+        ...on MsgRun {
+          caller
+        }
+      }
+    }
+    gas_fee {
+      amount
+      denom
+    }
+    gas_used
+    gas_wanted
+  }
+}
+`;

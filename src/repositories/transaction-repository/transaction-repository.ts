@@ -4,6 +4,7 @@ import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {
   TRANSACTIONS_QUERY,
   makeGRC20ReceivedTransactionsByAddressQuery,
+  makeSimpleTransactionsByFromHeight,
   makeTransactionHashQuery,
 } from './query';
 import {Transaction} from '@/types/data-type';
@@ -96,5 +97,15 @@ export class TransactionRepository implements ITransactionRepository {
       ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
       .then(transactions => transactions.map(mapTransactionByRealm));
+  }
+
+  async getSimpleTransactionsByFromHeight(height: number): Promise<any[]> {
+    if (!this.indexerClient) {
+      return [];
+    }
+
+    return this.indexerClient
+      ?.query(makeSimpleTransactionsByFromHeight(height))
+      .then(result => result.data?.transactions || []);
   }
 }
