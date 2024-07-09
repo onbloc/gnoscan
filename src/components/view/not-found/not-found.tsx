@@ -7,12 +7,14 @@ import BackgroundSearchNotFound from '@/assets/svgs/bg-search-not-found.svg';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
 import Link from 'next/link';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
   keyword?: string;
 }
 
 const NotFound = ({keyword}: Props) => {
+  const {getUrlWithNetwork} = useNetwork();
   const media = eachMedia();
   return (
     <Wrapper className={media}>
@@ -25,7 +27,7 @@ const NotFound = ({keyword}: Props) => {
           </span>
           <span>{'Please make sure your input is valid and try again. '}</span>
         </div>
-        <Link href={'/'}>
+        <Link href={getUrlWithNetwork('/')}>
           <Button className="home-button">{'Back to Home'}</Button>
         </Link>
       </div>

@@ -6,10 +6,17 @@ import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 import {GNO_TOKEN_RESOURCE_BASE_URI} from '@/common/values/constant-value';
 
 function makeTokenMetaURL(type: 'gno-native' | 'grc20', chainId: string) {
+  if (!chainId) {
+    return '';
+  }
   return `${GNO_TOKEN_RESOURCE_BASE_URI}/${type}/${chainId}.json`;
 }
 
-function fetchTokenMeta(url: string): Promise<TokenMeta[]> {
+async function fetchTokenMeta(url: string): Promise<TokenMeta[]> {
+  if (!url) {
+    return [];
+  }
+
   return fetch(url)
     .then(response => response.json())
     .then(json =>

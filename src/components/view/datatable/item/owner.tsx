@@ -1,3 +1,4 @@
+import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
 import Tooltip from '@/components/ui/tooltip';
 import React from 'react';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export const Owner = ({publisher, publisherUsername}: Props) => {
+  const {getUrlWithNetwork} = useNetwork();
   const renderTooltip = () => {
     return <TooltipWrapper>{publisher}</TooltipWrapper>;
   };
@@ -29,7 +31,7 @@ export const Owner = ({publisher, publisherUsername}: Props) => {
     <Container>
       {publisher && publisher !== 'genesis' ? (
         <Tooltip content={renderTooltip()}>
-          <OwnerLink href={`/accounts/${publisher}`}>
+          <OwnerLink href={getUrlWithNetwork(`/accounts/${publisher}`)}>
             <OwnerText>{getDisplayUsername(publisher)}</OwnerText>
           </OwnerLink>
         </Tooltip>

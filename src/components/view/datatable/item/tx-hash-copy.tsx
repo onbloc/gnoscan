@@ -3,15 +3,17 @@ import styled from 'styled-components';
 import {textEllipsis} from '@/common/utils/string-util';
 import Tooltip from '@/components/ui/tooltip';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
   txHash: string;
 }
 
 export const TxHashCopy = ({txHash}: Props) => {
+  const {getUrlWithNetwork} = useNetwork();
   return (
     <TxHashWrapper>
-      <a className="ellipsis" href={`/transactions/details?txhash=${txHash}`}>
+      <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
         {textEllipsis(txHash ?? '', 8)}
       </a>
       <Tooltip

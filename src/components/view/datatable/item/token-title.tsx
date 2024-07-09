@@ -3,6 +3,7 @@ import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
 import React, {useMemo} from 'react';
 import styled from 'styled-components';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
   token: string | undefined;
@@ -14,17 +15,17 @@ interface Props {
 
 export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
   const {getTokenImage} = useTokenMeta();
+  const {getUrlWithNetwork} = useNetwork();
 
   const imageUrl = useMemo(() => {
     if (!imagePath) {
       return null;
     }
-    console.log(imagePath, getTokenImage(imagePath));
     return getTokenImage(imagePath);
   }, [getTokenImage, imagePath]);
 
   return (
-    <a href={`/tokens/${pkgPath}`}>
+    <a href={getUrlWithNetwork(`/tokens/${pkgPath}`)}>
       <TokenTitleWrapper>
         {imageUrl ? (
           <img className="token" src={getTokenImage(imageUrl)} alt="token logo" />

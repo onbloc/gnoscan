@@ -17,6 +17,7 @@ import Network from '@/components/ui/network';
 import {SubMenu} from './sub-menu';
 import {debounce} from '@/common/utils/string-util';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {useNetwork} from '@/common/hooks/use-network';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -66,8 +67,8 @@ export const TopNav = () => {
   const navigateToHomeHandler = () => router.push('/');
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
 
-  const {chains, currentNetwork} = useNetworkProvider();
-  const {basePath, replace} = useRouter();
+  const {chains} = useNetworkProvider();
+  const {changeNetwork} = useNetwork();
 
   const movePage = (url: string) => {
     router.push(url);
@@ -81,7 +82,7 @@ export const TopNav = () => {
   );
 
   const networkSettingHandler = useCallback((chainId: string) => {
-    replace(basePath + '?chainId=' + chainId);
+    changeNetwork(chainId);
     setToggle(false);
   }, []);
 

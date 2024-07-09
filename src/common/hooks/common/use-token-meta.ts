@@ -1,6 +1,5 @@
 import {useGetTokenMetaQuery} from '@/common/react-query/meta';
 import {useGetGRC20Tokens} from '@/common/react-query/realm';
-import {makeDisplayTokenAmount} from '@/common/utils/string-util';
 import {GNO_TOKEN_RESOURCE_BASE_URI} from '@/common/values/constant-value';
 import {Amount, TokenInfo} from '@/types/data-type';
 import BigNumber from 'bignumber.js';

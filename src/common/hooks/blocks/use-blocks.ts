@@ -6,7 +6,7 @@ export const useBlocks = () => {
 
   return {
     data,
-    isFetched: isFetched && !!latestBlockHeight,
+    isFetched: isFetched || !!data?.pages.length,
     fetchNextPage,
     hasNextPage,
   };

@@ -20,6 +20,7 @@ import IconCopy from '@/assets/svgs/icon-copy.svg';
 import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {useToken} from '@/common/hooks/tokens/use-token';
+import {useNetwork} from '@/common/hooks/use-network';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -29,6 +30,7 @@ const TOOLTIP_PACKAGE_PATH = (
 );
 
 const TokenDetails = () => {
+  const {getUrlWithNetwork} = useNetwork();
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
@@ -80,7 +82,8 @@ const TokenDetails = () => {
               <dd>
                 <Badge>
                   <Text type="p4" color="blue" className="username-text">
-                    <StyledA href={`/realms/details?path=${summary.packagePath}`}>
+                    <StyledA
+                      href={getUrlWithNetwork(`/realms/details?path=${summary.packagePath}`)}>
                       {summary.packagePath}
                     </StyledA>
                   </Text>
@@ -116,7 +119,7 @@ const TokenDetails = () => {
                       {summary.owner}
                     </Text>
                   ) : (
-                    <Link href={`/accounts/${summary.owner}`} passHref>
+                    <Link href={getUrlWithNetwork(`/accounts/${summary.owner}`)} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue">
                           {summary.owner}

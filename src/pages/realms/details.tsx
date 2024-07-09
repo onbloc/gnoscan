@@ -46,6 +46,7 @@ interface RealmsDetailsPageProps {
 }
 
 const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
+  const {getUrlWithNetwork} = useNetwork();
   const desktop = isDesktop();
   const {currentNetwork} = useNetwork();
   const {summary, transactionEvents, isFetched} = useRealm(path);
@@ -73,18 +74,26 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   }, [getTokenAmount, summary?.balance]);
 
   const moveGnoStudioViewRealm = useCallback(() => {
+    if (!currentNetwork) {
+      return;
+    }
+
     const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
       PACKAGE_PATH: path,
-      NETWORK: currentNetwork,
+      NETWORK: currentNetwork.chainId,
     });
     window.open(url, '_blank');
   }, [path, currentNetwork]);
 
   const moveGnoStudioViewRealmFunction = useCallback(
     (functionName: string) => {
+      if (!currentNetwork) {
+        return;
+      }
+
       const url = makeTemplate(GNOSTUDIO_REALM_FUNCTION_TEMPLATE, {
         PACKAGE_PATH: path,
-        NETWORK: currentNetwork,
+        NETWORK: currentNetwork.chainId,
         FUNCTION_NAME: functionName,
       });
       window.open(url, '_blank');
@@ -182,7 +191,9 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={`/accounts/${summary?.publisherAddress}`} passHref>
+                    <Link
+                      href={getUrlWithNetwork(`/accounts/${summary?.publisherAddress}`)}
+                      passHref>
                       <FitContentA>
                         <Text type="p4" color="blue" className="ellipsis">
                           {summary?.publisherAddress}
@@ -204,7 +215,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={`/blocks/${summary?.blockPublished}`} passHref>
+                    <Link href={getUrlWithNetwork(`/blocks/${summary?.blockPublished}`)} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue">
                           {summary?.blockPublished}

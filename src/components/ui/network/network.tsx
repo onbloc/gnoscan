@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
 import GnoscanSymbol from '@/assets/svgs/icon-gnoscan-symbol.svg';
 import Text from '@/components/ui/text';
@@ -9,6 +9,7 @@ import {zindex} from '@/common/values/z-index';
 import {ChainModel} from '@/models/chain-model';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 import {useRouter} from '@/common/hooks/common/use-router';
+import {useNetwork} from '@/common/hooks/use-network';
 
 export interface NetworkData {
   all: string[];
@@ -37,7 +38,7 @@ const Network = ({
   setToggle,
 }: NetworkProps) => {
   const {currentNetwork} = useNetworkProvider();
-  const {basePath, replace} = useRouter();
+  const {currentNetwork: currentNetworkInfo, changeCustomNetwork} = useNetwork();
   const ref = useOutSideClick(() => setToggle(false));
   const [customRpcUrl, setCustomRpcUrl] = useState('');
   const [indexerUrl, setIndexerUrl] = useState('');
@@ -56,8 +57,15 @@ const Network = ({
       setIsErrorRpcUrl(true);
       return;
     }
-    replace(basePath + '?type=custom&rpcUrl=' + customRpcUrl + '&indexerUrl=' + indexerUrl);
+    changeCustomNetwork(customRpcUrl, indexerUrl);
   }, [customRpcUrl]);
+
+  useEffect(() => {
+    if (toggle && currentNetworkInfo?.isCustom) {
+      setCustomRpcUrl(currentNetwork.rpcUrl || '');
+      setIndexerUrl(currentNetwork.indexerUrl || '');
+    }
+  }, [toggle]);
 
   return (
     <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
@@ -142,6 +150,7 @@ const NetworkButton = styled.button<StyleProps>`
   border-radius: 12px;
   justify-content: center;
   align-items: center;
+  z-index: 99;
 `;
 
 const NetworkInfoWrapper = styled.div<StyleProps>`

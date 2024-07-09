@@ -15,6 +15,14 @@ export function decodeTransaction(tx: string) {
   };
 }
 
+export function makeSafeBase64Hash(data: string) {
+  try {
+    return Buffer.from(data, 'base64').toString('base64');
+  } catch {
+    return data;
+  }
+}
+
 export function makeHash(bytes: Uint8Array) {
   return crypto.createHash('sha256').setEncoding('utf-8').update(bytes).digest('base64');
 }

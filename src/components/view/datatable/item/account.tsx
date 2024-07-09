@@ -1,3 +1,4 @@
+import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
 import Tooltip from '@/components/ui/tooltip';
 import React from 'react';
@@ -8,13 +9,14 @@ interface Props {
 }
 
 export const Account = ({address}: Props) => {
+  const {getUrlWithNetwork} = useNetwork();
   const renderTooltip = () => {
     return <TooltipWrapper>{address}</TooltipWrapper>;
   };
 
   return (
     <Tooltip content={renderTooltip()}>
-      <a className="ellipsis" href={`/accounts/${address}`}>
+      <a className="ellipsis" href={getUrlWithNetwork(`/accounts/${address}`)}>
         {textEllipsis(address ?? '', 6)}
       </a>
     </Tooltip>

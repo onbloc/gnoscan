@@ -21,6 +21,7 @@ import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
 import {Transaction} from '@/types/data-type';
 import {EventDatatable} from '@/components/view/datatable/event';
+import {useNetwork} from '@/common/hooks/use-network';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -45,6 +46,7 @@ function parseTxHash(url: string) {
 const TransactionDetails = () => {
   const desktop = isDesktop();
   const {asPath, push} = useRouter();
+  const {getUrlWithNetwork} = useNetwork();
   const hash = parseTxHash(asPath);
   const {gas, network, timeStamp, transactionItem, transactionEvents, isFetched, isError} =
     useTransaction(hash);
@@ -121,7 +123,7 @@ const TransactionDetails = () => {
               <dt>Block</dt>
               <dd>
                 <Badge>
-                  <Link href={`/blocks/${transactionItem.blockHeight}`} passHref>
+                  <Link href={getUrlWithNetwork(`/blocks/${transactionItem.blockHeight}`)} passHref>
                     <FitContentA>
                       <Text type="p4" color="blue">
                         {transactionItem.blockHeight}
@@ -176,6 +178,8 @@ const ContractDetails: React.FC<{
   transactionItem: Transaction | null;
   desktop: boolean;
 }> = ({transactionItem, desktop}) => {
+  const {getUrlWithNetwork} = useNetwork();
+
   const messages = useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
@@ -232,9 +236,11 @@ const ContractDetails: React.FC<{
                   <Badge>
                     <Text type="p4" color="blue" className="ellipsis">
                       <Link
-                        href={`/realms/details?path=${
-                          message?.package?.path || message?.pkg_path || '-'
-                        }`}
+                        href={getUrlWithNetwork(
+                          `/realms/details?path=${
+                            message?.package?.path || message?.pkg_path || '-'
+                          }`,
+                        )}
                         passHref>
                         <FitContentA>
                           {message?.package?.path || message?.pkg_path || '-'}
@@ -285,6 +291,7 @@ const ContractDetails: React.FC<{
 };
 
 const CallerContract = ({message, desktop}: any) => {
+  const {getUrlWithNetwork} = useNetwork();
   const caller = useMemo(() => {
     return message?.caller || message?.creator;
   }, [message]);
@@ -295,7 +302,7 @@ const CallerContract = ({message, desktop}: any) => {
       <dt>Caller</dt>
       <dd>
         <Badge>
-          <Link href={`/accounts/${caller || '-'}`} passHref>
+          <Link href={getUrlWithNetwork(`/accounts/${caller || '-'}`)} passHref>
             <FitContentA>
               <Text
                 type="p4"
@@ -312,12 +319,13 @@ const CallerContract = ({message, desktop}: any) => {
 };
 
 const AddPkgContract = ({message, desktop}: any) => {
+  const {getUrlWithNetwork} = useNetwork();
   return (
     <DLWrap desktop={desktop} key={v1()}>
       <dt>Creator</dt>
       <dd>
         <Badge>
-          <Link href={`/accounts/${message?.package?.creator}`} passHref>
+          <Link href={getUrlWithNetwork(`/accounts/${message?.package?.creator}`)} passHref>
             <FitContentA>
               <Text type="p4" color="blue">
                 {message?.creator || '-'}
@@ -331,6 +339,7 @@ const AddPkgContract = ({message, desktop}: any) => {
 };
 
 const TransferContract = ({message, desktop}: any) => {
+  const {getUrlWithNetwork} = useNetwork();
   const {getTokenAmount} = useTokenMeta();
 
   return (
@@ -353,7 +362,7 @@ const TransferContract = ({message, desktop}: any) => {
           <Badge>
             <AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
-                <Link href={`/accounts/${message?.from_address}`} passHref>
+                <Link href={getUrlWithNetwork(`/accounts/${message?.from_address}`)} passHref>
                   <FitContentA>{message?.from_address}</FitContentA>
                 </Link>
                 {/* {contract.from_username && v === 'From' && (

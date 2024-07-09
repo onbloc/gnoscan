@@ -18,6 +18,7 @@ import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {useBlock} from '@/common/hooks/blocks/use-block';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
 import {BlockEventDatatable} from '@/components/view/datatable/block-detail/block-event-datatable';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface TitleOptionProps {
   prevProps: {
@@ -31,14 +32,16 @@ interface TitleOptionProps {
 }
 
 const TitleOption = ({prevProps, nextProps}: TitleOptionProps) => {
+  const {getUrlWithNetwork} = useNetwork();
+
   return (
     <TitleWrap>
-      <Link href={prevProps.path}>
+      <Link href={getUrlWithNetwork(prevProps.path)}>
         <ArrowButton disabled={prevProps.disabled}>
           <IconArrow className="icon-arrow-right" />
         </ArrowButton>
       </Link>
-      <Link href={nextProps.path}>
+      <Link href={getUrlWithNetwork(nextProps.path)}>
         <ArrowButton disabled={nextProps.disabled}>
           <IconArrow className="icon-arrow-left" />
         </ArrowButton>
@@ -53,6 +56,7 @@ const BlockDetails = () => {
   const {height} = router.query;
   const {block, events, isFetched} = useBlock(Number(height));
   const [currentTab, setCurrentTab] = useState('Transactions');
+  const {getUrlWithNetwork} = useNetwork();
 
   const detailTabs = useMemo(() => {
     return [
@@ -127,7 +131,7 @@ const BlockDetails = () => {
           <dt>Proposer</dt>
           <dd>
             <Badge>
-              <Link href={`/accounts/${block?.proposerAddress}`} passHref>
+              <Link href={getUrlWithNetwork(`/accounts/${block?.proposerAddress}`)} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue" className="ellipsis">
                     {block?.proposerAddress}

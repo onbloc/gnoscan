@@ -5,6 +5,7 @@ import IconFail from '@/assets/svgs/icon-status-fail.svg';
 import {RPC_URI} from '@/common/values/constant-value';
 import {StatusKeyType} from '@/common/utils';
 import {textEllipsis} from '@/common/utils/string-util';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
   txHash: string;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const TxHash = ({txHash, status, development, height}: Props) => {
+  const {getUrlWithNetwork} = useNetwork();
   const onClickIcon = () => {
     if (!development || !height) {
       return;
@@ -23,7 +25,7 @@ export const TxHash = ({txHash, status, development, height}: Props) => {
 
   return (
     <TxHashWrapper>
-      <a className="ellipsis" href={`/transactions/details?txhash=${txHash}`}>
+      <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
         {textEllipsis(txHash ?? '', 8)}
       </a>
       <span className="status" onClick={onClickIcon}>

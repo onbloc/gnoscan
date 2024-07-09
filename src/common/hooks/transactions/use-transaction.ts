@@ -1,7 +1,11 @@
 import {useGetTransactionBlockHeightQuery} from '@/common/react-query/transaction';
 import {useMemo} from 'react';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
-import {decodeTransaction, makeTransactionMessageInfo} from '@/common/utils/transaction.utility';
+import {
+  decodeTransaction,
+  makeSafeBase64Hash,
+  makeTransactionMessageInfo,
+} from '@/common/utils/transaction.utility';
 import {Transaction} from '@/types/data-type';
 import {makeDisplayNumber} from '@/common/utils/string-util';
 import BigNumber from 'bignumber.js';
@@ -9,8 +13,9 @@ import {parseTokenAmount} from '@/common/utils/token.utility';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useTransaction = (hash: string) => {
+  const safetyHash = makeSafeBase64Hash(hash);
   const {getTokenAmount} = useTokenMeta();
-  const {data, isFetched} = useGetTransactionBlockHeightQuery(hash);
+  const {data, isFetched} = useGetTransactionBlockHeightQuery(safetyHash);
 
   const block = useMemo(() => {
     return data?.block || null;
@@ -60,12 +65,12 @@ export const useTransaction = (hash: string) => {
       return null;
     }
 
-    const txIndex = transactions.findIndex((tx: any) => tx.hash === hash);
+    const txIndex = transactions.findIndex((tx: any) => tx.hash === safetyHash);
     return blockResult.deliver_tx.find((_: any, index: number) => txIndex === index) || null;
-  }, [transactions, blockResult, hash]);
+  }, [transactions, blockResult, safetyHash]);
 
   const transactionItem: Transaction | null = useMemo(() => {
-    const transaction = transactions.find((tx: any) => tx.hash === hash) || null;
+    const transaction = transactions.find((tx: any) => tx.hash === safetyHash) || null;
     if (!transaction || !txResult) {
       return null;
     }
