@@ -13,6 +13,10 @@ import {eachMedia} from '@/common/hooks/use-media';
 import {useTransactions} from '@/common/hooks/transactions/use-transactions';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
+interface TransactionWithTime extends Transaction {
+  time: string;
+}
+
 const TOOLTIP_TYPE = (
   <>
     Hover on each value to <br />
@@ -76,7 +80,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<TransactionWithTime>()
       .key('hash')
       .name('Tx Hash')
       .width(215)
@@ -93,7 +97,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<TransactionWithTime>()
       .key('type')
       .name('Type')
       .width(190)
@@ -114,7 +118,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<TransactionWithTime>()
       .key('blockHeight')
       .name('Block')
       .width(113)
@@ -124,7 +128,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<TransactionWithTime>()
       .key('from')
       .name('From')
       .width(170)
@@ -136,7 +140,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<TransactionWithTime>()
       .key('amount')
       .name('Amount')
       .width(190)
@@ -151,7 +155,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<TransactionWithTime>()
       .key('time')
       .name('Time')
       .width(160)
@@ -161,7 +165,7 @@ export const TransactionDatatable = () => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<TransactionWithTime>()
       .key('fee')
       .name('Fee')
       .width(113)
@@ -179,7 +183,7 @@ export const TransactionDatatable = () => {
             themeMode: themeMode,
           };
         })}
-        datas={transactions}
+        datas={transactions as TransactionWithTime[]}
       />
       {hasNextPage ? (
         <div className="button-wrapper">

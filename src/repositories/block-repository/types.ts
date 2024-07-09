@@ -8,4 +8,6 @@ export interface IBlockRepository {
   getBlock(height: number): Promise<any>;
 
   getBlockResult(height: number): Promise<any>;
+
+  getBlockTime(height: number): Promise<string | null>;
 }

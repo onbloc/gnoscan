@@ -1,8 +1,15 @@
 import {BlockMeta, BlockResults, NodeRPCClient} from '@/common/clients/node-client';
 import {IBlockRepository} from './types';
+import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
+import {gql} from '@apollo/client';
 
 export class BlockRepository implements IBlockRepository {
-  constructor(private nodeRPCClient: NodeRPCClient | null) {}
+  private blockTimeMap: {[key in number]: string} = {};
+
+  constructor(
+    private nodeRPCClient: NodeRPCClient | null,
+    private indexerClient: IndexerClient | null,
+  ) {}
 
   async getLatestBlockHeight(): Promise<number | null> {
     if (!this.nodeRPCClient) {
@@ -42,5 +49,38 @@ export class BlockRepository implements IBlockRepository {
     return this.nodeRPCClient
       .blockchain(minHeight, maxHeight)
       .then(response => response.block_metas);
+  }
+
+  async getBlockTime(height: number): Promise<string | null> {
+    if (!this.nodeRPCClient && !this.indexerClient) {
+      return null;
+    }
+
+    if (!this.indexerClient) {
+      const time = this.getBlock(height).then(block => block?.block_meta?.header?.time || null);
+      if (!time) {
+        this.blockTimeMap[height] = time;
+      }
+      return time;
+    }
+
+    const time = await this.indexerClient
+      .query(
+        gql`
+{
+  blocks(filter: {
+    from_height: ${height}
+    to_height: ${height + 1}
+  }) {
+    time
+  }
+}`,
+      )
+      .then(result => result?.data?.blocks?.[0]?.time || null)
+      .catch(() => null);
+    if (!time) {
+      this.blockTimeMap[height] = time;
+    }
+    return time;
   }
 }

@@ -1,5 +1,4 @@
 import {useGetRealmTransactionInfosQuery, useGetRealmsQuery} from '@/common/react-query/realm';
-import {makeDisplayNumberWithDefault} from '@/common/utils/string-util';
 import {useMemo, useState} from 'react';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 

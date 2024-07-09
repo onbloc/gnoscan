@@ -1,8 +1,11 @@
 import {useMemo, useState} from 'react';
 import {useGetTransactionsQuery} from '@/common/react-query/transaction';
 import {useGetLatestBlock} from '../common/use-get-latest-block';
+import {useServiceProvider} from '../provider/use-service-provider';
+import {useQuery} from 'react-query';
 
 export const useTransactions = ({enabled = true}) => {
+  const {blockRepository} = useServiceProvider();
   const {latestBlock} = useGetLatestBlock();
   const {data, isFetched} = useGetTransactionsQuery(
     latestBlock?.block_meta.header.total_txs || null,
@@ -28,13 +31,28 @@ export const useTransactions = ({enabled = true}) => {
     return data.filter((_, index) => index < endIndex);
   }, [data, currentPage]);
 
+  const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} = useQuery({
+    queryKey: ['transactions', `${transactions?.length}`],
+    queryFn: () =>
+      Promise.all(
+        transactions.map(async transaction => {
+          const time = await blockRepository?.getBlockTime(transaction.blockHeight);
+          return {
+            ...transaction,
+            time,
+          };
+        }),
+      ),
+    keepPreviousData: true,
+  });
+
   function nextPage() {
     setCurrentPage(prev => prev + 1);
   }
 
   return {
-    transactions,
-    isFetched: !!data || isFetched,
+    transactions: transactionWithTimes,
+    isFetched: !!transactionWithTimes && isFetched && isFetchedTransactionWithTimes,
     nextPage,
     hasNextPage,
   };

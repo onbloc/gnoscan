@@ -1,4 +1,11 @@
-import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
+import {
+  UseInfiniteQueryOptions,
+  UseMutationOptions,
+  UseQueryOptions,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from 'react-query';
 import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
 import {QUERY_KEY} from './types';
 import {Block} from '@/types/data-type';
@@ -46,6 +53,25 @@ export const useGetBlockQuery = (
     },
     enabled: !!blockRepository && !!blockHeight,
     keepPreviousData: true,
+    ...options,
+  });
+};
+
+export const useGetBlockTimeQuery = (
+  blockHeight: number,
+  options?: UseQueryOptions<string | null, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {blockRepository} = useServiceProvider();
+
+  return useQuery<string | null, Error>({
+    queryKey: [QUERY_KEY.getBlockTime, currentNetwork?.chainId || '', blockHeight],
+    queryFn: async () => {
+      if (!blockRepository) {
+        return null;
+      }
+      return blockRepository.getBlockTime(blockHeight);
+    },
     ...options,
   });
 };

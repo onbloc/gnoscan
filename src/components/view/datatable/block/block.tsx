@@ -2,14 +2,12 @@
 
 import React, {useMemo} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
-import {Block, ValueWithDenomType} from '@/types/data-type';
+import {Block} from '@/types/data-type';
 import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
 import styled from 'styled-components';
@@ -19,19 +17,9 @@ import {useBlocks} from '@/common/hooks/blocks/use-blocks';
 export const BlockDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data, isFetched, fetchNextPage, hasNextPage} = useBlocks();
+  const {data: blocks, isFetched, fetchNextPage, hasNextPage} = useBlocks();
 
   useLoading({finished: isFetched});
-
-  const blocks = useMemo(() => {
-    if (!data) {
-      return [];
-    }
-
-    return data.pages.reduce((accum: Block[], current) => {
-      return current ? [...accum, ...current] : accum;
-    }, []);
-  }, [data]);
 
   const createHeaders = () => {
     return [

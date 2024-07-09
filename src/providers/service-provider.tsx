@@ -25,8 +25,8 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
   );
 
   const blockRepository = useMemo(
-    () => (nodeRPCClient ? new BlockRepository(nodeRPCClient) : null),
-    [nodeRPCClient],
+    () => (nodeRPCClient ? new BlockRepository(nodeRPCClient, indexerQueryClient) : null),
+    [nodeRPCClient, indexerQueryClient],
   );
 
   const transactionRepository = useMemo(() => {

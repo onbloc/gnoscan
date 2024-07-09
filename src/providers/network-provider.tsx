@@ -71,8 +71,8 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
         name: 'Custom Network',
         chainId: '',
         apiUrl: null,
-        rpcUrl: currentNetwork.rpcUrl || null,
-        indexerUrl: currentNetwork.indexerUrl || null,
+        rpcUrl: decodeURIComponent(currentNetwork.rpcUrl) || null,
+        indexerUrl: decodeURIComponent(currentNetwork.indexerUrl) || null,
       };
     }
     const chain =
