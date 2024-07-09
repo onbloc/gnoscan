@@ -130,7 +130,7 @@ export const TransactionDatatable = () => {
       .width(170)
       .colorName('blue')
       .renderOption((address, data) => (
-        <DatatableItem.Publisher address={address} username={data.from} />
+        <DatatableItem.Publisher address={address} username={undefined} />
       ))
       .build();
   };

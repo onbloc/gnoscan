@@ -18,7 +18,7 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
   const {realmRepository} = useServiceProvider();
 
   return useQuery<any, Error>({
-    queryKey: [QUERY_KEY.getRealms, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.getRealms, currentNetwork?.chainId || ''],
     queryFn: async () => {
       if (!realmRepository) {
         return [null];
@@ -62,7 +62,7 @@ export const useGetRealmQuery = (
   const {realmRepository} = useServiceProvider();
 
   return useQuery<RealmTransaction<AddPackageValue> | null, Error>({
-    queryKey: [QUERY_KEY.getRealm, currentNetwork.chainId, packagePath],
+    queryKey: [QUERY_KEY.getRealm, currentNetwork?.chainId || '', packagePath],
     queryFn: async () => {
       if (!realmRepository) {
         return null;
@@ -89,7 +89,7 @@ export const useGetRealmFunctionsQuery = (
   const {realmRepository} = useServiceProvider();
 
   return useQuery<RealmFunction[] | null, Error>({
-    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork.chainId, packagePath],
+    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || '', packagePath],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;
@@ -109,7 +109,7 @@ export const useGetRealmTransactionInfosQuery = (
   const {realmRepository} = useServiceProvider();
 
   return useQuery<{[key in string]: RealmTransactionInfo} | null, Error>({
-    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || ''],
     queryFn: async () => {
       if (!realmRepository) {
         return null;
@@ -130,7 +130,7 @@ export const useGetRealmTransactionsQuery = (
   const {realmRepository} = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactions, currentNetwork.chainId, realmPath],
+    queryKey: [QUERY_KEY.getRealmTransactions, currentNetwork?.chainId || '', realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -156,7 +156,7 @@ export const useGetRealmTransactionsWithArgsQuery = (
   const {realmRepository} = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionsWithArgs, currentNetwork.chainId, realmPath],
+    queryKey: [QUERY_KEY.getRealmTransactionsWithArgs, currentNetwork?.chainId || '', realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -179,7 +179,7 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
   const {realmRepository} = useServiceProvider();
 
   return useQuery<GRC20Info[], Error>({
-    queryKey: [QUERY_KEY.getGRC20Tokens, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.getGRC20Tokens, currentNetwork?.chainId || ''],
     queryFn: async () => {
       if (!realmRepository) {
         return [];
@@ -212,7 +212,7 @@ export const useGetGRC20Token = (
     } | null,
     Error
   >({
-    queryKey: [QUERY_KEY.getGRC20Token, currentNetwork.chainId, packagePath],
+    queryKey: [QUERY_KEY.getGRC20Token, currentNetwork?.chainId || '', packagePath],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;

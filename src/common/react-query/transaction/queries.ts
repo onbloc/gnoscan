@@ -12,7 +12,7 @@ export const useGetTransactionBlockHeightQuery = (
   const {blockRepository, transactionRepository} = useServiceProvider();
 
   return useQuery<{block: any; blockResult: any} | null, Error>({
-    queryKey: [QUERY_KEY.getTransactionBlockHeight, currentNetwork.chainId, hash],
+    queryKey: [QUERY_KEY.getTransactionBlockHeight, currentNetwork?.chainId || '', hash],
     queryFn: async () => {
       if (!transactionRepository || !blockRepository) {
         return null;
@@ -47,7 +47,7 @@ export const useGetTransactionsQuery = (
   const {transactionRepository} = useServiceProvider();
 
   return useQuery<Transaction[] | null, Error>({
-    queryKey: [QUERY_KEY.getTransactions, currentNetwork.chainId, totalTx],
+    queryKey: [QUERY_KEY.getTransactions, currentNetwork?.chainId || '', totalTx],
     queryFn: () => {
       if (!transactionRepository) {
         return null;

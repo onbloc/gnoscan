@@ -14,7 +14,7 @@ export const useGetNativeTokenBalance = (
   const {accountRepository} = useServiceProvider();
 
   return useQuery<Amount, Error>({
-    queryKey: [QUERY_KEY.getNativeBalances, currentNetwork.chainId, address],
+    queryKey: [QUERY_KEY.getNativeBalances, currentNetwork?.chainId || '', address],
     queryFn: () => {
       if (!accountRepository) {
         return {
@@ -51,7 +51,7 @@ export const useGetGRC20TokenBalances = (
   const {accountRepository} = useServiceProvider();
 
   return useQuery<Amount[], Error>({
-    queryKey: [QUERY_KEY.getGRC20Balances, currentNetwork.chainId, address],
+    queryKey: [QUERY_KEY.getGRC20Balances, currentNetwork?.chainId || '', address],
     queryFn: async () => {
       if (!accountRepository) {
         return [];
@@ -76,7 +76,7 @@ export const useGetAccountTransactions = (
   const {accountRepository} = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getAccountTransactions, currentNetwork.chainId, address],
+    queryKey: [QUERY_KEY.getAccountTransactions, currentNetwork?.chainId || '', address],
     queryFn: async () => {
       if (!accountRepository) {
         return [];

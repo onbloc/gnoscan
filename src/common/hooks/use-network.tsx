@@ -55,7 +55,7 @@ export const useNetwork = () => {
     }
 
     return {
-      chainId: currentNetwork.chainId,
+      chainId: currentNetwork?.chainId || '',
     };
   }, [currentNetwork]);
 

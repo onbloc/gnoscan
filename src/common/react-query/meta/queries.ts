@@ -36,11 +36,11 @@ export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenMeta[], Erro
   const {blockRepository} = useServiceProvider();
 
   return useQuery<TokenMeta[], Error>({
-    queryKey: [QUERY_KEY.getTokenMeta, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.getTokenMeta, currentNetwork?.chainId || ''],
     queryFn: () => {
       return Promise.all([
-        fetchTokenMeta(makeTokenMetaURL('gno-native', currentNetwork.chainId)),
-        fetchTokenMeta(makeTokenMetaURL('grc20', currentNetwork.chainId)),
+        fetchTokenMeta(makeTokenMetaURL('gno-native', currentNetwork?.chainId || '')),
+        fetchTokenMeta(makeTokenMetaURL('grc20', currentNetwork?.chainId || '')),
       ]).then(([nativeTokenResponse, grc20TokenResponse]) => {
         return [...nativeTokenResponse, ...grc20TokenResponse];
       });

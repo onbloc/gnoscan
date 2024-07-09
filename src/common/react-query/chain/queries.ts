@@ -11,7 +11,7 @@ export const useGetTokenSupplyQuery = (
   const {chainRepository} = useServiceProvider();
 
   return useQuery<TokenSupplyInfo | null, Error>({
-    queryKey: [QUERY_KEY.getTokenSupply, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.getTokenSupply, currentNetwork?.chainId || ''],
     queryFn: () => {
       if (!chainRepository) {
         return null;
@@ -31,7 +31,7 @@ export const useGetValidatorsQuery = (
   const {chainRepository} = useServiceProvider();
 
   return useQuery<string[] | null, Error>({
-    queryKey: [QUERY_KEY.getValidators, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.getValidators, currentNetwork?.chainId || ''],
     queryFn: () => {
       if (!chainRepository) {
         return null;

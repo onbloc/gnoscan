@@ -80,7 +80,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
 
     const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
       PACKAGE_PATH: path,
-      NETWORK: currentNetwork.chainId,
+      NETWORK: currentNetwork?.chainId || '',
     });
     window.open(url, '_blank');
   }, [path, currentNetwork]);
@@ -93,7 +93,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
 
       const url = makeTemplate(GNOSTUDIO_REALM_FUNCTION_TEMPLATE, {
         PACKAGE_PATH: path,
-        NETWORK: currentNetwork.chainId,
+        NETWORK: currentNetwork?.chainId || '',
         FUNCTION_NAME: functionName,
       });
       window.open(url, '_blank');

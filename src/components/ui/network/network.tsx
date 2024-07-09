@@ -58,12 +58,12 @@ const Network = ({
       return;
     }
     changeCustomNetwork(customRpcUrl, indexerUrl);
-  }, [customRpcUrl]);
+  }, [customRpcUrl, indexerUrl]);
 
   useEffect(() => {
     if (toggle && currentNetworkInfo?.isCustom) {
-      setCustomRpcUrl(currentNetwork.rpcUrl || '');
-      setIndexerUrl(currentNetwork.indexerUrl || '');
+      setCustomRpcUrl(currentNetworkInfo.rpcUrl || '');
+      setIndexerUrl(currentNetworkInfo.indexerUrl || '');
     }
   }, [toggle]);
 
@@ -72,7 +72,7 @@ const Network = ({
       <NetworkInfoWrapper>
         <GnoscanSymbol className="svg-icon" width="24" height="24" />
         <Text type="h7" color="primary">
-          {currentNetwork.name}
+          {currentNetwork?.name || ''}
         </Text>
       </NetworkInfoWrapper>
       <NetworkList toggle={toggle} entry={entry}>
@@ -83,7 +83,7 @@ const Network = ({
               e.stopPropagation();
               networkSettingHandler(chain.chainId);
             }}
-            className={currentNetwork.chainId === chain.chainId ? 'selected' : ''}>
+            className={currentNetwork?.chainId === chain.chainId ? 'selected' : ''}>
             <div className="item row">
               <GnoscanSymbol className="svg-icon" width="24" height="24" />
               <div className="info-wrapper">
@@ -97,7 +97,7 @@ const Network = ({
             </div>
           </li>
         ))}
-        <li className={currentNetwork.chainId === '' ? 'selected' : ''}>
+        <li className={currentNetwork?.chainId === '' ? 'selected' : ''}>
           <div className="item">
             <div className="input-wrapper">
               <Text type="p4" color="primary">

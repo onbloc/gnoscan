@@ -447,7 +447,7 @@ export class RealmRepository implements IRealmRepository {
                 success: true
                 message: {
                   type_url: add_package
-                  vm_param: {add_package: {package: {path: "gno.land/r/demo/tong"}}}
+                  vm_param: {add_package: {package: {path: "${packagePath}"}}}
                 }
               }
             ) {

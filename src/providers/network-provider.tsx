@@ -13,7 +13,7 @@ import {useNetwork} from '@/common/hooks/use-network';
 interface NetworkContextProps {
   chains: ChainModel[];
 
-  currentNetwork: ChainModel;
+  currentNetwork: ChainModel | null;
 
   nodeRPCClient: NodeRPCClient | null;
 
@@ -61,7 +61,11 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     }
   }, [query, currentNetwork]);
 
-  const currentNetworkModel: ChainModel = useMemo(() => {
+  const currentNetworkModel: ChainModel | null = useMemo(() => {
+    if (!currentNetwork) {
+      return null;
+    }
+
     if (currentNetwork?.isCustom) {
       return {
         name: 'Custom Network',
@@ -77,6 +81,9 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   }, [currentNetwork]);
 
   const nodeRPCClient = useMemo(() => {
+    if (!currentNetworkModel) {
+      return null;
+    }
     const chainSupportType = getChainSupportType(currentNetworkModel);
     if (!['ALL', 'RPC_WITH_INDEXER', 'RPC'].includes(chainSupportType)) {
       return null;
@@ -87,6 +94,9 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   }, [currentNetworkModel]);
 
   const indexerQueryClient = useMemo(() => {
+    if (!currentNetworkModel) {
+      return null;
+    }
     const chainSupportType = getChainSupportType(currentNetworkModel);
     if (!['ALL', 'RPC_WITH_INDEXER'].includes(chainSupportType)) {
       return null;
@@ -97,6 +107,9 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   }, [currentNetworkModel]);
 
   const onblocRPCClient = useMemo(() => {
+    if (!currentNetworkModel) {
+      return null;
+    }
     const chainSupportType = getChainSupportType(currentNetworkModel);
     if (!['ALL'].includes(chainSupportType)) {
       return null;

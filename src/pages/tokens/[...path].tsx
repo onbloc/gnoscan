@@ -1,5 +1,4 @@
 import React from 'react';
-import {useQuery, UseQueryResult} from 'react-query';
 import {useRouter} from '@/common/hooks/common/use-router';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
@@ -9,11 +8,7 @@ import DataSection from '@/components/view/details-data-section';
 import Text from '@/components/ui/text';
 import Link from 'next/link';
 import ShowLog from '@/components/ui/show-log';
-import {v1} from 'uuid';
 import {TokenDetailDatatable} from '@/components/view/datatable';
-import {getTokenDetails} from '@/repositories/api/fetchers/api-token-details';
-import {tokenDetailSelector} from '@/repositories/api/selector/select-token-details';
-import {TokenDetailsModel} from '@/models/token-details-model';
 import Tooltip from '@/components/ui/tooltip';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
@@ -34,15 +29,16 @@ const TokenDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
+  const currentPath = Array.isArray(path) ? path.join('/').split('?')[0] : path?.toString();
 
-  const {isFetched, summary, files} = useToken(path);
+  const {isFetched, summary, files} = useToken(currentPath);
 
   return (
     <DetailsPageLayout
       title={'Token Details'}
       visible={!isFetched}
       error={isFetched && summary?.packagePath === ''}
-      keyword={`${path}`}>
+      keyword={`${currentPath}`}>
       {summary.packagePath && (
         <>
           <DataSection title="Summary">
@@ -140,7 +136,7 @@ const TokenDetails = () => {
           </DataSection>
 
           <DataSection title="Transactions">
-            {path && <TokenDetailDatatable path={path} />}
+            {currentPath && <TokenDetailDatatable path={currentPath} />}
           </DataSection>
         </>
       )}

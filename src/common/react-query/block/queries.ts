@@ -11,7 +11,7 @@ export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | 
   const {blockRepository} = useServiceProvider();
 
   return useQuery<number | null, Error>({
-    queryKey: [QUERY_KEY.latestBlockHeight, currentNetwork.chainId],
+    queryKey: [QUERY_KEY.latestBlockHeight, currentNetwork?.chainId || ''],
     queryFn: () => {
       if (!blockRepository) {
         return null;
@@ -37,7 +37,7 @@ export const useGetBlockQuery = (
   const {blockRepository} = useServiceProvider();
 
   return useQuery<NodeResponseBlock | null, Error>({
-    queryKey: [QUERY_KEY.getBlock, currentNetwork.chainId, blockHeight],
+    queryKey: [QUERY_KEY.getBlock, currentNetwork?.chainId || '', blockHeight],
     queryFn: () => {
       if (!blockRepository || !blockHeight) {
         return null;
@@ -58,7 +58,7 @@ export const useGetBlocksQuery = (
   const {blockRepository} = useServiceProvider();
 
   return useInfiniteQuery<Block[] | null, Error>({
-    queryKey: [QUERY_KEY.getBlocks, currentNetwork.chainId, latestHeight],
+    queryKey: [QUERY_KEY.getBlocks, currentNetwork?.chainId || '', latestHeight],
     getNextPageParam: (lastPage, pages) => {
       if (!lastPage) {
         return false;
@@ -105,7 +105,7 @@ export const useGetBlockResultQuery = (
   const {blockRepository} = useServiceProvider();
 
   return useQuery<BlockResults | null, Error>({
-    queryKey: [QUERY_KEY.getBlockResult, currentNetwork.chainId, height],
+    queryKey: [QUERY_KEY.getBlockResult, currentNetwork?.chainId || '', height],
     queryFn: () => {
       if (!blockRepository) {
         return null;

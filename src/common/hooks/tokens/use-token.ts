@@ -2,7 +2,6 @@ import {useMemo, useState} from 'react';
 import {
   useGetGRC20Token,
   useGetRealmFunctionsQuery,
-  useGetRealmTransactionsQuery,
   useGetRealmTransactionsWithArgsQuery,
 } from '@/common/react-query/realm';
 
