@@ -71,7 +71,7 @@ export class AccountRepository implements IAccountRepository {
 
     const fetchers = tokenPaths.map(path =>
       this.nodeRPCClient?.abciQueryVMQueryEvaluation(path, 'BalanceOf', [address]).then(response =>
-        response.response.ResponseBase.Data
+        response?.response?.ResponseBase?.Data
           ? {
               denom: path,
               value: parseABCIQueryNumberResponse(response.response.ResponseBase.Data).toString(),

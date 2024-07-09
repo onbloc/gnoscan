@@ -148,6 +148,66 @@ export const useGetRealmTransactionsQuery = (
   });
 };
 
+export const useGetHoldersQuery = (
+  realmPath: string | null,
+  options?: UseQueryOptions<number, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<number, Error>({
+    queryKey: [QUERY_KEY.getHoldersQuery, currentNetwork?.chainId || '', realmPath],
+    queryFn: async () => {
+      if (!realmRepository || !realmPath) {
+        return 0;
+      }
+      const transactions = await realmRepository.getRealmCallTransactionsWithArgs(realmPath);
+      if (!transactions) {
+        return 0;
+      }
+
+      const addresses = transactions
+        .flatMap(tx =>
+          tx.messages.flatMap(message => {
+            const caller = message.value.caller;
+            const receiver = message.value?.args?.[0];
+            return [caller, receiver];
+          }),
+        )
+        .filter(address => !!address);
+
+      return [...new Set(addresses)].length;
+    },
+    enabled: !!realmRepository && !!realmPath,
+    ...options,
+  });
+};
+
+export const useGetRealmTotalSupplyQuery = (
+  realmPath: string | null,
+  options?: UseQueryOptions<number, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<number, Error>({
+    queryKey: [QUERY_KEY.getRealmTotalSupply, currentNetwork?.chainId || '', realmPath],
+    queryFn: async () => {
+      if (!realmRepository || !realmPath) {
+        return 0;
+      }
+      const totalSupply = await realmRepository.getRealmTotalSupply(realmPath);
+      if (!totalSupply) {
+        return 0;
+      }
+
+      return totalSupply;
+    },
+    enabled: !!realmRepository && !!realmPath,
+    ...options,
+  });
+};
+
 export const useGetRealmTransactionsWithArgsQuery = (
   realmPath: string | null,
   options?: UseQueryOptions<Transaction[], Error>,

@@ -58,10 +58,12 @@ export const TokenDatatable = () => {
 
   const createHeaderHolder = () => {
     return DatatableOption.Builder.builder()
-      .key('holders')
+      .key('packagePath')
       .name('Holders')
       .width(110)
-      .renderOption(numberWithCommas)
+      .renderOption(packagePath => (
+        <DatatableItem.LazyHolders realmPath={packagePath} maxSize="p4" minSize="body3" />
+      ))
       .build();
   };
 
@@ -81,11 +83,11 @@ export const TokenDatatable = () => {
 
   const createHeaderTotalSupply = () => {
     return DatatableOption.Builder.builder()
-      .key('totalSupply')
+      .key('packagePath')
       .name('Total Supply')
       .width(180)
-      .renderOption(totalSupply => (
-        <DatatableItem.Amount value={`${totalSupply}`} denom={''} maxSize="p4" minSize="body3" />
+      .renderOption(packagePath => (
+        <DatatableItem.LazyTotalSupply realmPath={packagePath} maxSize="p4" minSize="body3" />
       ))
       .build();
   };

@@ -16,3 +16,5 @@ export * from './date';
 export * from './has-link';
 export * from './pkg-path';
 export * from './publisher';
+export * from './lazy-total-supply';
+export * from './lazy-holders';

@@ -16,9 +16,9 @@ import {parseTokenAmount} from '@/common/utils/token.utility';
 import {Amount} from '@/types/data-type';
 import {isAddPackageMessageValue} from './mapper';
 import {GRC20_FUNCTIONS, parseGRC20InfoByFile} from '@/common/utils/realm.utility';
-import {message} from 'antd';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {TransactionWithEvent} from '../response/transaction.types';
+import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
@@ -299,6 +299,59 @@ export class RealmRepository implements IRealmRepository {
 }`,
       )
       .then(result => result?.data?.transactions || []);
+  }
+
+  async getRealmCallTransactionsWithArgs(
+    realmPath: string,
+  ): Promise<RealmTransaction<MsgCallValue>[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient
+      .query(
+        gql`
+{
+  transactions(filter: {
+    success:true
+    message: {
+      type_url: exec
+      vm_param: {
+        exec: {
+          pkg_path: "${realmPath}"
+        }
+      }
+    }
+  }) {
+    success
+    block_height
+    messages {
+      value {
+        ...on MsgCall {
+          caller
+          send
+          pkg_path
+          func
+          args
+        }
+      }
+    }
+  }
+}`,
+      )
+      .then(result => result?.data?.transactions || []);
+  }
+
+  async getRealmTotalSupply(realmPath: string): Promise<number | null> {
+    if (!this.nodeClient) {
+      return null;
+    }
+
+    return this.nodeClient
+      .abciQueryVMQueryEvaluation(realmPath, 'TotalSupply', [])
+      .then(response => response?.response?.ResponseBase?.Data || null)
+      .then(parseABCIQueryNumberResponse)
+      .catch(() => null);
   }
 
   async getRealmTransactionInfos(): Promise<{[key in string]: RealmTransactionInfo} | null> {

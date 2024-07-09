@@ -6,4 +6,6 @@ export enum QUERY_KEY {
   getRealmTransactionsWithArgs = 'getRealmTransactionsWithArgs',
   getGRC20Tokens = 'getGRC20Tokens',
   getGRC20Token = 'getGRC20Token',
+  getRealmTotalSupply = 'getRealmTotalSupply',
+  getHoldersQuery = 'getHoldersQuery',
 }

@@ -12,6 +12,12 @@ export interface IRealmRepository {
 
   getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null>;
 
+  getRealmCallTransactionsWithArgs(
+    realmPath: string,
+  ): Promise<RealmTransaction<MsgCallValue>[] | null>;
+
+  getRealmTotalSupply(realmPath: string): Promise<number | null>;
+
   getRealmTransactionInfos(): Promise<{[key in string]: RealmTransactionInfo} | null>;
 
   getRealmBalance(realmPath: string): Promise<Amount | null>;
