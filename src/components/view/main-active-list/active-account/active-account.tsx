@@ -16,9 +16,11 @@ import Tooltip from '@/components/ui/tooltip';
 import FetchedSkeleton from '../fetched-skeleton';
 import {useMonthlyActiveAccounts} from '@/common/hooks/main/use-monthly-active-accounts';
 import {textEllipsis} from '@/common/utils/string-util';
+import {useNetwork} from '@/common/hooks/use-network';
 
 const ActiveAccount = () => {
   const media = eachMedia();
+  const {getUrlWithNetwork} = useNetwork();
   const {isFetched, data: accounts} = useMonthlyActiveAccounts();
 
   return (
@@ -51,7 +53,7 @@ const ActiveAccount = () => {
                   type="p4"
                   width={colWidth.accounts[1]}
                   color="blue">
-                  <Link href={`/accounts/${account.account}`} passHref>
+                  <Link href={getUrlWithNetwork(`/accounts/${account.account}`)} passHref>
                     <a>
                       <Tooltip content={account.account}>{textEllipsis(account.account)}</Tooltip>
                     </a>
