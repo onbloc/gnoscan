@@ -5,18 +5,24 @@ import MainRealm from '@/components/view/main-realm/main-realm';
 import MainTransactionNews from '@/components/view/main-transaction-news/main-transaction-news';
 import MainActiveList from '@/components/view/main-active-list';
 import {eachMedia} from '@/common/hooks/use-media';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 
 const Home = () => {
   const media = eachMedia();
+  const {indexerQueryClient} = useNetworkProvider();
   return (
     <>
       {media && (
         <Wrapper media={media}>
           <div className="inner-layout">
             <MainCard />
-            <MainActiveList />
-            <MainRealm />
-            <MainTransactionNews />
+            {!!indexerQueryClient && (
+              <React.Fragment>
+                <MainActiveList />
+                <MainRealm />
+                <MainTransactionNews />
+              </React.Fragment>
+            )}
           </div>
         </Wrapper>
       )}
