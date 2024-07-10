@@ -45,7 +45,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<any>()
       .key('hash')
       .name('Tx Hash')
       .width(210)
@@ -57,7 +57,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<any>()
       .key('type')
       .name('Type')
       .width(190)
@@ -74,7 +74,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<any>()
       .key('blockHeight')
       .name('Block')
       .width(113)
@@ -84,7 +84,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<any>()
       .key('from')
       .name('From')
       .width(170)
@@ -94,7 +94,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<any>()
       .key('amount')
       .name('Amount')
       .width(190)
@@ -109,7 +109,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<any>()
       .key('time')
       .name('Time')
       .width(160)
@@ -119,7 +119,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<Transaction>()
+    return DatatableOption.Builder.builder<any>()
       .key('fee')
       .name('Fee')
       .width(113)
