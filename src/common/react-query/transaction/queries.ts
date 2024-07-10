@@ -62,22 +62,44 @@ export const useGetTransactionsQuery = (
   });
 };
 
-export const useGetUsingAccountTransactionCount = (options?: UseQueryOptions<number, Error>) => {
+export const useGetUsingAccountTransactionCount = (
+  options?: UseQueryOptions<
+    {
+      accounts: string[];
+      length: number;
+    },
+    Error
+  >,
+) => {
   const {currentNetwork} = useNetworkProvider();
   const {transactionRepository} = useServiceProvider();
 
-  return useQuery<number, Error>({
+  return useQuery<
+    {
+      accounts: string[];
+      length: number;
+    },
+    Error
+  >({
     queryKey: [QUERY_KEY.useGetUsingAccountTransactionCount, currentNetwork?.chainId || ''],
     queryFn: async () => {
       if (!transactionRepository) {
-        return 0;
+        return {
+          accounts: [],
+          length: 0,
+        };
       }
       const transactions = await transactionRepository.getTransactions(0, 0);
       const allAccounts: string[] = transactions
         .flatMap(tx => [tx?.from, tx?.to || ''])
         .filter(account => !!account);
 
-      return [...new Set(allAccounts)].length;
+      const accounts = [...new Set(allAccounts)];
+      const length = accounts.length;
+      return {
+        accounts,
+        length,
+      };
     },
     enabled: !!transactionRepository && options?.enabled,
     keepPreviousData: true,

@@ -10,3 +10,12 @@ export function toBech32AddressByPackagePath(prefix: string, packagePath: string
   const hash = crypto.createHash('sha256').setEncoding('utf-8').update(bytes).digest();
   return bech32.encode(prefix, bech32.toWords(hash.slice(0, 20)));
 }
+
+export function isBech32Address(address: string): boolean {
+  try {
+    const decoded = bech32.decode(address, Infinity);
+    return !!decoded;
+  } catch {
+    return false;
+  }
+}

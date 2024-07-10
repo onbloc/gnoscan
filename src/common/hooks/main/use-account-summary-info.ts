@@ -20,7 +20,7 @@ export const useAccountSummaryInfo = () => {
   return {
     isFetched: isFetched && isFetchedUser && isFetchedAccount,
     accountSummaryInfo: {
-      totalAccounts,
+      totalAccounts: totalAccounts?.length || 0,
       totalUsers,
       numOfValidators,
     },

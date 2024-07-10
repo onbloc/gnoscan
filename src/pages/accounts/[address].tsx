@@ -1,9 +1,8 @@
 'use client';
 
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
-import {useQuery, UseQueryResult} from 'react-query';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
@@ -11,17 +10,9 @@ import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {AmountText} from '@/components/ui/text/amount-text';
 import Tooltip from '@/components/ui/tooltip';
-import IconLink from '@/assets/svgs/icon-link.svg';
-import {v1} from 'uuid';
 import DataSection from '@/components/view/details-data-section';
 import {AccountDetailDatatable} from '@/components/view/datatable';
-import {getAccountDetails} from '@/repositories/api/fetchers/api-account-details';
-import {accountDetailSelector} from '@/repositories/api/selector/select-account-details';
-import {AccountDetailsModel, AssetsDataType} from '@/models/account-details-model';
-import {useRecoilValue} from 'recoil';
-import {tokenState} from '@/states';
 import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
-import {useGetGRC20TokenBalances, useGetNativeTokenBalance} from '@/common/react-query/account';
 import {useAccount} from '@/common/hooks/account/use-account';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {Amount} from '@/types/data-type';

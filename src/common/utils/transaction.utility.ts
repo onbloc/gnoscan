@@ -3,6 +3,10 @@ import {decodeTxMessages} from '@gnolang/gno-js-client';
 import {Tx, base64ToUint8Array} from '@gnolang/tm2-js-client';
 import {parseTokenAmount} from './token.utility';
 
+function base64ToBytes(base64: string) {
+  return Buffer.from(base64, 'base64');
+}
+
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
   const hash = makeHash(txBytes);
@@ -20,6 +24,19 @@ export function makeSafeBase64Hash(data: string) {
     return Buffer.from(data, 'base64').toString('base64');
   } catch {
     return data;
+  }
+}
+
+export function isHash(hash: string): boolean {
+  try {
+    if (hash.length < 40) {
+      return false;
+    }
+
+    const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+    return base64regex.test(hash + '=') || base64regex.test(hash);
+  } catch {
+    return false;
   }
 }
 

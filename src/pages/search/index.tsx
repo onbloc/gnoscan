@@ -1,6 +1,7 @@
+import {isBech32Address} from '@/common/utils/bech32.utility';
+import {isHash} from '@/common/utils/transaction.utility';
 import NotFound from '@/components/view/not-found/not-found';
-import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
-import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
+import BigNumber from 'bignumber.js';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -39,81 +40,57 @@ export async function getServerSideProps({req}: any) {
     };
   }
   try {
-    const result = await searchKeyword(keyword);
-    const data = result.data;
-    searchHistory({
-      keyword: keyword,
-      type: data.type,
-      value: data.value,
-      memo1: data.type === 'username' ? data.extra_value : '',
-    });
-
-    if (data.type === 'username') {
+    const isNumber = !BigNumber(keyword).isNaN();
+    if (isNumber) {
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/accounts/${data.extra_value}`,
+          destination: `/blocks/${keyword}`,
         },
       };
     }
 
-    if (data.type === 'address') {
+    const isRealm = keyword.startsWith('gno.land/');
+    if (isRealm) {
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/accounts/${data.value}`,
+          destination: `/realms/details?path=${keyword}`,
         },
       };
     }
 
-    if (data.type === 'pkg_path') {
+    const isAddress = isBech32Address(keyword);
+    if (isAddress) {
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/realms/details?path=${data.value}`,
+          destination: `/accounts/${keyword}`,
         },
       };
     }
 
-    if (data.type === 'pkg_name') {
+    const isTxHash = isHash(keyword);
+    if (isTxHash) {
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/realms/details?path=${data.extra_value}`,
+          destination: `/transactions/details?txhash=${keyword}`,
         },
       };
     }
 
-    if (data.type === 'block') {
+    const isCommon = keyword.length > 2 && !keyword.includes(' ');
+    if (isCommon) {
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/blocks/${data.value}`,
-        },
-      };
-    }
-
-    if (data.type === 'tx') {
-      return {
-        redirect: {
-          keyword,
-          permanent: false,
-          destination: `/transactions/details?txhash=${data.value}`,
-        },
-      };
-    }
-
-    if (data.type === 'tokens') {
-      return {
-        redirect: {
-          keyword,
-          permanent: false,
-          destination: `/tokens/${data.value}`,
+          destination: `/accounts/${keyword}`,
         },
       };
     }
