@@ -91,7 +91,7 @@ export const useRealm = (packagePath: string) => {
   }, [realmTransactions?.length, currentPage]);
 
   const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} = useQuery({
-    queryKey: ['transactions', `${transactions?.length}`],
+    queryKey: ['realm/transactions', packagePath, `${transactions?.length}`],
     queryFn: () =>
       Promise.all(
         transactions?.map(async transaction => {
