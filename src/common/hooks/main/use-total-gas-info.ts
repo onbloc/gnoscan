@@ -23,9 +23,11 @@ export const useTotalGasInfo = () => {
       if (!pkgPath) {
         return;
       }
-      const date = [blockTime.getFullYear(), blockTime.getMonth() + 1, blockTime.getDate()].join(
-        '-',
-      );
+      const date = [
+        blockTime.getUTCFullYear(),
+        blockTime.getUTCMonth() + 1,
+        blockTime.getUTCDate(),
+      ].join('-');
 
       if (!transactionInfo[date]) {
         transactionInfo[date] = {};

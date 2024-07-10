@@ -9,6 +9,8 @@ import FetchedSkeleton from '../fetched-skeleton';
 import {useRealms} from '@/common/hooks/realms/use-realms';
 import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
+import {useUsername} from '@/common/hooks/account/use-username';
+import {getLocalDateString} from '@/common/utils/date-util';
 
 function makeDisplayRealmPath(path: string, length = 11) {
   const displayPath = path.replace('gno.land', '');
@@ -17,6 +19,7 @@ function makeDisplayRealmPath(path: string, length = 11) {
 
 const ActiveNewest = () => {
   const media = eachMedia();
+  const {isFetched: isFetchedUsername, getName} = useUsername();
   const {getUrlWithNetwork} = useNetwork();
   const {isFetched, realms} = useRealms(false);
 
@@ -28,13 +31,13 @@ const ActiveNewest = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Newest Realms
-        {media !== 'mobile' && isFetched && (
+        {media !== 'mobile' && isFetched && isFetchedUsername && (
           <Text type="body1" color="tertiary">
-            {`Last Updated: ${new Date().toLocaleDateString()}`}
+            {`Last Updated: ${getLocalDateString(Date.now())}`}
           </Text>
         )}
       </Text>
-      {isFetched ? (
+      {isFetched && isFetchedUsername ? (
         <ActiveList title={listTitle.newest} colWidth={colWidth.newest}>
           {displayRealms.map((realm: any, index: number) => (
             <List key={index}>
@@ -53,7 +56,9 @@ const ActiveNewest = () => {
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">
                 <Link href={getUrlWithNetwork(`/accounts/${realm.creator}`)} passHref>
                   <FitContentA>
-                    <Tooltip content={realm.creator}>{textEllipsis(realm.creator)}</Tooltip>
+                    <Tooltip content={realm.creator}>
+                      {getName(realm.creator) || textEllipsis(realm.creator)}
+                    </Tooltip>
                   </FitContentA>
                 </Link>
               </StyledText>
@@ -74,7 +79,7 @@ const ActiveNewest = () => {
       ) : (
         <FetchedSkeleton />
       )}
-      {media === 'mobile' && isFetched && (
+      {media === 'mobile' && isFetched && isFetchedUsername && (
         <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${new Date().toLocaleDateString()}`}
         </Text>
