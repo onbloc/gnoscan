@@ -29,7 +29,7 @@ export const useRealm = (packagePath: string) => {
 
     const totalCount = realmTransactions.filter(tx => tx.type === '/vm.m_call').length;
     const totalUsedFeeAmount = realmTransactions
-      .map(tx => Number(tx.gasUsed?.value || 0))
+      .map(tx => Number(tx.fee?.value || 0))
       .reduce((accum, current) => accum + current, 0);
     return {
       totalCount,
