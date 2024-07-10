@@ -9,6 +9,11 @@ import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {GnoEvent} from '@/types/data-type';
 import Text from '@/components/ui/text';
+import Link from 'next/link';
+import {useNetwork} from '@/common/hooks/use-network';
+import Tooltip from '@/components/ui/tooltip';
+import IconCopy from '@/assets/svgs/icon-copy.svg';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 interface Props {
   isFetched: boolean;
@@ -25,11 +30,12 @@ const TOOLTIP_TYPE = (
 
 export const EventDatatable = ({isFetched, events}: Props) => {
   const themeMode = useRecoilValue(themeState);
+  const {isFetched: isFetchedUsername, getName} = useUsername();
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
 
   const loaded = useMemo(() => {
-    return isFetched;
-  }, [isFetched]);
+    return isFetched && isFetchedUsername;
+  }, [isFetched, isFetchedUsername]);
 
   const toggleEventDetails = (eventId: string) => {
     setActiveEvents(prev =>
@@ -97,7 +103,9 @@ export const EventDatatable = ({isFetched, events}: Props) => {
       .name('Caller')
       .width(180)
       .colorName('blue')
-      .renderOption(caller => <DatatableItem.TxHashCopy txHash={caller} />)
+      .renderOption(caller => (
+        <DatatableItem.CallerCopy caller={caller} username={getName(caller)} />
+      ))
       .build();
   };
 
@@ -182,6 +190,9 @@ const Container = styled.div<{maxWidth?: number}>`
 `;
 
 const EventDetail = (event: GnoEvent) => {
+  const {getUrlWithNetwork} = useNetwork();
+  const {getName} = useUsername();
+
   return (
     <EventDetailWrapper>
       <div className="event-details-header">
@@ -189,7 +200,17 @@ const EventDetail = (event: GnoEvent) => {
           <Text type="p4" color={'primary'}>
             Current Realm Path:{' '}
             <Text type="p4" color={'blue'}>
-              {event.packagePath}
+              <Link href={getUrlWithNetwork(`/realms/details?path=${event.packagePath}`)} passHref>
+                {event.packagePath}
+              </Link>
+              <Tooltip
+                className="path-copy-tooltip"
+                content="Copied!"
+                trigger="click"
+                copyText={event.packagePath}
+                width={85}>
+                <IconCopy className="svg-icon" />
+              </Tooltip>
             </Text>
           </Text>
         </div>
@@ -197,7 +218,17 @@ const EventDetail = (event: GnoEvent) => {
           <Text type="p4" color={'primary'}>
             OriginCaller:{' '}
             <Text type="p4" color={'blue'}>
-              {event.caller}
+              <Link href={getUrlWithNetwork(`/accounts/${event.caller}`)} passHref>
+                {getName(event.caller) || event.caller}
+              </Link>
+              <Tooltip
+                className="path-copy-tooltip"
+                content="Copied!"
+                trigger="click"
+                copyText={event.caller}
+                width={85}>
+                <IconCopy className="svg-icon" />
+              </Tooltip>
             </Text>
           </Text>
         </div>

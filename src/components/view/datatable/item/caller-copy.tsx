@@ -6,29 +6,30 @@ import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
-  txHash: string;
+  caller: string;
+  username?: string | undefined;
 }
 
-export const TxHashCopy = ({txHash}: Props) => {
+export const CallerCopy = ({caller, username}: Props) => {
   const {getUrlWithNetwork} = useNetwork();
   return (
-    <TxHashWrapper>
-      <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
-        {textEllipsis(txHash ?? '', 8)}
+    <CallerWrapper>
+      <a className="ellipsis" href={getUrlWithNetwork(`/accounts/${caller}`)}>
+        {username || textEllipsis(caller ?? '', 6)}
         <Tooltip
           className="path-copy-tooltip"
           content="Copied!"
           trigger="click"
-          copyText={txHash}
+          copyText={caller}
           width={85}>
           <IconCopy className="svg-icon" />
         </Tooltip>
       </a>
-    </TxHashWrapper>
+    </CallerWrapper>
   );
 };
 
-const TxHashWrapper = styled.div`
+const CallerWrapper = styled.div`
   & {
     display: flex;
     width: 100%;
