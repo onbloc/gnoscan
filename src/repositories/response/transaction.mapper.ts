@@ -167,6 +167,12 @@ export function mapVMTransaction(
         denom: GNOTToken.denom,
       },
       time: '',
+      gasUsed: tx?.gas_used
+        ? {
+            value: toString(tx.gas_used || 0),
+            denom: GNOTToken.denom,
+          }
+        : undefined,
       fee: {
         value: toString(tx.gas_fee.amount),
         denom: GNOTToken.denom,

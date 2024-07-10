@@ -2,10 +2,16 @@ import {useMemo, useState} from 'react';
 import {
   useGetGRC20Token,
   useGetRealmFunctionsQuery,
+  useGetRealmTotalSupplyQuery,
   useGetRealmTransactionsWithArgsQuery,
 } from '@/common/react-query/realm';
+import {useQuery} from 'react-query';
+import {useServiceProvider} from '../provider/use-service-provider';
+import {makeDisplayNumber} from '@/common/utils/string-util';
 
 export const useToken = (path: string[] | string | undefined) => {
+  const {blockRepository} = useServiceProvider();
+
   const packagePath = useMemo(() => {
     if (!path) {
       return null;
@@ -17,11 +23,11 @@ export const useToken = (path: string[] | string | undefined) => {
 
     return path;
   }, [path]);
+  const {data: totalSupply = 0} = useGetRealmTotalSupplyQuery(packagePath);
   const {data, isFetched} = useGetGRC20Token(packagePath);
   const {data: realmFunctions, isFetched: isFetchedRealmFunctions} =
     useGetRealmFunctionsQuery(packagePath);
-  const {data: realmTransactions, isFetched: isFetchedRealmTransactions} =
-    useGetRealmTransactionsWithArgsQuery(packagePath);
+  const {data: realmTransactions} = useGetRealmTransactionsWithArgsQuery(packagePath);
   const [currentPage, setCurrentPage] = useState(0);
 
   const holders = useMemo(() => {
@@ -65,13 +71,29 @@ export const useToken = (path: string[] | string | undefined) => {
       }));
   }, [realmTransactions?.length, currentPage, tokenInfo]);
 
+  const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} = useQuery({
+    queryKey: ['token/transactions', `${path}`, `${transactions?.length}`],
+    queryFn: () =>
+      Promise.all(
+        transactions?.map(async transaction => {
+          const time = await blockRepository?.getBlockTime(transaction.blockHeight);
+          return {
+            ...transaction,
+            time,
+          };
+        }) || [],
+      ),
+    enabled: !!transactions,
+    keepPreviousData: true,
+  });
+
   function nextPage() {
     setCurrentPage(prev => prev + 1);
   }
 
   return {
     isFetched: isFetched && isFetchedRealmFunctions,
-    isFetchedTransactions: isFetchedRealmTransactions,
+    isFetchedTransactions: isFetchedTransactionWithTimes,
     summary: {
       name: data?.tokenInfo.name || '',
       symbol: data?.tokenInfo.symbol || '',
@@ -79,10 +101,10 @@ export const useToken = (path: string[] | string | undefined) => {
       packagePath: data?.tokenInfo.packagePath || '',
       owner: data?.tokenInfo.owner || '',
       functions: realmFunctions?.map(func => func.functionName) || [],
-      totalSupply: 0,
+      totalSupply: makeDisplayNumber(totalSupply || 0),
       holders,
     },
-    transactions,
+    transactions: transactionWithTimes,
     hasNextPage,
     nextPage,
     files: data?.realmTransaction.messages.flatMap(m => m.value.package?.files || []),

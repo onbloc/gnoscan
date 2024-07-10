@@ -7,10 +7,13 @@ import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
 import {toNumber, toString} from '@/common/utils/string-util';
 import {useMemo, useState} from 'react';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
+import {useQuery} from 'react-query';
+import {useServiceProvider} from '../provider/use-service-provider';
 
 const GNO_ADDRESS_PREFIX = 'g';
 
 export const useRealm = (packagePath: string) => {
+  const {blockRepository} = useServiceProvider();
   const {getTokenAmount} = useTokenMeta();
   const {data: realm, isFetched: isFetchedRealm} = useGetRealmQuery(packagePath);
   const {data: realmFunctions, isFetched: isFetchedRealmFunctions} =
@@ -87,6 +90,22 @@ export const useRealm = (packagePath: string) => {
       }));
   }, [realmTransactions?.length, currentPage]);
 
+  const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} = useQuery({
+    queryKey: ['transactions', `${transactions?.length}`],
+    queryFn: () =>
+      Promise.all(
+        transactions?.map(async transaction => {
+          const time = await blockRepository?.getBlockTime(transaction.blockHeight);
+          return {
+            ...transaction,
+            time,
+          };
+        }) || [],
+      ),
+    enabled: !!transactions,
+    keepPreviousData: true,
+  });
+
   const transactionEvents = useMemo(() => {
     if (!realmTransactions) {
       return [];
@@ -101,9 +120,9 @@ export const useRealm = (packagePath: string) => {
 
   return {
     summary,
-    realmTransactions: transactions || [],
+    realmTransactions: transactionWithTimes || [],
     transactionEvents,
-    isFetched: isFetchedRealm && isFetchedRealmTransactions && isFetchedRealmFunctions,
+    isFetched: isFetchedRealm && isFetchedTransactionWithTimes && isFetchedRealmFunctions,
     nextPage,
     hasNextPage,
   };
