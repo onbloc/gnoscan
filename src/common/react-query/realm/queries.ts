@@ -94,7 +94,7 @@ export const useGetRealmFunctionsQuery = (
       if (!realmRepository || !packagePath) {
         return null;
       }
-      const result = await realmRepository.getRealmFunctions(packagePath);
+      const result = await realmRepository.getRealmFunctions(decodeURIComponent(packagePath));
       return result;
     },
     enabled: !!realmRepository && !!packagePath,
