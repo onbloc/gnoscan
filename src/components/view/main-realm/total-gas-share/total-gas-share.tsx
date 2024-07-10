@@ -19,13 +19,12 @@ export const MainRealmTotalGasShare = () => {
 
   const labels = useMemo(() => {
     const now = new Date();
-    const todayTime = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate()).getTime();
 
     return Array.from({length: period})
-      .map((_, index) => new Date(todayTime - DAY_TIME * index))
+      .map((_, index) => new Date(now.getTime() - DAY_TIME * index))
       .sort((d1, d2) => d1.getTime() - d2.getTime())
       .map(date => {
-        return [date.getFullYear(), date.getMonth(), date.getDate()].join('-');
+        return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
       });
   }, [period]);
 

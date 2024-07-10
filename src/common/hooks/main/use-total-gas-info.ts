@@ -4,8 +4,8 @@ import {useGetSimpleTransactions} from '../common/use-get-simple-transactions';
 import {useGetSimpleTransactionWithTimes} from '../common/use-get-block-times';
 
 export const useTotalGasInfo = () => {
-  const {data: blockHeightOfBefor30d} = useGetBefore30DBlock();
-  const {data: simpleTransactions} = useGetSimpleTransactions(blockHeightOfBefor30d);
+  const {data: blockHeightOfBefore30d} = useGetBefore30DBlock();
+  const {data: simpleTransactions} = useGetSimpleTransactions(blockHeightOfBefore30d);
   const {data, isFetched} = useGetSimpleTransactionWithTimes(simpleTransactions);
 
   const transactionRealmGasInfo = useMemo(() => {

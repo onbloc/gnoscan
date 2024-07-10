@@ -110,7 +110,7 @@ interface Header {
   consensus_hash: string;
   app_hash?: any;
   last_results_hash?: any;
-  proposer_address: number[];
+  proposer_address: number[] | string;
 }
 interface LastBlockId {
   hash?: any;

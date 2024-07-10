@@ -3,10 +3,6 @@ import {decodeTxMessages} from '@gnolang/gno-js-client';
 import {Tx, base64ToUint8Array} from '@gnolang/tm2-js-client';
 import {parseTokenAmount} from './token.utility';
 
-function base64ToBytes(base64: string) {
-  return Buffer.from(base64, 'base64');
-}
-
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
   const hash = makeHash(txBytes);
@@ -78,7 +74,7 @@ export function makeTransactionMessageInfo(message: any) {
         from: message.caller,
         amount: {
           value: amountValue,
-          denom: 'GNOT',
+          denom: 'ugnot',
         },
       };
     }
@@ -92,7 +88,7 @@ export function makeTransactionMessageInfo(message: any) {
         from: message.creator,
         amount: {
           value: amountValue,
-          denom: 'GNOT',
+          denom: 'ugnot',
         },
       };
     }
@@ -104,7 +100,7 @@ export function makeTransactionMessageInfo(message: any) {
         from: message.caller,
         amount: {
           value: '0',
-          denom: 'GNOT',
+          denom: 'ugnot',
         },
       };
     }
@@ -119,7 +115,7 @@ export function makeTransactionMessageInfo(message: any) {
         to: message.to_address,
         amount: {
           value: amountValue,
-          denom: 'GNOT',
+          denom: 'ugnot',
         },
       };
     }

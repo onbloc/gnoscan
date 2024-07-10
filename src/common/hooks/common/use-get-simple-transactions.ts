@@ -29,7 +29,7 @@ export const useGetSimpleTransactions = (blockHeight?: number | null) => {
   const {transactionRepository} = useServiceProvider();
 
   return useQuery<SimpleTransaction[] | null>({
-    queryKey: ['useGetSimpleTransactions', currentNetwork?.chainId],
+    queryKey: ['useGetSimpleTransactions', currentNetwork?.chainId, blockHeight || ''],
     queryFn: () => {
       if (!transactionRepository || !blockHeight) {
         return null;

@@ -91,7 +91,7 @@ export const useTransaction = (hash: string) => {
       to: firstMessage?.to || '',
       amount: firstMessage?.amount || {
         value: '0',
-        denom: 'GNOT',
+        denom: 'ugnot',
       },
       time: block?.block_meta.header.time || '',
       fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),

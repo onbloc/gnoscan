@@ -11,6 +11,7 @@ import BigNumber from 'bignumber.js';
 import {GnoEvent, Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {GNOTToken} from '../common/use-token-meta';
+import {toBech32Address} from '@/common/utils/bech32.utility';
 
 export const useBlock = (height: number) => {
   const {data: latestBlockHeight} = useGetLatestBlockHeightQuery();
@@ -132,7 +133,10 @@ export const useBlock = (height: number) => {
     if (!block) {
       return '-';
     }
-    return block.block.header.proposer_address;
+
+    return Array.isArray(block.block.header.proposer_address)
+      ? toBech32Address('g', block.block.header.proposer_address)
+      : block.block.header.proposer_address;
   }, [block]);
 
   const events: GnoEvent[] = useMemo(() => {

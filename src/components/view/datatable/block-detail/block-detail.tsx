@@ -10,6 +10,7 @@ import {themeState} from '@/states';
 import {useBlock} from '@/common/hooks/blocks/use-block';
 import {Transaction} from '@/types/data-type';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
   height: string | number;
@@ -26,6 +27,7 @@ const TOOLTIP_TYPE = (
 export const BlockDetailDatatable = ({height}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const {getTokenAmount} = useTokenMeta();
+  const {getUrlWithNetwork} = useNetwork();
 
   const {isFetched, isFetchedBlockResult, transactionItems} = useBlock(Number(height));
 

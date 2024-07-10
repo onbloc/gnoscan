@@ -22,6 +22,7 @@ import DataListSection from '@/components/view/details-data-section/data-list-se
 import {Transaction} from '@/types/data-type';
 import {EventDatatable} from '@/components/view/datatable/event';
 import {useNetwork} from '@/common/hooks/use-network';
+import {makeSafeBase64Hash} from '@/common/utils/transaction.utility';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -40,7 +41,7 @@ function parseTxHash(url: string) {
   if (params.length < 2) return '';
 
   const txHash = params[1].split('&')[0];
-  return decodeURIComponent(txHash);
+  return makeSafeBase64Hash(decodeURIComponent(txHash));
 }
 
 const TransactionDetails = () => {
@@ -178,6 +179,7 @@ const ContractDetails: React.FC<{
   transactionItem: Transaction | null;
   desktop: boolean;
 }> = ({transactionItem, desktop}) => {
+  const {tokenMap} = useTokenMeta();
   const {getUrlWithNetwork} = useNetwork();
 
   const messages = useMemo(() => {
@@ -218,7 +220,10 @@ const ContractDetails: React.FC<{
                 <dd>
                   <Badge>
                     <Text type="p4" color="secondary">
-                      {message?.package?.name || message?.func || '-'}
+                      {message?.package?.name ||
+                        tokenMap?.[message?.pkg_path]?.name ||
+                        message.func ||
+                        '-'}
                     </Text>
                   </Badge>
                 </dd>
@@ -269,18 +274,18 @@ const ContractDetails: React.FC<{
               </Badge>
             </dd>
           </DLWrap>
-          {/* {v.grc20 === true && v.type === '/vm.m_call' && v.type === 'Transfer' && (
-                  <TransferContract contract={v} desktop={desktop} />
-                )} */}
+          {message['@type'] === '/vm.m_call' && message?.func === 'Transfer' && (
+            <TransferContract message={message} desktop={desktop} />
+          )}
           {message['@type'] === '/bank.MsgSend' && (
             <TransferContract message={message} desktop={desktop} />
           )}
           {message['@type'] === '/vm.m_addpkg' && (
             <AddPkgContract message={message} desktop={desktop} />
           )}
-          {!['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type']) && (
-            <CallerContract message={message} desktop={desktop} />
-          )}
+          {!['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type']) &&
+            !!message?.func &&
+            message?.func !== 'Transfer' && <CallerContract message={message} desktop={desktop} />}
         </ContractListBox>
       ))}
       {transactionItem?.rawContent && (
@@ -342,6 +347,14 @@ const TransferContract = ({message, desktop}: any) => {
   const {getUrlWithNetwork} = useNetwork();
   const {getTokenAmount} = useTokenMeta();
 
+  const fromAddress = useMemo(() => {
+    return message?.from_address || message?.caller || '-';
+  }, [message]);
+
+  const toAddress = useMemo(() => {
+    return message?.to_address || message?.args?.[0] || '-';
+  }, [message]);
+
   return (
     <>
       <DLWrap desktop={desktop}>
@@ -362,24 +375,35 @@ const TransferContract = ({message, desktop}: any) => {
           <Badge>
             <AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
-                <Link href={getUrlWithNetwork(`/accounts/${message?.from_address}`)} passHref>
-                  <FitContentA>{message?.from_address}</FitContentA>
+                <Link href={getUrlWithNetwork(`/accounts/${fromAddress}`)} passHref>
+                  <FitContentA>{fromAddress}</FitContentA>
                 </Link>
-                {/* {contract.from_username && v === 'From' && (
-                  <Text type="p4" color="primary" display="inline-block">
-                    {` (${contract.from_username})`}
-                  </Text>
-                )} */}
-                {/* {contract.to_username && v === 'To' && (
-                  <Text type="p4" color="primary" display="inline-block">
-                    {` (${contract.to_username})`}
-                  </Text>
-                )} */}
               </Text>
               <Tooltip
                 content="Copied!"
                 trigger="click"
-                copyText={message?.from_address}
+                copyText={fromAddress}
+                className="address-tooltip">
+                <StyledIconCopy />
+              </Tooltip>
+            </AddressTextBox>
+          </Badge>
+        </dd>
+      </DLWrap>
+      <DLWrap desktop={desktop} key={v1()}>
+        <dt>{'To'}</dt>
+        <dd>
+          <Badge>
+            <AddressTextBox>
+              <Text type="p4" color="blue" className="ellipsis">
+                <Link href={getUrlWithNetwork(`/accounts/${toAddress}`)} passHref>
+                  <FitContentA>{toAddress}</FitContentA>
+                </Link>
+              </Text>
+              <Tooltip
+                content="Copied!"
+                trigger="click"
+                copyText={toAddress}
                 className="address-tooltip">
                 <StyledIconCopy />
               </Tooltip>
