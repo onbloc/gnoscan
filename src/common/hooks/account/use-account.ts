@@ -5,6 +5,7 @@ import {
   useGetGRC20TokenBalances,
   useGetNativeTokenBalance,
 } from '@/common/react-query/account';
+import {useMakeTransactionsWithTime} from '../common/use-make-transactions-with-time';
 
 export const useAccount = (address: string) => {
   const {isFetchedGRC20Tokens, isFetchedTokenMeta} = useTokenMeta();
@@ -36,18 +37,14 @@ export const useAccount = (address: string) => {
     if (!transactions) {
       return [];
     }
-    return transactions.sort((t1, t2) => t2.blockHeight - t1.blockHeight);
-  }, [transactions]);
-
-  const accountDisplayTransactions = useMemo(() => {
-    if (!accountTransactions) {
-      return [];
-    }
+    const sortedTransactions = transactions.sort((t1, t2) => t2.blockHeight - t1.blockHeight);
     const nextIndex = (currentPage + 1) * 20;
-    const endIndex =
-      accountTransactions.length > nextIndex ? nextIndex : accountTransactions.length;
-    return accountTransactions.filter((_: unknown, index: number) => index < endIndex);
-  }, [accountTransactions, currentPage]);
+    const endIndex = sortedTransactions.length > nextIndex ? nextIndex : sortedTransactions.length;
+    return sortedTransactions.filter((_: unknown, index: number) => index < endIndex);
+  }, [currentPage, transactions]);
+
+  const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} =
+    useMakeTransactionsWithTime(address, accountTransactions);
 
   const transactionEvents = useMemo(() => {
     if (!accountTransactions) {
@@ -74,9 +71,9 @@ export const useAccount = (address: string) => {
       isFetchedGRC20TokenBalance &&
       isFetchedGRC20Tokens &&
       isFetchedTokenMeta,
-    accountTransactions: accountDisplayTransactions,
+    accountTransactions: transactionWithTimes,
     transactionEvents,
-    isFetchedAccountTransactions: isFetchedTransactions,
+    isFetchedAccountTransactions: isFetchedTransactions && isFetchedTransactionWithTimes,
     tokenBalances,
     username: undefined,
     hasNextPage,

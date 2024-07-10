@@ -122,7 +122,11 @@ export const useRealm = (packagePath: string) => {
     summary,
     realmTransactions: transactionWithTimes || [],
     transactionEvents,
-    isFetched: isFetchedRealm && isFetchedTransactionWithTimes && isFetchedRealmFunctions,
+    isFetched:
+      isFetchedRealm &&
+      isFetchedRealmTransactions &&
+      isFetchedTransactionWithTimes &&
+      isFetchedRealmFunctions,
     nextPage,
     hasNextPage,
   };

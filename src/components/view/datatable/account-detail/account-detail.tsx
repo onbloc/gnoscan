@@ -176,7 +176,7 @@ export const AccountDetailDatatable = ({address}: Props) => {
             themeMode: themeMode,
           };
         })}
-        datas={accountTransactions}
+        datas={accountTransactions || []}
       />
       {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={'4px'} onClick={() => nextPage()}>

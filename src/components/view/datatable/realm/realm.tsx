@@ -32,7 +32,7 @@ export const RealmDatatable = () => {
     return [
       createHeaderName(),
       createHeaderPath(),
-      // createHeaderFunctions(),
+      createHeaderFunctions(),
       createHeaderBlock(),
       createHeaderPublisher(),
       createHeaderTotalCalls(),
@@ -53,7 +53,7 @@ export const RealmDatatable = () => {
     return DatatableOption.Builder.builder()
       .key('packagePath')
       .name('Path')
-      .width(202 + 121) // removed functions column
+      .width(202) // removed functions column
       .colorName('blue')
       .tooltip(TOOLTIP_PATH)
       .renderOption(packagePath => (
@@ -64,9 +64,10 @@ export const RealmDatatable = () => {
 
   const createHeaderFunctions = () => {
     return DatatableOption.Builder.builder()
-      .key('functionCount')
+      .key('packagePath')
       .name('Functions')
       .width(121)
+      .renderOption(packagePath => <DatatableItem.LazyFunctions realmPath={packagePath} />)
       .build();
   };
 

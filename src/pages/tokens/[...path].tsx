@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {useRouter} from '@/common/hooks/common/use-router';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
@@ -16,6 +16,7 @@ import styled from 'styled-components';
 import mixins from '@/styles/mixins';
 import {useToken} from '@/common/hooks/tokens/use-token';
 import {useNetwork} from '@/common/hooks/use-network';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -25,13 +26,18 @@ const TOOLTIP_PACKAGE_PATH = (
 );
 
 const TokenDetails = () => {
+  const {isFetched: isFetchedUsername, getName} = useUsername();
   const {getUrlWithNetwork} = useNetwork();
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
   const currentPath = Array.isArray(path) ? path.join('/').split('?')[0] : path?.toString();
 
-  const {isFetched, summary, files} = useToken(currentPath);
+  const {isFetched: isFetchedToken, summary, files} = useToken(currentPath);
+
+  const isFetched = useMemo(() => {
+    return isFetchedToken && isFetchedUsername;
+  }, [isFetchedToken, isFetchedUsername]);
 
   return (
     <DetailsPageLayout
@@ -118,7 +124,7 @@ const TokenDetails = () => {
                     <Link href={getUrlWithNetwork(`/accounts/${summary.owner}`)} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue">
-                          {summary.owner}
+                          {getName(summary.owner) || summary.owner}
                         </Text>
                       </FitContentA>
                     </Link>

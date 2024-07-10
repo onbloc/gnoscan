@@ -23,6 +23,7 @@ import {useRealm} from '@/common/hooks/realms/use-realm';
 import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {EventDatatable} from '@/components/view/datatable/event';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -45,12 +46,16 @@ interface RealmsDetailsPageProps {
 }
 
 const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
-  const {getUrlWithNetwork} = useNetwork();
   const desktop = isDesktop();
-  const {currentNetwork} = useNetwork();
-  const {summary, transactionEvents, isFetched} = useRealm(path);
+  const {isFetched: isFetchedUsername, getName} = useUsername();
+  const {currentNetwork, getUrlWithNetwork} = useNetwork();
+  const {summary, transactionEvents, isFetched: isFetchedRealm} = useRealm(path);
   const {getTokenAmount} = useTokenMeta();
   const [currentTab, setCurrentTab] = useState('Transactions');
+
+  const isFetched = useMemo(() => {
+    return isFetchedRealm && isFetchedUsername;
+  }, [isFetchedRealm, isFetchedUsername]);
 
   const detailTabs = useMemo(() => {
     return [
@@ -195,7 +200,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                       passHref>
                       <FitContentA>
                         <Text type="p4" color="blue" className="ellipsis">
-                          {summary?.publisherAddress}
+                          {getName(summary?.publisherAddress || '') || summary?.publisherAddress}
                         </Text>
                       </FitContentA>
                     </Link>
