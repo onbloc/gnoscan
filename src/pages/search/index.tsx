@@ -20,8 +20,14 @@ function parseSearchString(search: string) {
   return search
     .replace('?', '')
     .split('&')
-    .reduce<{[key in string]: string}>((accum, current) => {
+    .reduce<{[key in string]: string}>((accum, value) => {
+      const keySeparatorIndex = value.lastIndexOf('.json');
+      const current =
+        keySeparatorIndex > -1
+          ? value.substring(keySeparatorIndex + '.json'.length, value.length)
+          : value;
       const separatorIndex = current.indexOf('=');
+      console.log(current);
       if (separatorIndex < 0 || separatorIndex + 1 >= current.length) {
         return accum;
       }
@@ -34,7 +40,7 @@ function parseSearchString(search: string) {
         return accum;
       }
 
-      accum[values[0]] = values.length > 1 ? values[1] : '';
+      accum[values[0]] = values.length > 0 ? values[1] : '';
       return accum;
     }, {});
 }
@@ -49,6 +55,7 @@ const Search = ({keyword}: Props) => {
 
 export async function getServerSideProps({req}: any) {
   const params = parseSearchString(req.url);
+  console.log(params);
   const networkParams = Object.entries(params).reduce<{[key in string]: string}>((acc, current) => {
     if (['type', 'rpcUrl', 'indexerUrl', 'chainId'].includes(current[0])) {
       acc[current[0]] = current[1];
@@ -112,6 +119,8 @@ export async function getServerSideProps({req}: any) {
         ...networkParams,
         txhash: keyword,
       });
+      console.log(params);
+      console.log(queryString);
       return {
         redirect: {
           keyword,
