@@ -136,10 +136,10 @@ export const EventDatatable = ({isFetched, events}: Props) => {
   const renderDetails = useCallback(
     (event: GnoEvent) => {
       if (!activeEvents.includes(event.id)) {
-        return <></>;
+        return <React.Fragment />;
       }
 
-      return EventDetail(event);
+      return <EventDetail event={event} />;
     },
     [activeEvents],
   );
@@ -189,7 +189,7 @@ const Container = styled.div<{maxWidth?: number}>`
   }
 `;
 
-const EventDetail = (event: GnoEvent) => {
+const EventDetail: React.FC<{event: GnoEvent}> = ({event}) => {
   const {getUrlWithNetwork} = useNetwork();
   const {getName} = useUsername();
 

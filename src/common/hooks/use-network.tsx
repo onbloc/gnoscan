@@ -3,6 +3,7 @@ import {useMemo} from 'react';
 import {useRecoilState} from 'recoil';
 import ChainData from 'public/resource/chains.json';
 import {useRouter} from 'next/router';
+import {makeQueryString} from '../utils/string-util';
 
 function parseSearchString(search: string) {
   if (!search || search.length === 1) {
@@ -20,7 +21,7 @@ function parseSearchString(search: string) {
 
       const values = [
         current.substring(0, separatorIndex),
-        current.substring(separatorIndex + 1, current.length),
+        decodeURIComponent(current.substring(separatorIndex + 1, current.length)),
       ];
       if (values.length === 0) {
         return accum;
@@ -33,16 +34,6 @@ function parseSearchString(search: string) {
       accum[values[0]] = values.length > 1 ? values[1] : '';
       return accum;
     }, {});
-}
-
-function makeQueryString(params: {[key in string]: string} | null) {
-  if (!params) {
-    return '';
-  }
-
-  return Object.entries(params)
-    .map(entry => `${entry[0]}=${entry[1]}`)
-    .join('&');
 }
 
 export const useNetwork = () => {

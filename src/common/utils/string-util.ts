@@ -62,3 +62,13 @@ export function toNumber(value: string | number | null | undefined) {
 
   return bn.toNumber();
 }
+
+export function makeQueryString(params: {[key in string]: string} | null) {
+  if (!params) {
+    return '';
+  }
+
+  return Object.entries(params)
+    .map(entry => `${entry[0]}=${entry[1]}`)
+    .join('&');
+}

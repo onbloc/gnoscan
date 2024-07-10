@@ -21,6 +21,7 @@ export const DataRow = <T extends {[key in string]: any}>({
           <DataRowItem key={index} header={header} data={data} className={header.itemClassName} />
         ))}
       </div>
+
       {renderDetails && <div className="details">{renderDetails(data)}</div>}
     </DataRowContainer>
   );
