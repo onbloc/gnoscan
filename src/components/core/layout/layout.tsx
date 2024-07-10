@@ -7,9 +7,6 @@ import {Footer} from '@/components/view/footer';
 import mixins from '@/styles/mixins';
 import useLoading from '@/common/hooks/use-loading';
 import {CustomThemeProvider} from './CustomThemeProvider';
-import {useSetRecoilState} from 'recoil';
-import {tokenState} from '@/states';
-import {getAllTokens} from '@/repositories/api/fetchers/api-meta-tokens';
 import {useGetLatestBlockHeightIntervalQuery} from '@/common/react-query/block/queries';
 import {useGetLatestBlock} from '@/common/hooks/common/use-get-latest-block';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
@@ -18,8 +15,7 @@ interface LayoutProps {
 }
 
 export const Layout = ({children}: LayoutProps) => {
-  const {clearLoading} = useLoading();
-  const setTokenInfo = useSetRecoilState(tokenState);
+  useLoading();
 
   useTokenMeta();
   useGetLatestBlockHeightIntervalQuery();

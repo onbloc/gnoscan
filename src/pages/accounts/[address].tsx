@@ -12,7 +12,6 @@ import {AmountText} from '@/components/ui/text/amount-text';
 import Tooltip from '@/components/ui/tooltip';
 import DataSection from '@/components/view/details-data-section';
 import {AccountDetailDatatable} from '@/components/view/datatable';
-import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
 import {useAccount} from '@/common/hooks/account/use-account';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {Amount} from '@/types/data-type';
@@ -118,19 +117,6 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
 
 export async function getServerSideProps({params}: any) {
   const keyword = params.address;
-  try {
-    const result = await searchKeyword(keyword);
-    const data = result.data;
-    if (data?.type === 'pkg_path') {
-      return {
-        redirect: {
-          keyword,
-          permanent: false,
-          destination: `/realms/details?path=${data?.value}`,
-        },
-      };
-    }
-  } catch {}
   return {
     props: {
       address: keyword,

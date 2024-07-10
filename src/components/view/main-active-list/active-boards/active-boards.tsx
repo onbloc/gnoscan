@@ -1,16 +1,11 @@
 import React from 'react';
 import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
-import {useQuery, UseQueryResult} from 'react-query';
 import ActiveList from '@/components/ui/active-list';
-import {v1} from 'uuid';
 import {colWidth, List, listTitle, StyledCard, StyledText} from '../main-active-list';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import Tooltip from '@/components/ui/tooltip';
 import FetchedSkeleton from '../fetched-skeleton';
-import {BoardDataType, BoardListModel} from '@/models/active-list-model';
-import {getBoardList} from '@/repositories/api/fetchers/api-active-list';
-import {boardListSelector} from '@/repositories/api/selector/select-active-list';
 import {useMonthlyActiveBoards} from '@/common/hooks/main/use-monthly-active-boards';
 import {getLocalDateString} from '@/common/utils/date-util';
 

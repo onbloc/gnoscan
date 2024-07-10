@@ -14,7 +14,6 @@ import Link from 'next/link';
 import {useRouter} from '@/common/hooks/common/use-router';
 import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
-import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
 import {ValuesType} from 'utility-types';
 import {useNetwork} from '@/common/hooks/use-network';
 

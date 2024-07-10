@@ -12,7 +12,6 @@ import {RealmDetailDatatable} from '@/components/view/datatable';
 import Tooltip from '@/components/ui/tooltip';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
-import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
 import {useNetwork} from '@/common/hooks/use-network';
 import {
   GNOSTUDIO_REALM_FUNCTION_TEMPLATE,
@@ -277,18 +276,6 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
 
 export async function getServerSideProps({query}: any) {
   const keyword = query?.path;
-  try {
-    const result = await searchKeyword(keyword);
-    const data = result.data;
-    if (data?.type === 'pkg_path') {
-      return {
-        props: {
-          path: data.value,
-          redirectUrl: null,
-        },
-      };
-    }
-  } catch {}
   return {
     props: {
       path: keyword,
