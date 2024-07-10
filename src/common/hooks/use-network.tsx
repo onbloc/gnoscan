@@ -13,7 +13,15 @@ function parseSearchString(search: string) {
     .replace('?', '')
     .split('&')
     .reduce<{[key in string]: string}>((accum, current) => {
-      const values = current.split('=');
+      const separatorIndex = current.indexOf('=');
+      if (separatorIndex < 0 || separatorIndex + 1 >= current.length) {
+        return accum;
+      }
+
+      const values = [
+        current.substring(0, separatorIndex),
+        current.substring(separatorIndex + 1, current.length),
+      ];
       if (values.length === 0) {
         return accum;
       }
@@ -42,7 +50,7 @@ export const useNetwork = () => {
   const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
 
   const networkParams = useMemo(() => {
-    if (!currentNetwork) {
+    if (!currentNetwork || currentNetwork.chainId === ChainData[0].chainId) {
       return null;
     }
 
@@ -67,7 +75,7 @@ export const useNetwork = () => {
     try {
       const origin = window.location.origin;
       const urlData = new URL(origin + uri);
-      const params = {...parseSearchString(urlData.search), ...networkParamData};
+      const params = {...networkParamData, ...parseSearchString(urlData.search)};
       const queryString = makeQueryString(params);
 
       if (!queryString) {
