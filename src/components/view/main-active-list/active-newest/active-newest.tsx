@@ -11,6 +11,12 @@ import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
 import {useUsername} from '@/common/hooks/account/use-username';
 import {getLocalDateString} from '@/common/utils/date-util';
+import {
+  useGetRealmFunctionsQuery,
+  useGetRealmQuery,
+  useGetRealmTransactionsQuery,
+} from '@/common/react-query/realm';
+import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
 
 function makeDisplayRealmPath(path: string, length = 11) {
   const displayPath = path.replace('gno.land', '');
@@ -62,12 +68,8 @@ const ActiveNewest = () => {
                   </FitContentA>
                 </Link>
               </StyledText>
-              <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
-                {realm.functionCount}
-              </StyledText>
-              <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
-                {realm.totalCalls}
-              </StyledText>
+              <LazyFunctions path={realm.packagePath} />
+              <LazyRealmCalls path={realm.packagePath} />
               <StyledText type="p4" width={colWidth.newest[5]} color="blue">
                 <Link href={getUrlWithNetwork(`/blocks/${realm.blockHeight}`)} passHref>
                   <FitContentA>{realm.blockHeight}</FitContentA>
@@ -85,6 +87,41 @@ const ActiveNewest = () => {
         </Text>
       )}
     </StyledCard>
+  );
+};
+
+const LazyFunctions: React.FC<{path: string}> = ({path}) => {
+  const {data, isFetched} = useGetRealmFunctionsQuery(path);
+
+  if (!isFetched) {
+    return <SkeletonBar />;
+  }
+
+  return (
+    <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
+      {data?.length}
+    </StyledText>
+  );
+};
+
+const LazyRealmCalls: React.FC<{path: string}> = ({path}) => {
+  const {data, isFetched} = useGetRealmTransactionsQuery(path);
+
+  const totalCount = useMemo(() => {
+    if (!data) {
+      return 0;
+    }
+    return data.filter(tx => tx.type === '/vm.m_call').length;
+  }, [data]);
+
+  if (!isFetched) {
+    return <SkeletonBar />;
+  }
+
+  return (
+    <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
+      {totalCount}
+    </StyledText>
   );
 };
 
