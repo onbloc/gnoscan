@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
@@ -17,6 +17,10 @@ import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {Amount} from '@/types/data-type';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
 import {EventDatatable} from '@/components/view/datatable/event';
+import {useUsername} from '@/common/hooks/account/use-username';
+import {isBech32Address} from '@/common/utils/bech32.utility';
+import IconLink from '@/assets/svgs/icon-link.svg';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface AccountDetailsPageProps {
   address: string;
@@ -33,11 +37,37 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
   const media = eachMedia();
   const desktop = isDesktop();
   const {getTokenImage, getTokenAmount, getTokenInfo} = useTokenMeta();
-  const bech32Address = useMemo(() => {
-    return address;
-  }, [address]);
+  const {currentNetwork} = useNetwork();
+  const {isFetched: isFetchedUsername, getName, getAddress} = useUsername();
 
-  const {isFetched, tokenBalances, username, transactionEvents} = useAccount(bech32Address);
+  const bech32Address = useMemo(() => {
+    if (isBech32Address(address)) {
+      return address;
+    }
+    if (!isFetchedUsername) {
+      return '';
+    }
+    return getAddress(address) || address;
+  }, [address, isFetchedUsername]);
+
+  const username = useMemo(() => {
+    if (!isFetchedUsername) {
+      return null;
+    }
+    return getName(bech32Address);
+  }, [bech32Address, isFetchedUsername]);
+
+  const gnoUserUrl = useMemo(() => {
+    if (!username) {
+      return null;
+    }
+    if (!currentNetwork || currentNetwork?.chainId === 'portal-loop') {
+      return `https://gno.land/r/demo/users:${username}`;
+    }
+    return `https://${currentNetwork.chainId}.gno.land/r/demo/users:${username}`;
+  }, [currentNetwork, username]);
+
+  const {isFetched, tokenBalances, transactionEvents} = useAccount(bech32Address);
   const [currentTab, setCurrentTab] = useState('Transactions');
 
   const detailTabs = useMemo(() => {
@@ -53,7 +83,7 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
   }, [transactionEvents]);
 
   return (
-    <DetailsPageLayout title="Account Details" visible={!isFetched} keyword={`${address}`}>
+    <DetailsPageLayout title="Account Details" visible={!isFetched} keyword={`${bech32Address}`}>
       <DataSection title="Address">
         <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
           <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
@@ -66,17 +96,14 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
               width={85}>
               <IconCopy className={`svg-icon ${username ? '' : 'tidy'}`} />
             </Tooltip>
-            {/* {username && (
+            {username && (
               <Text type="p4" color="blue" className="username-text">
-                <StyledA
-                  href={`https://test3.gno.land/r/demo/users:${username}`}
-                  target="_blank"
-                  rel="noreferrer">
+                <StyledA href={gnoUserUrl || ''} target="_blank" rel="noreferrer">
                   {username}
                   <IconLink className="svg-icon" />
                 </StyledA>
               </Text>
-            )} */}
+            )}
           </AddressTextBox>
         </GrayBox>
       </DataSection>
@@ -106,7 +133,7 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
       </DataSection>
 
       <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-        {currentTab === 'Transactions' && <AccountDetailDatatable address={`${address}`} />}
+        {currentTab === 'Transactions' && <AccountDetailDatatable address={`${bech32Address}`} />}
         {currentTab === 'Events' && (
           <EventDatatable isFetched={isFetched} events={transactionEvents} />
         )}

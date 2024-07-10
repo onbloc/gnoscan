@@ -1,7 +1,7 @@
 import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
 import Tooltip from '@/components/ui/tooltip';
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
 
 interface Props {
@@ -15,28 +15,28 @@ export const Owner = ({publisher, publisherUsername}: Props) => {
     return <TooltipWrapper>{publisher}</TooltipWrapper>;
   };
 
-  const getDisplayUsername = (publisher?: string | undefined) => {
+  const displayName = useMemo(() => {
     if (publisherUsername) {
       return publisherUsername;
     }
 
-    if (publisher && publisher.length > 0) {
-      return textEllipsis(publisher ?? '', 8);
+    if (publisher) {
+      return textEllipsis(publisher, 8);
     }
 
     return '-';
-  };
+  }, [publisher, publisherUsername]);
 
   return (
     <Container>
       {publisher && publisher !== 'genesis' ? (
         <Tooltip content={renderTooltip()}>
           <OwnerLink href={getUrlWithNetwork(`/accounts/${publisher}`)}>
-            <OwnerText>{getDisplayUsername(publisher)}</OwnerText>
+            <OwnerText>{displayName}</OwnerText>
           </OwnerLink>
         </Tooltip>
       ) : (
-        <OwnerText>{getDisplayUsername()}</OwnerText>
+        <OwnerText>{displayName}</OwnerText>
       )}
     </Container>
   );

@@ -2,7 +2,7 @@ import {useCallback, useMemo} from 'react';
 import {useGetUsername} from '../common/use-get-username';
 
 export const useUsername = () => {
-  const {data, isFetched} = useGetUsername();
+  const {data = {}, isFetched} = useGetUsername();
 
   const totalUsers = useMemo(() => {
     return Object.keys(data || {}).length;
@@ -10,7 +10,7 @@ export const useUsername = () => {
 
   const getName = useCallback(
     (address: string) => {
-      return data?.[address] || null;
+      return data?.[address];
     },
     [data],
   );

@@ -12,6 +12,7 @@ import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
 import {useTransactions} from '@/common/hooks/transactions/use-transactions';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 interface TransactionWithTime extends Transaction {
   time: string;
@@ -42,6 +43,7 @@ export const TransactionDatatable = () => {
 
   const {getTokenAmount} = useTokenMeta();
   const {transactions, hasNextPage, nextPage} = useTransactions({enabled: true});
+  const {getName} = useUsername();
   const [development, setDevelopment] = useState(false);
 
   useEffect(() => {
@@ -134,7 +136,7 @@ export const TransactionDatatable = () => {
       .width(170)
       .colorName('blue')
       .renderOption((address, data) => (
-        <DatatableItem.Publisher address={address} username={undefined} />
+        <DatatableItem.Publisher address={address} username={getName(address)} />
       ))
       .build();
   };

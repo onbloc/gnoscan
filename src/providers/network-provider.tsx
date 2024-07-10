@@ -89,7 +89,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
       return null;
     }
 
-    const rpcUrl = currentNetworkModel.apiUrl || currentNetworkModel.rpcUrl || '';
+    const rpcUrl = currentNetworkModel.rpcUrl || currentNetworkModel.apiUrl || '';
     return new NodeRPCClient(rpcUrl, currentNetworkModel.chainId);
   }, [currentNetworkModel]);
 

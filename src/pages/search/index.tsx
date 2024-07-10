@@ -84,6 +84,7 @@ export async function getServerSideProps({req}: any) {
       };
     }
 
+    console.log(keyword);
     const isCommon = keyword.length > 2 && !keyword.includes(' ');
     if (isCommon) {
       return {

@@ -13,11 +13,13 @@ import {eachMedia} from '@/common/hooks/use-media';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
 import {useBlocks} from '@/common/hooks/blocks/use-blocks';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 export const BlockDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const {data: blocks, isFetched, fetchNextPage, hasNextPage} = useBlocks();
+  const {getName} = useUsername();
 
   useLoading({finished: isFetched});
 
@@ -77,7 +79,7 @@ export const BlockDatatable = () => {
       .width(226)
       .colorName('blue')
       .renderOption((_, data) => (
-        <DatatableItem.Publisher address={data.proposer} username={data.proposerRaw} />
+        <DatatableItem.Publisher address={data.proposer} username={getName(data.proposerRaw)} />
       ))
       .build();
   };

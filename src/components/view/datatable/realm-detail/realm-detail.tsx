@@ -9,7 +9,6 @@ import {DatatableItem} from '..';
 import {eachMedia} from '@/common/hooks/use-media';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
-import {Transaction} from '@/types/data-type';
 import {useRealm} from '@/common/hooks/realms/use-realm';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 

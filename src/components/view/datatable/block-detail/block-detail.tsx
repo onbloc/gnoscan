@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
@@ -10,7 +10,7 @@ import {themeState} from '@/states';
 import {useBlock} from '@/common/hooks/blocks/use-block';
 import {Transaction} from '@/types/data-type';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {useNetwork} from '@/common/hooks/use-network';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 interface Props {
   height: string | number;
@@ -27,13 +27,13 @@ const TOOLTIP_TYPE = (
 export const BlockDetailDatatable = ({height}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const {getTokenAmount} = useTokenMeta();
-  const {getUrlWithNetwork} = useNetwork();
+  const {isFetched: isFetchedUsername, getName} = useUsername();
 
   const {isFetched, isFetchedBlockResult, transactionItems} = useBlock(Number(height));
 
   const loaded = useMemo(() => {
-    return isFetched && isFetchedBlockResult;
-  }, [isFetched, isFetchedBlockResult]);
+    return isFetched && isFetchedBlockResult && isFetchedUsername;
+  }, [isFetched, isFetchedBlockResult, isFetchedUsername]);
 
   const createHeaders = () => {
     return [
@@ -93,8 +93,8 @@ export const BlockDetailDatatable = ({height}: Props) => {
       .name('From')
       .width(170)
       .colorName('blue')
-      .renderOption((fromAddress, data) => {
-        return <DatatableItem.Publisher address={fromAddress} username={undefined} />;
+      .renderOption(fromAddress => {
+        return <DatatableItem.Publisher address={fromAddress} username={getName(fromAddress)} />;
       })
       .build();
   };

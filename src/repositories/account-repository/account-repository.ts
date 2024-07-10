@@ -100,7 +100,11 @@ export class AccountRepository implements IAccountRepository {
     return this.indexerClient
       ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
-      .then(transactions => transactions.map(mapReceivedTransactionByMsgCall));
+      .then(transactions =>
+        transactions
+          .map(mapReceivedTransactionByMsgCall)
+          .filter((tx: Transaction) => tx.to === address),
+      );
   }
 
   async getNativeTokenSendTransactionsByAddress(address: string): Promise<Transaction[] | null> {

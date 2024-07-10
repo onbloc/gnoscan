@@ -1,7 +1,7 @@
 import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
 import Tooltip from '@/components/ui/tooltip';
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
 
 interface Props {
@@ -9,33 +9,33 @@ interface Props {
   address: string | undefined;
 }
 
-export const Publisher = ({username, address}: Props) => {
+export const Publisher = ({address, username}: Props) => {
   const {getUrlWithNetwork} = useNetwork();
 
   const renderTooltip = () => {
     return <TooltipWrapper>{address}</TooltipWrapper>;
   };
 
-  const getDisplayUsername = (address?: string | undefined) => {
+  const displayName = useMemo(() => {
     if (username) {
       return username;
     }
 
-    if (address && address.length > 0) {
-      return textEllipsis(address ?? '', 8);
+    if (!address) {
+      return '-';
     }
 
-    return '-';
-  };
+    return textEllipsis(address ?? '', 8);
+  }, [address, username]);
 
   return address && address !== 'genesis' ? (
     <Tooltip content={renderTooltip()}>
       <PublisherLink className="ellipsis" href={getUrlWithNetwork(`/accounts/${address}`)}>
-        {getDisplayUsername(address)}
+        {displayName}
       </PublisherLink>
     </Tooltip>
   ) : (
-    <>{getDisplayUsername()}</>
+    <>{displayName}</>
   );
 };
 

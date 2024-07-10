@@ -12,6 +12,7 @@ import useLoading from '@/common/hooks/use-loading';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {useRealms} from '@/common/hooks/realms/use-realms';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 const TOOLTIP_PATH = (
   <>
@@ -24,7 +25,8 @@ export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const {realms, isFetched, hasNextPage, nextPage: fetchNextPage} = useRealms();
-  useLoading({finished: isFetched});
+  const {isFetched: isFetchedUsername, getName} = useUsername();
+  useLoading({finished: isFetched && isFetchedUsername});
 
   const createHeaders = () => {
     return [
@@ -84,7 +86,9 @@ export const RealmDatatable = () => {
       .name('Publisher')
       .width(202)
       .colorName('blue')
-      .renderOption(creator => <DatatableItem.Publisher address={creator} username={undefined} />)
+      .renderOption(creator => (
+        <DatatableItem.Publisher address={creator} username={getName(creator)} />
+      ))
       .build();
   };
 
