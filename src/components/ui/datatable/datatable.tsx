@@ -8,6 +8,7 @@ interface Props<T> {
   maxWidth?: number;
   headers: Array<DatatableHeader.Header<T>>;
   datas: Array<T>;
+  supported?: boolean;
   loading?: boolean;
   sortOption?: {field: string; order: string};
   setSortOption?: (sortOption: {field: any; order: any}) => void;
@@ -20,6 +21,7 @@ export const Datatable = <T extends {[key in string]: any}>({
   maxWidth,
   sortOption,
   loading,
+  supported = true,
   setSortOption,
   renderDetails,
 }: Props<T>) => {
@@ -45,15 +47,22 @@ export const Datatable = <T extends {[key in string]: any}>({
           sortOption={sortOption}
           setSortOption={setSortOption}
         />
-        {loading ? (
+        {loading && (
           <div className="loading-wrapper">
             <IconTabelLoading />
           </div>
-        ) : datas?.length > 0 ? (
+        )}
+        {!loading && datas?.length > 0 && (
           <DatatableData.DataList headers={headers} datas={datas} renderDetails={renderDetails} />
-        ) : (
+        )}
+        {!loading && datas?.length === 0 && supported && (
           <div className="no-content-wrapper">
             <span>{'No data to display'}</span>
+          </div>
+        )}
+        {!loading && datas?.length === 0 && !supported && (
+          <div className="no-content-wrapper">
+            <span>{'Not Supported'}</span>
           </div>
         )}
       </div>

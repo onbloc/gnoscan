@@ -135,11 +135,7 @@ export const EventDatatable = ({isFetched, events}: Props) => {
 
   const renderDetails = useCallback(
     (event: GnoEvent) => {
-      if (!activeEvents.includes(event.id)) {
-        return <React.Fragment />;
-      }
-
-      return <EventDetail event={event} />;
+      return <EventDetail visible={activeEvents.includes(event.id)} event={event} />;
     },
     [activeEvents],
   );
@@ -189,90 +185,96 @@ const Container = styled.div<{maxWidth?: number}>`
   }
 `;
 
-const EventDetail: React.FC<{event: GnoEvent}> = ({event}) => {
+const EventDetail: React.FC<{visible: boolean; event: GnoEvent}> = ({visible, event}) => {
   const {getUrlWithNetwork} = useNetwork();
   const {getName} = useUsername();
 
   return (
-    <EventDetailWrapper>
-      <div className="event-details-header">
-        <div className="path-wrapper">
-          <Text type="p4" color={'primary'}>
-            Current Realm Path:{' '}
-            <Text type="p4" color={'blue'}>
-              <Link href={getUrlWithNetwork(`/realms/details?path=${event.packagePath}`)} passHref>
-                {event.packagePath}
-              </Link>
-              <Tooltip
-                className="path-copy-tooltip"
-                content="Copied!"
-                trigger="click"
-                copyText={event.packagePath}
-                width={85}>
-                <IconCopy className="svg-icon" />
-              </Tooltip>
-            </Text>
-          </Text>
-        </div>
-        <div className="caller-wrapper">
-          <Text type="p4" color={'primary'}>
-            OriginCaller:{' '}
-            <Text type="p4" color={'blue'}>
-              <Link href={getUrlWithNetwork(`/accounts/${event.caller}`)} passHref>
-                {getName(event.caller) || event.caller}
-              </Link>
-              <Tooltip
-                className="path-copy-tooltip"
-                content="Copied!"
-                trigger="click"
-                copyText={event.caller}
-                width={85}>
-                <IconCopy className="svg-icon" />
-              </Tooltip>
-            </Text>
-          </Text>
-        </div>
-      </div>
-      <div className="event-details-used">
-        <div className="used-wrapper">
-          <Text type="p4" color={'primary'}>
-            <span className="func-definition">func </span>
-            <span className="func-name">{event.functionName}</span>
-            {' → std.Emit("'}
-            <span className="event-name">{event.type}</span>
-            {'"'}
-            {event.attrs.map((attr, index) => (
-              <React.Fragment key={index}>
-                {', '}
-                <span className="event-param">{attr.key}</span>
-                {', '}
-                <span className="event-param">{attr.key + '_value'}</span>
-              </React.Fragment>
-            ))}
-            {')'}
-          </Text>
-        </div>
-      </div>
-      {event.attrs.length > 0 && (
-        <div className="event-details-attributes">
-          <div className="data-header">
-            <Text className="key" type="h7" color={'primary'}>
-              Key
-            </Text>
-            <Text className="value" type="h7" color={'primary'}>
-              Value
-            </Text>
-          </div>
-          {event.attrs.map((attribute, index) => (
-            <div key={index} className="data-value">
-              <Text className="key" type="p4" color={'primary'}>
-                {attribute.key}
-              </Text>
-              <Text className="value" type="p4" color={'primary'}>
-                {`"${attribute.value}"`}
+    <EventDetailWrapper className={visible ? 'active' : 'hidden'}>
+      {visible && (
+        <div className="container">
+          <div className="event-details-header">
+            <div className="path-wrapper">
+              <Text type="p4" color={'primary'}>
+                Current Realm Path:{' '}
+                <Text type="p4" color={'blue'}>
+                  <Link
+                    href={getUrlWithNetwork(`/realms/details?path=${event.packagePath}`)}
+                    passHref>
+                    {event.packagePath}
+                  </Link>
+                  <Tooltip
+                    className="path-copy-tooltip"
+                    content="Copied!"
+                    trigger="click"
+                    copyText={event.packagePath}
+                    width={85}>
+                    <IconCopy className="svg-icon" />
+                  </Tooltip>
+                </Text>
               </Text>
             </div>
-          ))}
+            <div className="caller-wrapper">
+              <Text type="p4" color={'primary'}>
+                OriginCaller:{' '}
+                <Text type="p4" color={'blue'}>
+                  <Link href={getUrlWithNetwork(`/accounts/${event.caller}`)} passHref>
+                    {getName(event.caller) || event.caller}
+                  </Link>
+                  <Tooltip
+                    className="path-copy-tooltip"
+                    content="Copied!"
+                    trigger="click"
+                    copyText={event.caller}
+                    width={85}>
+                    <IconCopy className="svg-icon" />
+                  </Tooltip>
+                </Text>
+              </Text>
+            </div>
+          </div>
+          <div className="event-details-used">
+            <div className="used-wrapper">
+              <Text type="p4" color={'primary'}>
+                <span className="func-definition">func </span>
+                <span className="func-name">{event.functionName}</span>
+                {' → std.Emit("'}
+                <span className="event-name">{event.type}</span>
+                {'"'}
+                {event.attrs.map((attr, index) => (
+                  <React.Fragment key={index}>
+                    {', '}
+                    <span className="event-param">{attr.key}</span>
+                    {', '}
+                    <span className="event-param">{attr.key + '_value'}</span>
+                  </React.Fragment>
+                ))}
+                {')'}
+              </Text>
+            </div>
+          </div>
+          {event.attrs.length > 0 && (
+            <div className="event-details-attributes">
+              <div className="data-header">
+                <Text className="key" type="h7" color={'primary'}>
+                  Key
+                </Text>
+                <Text className="value" type="h7" color={'primary'}>
+                  Value
+                </Text>
+              </div>
+              {event.attrs.map((attribute, index) => (
+                <div key={index} className="data-value">
+                  <Text className="key" type="p4" color={'primary'}>
+                    {attribute.key}
+                  </Text>
+                  <Text className="value" type="p4" color={'primary'}>
+                    {`"${attribute.value}"`}
+                  </Text>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </EventDetailWrapper>
@@ -284,12 +286,25 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: auto;
-    align-items: center;
-    background-color: ${({theme}) => theme.colors.surface};
-    gap: 16px;
-    padding: 24px;
-    border-radius: 10px;
+    height: 323px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: auto;
+      align-items: center;
+      background-color: ${({theme}) => theme.colors.surface};
+      gap: 16px;
+      padding: 24px;
+      border-radius: 10px;
+    }
+
+    &.hidden {
+      height: 0;
+    }
 
     .event-details-header {
       display: flex;
@@ -329,19 +344,19 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
       flex-direction: row;
 
       .func-definition {
-        color: #ff9492;
+        color: ${({theme}) => theme.colors.funcDefinition};
       }
 
       .func-name {
-        color: #dbb7ff;
+        color: ${({theme}) => theme.colors.funcName};
       }
 
       .event-name {
-        color: #dbb7ff;
+        color: ${({theme}) => theme.colors.eventName};
       }
 
       .event-param {
-        color: #addcff;
+        color: ${({theme}) => theme.colors.eventParam};
       }
     }
 
@@ -377,7 +392,7 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
 
         .value {
           width: 100%;
-          color: #addcff;
+          color: ${({theme}) => theme.colors.eventParam};
         }
       }
     }

@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
 import GnoscanSymbol from '@/assets/svgs/icon-gnoscan-symbol.svg';
+import GnoscanSymbolLight from '@/assets/svgs/icon-gnoscan-symbol-light.svg';
 import Text from '@/components/ui/text';
 import theme from '@/styles/theme';
 import mixins from '@/styles/mixins';
@@ -9,6 +10,8 @@ import {zindex} from '@/common/values/z-index';
 import {ChainModel} from '@/models/chain-model';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 import {useNetwork} from '@/common/hooks/use-network';
+import {useRouter} from 'next/router';
+import {useThemeMode} from '@/common/hooks/use-theme-mode';
 
 export interface NetworkData {
   all: string[];
@@ -43,6 +46,13 @@ const Network = ({
   const [indexerUrl, setIndexerUrl] = useState('');
   const [isErrorRpcUrl, setIsErrorRpcUrl] = useState(false);
   const [isErrorIndexerUrl, setIsErrorIndexerUrl] = useState(false);
+  const {pathname} = useRouter();
+  const {isDark, isLight} = useThemeMode();
+
+  const isReverseColor = useMemo(() => {
+    const isHome = pathname === '' || pathname === '/';
+    return isHome && isLight;
+  }, [pathname, isLight]);
 
   const availCustomConnect = useMemo(() => {
     if (isErrorRpcUrl || isErrorIndexerUrl || !customRpcUrl) {
@@ -69,8 +79,12 @@ const Network = ({
   return (
     <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
       <NetworkInfoWrapper>
-        <GnoscanSymbol className="svg-icon" />
-        <Text type="h7" color="primary">
+        {isReverseColor || isDark ? (
+          <GnoscanSymbol className="svg-icon" />
+        ) : (
+          <GnoscanSymbolLight className="svg-icon" />
+        )}
+        <Text type="h7" color={isReverseColor ? 'white' : 'primary'}>
           {currentNetwork?.name || ''}
         </Text>
       </NetworkInfoWrapper>
@@ -84,7 +98,11 @@ const Network = ({
             }}
             className={currentNetwork?.chainId === chain.chainId ? 'selected' : ''}>
             <div className="item row">
-              <GnoscanSymbol className="svg-icon" />
+              {isDark ? (
+                <GnoscanSymbol className="svg-icon" />
+              ) : (
+                <GnoscanSymbolLight className="svg-icon" />
+              )}
               <div className="info-wrapper">
                 <Text type="h7" color="primary">
                   {chain.name}
@@ -202,6 +220,12 @@ const NetworkList = styled.ul<StyleProps>`
     gap: 12px;
     justify-content: center;
     align-items: center;
+    transition: 0.2s;
+    border-radius: 8px;
+
+    &:hover {
+      background-color: ${({theme}) => theme.colors.hover};
+    }
 
     &.row {
       flex-direction: row;
@@ -228,10 +252,12 @@ const NetworkList = styled.ul<StyleProps>`
         align-self: stretch;
         border-radius: 8px;
         border: 1px solid rgba(255, 255, 255, 0.05);
+        background: ${({theme}) => theme.colors.base};
+        color: ${({theme}) => theme.colors.primary};
         font-size: 12px;
 
         &::placeholder {
-          color: #666;
+          color: ${({theme}) => theme.colors.tertiary};
           opacity: 1; /* Firefox */
         }
       }
@@ -244,10 +270,10 @@ const NetworkList = styled.ul<StyleProps>`
         align-items: center;
         align-self: stretch;
         border-radius: 8px;
-        background: rgba(18, 18, 18, 0.5);
+        background: ${({theme}) => theme.colors.base};
 
         &.active {
-          background: rgba(18, 18, 18, 0.7);
+          background: ${({theme}) => theme.colors.base};
         }
       }
     }

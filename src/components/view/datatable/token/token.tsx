@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import {eachMedia} from '@/common/hooks/use-media';
 import {Button} from '@/components/ui/button';
 import {useTokens} from '@/common/hooks/tokens/use-tokens';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -24,9 +25,10 @@ export const TokenDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
+  const {indexerQueryClient} = useNetworkProvider();
   const {tokens, hasNextPage, isFetched, nextPage} = useTokens();
 
-  useLoading({finished: isFetched});
+  useLoading({finished: isFetched || !indexerQueryClient});
 
   const createHeaders = () => {
     return [
@@ -115,6 +117,7 @@ export const TokenDatatable = () => {
           };
         })}
         datas={tokens}
+        supported={!!indexerQueryClient}
       />
       {hasNextPage ? (
         <div className="button-wrapper">
