@@ -4,10 +4,12 @@ import React from 'react';
 import styled from 'styled-components';
 import {eachMedia} from '@/common/hooks/use-media';
 import BackgroundSearchNotFound from '@/assets/svgs/bg-search-not-found.svg';
+import BackgroundSearchNotFoundLight from '@/assets/svgs/bg-search-not-found-light.svg';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
 import Link from 'next/link';
 import {useNetwork} from '@/common/hooks/use-network';
+import {useThemeMode} from '@/common/hooks/use-theme-mode';
 
 interface Props {
   keyword?: string;
@@ -15,6 +17,7 @@ interface Props {
 
 const NotFound = ({keyword}: Props) => {
   const {getUrlWithNetwork} = useNetwork();
+  const {isDark} = useThemeMode();
   const media = eachMedia();
   return (
     <Wrapper className={media}>
@@ -33,7 +36,7 @@ const NotFound = ({keyword}: Props) => {
       </div>
       {media === 'desktop' && (
         <div className="asset-area">
-          <BackgroundSearchNotFound />
+          {isDark ? <BackgroundSearchNotFound /> : <BackgroundSearchNotFoundLight />}
         </div>
       )}
     </Wrapper>
