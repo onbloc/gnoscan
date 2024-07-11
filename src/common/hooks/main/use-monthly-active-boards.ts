@@ -9,7 +9,7 @@ export const useMonthlyActiveBoards = () => {
   const {data, isFetched} = useGetSimpleTransactions(blockHeightOfBefor30d);
 
   const activeBoards = useMemo(() => {
-    if (!data) {
+    if (!data || !boards) {
       return [];
     }
     const boardInfoMap: {
@@ -22,7 +22,7 @@ export const useMonthlyActiveBoards = () => {
 
     data?.forEach(tx => {
       const matchedMessage = tx.messages.find(message => {
-        return message.value.func === 'gno.land/r/demo/boards';
+        return message.value.pkg_path === 'gno.land/r/demo/boards';
       });
 
       if (matchedMessage) {
@@ -52,7 +52,7 @@ export const useMonthlyActiveBoards = () => {
 
     const activeBoards = Object.entries(boardInfoMap)
       .map(entry => ({
-        boardId: entry[0],
+        boardId: boards.find(board => `${board.index}` === entry[0])?.name || entry[0],
         replies: entry[1].replies,
         reposts: entry[1].reposts,
         uniqueUsers: entry[1].uniqueUsers.length,
@@ -62,7 +62,7 @@ export const useMonthlyActiveBoards = () => {
 
     const defaultBoards =
       boards
-        ?.filter(board => !Object.keys(boardInfoMap).includes(`${board.name}`))
+        ?.filter(board => activeBoards.some(activeBoard => activeBoard.boardId === board.name))
         .filter((_, index) => activeBoards.length + index < 10)
         .map(board => ({
           boardId: board.name,
