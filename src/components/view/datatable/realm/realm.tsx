@@ -13,6 +13,7 @@ import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {useRealms} from '@/common/hooks/realms/use-realms';
 import {useUsername} from '@/common/hooks/account/use-username';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 
 const TOOLTIP_PATH = (
   <>
@@ -24,6 +25,7 @@ const TOOLTIP_PATH = (
 export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
+  const {indexerQueryClient} = useNetworkProvider();
   const {realms, isFetched, hasNextPage, nextPage: fetchNextPage} = useRealms();
   const {isFetched: isFetchedUsername, getName} = useUsername();
   useLoading({finished: isFetched && isFetchedUsername});
@@ -122,6 +124,7 @@ export const RealmDatatable = () => {
           };
         })}
         datas={realms}
+        supported={!!indexerQueryClient}
       />
 
       {hasNextPage ? (
