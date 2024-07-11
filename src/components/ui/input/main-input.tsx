@@ -13,6 +13,7 @@ import {useNetwork} from '@/common/hooks/use-network';
 interface SubInputProps {
   className?: string;
   value: string;
+  placeholder?: string;
   setValue: (keyword: string) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   clearValue?: () => void;
@@ -21,6 +22,7 @@ interface SubInputProps {
 export const MainInput = ({
   className = '',
   value,
+  placeholder = 'Search by Account / Block / Realm / Tokens',
   setValue,
   onChange,
   clearValue,
@@ -56,7 +58,7 @@ export const MainInput = ({
         onChange={onChange}
         onKeyDown={onKeyDownInput}
         type="text"
-        placeholder="Search by Account / Block / Realm / Tokens"
+        placeholder={placeholder}
       />
       <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />

@@ -25,6 +25,7 @@ const TransactionSearch: React.FC = () => {
         setValue={setKeyword}
         onChange={onChange}
         clearValue={clearValue}
+        placeholder="Search by Tx hash only when using a custom RPC. To get full support, connect your Tx Indexer URL."
       />
     </TransactionSearchWrapper>
   );
