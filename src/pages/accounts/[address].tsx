@@ -47,14 +47,18 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
     if (!isFetchedUsername) {
       return '';
     }
-    return getAddress(address) || address;
+    return getAddress(address) || null;
   }, [address, isFetchedUsername]);
+
+  const isError = useMemo(() => {
+    return bech32Address === null;
+  }, [bech32Address]);
 
   const username = useMemo(() => {
     if (!isFetchedUsername) {
       return null;
     }
-    return getName(bech32Address);
+    return getName(bech32Address || '');
   }, [bech32Address, isFetchedUsername]);
 
   const gnoUserUrl = useMemo(() => {
@@ -67,7 +71,7 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
     return `https://${currentNetwork.chainId}.gno.land/r/demo/users:${username}`;
   }, [currentNetwork, username]);
 
-  const {isFetched, tokenBalances, transactionEvents} = useAccount(bech32Address);
+  const {isFetched, tokenBalances, transactionEvents} = useAccount(bech32Address || '');
   const [currentTab, setCurrentTab] = useState('Transactions');
 
   const detailTabs = useMemo(() => {
@@ -83,7 +87,11 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
   }, [transactionEvents]);
 
   return (
-    <DetailsPageLayout title="Account Details" visible={!isFetched} keyword={`${bech32Address}`}>
+    <DetailsPageLayout
+      title="Account Details"
+      visible={!isFetched}
+      keyword={`${bech32Address || address}`}
+      error={isError}>
       <DataSection title="Address">
         <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
           <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
@@ -92,7 +100,7 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
               className="address-copy-tooltip"
               content="Copied!"
               trigger="click"
-              copyText={bech32Address}
+              copyText={bech32Address || ''}
               width={85}>
               <IconCopy className={`svg-icon ${username ? '' : 'tidy'}`} />
             </Tooltip>

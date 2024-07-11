@@ -1,5 +1,5 @@
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {useTransactions} from '@/common/hooks/transactions/use-transactions';
+import useLoading from '@/common/hooks/use-loading';
 import Text from '@/components/ui/text';
 import {TransactionDatatable} from '@/components/view/datatable';
 import LoadingPage from '@/components/view/loading/page';
@@ -9,19 +9,19 @@ import styled from 'styled-components';
 
 const Transactions = () => {
   const {indexerQueryClient} = useNetworkProvider();
-  const {isFetched} = useTransactions({enabled: true});
+  const {loading} = useLoading();
 
   useEffect(() => {
     window?.dispatchEvent(new Event('resize'));
-  }, [isFetched]);
+  }, [loading]);
 
   return (
     <Container>
       <div className="inner-layout">
         {indexerQueryClient ? (
           <React.Fragment>
-            <LoadingPage visible={!isFetched} />
-            <Wrapper visible={isFetched}>
+            <LoadingPage visible={loading} />
+            <Wrapper visible={!loading}>
               <Text type="h2" margin={'0 0 24px 0'} color="primary">
                 {'Transactions'}
               </Text>

@@ -166,7 +166,7 @@ export const useTransaction = (hash: string) => {
     gas,
     transactionItem,
     transactionEvents,
-    isFetched: data?.block || isFetched,
+    isFetched: data?.block && isFetched,
     isError,
   };
 };

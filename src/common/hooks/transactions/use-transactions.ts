@@ -32,7 +32,7 @@ export const useTransactions = ({enabled = true}) => {
   }, [data, currentPage]);
 
   const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} = useQuery({
-    queryKey: ['transactions', `${transactions?.length}`],
+    queryKey: ['transactionsWithTimes', `${transactions.length}`],
     queryFn: () =>
       Promise.all(
         transactions.map(async transaction => {
@@ -42,7 +42,7 @@ export const useTransactions = ({enabled = true}) => {
             time,
           };
         }),
-      ),
+      ).catch(() => []),
     keepPreviousData: true,
   });
 
@@ -52,7 +52,7 @@ export const useTransactions = ({enabled = true}) => {
 
   return {
     transactions: transactionWithTimes,
-    isFetched: isFetched && isFetchedTransactionWithTimes,
+    isFetched: isFetchedTransactionWithTimes && transactionWithTimes !== null,
     nextPage,
     hasNextPage,
   };

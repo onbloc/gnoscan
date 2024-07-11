@@ -13,6 +13,7 @@ import {eachMedia} from '@/common/hooks/use-media';
 import {useTransactions} from '@/common/hooks/transactions/use-transactions';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {useUsername} from '@/common/hooks/account/use-username';
+import useLoading from '@/common/hooks/use-loading';
 
 interface TransactionWithTime extends Transaction {
   time: string;
@@ -42,9 +43,11 @@ export const TransactionDatatable = () => {
   const themeMode = useRecoilValue(themeState);
 
   const {getTokenAmount} = useTokenMeta();
-  const {transactions, hasNextPage, nextPage} = useTransactions({enabled: true});
-  const {getName} = useUsername();
+  const {isFetched, transactions, hasNextPage, nextPage} = useTransactions({enabled: true});
+  const {isFetched: isFetchedUsername, getName} = useUsername();
   const [development, setDevelopment] = useState(false);
+
+  useLoading({finished: isFetched && isFetchedUsername});
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeydownEvent);
