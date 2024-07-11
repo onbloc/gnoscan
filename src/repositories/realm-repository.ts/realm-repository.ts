@@ -667,6 +667,6 @@ export class RealmRepository implements IRealmRepository {
           name,
         };
       })
-      .filter(result => !!result);
+      .filter(result => !!result) as Board[];
   }
 }
