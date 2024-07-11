@@ -14,21 +14,21 @@ interface Props {
 }
 
 export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
-  const {getTokenImage} = useTokenMeta();
+  const {isFetchedGRC20Tokens, getTokenImage} = useTokenMeta();
   const {getUrlWithNetwork} = useNetwork();
 
   const imageUrl = useMemo(() => {
-    if (!imagePath) {
+    if (!imagePath || !isFetchedGRC20Tokens) {
       return null;
     }
     return getTokenImage(imagePath);
-  }, [getTokenImage, imagePath]);
+  }, [imagePath, isFetchedGRC20Tokens]);
 
   return (
     <a href={getUrlWithNetwork(`/tokens/${pkgPath}`)}>
       <TokenTitleWrapper>
         {imageUrl ? (
-          <img className="token" src={getTokenImage(imageUrl)} alt="token logo" />
+          <img className="token" src={imageUrl} alt="token logo" />
         ) : (
           <div className="unknown-token">
             <UnknownToken width="20" height="20" />
