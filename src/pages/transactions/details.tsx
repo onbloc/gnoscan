@@ -41,7 +41,8 @@ function parseTxHash(url: string) {
   if (params.length < 2) return '';
 
   const txHash = params[1].split('&')[0];
-  return makeSafeBase64Hash(decodeURIComponent(txHash));
+  const decodedTxHash = decodeURIComponent(txHash).replace(' ', '+');
+  return makeSafeBase64Hash(decodedTxHash);
 }
 
 const TransactionDetails = () => {
