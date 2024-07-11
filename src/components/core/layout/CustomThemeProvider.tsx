@@ -14,9 +14,9 @@ export const CustomThemeProvider = ({children}: {children: React.ReactElement}) 
     setMounted(true);
     const localThemeValue = getItem('theme');
     if (!localThemeValue) {
-      setItem('theme', 'dark');
-      setPalette(theme.darkTheme);
-      setThemeMode('dark');
+      setItem('theme', 'light');
+      setPalette(theme.lightTheme);
+      setThemeMode('light');
     } else {
       setPalette(localThemeValue === 'dark' ? theme.darkTheme : theme.lightTheme);
       setThemeMode(localThemeValue);
