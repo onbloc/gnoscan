@@ -17,7 +17,7 @@ const lightTheme: Palette = {
   primary: '#333333',
   secondary: '#666666',
   tertiary: '#999999',
-  hover: '#999999',
+  hover: '#f2f2f2',
   base: '#F7F7F7',
   surface: '#FFFFFF',
   select: '#F2F2F2',
