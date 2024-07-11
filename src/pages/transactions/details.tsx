@@ -41,7 +41,10 @@ function parseTxHash(url: string) {
   if (params.length < 2) return '';
 
   const txHash = params[1].split('&')[0];
+  console.log('txHash', txHash);
   const decodedTxHash = decodeURIComponent(txHash).replace(' ', '+');
+  console.log('decodedTxHash', decodedTxHash);
+  console.log('makeSafeBase64Hash(decodedTxHash)', makeSafeBase64Hash(decodedTxHash));
   return makeSafeBase64Hash(decodedTxHash);
 }
 

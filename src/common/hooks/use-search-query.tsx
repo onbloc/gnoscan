@@ -67,7 +67,7 @@ const useSearchQuery = (keyword: string) => {
             if (filteredTokens.findIndex(token => token.packagePath === realm.packagePath) > -1) {
               return false;
             }
-            return realm.packagePath.includes(keyword) || realm.packageName.includes(keyword);
+            return realm?.packagePath?.includes(keyword) || realm.packageName.includes(keyword);
           })
           .sort((r1, r2) => (r1.packagePath > r2.packagePath ? 1 : -1))
           .filter((_, index) => index < 5) || [];

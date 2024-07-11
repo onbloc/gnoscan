@@ -84,11 +84,11 @@ export async function getServerSideProps({req}: any) {
       };
     }
 
-    const isRealm = keyword.startsWith('gno.land/');
+    const isRealm = keyword.startsWith('gno.land');
     if (isRealm) {
       const queryString = makeQueryString({
         ...networkParams,
-        path: keyword,
+        path: encodeURIComponent(keyword),
       });
       return {
         redirect: {
@@ -115,7 +115,7 @@ export async function getServerSideProps({req}: any) {
     if (isTxHash) {
       const queryString = makeQueryString({
         ...networkParams,
-        txhash: keyword,
+        txhash: encodeURIComponent(keyword),
       });
       return {
         redirect: {
