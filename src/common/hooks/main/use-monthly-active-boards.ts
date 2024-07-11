@@ -1,8 +1,10 @@
 import {useMemo} from 'react';
 import {useGetBefore30DBlock} from '../common/use-get-before-30d-block';
 import {useGetSimpleTransactions} from '../common/use-get-simple-transactions';
+import {useGetBoard} from '../common/use-get-board';
 
 export const useMonthlyActiveBoards = () => {
+  const {data: boards, isFetched: isFetchedBoards} = useGetBoard();
   const {data: blockHeightOfBefor30d} = useGetBefore30DBlock();
   const {data, isFetched} = useGetSimpleTransactions(blockHeightOfBefor30d);
 
@@ -48,7 +50,7 @@ export const useMonthlyActiveBoards = () => {
       }
     });
 
-    return Object.entries(boardInfoMap)
+    const activeBoards = Object.entries(boardInfoMap)
       .map(entry => ({
         boardId: entry[0],
         replies: entry[1].replies,
@@ -57,10 +59,23 @@ export const useMonthlyActiveBoards = () => {
       }))
       .sort((t1, t2) => t2.uniqueUsers - t1.uniqueUsers)
       .filter((_, index) => index < 10);
-  }, [data]);
+
+    const defaultBoards =
+      boards
+        ?.filter(board => !Object.keys(boardInfoMap).includes(`${board.name}`))
+        .filter((_, index) => activeBoards.length + index < 10)
+        .map(board => ({
+          boardId: board.name,
+          replies: 0,
+          reposts: 0,
+          uniqueUsers: 0,
+        })) || [];
+
+    return [...activeBoards, ...defaultBoards];
+  }, [boards, data]);
 
   return {
-    isFetched,
+    isFetched: isFetched && isFetchedBoards,
     data: activeBoards,
   };
 };

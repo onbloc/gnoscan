@@ -1,4 +1,4 @@
-import {Amount} from '@/types/data-type';
+import {Amount, Board} from '@/types/data-type';
 import {TransactionWithEvent} from '../response/transaction.types';
 
 export interface IRealmRepository {
@@ -30,6 +30,8 @@ export interface IRealmRepository {
   } | null>;
 
   getUsernames(): Promise<{[key in string]: string}>;
+
+  getBoards(): Promise<Board[]>;
 }
 
 export interface RealmFunction {

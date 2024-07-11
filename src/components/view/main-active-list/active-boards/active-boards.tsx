@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
 import ActiveList from '@/components/ui/active-list';
@@ -8,10 +8,23 @@ import Tooltip from '@/components/ui/tooltip';
 import FetchedSkeleton from '../fetched-skeleton';
 import {useMonthlyActiveBoards} from '@/common/hooks/main/use-monthly-active-boards';
 import {getLocalDateString} from '@/common/utils/date-util';
+import {useNetwork} from '@/common/hooks/use-network';
 
 const ActiveBoards = () => {
   const media = eachMedia();
+  const {currentNetwork} = useNetwork();
   const {data: boards, isFetched: boardsFetched} = useMonthlyActiveBoards();
+
+  const getBoardLink = useCallback(
+    (boardId: string) => {
+      const prefix = currentNetwork?.chainId === 'portal-loop' ? '' : currentNetwork?.chainId;
+      if (!prefix) {
+        return `https://gno.land/r/demo/boards:${boardId}`;
+      }
+      return `https://${prefix}.gno.land/r/demo/boards:${boardId}`;
+    },
+    [currentNetwork?.chainId],
+  );
 
   return (
     <StyledCard>
@@ -40,7 +53,7 @@ const ActiveBoards = () => {
                   {index + 1}
                 </StyledText>
                 <StyledText type="p4" width={colWidth.boards[1]} color="blue" className="with-link">
-                  <a href={board.boardId}>
+                  <a href={getBoardLink(board.boardId)} target="_blank" rel="noreferrer">
                     <Tooltip content={board.boardId}>
                       <>
                         {board.boardId}

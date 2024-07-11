@@ -165,7 +165,7 @@ export class NodeRPCClient implements NodeClient {
     const path = 'vm/qrender';
     const paramQueryString = this.isLegacy
       ? prepareVMABCIQueryWithSeparator([packagePath, ...data], '\n')
-      : prepareVMABCIEvaluateExpressionQuery([packagePath, ...data]);
+      : prepareVMABCIQueryWithSeparator([packagePath, ...data], ':');
 
     const request = makeRPCRequest({
       method: 'abci_query',

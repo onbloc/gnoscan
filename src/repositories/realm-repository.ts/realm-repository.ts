@@ -13,12 +13,15 @@ import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCI} from '@gnolang/tm2-js-client';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
 import {parseTokenAmount} from '@/common/utils/token.utility';
-import {Amount} from '@/types/data-type';
+import {Amount, Board} from '@/types/data-type';
 import {isAddPackageMessageValue} from './mapper';
 import {GRC20_FUNCTIONS, parseGRC20InfoByFile} from '@/common/utils/realm.utility';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {TransactionWithEvent} from '../response/transaction.types';
-import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
+import {
+  extractStringFromResponse,
+  parseABCIQueryNumberResponse,
+} from '@/common/clients/node-client/utility';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
@@ -165,8 +168,7 @@ export class RealmRepository implements IRealmRepository {
           })) || [],
       }));
     } catch (e) {
-      console.error(e);
-      return null;
+      return [];
     }
   }
 
@@ -628,5 +630,43 @@ export class RealmRepository implements IRealmRepository {
         }
         return accum;
       }, {});
+  }
+
+  async getBoards(): Promise<Board[]> {
+    if (!this.nodeClient) {
+      return [];
+    }
+
+    const response = await this.nodeClient
+      .abciQueryVMQueryRender('gno.land/r/demo/boards:', [])
+      .then(response => response?.response?.ResponseBase?.Data);
+
+    if (!response) {
+      return [];
+    }
+
+    const data = extractStringFromResponse(response);
+    const lines = data
+      .trim()
+      .split('\n')
+      .filter(line => line.length > 1)
+      .map(line => line.trim().slice(2));
+
+    return lines
+      .map((line, index) => {
+        const match = line.match(/\[(.*?)\]\((.*?)\)/);
+        if (!match) {
+          return null;
+        }
+
+        const path = match[1];
+        const name = match[1].split(':')[1];
+        return {
+          index,
+          path,
+          name,
+        };
+      })
+      .filter(result => !!result);
   }
 }

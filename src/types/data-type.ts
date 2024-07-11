@@ -1,3 +1,9 @@
+export interface Board {
+  index: number;
+  path: string;
+  name: string;
+}
+
 export interface Block {
   hash: string;
   height: number;
