@@ -3,7 +3,10 @@ import {useServiceProvider} from '../provider/use-service-provider';
 import {useNetwork} from '../use-network';
 import {Transaction} from '@/types/data-type';
 
-export const useMakeTransactionsWithTime = (key: string, transactions: Transaction[]) => {
+export const useMakeTransactionsWithTime = (
+  key: string,
+  transactions: Transaction[] | null | undefined,
+) => {
   const {currentNetwork} = useNetwork();
   const {blockRepository} = useServiceProvider();
 
@@ -19,7 +22,7 @@ export const useMakeTransactionsWithTime = (key: string, transactions: Transacti
           };
         }) || [],
       ),
-    enabled: !!blockRepository && transactions.length > 0,
+    enabled: !!blockRepository && !!transactions,
     keepPreviousData: true,
   });
 };
