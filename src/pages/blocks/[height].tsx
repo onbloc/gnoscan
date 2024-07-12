@@ -3,7 +3,7 @@
 import {DetailsPageLayout} from '@/components/core/layout';
 import {ButtonProps} from '@/components/ui/button';
 import mixins from '@/styles/mixins';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import styled from 'styled-components';
 import IconArrow from '@/assets/svgs/icon-arrow.svg';
 import {isDesktop} from '@/common/hooks/use-media';
@@ -19,6 +19,7 @@ import {useBlock} from '@/common/hooks/blocks/use-block';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
 import {BlockEventDatatable} from '@/components/view/datatable/block-detail/block-event-datatable';
 import {useNetwork} from '@/common/hooks/use-network';
+import {useGetValidatorNames} from '@/common/hooks/common/use-get-validator-names';
 
 interface TitleOptionProps {
   prevProps: {
@@ -57,6 +58,7 @@ const BlockDetails = () => {
   const {block, events, isFetched} = useBlock(Number(height));
   const [currentTab, setCurrentTab] = useState('Transactions');
   const {getUrlWithNetwork} = useNetwork();
+  const {validatorInfos} = useGetValidatorNames();
 
   const detailTabs = useMemo(() => {
     return [
@@ -69,6 +71,15 @@ const BlockDetails = () => {
       },
     ];
   }, [events]);
+
+  const proposerDisplayName = useMemo(() => {
+    const validatorInfo = validatorInfos?.find(info => info.address === block.proposerAddress);
+    if (!validatorInfo) {
+      return block.proposerAddress;
+    }
+
+    return `${block.proposerAddress} (${validatorInfo.name})`;
+  }, [block.proposerAddress, validatorInfos]);
 
   return (
     <DetailsPageLayout
@@ -134,7 +145,7 @@ const BlockDetails = () => {
               <Link href={getUrlWithNetwork(`/accounts/${block?.proposerAddress}`)} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue" className="ellipsis">
-                    {block?.proposerAddress}
+                    {proposerDisplayName}
                   </Text>
                 </FitContentA>
               </Link>

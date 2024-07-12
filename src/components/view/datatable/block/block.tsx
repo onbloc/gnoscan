@@ -19,7 +19,7 @@ export const BlockDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const {data: blocks, isFetched, fetchNextPage, hasNextPage} = useBlocks();
-  const {getName} = useUsername();
+  const {getNameWithMoniker} = useUsername();
 
   useLoading({finished: isFetched});
 
@@ -79,7 +79,10 @@ export const BlockDatatable = () => {
       .width(226)
       .colorName('blue')
       .renderOption((_, data) => (
-        <DatatableItem.Publisher address={data.proposer} username={getName(data.proposerRaw)} />
+        <DatatableItem.Publisher
+          address={data.proposer}
+          username={getNameWithMoniker(data.proposerRaw)}
+        />
       ))
       .build();
   };
