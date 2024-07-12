@@ -43,11 +43,13 @@ export const TransactionDatatable = () => {
   const themeMode = useRecoilValue(themeState);
 
   const {getTokenAmount} = useTokenMeta();
-  const {isFetched, transactions, hasNextPage, nextPage} = useTransactions({enabled: true});
+  const {isFetched, transactions, hasNextPage, isError, nextPage} = useTransactions({
+    enabled: true,
+  });
   const {isFetched: isFetchedUsername, getName} = useUsername();
   const [development, setDevelopment] = useState(false);
 
-  useLoading({finished: isFetched && isFetchedUsername});
+  useLoading({finished: (isFetched && isFetchedUsername) || isError});
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeydownEvent);

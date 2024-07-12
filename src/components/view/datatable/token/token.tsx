@@ -102,7 +102,7 @@ export const TokenDatatable = () => {
       .colorName('blue')
       .tooltip(TOOLTIP_PACAKGE_PATH)
       .renderOption(packagePath => (
-        <DatatableItem.RealmPakage packagePath={packagePath} maxWidth={160} />
+        <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} />
       ))
       .build();
   };

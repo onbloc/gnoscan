@@ -10,6 +10,7 @@ import {
 import {Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
+import {PageOption} from '@/common/clients/indexer-client/types';
 
 function mapTransaction(data: any): Transaction {
   const firstMessage = data.messages[0]?.value;
@@ -43,13 +44,23 @@ export class TransactionRepository implements ITransactionRepository {
     private indexerClient: IndexerClient | null,
   ) {}
 
-  async getTransactions(minBlockHeight: number, maxBlockHeight: number): Promise<Transaction[]> {
-    if (!this.indexerClient) {
+  async getTransactions(
+    minBlockHeight: number,
+    maxBlockHeight: number,
+    pageOption?: PageOption,
+  ): Promise<Transaction[]> {
+    if (!this.indexerClient || !pageOption) {
       return [];
     }
 
     return this.indexerClient
-      ?.query(TRANSACTIONS_QUERY)
+      ?.queryWithOptions(
+        TRANSACTIONS_QUERY,
+        pageOption || {
+          page: 0,
+          pageSize: 0,
+        },
+      )
       .then(result => result?.data?.transactions?.map(mapTransaction) || []);
   }
 
@@ -75,26 +86,30 @@ export class TransactionRepository implements ITransactionRepository {
     return null;
   }
 
-  async getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {
-    if (!this.indexerClient) {
-      return null;
-    }
-
-    return this.indexerClient
-      ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address))
-      .then(result => result.data?.transactions || [])
-      .then(transactions => transactions.map(mapTransactionByRealm));
-  }
-
-  async getNativeTokenReceivedTransactionsByAddress(
+  async getGRC20ReceivedTransactionsByAddress(
     address: string,
+    pageOption?: PageOption,
   ): Promise<Transaction[] | null> {
     if (!this.indexerClient) {
       return null;
     }
 
     return this.indexerClient
-      ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address))
+      ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address), pageOption)
+      .then(result => result.data?.transactions || [])
+      .then(transactions => transactions.map(mapTransactionByRealm));
+  }
+
+  async getNativeTokenReceivedTransactionsByAddress(
+    address: string,
+    pageOption?: PageOption,
+  ): Promise<Transaction[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient
+      ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address), pageOption)
       .then(result => result.data?.transactions || [])
       .then(transactions => transactions.map(mapTransactionByRealm));
   }

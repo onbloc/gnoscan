@@ -1,4 +1,5 @@
 import {ApolloClient, DocumentNode, InMemoryCache} from '@apollo/client';
+import {PageOption} from './types';
 
 export class IndexerClient {
   public apolloClient: ApolloClient<unknown>;
@@ -10,10 +11,36 @@ export class IndexerClient {
     });
   }
 
-  public query(qry: DocumentNode) {
+  public query(qry: DocumentNode, pageOption?: PageOption) {
+    if (pageOption) {
+      return this.apolloClient.query({
+        query: qry,
+        fetchPolicy: 'no-cache',
+        context: {
+          headers: {
+            'X-PAGE': pageOption.page,
+            'X-PAGE-SIZE': pageOption.pageSize,
+          },
+        },
+      });
+    }
+
     return this.apolloClient.query({
       query: qry,
       fetchPolicy: 'no-cache',
+    });
+  }
+
+  public queryWithOptions(qry: DocumentNode, pageOption: PageOption) {
+    return this.apolloClient.query({
+      query: qry,
+      fetchPolicy: 'no-cache',
+      context: {
+        headers: {
+          'X-PAGE': pageOption.page,
+          'X-PAGE-SIZE': pageOption.pageSize,
+        },
+      },
     });
   }
 }

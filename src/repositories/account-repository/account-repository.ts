@@ -19,6 +19,7 @@ import {
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
 } from '../response/transaction.mapper';
+import {PageOption} from '@/common/clients/indexer-client/types';
 
 function mapTransaction(data: any): Transaction {
   const firstMessage = data.messages[0]?.value;
@@ -83,6 +84,16 @@ export class AccountRepository implements IAccountRepository {
   }
 
   async getTransactions(minBlockHeight: number, maxBlockHeight: number): Promise<Transaction[]> {
+    if (!this.indexerClient) {
+      return [];
+    }
+
+    return this.indexerClient
+      ?.query(TRANSACTIONS_QUERY)
+      .then(result => result?.data?.transactions?.map(mapTransaction) || []);
+  }
+
+  async getTransactionsByPagination(pageOption: PageOption): Promise<Transaction[]> {
     if (!this.indexerClient) {
       return [];
     }

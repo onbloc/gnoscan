@@ -1,4 +1,4 @@
-import {UseQueryOptions, useQuery} from 'react-query';
+import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
 import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
 import {QUERY_KEY} from './types';
 import {Transaction} from '@/types/data-type';
@@ -55,6 +55,60 @@ export const useGetTransactionsQuery = (
       return transactionRepository
         .getTransactions(0, 0)
         .then(txs => txs.sort((a1, a2) => a2.blockHeight - a1.blockHeight));
+    },
+    enabled: !!transactionRepository && options?.enabled,
+    keepPreviousData: true,
+    ...options,
+  });
+};
+
+export const useGetTransactionsInfinityQuery = (
+  totalTx: string | null,
+  pageOption = {page: 0, pageSize: 20},
+  options?: UseInfiniteQueryOptions<Transaction[] | null, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {transactionRepository} = useServiceProvider();
+
+  return useInfiniteQuery<Transaction[] | null, Error>({
+    queryKey: [QUERY_KEY.getTransactionInfinity, currentNetwork?.chainId || '', totalTx || '0'],
+    getNextPageParam: (lastPage, pages) => {
+      if (!lastPage) {
+        return false;
+      }
+      if (lastPage.length < pageOption.pageSize) {
+        return false;
+      }
+      return pages.length;
+    },
+    queryFn: async context => {
+      if (!transactionRepository || !totalTx) {
+        return null;
+      }
+      const totalPage = Math.floor(Number(totalTx) / pageOption.pageSize);
+      const currentPageIndex = totalPage - (context?.pageParam || 0);
+      const pageSize = pageOption.pageSize;
+
+      const isRemainItem = (context?.pageParam || 0) === 0;
+      const fetchQueries = [];
+      if (isRemainItem) {
+        fetchQueries.push(
+          await transactionRepository.getTransactions(0, 0, {
+            page: currentPageIndex,
+            pageSize: pageSize,
+          }),
+        );
+      }
+
+      fetchQueries.push(
+        await transactionRepository.getTransactions(0, 0, {
+          page: currentPageIndex - 1,
+          pageSize: pageSize,
+        }),
+      );
+      return Promise.all(fetchQueries).then(results => {
+        return results.flatMap(result => result).sort((a1, a2) => a2.blockHeight - a1.blockHeight);
+      });
     },
     enabled: !!transactionRepository && options?.enabled,
     keepPreviousData: true,

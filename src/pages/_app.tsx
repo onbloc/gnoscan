@@ -1,5 +1,4 @@
 import React from 'react';
-import type {AppProps} from 'next/app';
 import {GlobalStyle} from '../styles';
 import {RecoilRoot} from 'recoil';
 import {Hydrate, QueryClient, QueryClientProvider} from 'react-query';
@@ -17,7 +16,17 @@ const App: React.FC = ({Component, pageProps}: any) => {
     <>
       <Meta />
       <GoogleAnalytics />
-      <QueryClientProvider client={new QueryClient()}>
+      <QueryClientProvider
+        client={
+          new QueryClient({
+            defaultOptions: {
+              queries: {
+                cacheTime: 60 * 1000,
+                staleTime: 60 * 1000,
+              },
+            },
+          })
+        }>
         <Hydrate state={pageProps.dehydratedState}>
           <RecoilRoot>
             <ErrorBoundary fallback={<div>ERROR</div>}>

@@ -1,11 +1,4 @@
-import {
-  UseInfiniteQueryOptions,
-  UseMutationOptions,
-  UseQueryOptions,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-} from 'react-query';
+import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
 import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
 import {QUERY_KEY} from './types';
 import {Block} from '@/types/data-type';

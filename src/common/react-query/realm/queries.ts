@@ -1,4 +1,4 @@
-import {UseQueryOptions, useQuery} from 'react-query';
+import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
 import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
 import {QUERY_KEY} from './types';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
@@ -51,6 +51,9 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
     select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository,
     ...options,
+    keepPreviousData: true,
+    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 };
 
@@ -98,6 +101,86 @@ export const useGetRealmFunctionsQuery = (
       return result;
     },
     enabled: !!realmRepository && !!packagePath,
+    ...options,
+  });
+};
+
+export const useGetRealmPackagesInfinity = (
+  pageSize = 20,
+  options?: UseInfiniteQueryOptions<any | null, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useInfiniteQuery<any | null, Error>({
+    queryKey: [QUERY_KEY.getRealmPackages, currentNetwork?.chainId || ''],
+    getNextPageParam: (lastPage, pages) => {
+      if (!lastPage) {
+        return false;
+      }
+      if (lastPage.length < pageSize) {
+        return false;
+      }
+      return pages.length;
+    },
+    queryFn: async context => {
+      if (!realmRepository) {
+        return null;
+      }
+      const currentPageIndex = context?.pageParam || 0;
+      const result = await realmRepository
+        .getRealmPackages({
+          page: currentPageIndex,
+          pageSize,
+        })
+        .then(result =>
+          result?.flatMap(tx =>
+            tx.messages.map(message => ({
+              hash: tx.hash,
+              index: tx.index,
+              success: tx.success,
+              blockHeight: tx.block_height,
+              packageName: message.value.package?.name || '',
+              packagePath: message.value.package?.path || '',
+              creator: message.value.creator,
+              functionCount: 0,
+              totalCalls: 0,
+              totalGasUsed: {
+                value: '0',
+                denom: 'GNOT',
+              },
+            })),
+          ),
+        );
+
+      return result;
+    },
+    enabled: !!realmRepository,
+    keepPreviousData: true,
+    ...options,
+  });
+};
+
+export const useGetRealmTransactionInfoQuery = (
+  packagePath: string,
+  options?: UseQueryOptions<RealmTransactionInfo | null, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<RealmTransactionInfo | null, Error>({
+    queryKey: [QUERY_KEY.getRealmTransactionInfo, currentNetwork?.chainId || '', packagePath],
+    queryFn: async () => {
+      if (!realmRepository) {
+        return null;
+      }
+      const result = await realmRepository.getRealmTransactionInfo(packagePath).catch(() => ({
+        msgCallCount: 0,
+        gasUsed: 0,
+      }));
+      return result;
+    },
+    enabled: !!realmRepository,
     ...options,
   });
 };
@@ -249,6 +332,9 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
     },
     enabled: !!realmRepository,
     ...options,
+    keepPreviousData: true,
+    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 };
 

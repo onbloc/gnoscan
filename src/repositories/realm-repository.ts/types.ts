@@ -1,24 +1,36 @@
 import {Amount, Board} from '@/types/data-type';
 import {TransactionWithEvent} from '../response/transaction.types';
+import {PageOption} from '@/common/clients/indexer-client/types';
 
 export interface IRealmRepository {
-  getRealms(): Promise<any | null>;
+  getRealms(pageOption?: PageOption): Promise<any | null>;
 
   getRealm(realmPath: string): Promise<RealmTransaction | null>;
 
+  getRealmPackages(pageOption: PageOption): Promise<RealmTransaction<AddPackageValue>[] | null>;
+
   getRealmFunctions(realmPath: string): Promise<RealmFunction[] | null>;
 
-  getRealmTransactions(realmPath: string): Promise<TransactionWithEvent[] | null>;
+  getRealmTransactions(
+    realmPath: string,
+    pageOption?: PageOption,
+  ): Promise<TransactionWithEvent[] | null>;
 
-  getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null>;
+  getRealmTransactionsWithArgs(
+    realmPath: string,
+    pageOption?: PageOption,
+  ): Promise<RealmTransaction[] | null>;
 
   getRealmCallTransactionsWithArgs(
     realmPath: string,
+    pageOption?: PageOption,
   ): Promise<RealmTransaction<MsgCallValue>[] | null>;
 
   getRealmTotalSupply(realmPath: string): Promise<number | null>;
 
   getRealmTransactionInfos(): Promise<{[key in string]: RealmTransactionInfo} | null>;
+
+  getRealmTransactionInfo(packagePath: string): Promise<RealmTransactionInfo | null>;
 
   getRealmBalance(realmPath: string): Promise<Amount | null>;
 

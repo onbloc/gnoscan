@@ -17,5 +17,7 @@ export const useGetUsername = () => {
       return realmRepository.getUsernames();
     },
     enabled: !!realmRepository || !!indexerQueryClient,
+    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 };

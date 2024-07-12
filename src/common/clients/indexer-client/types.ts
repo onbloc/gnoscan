@@ -1,3 +1,8 @@
+export interface PageOption {
+  page: number;
+  pageSize: number;
+}
+
 export interface Block {
   hash: string;
   height: number;

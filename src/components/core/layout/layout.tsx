@@ -8,7 +8,6 @@ import mixins from '@/styles/mixins';
 import useLoading from '@/common/hooks/use-loading';
 import {CustomThemeProvider} from './CustomThemeProvider';
 import {useGetLatestBlockHeightIntervalQuery} from '@/common/react-query/block/queries';
-import {useGetLatestBlock} from '@/common/hooks/common/use-get-latest-block';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,11 +18,6 @@ export const Layout = ({children}: LayoutProps) => {
 
   useTokenMeta();
   useGetLatestBlockHeightIntervalQuery();
-  const {latestBlock} = useGetLatestBlock();
-
-  useEffect(() => {
-    console.log('block', latestBlock?.block.header.height, latestBlock);
-  }, [latestBlock]);
 
   return (
     <CustomThemeProvider>

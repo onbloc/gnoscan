@@ -48,7 +48,7 @@ const ActiveNewest = () => {
           {displayRealms.map((realm: any, index: number) => (
             <List key={index}>
               <StyledText type="p4" width={colWidth.newest[0]} color="tertiary">
-                {realm.index + 1}
+                {index + 1}
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[1]} color="blue">
                 <Link href={getUrlWithNetwork(`/realms/details?path=${realm.packagePath}`)}>

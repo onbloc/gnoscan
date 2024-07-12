@@ -8,9 +8,9 @@ interface Props {
   maxWidth?: number;
 }
 
-export const RealmPakage = ({packagePath, maxWidth}: Props) => {
+export const RealmPackage = ({packagePath, maxWidth}: Props) => {
   const {getUrlWithNetwork} = useNetwork();
-  const displayPackagePath = packagePath.replace('gno.land', '');
+  const displayPackagePath = packagePath?.replace('gno.land', '');
 
   return (
     <Tooltip content={<TooltipContent packagePath={packagePath} />}>

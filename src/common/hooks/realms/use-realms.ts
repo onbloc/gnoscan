@@ -1,12 +1,10 @@
-import {useGetRealmTransactionInfosQuery, useGetRealmsQuery} from '@/common/react-query/realm';
+import {useGetRealmsQuery} from '@/common/react-query/realm';
 import {useMemo, useState} from 'react';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useRealms = (paging = true) => {
   const {getTokenAmount} = useTokenMeta();
   const {data, isFetched} = useGetRealmsQuery();
-  const {data: realmTransactionInfos, isFetched: isFetchedRealmTransactionInfos} =
-    useGetRealmTransactionInfosQuery();
   const [currentPage, setCurrentPage] = useState(0);
 
   const hasNextPage = useMemo(() => {
@@ -18,7 +16,7 @@ export const useRealms = (paging = true) => {
   }, [currentPage, data, paging]);
 
   const realms = useMemo(() => {
-    if (!data || !realmTransactionInfos) {
+    if (!data) {
       return [];
     }
 
@@ -28,13 +26,10 @@ export const useRealms = (paging = true) => {
 
     return filteredData.map((realm: any) => ({
       ...realm,
-      totalCalls: realmTransactionInfos[realm.packagePath]?.msgCallCount || '0',
-      totalGasUsed: getTokenAmount(
-        GNOTToken.denom,
-        realmTransactionInfos[realm.packagePath]?.gasUsed || 0,
-      ),
+      totalCalls: '0',
+      totalGasUsed: getTokenAmount(GNOTToken.denom, 0),
     }));
-  }, [data, realmTransactionInfos, currentPage, paging, getTokenAmount]);
+  }, [data, currentPage, paging, getTokenAmount]);
 
   function nextPage() {
     if (!paging) {
@@ -45,7 +40,7 @@ export const useRealms = (paging = true) => {
 
   return {
     realms,
-    isFetched: isFetched && isFetchedRealmTransactionInfos,
+    isFetched: isFetched,
     nextPage,
     hasNextPage,
   };

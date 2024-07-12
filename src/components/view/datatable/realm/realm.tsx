@@ -59,7 +59,7 @@ export const RealmDatatable = () => {
       .colorName('blue')
       .tooltip(TOOLTIP_PATH)
       .renderOption(packagePath => (
-        <DatatableItem.RealmPakage packagePath={packagePath} maxWidth={186} />
+        <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={186} />
       ))
       .build();
   };
@@ -97,20 +97,20 @@ export const RealmDatatable = () => {
 
   const createHeaderTotalCalls = () => {
     return DatatableOption.Builder.builder()
-      .key('totalCalls')
+      .key('packagePath')
       .name('Total Calls')
       .sort()
       .width(163)
-      .renderOption(numberWithCommas)
+      .renderOption(packagePath => <DatatableItem.LazyTotalCalls packagePath={packagePath} />)
       .build();
   };
 
   const createHeaderTotalGasUsed = () => {
     return DatatableOption.Builder.builder()
-      .key('totalGasUsed')
+      .key('packagePath')
       .name('Total Gas Used')
       .width(163)
-      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
+      .renderOption(packagePath => <DatatableItem.LazyFeeAmount packagePath={packagePath} />)
       .build();
   };
 

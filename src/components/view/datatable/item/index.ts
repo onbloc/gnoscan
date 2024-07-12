@@ -20,3 +20,5 @@ export * from './caller-copy';
 export * from './lazy-total-supply';
 export * from './lazy-holders';
 export * from './lazy-functions';
+export * from './lazy-fee-amount';
+export * from './lazy-total-calls';

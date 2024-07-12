@@ -10,18 +10,23 @@ export const useMakeTransactionsWithTime = (
   const {currentNetwork} = useNetwork();
   const {blockRepository} = useServiceProvider();
 
-  return useQuery<Transaction[]>({
+  return useQuery<Transaction[] | null>({
     queryKey: ['useMakeTransactionsWithTime', currentNetwork?.chainId, key || ''],
-    queryFn: () =>
-      Promise.all(
-        transactions?.map(async transaction => {
+    queryFn: () => {
+      if (!transactions) {
+        return null;
+      }
+
+      return Promise.all(
+        transactions.map(async transaction => {
           const time = await blockRepository?.getBlockTime(transaction.blockHeight);
           return {
             ...transaction,
             time: time || '',
           };
-        }) || [],
-      ),
+        }),
+      );
+    },
     enabled: !!blockRepository && !!transactions,
     keepPreviousData: true,
   });

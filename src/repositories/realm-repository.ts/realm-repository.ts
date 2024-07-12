@@ -22,6 +22,7 @@ import {
   extractStringFromResponse,
   parseABCIQueryNumberResponse,
 } from '@/common/clients/node-client/utility';
+import {PageOption} from '@/common/clients/indexer-client/types';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
@@ -29,33 +30,36 @@ export class RealmRepository implements IRealmRepository {
     private indexerClient: IndexerClient | null,
   ) {}
 
-  async getRealms(): Promise<any | null> {
+  async getRealms(pageOption?: PageOption): Promise<any | null> {
     if (!this.indexerClient) {
       return null;
     }
 
-    return this.indexerClient.query(gql`
-      {
-        transactions(filter: {success: true, message: {type_url: add_package}}) {
-          hash
-          index
-          success
-          block_height
-          messages {
-            value {
-              __typename
-              ... on MsgAddPackage {
-                creator
-                package {
-                  name
-                  path
+    return this.indexerClient.query(
+      gql`
+        {
+          transactions(filter: {success: true, message: {type_url: add_package}}) {
+            hash
+            index
+            success
+            block_height
+            messages {
+              value {
+                __typename
+                ... on MsgAddPackage {
+                  creator
+                  package {
+                    name
+                    path
+                  }
                 }
               }
             }
           }
         }
-      }
-    `);
+      `,
+      pageOption,
+    );
   }
 
   async getRealm(realmPath: string): Promise<RealmTransaction | null> {
@@ -172,7 +176,10 @@ export class RealmRepository implements IRealmRepository {
     }
   }
 
-  async getRealmTransactions(realmPath: string): Promise<TransactionWithEvent[] | null> {
+  async getRealmTransactions(
+    realmPath: string,
+    pageOption?: PageOption,
+  ): Promise<TransactionWithEvent[] | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -240,11 +247,15 @@ export class RealmRepository implements IRealmRepository {
     }
   }
 }`,
+        pageOption,
       )
       .then(result => result?.data?.transactions || []);
   }
 
-  async getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null> {
+  async getRealmTransactionsWithArgs(
+    realmPath: string,
+    pageOption?: PageOption,
+  ): Promise<RealmTransaction[] | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -299,6 +310,7 @@ export class RealmRepository implements IRealmRepository {
     }
   }
 }`,
+        pageOption,
       )
       .then(result => result?.data?.transactions || []);
   }
@@ -433,6 +445,146 @@ export class RealmRepository implements IRealmRepository {
       },
       {},
     );
+  }
+
+  async getRealmTransactionInfo(packagePath: string): Promise<RealmTransactionInfo | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    const transactions: RealmTransaction[] | null = await this.indexerClient
+      .query(
+        gql`
+          {
+            transactions(filter: {
+              message: {
+                route: vm
+                vm_param: {
+                  add_package: {
+                    package: {
+                      path : "${packagePath}"
+                    }
+                  }
+                  run: {
+                    package: {
+                      path : "${packagePath}"
+                    }
+                  }
+                  exec: {
+                    pkg_path: "${packagePath}"
+                  }
+                }
+              }
+            }
+          ) {
+              hash
+              index
+              success
+              gas_fee {
+                amount
+              }
+              gas_used
+              messages {
+                value {
+                  __typename
+                  ... on MsgAddPackage {
+                    creator
+                    deposit
+                    package {
+                      name
+                      path
+                    }
+                  }
+                  ... on MsgCall {
+                    caller
+                    send
+                    pkg_path
+                    func
+                  }
+                }
+              }
+            }
+          }
+        `,
+      )
+      .then(result => result?.data?.transactions || [])
+      .catch(() => null);
+    if (!transactions) {
+      return null;
+    }
+
+    return transactions.reduce<RealmTransactionInfo>(
+      (accum: RealmTransactionInfo, current: RealmTransaction) => {
+        let packagePath: string | null = null;
+
+        for (const message of current.messages) {
+          let msgCallCount = 0;
+          let gasUsed = current.gas_fee.amount;
+          if (isAddPackageMessageValue(message.value)) {
+            packagePath = message.value.package?.path || null;
+          } else if (message.value.__typename === 'MsgCall') {
+            packagePath = message.value.pkg_path || null;
+            msgCallCount += 1;
+          }
+
+          if (packagePath) {
+            if (accum) {
+              msgCallCount += accum.msgCallCount;
+              gasUsed += accum.gasUsed;
+            }
+
+            accum = {
+              msgCallCount,
+              gasUsed,
+            };
+          }
+        }
+
+        return accum;
+      },
+      {msgCallCount: 0, gasUsed: 0},
+    );
+  }
+
+  async getRealmPackages(
+    pageOption: PageOption,
+  ): Promise<RealmTransaction<AddPackageValue>[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient
+      .queryWithOptions(
+        gql`
+          {
+            transactions(filter: {success: true, message: {type_url: add_package}}) {
+              hash
+              index
+              success
+              block_height
+              messages {
+                value {
+                  __typename
+                  ... on MsgAddPackage {
+                    creator
+                    package {
+                      name
+                      path
+                      files {
+                        name
+                        body
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        pageOption,
+      )
+      .then(result => result?.data?.transactions || [])
+      .then((transactions: RealmTransaction<AddPackageValue>[]) => transactions);
   }
 
   async getTokens(): Promise<GRC20Info[] | null> {
