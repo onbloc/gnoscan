@@ -8,6 +8,12 @@ export interface ITransactionRepository {
     pageOption?: PageOption,
   ): Promise<Transaction[]>;
 
+  getTransactionsPage(
+    minBlockHeight: number,
+    maxBlockHeight: number,
+    pageOption: PageOption,
+  ): Promise<Transaction[]>;
+
   getTransactionBlockHeight(transactionHash: string): Promise<number | null>;
 
   getGRC20ReceivedTransactionsByAddress(

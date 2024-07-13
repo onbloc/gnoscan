@@ -187,69 +187,65 @@ export class RealmRepository implements IRealmRepository {
     return this.indexerClient
       .query(
         gql`
-{
-  transactions(filter: {
-    message: {
-      vm_param: {
-				add_package: {
-          package: {
-            path: "${realmPath}"
+          {
+            transactions(filter: {message: {vm_param: {add_package: {}, exec: {}}}}) {
+              hash
+              index
+              success
+              block_height
+              gas_wanted
+              response {
+                events {
+                  __typename
+                  ... on GnoEvent {
+                    type
+                    pkg_path
+                    func
+                    attrs {
+                      key
+                      value
+                    }
+                  }
+                }
+              }
+              gas_used
+              gas_fee {
+                amount
+                denom
+              }
+              messages {
+                value {
+                  __typename
+                  ... on MsgAddPackage {
+                    creator
+                    deposit
+                    package {
+                      name
+                      path
+                    }
+                  }
+                  ... on MsgCall {
+                    caller
+                    send
+                    pkg_path
+                    func
+                  }
+                }
+              }
+            }
           }
-        }
-        exec: {
-          pkg_path: "${realmPath}"
-        }
-      }
-    }
-  }) {
-    hash
-    index
-    success
-    block_height
-    gas_wanted
-    response {
-      events {
-        __typename
-        ...on GnoEvent {
-          type
-          pkg_path
-          func
-          attrs {
-            key
-            value
-          }
-        }
-      }
-    }
-    gas_used
-    gas_fee {
-      amount
-      denom
-    }
-    messages {
-      value {
-        __typename
-        ...on MsgAddPackage {
-          creator
-          deposit
-          package {
-            name
-            path
-          }
-        }
-        ...on  MsgCall{
-          caller
-          send
-          pkg_path
-          func
-        }
-      }
-    }
-  }
-}`,
+        `,
         pageOption,
       )
-      .then(result => result?.data?.transactions || []);
+      .then(
+        result =>
+          result?.data?.transactions.filter((transaction: RealmTransaction) =>
+            transaction.messages.some(
+              (message: any) =>
+                message?.value?.pkg_path === realmPath || message.value.path === realmPath,
+            ),
+          ) || [],
+      );
   }
 
   async getRealmTransactionsWithArgs(
@@ -418,27 +414,27 @@ export class RealmRepository implements IRealmRepository {
       (accum: {[key in string]: RealmTransactionInfo}, current: RealmTransaction) => {
         let packagePath: string | null = null;
 
+        let msgCallCount = 0;
+        let gasUsed = current.gas_fee.amount;
         for (const message of current.messages) {
-          let msgCallCount = 0;
-          let gasUsed = current.gas_fee.amount;
           if (isAddPackageMessageValue(message.value)) {
             packagePath = message.value.package?.path || null;
           } else if (message.value.__typename === 'MsgCall') {
             packagePath = message.value.pkg_path || null;
             msgCallCount += 1;
           }
+        }
 
-          if (packagePath) {
-            if (accum[packagePath]) {
-              msgCallCount += accum[packagePath].msgCallCount;
-              gasUsed += accum[packagePath].gasUsed;
-            }
-
-            accum[packagePath] = {
-              msgCallCount,
-              gasUsed,
-            };
+        if (packagePath) {
+          if (accum[packagePath]) {
+            msgCallCount += accum[packagePath].msgCallCount;
+            gasUsed += accum[packagePath].gasUsed;
           }
+
+          accum[packagePath] = {
+            msgCallCount,
+            gasUsed,
+          };
         }
 
         return accum;

@@ -7,7 +7,12 @@ const PAGE_LIMIT = 20;
 
 export const useTransactions = ({enabled = true}) => {
   const {latestBlock} = useGetLatestBlock();
-  const {data, hasNextPage, fetchNextPage} = useGetTransactionsInfinityQuery(
+  const {
+    data = null,
+    hasNextPage,
+    fetchNextPage,
+    isFetched: isFetchedTransactions,
+  } = useGetTransactionsInfinityQuery(
     latestBlock?.block_meta.header.total_txs || null,
     {page: 0, pageSize: PAGE_LIMIT},
     {enabled},
@@ -29,11 +34,23 @@ export const useTransactions = ({enabled = true}) => {
     transactions,
   );
 
+  const isFetched = useMemo(() => {
+    if (!isFetchedTransactions || !data || !transactionWithTimes) {
+      return false;
+    }
+    if (transactionWithTimes.length > 0) {
+      return true;
+    }
+    return data.pages.length > 0;
+  }, [data, isFetchedTransactions, transactionWithTimes]);
+
   return {
     transactions: transactionWithTimes || [],
-    isFetched: !!transactionWithTimes && transactionWithTimes.length > 0,
+    isFetched: isFetched,
     isError,
-    nextPage: fetchNextPage,
-    hasNextPage,
+    nextPage: () => {
+      fetchNextPage();
+    },
+    hasNextPage: !!hasNextPage,
   };
 };

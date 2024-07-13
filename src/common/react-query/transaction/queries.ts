@@ -48,17 +48,18 @@ export const useGetTransactionsQuery = (
 
   return useQuery<Transaction[] | null, Error>({
     queryKey: [QUERY_KEY.getTransactions, currentNetwork?.chainId || '', totalTx],
-    queryFn: () => {
+    queryFn: async () => {
       if (!transactionRepository) {
         return null;
       }
-      return transactionRepository
+      const result = await transactionRepository
         .getTransactions(0, 0)
         .then(txs => txs.sort((a1, a2) => a2.blockHeight - a1.blockHeight));
+      return result;
     },
-    enabled: !!transactionRepository && options?.enabled,
-    keepPreviousData: true,
     ...options,
+    keepPreviousData: true,
+    enabled: !!transactionRepository && options?.enabled,
   });
 };
 
@@ -93,7 +94,7 @@ export const useGetTransactionsInfinityQuery = (
       const fetchQueries = [];
       if (isRemainItem) {
         fetchQueries.push(
-          await transactionRepository.getTransactions(0, 0, {
+          await transactionRepository.getTransactionsPage(0, 0, {
             page: currentPageIndex,
             pageSize: pageSize,
           }),
@@ -101,7 +102,7 @@ export const useGetTransactionsInfinityQuery = (
       }
 
       fetchQueries.push(
-        await transactionRepository.getTransactions(0, 0, {
+        await transactionRepository.getTransactionsPage(0, 0, {
           page: currentPageIndex - 1,
           pageSize: pageSize,
         }),

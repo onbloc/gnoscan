@@ -49,6 +49,32 @@ export class TransactionRepository implements ITransactionRepository {
     maxBlockHeight: number,
     pageOption?: PageOption,
   ): Promise<Transaction[]> {
+    if (!this.indexerClient) {
+      return [];
+    }
+
+    if (!pageOption) {
+      return this.indexerClient
+        ?.query(TRANSACTIONS_QUERY)
+        .then(result => result?.data?.transactions?.map(mapTransaction) || []);
+    }
+
+    return this.indexerClient
+      ?.queryWithOptions(
+        TRANSACTIONS_QUERY,
+        pageOption || {
+          page: 0,
+          pageSize: 0,
+        },
+      )
+      .then(result => result?.data?.transactions?.map(mapTransaction) || []);
+  }
+
+  async getTransactionsPage(
+    minBlockHeight: number,
+    maxBlockHeight: number,
+    pageOption: PageOption,
+  ): Promise<Transaction[]> {
     if (!this.indexerClient || !pageOption) {
       return [];
     }

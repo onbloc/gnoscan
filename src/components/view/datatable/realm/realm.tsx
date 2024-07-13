@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import {DatatableItem} from '..';
 import {Button} from '@/components/ui/button';
@@ -26,7 +26,11 @@ export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const {indexerQueryClient} = useNetworkProvider();
-  const {realms, isFetched, hasNextPage, nextPage: fetchNextPage} = useRealms();
+  const [sortOption, setSortOption] = useState<{field: string; order: string}>({
+    field: 'none',
+    order: 'none',
+  });
+  const {realms, isFetched, hasNextPage, nextPage: fetchNextPage} = useRealms(true, sortOption);
   const {isFetched: isFetchedUsername, getName} = useUsername();
   useLoading({finished: isFetched && isFetchedUsername});
 
@@ -97,11 +101,13 @@ export const RealmDatatable = () => {
 
   const createHeaderTotalCalls = () => {
     return DatatableOption.Builder.builder()
-      .key('packagePath')
+      .key('totalCalls')
       .name('Total Calls')
       .sort()
       .width(163)
-      .renderOption(packagePath => <DatatableItem.LazyTotalCalls packagePath={packagePath} />)
+      .renderOption((_, data: any) => (
+        <DatatableItem.LazyTotalCalls packagePath={data.packagePath} />
+      ))
       .build();
   };
 
@@ -124,6 +130,8 @@ export const RealmDatatable = () => {
           };
         })}
         datas={realms}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
 

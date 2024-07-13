@@ -15,6 +15,8 @@ interface NetworkContextProps {
 
   currentNetwork: ChainModel | null;
 
+  isCustomNetwork: boolean | null;
+
   nodeRPCClient: NodeRPCClient | null;
 
   indexerQueryClient: IndexerClient | null;
@@ -80,6 +82,13 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     return chain;
   }, [currentNetwork]);
 
+  const isCustomNetwork = useMemo(() => {
+    if (!currentNetworkModel) {
+      return null;
+    }
+    return !!currentNetworkModel.apiUrl;
+  }, [currentNetworkModel]);
+
   const nodeRPCClient = useMemo(() => {
     if (!currentNetworkModel) {
       return null;
@@ -131,6 +140,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     <NetworkContext.Provider
       value={{
         chains,
+        isCustomNetwork,
         currentNetwork: currentNetworkModel,
         nodeRPCClient,
         indexerQueryClient,

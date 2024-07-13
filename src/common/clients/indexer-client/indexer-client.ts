@@ -35,6 +35,10 @@ export class IndexerClient {
     return this.apolloClient.query({
       query: qry,
       fetchPolicy: 'no-cache',
+      variables: {
+        'X-PAGE': pageOption.page,
+        'X-PAGE-SIZE': pageOption.pageSize,
+      },
       context: {
         headers: {
           'X-PAGE': pageOption.page,
