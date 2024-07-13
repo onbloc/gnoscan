@@ -36,10 +36,6 @@ export class NodeRPCClient implements NodeClient {
     this.chainId = chainId || '';
   }
 
-  public get isLegacy() {
-    return this.chainId === 'test3';
-  }
-
   health(): Promise<boolean> {
     const request = makeRPCRequest({
       method: 'health',
@@ -163,9 +159,7 @@ export class NodeRPCClient implements NodeClient {
 
   abciQueryVMQueryRender(packagePath: string, data: string[]): Promise<NodeResponseABCIQuery> {
     const path = 'vm/qrender';
-    const paramQueryString = this.isLegacy
-      ? prepareVMABCIQueryWithSeparator([packagePath, ...data], '\n')
-      : prepareVMABCIQueryWithSeparator([packagePath, ...data], ':');
+    const paramQueryString = prepareVMABCIQueryWithSeparator([packagePath, ...data], ':');
 
     const request = makeRPCRequest({
       method: 'abci_query',
@@ -183,9 +177,7 @@ export class NodeRPCClient implements NodeClient {
     const path = 'vm/qeval';
     const paramArgs = args.map(arg => `"${arg}"`).join(',');
     const paramQuery = `${funcName}(${paramArgs})`;
-    const paramQueryString = this.isLegacy
-      ? prepareVMABCIQueryWithSeparator([packagePath, paramQuery], '\n')
-      : prepareVMABCIEvaluateExpressionQuery([packagePath, paramQuery]);
+    const paramQueryString = prepareVMABCIEvaluateExpressionQuery([packagePath, paramQuery]);
 
     const request = makeRPCRequest({
       method: 'abci_query',
