@@ -10,10 +10,12 @@ import {useMonthlyActiveBoards} from '@/common/hooks/main/use-monthly-active-boa
 import {getLocalDateString} from '@/common/utils/date-util';
 import {useNetwork} from '@/common/hooks/use-network';
 import styled from 'styled-components';
+import {useUpdateTime} from '@/common/hooks/main/use-update-time';
 
 const ActiveBoards = () => {
   const media = eachMedia();
   const {currentNetwork} = useNetwork();
+  const {isFetched, updatedAt} = useUpdateTime();
   const {data: boards, isFetched: boardsFetched} = useMonthlyActiveBoards();
 
   const getBoardLink = useCallback(
@@ -31,9 +33,9 @@ const ActiveBoards = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Monthly Active Boards
-        {media !== 'mobile' && boardsFetched && (
+        {media !== 'mobile' && boardsFetched && isFetched && (
           <Text type="body1" color="tertiary">
-            {`Last Updated: ${getLocalDateString(Date.now())}`}
+            {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
       </Text>
@@ -89,7 +91,7 @@ const ActiveBoards = () => {
 
       {media === 'mobile' && boardsFetched && (
         <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-          {`Last Updated: ${getLocalDateString(Date.now())}`}
+          {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}
     </StyledCard>

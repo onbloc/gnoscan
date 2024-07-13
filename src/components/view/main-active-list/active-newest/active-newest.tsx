@@ -17,6 +17,7 @@ import {
   useGetRealmTransactionsQuery,
 } from '@/common/react-query/realm';
 import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
+import {useUpdateTime} from '@/common/hooks/main/use-update-time';
 
 function makeDisplayRealmPath(path: string, length = 11) {
   const displayPath = path.replace('gno.land', '');
@@ -26,6 +27,7 @@ function makeDisplayRealmPath(path: string, length = 11) {
 const ActiveNewest = () => {
   const media = eachMedia();
   const {isFetched: isFetchedUsername, getName} = useUsername();
+  const {isFetched: isFetchedUpdatedAt, updatedAt} = useUpdateTime();
   const {getUrlWithNetwork} = useNetwork();
   const {isFetched, realms} = useRealms(false);
 
@@ -37,9 +39,9 @@ const ActiveNewest = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Newest Realms
-        {media !== 'mobile' && isFetched && isFetchedUsername && (
+        {media !== 'mobile' && isFetched && isFetchedUsername && isFetchedUpdatedAt && (
           <Text type="body1" color="tertiary">
-            {`Last Updated: ${getLocalDateString(Date.now())}`}
+            {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
       </Text>
@@ -83,7 +85,7 @@ const ActiveNewest = () => {
       )}
       {media === 'mobile' && isFetched && isFetchedUsername && (
         <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-          {`Last Updated: ${new Date().toLocaleDateString()}`}
+          {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}
     </StyledCard>

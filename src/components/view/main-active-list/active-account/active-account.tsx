@@ -22,10 +22,12 @@ import {useGetNativeTokenBalance} from '@/common/react-query/account';
 import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
 import BigNumber from 'bignumber.js';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
+import {useUpdateTime} from '@/common/hooks/main/use-update-time';
 
 const ActiveAccount = () => {
   const media = eachMedia();
   const {getUrlWithNetwork} = useNetwork();
+  const {updatedAt} = useUpdateTime();
   const {isFetched, data: accounts} = useMonthlyActiveAccounts();
   const {isFetched: isFetchedUsername, getName} = useUsername();
 
@@ -46,7 +48,7 @@ const ActiveAccount = () => {
         Monthly Active Accounts
         {media !== 'mobile' && loaded && (
           <Text type="body1" color="tertiary">
-            {`Last Updated: ${getLocalDateString(Date.now())}`}
+            {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
       </Text>
@@ -94,7 +96,7 @@ const ActiveAccount = () => {
       )}
       {media === 'mobile' && loaded && (
         <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
-          {`Last Updated: ${getLocalDateString(Date.now())}`}
+          {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}
     </StyledCard>
