@@ -75,7 +75,7 @@ const TransactionDetails = () => {
   return (
     <DetailsPageLayout
       title={'Transaction Details'}
-      visible={isFetched && !isError}
+      visible={!isFetched}
       keyword={`${hash}`}
       error={isError}>
       {!isError && transactionItem && (
