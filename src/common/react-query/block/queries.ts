@@ -16,7 +16,7 @@ export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | 
       if (!blockRepository) {
         return null;
       }
-      return blockRepository.getLatestBlockHeight();
+      return blockRepository.getLatestBlockHeight().catch(() => null);
     },
     enabled: !!blockRepository,
     ...options,
@@ -70,7 +70,7 @@ export const useGetBlockTimeQuery = (
 };
 
 export const useGetBlocksQuery = (
-  latestHeight: number | null,
+  latestHeight: number | null | undefined,
   options?: UseInfiniteQueryOptions<Block[] | null, Error>,
 ) => {
   const {currentNetwork} = useNetworkProvider();
@@ -89,8 +89,12 @@ export const useGetBlocksQuery = (
     },
     queryFn: context => {
       const page = Number(context.pageParam || 1);
-      if (!blockRepository || !latestHeight) {
+      if (!blockRepository || latestHeight === undefined) {
         return null;
+      }
+
+      if (latestHeight === null) {
+        throw new Error('not supported');
       }
 
       const maxHeight = latestHeight - (page - 1) * 20;

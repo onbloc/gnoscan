@@ -16,7 +16,7 @@ export const DataRowItem = <T extends {[key in string]: any}>({
   className,
 }: Props<T>) => {
   const option = DatatableOption.dataOptionByHeader(header);
-  const value = data[header.key];
+  const value = data?.[header.key];
 
   return (
     <ItemContainer className={className || ''} options={option}>

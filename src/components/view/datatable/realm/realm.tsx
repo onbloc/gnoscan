@@ -106,7 +106,7 @@ export const RealmDatatable = () => {
       .sort()
       .width(163)
       .renderOption((_, data: any) => (
-        <DatatableItem.LazyTotalCalls packagePath={data.packagePath} />
+        <DatatableItem.LazyTotalCalls packagePath={data?.packagePath} />
       ))
       .build();
   };
@@ -129,7 +129,7 @@ export const RealmDatatable = () => {
             themeMode: themeMode,
           };
         })}
-        datas={realms}
+        datas={realms || []}
         sortOption={sortOption}
         setSortOption={setSortOption}
         supported={!!indexerQueryClient}

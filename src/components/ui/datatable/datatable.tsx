@@ -7,7 +7,7 @@ import {zindex} from '@/common/values/z-index';
 interface Props<T> {
   maxWidth?: number;
   headers: Array<DatatableHeader.Header<T>>;
-  datas: Array<T>;
+  datas: Array<T> | null;
   supported?: boolean;
   loading?: boolean;
   sortOption?: {field: string; order: string};
@@ -52,15 +52,19 @@ export const Datatable = <T extends {[key in string]: any}>({
             <IconTabelLoading />
           </div>
         )}
-        {!loading && datas?.length > 0 && (
-          <DatatableData.DataList headers={headers} datas={datas} renderDetails={renderDetails} />
+        {!loading && datas && datas?.length > 0 && (
+          <DatatableData.DataList
+            headers={headers}
+            datas={datas || []}
+            renderDetails={renderDetails}
+          />
         )}
-        {!loading && datas?.length === 0 && supported && (
+        {!loading && !datas?.length && supported && (
           <div className="no-content-wrapper">
             <span>{'No data to display'}</span>
           </div>
         )}
-        {!loading && datas?.length === 0 && !supported && (
+        {!loading && !datas?.length && !supported && (
           <div className="no-content-wrapper">
             <span>{'Not Supported'}</span>
           </div>

@@ -3,8 +3,9 @@ import {Block} from '@/types/data-type';
 import {useMemo} from 'react';
 
 export const useBlocks = () => {
-  const {data: latestBlockHeight = null} = useGetLatestBlockHeightQuery();
-  const {data, fetchNextPage, hasNextPage} = useGetBlocksQuery(latestBlockHeight);
+  const {data: latestBlockHeight} = useGetLatestBlockHeightQuery();
+  const {data, fetchNextPage, hasNextPage, isFetched, isError} =
+    useGetBlocksQuery(latestBlockHeight);
 
   const blocks = useMemo(() => {
     if (!data?.pages) {
@@ -18,7 +19,8 @@ export const useBlocks = () => {
 
   return {
     data: blocks,
-    isFetched: !!latestBlockHeight && blocks.length > 0,
+    isFetched,
+    isError: latestBlockHeight === null || isError,
     fetchNextPage,
     hasNextPage,
   };

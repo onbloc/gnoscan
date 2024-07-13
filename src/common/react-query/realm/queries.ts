@@ -21,11 +21,11 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
     queryKey: [QUERY_KEY.getRealms, currentNetwork?.chainId || ''],
     queryFn: async () => {
       if (!realmRepository) {
-        return [null];
+        return [];
       }
       const result = await realmRepository.getRealms();
       if (!result) {
-        return [null];
+        return [];
       }
 
       return (

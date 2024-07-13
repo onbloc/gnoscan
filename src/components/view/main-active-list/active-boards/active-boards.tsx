@@ -9,6 +9,7 @@ import FetchedSkeleton from '../fetched-skeleton';
 import {useMonthlyActiveBoards} from '@/common/hooks/main/use-monthly-active-boards';
 import {getLocalDateString} from '@/common/utils/date-util';
 import {useNetwork} from '@/common/hooks/use-network';
+import styled from 'styled-components';
 
 const ActiveBoards = () => {
   const media = eachMedia();
@@ -74,6 +75,13 @@ const ActiveBoards = () => {
               </List>
             ),
           )}
+          {boards.length === 0 && (
+            <StyledContentWrapper>
+              <StyledText width="fit-content" type="p4" color="tertiary">
+                No data to display
+              </StyledText>
+            </StyledContentWrapper>
+          )}
         </ActiveList>
       ) : (
         <FetchedSkeleton />
@@ -89,3 +97,11 @@ const ActiveBoards = () => {
 };
 
 export default ActiveBoards;
+
+const StyledContentWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+`;

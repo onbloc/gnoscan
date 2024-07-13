@@ -18,10 +18,10 @@ import {useUsername} from '@/common/hooks/account/use-username';
 export const BlockDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data: blocks, isFetched, fetchNextPage, hasNextPage} = useBlocks();
+  const {data: blocks, isFetched, fetchNextPage, hasNextPage, isError} = useBlocks();
   const {getNameWithMoniker} = useUsername();
 
-  useLoading({finished: isFetched});
+  useLoading({finished: isFetched || isError});
 
   const createHeaders = () => {
     return [
@@ -101,6 +101,7 @@ export const BlockDatatable = () => {
   return (
     <Container>
       <Datatable
+        supported={!isError}
         headers={createHeaders().map(item => {
           return {
             ...item,
