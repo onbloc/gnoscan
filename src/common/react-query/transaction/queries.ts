@@ -17,13 +17,15 @@ export const useGetTransactionBlockHeightQuery = (
       if (!transactionRepository || !blockRepository) {
         return null;
       }
-      const blockHeight = await transactionRepository.getTransactionBlockHeight(hash);
+      const blockHeight = await transactionRepository
+        .getTransactionBlockHeight(hash)
+        .catch(() => null);
       if (!blockHeight) {
         return null;
       }
 
-      const block = await blockRepository.getBlock(blockHeight);
-      const blockResult = await blockRepository.getBlockResult(blockHeight);
+      const block = await blockRepository.getBlock(blockHeight).catch(() => null);
+      const blockResult = await blockRepository.getBlockResult(blockHeight).catch(() => null);
       return {
         block,
         blockResult,

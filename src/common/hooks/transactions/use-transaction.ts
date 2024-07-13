@@ -15,7 +15,7 @@ import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 export const useTransaction = (hash: string) => {
   const safetyHash = makeSafeBase64Hash(hash);
   const {getTokenAmount} = useTokenMeta();
-  const {data, isFetched} = useGetTransactionBlockHeightQuery(safetyHash);
+  const {data, isFetched, isError: isErrorTxHash} = useGetTransactionBlockHeightQuery(safetyHash);
 
   const block = useMemo(() => {
     return data?.block || null;
@@ -157,8 +157,8 @@ export const useTransaction = (hash: string) => {
     if (!isFetched) {
       return false;
     }
-    return !txResult || !transactionItem;
-  }, [isFetched, transactionItem, txResult]);
+    return data?.block === null || isErrorTxHash;
+  }, [data?.block, isErrorTxHash, isFetched]);
 
   return {
     network,
@@ -166,7 +166,7 @@ export const useTransaction = (hash: string) => {
     gas,
     transactionItem,
     transactionEvents,
-    isFetched: data?.block && isFetched,
+    isFetched: data === undefined || isFetched,
     isError,
   };
 };

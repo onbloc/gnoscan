@@ -38,10 +38,12 @@ export const useTransactions = ({enabled = true}) => {
     if (!isFetchedTransactions || !data || !transactionWithTimes) {
       return false;
     }
+
     if (transactionWithTimes.length > 0) {
       return true;
     }
-    return data.pages.length > 0;
+
+    return false;
   }, [data, isFetchedTransactions, transactionWithTimes]);
 
   return {
