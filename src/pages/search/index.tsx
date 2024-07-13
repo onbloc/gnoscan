@@ -33,7 +33,10 @@ function parseSearchString(search: string) {
 
       const values = [
         current.substring(0, separatorIndex),
-        decodeURIComponent(current.substring(separatorIndex + 1, current.length)).replace(' ', '+'),
+        decodeURIComponent(current.substring(separatorIndex + 1, current.length)).replaceAll(
+          ' ',
+          '+',
+        ),
       ];
       if (values.length === 0) {
         return accum;
