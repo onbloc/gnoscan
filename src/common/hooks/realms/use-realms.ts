@@ -48,7 +48,6 @@ export const useRealms = (
     }
 
     if (sortOptions.field === 'totalCalls') {
-      console.log(realmTransactionInfos);
       return dataWithTransactionInfo?.sort(sort) || null;
     }
 
