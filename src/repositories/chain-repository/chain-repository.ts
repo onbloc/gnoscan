@@ -29,7 +29,7 @@ export class ChainRepository implements IChainRepository {
     if (chainId === 'portal-loop') {
       return ValidatorPortalLoopData;
     }
-    if (chainId === '') {
+    if (chainId === 'test4') {
       return ValidatorTest4Data;
     }
     return [];
