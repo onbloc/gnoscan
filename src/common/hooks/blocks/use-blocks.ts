@@ -19,7 +19,7 @@ export const useBlocks = () => {
 
   return {
     data: blocks,
-    isFetched,
+    isFetched: isFetched && latestBlockHeight !== undefined,
     isError: latestBlockHeight === null || isError,
     fetchNextPage,
     hasNextPage,
