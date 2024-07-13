@@ -37,6 +37,7 @@ export const useAccount = (address: string) => {
     if (!transactions) {
       return [];
     }
+
     const sortedTransactions = transactions.sort((t1, t2) => t2.blockHeight - t1.blockHeight);
     const nextIndex = (currentPage + 1) * 20;
     const endIndex = sortedTransactions.length > nextIndex ? nextIndex : sortedTransactions.length;
@@ -44,7 +45,10 @@ export const useAccount = (address: string) => {
   }, [currentPage, transactions]);
 
   const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} =
-    useMakeTransactionsWithTime(address, accountTransactions);
+    useMakeTransactionsWithTime(
+      `account-details/${address}/${accountTransactions.length}`,
+      accountTransactions,
+    );
 
   const transactionEvents = useMemo(() => {
     if (!accountTransactions) {
@@ -59,7 +63,7 @@ export const useAccount = (address: string) => {
     }
 
     return accountTransactions.length > (currentPage + 1) * 20;
-  }, [currentPage, accountTransactions?.length]);
+  }, [accountTransactions, currentPage]);
 
   function nextPage() {
     setCurrentPage(prev => prev + 1);
