@@ -114,7 +114,7 @@ export function mapReceivedTransactionByBankMsgSend(
     from: toString(firstMessage.value.from_address),
     to: toString(firstMessage.value.to_address),
     amount: {
-      value: toString(firstMessage.value.amount),
+      value: parseTokenAmount(firstMessage.value.amount).toString(),
       denom: GNOTToken.denom,
     },
     amountOut: {
