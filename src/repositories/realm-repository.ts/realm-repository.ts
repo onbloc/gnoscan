@@ -239,12 +239,14 @@ export class RealmRepository implements IRealmRepository {
       )
       .then(
         result =>
-          result?.data?.transactions.filter((transaction: RealmTransaction) =>
-            transaction.messages.some(
-              (message: any) =>
-                message?.value?.pkg_path === realmPath || message.value.path === realmPath,
-            ),
-          ) || [],
+          result?.data?.transactions.filter((transaction: RealmTransaction) => {
+            return transaction.messages.find((message: any) => {
+              return (
+                message?.value?.pkg_path === realmPath ||
+                message?.value?.package?.path === realmPath
+              );
+            });
+          }) || [],
       );
   }
 
