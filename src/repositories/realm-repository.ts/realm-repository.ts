@@ -27,6 +27,19 @@ import {
   parseABCIQueryNumberResponse,
 } from '@/common/clients/node-client/utility';
 import {PageOption} from '@/common/clients/indexer-client/types';
+import {
+  makeRealmTransactionInfoQuery,
+  makeTokenQuery,
+  makeTokensQuery,
+  makeUsernameQuery,
+  makeRealmCallTransactionsWithArgsQuery,
+  makeRealmPackagesQuery,
+  makeRealmQuery,
+  makeRealmsQuery,
+  makeRealmTransactionInfosQuery,
+  makeRealmTransactionsQuery,
+  makeRealmTransactionsWithArgsQuery,
+} from './query';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
@@ -39,31 +52,7 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient.query(
-      gql`
-        {
-          transactions(filter: {success: true, message: {type_url: add_package}}) {
-            hash
-            index
-            success
-            block_height
-            messages {
-              value {
-                __typename
-                ... on MsgAddPackage {
-                  creator
-                  package {
-                    name
-                    path
-                  }
-                }
-              }
-            }
-          }
-        }
-      `,
-      pageOption,
-    );
+    return this.indexerClient.query(makeRealmsQuery(), pageOption);
   }
 
   async getRealm(realmPath: string): Promise<RealmTransaction | null> {
@@ -71,60 +60,12 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient
-      .query(
-        gql`
-{
-  transactions(filter: {
-    success: true
-    message: {
-      route: vm
-      type_url: add_package
-      vm_param: {
-				add_package: {
-          package: {
-            path: "${realmPath}"
-          }
-        }
+    return this.indexerClient.query(makeRealmQuery(realmPath)).then(result => {
+      if (!result?.data?.transactions || result?.data?.transactions.length === 0) {
+        return null;
       }
-    }
-  }) {
-    hash
-    index
-    success
-    block_height
-    gas_wanted
-    gas_used
-    gas_fee {
-      amount
-      denom
-    }
-    messages {
-      value {
-        __typename
-        ...on MsgAddPackage {
-          creator
-          deposit
-          package {
-            name
-            path
-            files {
-              name
-              body
-            }
-          }
-        }
-      }
-    }
-  }
-}`,
-      )
-      .then(result => {
-        if (!result?.data?.transactions || result?.data?.transactions.length === 0) {
-          return null;
-        }
-        return result?.data?.transactions[0];
-      });
+      return result?.data?.transactions[0];
+    });
   }
 
   async getRealmBalance(realmPath: string): Promise<Amount | null> {
@@ -188,70 +129,16 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient
-      .query(
-        gql`
-          {
-            transactions(filter: {message: {vm_param: {add_package: {}, exec: {}}}}) {
-              hash
-              index
-              success
-              block_height
-              gas_wanted
-              response {
-                events {
-                  __typename
-                  ... on GnoEvent {
-                    type
-                    pkg_path
-                    func
-                    attrs {
-                      key
-                      value
-                    }
-                  }
-                }
-              }
-              gas_used
-              gas_fee {
-                amount
-                denom
-              }
-              messages {
-                value {
-                  __typename
-                  ... on MsgAddPackage {
-                    creator
-                    deposit
-                    package {
-                      name
-                      path
-                    }
-                  }
-                  ... on MsgCall {
-                    caller
-                    send
-                    pkg_path
-                    func
-                  }
-                }
-              }
-            }
-          }
-        `,
-        pageOption,
-      )
-      .then(
-        result =>
-          result?.data?.transactions.filter((transaction: RealmTransaction) => {
-            return transaction.messages.find((message: any) => {
-              return (
-                message?.value?.pkg_path === realmPath ||
-                message?.value?.package?.path === realmPath
-              );
-            });
-          }) || [],
-      );
+    return this.indexerClient.query(makeRealmTransactionsQuery(), pageOption).then(
+      result =>
+        result?.data?.transactions.filter((transaction: RealmTransaction) => {
+          return transaction.messages.find((message: any) => {
+            return (
+              message?.value?.pkg_path === realmPath || message?.value?.package?.path === realmPath
+            );
+          });
+        }) || [],
+    );
   }
 
   async getRealmTransactionsWithArgs(
@@ -263,57 +150,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     return this.indexerClient
-      .query(
-        gql`
-{
-  transactions(filter: {
-    message: {
-      vm_param: {
-				add_package: {
-          package: {
-            path: "${realmPath}"
-          }
-        }
-        exec: {
-          pkg_path: "${realmPath}"
-        }
-      }
-    }
-  }) {
-    hash
-    index
-    success
-    block_height
-    gas_wanted
-    gas_used
-    gas_fee {
-      amount
-      denom
-    }
-    messages {
-      value {
-        __typename
-        ...on MsgAddPackage {
-          creator
-          deposit
-          package {
-            name
-            path
-          }
-        }
-        ...on  MsgCall{
-          caller
-          send
-          pkg_path
-          func
-          args
-        }
-      }
-    }
-  }
-}`,
-        pageOption,
-      )
+      .query(makeRealmTransactionsWithArgsQuery(realmPath), pageOption)
       .then(result => result?.data?.transactions || []);
   }
 
@@ -325,36 +162,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     return this.indexerClient
-      .query(
-        gql`
-{
-  transactions(filter: {
-    success:true
-    message: {
-      type_url: exec
-      vm_param: {
-        exec: {
-          pkg_path: "${realmPath}"
-        }
-      }
-    }
-  }) {
-    success
-    block_height
-    messages {
-      value {
-        ...on MsgCall {
-          caller
-          send
-          pkg_path
-          func
-          args
-        }
-      }
-    }
-  }
-}`,
-      )
+      .query(makeRealmCallTransactionsWithArgsQuery(realmPath))
       .then(result => result?.data?.transactions || []);
   }
 
@@ -376,40 +184,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions: RealmTransaction[] | null = await this.indexerClient
-      .query(
-        gql`
-          {
-            transactions(filter: {message: {route: vm}}) {
-              hash
-              index
-              success
-              gas_fee {
-                amount
-              }
-              gas_used
-              messages {
-                value {
-                  __typename
-                  ... on MsgAddPackage {
-                    creator
-                    deposit
-                    package {
-                      name
-                      path
-                    }
-                  }
-                  ... on MsgCall {
-                    caller
-                    send
-                    pkg_path
-                    func
-                  }
-                }
-              }
-            }
-          }
-        `,
-      )
+      .query(makeRealmTransactionInfosQuery())
       .then(result => result?.data?.transactions || [])
       .catch(() => null);
     if (!transactions) {
@@ -455,60 +230,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions: RealmTransaction[] | null = await this.indexerClient
-      .query(
-        gql`
-          {
-            transactions(filter: {
-              message: {
-                route: vm
-                vm_param: {
-                  add_package: {
-                    package: {
-                      path : "${packagePath}"
-                    }
-                  }
-                  run: {
-                    package: {
-                      path : "${packagePath}"
-                    }
-                  }
-                  exec: {
-                    pkg_path: "${packagePath}"
-                  }
-                }
-              }
-            }
-          ) {
-              hash
-              index
-              success
-              gas_fee {
-                amount
-              }
-              gas_used
-              messages {
-                value {
-                  __typename
-                  ... on MsgAddPackage {
-                    creator
-                    deposit
-                    package {
-                      name
-                      path
-                    }
-                  }
-                  ... on MsgCall {
-                    caller
-                    send
-                    pkg_path
-                    func
-                  }
-                }
-              }
-            }
-          }
-        `,
-      )
+      .query(makeRealmTransactionInfoQuery(packagePath))
       .then(result => result?.data?.transactions || [])
       .catch(() => null);
     if (!transactions) {
@@ -556,35 +278,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     return this.indexerClient
-      .queryWithOptions(
-        gql`
-          {
-            transactions(filter: {success: true, message: {type_url: add_package}}) {
-              hash
-              index
-              success
-              block_height
-              messages {
-                value {
-                  __typename
-                  ... on MsgAddPackage {
-                    creator
-                    package {
-                      name
-                      path
-                      files {
-                        name
-                        body
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `,
-        pageOption,
-      )
+      .queryWithOptions(makeRealmPackagesQuery(), pageOption)
       .then(result => result?.data?.transactions || [])
       .then((transactions: RealmTransaction<AddPackageValue>[]) => transactions);
   }
@@ -595,34 +289,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions = await this.indexerClient
-      .query(
-        gql`
-          {
-            transactions(filter: {success: true, message: {type_url: add_package}}) {
-              hash
-              index
-              success
-              block_height
-              messages {
-                value {
-                  __typename
-                  ... on MsgAddPackage {
-                    creator
-                    package {
-                      name
-                      path
-                      files {
-                        name
-                        body
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `,
-      )
+      .query(makeTokensQuery())
       .then(result => result?.data?.transactions || [])
       .then((transactions: RealmTransaction<AddPackageValue>[]) => transactions);
     return transactions
@@ -651,42 +318,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions = await this.indexerClient
-      .query(
-        gql`
-          {
-            transactions(
-              filter: {
-                success: true
-                message: {
-                  type_url: add_package
-                  vm_param: {add_package: {package: {path: "${packagePath}"}}}
-                }
-              }
-            ) {
-              hash
-              index
-              success
-              block_height
-              messages {
-                value {
-                  __typename
-                  ... on MsgAddPackage {
-                    creator
-                    package {
-                      name
-                      path
-                      files {
-                        name
-                        body
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `,
-      )
+      .query(makeTokenQuery(packagePath))
       .then(result => (result?.data?.transactions as RealmTransaction<AddPackageValue>[]) || null)
       .catch(() => null);
     if (!transactions || transactions?.length < 1) {
@@ -742,34 +374,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions = await this.indexerClient
-      .query(
-        gql`
-          {
-            transactions(
-              filter: {
-                success: true
-                message: {
-                  type_url: exec
-                  vm_param: {exec: {pkg_path: "gno.land/r/demo/users", func: "Register"}}
-                }
-              }
-            ) {
-              hash
-              index
-              success
-              messages {
-                value {
-                  __typename
-                  ... on MsgCall {
-                    args
-                    caller
-                  }
-                }
-              }
-            }
-          }
-        `,
-      )
+      .query(makeUsernameQuery())
       .then(result => (result?.data?.transactions as RealmTransaction<MsgCallValue>[]) || null)
       .catch(() => null);
 

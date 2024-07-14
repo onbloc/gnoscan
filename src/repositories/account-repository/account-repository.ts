@@ -1,18 +1,10 @@
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {IAccountRepository} from './types';
-import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
-import {
-  TRANSACTIONS_QUERY,
-  makeGRC20ReceivedTransactionsByAddressQuery,
-  makeNativeTokenReceivedTransactionsByAddressQuery,
-  makeNativeTokenSendTransactionsByAddressQuery,
-  makeVMTransactionsByAddressQuery,
-} from './query';
-import {Transaction} from '@/types/data-type';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
 import {parseABCI} from '@gnolang/tm2-js-client';
+import {NodeRPCClient} from '@/common/clients/node-client';
+import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
+import {parseTokenAmount} from '@/common/utils/token.utility';
+import {Transaction} from '@/types/data-type';
+
 import {
   mapReceivedTransactionByBankMsgSend,
   mapReceivedTransactionByMsgCall,
@@ -20,6 +12,14 @@ import {
   mapVMTransaction,
 } from '../response/transaction.mapper';
 import {PageOption} from '@/common/clients/indexer-client/types';
+import {IAccountRepository} from './types';
+import {
+  TRANSACTIONS_QUERY,
+  makeGRC20ReceivedTransactionsByAddressQuery,
+  makeNativeTokenReceivedTransactionsByAddressQuery,
+  makeNativeTokenSendTransactionsByAddressQuery,
+  makeVMTransactionsByAddressQuery,
+} from './query';
 
 function mapTransaction(data: any): Transaction {
   const firstMessage = data.messages[0]?.value;
