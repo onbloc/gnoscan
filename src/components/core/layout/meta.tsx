@@ -4,7 +4,7 @@ const Meta = () => (
   <>
     <Head>
       <title>Gnoscan - Gnoland Blockchain Explorer</title>
-      <link rel="icon" href="https://gnoscan.io/favicon.ico" />
+      <link rel="icon" href="/favicon.svg" />
       <meta charSet="utf-8" />
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       <meta property="author" content="onbloc" />
