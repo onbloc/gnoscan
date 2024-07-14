@@ -72,3 +72,40 @@ export function parseGRC20InfoByFile(file: string): {
   }
   return {...grc20Info, owner};
 }
+
+export function parseBankerGRC20InfoByFile(file: string): {
+  name: string;
+  symbol: string;
+  decimals: number;
+  owner: string;
+} | null {
+  const addressPattern = /ownable\.NewWithAddress\("([a-z0-9]+)"\)/;
+  const bankerPattern = /grc20\.NewBanker\("([^"]+)",\s*"([^"]+)",\s*(\d+)\)/;
+
+  try {
+    const addressMatch = file.match(addressPattern);
+    const address = addressMatch ? addressMatch[1] : null;
+
+    const bankerMatch = file.match(bankerPattern);
+    const bankerInfo = bankerMatch
+      ? {
+          name: bankerMatch[1],
+          symbol: bankerMatch[2],
+          decimals: parseInt(bankerMatch[3], 10),
+        }
+      : null;
+
+    if (!bankerInfo || !address) {
+      return null;
+    }
+
+    return {
+      name: bankerInfo.name,
+      symbol: bankerInfo.symbol,
+      decimals: bankerInfo.decimals,
+      owner: address,
+    };
+  } catch {
+    return null;
+  }
+}

@@ -15,7 +15,11 @@ import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {Amount, Board} from '@/types/data-type';
 import {isAddPackageMessageValue} from './mapper';
-import {GRC20_FUNCTIONS, parseGRC20InfoByFile} from '@/common/utils/realm.utility';
+import {
+  GRC20_FUNCTIONS,
+  parseBankerGRC20InfoByFile,
+  parseGRC20InfoByFile,
+} from '@/common/utils/realm.utility';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {TransactionWithEvent} from '../response/transaction.types';
 import {
@@ -625,7 +629,7 @@ export class RealmRepository implements IRealmRepository {
       .flatMap(tx => tx.messages)
       .map(message => {
         for (const file of message.value.package?.files || []) {
-          const info = parseGRC20InfoByFile(file.body);
+          const info = parseGRC20InfoByFile(file.body) || parseBankerGRC20InfoByFile(file.body);
           if (info) {
             return {
               ...info,
@@ -698,7 +702,8 @@ export class RealmRepository implements IRealmRepository {
         }
 
         for (const file of files) {
-          const tokenInfo = parseGRC20InfoByFile(file.body);
+          const tokenInfo =
+            parseGRC20InfoByFile(file.body) || parseBankerGRC20InfoByFile(file.body);
           const tokenPath = message.value.package?.path;
           if (tokenInfo && tokenPath === packagePath) {
             return {
