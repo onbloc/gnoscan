@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {Button} from '@/components/ui/button';
 import styled from 'styled-components';
@@ -10,26 +9,11 @@ import theme from '@/styles/theme';
 import {numberWithCommas} from '@/common/utils';
 import {eachMedia} from '@/common/hooks/use-media';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
-import {ValueWithDenomType} from '@/types/data-type';
-interface Realms {
-  name: string;
-  path: string;
-  num_funcs: number;
-  height: number;
-  publisher: string;
-  publisher_username: string;
-  total_calls: number;
-  total_fees: ValueWithDenomType;
-}
-
-interface ResponseData {
-  hits: number;
-  next: boolean;
-  realms: Array<Realms>;
-}
+import {useRealms} from '@/common/hooks/realms/use-realms';
+import {useUsername} from '@/common/hooks/account/use-username';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 
 const TOOLTIP_PATH = (
   <>
@@ -41,22 +25,14 @@ const TOOLTIP_PATH = (
 export const RealmDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {data, fetchNextPage, sortOption, setSortOption, finished, hasNextPage} =
-    usePageQuery<ResponseData>({
-      key: ['realm/realm-list', API_URI + API_VERSION + '/list/realms'],
-      uri: API_URI + API_VERSION + '/list/realms',
-      pageable: true,
-    });
-  useLoading({finished});
-
-  const getRealms = (): Array<Realms> => {
-    if (!data) {
-      return [];
-    }
-    return data.pages.reduce((accum: Array<Realms>, current) => {
-      return current ? [...accum, ...current.realms] : accum;
-    }, []);
-  };
+  const {indexerQueryClient} = useNetworkProvider();
+  const [sortOption, setSortOption] = useState<{field: string; order: string}>({
+    field: 'none',
+    order: 'none',
+  });
+  const {realms, isFetched, hasNextPage, nextPage: fetchNextPage} = useRealms(true, sortOption);
+  const {isFetched: isFetchedUsername, getName} = useUsername();
+  useLoading({finished: isFetched && isFetchedUsername});
 
   const createHeaders = () => {
     return [
@@ -71,8 +47,8 @@ export const RealmDatatable = () => {
   };
 
   const createHeaderName = () => {
-    return DatatableOption.Builder.builder<Realms>()
-      .key('name')
+    return DatatableOption.Builder.builder()
+      .key('packageName')
       .name('Name')
       .sort()
       .width(174)
@@ -80,29 +56,30 @@ export const RealmDatatable = () => {
   };
 
   const createHeaderPath = () => {
-    return DatatableOption.Builder.builder<Realms>()
-      .key('path')
+    return DatatableOption.Builder.builder()
+      .key('packagePath')
       .name('Path')
-      .width(202)
+      .width(202) // removed functions column
       .colorName('blue')
       .tooltip(TOOLTIP_PATH)
       .renderOption(packagePath => (
-        <DatatableItem.RealmPakage packagePath={packagePath} maxWidth={186} />
+        <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={186} />
       ))
       .build();
   };
 
   const createHeaderFunctions = () => {
-    return DatatableOption.Builder.builder<Realms>()
-      .key('num_funcs')
+    return DatatableOption.Builder.builder()
+      .key('packagePath')
       .name('Functions')
       .width(121)
+      .renderOption(packagePath => <DatatableItem.LazyFunctions realmPath={packagePath} />)
       .build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<Realms>()
-      .key('height')
+    return DatatableOption.Builder.builder()
+      .key('blockHeight')
       .name('Block')
       .width(121)
       .colorName('blue')
@@ -111,33 +88,35 @@ export const RealmDatatable = () => {
   };
 
   const createHeaderPublisher = () => {
-    return DatatableOption.Builder.builder<Realms>()
-      .key('publisher')
+    return DatatableOption.Builder.builder()
+      .key('creator')
       .name('Publisher')
       .width(202)
       .colorName('blue')
-      .renderOption((_, data) => (
-        <DatatableItem.Publisher address={data.publisher} username={data.publisher_username} />
+      .renderOption(creator => (
+        <DatatableItem.Publisher address={creator} username={getName(creator)} />
       ))
       .build();
   };
 
   const createHeaderTotalCalls = () => {
-    return DatatableOption.Builder.builder<Realms>()
-      .key('total_calls')
+    return DatatableOption.Builder.builder()
+      .key('totalCalls')
       .name('Total Calls')
       .sort()
       .width(163)
-      .renderOption(numberWithCommas)
+      .renderOption((_, data: any) => (
+        <DatatableItem.LazyTotalCalls packagePath={data?.packagePath} />
+      ))
       .build();
   };
 
   const createHeaderTotalGasUsed = () => {
-    return DatatableOption.Builder.builder<Realms>()
-      .key('total_fees')
+    return DatatableOption.Builder.builder()
+      .key('packagePath')
       .name('Total Gas Used')
       .width(163)
-      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
+      .renderOption(packagePath => <DatatableItem.LazyFeeAmount packagePath={packagePath} />)
       .build();
   };
 
@@ -150,9 +129,10 @@ export const RealmDatatable = () => {
             themeMode: themeMode,
           };
         })}
+        datas={realms || []}
         sortOption={sortOption}
         setSortOption={setSortOption}
-        datas={getRealms()}
+        supported={!!indexerQueryClient}
       />
 
       {hasNextPage ? (

@@ -58,8 +58,8 @@ export const AreaChartTooltip = ({
   };
 
   const parseValue = (value: number) => {
-    let integer = '0';
-    let decimal = '0';
+    const integer = '0';
+    const decimal = '0';
     const valueStr = `${value}`;
 
     try {
@@ -123,7 +123,7 @@ const TooltipContainer = styled.div<{light: boolean}>`
   & {
     display: flex;
     flex-direction: column;
-    width: 260px;
+    min-width: 260px;
     background-color: ${({light}) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
     padding: 16px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -137,15 +137,18 @@ const TooltipContainer = styled.div<{light: boolean}>`
     }
 
     .title {
-      width: 180px;
+      display: flex;
+      width: 100%;
       margin-bottom: 0;
     }
 
     .value {
-      display: inline-flex;
+      display: flex;
       flex-direction: row;
+      flex-shrink: 0;
       width: 90px;
       font-size: 10px;
+      justify-content: center;
 
       strong {
         font-weight: 600;
@@ -154,6 +157,8 @@ const TooltipContainer = styled.div<{light: boolean}>`
     }
 
     .rate {
+      display: flex;
+      flex-shrink: 0;
       width: 40px;
       justify-content: flex-end;
     }

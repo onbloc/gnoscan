@@ -3,6 +3,7 @@ import Link from 'next/link';
 import React from 'react';
 import Text from '@/components/ui/text';
 import styled from 'styled-components';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
   text: string;
@@ -12,8 +13,10 @@ interface Props {
 }
 
 export const HasLink = ({text, textSize = 'p4', path, color = 'blue'}: Props) => {
+  const {getUrlWithNetwork} = useNetwork();
+
   return (
-    <Link href={path} passHref>
+    <Link href={getUrlWithNetwork(path)} passHref>
       <StyledA>
         <Text type={textSize} color={color}>
           {text}

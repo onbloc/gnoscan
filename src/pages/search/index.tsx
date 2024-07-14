@@ -1,23 +1,50 @@
-import NotFound from '@/components/view/not-found/not-found';
-import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
-import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
 import React from 'react';
+import BigNumber from 'bignumber.js';
 import styled from 'styled-components';
+
+import {isBech32Address} from '@/common/utils/bech32.utility';
+import {isHash} from '@/common/utils/transaction.utility';
+import NotFound from '@/components/view/not-found/not-found';
+import {makeQueryString} from '@/common/utils/string-util';
 
 interface Props {
   keyword: string;
   redirectUrl: string;
 }
 
-function parseKeyword(url: string) {
-  if (!url.includes('keyword=')) {
-    return '';
+function parseSearchString(search: string) {
+  if (!search || search.length === 1) {
+    return {};
   }
-  const params = url.split('keyword=');
-  if (params.length < 2) return '';
 
-  const keyword = decodeURIComponent(params[1].split('&')[0]);
-  return keyword;
+  return search
+    .replace('?', '')
+    .split('&')
+    .reduce<{[key in string]: string}>((accum, value) => {
+      const keySeparatorIndex = value.lastIndexOf('.json');
+      const current =
+        keySeparatorIndex > -1
+          ? value.substring(keySeparatorIndex + '.json'.length, value.length)
+          : value;
+      const separatorIndex = current.indexOf('=');
+      if (separatorIndex < 0 || separatorIndex + 1 >= current.length) {
+        return accum;
+      }
+
+      const values = [
+        current.substring(0, separatorIndex),
+        decodeURIComponent(current.substring(separatorIndex + 1, current.length)).replaceAll(
+          ' ',
+          '+',
+        ),
+      ];
+      if (values.length === 0) {
+        return accum;
+      }
+
+      accum[values[0]] = values.length > 0 ? values[1] : '';
+      return accum;
+    }, {});
 }
 
 const Search = ({keyword}: Props) => {
@@ -29,8 +56,16 @@ const Search = ({keyword}: Props) => {
 };
 
 export async function getServerSideProps({req}: any) {
-  const keyword = parseKeyword(req.url);
-  if (keyword === '') {
+  const params = parseSearchString(req.url);
+  const networkParams = Object.entries(params).reduce<{[key in string]: string}>((acc, current) => {
+    if (['type', 'rpcUrl', 'indexerUrl', 'chainId'].includes(current[0])) {
+      acc[current[0]] = current[1];
+    }
+    return acc;
+  }, {});
+
+  const keyword = params?.keyword;
+  if (!keyword) {
     return {
       props: {
         keyword: '',
@@ -38,82 +73,70 @@ export async function getServerSideProps({req}: any) {
       },
     };
   }
+
   try {
-    const result = await searchKeyword(keyword);
-    const data = result.data;
-    searchHistory({
-      keyword: keyword,
-      type: data.type,
-      value: data.value,
-      memo1: data.type === 'username' ? data.extra_value : '',
-    });
-
-    if (data.type === 'username') {
+    const isNumber = !BigNumber(keyword).isNaN();
+    if (isNumber) {
+      const queryString = makeQueryString(networkParams);
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/accounts/${data.extra_value}`,
+          destination: `/blocks/${keyword}?${queryString}`,
         },
       };
     }
 
-    if (data.type === 'address') {
+    const isRealm = keyword.startsWith('gno.land');
+    if (isRealm) {
+      const queryString = makeQueryString({
+        ...networkParams,
+        path: encodeURIComponent(keyword),
+      });
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/accounts/${data.value}`,
+          destination: `/realms/details?${queryString}`,
         },
       };
     }
 
-    if (data.type === 'pkg_path') {
+    const isAddress = isBech32Address(keyword);
+    if (isAddress) {
+      const queryString = makeQueryString(networkParams);
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/realms/details?path=${data.value}`,
+          destination: `/accounts/${keyword}?${queryString}`,
         },
       };
     }
 
-    if (data.type === 'pkg_name') {
+    const isTxHash = isHash(keyword);
+    if (isTxHash) {
+      const queryString = makeQueryString({
+        ...networkParams,
+        txhash: encodeURIComponent(keyword),
+      });
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/realms/details?path=${data.extra_value}`,
+          destination: `/transactions/details?${queryString}`,
         },
       };
     }
 
-    if (data.type === 'block') {
+    const isCommon = keyword.length > 2 && !keyword.includes(' ');
+    if (isCommon) {
+      const queryString = makeQueryString(networkParams);
       return {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/blocks/${data.value}`,
-        },
-      };
-    }
-
-    if (data.type === 'tx') {
-      return {
-        redirect: {
-          keyword,
-          permanent: false,
-          destination: `/transactions/details?txhash=${data.value}`,
-        },
-      };
-    }
-
-    if (data.type === 'tokens') {
-      return {
-        redirect: {
-          keyword,
-          permanent: false,
-          destination: `/tokens/${data.value}`,
+          destination: `/accounts/${keyword}?${queryString}`,
         },
       };
     }

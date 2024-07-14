@@ -1,4 +1,4 @@
-import {eachMedia, isDesktop} from '@/common/hooks/use-media';
+import {isDesktop} from '@/common/hooks/use-media';
 import {PaletteKeyType} from '@/styles';
 import mixins from '@/styles/mixins';
 import React, {CSSProperties} from 'react';
@@ -8,6 +8,7 @@ type BadgeProps = {
   type?: PaletteKeyType;
   children: React.ReactNode;
   padding?: CSSProperties['padding'];
+  margin?: CSSProperties['margin'];
   className?: string;
   desktop?: boolean;
   onClick?: () => void;
@@ -33,9 +34,10 @@ const BadgeWrapper = styled.div<BadgeProps>`
   height: 28px;
   background-color: ${({type, theme}) => (type ? theme.colors[type] : theme.colors.surface)};
   padding: ${({padding}) => (padding ? padding : '4px 16px')};
-  margin-right: ${({desktop}) => (desktop ? '15px' : '10px')};
+  margin-right: ${({desktop, margin}) => (desktop && !margin ? '15px' : '10px')};
   border-radius: 4px;
-  margin-top: ${({desktop}) => !desktop && '12px'};
+  margin-top: ${({desktop, margin}) => !desktop && !margin && '12px'};
+  ${({margin}) => margin && `margin: ${margin};`};
 `;
 
 export default Badge;

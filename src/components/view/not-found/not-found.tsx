@@ -4,16 +4,25 @@ import React from 'react';
 import styled from 'styled-components';
 import {eachMedia} from '@/common/hooks/use-media';
 import BackgroundSearchNotFound from '@/assets/svgs/bg-search-not-found.svg';
+import BackgroundSearchNotFoundLight from '@/assets/svgs/bg-search-not-found-light.svg';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
-import Link from 'next/link';
+import {useThemeMode} from '@/common/hooks/use-theme-mode';
+import {useRouter} from '@/common/hooks/common/use-router';
 
 interface Props {
   keyword?: string;
 }
 
 const NotFound = ({keyword}: Props) => {
+  const {isDark} = useThemeMode();
   const media = eachMedia();
+  const {replace} = useRouter();
+
+  const replaceHome = () => {
+    replace('/' + location.search);
+  };
+
   return (
     <Wrapper className={media}>
       <div className="info-area">
@@ -25,13 +34,13 @@ const NotFound = ({keyword}: Props) => {
           </span>
           <span>{'Please make sure your input is valid and try again. '}</span>
         </div>
-        <Link href={'/'}>
-          <Button className="home-button">{'Back to Home'}</Button>
-        </Link>
+        <Button className="home-button" onClick={replaceHome}>
+          {'Back to Home'}
+        </Button>
       </div>
       {media === 'desktop' && (
         <div className="asset-area">
-          <BackgroundSearchNotFound />
+          {isDark ? <BackgroundSearchNotFound /> : <BackgroundSearchNotFoundLight />}
         </div>
       )}
     </Wrapper>

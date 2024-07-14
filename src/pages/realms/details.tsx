@@ -1,5 +1,4 @@
-import React, {useCallback} from 'react';
-import {useQuery, UseQueryResult} from 'react-query';
+import React, {useCallback, useMemo, useState} from 'react';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
@@ -9,15 +8,10 @@ import Text from '@/components/ui/text';
 import Link from 'next/link';
 import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
-import {v1} from 'uuid';
 import {RealmDetailDatatable} from '@/components/view/datatable';
-import {RealmDetailsModel} from '@/models/realm-details-model';
-import {getRealmDetails} from '@/repositories/api/fetchers/api-realm-details';
-import {realmDetailSelector} from '@/repositories/api/selector/select-realm-details';
 import Tooltip from '@/components/ui/tooltip';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
-import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
 import {useNetwork} from '@/common/hooks/use-network';
 import {
   GNOSTUDIO_REALM_FUNCTION_TEMPLATE,
@@ -25,6 +19,11 @@ import {
 } from '@/common/values/url.constant';
 import {makeTemplate} from '@/common/utils/template.utils';
 import IconLink from '@/assets/svgs/icon-link.svg';
+import {useRealm} from '@/common/hooks/realms/use-realm';
+import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {EventDatatable} from '@/components/view/datatable/event';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -48,33 +47,57 @@ interface RealmsDetailsPageProps {
 
 const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   const desktop = isDesktop();
-  const {currentNetwork} = useNetwork();
-  const {
-    data: realm,
-    isSuccess: realmSuccess,
-    isFetched,
-  }: UseQueryResult<RealmDetailsModel> = useQuery(
-    ['realm/path', path],
-    async () => await getRealmDetails(path),
-    {
-      enabled: !!path,
-      select: (res: any) => realmDetailSelector(res.data),
-    },
-  );
+  const {isFetched: isFetchedUsername, getName} = useUsername();
+  const {currentNetwork, getUrlWithNetwork} = useNetwork();
+  const {summary, transactionEvents, isFetched: isFetchedRealm} = useRealm(path);
+  const {getTokenAmount} = useTokenMeta();
+  const [currentTab, setCurrentTab] = useState('Transactions');
+
+  const isFetched = useMemo(() => {
+    return isFetchedRealm && isFetchedUsername;
+  }, [isFetchedRealm, isFetchedUsername]);
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Transactions',
+      },
+      {
+        tabName: 'Events',
+        size: transactionEvents.length,
+      },
+    ];
+  }, [transactionEvents]);
+
+  const balanceStr = useMemo(() => {
+    if (!summary?.balance) {
+      return '-';
+    }
+    const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
+    return `${amount.value} ${amount.denom}`;
+  }, [getTokenAmount, summary?.balance]);
 
   const moveGnoStudioViewRealm = useCallback(() => {
+    if (!currentNetwork) {
+      return;
+    }
+
     const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
       PACKAGE_PATH: path,
-      NETWORK: currentNetwork,
+      NETWORK: currentNetwork?.chainId || '',
     });
     window.open(url, '_blank');
   }, [path, currentNetwork]);
 
   const moveGnoStudioViewRealmFunction = useCallback(
     (functionName: string) => {
+      if (!currentNetwork) {
+        return;
+      }
+
       const url = makeTemplate(GNOSTUDIO_REALM_FUNCTION_TEMPLATE, {
         PACKAGE_PATH: path,
-        NETWORK: currentNetwork,
+        NETWORK: currentNetwork?.chainId || '',
         FUNCTION_NAME: functionName,
       });
       window.open(url, '_blank');
@@ -87,14 +110,14 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
       title={'Realm Details'}
       visible={!isFetched}
       keyword={`${path}`}
-      error={!realmSuccess}>
-      {realmSuccess && (
+      error={!isFetched}>
+      {isFetched && (
         <>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Name</dt>
               <dd>
-                <Badge>{realm.name}</Badge>
+                <Badge>{summary?.name}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -108,12 +131,12 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               </dt>
               <dd className="path-wrapper">
                 <Badge>
-                  {realm.path}
+                  {summary?.path}
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
                     trigger="click"
-                    copyText={realm.path}
+                    copyText={summary?.path}
                     width={85}>
                     <IconCopy className="svg-icon" />
                   </Tooltip>
@@ -131,12 +154,12 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Realm Address</dt>
               <dd>
                 <Badge>
-                  {realm.address}
+                  {summary?.realmAddress || ''}
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
                     trigger="click"
-                    copyText={realm.address}
+                    copyText={summary?.realmAddress || ''}
                     width={85}>
                     <IconCopy className="svg-icon" />
                   </Tooltip>
@@ -146,7 +169,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
             <DLWrap desktop={desktop}>
               <dt>Function Type(s)</dt>
               <dd className="function-wrapper">
-                {realm.funcs.map((v: string, index: number) => (
+                {summary?.funcs?.map((v: string, index: number) => (
                   <Badge
                     className="link"
                     key={index}
@@ -165,17 +188,19 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Publisher</dt>
               <dd>
                 <Badge>
-                  {realm.publisherName === 'genesis' ? (
+                  {summary?.publisherAddress === 'genesis' ? (
                     <FitContentA>
                       <Text type="p4" color="blue" className="ellipsis">
-                        {realm.publisherName}
+                        {summary?.publisherAddress}
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={`/accounts/${realm.publisherAddress}`} passHref>
+                    <Link
+                      href={getUrlWithNetwork(`/accounts/${summary?.publisherAddress}`)}
+                      passHref>
                       <FitContentA>
                         <Text type="p4" color="blue" className="ellipsis">
-                          {realm.publisherName}
+                          {getName(summary?.publisherAddress || '') || summary?.publisherAddress}
                         </Text>
                       </FitContentA>
                     </Link>
@@ -187,17 +212,17 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Block Published</dt>
               <dd>
                 <Badge>
-                  {realm.blockPublished === 0 ? (
+                  {summary?.blockPublished === 0 ? (
                     <FitContentA>
                       <Text type="p4" color="blue" className="ellipsis">
                         {'-'}
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={`/blocks/${realm.blockPublished}`} passHref>
+                    <Link href={getUrlWithNetwork(`/blocks/${summary?.blockPublished}`)} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue">
-                          {realm.blockPublished}
+                          {summary?.blockPublished}
                         </Text>
                       </FitContentA>
                     </Link>
@@ -215,15 +240,13 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                 </div>
               </dt>
               <dd>
-                {realm.assets.map((asset, index) => (
-                  <Badge key={index}>{`${asset.value} ${asset.denom}`}</Badge>
-                ))}
+                <Badge>{balanceStr}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Contract Calls</dt>
               <dd>
-                <Badge>{realm.ContractCalls}</Badge>
+                <Badge>{summary?.contractCalls || '0'}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -233,18 +256,23 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                   <AmountText
                     minSize="body1"
                     maxSize="p4"
-                    value={realm.totalUsedFee.value}
-                    denom={realm.totalUsedFee.denom}
+                    value={summary?.totalUsedFees?.value || 0}
+                    denom={summary?.totalUsedFees?.denom || 'GNOT'}
                   />
                 </Badge>
               </dd>
             </DLWrap>
-            {realm.log && <ShowLog isTabLog={true} tabData={realm.log} btnTextType="Contract" />}
+            {summary?.files && (
+              <ShowLog isTabLog={true} files={summary?.files} btnTextType="Contract" />
+            )}
           </DataSection>
 
-          <DataSection title="Transactions">
-            {path && <RealmDetailDatatable pkgPath={`${path}`} />}
-          </DataSection>
+          <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+            {currentTab === 'Transactions' && <RealmDetailDatatable pkgPath={`${path}`} />}
+            {currentTab === 'Events' && (
+              <EventDatatable isFetched={isFetched} events={transactionEvents} />
+            )}
+          </DataListSection>
         </>
       )}
     </DetailsPageLayout>
@@ -253,18 +281,6 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
 
 export async function getServerSideProps({query}: any) {
   const keyword = query?.path;
-  try {
-    const result = await searchKeyword(keyword);
-    const data = result.data;
-    if (data?.type === 'pkg_path') {
-      return {
-        props: {
-          path: data.value,
-          redirectUrl: null,
-        },
-      };
-    }
-  } catch {}
   return {
     props: {
       path: keyword,

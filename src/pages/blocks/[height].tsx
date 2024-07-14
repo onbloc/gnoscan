@@ -3,22 +3,23 @@
 import {DetailsPageLayout} from '@/components/core/layout';
 import {ButtonProps} from '@/components/ui/button';
 import mixins from '@/styles/mixins';
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import styled from 'styled-components';
 import IconArrow from '@/assets/svgs/icon-arrow.svg';
 import {isDesktop} from '@/common/hooks/use-media';
-import {useRouter} from 'next/router';
-import {useQuery, UseQueryResult} from 'react-query';
+import {useRouter} from '@/common/hooks/common/use-router';
 import Text from '@/components/ui/text';
 import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
 import DataSection from '@/components/view/details-data-section';
 import Badge from '@/components/ui/badge';
 import Link from 'next/link';
 import {BlockDetailDatatable} from '@/components/view/datatable';
-import {BlockDetailsModel} from '@/models/block-details-model';
-import {getBlockDetails} from '@/repositories/api/fetchers/api-block-details';
-import {blockDetailSelector} from '@/repositories/api/selector/select-block-details';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
+import {useBlock} from '@/common/hooks/blocks/use-block';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {BlockEventDatatable} from '@/components/view/datatable/block-detail/block-event-datatable';
+import {useNetwork} from '@/common/hooks/use-network';
+import {useGetValidatorNames} from '@/common/hooks/common/use-get-validator-names';
 
 interface TitleOptionProps {
   prevProps: {
@@ -32,14 +33,16 @@ interface TitleOptionProps {
 }
 
 const TitleOption = ({prevProps, nextProps}: TitleOptionProps) => {
+  const {getUrlWithNetwork} = useNetwork();
+
   return (
     <TitleWrap>
-      <Link href={prevProps.path}>
+      <Link href={getUrlWithNetwork(prevProps.path)}>
         <ArrowButton disabled={prevProps.disabled}>
           <IconArrow className="icon-arrow-right" />
         </ArrowButton>
       </Link>
-      <Link href={nextProps.path}>
+      <Link href={getUrlWithNetwork(nextProps.path)}>
         <ArrowButton disabled={nextProps.disabled}>
           <IconArrow className="icon-arrow-left" />
         </ArrowButton>
@@ -52,63 +55,81 @@ const BlockDetails = () => {
   const desktop = isDesktop();
   const router = useRouter();
   const {height} = router.query;
-  const {
-    data: block,
-    isSuccess: blockSuccess,
-    isFetched,
-  }: UseQueryResult<BlockDetailsModel> = useQuery(
-    ['block/height', height],
-    async () => await getBlockDetails(height),
-    {
-      enabled: !!height,
-      retry: 0,
-      select: (res: any) => blockDetailSelector(res.data),
-    },
-  );
+  const {block, events, isFetched} = useBlock(Number(height));
+  const [currentTab, setCurrentTab] = useState('Transactions');
+  const {getUrlWithNetwork} = useNetwork();
+  const {validatorInfos} = useGetValidatorNames();
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Transactions',
+      },
+      {
+        tabName: 'Events',
+        size: events.length,
+      },
+    ];
+  }, [events]);
+
+  const proposerDisplayName = useMemo(() => {
+    const validatorInfo = validatorInfos?.find(info => info.address === block.proposerAddress);
+    if (!validatorInfo) {
+      return block.proposerAddress;
+    }
+
+    return `${block.proposerAddress} (${validatorInfo.name})`;
+  }, [block.proposerAddress, validatorInfos]);
 
   return (
     <DetailsPageLayout
-      title={`Block #${block?.height}`}
+      title={`Block #${block.blockHeight}`}
       titleOption={
-        blockSuccess && (
+        isFetched && (
           <TitleOption
-            prevProps={{disabled: block?.prev, path: `/blocks/${Number(block?.height - 1)}`}}
-            nextProps={{disabled: block?.next, path: `/blocks/${Number(block?.height + 1)}`}}
+            prevProps={{
+              disabled: !block?.hasPreviousBlock,
+              path: `/blocks/${Number(block.blockHeight) - 1}`,
+            }}
+            nextProps={{
+              disabled: !block?.hasNextBlock,
+              path: `/blocks/${Number(block.blockHeight) + 1}`,
+            }}
           />
         )
       }
       titleAlign={desktop ? 'flex-start' : 'space-between'}
       visible={!isFetched}
       keyword={`Block #${height}`}
-      error={!blockSuccess}>
+      error={!isFetched}>
       <DataSection title="Summary">
         <DLWrap desktop={desktop}>
           <dt>Timestamp</dt>
           <dd>
             <Badge>
               <Text type="p4" color="inherit" className="ellipsis">
-                {block?.timestamp}
+                {block.timeStamp.time}
               </Text>
-              <DateDiffText>{block?.dateDiff}</DateDiffText>
+              <DateDiffText>{block.timeStamp.passedTime}</DateDiffText>
             </Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
           <dt>Network</dt>
           <dd>
-            <Badge>{block?.network}</Badge>
+            <Badge>{block.network}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
           <dt>Height</dt>
           <dd>
-            <Badge>{block?.height}</Badge>
+            <Badge>{block.blockHeightStr}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
           <dt>Transactions</dt>
           <dd>
-            <Badge>{block?.txs}</Badge>
+            <Badge>{block.numberOfTransactions}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={desktop}>
@@ -121,10 +142,10 @@ const BlockDetails = () => {
           <dt>Proposer</dt>
           <dd>
             <Badge>
-              <Link href={`/accounts/${block?.address}`} passHref>
+              <Link href={getUrlWithNetwork(`/accounts/${block?.proposerAddress}`)} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue" className="ellipsis">
-                    {block?.proposer}
+                    {proposerDisplayName}
                   </Text>
                 </FitContentA>
               </Link>
@@ -133,9 +154,10 @@ const BlockDetails = () => {
         </DLWrap>
       </DataSection>
 
-      <DataSection title="Transactions">
-        {height && <BlockDetailDatatable height={`${height}`} />}
-      </DataSection>
+      <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+        {currentTab === 'Transactions' && <BlockDetailDatatable height={`${height}`} />}
+        {currentTab === 'Events' && <BlockEventDatatable height={`${height}`} />}
+      </DataListSection>
     </DetailsPageLayout>
   );
 };

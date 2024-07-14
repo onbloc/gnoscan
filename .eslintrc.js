@@ -1,33 +1,26 @@
 module.exports = {
   env: {
     browser: true,
-    es6: true,
-    node: true
+    es2021: true,
+    jest: true,
+    node: true,
   },
-  overrides: [],
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true
-    },
-    ecmaVersion: 12,
-    sourceType: "module"
-  },
-  plugins: ["react", "@typescript-eslint"],
+  parser: '@typescript-eslint/parser',
+  extends: ['next', 'plugin:@typescript-eslint/recommended'],
   rules: {
-    indent: ["error", 2, {
-      SwitchCase: 1
-    }],
-    quotes: ["error", "single", {
-      avoidEscape: true
-    }],
-    semi: ["error", "always"],
-    "linebreak-style": 0
+    'linebreak-style': ['error', 'unix'],
+    quotes: ['error', 'single'],
+    semi: ['error', 'always'],
+    'array-element-newline': [
+      'warn',
+      {
+        ArrayExpression: 'consistent',
+        ArrayPattern: {multiline: true},
+      },
+    ],
+    '@typescript-eslint/no-unused-vars': 'warn',
+    '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/no-empty-function': 'warn',
+    '@typescript-eslint/no-empty-interface': 'warn',
   },
-  settings: {
-    react: {
-      version: "detect"
-    }
-  },
-  extends: ["plugin:storybook/recommended"]
 };

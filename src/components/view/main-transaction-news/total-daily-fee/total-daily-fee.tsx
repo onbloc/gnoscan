@@ -1,52 +1,61 @@
-import React, {useEffect, useState} from 'react';
-import {TotalDailyFeeModel} from './total-daily-fee-model';
+import React, {useMemo} from 'react';
 import dynamic from 'next/dynamic';
-import usePageQuery from '@/common/hooks/use-page-query';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {Spinner} from '@/components/ui/loading';
-import {ValueWithDenomType} from '@/types/data-type';
+import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
+import BigNumber from 'bignumber.js';
+import {GNOTToken} from '@/common/hooks/common/use-token-meta';
+import {DAY_TIME} from '@/common/values/constant-value';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
 });
 
-interface TotalDailyFeeResponse {
-  date: string;
-  fee: ValueWithDenomType;
-}
-
 export const MainTotalDailyFee = () => {
-  const [totalDailyFeeModel, setTotalDailyFeeModel] = useState<TotalDailyFeeModel>(
-    new TotalDailyFeeModel([]),
-  );
+  const {isFetched, transactionInfo} = useTotalDailyInfo();
 
-  const {data, finished} = usePageQuery<Array<TotalDailyFeeResponse>>({
-    key: 'main/total-daily-fee',
-    uri: API_URI + API_VERSION + '/info/daily_fees',
-    pageable: false,
-  });
+  const labels = useMemo(() => {
+    const now = new Date();
+    const todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const beforeMonthTime = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate(),
+    ).getTime();
+    const barCount = Math.round((now.getTime() - beforeMonthTime) / DAY_TIME);
 
-  useEffect(() => {
-    if (data) {
-      const responseDatas = data.pages.reduce<Array<TotalDailyFeeResponse>>(
-        (accum, current) => (current ? [...accum, ...current] : accum),
-        [],
-      );
-      updatChartData(responseDatas);
-    }
-  }, [data]);
+    return Array.from({length: barCount})
+      .map((_, index) => new Date(todayTime - DAY_TIME * index))
+      .sort((d1, d2) => d1.getTime() - d2.getTime())
+      .map(date => {
+        return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
+      });
+  }, []);
 
-  const updatChartData = (responseDatas: Array<TotalDailyFeeResponse>) => {
-    setTotalDailyFeeModel(new TotalDailyFeeModel(responseDatas));
-  };
+  const chartData = useMemo(() => {
+    return labels.map(label => {
+      const info = transactionInfo.find(info => info.date === label);
+      if (!info) {
+        return {
+          date: label,
+          value: 0,
+        };
+      }
+      return {
+        date: label,
+        value: BigNumber(info.gasFee.value)
+          .shiftedBy(GNOTToken.decimals * -1)
+          .toNumber(),
+      };
+    });
+  }, [labels, transactionInfo]);
 
   return (
-    <>
-      {finished ? (
-        <BarChart isDenom labels={totalDailyFeeModel.labels} datas={totalDailyFeeModel.chartData} />
+    <React.Fragment>
+      {isFetched ? (
+        <BarChart isDenom labels={labels} datas={chartData} />
       ) : (
         <Spinner position="center" />
       )}
-    </>
+    </React.Fragment>
   );
 };

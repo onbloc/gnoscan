@@ -7,7 +7,6 @@ import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
 import {MainTotalTransaction} from '.';
 import {MainTotalDailyFee} from '.';
-import {MainNewsTwitter} from './news-twitter';
 
 const MainTransactionNews = () => {
   const media = eachMedia();
@@ -26,13 +25,6 @@ const MainTransactionNews = () => {
         </Text>
         <MainTotalDailyFee />
       </Card>
-
-      <Card height="580px" className="card-3">
-        <Text className="title" type="h6" color="primary">
-          {'News'}
-        </Text>
-        <MainNewsTwitter />
-      </Card>
     </Wrapper>
   );
 };
@@ -44,7 +36,6 @@ const Wrapper = styled.div`
   grid-template-columns: 1fr;
   grid-template-rows: auto;
   grid-gap: 32px;
-  grid-template-columns: repeat(2, 1fr);
 
   & .title {
     width: 100%;
@@ -52,20 +43,15 @@ const Wrapper = styled.div`
   }
 
   &.desktop {
-    grid-template-columns: 1.43fr 1fr;
+    grid-template-columns: 1fr;
     .card-1 {
-      grid-column: 1 / 2;
-      grid-row: 1 / 2;
+      grid-column: 1;
+      grid-row: 1;
     }
 
     .card-2 {
       grid-column: 1 / 2;
       grid-row: 2 / 3;
-    }
-
-    .card-3 {
-      grid-column: 2 / 3;
-      grid-row: 1 / 3;
     }
   }
 

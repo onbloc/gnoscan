@@ -1,7 +1,6 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
-import {useQuery, UseQueryResult} from 'react-query';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
@@ -16,9 +15,14 @@ import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
 import {v1} from 'uuid';
 import mixins from '@/styles/mixins';
-import {TransactionDetailsModel} from '@/models/transaction-details-model';
-import {getTransactionDetails} from '@/repositories/api/fetchers/api-transaction-details';
-import {transactionDetailSelector} from '@/repositories/api/selector/select-transaction-details';
+import {useTransaction} from '@/common/hooks/transactions/use-transaction';
+import {parseTokenAmount} from '@/common/utils/token.utility';
+import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {Transaction} from '@/types/data-type';
+import {EventDatatable} from '@/components/view/datatable/event';
+import {useNetwork} from '@/common/hooks/use-network';
+import {makeSafeBase64Hash} from '@/common/utils/transaction.utility';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -37,49 +41,52 @@ function parseTxHash(url: string) {
   if (params.length < 2) return '';
 
   const txHash = params[1].split('&')[0];
-  return decodeURIComponent(txHash);
+  const decodedTxHash = decodeURIComponent(txHash).replaceAll(' ', '+');
+  return makeSafeBase64Hash(decodedTxHash);
 }
 
 const TransactionDetails = () => {
   const desktop = isDesktop();
   const {asPath, push} = useRouter();
+  const {getUrlWithNetwork} = useNetwork();
   const hash = parseTxHash(asPath);
+  const {gas, network, timeStamp, transactionItem, transactionEvents, isFetched, isError} =
+    useTransaction(hash);
+  const [currentTab, setCurrentTab] = useState('Contract');
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Contract',
+      },
+      {
+        tabName: 'Events',
+        size: transactionEvents.length,
+      },
+    ];
+  }, [transactionEvents]);
 
   useEffect(() => {
     if (hash === '') {
       push('/transactions');
     }
-  });
-
-  const {
-    data: tx,
-    isSuccess: txSuccess,
-    isFetched,
-  }: UseQueryResult<TransactionDetailsModel> = useQuery(
-    ['tx/hash', hash],
-    async () => await getTransactionDetails(hash),
-    {
-      enabled: hash !== '',
-      retry: 0,
-      select: (res: any) => transactionDetailSelector(res.data),
-    },
-  );
+  }, [hash]);
 
   return (
     <DetailsPageLayout
       title={'Transaction Details'}
       visible={!isFetched}
       keyword={`${hash}`}
-      error={!txSuccess}>
-      {txSuccess && (
-        <>
+      error={isError}>
+      {!isError && transactionItem && (
+        <React.Fragment>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Success</dt>
               <dd>
-                <Badge type={tx.summary.statusType.color}>
+                <Badge type={transactionItem.success ? 'green' : 'failed'}>
                   <Text type="p4" color="white">
-                    {tx.summary.statusType.status}
+                    {transactionItem.success ? 'Success' : 'Failure'}
                   </Text>
                 </Badge>
               </dd>
@@ -89,9 +96,9 @@ const TransactionDetails = () => {
               <dd>
                 <Badge>
                   <Text type="p4" color="inherit" className="ellipsis">
-                    {tx.summary.timestamp}
+                    {timeStamp.time}
                   </Text>
-                  <DateDiffText>{tx.summary.dateDiff}</DateDiffText>
+                  <DateDiffText>{timeStamp.passedTime}</DateDiffText>
                 </Badge>
               </dd>
             </DLWrap>
@@ -100,9 +107,9 @@ const TransactionDetails = () => {
               <dd>
                 <Badge>
                   <Text type="p4" color="inherit" className="ellipsis">
-                    {tx.summary.hash}
+                    {hash}
                   </Text>
-                  <Tooltip content="Copied!" trigger="click" copyText={tx.summary.hash}>
+                  <Tooltip content="Copied!" trigger="click" copyText={hash}>
                     <StyledIconCopy className="svg-icon" />
                   </Tooltip>
                 </Badge>
@@ -111,17 +118,17 @@ const TransactionDetails = () => {
             <DLWrap desktop={desktop}>
               <dt>Network</dt>
               <dd>
-                <Badge>{tx.summary.network}</Badge>
+                <Badge>{network}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Block</dt>
               <dd>
                 <Badge>
-                  <Link href={`/blocks/${tx.summary.height}`} passHref>
+                  <Link href={getUrlWithNetwork(`/blocks/${transactionItem.blockHeight}`)} passHref>
                     <FitContentA>
                       <Text type="p4" color="blue">
-                        {tx.summary.height}
+                        {transactionItem.blockHeight}
                       </Text>
                     </FitContentA>
                   </Link>
@@ -135,8 +142,8 @@ const TransactionDetails = () => {
                   <AmountText
                     minSize="body2"
                     maxSize="p4"
-                    value={tx.summary.txFee}
-                    denom={tx.summary.denom.toUpperCase()}
+                    value={transactionItem.fee.value}
+                    denom={transactionItem.fee.denom}
                   />
                 </Badge>
               </dd>
@@ -144,148 +151,170 @@ const TransactionDetails = () => {
             <DLWrap desktop={desktop}>
               <dt>Gas (Used/Wanted)</dt>
               <dd>
-                <Badge>{tx.summary.gas}</Badge>
+                <Badge>{gas}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Memo</dt>
               <dd>
-                <Badge>{tx.summary.memo}</Badge>
+                <Badge>{transactionItem.memo}</Badge>
               </dd>
             </DLWrap>
           </DataSection>
-          <DataSection title="Contract">
-            {tx.contract.contract_list.map((v: any, i: number) => (
-              <ContractListBox key={v1()}>
-                {tx.contract.num_msgs > 1 && (
-                  <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
-                )}
-                {(v?.grc20 === true || v?.pkg_path !== '/bank.MsgSend') && (
-                  <>
-                    <DLWrap desktop={desktop}>
-                      <dt>Name</dt>
-                      <dd>
-                        <Badge>
-                          <Text type="p4" color="primary">
-                            {v?.pkg_name || '-'}
-                          </Text>
-                        </Badge>
-                      </dd>
-                    </DLWrap>
-                    <DLWrap desktop={desktop}>
-                      <dt>
-                        Path
-                        <div className="tooltip-wrapper">
-                          <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-                            <IconTooltip />
-                          </Tooltip>
-                        </div>
-                      </dt>
-                      <dd>
-                        <Badge>
-                          <Text type="p4" color="blue" className="ellipsis">
-                            <Link href={`/realms/details?path=${v.pkg_path}`} passHref>
-                              <FitContentA>{v.pkg_path}</FitContentA>
-                            </Link>
-                          </Text>
-                          <Tooltip
-                            content="Copied!"
-                            trigger="click"
-                            copyText={v.pkg_path}
-                            className="address-tooltip">
-                            <StyledIconCopy />
-                          </Tooltip>
-                        </Badge>
-                      </dd>
-                    </DLWrap>
-                  </>
-                )}
-                <DLWrap desktop={desktop}>
-                  <dt>Type</dt>
-                  <dd>
-                    <Badge type="blue">
-                      <Text type="p4" color="white">
-                        {v.args.type}
-                      </Text>
-                    </Badge>
-                  </dd>
-                </DLWrap>
-                {v.grc20 === true && v.type === '/vm.m_call' && v.args.type === 'Transfer' && (
-                  <TransferContract contract={v} desktop={desktop} />
-                )}
-                {v.type === '/bank.MsgSend' && v.args.type === 'Transfer' && (
-                  <TransferContract contract={v} desktop={desktop} />
-                )}
-                {v.args.type === 'AddPkg' && <AddPkgContract contract={v} desktop={desktop} />}
-                {!['Transfer', 'AddPkg'].includes(v.args.type) && (
-                  <CallerContract contract={v} desktop={desktop} />
-                )}
-              </ContractListBox>
-            ))}
-            {tx.log && <ShowLog isTabLog={false} logData={tx.log} btnTextType="Logs" />}
-          </DataSection>
-        </>
+
+          <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+            {currentTab === 'Contract' && (
+              <ContractDetails transactionItem={transactionItem} desktop={desktop} />
+            )}
+            {currentTab === 'Events' && (
+              <EventDatatable events={transactionEvents} isFetched={isFetched} />
+            )}
+          </DataListSection>
+        </React.Fragment>
       )}
     </DetailsPageLayout>
   );
 };
 
-const CallerContract = ({contract, desktop}: any) => {
+const ContractDetails: React.FC<{
+  transactionItem: Transaction | null;
+  desktop: boolean;
+}> = ({transactionItem, desktop}) => {
+  const {tokenMap} = useTokenMeta();
+  const {getUrlWithNetwork} = useNetwork();
+
+  const messages = useMemo(() => {
+    if (!transactionItem?.messages) {
+      return [];
+    }
+    return transactionItem?.messages;
+  }, [transactionItem?.messages]);
+
+  const getContractType = useCallback((message: any) => {
+    switch (message['@type']) {
+      case '/bank.MsgSend':
+        return 'Transfer';
+      case '/vm.m_addpkg':
+        return 'AddPackage';
+      case '/vm.m_call':
+        return message['func'] || message['@type'];
+      case '/vm.m_run':
+        return 'MsgRun';
+    }
+  }, []);
+
+  if (!transactionItem) {
+    return <React.Fragment />;
+  }
+
   return (
-    <>
-      {Object.keys(contract.args.data).map((v, i) =>
-        v === 'Caller' ? (
-          <DLWrap desktop={desktop} key={v1()}>
-            <dt>{v}</dt>
-            <dd>
-              <Badge>
-                <Link href={`/accounts/${contract.caller_address || '-'}`} passHref>
-                  <FitContentA>
-                    <Text
-                      type="p4"
-                      color="blue"
-                      className={ellipsisTextKey.includes(v) ? 'ellipsis' : 'multi-line'}>
-                      {contract.args.data[v] ? (
-                        <Tooltip content={contract.caller_address}>{contract.args.data[v]}</Tooltip>
-                      ) : (
-                        '-'
-                      )}
+    <React.Fragment>
+      {messages.map((message: any, i: number) => (
+        <ContractListBox key={i}>
+          {transactionItem.numOfMessage > 1 && (
+            <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+          )}
+          {message['@type'] !== '/bank.MsgSend' && (
+            <>
+              <DLWrap desktop={desktop}>
+                <dt>Name</dt>
+                <dd>
+                  <Badge>
+                    <Text type="p4" color="secondary">
+                      {message?.package?.name ||
+                        tokenMap?.[message?.pkg_path]?.name ||
+                        message.func ||
+                        '-'}
                     </Text>
-                  </FitContentA>
-                </Link>
-              </Badge>
-            </dd>
-          </DLWrap>
-        ) : (
-          <DLWrap desktop={desktop} key={v1()}>
-            <dt>{v}</dt>
+                  </Badge>
+                </dd>
+              </DLWrap>
+              <DLWrap desktop={desktop}>
+                <dt>
+                  Path
+                  <div className="tooltip-wrapper">
+                    <Tooltip content={TOOLTIP_PACKAGE_PATH}>
+                      <IconTooltip />
+                    </Tooltip>
+                  </div>
+                </dt>
+                <dd>
+                  <Badge>
+                    <Text type="p4" color="blue" className="ellipsis">
+                      <Link
+                        href={getUrlWithNetwork(
+                          `/realms/details?path=${
+                            message?.package?.path || message?.pkg_path || '-'
+                          }`,
+                        )}
+                        passHref>
+                        <FitContentA>
+                          {message?.package?.path || message?.pkg_path || '-'}
+                        </FitContentA>
+                      </Link>
+                    </Text>
+                    <Tooltip
+                      content="Copied!"
+                      trigger="click"
+                      copyText={message?.package?.path || message?.pkg_path || '-'}
+                      className="address-tooltip">
+                      <StyledIconCopy />
+                    </Tooltip>
+                  </Badge>
+                </dd>
+              </DLWrap>
+            </>
+          )}
+          <DLWrap desktop={desktop}>
+            <dt>Type</dt>
             <dd>
-              <Badge>
-                <Text
-                  type="p4"
-                  color="inherit"
-                  className={ellipsisTextKey.includes(v) ? 'ellipsis' : 'multi-line'}>
-                  {contract.args.data[v] || '-'}
+              <Badge type="blue">
+                <Text type="p4" color="white">
+                  {getContractType(message)}
                 </Text>
               </Badge>
             </dd>
           </DLWrap>
-        ),
+          {message['@type'] === '/vm.m_call' && message?.func === 'Transfer' && (
+            <TransferContract message={message} desktop={desktop} />
+          )}
+          {message['@type'] === '/bank.MsgSend' && (
+            <TransferContract message={message} desktop={desktop} />
+          )}
+          {message['@type'] === '/vm.m_addpkg' && (
+            <AddPkgContract message={message} desktop={desktop} />
+          )}
+          {!['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type']) &&
+            !!message?.func &&
+            message?.func !== 'Transfer' && <CallerContract message={message} desktop={desktop} />}
+        </ContractListBox>
+      ))}
+      {transactionItem?.rawContent && (
+        <ShowLog isTabLog={false} logData={transactionItem.rawContent} btnTextType="Logs" />
       )}
-    </>
+    </React.Fragment>
   );
 };
 
-const AddPkgContract = ({contract, desktop}: any) => {
+const CallerContract = ({message, desktop}: any) => {
+  const {getUrlWithNetwork} = useNetwork();
+  const caller = useMemo(() => {
+    return message?.caller || message?.creator;
+  }, [message]);
+
+  if (!message) return <></>;
   return (
     <DLWrap desktop={desktop} key={v1()}>
-      <dt>Creator</dt>
+      <dt>Caller</dt>
       <dd>
         <Badge>
-          <Link href={`/accounts/${contract?.creator_address}`} passHref>
+          <Link href={getUrlWithNetwork(`/accounts/${caller || '-'}`)} passHref>
             <FitContentA>
-              <Text type="p4" color="blue">
-                {contract?.args?.data?.Creator || '-'}
+              <Text
+                type="p4"
+                color="blue"
+                className={ellipsisTextKey.includes('Caller') ? 'ellipsis' : 'multi-line'}>
+                {caller ? <Tooltip content={caller}>{caller}</Tooltip> : '-'}
               </Text>
             </FitContentA>
           </Link>
@@ -295,7 +324,38 @@ const AddPkgContract = ({contract, desktop}: any) => {
   );
 };
 
-const TransferContract = ({contract, desktop}: any) => {
+const AddPkgContract = ({message, desktop}: any) => {
+  const {getUrlWithNetwork} = useNetwork();
+  return (
+    <DLWrap desktop={desktop} key={v1()}>
+      <dt>Creator</dt>
+      <dd>
+        <Badge>
+          <Link href={getUrlWithNetwork(`/accounts/${message?.package?.creator}`)} passHref>
+            <FitContentA>
+              <Text type="p4" color="blue">
+                {message?.creator || '-'}
+              </Text>
+            </FitContentA>
+          </Link>
+        </Badge>
+      </dd>
+    </DLWrap>
+  );
+};
+
+const TransferContract = ({message, desktop}: any) => {
+  const {getUrlWithNetwork} = useNetwork();
+  const {getTokenAmount} = useTokenMeta();
+
+  const fromAddress = useMemo(() => {
+    return message?.from_address || message?.caller || '-';
+  }, [message]);
+
+  const toAddress = useMemo(() => {
+    return message?.to_address || message?.args?.[0] || '-';
+  }, [message]);
+
   return (
     <>
       <DLWrap desktop={desktop}>
@@ -305,51 +365,53 @@ const TransferContract = ({contract, desktop}: any) => {
             <AmountText
               minSize="body2"
               maxSize="p4"
-              value={contract.args.data.Amount ? contract.args.data.Amount['value'] : 0}
-              denom={contract.amount ? contract.amount.denom.toUpperCase() : ''}
+              {...getTokenAmount(GNOTToken.denom, parseTokenAmount(message?.amount || '0ugnot'))}
             />
           </Badge>
         </dd>
       </DLWrap>
-      {['From', 'To'].map((v, i) => (
-        <DLWrap desktop={desktop} key={v1()}>
-          <dt>{v}</dt>
-          <dd>
-            <Badge>
-              <AddressTextBox>
-                {contract.args.data[v] ? (
-                  <>
-                    <Text type="p4" color="blue" className="ellipsis">
-                      <Link href={`/accounts/${contract.args.data[v]}`} passHref>
-                        <FitContentA>{contract.args.data[v]}</FitContentA>
-                      </Link>
-                      {contract.from_username && v === 'From' && (
-                        <Text type="p4" color="primary" display="inline-block">
-                          {` (${contract.from_username})`}
-                        </Text>
-                      )}
-                      {contract.to_username && v === 'To' && (
-                        <Text type="p4" color="primary" display="inline-block">
-                          {` (${contract.to_username})`}
-                        </Text>
-                      )}
-                    </Text>
-                    <Tooltip
-                      content="Copied!"
-                      trigger="click"
-                      copyText={contract.args.data[v]}
-                      className="address-tooltip">
-                      <StyledIconCopy />
-                    </Tooltip>
-                  </>
-                ) : (
-                  <Text type="p4">-</Text>
-                )}
-              </AddressTextBox>
-            </Badge>
-          </dd>
-        </DLWrap>
-      ))}
+      <DLWrap desktop={desktop} key={v1()}>
+        <dt>{'From'}</dt>
+        <dd>
+          <Badge>
+            <AddressTextBox>
+              <Text type="p4" color="blue" className="ellipsis">
+                <Link href={getUrlWithNetwork(`/accounts/${fromAddress}`)} passHref>
+                  <FitContentA>{fromAddress}</FitContentA>
+                </Link>
+              </Text>
+              <Tooltip
+                content="Copied!"
+                trigger="click"
+                copyText={fromAddress}
+                className="address-tooltip">
+                <StyledIconCopy />
+              </Tooltip>
+            </AddressTextBox>
+          </Badge>
+        </dd>
+      </DLWrap>
+      <DLWrap desktop={desktop} key={v1()}>
+        <dt>{'To'}</dt>
+        <dd>
+          <Badge>
+            <AddressTextBox>
+              <Text type="p4" color="blue" className="ellipsis">
+                <Link href={getUrlWithNetwork(`/accounts/${toAddress}`)} passHref>
+                  <FitContentA>{toAddress}</FitContentA>
+                </Link>
+              </Text>
+              <Tooltip
+                content="Copied!"
+                trigger="click"
+                copyText={toAddress}
+                className="address-tooltip">
+                <StyledIconCopy />
+              </Tooltip>
+            </AddressTextBox>
+          </Badge>
+        </dd>
+      </DLWrap>
     </>
   );
 };

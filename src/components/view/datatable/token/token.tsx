@@ -1,41 +1,18 @@
 'use client';
 
-import React, {useCallback} from 'react';
+import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import usePageQuery from '@/common/hooks/use-page-query';
 import {DatatableItem} from '..';
 import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
-import {themeState, tokenState} from '@/states';
+import {themeState} from '@/states';
 import theme from '@/styles/theme';
 import styled from 'styled-components';
 import {eachMedia} from '@/common/hooks/use-media';
 import {Button} from '@/components/ui/button';
-import {isGRC20TokenModel, TokenModel} from '@/repositories/api/models/meta-token-model';
-
-interface ResponseData {
-  hits: number;
-  next: boolean;
-  tokens: Array<TokenData>;
-}
-interface TokenData {
-  token: string;
-  img_path: string;
-  name: string;
-  denom: string;
-  holders: number;
-  functions: Array<string>;
-  decimals: number;
-  min_denom: string;
-  min_decimal: number;
-  total_supply: number;
-  pkg_path: string;
-  symbol: string;
-  publisher: string;
-  publisher_username: string;
-}
+import {useTokens} from '@/common/hooks/tokens/use-tokens';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -47,41 +24,11 @@ const TOOLTIP_PACAKGE_PATH = (
 export const TokenDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const tokenInfos = useRecoilValue(tokenState);
 
-  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
-    key: ['token/token-list'],
-    uri: API_URI + API_VERSION + '/list/tokens',
-    pageable: true,
-  });
-  useLoading({finished});
+  const {indexerQueryClient} = useNetworkProvider();
+  const {tokens, hasNextPage, isFetched, nextPage} = useTokens();
 
-  const getTokens = () => {
-    if (!data) {
-      return [];
-    }
-    return data.pages.reduce<Array<TokenData>>((accum, current) => {
-      const latest =
-        current?.tokens.map(token => ({
-          ...token,
-          img_path: getTokenMetaInfo(token),
-        })) ?? [];
-      return [...accum, ...latest];
-    }, []);
-  };
-
-  const getTokenMetaInfo = useCallback(
-    (token: TokenData) => {
-      const tokenInfo = tokenInfos.find(tokenInfo => {
-        if (!isGRC20TokenModel(tokenInfo)) {
-          return false;
-        }
-        return `${tokenInfo.symbol}`.toUpperCase() === `${token.symbol}`.toUpperCase();
-      });
-      return tokenInfo?.image ?? '';
-    },
-    [tokenInfos],
-  );
+  useLoading({finished: isFetched || !indexerQueryClient});
 
   const createHeaders = () => {
     return [
@@ -95,33 +42,35 @@ export const TokenDatatable = () => {
   };
 
   const createHeaderToken = () => {
-    return DatatableOption.Builder.builder<TokenData>()
+    return DatatableOption.Builder.builder()
       .key('token')
       .name('Token')
       .width(220)
-      .renderOption((_, data) => (
+      .renderOption((_, data: any) => (
         <DatatableItem.TokenTitle
-          token={data.token}
-          imagePath={data.img_path}
+          token={data.symbol}
+          imagePath={data.packagePath}
           name={data.name}
           symbol={data.symbol}
-          pkgPath={data.pkg_path}
+          pkgPath={data.packagePath}
         />
       ))
       .build();
   };
 
   const createHeaderHolder = () => {
-    return DatatableOption.Builder.builder<TokenData>()
-      .key('holders_count')
+    return DatatableOption.Builder.builder()
+      .key('packagePath')
       .name('Holders')
       .width(110)
-      .renderOption(numberWithCommas)
+      .renderOption(packagePath => (
+        <DatatableItem.LazyHolders realmPath={packagePath} maxSize="p4" minSize="body3" />
+      ))
       .build();
   };
 
   const createHeaderFunction = () => {
-    return DatatableOption.Builder.builder<TokenData>()
+    return DatatableOption.Builder.builder()
       .key('functions')
       .name('Functions')
       .width(350)
@@ -131,38 +80,29 @@ export const TokenDatatable = () => {
   };
 
   const createHeaderDecimal = () => {
-    return DatatableOption.Builder.builder<TokenData>()
-      .key('decimals')
-      .name('Decimals')
-      .width(110)
-      .build();
+    return DatatableOption.Builder.builder().key('decimals').name('Decimals').width(110).build();
   };
 
   const createHeaderTotalSupply = () => {
-    return DatatableOption.Builder.builder<TokenData>()
-      .key('total_supply')
+    return DatatableOption.Builder.builder()
+      .key('packagePath')
       .name('Total Supply')
       .width(180)
-      .renderOption((_, data) => (
-        <DatatableItem.Amount
-          value={`${data.total_supply}`}
-          denom={''}
-          maxSize="p4"
-          minSize="body3"
-        />
+      .renderOption(packagePath => (
+        <DatatableItem.LazyTotalSupply realmPath={packagePath} maxSize="p4" minSize="body3" />
       ))
       .build();
   };
 
   const createHeaderPkgPath = () => {
-    return DatatableOption.Builder.builder<TokenData>()
-      .key('pkg_path')
+    return DatatableOption.Builder.builder()
+      .key('packagePath')
       .name('Path')
       .width(176)
       .colorName('blue')
       .tooltip(TOOLTIP_PACAKGE_PATH)
-      .renderOption((_, data) => (
-        <DatatableItem.RealmPakage packagePath={data.pkg_path} maxWidth={160} />
+      .renderOption(packagePath => (
+        <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} />
       ))
       .build();
   };
@@ -176,11 +116,12 @@ export const TokenDatatable = () => {
             themeMode: themeMode,
           };
         })}
-        datas={getTokens()}
+        datas={tokens}
+        supported={!!indexerQueryClient}
       />
       {hasNextPage ? (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => nextPage()}>
             {'View More Tokens'}
           </Button>
         </div>

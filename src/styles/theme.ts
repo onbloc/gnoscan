@@ -17,6 +17,7 @@ const lightTheme: Palette = {
   primary: '#333333',
   secondary: '#666666',
   tertiary: '#999999',
+  hover: '#f2f2f2',
   base: '#F7F7F7',
   surface: '#FFFFFF',
   select: '#F2F2F2',
@@ -28,6 +29,10 @@ const lightTheme: Palette = {
   dimmed100: 'rgba(0, 0, 0, 0.1)',
   dimmed200: 'rgba(0, 0, 0, 0.2)',
   dimmed600: 'rgba(0, 0, 0, 0.6)',
+  funcDefinition: '#CF222E',
+  funcName: '#6639BA',
+  eventName: '#6639BA',
+  eventParam: '#0A3069',
   linear: 'linear-gradient(359.87deg, #FFFFFF 8.53%, rgba(255, 255, 255, 0) 69.1%)',
 } as const;
 
@@ -44,6 +49,7 @@ const darkTheme: Palette = {
   primary: '#FFFFFF',
   secondary: '#F6F6F6',
   tertiary: '#A0A0A0',
+  hover: '#000000',
   base: '#121212',
   surface: '#232323',
   select: '#121212',
@@ -55,6 +61,10 @@ const darkTheme: Palette = {
   dimmed100: 'rgba(255, 255, 255, 0.1)',
   dimmed200: 'rgba(255, 255, 255, 0.2)',
   dimmed600: 'rgba(0, 0, 0, 0.6)',
+  funcDefinition: '#ff9492',
+  funcName: '#dbb7ff',
+  eventName: '#dbb7ff',
+  eventParam: '#addcff',
   linear: 'linear-gradient(359.87deg, #232323 8.53%, rgba(35, 35, 35, 0) 69.1%)',
 } as const;
 
@@ -166,6 +176,7 @@ export type PaletteKeyType =
   | 'primary'
   | 'secondary'
   | 'tertiary'
+  | 'hover'
   | 'base'
   | 'surface'
   | 'select'
@@ -177,6 +188,10 @@ export type PaletteKeyType =
   | 'dimmed100'
   | 'dimmed200'
   | 'dimmed600'
+  | 'funcDefinition'
+  | 'funcName'
+  | 'eventName'
+  | 'eventParam'
   | 'linear';
 
 const device: DeviceValueType = {

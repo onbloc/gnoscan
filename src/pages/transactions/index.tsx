@@ -1,11 +1,14 @@
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 import useLoading from '@/common/hooks/use-loading';
 import Text from '@/components/ui/text';
 import {TransactionDatatable} from '@/components/view/datatable';
 import LoadingPage from '@/components/view/loading/page';
+import TransactionSearch from '@/components/view/transaction-search/transaction-search';
 import React, {useEffect} from 'react';
 import styled from 'styled-components';
 
 const Transactions = () => {
+  const {indexerQueryClient} = useNetworkProvider();
   const {loading} = useLoading();
 
   useEffect(() => {
@@ -15,13 +18,27 @@ const Transactions = () => {
   return (
     <Container>
       <div className="inner-layout">
-        <LoadingPage visible={loading} />
-        <Wrapper visible={!loading}>
-          <Text type="h2" margin={'0 0 24px 0'} color="primary">
-            {'Transactions'}
-          </Text>
-          <TransactionDatatable />
-        </Wrapper>
+        {indexerQueryClient ? (
+          <React.Fragment>
+            <LoadingPage visible={loading} />
+            <Wrapper visible={!loading}>
+              <Text type="h2" margin={'0 0 24px 0'} color="primary">
+                {'Transactions'}
+              </Text>
+              <TransactionDatatable />
+            </Wrapper>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Wrapper visible={true}>
+              <Text type="h2" margin={'0 0 24px 0'} color="primary">
+                {'Transactions'}
+              </Text>
+
+              <TransactionSearch />
+            </Wrapper>
+          </React.Fragment>
+        )}
       </div>
     </Container>
   );

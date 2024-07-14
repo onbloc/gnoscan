@@ -11,11 +11,11 @@ import Text from '@/components/ui/text';
 import {v1} from 'uuid';
 import {FitContentA} from '../detail-page-common-styles';
 import Link from 'next/link';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import useOutSideClick from '@/common/hooks/use-outside-click';
 import {zindex} from '@/common/values/z-index';
-import {searchHistory} from '@/repositories/api/fetchers/api-search-history';
 import {ValuesType} from 'utility-types';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface StyleProps {
   desktop?: boolean;
@@ -39,40 +39,24 @@ export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
 const SearchResult = () => {
   const desktop = isDesktop();
-  const [value, setValue] = useRecoilState(searchState);
-  const {result} = useSearchQuery();
+  const [keyword, setKeyword] = useRecoilState(searchState);
   const {route} = useRouter();
   const isMain = route === '/';
   const [open, setOpen] = useState(false);
   const ref = useOutSideClick(() => setOpen(false));
 
+  const {result} = useSearchQuery(keyword);
+
   useEffect(() => {
-    setOpen(() => Boolean(value.length > 1));
-  }, [result]);
+    setOpen(() => Boolean(keyword.length > 1));
+  }, [keyword]);
 
   useEffect(() => {
     setOpen(false);
   }, [route]);
 
   const onClick = (v: string, item: any) => {
-    const typeToLowercase = v.toLowerCase();
-    const includesUsername = item?.username?.includes(value);
-    if (typeToLowercase === 'realms') {
-      searchHistory({
-        keyword: value,
-        type: 'pkg_path',
-        value: item,
-        memo1: '',
-      });
-    } else {
-      searchHistory({
-        keyword: value,
-        type: includesUsername ? 'username' : 'address',
-        value: includesUsername ? item.username : item.address,
-        memo1: includesUsername ? item.address : '',
-      });
-    }
-    setValue('');
+    setKeyword('');
   };
 
   return (
@@ -128,43 +112,55 @@ const SearchResult = () => {
   );
 };
 
-const AccountsList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => (
-  <Link href={`/accounts/${item.address}`} passHref>
-    <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
-      <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
-        {item.address}
-        {item.username && (
-          <Text type={isMain ? 'p4' : 'body1'} color="primary" display="inline-block">
-            {` (${item.username})`}
-          </Text>
-        )}
-      </Text>
-    </FitContentAStyle>
-  </Link>
-);
+const AccountsList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => {
+  const {getUrlWithNetwork} = useNetwork();
 
-const RealmsList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => (
-  <Link href={`/realms/details?path=${item}`} passHref>
-    <FitContentA onClick={() => onClick(searchTitle, item)}>
-      <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
-        {item}
-      </Text>
-    </FitContentA>
-  </Link>
-);
-
-const TokensList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => (
-  <Link href={`/tokens/${item.pkg_path}`} passHref>
-    <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
-      <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
-        {item.name}
-        <Text type={isMain ? 'p4' : 'body1'} color="primary" display="inline-block">
-          {` (${item.pkg_path})`}
+  return (
+    <Link href={getUrlWithNetwork(`/accounts/${item.address}`)} passHref>
+      <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+        <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
+          {item.address}
+          {item.username && (
+            <Text type={isMain ? 'p4' : 'body1'} color="primary" display="inline-block">
+              {` (${item.username})`}
+            </Text>
+          )}
         </Text>
-      </Text>
-    </FitContentAStyle>
-  </Link>
-);
+      </FitContentAStyle>
+    </Link>
+  );
+};
+
+const RealmsList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => {
+  const {getUrlWithNetwork} = useNetwork();
+
+  return (
+    <Link href={getUrlWithNetwork(`/realms/details?path=${item}`)} passHref>
+      <FitContentA onClick={() => onClick(searchTitle, item)}>
+        <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
+          {item.packagePath}
+        </Text>
+      </FitContentA>
+    </Link>
+  );
+};
+
+const TokensList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => {
+  const {getUrlWithNetwork} = useNetwork();
+
+  return (
+    <Link href={getUrlWithNetwork(`/tokens/${item.packagePath}`)} passHref>
+      <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+        <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
+          {item.name}
+          <Text type={isMain ? 'p4' : 'body1'} color="primary" display="inline-block">
+            {` (${item.packagePath})`}
+          </Text>
+        </Text>
+      </FitContentAStyle>
+    </Link>
+  );
+};
 
 const commonContentStyle = css`
   ${mixins.flexbox('column', 'flex-start', 'center')};

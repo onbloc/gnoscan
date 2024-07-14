@@ -1,5 +1,4 @@
-import {Dispatch, SetStateAction} from 'react';
-import {RecoilState} from 'recoil';
+import BigNumber from 'bignumber.js';
 
 export function textEllipsis(value: string, num?: number): string {
   const length = num ?? 4;
@@ -17,3 +16,59 @@ export const debounce = (callback: any, duration: number) => {
 export const firstStrUpperCase = (v: string) => {
   return v.replace(/^[a-z]/, char => char.toUpperCase());
 };
+
+export function makeDisplayNumber(amount: string | number): string {
+  return BigNumber(amount).toFormat();
+}
+
+export function makeDisplayTokenAmount(amount: string | number, decimals = 6): string {
+  return BigNumber(amount)
+    .shiftedBy(decimals * -1)
+    .toFormat();
+}
+
+export function makeDisplayNumberWithDefault(
+  value: string | number | null | undefined,
+  defaultValue = '-',
+) {
+  if (value === null || value === undefined || BigNumber(value).isNaN()) {
+    return defaultValue;
+  }
+
+  return makeDisplayNumber(value);
+}
+
+export function toString(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return value.toString();
+}
+
+export function toNumber(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+
+  const bn = BigNumber(value);
+  if (bn.isNaN()) {
+    return 0;
+  }
+
+  return bn.toNumber();
+}
+
+export function makeQueryString(params: {[key in string]: string} | null) {
+  if (!params) {
+    return '';
+  }
+
+  return Object.entries(params)
+    .map(entry => `${entry[0]}=${entry[1]}`)
+    .join('&');
+}

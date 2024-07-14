@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Testnet 4",
+    "chainId": "test4",
+    "apiUrl": "https://test4.api.onbloc.xyz/v1",
+    "rpcUrl": "https://rpc.test4.gno.land:443",
+    "indexerUrl": "https://test4.indexer.onbloc.xyz"
+  },
+  {
+    "name": "Portal Loop",
+    "chainId": "portal-loop",
+    "apiUrl": "https://test3.api.onbloc.xyz/v1",
+    "rpcUrl": "https://rpc.gno.land:443",
+    "indexerUrl": "https://indexer.onbloc.xyz"
+  }
+]

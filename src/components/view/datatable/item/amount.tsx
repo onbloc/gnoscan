@@ -12,6 +12,6 @@ interface Props {
 
 export const Amount = ({value, denom, maxSize = 'p4', minSize = 'body1'}: Props) => {
   return (
-    <AmountText value={value} denom={denom.toUpperCase()} maxSize={maxSize} minSize={minSize} />
+    <AmountText value={value} denom={denom?.toUpperCase()} maxSize={maxSize} minSize={minSize} />
   );
 };

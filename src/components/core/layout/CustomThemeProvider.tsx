@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ThemeProvider} from 'styled-components';
 import theme, {Palette} from '@/styles/theme';
 import {useRecoilState} from 'recoil';
@@ -10,13 +10,13 @@ export const CustomThemeProvider = ({children}: {children: React.ReactElement}) 
   const [themeMode, setThemeMode] = useRecoilState(themeState);
   const [palette, setPalette] = useState<Palette | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setMounted(true);
     const localThemeValue = getItem('theme');
     if (!localThemeValue) {
-      setItem('theme', 'dark');
-      setPalette(theme.darkTheme);
-      setThemeMode('dark');
+      setItem('theme', 'light');
+      setPalette(theme.lightTheme);
+      setThemeMode('light');
     } else {
       setPalette(localThemeValue === 'dark' ? theme.darkTheme : theme.lightTheme);
       setThemeMode(localThemeValue);

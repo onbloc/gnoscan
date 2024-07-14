@@ -1,0 +1,11 @@
+[
+  {
+    "address": "g1mscv0slgx58f3306m34mjg3clcwwwpfscp78rw",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "YWtL6hsmrzJgSK4d90qdEVi1i+t78XnbXp2gaUNZNXg="
+    },
+    "power": "10",
+    "name": "testvalidator"
+  }
+]

@@ -6,33 +6,11 @@ import styled from 'styled-components';
 import {Button} from '@/components/ui/button';
 import theme from '@/styles/theme';
 import {DatatableItem} from '..';
-import usePageQuery from '@/common/hooks/use-page-query';
 import {eachMedia} from '@/common/hooks/use-media';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
-import {ValueWithDenomType} from '@/types/data-type';
-import {StatusKeyType} from '@/common/utils';
-
-interface RealmTransactionData {
-  hash: string;
-  status: StatusKeyType;
-  type: string;
-  pkg_func: string;
-  height: number;
-  pkg_path: string | null;
-  caller_address: string;
-  msg_num: number;
-  amount: ValueWithDenomType;
-  time: string;
-  fee: ValueWithDenomType;
-}
-
-interface ResponseData {
-  hits: number;
-  next: boolean;
-  txs: Array<RealmTransactionData>;
-}
+import {useRealm} from '@/common/hooks/realms/use-realm';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 
 interface Props {
   pkgPath: string;
@@ -49,23 +27,9 @@ const TOOLTIP_TYPE = (
 export const RealmDetailDatatable = ({pkgPath}: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
+  const {getTokenAmount} = useTokenMeta();
 
-  const {data, fetchNextPage, finished, hasNextPage} = usePageQuery<ResponseData>({
-    key: 'realm-detail/transactions',
-    uri: API_URI + API_VERSION + `/realm/txs/${pkgPath}`,
-    pageable: true,
-  });
-
-  if (data) console.log(data);
-  const getTransactionDatas = () => {
-    if (!data) {
-      return [];
-    }
-    return data.pages.reduce<Array<RealmTransactionData>>(
-      (accum, current) => (current?.txs ? [...accum, ...current.txs] : accum),
-      [],
-    );
-  };
+  const {isFetched, realmTransactions, hasNextPage, nextPage} = useRealm(pkgPath);
 
   const createHeaders = () => {
     return [
@@ -80,31 +44,37 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<RealmTransactionData>()
+    return DatatableOption.Builder.builder<any>()
       .key('hash')
       .name('Tx Hash')
       .width(210)
       .colorName('blue')
-      .renderOption((value, data) => <DatatableItem.TxHash txHash={value} status={data.status} />)
+      .renderOption((value, data) => (
+        <DatatableItem.TxHash txHash={value} status={data.success ? 'success' : 'failure'} />
+      ))
       .build();
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<RealmTransactionData>()
+    return DatatableOption.Builder.builder<any>()
       .key('type')
       .name('Type')
       .width(190)
       .colorName('blue')
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.pkg_func} packagePath={data.pkg_path} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.functionName}
+          packagePath={data.packagePath}
+        />
       ))
       .build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<RealmTransactionData>()
-      .key('height')
+    return DatatableOption.Builder.builder<any>()
+      .key('blockHeight')
       .name('Block')
       .width(113)
       .colorName('blue')
@@ -113,8 +83,8 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<RealmTransactionData>()
-      .key('caller_address')
+    return DatatableOption.Builder.builder<any>()
+      .key('from')
       .name('From')
       .width(170)
       .colorName('blue')
@@ -123,22 +93,22 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<RealmTransactionData>()
+    return DatatableOption.Builder.builder<any>()
       .key('amount')
       .name('Amount')
       .width(190)
       .renderOption((amount: {value: string; denom: string}, data) =>
-        data.msg_num > 1 ? (
+        data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount value={amount.value} denom={amount.denom} />
+          <DatatableItem.Amount {...getTokenAmount(amount.denom, amount.value)} />
         ),
       )
       .build();
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<RealmTransactionData>()
+    return DatatableOption.Builder.builder<any>()
       .key('time')
       .name('Time')
       .width(160)
@@ -148,30 +118,30 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<RealmTransactionData>()
+    return DatatableOption.Builder.builder<any>()
       .key('fee')
       .name('Fee')
       .width(113)
       .className('fee')
-      .renderOption(fee => <DatatableItem.Amount value={fee.value} denom={fee.denom} />)
+      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
       .build();
   };
 
   return (
     <Container>
       <Datatable
-        loading={!finished}
+        loading={!isFetched}
         headers={createHeaders().map(item => {
           return {
             ...item,
             themeMode: themeMode,
           };
         })}
-        datas={getTransactionDatas()}
+        datas={realmTransactions}
       />
 
       {hasNextPage ? (
-        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => fetchNextPage()}>
+        <Button className={`more-button ${media}`} radius={'4px'} onClick={() => nextPage()}>
           {'View More Transactions'}
         </Button>
       ) : (

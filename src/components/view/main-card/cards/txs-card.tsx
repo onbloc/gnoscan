@@ -1,19 +1,10 @@
 import React from 'react';
 import Text from '@/components/ui/text';
-import {useQuery, UseQueryResult} from 'react-query';
 import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-import {getTxsCard} from '@/repositories/api/fetchers/api-info-card';
-import {txsCardSelector} from '@/repositories/api/selector/select-info-card';
-import {TxsCardModel} from '@/models';
+import {useTransactionSummaryInfo} from '@/common/hooks/main/use-transaction-summary-info';
 
 export const TxsCard = () => {
-  const {data: card03, isFetched: card03Fetched}: UseQueryResult<TxsCardModel> = useQuery(
-    ['info/card03'],
-    async () => await getTxsCard(),
-    {
-      select: (res: any) => txsCardSelector(res.data.tx),
-    },
-  );
+  const {isFetched, transactionSummaryInfo} = useTransactionSummaryInfo();
 
   return (
     <>
@@ -21,10 +12,10 @@ export const TxsCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={card03Fetched}
+        isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {card03?.total_txs}
+            {transactionSummaryInfo.totalTransactions}
           </Text>
         }
       />
@@ -38,10 +29,10 @@ export const TxsCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={card03Fetched}
+              isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {card03?.avg_24hr}
+                  {transactionSummaryInfo.transactionFeeAverage}
                 </Text>
               }
             />
@@ -57,10 +48,10 @@ export const TxsCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={card03Fetched}
+              isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {card03?.total_fee}
+                  {transactionSummaryInfo.transactionTotalFee}
                 </Text>
               }
             />

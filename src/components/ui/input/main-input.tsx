@@ -7,28 +7,36 @@ import styled from 'styled-components';
 import Search from '@/assets/svgs/icon-search.svg';
 import {isDesktop} from '@/common/hooks/use-media';
 import SearchResult from '../search-result';
-import {useRouter} from 'next/router';
-import {useRecoilState} from 'recoil';
-import {searchState} from '@/states';
+import {useRouter} from '@/common/hooks/common/use-router';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface SubInputProps {
   className?: string;
   value: string;
+  placeholder?: string;
+  setValue: (keyword: string) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   clearValue?: () => void;
 }
 
-export const MainInput = ({className = '', onChange, clearValue}: SubInputProps) => {
+export const MainInput = ({
+  className = '',
+  value,
+  placeholder = 'Search by Account / Block / Realm / Tokens',
+  setValue,
+  onChange,
+  clearValue,
+}: SubInputProps) => {
+  const {getUrlWithNetwork} = useNetwork();
   const desktop = isDesktop();
   const router = useRouter();
-  const [value, setValue] = useRecoilState(searchState);
 
   useEffect(() => {
     clearValue && clearValue();
   }, [router.asPath]);
 
   const moveSearchPage = () => {
-    const searchUrl = `/search?keyword=${value}`;
+    const searchUrl = getUrlWithNetwork(`/search?keyword=${value}`);
     router.push(searchUrl);
   };
 
@@ -50,7 +58,7 @@ export const MainInput = ({className = '', onChange, clearValue}: SubInputProps)
         onChange={onChange}
         onKeyDown={onKeyDownInput}
         type="text"
-        placeholder="Search by Account / Block / Realm / Tokens"
+        placeholder={placeholder}
       />
       <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />

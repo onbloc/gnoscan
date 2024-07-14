@@ -6,13 +6,18 @@ import {DataRow} from './data-row';
 interface Props<T> {
   headers: Array<DatatableHeader.Header<T>>;
   datas: Array<T>;
+  renderDetails?: (data: T) => React.ReactNode;
 }
 
-export const DataList = <T extends {[key in string]: any}>({headers, datas}: Props<T>) => {
+export const DataList = <T extends {[key in string]: any}>({
+  headers,
+  datas,
+  renderDetails,
+}: Props<T>) => {
   return (
     <DataListContainer>
       {datas.map((data, index) => (
-        <DataRow key={index} headers={headers} data={data} />
+        <DataRow key={index} headers={headers} data={data} renderDetails={renderDetails} />
       ))}
     </DataListContainer>
   );

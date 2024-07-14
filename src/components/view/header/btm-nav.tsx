@@ -1,16 +1,15 @@
 'use client';
+import React, {useCallback} from 'react';
+import styled from 'styled-components';
+import dynamic from 'next/dynamic';
 
 import mixins from '@/styles/mixins';
-import {useRouter} from 'next/router';
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
-import styled from 'styled-components';
+import {useRouter} from '@/common/hooks/common/use-router';
 import Text from '@/components/ui/text';
 import {MainInput, SubInput} from '@/components/ui/input';
-import {eachMedia, isDesktop} from '@/common/hooks/use-media';
 import {searchState} from '@/states';
 import {useRecoilState} from 'recoil';
 import {debounce} from '@/common/utils/string-util';
-import dynamic from 'next/dynamic';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -52,6 +51,7 @@ export const BtmNav = () => {
           <MainInput
             className="main-search"
             value={value}
+            setValue={setValue}
             onChange={onChange}
             clearValue={clearValue}
           />

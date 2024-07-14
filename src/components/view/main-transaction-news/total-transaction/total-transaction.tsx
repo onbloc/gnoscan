@@ -1,51 +1,53 @@
-import React, {useEffect, useState} from 'react';
+import React, {useMemo} from 'react';
 import dynamic from 'next/dynamic';
-import {TotalTransactionModel} from './total-transaction-model';
-import usePageQuery from '@/common/hooks/use-page-query';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
 import {Spinner} from '@/components/ui/loading';
+import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
+import {DAY_TIME} from '@/common/values/constant-value';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
 });
 
-interface TotalTransactionResponse {
-  date: string;
-  num_txs: number;
-}
-
 export const MainTotalTransaction = () => {
-  const [totalTransactionModel, setTotalTransactionModel] = useState<TotalTransactionModel>(
-    new TotalTransactionModel([]),
-  );
+  const {isFetched, transactionInfo} = useTotalDailyInfo();
 
-  const {data, finished} = usePageQuery<Array<TotalTransactionResponse>>({
-    key: 'main/total-transaction',
-    uri: API_URI + API_VERSION + '/info/daily_txs',
-    pageable: false,
-  });
+  const labels = useMemo(() => {
+    const now = new Date();
+    const todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const beforeMonthTime = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate(),
+    ).getTime();
+    const barCount = Math.round((now.getTime() - beforeMonthTime) / DAY_TIME);
 
-  useEffect(() => {
-    if (data) {
-      const responseDatas = data.pages.reduce<Array<TotalTransactionResponse>>(
-        (accum, current) => (current ? [...accum, ...current] : accum),
-        [],
-      );
-      updatChartData(responseDatas);
-    }
-  }, [data]);
+    return Array.from({length: barCount})
+      .map((_, index) => new Date(todayTime - DAY_TIME * index))
+      .sort((d1, d2) => d1.getTime() - d2.getTime())
+      .map(date => {
+        return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
+      });
+  }, []);
 
-  const updatChartData = (responseDatas: Array<TotalTransactionResponse>) => {
-    setTotalTransactionModel(new TotalTransactionModel(responseDatas));
-  };
+  const chartData = useMemo(() => {
+    return labels.map(label => {
+      const info = transactionInfo.find(info => info.date === label);
+      if (!info) {
+        return {
+          date: label,
+          value: 0,
+        };
+      }
+      return {
+        date: label,
+        value: info.totalTxs,
+      };
+    });
+  }, [labels, transactionInfo]);
 
   return (
-    <>
-      {finished ? (
-        <BarChart labels={totalTransactionModel.labels} datas={totalTransactionModel.chartData} />
-      ) : (
-        <Spinner position="center" />
-      )}
-    </>
+    <React.Fragment>
+      {isFetched ? <BarChart labels={labels} datas={chartData} /> : <Spinner position="center" />}
+    </React.Fragment>
   );
 };

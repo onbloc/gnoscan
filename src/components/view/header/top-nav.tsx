@@ -2,14 +2,12 @@
 
 import React, {useCallback, useState} from 'react';
 import styled from 'styled-components';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import GnoscanLogo from '@/assets/svgs/icon-gnoscan-logo.svg';
 import GnoscanLogoLight from '@/assets/svgs/icon-gnoscan-logo-light.svg';
 import {searchState, themeState} from '@/states';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import Link from 'next/link';
 import Text from '@/components/ui/text';
-import {v1} from 'uuid';
 import theme from '@/styles/theme';
 import mixins from '@/styles/mixins';
 import {isDesktop} from '@/common/hooks/use-media';
@@ -17,8 +15,9 @@ import dynamic from 'next/dynamic';
 import {SubInput} from '@/components/ui/input';
 import Network from '@/components/ui/network';
 import {SubMenu} from './sub-menu';
-import {GNO_CHAIN_NAME} from '@/common/values/constant-value';
 import {debounce} from '@/common/utils/string-util';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {useNetwork} from '@/common/hooks/use-network';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -60,10 +59,6 @@ export const TopNav = () => {
   const themeMode = useRecoilValue(themeState);
   const isMain = router.route === '/';
   const entry = router.route === '/' || (router.route !== '/' && themeMode === 'dark');
-  const [network, setNetwork] = useState({
-    current: GNO_CHAIN_NAME,
-    all: [GNO_CHAIN_NAME],
-  });
   const [value, setValue] = useRecoilState(searchState);
   const [toggle, setToggle] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
@@ -71,16 +66,13 @@ export const TopNav = () => {
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
   const navigateToHomeHandler = () => router.push('/');
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
-  const networkSettingHandler = useCallback(
-    (v: string) => {
-      setNetwork(prev => ({
-        ...prev,
-        current: v,
-      }));
-      setToggle(false);
-    },
-    [network, toggle],
-  );
+
+  const {chains} = useNetworkProvider();
+  const {changeNetwork} = useNetwork();
+
+  const movePage = (url: string) => {
+    router.push(url);
+  };
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,6 +80,11 @@ export const TopNav = () => {
     },
     [value],
   );
+
+  const networkSettingHandler = useCallback((chainId: string) => {
+    changeNetwork(chainId);
+    setToggle(false);
+  }, []);
 
   return (
     <Wrapper isDesktop={desktop} entry={entry}>
@@ -106,21 +103,19 @@ export const TopNav = () => {
           />
         )}
         <Nav>
-          {navItems.map(v => (
-            <Link href={v.path} passHref key={v1()}>
-              <a>
-                <Text type="p4" color={entry ? 'white' : 'primary'}>
-                  {v.name}
-                </Text>
-              </a>
-            </Link>
+          {navItems.map((v, index) => (
+            <div className="navigation-item" onClick={() => movePage(v.path)} key={index}>
+              <Text type="p4" color={entry ? 'white' : 'primary'}>
+                {v.name}
+              </Text>
+            </div>
           ))}
         </Nav>
       </Desktop>
 
       <Network
         entry={entry}
-        data={network}
+        chains={chains}
         toggle={toggle}
         toggleHandler={toggleHandler}
         networkSettingHandler={networkSettingHandler}
@@ -161,4 +156,8 @@ const Nav = styled.nav`
   margin-left: auto;
   gap: 40px;
   margin-right: 40px;
+
+  .navigation-item {
+    cursor: pointer;
+  }
 `;

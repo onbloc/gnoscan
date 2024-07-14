@@ -1,9 +1,8 @@
 'use client';
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import styled from 'styled-components';
 import {eachMedia, isDesktop} from '@/common/hooks/use-media';
-import {useQuery, UseQueryResult} from 'react-query';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Text from '@/components/ui/text';
 import mixins from '@/styles/mixins';
@@ -11,16 +10,17 @@ import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {AmountText} from '@/components/ui/text/amount-text';
 import Tooltip from '@/components/ui/tooltip';
-import IconLink from '@/assets/svgs/icon-link.svg';
-import {v1} from 'uuid';
 import DataSection from '@/components/view/details-data-section';
 import {AccountDetailDatatable} from '@/components/view/datatable';
-import {getAccountDetails} from '@/repositories/api/fetchers/api-account-details';
-import {accountDetailSelector} from '@/repositories/api/selector/select-account-details';
-import {AccountDetailsModel, AssetsDataType} from '@/models/account-details-model';
-import {useRecoilValue} from 'recoil';
-import {tokenState} from '@/states';
-import {searchKeyword} from '@/repositories/api/fetchers/api-search-keyword';
+import {useAccount} from '@/common/hooks/account/use-account';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {Amount} from '@/types/data-type';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import {EventDatatable} from '@/components/view/datatable/event';
+import {useUsername} from '@/common/hooks/account/use-username';
+import {isBech32Address} from '@/common/utils/bech32.utility';
+import IconLink from '@/assets/svgs/icon-link.svg';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface AccountDetailsPageProps {
   address: string;
@@ -36,100 +36,122 @@ interface StyleProps {
 const AccountDetails = ({address}: AccountDetailsPageProps) => {
   const media = eachMedia();
   const desktop = isDesktop();
-  const tokens = useRecoilValue(tokenState);
-  const {
-    data: detail,
-    isSuccess: detailSuccess,
-    isFetched,
-  }: UseQueryResult<AccountDetailsModel> = useQuery(
-    ['detail/address', address],
-    async () => await getAccountDetails(address),
-    {
-      enabled: !!address && tokens.length > 0,
-      retry: 0,
-      select: (res: any) => accountDetailSelector(res.data, tokens),
-    },
-  );
+  const {getTokenImage, getTokenAmount, getTokenInfo} = useTokenMeta();
+  const {currentNetwork} = useNetwork();
+  const {isFetched: isFetchedUsername, getName, getAddress} = useUsername();
+
+  const bech32Address = useMemo(() => {
+    if (isBech32Address(address)) {
+      return address;
+    }
+    if (!isFetchedUsername) {
+      return '';
+    }
+    return getAddress(address) || null;
+  }, [address, isFetchedUsername]);
+
+  const isError = useMemo(() => {
+    return bech32Address === null;
+  }, [bech32Address]);
+
+  const username = useMemo(() => {
+    if (!isFetchedUsername) {
+      return null;
+    }
+    return getName(bech32Address || '');
+  }, [bech32Address, isFetchedUsername]);
+
+  const gnoUserUrl = useMemo(() => {
+    if (!username) {
+      return null;
+    }
+    if (!currentNetwork || currentNetwork?.chainId === 'portal-loop') {
+      return `https://gno.land/r/demo/users:${username}`;
+    }
+    return `https://${currentNetwork.chainId}.gno.land/r/demo/users:${username}`;
+  }, [currentNetwork, username]);
+
+  const {isFetched, tokenBalances, transactionEvents} = useAccount(bech32Address || '');
+  const [currentTab, setCurrentTab] = useState('Transactions');
+
+  const detailTabs = useMemo(() => {
+    return [
+      {
+        tabName: 'Transactions',
+      },
+      {
+        tabName: 'Events',
+        size: transactionEvents.length,
+      },
+    ];
+  }, [transactionEvents]);
 
   return (
     <DetailsPageLayout
       title="Account Details"
       visible={!isFetched}
-      keyword={`${address}`}
-      error={!detailSuccess}>
+      keyword={`${bech32Address || address}`}
+      error={isError}>
       <DataSection title="Address">
-        {detailSuccess && (
-          <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
-            <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
-              {detail.address}
-              <Tooltip
-                className="address-copy-tooltip"
-                content="Copied!"
-                trigger="click"
-                copyText={detail?.address}
-                width={85}>
-                <IconCopy className={`svg-icon ${detail.username ? '' : 'tidy'}`} />
-              </Tooltip>
-              {detail.username && (
-                <Text type="p4" color="blue" className="username-text">
-                  <StyledA
-                    href={`https://test3.gno.land/r/demo/users:${detail.username}`}
-                    target="_blank"
-                    rel="noreferrer">
-                    {detail.username}
-                    <IconLink className="svg-icon" />
-                  </StyledA>
-                </Text>
-              )}
-            </AddressTextBox>
-          </GrayBox>
-        )}
+        <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
+          <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
+            {bech32Address}
+            <Tooltip
+              className="address-copy-tooltip"
+              content="Copied!"
+              trigger="click"
+              copyText={bech32Address || ''}
+              width={85}>
+              <IconCopy className={`svg-icon ${username ? '' : 'tidy'}`} />
+            </Tooltip>
+            {username && (
+              <Text type="p4" color="blue" className="username-text">
+                <StyledA href={gnoUserUrl || ''} target="_blank" rel="noreferrer">
+                  {username}
+                  <IconLink className="svg-icon" />
+                </StyledA>
+              </Text>
+            )}
+          </AddressTextBox>
+        </GrayBox>
       </DataSection>
       <DataSection title="Assets">
-        {detailSuccess && (
-          <Content className={media}>
-            {detail.assets.map((v: AssetsDataType) => (
-              <GrayBox key={v1()} padding={desktop ? '16px 24px' : '12px 16px'}>
-                <LogoImg>
-                  {v.image ? (
-                    <img src={v.image} alt="token-image" />
-                  ) : (
-                    <UnknownToken className="unknown-token" width="40" height="40" />
-                  )}
-                </LogoImg>
+        <Content className={media}>
+          {tokenBalances.map((amount: Amount, index: number) => (
+            <GrayBox key={index} padding={desktop ? '16px 24px' : '12px 16px'}>
+              <LogoImg>
+                {getTokenImage(amount.denom) ? (
+                  <img src={getTokenImage(amount.denom)} alt="token-image" />
+                ) : (
+                  <UnknownToken className="unknown-token" width="40" height="40" />
+                )}
+              </LogoImg>
 
-                <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
-                  {v.name}
-                </Text>
-                <AmountText minSize="p4" maxSize="p3" value={v.value} />
-              </GrayBox>
-            ))}
-          </Content>
+              <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
+                {getTokenInfo(amount.denom)?.name || ''}
+              </Text>
+              <AmountText
+                minSize="p4"
+                maxSize="p3"
+                {...getTokenAmount(amount.denom, amount.value)}
+              />
+            </GrayBox>
+          ))}
+        </Content>
+      </DataSection>
+
+      <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+        {currentTab === 'Transactions' && <AccountDetailDatatable address={`${bech32Address}`} />}
+        {currentTab === 'Events' && (
+          <EventDatatable isFetched={isFetched} events={transactionEvents} />
         )}
-      </DataSection>
-
-      <DataSection title="Transactions">
-        {address && <AccountDetailDatatable address={`${address}`} />}
-      </DataSection>
+      </DataListSection>
     </DetailsPageLayout>
   );
 };
 
 export async function getServerSideProps({params}: any) {
   const keyword = params.address;
-  try {
-    const result = await searchKeyword(keyword);
-    const data = result.data;
-    if (data?.type === 'pkg_path') {
-      return {
-        redirect: {
-          keyword,
-          permanent: false,
-          destination: `/realms/details?path=${data?.value}`,
-        },
-      };
-    }
-  } catch {}
   return {
     props: {
       address: keyword,

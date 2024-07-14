@@ -1,6 +1,5 @@
-import React from 'react';
-import {useQuery, UseQueryResult} from 'react-query';
-import {useRouter} from 'next/router';
+import React, {useMemo} from 'react';
+import {useRouter} from '@/common/hooks/common/use-router';
 import {isDesktop} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
@@ -9,16 +8,15 @@ import DataSection from '@/components/view/details-data-section';
 import Text from '@/components/ui/text';
 import Link from 'next/link';
 import ShowLog from '@/components/ui/show-log';
-import {v1} from 'uuid';
 import {TokenDetailDatatable} from '@/components/view/datatable';
-import {getTokenDetails} from '@/repositories/api/fetchers/api-token-details';
-import {tokenDetailSelector} from '@/repositories/api/selector/select-token-details';
-import {TokenDetailsModel} from '@/models/token-details-model';
 import Tooltip from '@/components/ui/tooltip';
 import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import styled from 'styled-components';
 import mixins from '@/styles/mixins';
+import {useToken} from '@/common/hooks/tokens/use-token';
+import {useNetwork} from '@/common/hooks/use-network';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -28,55 +26,50 @@ const TOOLTIP_PACKAGE_PATH = (
 );
 
 const TokenDetails = () => {
+  const {isFetched: isFetchedUsername, getName} = useUsername();
+  const {getUrlWithNetwork} = useNetwork();
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
+  const currentPath = Array.isArray(path) ? path.join('/').split('?')[0] : path?.toString();
 
-  const {
-    data: token,
-    isSuccess: tokenSuccess,
-    isFetched,
-  }: UseQueryResult<TokenDetailsModel> = useQuery(
-    ['token/pkgPath', path],
-    async () => await getTokenDetails(path),
-    {
-      enabled: !!path,
-      retry: 0,
-      select: (res: any) => tokenDetailSelector(res.data),
-    },
-  );
+  const {isFetched: isFetchedToken, summary, files} = useToken(currentPath);
+
+  const isFetched = useMemo(() => {
+    return isFetchedToken && isFetchedUsername;
+  }, [isFetchedToken, isFetchedUsername]);
 
   return (
     <DetailsPageLayout
       title={'Token Details'}
       visible={!isFetched}
-      error={isFetched && token?.pkgPath === ''}
-      keyword={`${path}`}>
-      {tokenSuccess && token.pkgPath && (
+      error={isFetched && summary?.packagePath === ''}
+      keyword={`${currentPath}`}>
+      {summary.packagePath && (
         <>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Name</dt>
               <dd>
-                <Badge>{token.name}</Badge>
+                <Badge>{summary.name}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Symbol</dt>
               <dd>
-                <Badge>{token.symbol}</Badge>
+                <Badge>{summary.symbol}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Total Supply</dt>
               <dd>
-                <Badge>{token.totalSupply}</Badge>
+                <Badge>{summary.totalSupply}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Decimals</dt>
               <dd>
-                <Badge>{token.decimals}</Badge>
+                <Badge>{summary.decimals}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
@@ -91,15 +84,16 @@ const TokenDetails = () => {
               <dd>
                 <Badge>
                   <Text type="p4" color="blue" className="username-text">
-                    <StyledA href={`/realms/details?path=${token.pkgPath}`}>
-                      {token.pkgPath}
+                    <StyledA
+                      href={getUrlWithNetwork(`/realms/details?path=${summary.packagePath}`)}>
+                      {summary.packagePath}
                     </StyledA>
                   </Text>
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
                     trigger="click"
-                    copyText={token.pkgPath}
+                    copyText={summary.packagePath}
                     width={85}>
                     <IconCopy className="svg-icon" />
                   </Tooltip>
@@ -109,10 +103,10 @@ const TokenDetails = () => {
             <DLWrap desktop={desktop}>
               <dt>Function Type(s)</dt>
               <dd className="function-wrapper">
-                {token.funcs.map((v: string) => (
-                  <Badge type="blue" key={v1()}>
+                {summary.functions.map((functionName: string, index: number) => (
+                  <Badge type="blue" key={index}>
                     <Text type="p4" color="white">
-                      {v}
+                      {functionName}
                     </Text>
                   </Badge>
                 ))}
@@ -122,15 +116,15 @@ const TokenDetails = () => {
               <dt>Owner</dt>
               <dd>
                 <Badge>
-                  {token.owner && token.owner === 'genesis' ? (
+                  {summary.owner && summary.owner === 'genesis' ? (
                     <Text type="p4" color="blue">
-                      {token.owner}
+                      {summary.owner}
                     </Text>
                   ) : (
-                    <Link href={`/accounts/${token.address}`} passHref>
+                    <Link href={getUrlWithNetwork(`/accounts/${summary.owner}`)} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue">
-                          {token.owner}
+                          {getName(summary.owner) || summary.owner}
                         </Text>
                       </FitContentA>
                     </Link>
@@ -141,14 +135,14 @@ const TokenDetails = () => {
             <DLWrap desktop={desktop}>
               <dt>Holders</dt>
               <dd>
-                <Badge>{token.holders}</Badge>
+                <Badge>{summary.holders}</Badge>
               </dd>
             </DLWrap>
-            {token.log && <ShowLog isTabLog={true} tabData={token.log} btnTextType="Logs" />}
+            {files && <ShowLog isTabLog={true} files={files} btnTextType="Logs" />}
           </DataSection>
 
           <DataSection title="Transactions">
-            {path && <TokenDetailDatatable path={path} />}
+            {currentPath && <TokenDetailDatatable path={currentPath} />}
           </DataSection>
         </>
       )}

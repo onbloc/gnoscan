@@ -1,58 +1,78 @@
-import React, {useEffect, useState} from 'react';
-import {TotalGasShareModel} from './total-gas-share-model';
+import React, {useMemo, useState} from 'react';
 import dynamic from 'next/dynamic';
-import usePageQuery from '@/common/hooks/use-page-query';
-import {API_URI, API_VERSION} from '@/common/values/constant-value';
+import {DAY_TIME} from '@/common/values/constant-value';
 import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import theme from '@/styles/theme';
 import {Spinner} from '@/components/ui/loading';
-import {ValueWithDenomType} from '@/types/data-type';
+import {useTotalGasInfo} from '@/common/hooks/main/use-total-gas-info';
+import BigNumber from 'bignumber.js';
+import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 
 const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
   ssr: false,
 });
-interface TotalGasShareResponse {
-  date: string;
-  daily_total_fee: ValueWithDenomType;
-  packages: Array<{
-    path: string;
-    daily_fee: number;
-    percent: number;
-  }>;
-}
 
 export const MainRealmTotalGasShare = () => {
   const [period, setPeriod] = useState(7);
+  const {isFetched, transactionRealmGasInfo} = useTotalGasInfo();
 
-  const [totalGasShareModel, setTotalGasShareModel] = useState<TotalGasShareModel>(
-    new TotalGasShareModel([]),
-  );
+  const labels = useMemo(() => {
+    const now = new Date();
 
-  const {data, finished} = usePageQuery<Array<TotalGasShareResponse>>({
-    key: 'main/total-gas-share',
-    uri: API_URI + API_VERSION + `/info/realms_gas?period=${period - 1}`,
-    pageable: false,
-  });
+    return Array.from({length: period})
+      .map((_, index) => new Date(now.getTime() - DAY_TIME * index))
+      .sort((d1, d2) => d1.getTime() - d2.getTime())
+      .map(date => {
+        return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
+      });
+  }, [period]);
 
-  useEffect(() => {
-    if (data) {
-      const responseDatas = data.pages.reduce<Array<TotalGasShareResponse>>(
-        (accum, current) => (current ? [...accum, ...current] : accum),
-        [],
-      );
-      updatChartData(responseDatas);
+  const transactionGasData = useMemo(() => {
+    if (!transactionRealmGasInfo) {
+      return {};
     }
-  }, [data]);
+    const dateTotalGas = transactionRealmGasInfo.dateTotalGas;
+
+    /**
+     * Generate data by date with key as realmPath.
+     */
+    return [...transactionRealmGasInfo.displayRealms, 'rest'].reduce<{
+      [key in string]: {value: number; rate: number}[];
+    }>((accum, current) => {
+      const currentLabel = transactionRealmGasInfo.displayRealms.includes(current)
+        ? current.replace('gno.land', '')
+        : 'rest';
+      accum[currentLabel] = labels.map(date => {
+        const totalGas = dateTotalGas[date];
+        const dateResult = transactionRealmGasInfo.results.find(result => date === result.date);
+        const gasUsed =
+          currentLabel !== 'rest'
+            ? dateResult?.packages.find(pkg => pkg.path === current)?.gasUsed
+            : dateResult?.packages
+                .filter(pkg => !transactionRealmGasInfo.displayRealms.includes(pkg.path))
+                .reduce((acc, current) => acc + current.gasUsed, 0);
+        if (!totalGas || gasUsed === undefined) {
+          return {
+            value: 0,
+            rate: 0,
+          };
+        }
+        return {
+          value: BigNumber(gasUsed)
+            .shiftedBy(GNOTToken.decimals * -1)
+            .toNumber(),
+          rate: (gasUsed / totalGas) * 100,
+        };
+      });
+      return accum;
+    }, {});
+  }, [labels, transactionRealmGasInfo]);
 
   const onClickPeriod = (currentPeriod: number) => {
     if (period !== currentPeriod) {
       setPeriod(currentPeriod);
     }
-  };
-
-  const updatChartData = (responseDatas: Array<TotalGasShareResponse>) => {
-    setTotalGasShareModel(new TotalGasShareModel(responseDatas));
   };
 
   return (
@@ -70,10 +90,10 @@ export const MainRealmTotalGasShare = () => {
           </span>
         </div>
       </div>
-      {finished ? (
+      {isFetched ? (
         <AreaChart
-          labels={totalGasShareModel.labels}
-          datas={totalGasShareModel.chartData}
+          labels={labels}
+          datas={transactionGasData}
           colors={['#2090F3', '#786AEC', '#FDD15C', '#617BE3', '#30BDD2', '#83CFAA']}
         />
       ) : (

@@ -1,7 +1,9 @@
 import Text from '@/components/ui/text';
 import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface Props {
   token: string | undefined;
@@ -12,11 +14,21 @@ interface Props {
 }
 
 export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
+  const {isFetchedGRC20Tokens, getTokenImage} = useTokenMeta();
+  const {getUrlWithNetwork} = useNetwork();
+
+  const imageUrl = useMemo(() => {
+    if (!imagePath || !isFetchedGRC20Tokens) {
+      return null;
+    }
+    return getTokenImage(imagePath);
+  }, [imagePath, isFetchedGRC20Tokens]);
+
   return (
-    <a href={`/tokens/${pkgPath}`}>
+    <a href={getUrlWithNetwork(`/tokens/${pkgPath}`)}>
       <TokenTitleWrapper>
-        {imagePath && imagePath !== '' ? (
-          <img className="token" src={imagePath} alt="token logo" />
+        {imageUrl ? (
+          <img className="token" src={imageUrl} alt="token logo" />
         ) : (
           <div className="unknown-token">
             <UnknownToken width="20" height="20" />

@@ -3,9 +3,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import mixins from '@/styles/mixins';
-import {useRouter} from 'next/router';
+import {useRouter} from '@/common/hooks/common/use-router';
 import {TopNav, BtmNav} from '.';
-import {GetServerSideProps} from 'next';
 
 export const Header = () => {
   const {route} = useRouter();

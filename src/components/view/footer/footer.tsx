@@ -8,10 +8,10 @@ import {DarkModeToggle} from '@/components/ui/button';
 import Discord from '@/assets/svgs/icon-discord.svg';
 import Twitter from '@/assets/svgs/icon-twitter.svg';
 import GnoscanSymbol from '@/assets/svgs/icon-gnoscan-symbol.svg';
+import GnoscanSymbolLight from '@/assets/svgs/icon-gnoscan-symbol-light.svg';
 import Text from '@/components/ui/text';
-import Link from 'next/link';
-import {Button} from '@/components/ui/button';
 import {v1} from 'uuid';
+import {useThemeMode} from '@/common/hooks/use-theme-mode';
 
 const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
   ssr: false,
@@ -30,14 +30,22 @@ const termsText = [
   {title: 'Feedback', path: 'https://forms.gle/6L2yop3bEMwxk3KJ6'},
 ];
 
-const Definition = ({isDesktop}: ModProps) => (
-  <DefinitionWrapper isDesktop={isDesktop}>
-    <GnoscanSymbol className="svg-icon" width="18" height="18" />
-    <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
-      Powered by Gnoland Blockchain
-    </Text>
-  </DefinitionWrapper>
-);
+const Definition = ({isDesktop}: ModProps) => {
+  const {isDark} = useThemeMode();
+
+  return (
+    <DefinitionWrapper isDesktop={isDesktop}>
+      {isDark ? (
+        <GnoscanSymbol className="svg-icon" width="18" height="18" />
+      ) : (
+        <GnoscanSymbolLight className="svg-icon" width="18" height="18" />
+      )}
+      <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
+        Powered by Gnoland Blockchain
+      </Text>
+    </DefinitionWrapper>
+  );
+};
 
 const Copyright = ({isDesktop}: ModProps) => {
   const year = new Date().getFullYear();

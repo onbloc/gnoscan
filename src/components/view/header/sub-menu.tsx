@@ -13,6 +13,7 @@ import Link from 'next/link';
 import {v1} from 'uuid';
 import Text from '@/components/ui/text';
 import {zindex} from '@/common/values/z-index';
+import {useNetwork} from '@/common/hooks/use-network';
 
 interface LinkStyleProps {
   current: boolean;
@@ -35,6 +36,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
   darkMode,
   currentPath,
 }) => {
+  const {getUrlWithNetwork} = useNetwork();
   useLayoutEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -60,7 +62,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
           </TopHeader>
           <Nav>
             {navItems.map((v, i) => (
-              <Link href={v.path} passHref key={v1()}>
+              <Link href={getUrlWithNetwork(v.path)} passHref key={v1()}>
                 <StyledA current={currentPath === v.path} onClick={close}>
                   <Text type="h4" color="primary">
                     {v.name}
