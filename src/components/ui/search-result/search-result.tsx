@@ -135,7 +135,7 @@ const RealmsList = ({item, isMain, searchTitle, onClick}: SearchResultProps) => 
   const {getUrlWithNetwork} = useNetwork();
 
   return (
-    <Link href={getUrlWithNetwork(`/realms/details?path=${item}`)} passHref>
+    <Link href={getUrlWithNetwork(`/realms/details?path=${item.packagePath}`)} passHref>
       <FitContentA onClick={() => onClick(searchTitle, item)}>
         <Text type={isMain ? 'p4' : 'body1'} color="primary" className="ellipsis">
           {item.packagePath}
