@@ -17,6 +17,8 @@ import mixins from '@/styles/mixins';
 import {useToken} from '@/common/hooks/tokens/use-token';
 import {useNetwork} from '@/common/hooks/use-network';
 import {useUsername} from '@/common/hooks/account/use-username';
+import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {makeDisplayNumber} from '@/common/utils/string-util';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -34,10 +36,18 @@ const TokenDetails = () => {
   const currentPath = Array.isArray(path) ? path.join('/').split('?')[0] : path?.toString();
 
   const {isFetched: isFetchedToken, summary, files} = useToken(currentPath);
+  const {isFetchedGRC20Tokens, getTokenAmount} = useTokenMeta();
 
   const isFetched = useMemo(() => {
-    return isFetchedToken && isFetchedUsername;
-  }, [isFetchedToken, isFetchedUsername]);
+    return isFetchedToken && isFetchedUsername && isFetchedGRC20Tokens;
+  }, [isFetchedToken, isFetchedUsername, isFetchedGRC20Tokens]);
+
+  const displayTotalSupply = useMemo(() => {
+    if (!isFetchedGRC20Tokens) {
+      return '-';
+    }
+    return makeDisplayNumber(getTokenAmount(summary.packagePath, summary.totalSupply).value);
+  }, [isFetchedGRC20Tokens, summary.packagePath, summary.totalSupply]);
 
   return (
     <DetailsPageLayout
@@ -63,7 +73,7 @@ const TokenDetails = () => {
             <DLWrap desktop={desktop}>
               <dt>Total Supply</dt>
               <dd>
-                <Badge>{summary.totalSupply}</Badge>
+                <Badge>{displayTotalSupply}</Badge>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
