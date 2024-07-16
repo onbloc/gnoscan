@@ -1,13 +1,12 @@
 import {useMemo, useState} from 'react';
+import {useQuery} from 'react-query';
 import {
   useGetGRC20Token,
   useGetRealmFunctionsQuery,
   useGetRealmTotalSupplyQuery,
   useGetRealmTransactionsWithArgsQuery,
 } from '@/common/react-query/realm';
-import {useQuery} from 'react-query';
 import {useServiceProvider} from '../provider/use-service-provider';
-import {makeDisplayNumber} from '@/common/utils/string-util';
 
 export const useToken = (path: string[] | string | undefined) => {
   const {blockRepository} = useServiceProvider();
@@ -101,7 +100,7 @@ export const useToken = (path: string[] | string | undefined) => {
       packagePath: data?.tokenInfo.packagePath || '',
       owner: data?.tokenInfo.owner || '',
       functions: realmFunctions?.map(func => func.functionName) || [],
-      totalSupply: makeDisplayNumber(totalSupply || 0),
+      totalSupply,
       holders,
     },
     transactions: transactionWithTimes,
