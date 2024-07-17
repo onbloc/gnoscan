@@ -1,12 +1,11 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import {DatatableItem} from '..';
 import {Button} from '@/components/ui/button';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
-import {numberWithCommas} from '@/common/utils';
 import {eachMedia} from '@/common/hooks/use-media';
 import useLoading from '@/common/hooks/use-loading';
 import {useRecoilValue} from 'recoil';
