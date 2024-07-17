@@ -3,7 +3,6 @@
 import React from 'react';
 import Datatable, {DatatableOption} from '@/components/ui/datatable';
 import {DatatableItem} from '..';
-import {numberWithCommas} from '@/common/utils';
 import useLoading from '@/common/hooks/use-loading';
 import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
@@ -89,7 +88,7 @@ export const TokenDatatable = () => {
       .name('Total Supply')
       .width(180)
       .renderOption(packagePath => (
-        <DatatableItem.LazyTotalSupply realmPath={packagePath} maxSize="p4" minSize="body3" />
+        <DatatableItem.LazyTotalSupply realmPath={packagePath} maxSize="p4" minSize="p4" />
       ))
       .build();
   };
