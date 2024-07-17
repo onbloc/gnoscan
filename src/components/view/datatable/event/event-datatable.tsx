@@ -286,7 +286,6 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 323px;
     overflow: hidden;
     transition: all 0.4s ease;
 
