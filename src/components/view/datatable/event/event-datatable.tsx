@@ -14,6 +14,9 @@ import {useNetwork} from '@/common/hooks/use-network';
 import Tooltip from '@/components/ui/tooltip';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {useUsername} from '@/common/hooks/account/use-username';
+import {EVENT_TABLE_PAGE_SIZE} from '@/common/values/ui.constant';
+import {eachMedia} from '@/common/hooks/use-media';
+import {Button} from '@/components/ui/button';
 
 interface Props {
   isFetched: boolean;
@@ -29,13 +32,34 @@ const TOOLTIP_TYPE = (
 );
 
 export const EventDatatable = ({isFetched, events}: Props) => {
+  const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const {isFetched: isFetchedUsername, getName} = useUsername();
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
+  const [page, setPage] = useState(0);
 
   const loaded = useMemo(() => {
     return isFetched && isFetchedUsername;
   }, [isFetched, isFetchedUsername]);
+
+  const hasNextPage = useMemo(() => {
+    if (!loaded) {
+      return false;
+    }
+    return events.length > (page + 1) * EVENT_TABLE_PAGE_SIZE;
+  }, [events.length, loaded, page]);
+
+  const nextPage = useCallback(() => {
+    if (!hasNextPage) {
+      return;
+    }
+    setPage(page => page + 1);
+  }, [hasNextPage]);
+
+  const filteredEvents = useMemo(() => {
+    const endIndex = (page + 1) * EVENT_TABLE_PAGE_SIZE;
+    return events.slice(0, endIndex);
+  }, [events, page]);
 
   const toggleEventDetails = (eventId: string) => {
     setActiveEvents(prev =>
@@ -115,7 +139,13 @@ export const EventDatatable = ({isFetched, events}: Props) => {
       .name('Time')
       .width(180)
       .className('time')
-      .renderOption(date => <DatatableItem.Date date={date} />)
+      .renderOption((date, data) =>
+        !!date ? (
+          <DatatableItem.Date date={date} />
+        ) : (
+          <DatatableItem.LazyDate blockHeight={data.blockHeight} />
+        ),
+      )
       .build();
   };
 
@@ -150,9 +180,17 @@ export const EventDatatable = ({isFetched, events}: Props) => {
             themeMode: themeMode,
           };
         })}
-        datas={events}
+        datas={filteredEvents}
         renderDetails={renderDetails}
       />
+
+      {hasNextPage && (
+        <div className="button-wrapper">
+          <Button className={`more-button ${media}`} radius={'4px'} onClick={nextPage}>
+            {'View More Events'}
+          </Button>
+        </div>
+      )}
     </Container>
   );
 };
@@ -286,7 +324,8 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 323px;
+    min-height: 323px;
+    height: fit-content;
     overflow: hidden;
     transition: all 0.4s ease;
 
@@ -303,6 +342,7 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
     }
 
     &.hidden {
+      min-height: 0;
       height: 0;
     }
 
@@ -313,7 +353,6 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
       height: 40px;
       gap: 16px;
       justify-content: center;
-      /* align-items: center; */
 
       .path-wrapper,
       .caller-wrapper {

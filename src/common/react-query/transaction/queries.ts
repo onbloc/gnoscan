@@ -79,9 +79,6 @@ export const useGetTransactionsInfinityQuery = (
       if (!lastPage) {
         return false;
       }
-      if (lastPage.length < pageOption.pageSize) {
-        return false;
-      }
       return pages.length;
     },
     queryFn: async context => {

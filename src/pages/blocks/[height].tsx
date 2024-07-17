@@ -17,9 +17,9 @@ import {BlockDetailDatatable} from '@/components/view/datatable';
 import IconCopy from '@/assets/svgs/icon-copy.svg';
 import {useBlock} from '@/common/hooks/blocks/use-block';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
-import {BlockEventDatatable} from '@/components/view/datatable/block-detail/block-event-datatable';
 import {useNetwork} from '@/common/hooks/use-network';
 import {useGetValidatorNames} from '@/common/hooks/common/use-get-validator-names';
+import {EventDatatable} from '@/components/view/datatable/event';
 
 interface TitleOptionProps {
   prevProps: {
@@ -156,7 +156,7 @@ const BlockDetails = () => {
 
       <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
         {currentTab === 'Transactions' && <BlockDetailDatatable height={`${height}`} />}
-        {currentTab === 'Events' && <BlockEventDatatable height={`${height}`} />}
+        {currentTab === 'Events' && <EventDatatable isFetched={isFetched} events={events} />}
       </DataListSection>
     </DetailsPageLayout>
   );
