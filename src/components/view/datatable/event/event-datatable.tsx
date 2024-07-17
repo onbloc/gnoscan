@@ -139,7 +139,13 @@ export const EventDatatable = ({isFetched, events}: Props) => {
       .name('Time')
       .width(180)
       .className('time')
-      .renderOption(date => <DatatableItem.Date date={date} />)
+      .renderOption((date, data) =>
+        !!date ? (
+          <DatatableItem.Date date={date} />
+        ) : (
+          <DatatableItem.LazyDate blockHeight={data.blockHeight} />
+        ),
+      )
       .build();
   };
 
