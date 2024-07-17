@@ -30,14 +30,18 @@ export const DetailsContainer = styled.div<StyleProps>`
       cursor: pointer;
 
       .badge {
-        width: 28px;
+        width: fit-content;
+        min-width: 28px;
         height: 28px;
+        padding: 0 8px;
         border-radius: 14px;
         background-color: ${({theme}) => theme.colors.surface};
 
         &.small {
-          width: 24px;
+          width: fit-content;
+          min-width: 24px;
           height: 24px;
+          padding: 0 8px;
         }
       }
     }
