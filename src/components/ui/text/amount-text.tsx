@@ -27,8 +27,11 @@ export const AmountText = ({
 }: AmountTextProps) => {
   const numberValues = useMemo(() => {
     const valueStr = typeof value === 'string' ? value.replace(/,/g, '') : value.toString();
-    const numbers = valueStr.split('.');
+    if (BigNumber(valueStr).isNaN() || valueStr.length === 0) {
+      return null;
+    }
 
+    const numbers = valueStr.split('.');
     if (numbers.length > 1) {
       return {
         integer: numbers[0],
@@ -42,15 +45,24 @@ export const AmountText = ({
   }, [value]);
 
   const formattedInteger = useMemo(() => {
+    if (!numberValues) {
+      return '';
+    }
+
     return BigNumber(numberValues.integer).toFormat(0);
   }, [numberValues]);
 
   const formattedDecimals = useMemo(() => {
+    if (!numberValues) {
+      return '';
+    }
+
     if (numberValues.decimal === 0) {
       return '';
     }
+
     return `.${numberValues.decimal.toString().slice(decimals)}`;
-  }, [decimals, numberValues.decimal]);
+  }, [decimals, numberValues]);
 
   return (
     <Wrapper className={className}>
