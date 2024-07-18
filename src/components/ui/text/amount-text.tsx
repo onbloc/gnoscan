@@ -1,16 +1,17 @@
+import {useMemo} from 'react';
+import BigNumber from 'bignumber.js';
+import styled from 'styled-components';
+
+import Text from '@/components/ui/text';
 import {FontsType, PaletteKeyType} from '@/styles';
 import mixins from '@/styles/mixins';
-import React from 'react';
-import styled from 'styled-components';
-import Text from '@/components/ui/text';
-import {decimalPointWithCommas} from '@/common/utils';
-import BigNumber from 'bignumber.js';
 
 interface AmountTextProps {
   minSize: FontsType;
   maxSize: FontsType;
   value: number | string | BigNumber;
   denom?: string;
+  decimals?: number;
   color?: PaletteKeyType;
   className?: string;
 }
@@ -21,32 +22,46 @@ export const AmountText = ({
   value,
   denom = '',
   color = 'primary',
+  decimals = 6,
   className,
 }: AmountTextProps) => {
-  const num: string[] | string = decimalPointWithCommas(BigNumber(value === '' ? 0 : value));
-  const decimalValue = (num: string[] | string) => {
-    if (denom === '' && num[1]) return `.${num[1]}`;
-    if (!Array.isArray(num)) {
+  const numberValues = useMemo(() => {
+    const valueStr = typeof value === 'string' ? value.replace(/,/g, '') : value.toString();
+    const numbers = valueStr.split('.');
+
+    if (numbers.length > 1) {
+      return {
+        integer: numbers[0],
+        decimal: numbers[0],
+      };
+    }
+    return {
+      integer: numbers[0],
+      decimal: 0,
+    };
+  }, [value]);
+
+  const formattedInteger = useMemo(() => {
+    return BigNumber(numberValues.integer).toFormat(0);
+  }, [numberValues]);
+
+  const formattedDecimals = useMemo(() => {
+    if (numberValues.decimal === 0) {
       return '';
     }
-
-    if (num.length < 2) {
-      return '';
-    }
-
-    return `.${num[1]}`;
-  };
+    return `.${numberValues.decimal.toString().slice(decimals)}`;
+  }, [decimals, numberValues.decimal]);
 
   return (
     <Wrapper className={className}>
       <div className="amount-wrapper">
-        {num && (
+        {value && (
           <>
             <Text className="text-wrapper" type={maxSize} color={color} display="contents">
-              {num[0]}
+              {formattedInteger}
             </Text>
             <Text type={minSize} color={color} display="contents" className="decimals">
-              {decimalValue(num)}
+              {formattedDecimals}
             </Text>
             <Text type={maxSize} color={color} display="contents">
               {denom}
