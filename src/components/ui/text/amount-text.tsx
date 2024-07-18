@@ -40,7 +40,7 @@ export const AmountText = ({
     }
     return {
       integer: numbers[0],
-      decimal: 0,
+      decimal: '0',
     };
   }, [value]);
 
@@ -57,7 +57,7 @@ export const AmountText = ({
       return '';
     }
 
-    if (numberValues.decimal === 0) {
+    if (numberValues.decimal === '0') {
       return '';
     }
 
