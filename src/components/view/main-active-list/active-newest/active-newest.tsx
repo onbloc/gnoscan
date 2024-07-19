@@ -11,11 +11,7 @@ import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
 import {useUsername} from '@/common/hooks/account/use-username';
 import {getLocalDateString} from '@/common/utils/date-util';
-import {
-  useGetRealmFunctionsQuery,
-  useGetRealmQuery,
-  useGetRealmTransactionsQuery,
-} from '@/common/react-query/realm';
+import {useGetRealmFunctionsQuery, useGetRealmTransactionsQuery} from '@/common/react-query/realm';
 import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
 import {useUpdateTime} from '@/common/hooks/main/use-update-time';
 
@@ -101,7 +97,7 @@ const LazyFunctions: React.FC<{path: string}> = ({path}) => {
 
   return (
     <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
-      {data?.length}
+      {data?.length || 0}
     </StyledText>
   );
 };
