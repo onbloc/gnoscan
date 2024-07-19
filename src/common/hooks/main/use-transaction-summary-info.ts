@@ -52,7 +52,7 @@ export const useTransactionSummaryInfo = () => {
   const transactionTotalFee = useMemo(() => {
     return BigNumber(transactionTotalFeeAmount)
       .shiftedBy(GNOTToken.decimals * -1)
-      .toFixed(6);
+      .toFormat(6);
   }, [transactionTotalFeeAmount]);
 
   const transactionFeeAverage = useMemo(() => {
@@ -71,7 +71,7 @@ export const useTransactionSummaryInfo = () => {
     return BigNumber(feeAmount)
       .dividedBy(simpleTransactions?.length)
       .shiftedBy(GNOTToken.decimals * -1)
-      .toFixed(6);
+      .toFormat(6);
   }, [simpleTransactions]);
 
   return {
