@@ -3,6 +3,7 @@ import {ActiveElement} from 'chart.js';
 import styled from 'styled-components';
 import theme from '@/styles/theme';
 import BigNumber from 'bignumber.js';
+import {makeAreaGraphDisplayLabel} from './area-chart';
 
 interface TooltipProps {
   activeElements: Array<ActiveElement>;
@@ -94,7 +95,7 @@ export const AreaChartTooltip = ({
         <span
           className="dot"
           style={{backgroundColor: `${chartColors[cIndex] ?? '#000000'}`}}></span>
-        <span className="title">{packagePath}</span>
+        <span className="title">{makeAreaGraphDisplayLabel(packagePath)}</span>
         <span className="value">
           <strong>{integer}</strong>
           {`.${decimal}`}
