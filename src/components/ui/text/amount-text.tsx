@@ -35,7 +35,7 @@ export const AmountText = ({
     if (numbers.length > 1) {
       return {
         integer: numbers[0],
-        decimal: numbers[0],
+        decimal: numbers[1] || '0',
       };
     }
     return {
@@ -61,7 +61,7 @@ export const AmountText = ({
       return '';
     }
 
-    return `.${numberValues.decimal.toString().slice(decimals)}`;
+    return `.${numberValues.decimal.toString().slice(0, decimals)}`;
   }, [decimals, numberValues]);
 
   return (

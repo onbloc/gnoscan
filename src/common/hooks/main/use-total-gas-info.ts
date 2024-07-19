@@ -37,9 +37,9 @@ export const useTotalGasInfo = () => {
         transactionInfo[date][pkgPath] = 0;
       }
 
-      transactionInfo[date][pkgPath] += tx.gas_used;
-      realmTotalGas[pkgPath] = (realmTotalGas[pkgPath] || 0) + tx.gas_used;
-      dateTotalGas[date] = (dateTotalGas[date] || 0) + tx.gas_used;
+      transactionInfo[date][pkgPath] += tx.gas_fee.amount;
+      realmTotalGas[pkgPath] = (realmTotalGas[pkgPath] || 0) + tx.gas_fee.amount;
+      dateTotalGas[date] = (dateTotalGas[date] || 0) + tx.gas_fee.amount;
     });
 
     const displayRealms = Object.entries(realmTotalGas)
@@ -58,7 +58,7 @@ export const useTotalGasInfo = () => {
         date: entry[0],
         packages: Object.entries(entry[1]).map(subEntry => ({
           path: subEntry[0],
-          gasUsed: subEntry[1],
+          gasFee: subEntry[1],
         })),
       })),
     };

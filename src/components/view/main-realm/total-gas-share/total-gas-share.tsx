@@ -46,23 +46,23 @@ export const MainRealmTotalGasShare = () => {
       accum[currentLabel] = labels.map(date => {
         const totalGas = dateTotalGas[date];
         const dateResult = transactionRealmGasInfo.results.find(result => date === result.date);
-        const gasUsed =
+        const gasFee =
           currentLabel !== 'rest'
-            ? dateResult?.packages.find(pkg => pkg.path === current)?.gasUsed
+            ? dateResult?.packages.find(pkg => pkg.path === current)?.gasFee
             : dateResult?.packages
                 .filter(pkg => !transactionRealmGasInfo.displayRealms.includes(pkg.path))
-                .reduce((acc, current) => acc + current.gasUsed, 0);
-        if (!totalGas || gasUsed === undefined) {
+                .reduce((acc, current) => acc + current.gasFee, 0);
+        if (!totalGas || gasFee === undefined) {
           return {
             value: 0,
             rate: 0,
           };
         }
         return {
-          value: BigNumber(gasUsed)
+          value: BigNumber(gasFee)
             .shiftedBy(GNOTToken.decimals * -1)
             .toNumber(),
-          rate: (gasUsed / totalGas) * 100,
+          rate: (gasFee / totalGas) * 100,
         };
       });
       return accum;
