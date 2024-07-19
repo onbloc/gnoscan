@@ -8,10 +8,22 @@ import {themeState} from '@/states';
 import {zindex} from '@/common/values/z-index';
 import styled from 'styled-components';
 import BigNumber from 'bignumber.js';
+import {formatAddress} from '@/common/utils';
 interface AreaChartProps {
   labels: Array<string>;
   datas: {[key in string]: Array<{value: number; rate: number}>};
   colors?: Array<string>;
+}
+
+export function makeAreaGraphDisplayLabel(label: string) {
+  const values = label.split('/');
+  if (values.length > 3) {
+    const [blank, packageType, namespace, ...rest] = values;
+    if (namespace.length > 10) {
+      return [blank, packageType, formatAddress(namespace), ...rest].join('/');
+    }
+  }
+  return label;
 }
 
 export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
@@ -264,7 +276,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
             disabled={excludedDatasets.findIndex(item => item.label === dataset.label) > -1}
             onClick={() => onClickLegend(dataset)}>
             <span className="legend-mark"></span>
-            <span className="legend-name">{dataset.label}</span>
+            <span className="legend-name">{makeAreaGraphDisplayLabel(dataset.label || '')}</span>
           </LegendWrapper>
         ))}
       </div>
