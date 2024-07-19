@@ -37,6 +37,10 @@ export const useTotalGasInfo = () => {
         transactionInfo[date][pkgPath] = 0;
       }
 
+      /**
+       * If a gas system is introduced in gno,
+       * it should be calculated as `gasUsed`, the actual gas usage.
+       */
       transactionInfo[date][pkgPath] += tx.gas_fee.amount;
       realmTotalGas[pkgPath] = (realmTotalGas[pkgPath] || 0) + tx.gas_fee.amount;
       dateTotalGas[date] = (dateTotalGas[date] || 0) + tx.gas_fee.amount;
