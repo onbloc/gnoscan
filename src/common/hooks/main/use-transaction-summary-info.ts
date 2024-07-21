@@ -39,7 +39,7 @@ export const useTransactionSummaryInfo = () => {
 
     const feeAmount =
       allTransactions?.reduce((acc, current) => {
-        const txFeeBn = BigNumber(current.fee.value);
+        const txFeeBn = BigNumber(current.fee?.value || 0);
         if (txFeeBn.isNaN()) {
           return acc;
         }
@@ -61,7 +61,7 @@ export const useTransactionSummaryInfo = () => {
     }
     const feeAmount =
       simpleTransactions?.reduce((acc, current) => {
-        const txFeeBn = BigNumber(current.gas_fee.amount);
+        const txFeeBn = BigNumber(current.gas_fee?.amount || 0);
         if (txFeeBn.isNaN()) {
           return acc;
         }

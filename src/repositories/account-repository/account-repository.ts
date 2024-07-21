@@ -14,10 +14,10 @@ import {
 import {PageOption} from '@/common/clients/indexer-client/types';
 import {IAccountRepository} from './types';
 import {
-  TRANSACTIONS_QUERY,
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
+  makeTransactionsQuery,
   makeVMTransactionsByAddressQuery,
 } from './query';
 
@@ -88,9 +88,25 @@ export class AccountRepository implements IAccountRepository {
       return [];
     }
 
-    return this.indexerClient
-      ?.query(TRANSACTIONS_QUERY)
-      .then(result => result?.data?.transactions?.map(mapTransaction) || []);
+    const results: Transaction[] = [];
+    let fromBlockHeight = 1;
+    let hasError = true;
+    try {
+      while (hasError === true) {
+        const response = await this.indexerClient?.query(makeTransactionsQuery(fromBlockHeight));
+        const transactions = response?.data?.transactions;
+        hasError = Array.isArray(response.errors);
+        if (hasError) {
+          fromBlockHeight = transactions[response?.data?.transactions?.length - 1].block_height + 1;
+        }
+        results.push(...transactions.map(mapTransaction));
+      }
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+
+    return results;
   }
 
   async getTransactionsByPagination(pageOption: PageOption): Promise<Transaction[]> {
@@ -99,7 +115,7 @@ export class AccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.query(TRANSACTIONS_QUERY)
+      ?.query(makeTransactionsQuery(1))
       .then(result => result?.data?.transactions?.map(mapTransaction) || []);
   }
 

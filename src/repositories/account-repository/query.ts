@@ -1,8 +1,10 @@
 import {gql} from '@apollo/client';
 
-export const TRANSACTIONS_QUERY = gql`
+export const makeTransactionsQuery = (fromBlockHeight: number) => gql`
   {
-    transactions(filter: {}) {
+    transactions(filter: {
+      from_block_height: ${fromBlockHeight}
+    }) {
       hash
       index
       success
