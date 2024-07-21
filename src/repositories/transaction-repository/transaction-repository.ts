@@ -2,7 +2,6 @@ import {NodeRPCClient} from '@/common/clients/node-client';
 import {ITransactionRepository} from './types';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {
-  TRANSACTIONS_QUERY,
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeSimpleTransactionsByFromHeight,
   makeTransactionHashQuery,
@@ -11,6 +10,7 @@ import {Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
 import {PageOption} from '@/common/clients/indexer-client/types';
+import {makeTransactionsQuery} from '../account-repository/query';
 
 function mapTransaction(data: any): Transaction {
   const firstMessage = data.messages[0]?.value;
@@ -54,14 +54,31 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     if (!pageOption) {
-      return this.indexerClient
-        ?.query(TRANSACTIONS_QUERY)
-        .then(result => result?.data?.transactions?.map(mapTransaction) || []);
+      const results: Transaction[] = [];
+      let fromBlockHeight = 1;
+      let hasError = true;
+      try {
+        while (hasError === true) {
+          const response = await this.indexerClient?.query(makeTransactionsQuery(fromBlockHeight));
+          const transactions = response?.data?.transactions;
+          hasError = Array.isArray(response.errors);
+          if (hasError) {
+            fromBlockHeight =
+              transactions[response?.data?.transactions?.length - 1].block_height + 1;
+          }
+          results.push(...transactions.map(mapTransaction));
+        }
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+
+      return results;
     }
 
     return this.indexerClient
       ?.queryWithOptions(
-        TRANSACTIONS_QUERY,
+        makeTransactionsQuery(1),
         pageOption || {
           page: 0,
           pageSize: 0,
@@ -81,7 +98,7 @@ export class TransactionRepository implements ITransactionRepository {
 
     return this.indexerClient
       ?.queryWithOptions(
-        TRANSACTIONS_QUERY,
+        makeTransactionsQuery(1),
         pageOption || {
           page: 0,
           pageSize: 0,
@@ -145,8 +162,26 @@ export class TransactionRepository implements ITransactionRepository {
       return [];
     }
 
-    return this.indexerClient
-      ?.query(makeSimpleTransactionsByFromHeight(height))
-      .then(result => result.data?.transactions || []);
+    const results: any[] = [];
+    let fromBlockHeight = 1;
+    let hasError = true;
+    try {
+      while (hasError === true) {
+        const response = await this.indexerClient?.query(
+          makeSimpleTransactionsByFromHeight(fromBlockHeight),
+        );
+        const transactions = response?.data?.transactions;
+        hasError = Array.isArray(response.errors);
+        if (hasError) {
+          fromBlockHeight = transactions[response?.data?.transactions?.length - 1].block_height + 1;
+        }
+        results.push(...transactions);
+      }
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+
+    return results;
   }
 }

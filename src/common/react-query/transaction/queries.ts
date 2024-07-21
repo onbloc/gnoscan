@@ -147,6 +147,7 @@ export const useGetUsingAccountTransactionCount = (
       const allAccounts: string[] = transactions
         .flatMap(tx => [tx?.from, tx?.to || ''])
         .filter(account => !!account);
+      console.log(transactions);
 
       const accounts = [...new Set(allAccounts)];
       const length = accounts.length;

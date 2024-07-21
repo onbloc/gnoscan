@@ -1,13 +1,18 @@
 import {ApolloClient, DocumentNode, InMemoryCache} from '@apollo/client';
 import {PageOption} from './types';
+import axios, {AxiosInstance} from 'axios';
 
 export class IndexerClient {
   public apolloClient: ApolloClient<unknown>;
+  private axiosClient: AxiosInstance;
 
   constructor(url: string) {
     this.apolloClient = new ApolloClient({
       uri: url,
       cache: new InMemoryCache(),
+    });
+    this.axiosClient = axios.create({
+      baseURL: url,
     });
   }
 
@@ -25,10 +30,11 @@ export class IndexerClient {
       });
     }
 
-    return this.apolloClient.query({
-      query: qry,
-      fetchPolicy: 'no-cache',
-    });
+    return this.axiosClient
+      .post('', {
+        query: qry.loc?.source.body,
+      })
+      .then(result => result?.data);
   }
 
   public queryWithOptions(qry: DocumentNode, pageOption: PageOption) {
