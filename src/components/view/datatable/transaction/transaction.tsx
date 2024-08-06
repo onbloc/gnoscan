@@ -46,15 +46,8 @@ export const TransactionDatatable = () => {
   const {isCustomNetwork} = useNetworkProvider();
 
   const {getTokenAmount} = useTokenMeta();
-  const useAllTransactionsResult = useAllTransactions({
-    enabled: isCustomNetwork === false,
-  });
-  const useTransactionsResult = useTransactions({
-    enabled: isCustomNetwork === true,
-  });
-  const {transactions, hasNextPage, isError, isFetched, nextPage} = isCustomNetwork
-    ? useTransactionsResult
-    : useAllTransactionsResult;
+  const useTransactionsHook = isCustomNetwork ? useAllTransactions : useTransactions;
+  const {transactions, hasNextPage, isError, isFetched, nextPage} = useTransactionsHook({});
 
   const {isFetched: isFetchedUsername, getName} = useUsername();
   const [development, setDevelopment] = useState(false);

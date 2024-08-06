@@ -79,3 +79,31 @@ export interface GnoEvent {
     value: string;
   }[];
 }
+
+export interface TotalTransactionStatInfo {
+  accounts: number;
+  gasFee: number;
+}
+
+export interface MonthlyTransactionStatInfo {
+  accounts: MonthlyAccountTransaction[];
+  dailyTransactionInfo: Record<string, MonthlyDailyTransaction>;
+  realmGasSharedInfo: Record<string, Record<string, MonthlyRealmGasShared>>;
+  bestRealms: MonthlyRealmGasShared[];
+}
+
+export interface MonthlyAccountTransaction {
+  account: string;
+  totalTransaction: number;
+  nonTransferTransaction: number;
+}
+
+export interface MonthlyDailyTransaction {
+  totalGasFee: number;
+  txCount: number;
+}
+
+export interface MonthlyRealmGasShared {
+  packagePath: string;
+  gasShared: number;
+}

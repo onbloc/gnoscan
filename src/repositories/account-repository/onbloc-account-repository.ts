@@ -11,43 +11,16 @@ import {
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
 } from '../response/transaction.mapper';
-import {PageOption} from '@/common/clients/indexer-client/types';
 import {AccountTransactionResponse, IAccountRepository} from './types';
 import {
+  makeAccountTransactionsQuery,
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
-  makeTransactionsQuery,
   makeVMTransactionsByAddressQuery,
-} from './query';
+} from './onbloc-query';
 
-function mapTransaction(data: any): Transaction {
-  const firstMessage = data.messages[0]?.value;
-  const amountValue =
-    firstMessage?.amount || firstMessage?.send || firstMessage?.deposit || '0ugnot';
-  return {
-    hash: data.hash,
-    success: data.success === true,
-    numOfMessage: data.messages.length,
-    type: firstMessage?.__typename,
-    packagePath: firstMessage?.package?.path || firstMessage?.pkg_path || firstMessage?.__typename,
-    functionName: firstMessage?.func || firstMessage?.__typename,
-    blockHeight: data.block_height,
-    from: firstMessage?.caller || firstMessage?.creator || firstMessage?.from_address,
-    to: firstMessage?.to_address,
-    amount: {
-      value: parseTokenAmount(amountValue).toString() || '0',
-      denom: 'ugnot',
-    },
-    time: '',
-    fee: {
-      value: data?.gas_fee?.amount || '0',
-      denom: 'ugnot',
-    },
-  };
-}
-
-export class AccountRepository implements IAccountRepository {
+export class OnblocAccountRepository implements IAccountRepository {
   constructor(
     private nodeRPCClient: NodeRPCClient | null,
     private indexerClient: IndexerClient | null,
@@ -83,8 +56,65 @@ export class AccountRepository implements IAccountRepository {
     return Promise.all(fetchers).then(results => results.filter(result => !!result));
   }
 
-  async getAccountTransactions(): Promise<AccountTransactionResponse> {
-    throw new Error('not supported function');
+  async getAccountTransactions(
+    address: string,
+    cursor: string | null,
+  ): Promise<AccountTransactionResponse> {
+    const transactions: Transaction[] = [];
+    const pageInfo = {
+      last: null,
+      hasNext: false,
+    };
+
+    if (!this.indexerClient) {
+      return {
+        transactions,
+        pageInfo,
+      };
+    }
+
+    try {
+      const response = await this.indexerClient?.pageQuery(
+        makeAccountTransactionsQuery(address, cursor),
+      );
+      const transactionEdges = response?.data?.transactions.edges;
+      const pageInfo = response?.data?.transactions.pageInfo;
+      pageInfo.last = pageInfo?.last || null;
+      pageInfo.hasNext = pageInfo?.hasNext || false;
+      const mappedTransactions = transactionEdges
+        .map((edge: any) => edge.transaction)
+        .map(tx => {
+          const firstMessage = tx.messages[0].value;
+          const typename = firstMessage.__typename;
+          switch (typename) {
+            case 'BankMsgSend':
+              if (firstMessage?.from_address === address) {
+                return mapSendTransactionByBankMsgSend(tx);
+              }
+              return mapReceivedTransactionByBankMsgSend(tx);
+            case 'MsgCall':
+              if (firstMessage?.func === 'Transfer') {
+                if (firstMessage.args?.[0] === address) {
+                  return mapReceivedTransactionByMsgCall(tx);
+                }
+              }
+            default:
+              return mapVMTransaction(tx);
+          }
+        });
+      transactions.push(...mappedTransactions);
+    } catch (e) {
+      console.error(e);
+      return {
+        transactions,
+        pageInfo,
+      };
+    }
+
+    return {
+      transactions,
+      pageInfo,
+    };
   }
 
   async getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {
@@ -93,8 +123,8 @@ export class AccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.query<any>(makeGRC20ReceivedTransactionsByAddressQuery(address))
-      .then(result => result.data?.transactions || [])
+      ?.pageQuery(makeGRC20ReceivedTransactionsByAddressQuery(address))
+      .then(result => result.data?.transactions.edges.map(edge => edge.transaction) || [])
       .then(transactions =>
         transactions
           .map(mapReceivedTransactionByMsgCall)

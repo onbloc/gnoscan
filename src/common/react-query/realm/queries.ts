@@ -28,25 +28,67 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
         return [];
       }
 
-      return (
-        result?.data?.transactions?.flatMap((tx: any) =>
-          tx.messages.map((message: any) => ({
-            hash: tx.hash,
-            index: tx.index,
-            success: tx.success,
-            blockHeight: tx.block_height,
-            packageName: message.value.package.name,
-            packagePath: message.value.package.path,
-            creator: message.value.creator,
-            functionCount: 0,
-            totalCalls: 0,
-            totalGasUsed: {
-              value: '0',
-              denom: 'GNOT',
-            },
-          })),
-        ) || []
-      );
+      return result.flatMap((transaction: any) => {
+        const tx = transaction;
+        return tx.messages.map((message: any) => ({
+          hash: tx.hash,
+          index: tx.index,
+          success: tx.success,
+          blockHeight: tx.block_height,
+          packageName: message.value.package.name,
+          packagePath: message.value.package.path,
+          creator: message.value.creator,
+          functionCount: 0,
+          totalCalls: 0,
+          totalGasUsed: {
+            value: '0',
+            denom: 'GNOT',
+          },
+        }));
+      });
+    },
+    select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
+    enabled: !!realmRepository,
+    ...options,
+    keepPreviousData: true,
+    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<any, Error>({
+    queryKey: [QUERY_KEY.getLatestRealms, currentNetwork?.chainId || ''],
+    queryFn: async () => {
+      if (!realmRepository) {
+        return [];
+      }
+      const result = await realmRepository.getLatestRealms();
+      if (!result) {
+        return [];
+      }
+
+      return result.flatMap((transaction: any) => {
+        const tx = transaction;
+        return tx.messages.map((message: any) => ({
+          hash: tx.hash,
+          index: tx.index,
+          success: tx.success,
+          blockHeight: tx.block_height,
+          packageName: message.value.package.name,
+          packagePath: message.value.package.path,
+          creator: message.value.creator,
+          functionCount: 0,
+          totalCalls: 0,
+          totalGasUsed: {
+            value: '0',
+            denom: 'GNOT',
+          },
+        }));
+      });
     },
     select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository,
@@ -58,7 +100,7 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
 };
 
 export const useGetRealmQuery = (
-  packagePath: string,
+  packagePath: string | null,
   options?: UseQueryOptions<RealmTransaction<AddPackageValue> | null, Error>,
 ) => {
   const {currentNetwork} = useNetworkProvider();
@@ -67,7 +109,7 @@ export const useGetRealmQuery = (
   return useQuery<RealmTransaction<AddPackageValue> | null, Error>({
     queryKey: [QUERY_KEY.getRealm, currentNetwork?.chainId || '', packagePath],
     queryFn: async () => {
-      if (!realmRepository) {
+      if (!realmRepository || !packagePath) {
         return null;
       }
 
@@ -114,44 +156,36 @@ export const useGetRealmPackagesInfinity = (
 
   return useInfiniteQuery<any | null, Error>({
     queryKey: [QUERY_KEY.getRealmPackages, currentNetwork?.chainId || ''],
-    getNextPageParam: (lastPage, pages) => {
+    getNextPageParam: lastPage => {
       if (!lastPage) {
-        return false;
+        return null;
       }
-      if (lastPage.length < pageSize) {
-        return false;
-      }
-      return pages.length;
+      return lastPage.pageInfo.last;
     },
     queryFn: async context => {
       if (!realmRepository) {
         return null;
       }
-      const currentPageIndex = context?.pageParam || 0;
-      const result = await realmRepository
-        .getRealmPackages({
-          page: currentPageIndex,
-          pageSize,
-        })
-        .then(result =>
-          result?.flatMap(tx =>
-            tx.messages.map(message => ({
-              hash: tx.hash,
-              index: tx.index,
-              success: tx.success,
-              blockHeight: tx.block_height,
-              packageName: message.value.package?.name || '',
-              packagePath: message.value.package?.path || '',
-              creator: message.value.creator,
-              functionCount: 0,
-              totalCalls: 0,
-              totalGasUsed: {
-                value: '0',
-                denom: 'GNOT',
-              },
-            })),
-          ),
-        );
+      const cursor = context?.pageParam || null;
+      const result = await realmRepository.getRealmPackages(cursor).then(result =>
+        result?.transactions.flatMap(tx =>
+          tx.messages.map(message => ({
+            hash: tx.hash,
+            index: tx.index,
+            success: tx.success,
+            blockHeight: tx.block_height,
+            packageName: message.value.package?.name || '',
+            packagePath: message.value.package?.path || '',
+            creator: message.value.creator,
+            functionCount: 0,
+            totalCalls: 0,
+            totalGasUsed: {
+              value: '0',
+              denom: 'GNOT',
+            },
+          })),
+        ),
+      );
 
       return result;
     },
@@ -244,22 +278,8 @@ export const useGetHoldersQuery = (
       if (!realmRepository || !realmPath) {
         return 0;
       }
-      const transactions = await realmRepository.getRealmCallTransactionsWithArgs(realmPath);
-      if (!transactions) {
-        return 0;
-      }
 
-      const addresses = transactions
-        .flatMap(tx =>
-          tx.messages.flatMap(message => {
-            const caller = message.value.caller;
-            const receiver = message.value?.args?.[0];
-            return [caller, receiver];
-          }),
-        )
-        .filter(address => !!address);
-
-      return [...new Set(addresses)].length;
+      return realmRepository.getTokenHolders(realmPath);
     },
     enabled: !!realmRepository && !!realmPath,
     ...options,

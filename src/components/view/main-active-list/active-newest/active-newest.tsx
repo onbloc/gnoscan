@@ -6,7 +6,6 @@ import {colWidth, FitContentA, List, listTitle, StyledCard, StyledText} from '..
 import Link from 'next/link';
 import Tooltip from '@/components/ui/tooltip';
 import FetchedSkeleton from '../fetched-skeleton';
-import {useRealms} from '@/common/hooks/realms/use-realms';
 import {useNetwork} from '@/common/hooks/use-network';
 import {textEllipsis} from '@/common/utils/string-util';
 import {useUsername} from '@/common/hooks/account/use-username';
@@ -14,8 +13,12 @@ import {getLocalDateString} from '@/common/utils/date-util';
 import {useGetRealmFunctionsQuery, useGetRealmTransactionsQuery} from '@/common/react-query/realm';
 import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
 import {useUpdateTime} from '@/common/hooks/main/use-update-time';
+import {useLatestRealms} from '@/common/hooks/realms/use-latest-realms';
 
 function makeDisplayRealmPath(path: string, length = 11) {
+  if (!path) {
+    return '';
+  }
   const displayPath = path.replace('gno.land', '');
   return displayPath.length > length ? displayPath.substring(0, length) + '...' : displayPath;
 }
@@ -25,7 +28,7 @@ const ActiveNewest = () => {
   const {isFetched: isFetchedUsername, getName} = useUsername();
   const {isFetched: isFetchedUpdatedAt, updatedAt} = useUpdateTime();
   const {getUrlWithNetwork} = useNetwork();
-  const {isFetched, realms} = useRealms(false);
+  const {isFetched, realms} = useLatestRealms();
 
   const displayRealms = useMemo(() => {
     return realms.filter((_: unknown, index: number) => index < 10);
@@ -50,11 +53,11 @@ const ActiveNewest = () => {
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[1]} color="blue">
                 <Link href={getUrlWithNetwork(`/realms/details?path=${realm.packagePath}`)}>
-                  <a>
+                  <span>
                     <Tooltip content={realm.packagePath}>
                       {makeDisplayRealmPath(realm.packagePath)}
                     </Tooltip>
-                  </a>
+                  </span>
                 </Link>
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">

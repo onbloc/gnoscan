@@ -23,12 +23,19 @@ import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
 import BigNumber from 'bignumber.js';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {useUpdateTime} from '@/common/hooks/main/use-update-time';
+import {MonthlyAccountTransaction} from '@/types/data-type';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {useMonthlyActiveAccountsApi} from '@/common/hooks/main/use-monthly-active-accounts-api';
 
 const ActiveAccount = () => {
   const media = eachMedia();
   const {getUrlWithNetwork} = useNetwork();
+  const {isCustomNetwork} = useNetworkProvider();
   const {updatedAt} = useUpdateTime();
-  const {isFetched, data: accounts} = useMonthlyActiveAccounts();
+  const useMonthlyActiveAccountsHook = isCustomNetwork
+    ? useMonthlyActiveAccounts
+    : useMonthlyActiveAccountsApi;
+  const {isFetched, data: accounts} = useMonthlyActiveAccountsHook();
   const {isFetched: isFetchedUsername, getName} = useUsername();
 
   const loaded = useMemo(() => {
@@ -54,42 +61,29 @@ const ActiveAccount = () => {
       </Text>
       {loaded ? (
         <ActiveList title={listTitle.accounts} colWidth={colWidth.accounts}>
-          {accounts.map(
-            (
-              account: {
-                account: string;
-                totalTxs: number;
-                nonTransferTxs: number;
-              },
-              index: number,
-            ) => (
-              <List key={index}>
-                <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
-                  {index + 1}
-                </StyledText>
-                <StyledText
-                  className="with-link"
-                  type="p4"
-                  width={colWidth.accounts[1]}
-                  color="blue">
-                  <Link href={getUrlWithNetwork(`/accounts/${account.account}`)} passHref>
-                    <a>
-                      <Tooltip content={account.account}>
-                        {getDisplayUsername(account.account)}
-                      </Tooltip>
-                    </a>
-                  </Link>
-                </StyledText>
-                <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
-                  {account.totalTxs}
-                </StyledText>
-                <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
-                  {account.nonTransferTxs}
-                </StyledText>
-                <LazyAccountBalance address={account.account} />
-              </List>
-            ),
-          )}
+          {accounts.map((account: MonthlyAccountTransaction, index: number) => (
+            <List key={index}>
+              <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
+                {index + 1}
+              </StyledText>
+              <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
+                <Link href={getUrlWithNetwork(`/accounts/${account.account}`)} passHref>
+                  <span>
+                    <Tooltip content={account.account}>
+                      {getDisplayUsername(account.account)}
+                    </Tooltip>
+                  </span>
+                </Link>
+              </StyledText>
+              <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
+                {account.totalTransaction}
+              </StyledText>
+              <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
+                {account.nonTransferTransaction}
+              </StyledText>
+              <LazyAccountBalance address={account.account} />
+            </List>
+          ))}
         </ActiveList>
       ) : (
         <FetchedSkeleton />

@@ -8,6 +8,9 @@ import {Spinner} from '@/components/ui/loading';
 import {useTotalGasInfo} from '@/common/hooks/main/use-total-gas-info';
 import BigNumber from 'bignumber.js';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {useTotalGasInfoApi} from '@/common/hooks/main/use-total-gas-info-api';
+import {dateToStr} from '@/common/utils/date-util';
 
 const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
   ssr: false,
@@ -15,7 +18,9 @@ const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.
 
 export const MainRealmTotalGasShare = () => {
   const [period, setPeriod] = useState(7);
-  const {isFetched, transactionRealmGasInfo} = useTotalGasInfo();
+  const {isCustomNetwork} = useNetworkProvider();
+  const useTotalGasInfoHook = isCustomNetwork ? useTotalGasInfo : useTotalGasInfoApi;
+  const {isFetched, transactionRealmGasInfo} = useTotalGasInfoHook();
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -23,9 +28,7 @@ export const MainRealmTotalGasShare = () => {
     return Array.from({length: period})
       .map((_, index) => new Date(now.getTime() - DAY_TIME * index))
       .sort((d1, d2) => d1.getTime() - d2.getTime())
-      .map(date => {
-        return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
-      });
+      .map(dateToStr);
   }, [period]);
 
   const transactionGasData = useMemo(() => {
@@ -37,7 +40,7 @@ export const MainRealmTotalGasShare = () => {
     /**
      * Generate data by date with key as realmPath.
      */
-    return [...transactionRealmGasInfo.displayRealms, 'rest'].reduce<{
+    return [...transactionRealmGasInfo.displayRealms].reduce<{
       [key in string]: {value: number; rate: number}[];
     }>((accum, current) => {
       const currentLabel = transactionRealmGasInfo.displayRealms.includes(current)
@@ -46,12 +49,9 @@ export const MainRealmTotalGasShare = () => {
       accum[currentLabel] = labels.map(date => {
         const totalGas = dateTotalGas[date];
         const dateResult = transactionRealmGasInfo.results.find(result => date === result.date);
-        const gasFee =
-          currentLabel !== 'rest'
-            ? dateResult?.packages.find(pkg => pkg.path === current)?.gasFee
-            : dateResult?.packages
-                .filter(pkg => !transactionRealmGasInfo.displayRealms.includes(pkg.path))
-                .reduce((acc, current) => acc + current.gasFee, 0);
+        const gasFee = dateResult?.packages.find(pkg => {
+          return pkg.path === current;
+        })?.gasFee;
         if (!totalGas || gasFee === undefined) {
           return {
             value: 0,

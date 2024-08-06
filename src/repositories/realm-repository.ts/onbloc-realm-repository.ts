@@ -8,7 +8,6 @@ import {
   RealmTransaction,
   RealmTransactionInfo,
 } from './types';
-import {gql} from '@apollo/client';
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCI} from '@gnolang/tm2-js-client';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
@@ -26,7 +25,7 @@ import {
   extractStringFromResponse,
   parseABCIQueryNumberResponse,
 } from '@/common/clients/node-client/utility';
-import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
+import {PageInfo, PageOption, PageQueryResponse} from '@/common/clients/indexer-client/types';
 import {
   makeRealmTransactionInfoQuery,
   makeTokenQuery,
@@ -39,21 +38,28 @@ import {
   makeRealmTransactionInfosQuery,
   makeRealmTransactionsQuery,
   makeRealmTransactionsWithArgsQuery,
-} from './query';
+  makeLatestRealmsQuery,
+} from './onbloc-query';
+import {makeRPCRequest, RPCClient} from '@/common/clients/rpc-client';
+import {ApolloQueryResult} from '@apollo/client';
 import BigNumber from 'bignumber.js';
 
-export class RealmRepository implements IRealmRepository {
+export class OnblocRealmRepository implements IRealmRepository {
   constructor(
     private nodeClient: NodeRPCClient | null,
     private indexerClient: IndexerClient | null,
+    private onblocRPCClient: RPCClient | null,
   ) {}
 
-  async getLatestRealms(pageOption?: PageOption): Promise<any | null> {
+  async getLatestRealms(): Promise<any | null> {
     if (!this.indexerClient) {
       return null;
     }
 
-    return this.indexerClient.query(makeRealmsQuery(), pageOption);
+    return this.indexerClient.pageQuery(makeLatestRealmsQuery()).then(result => {
+      const edges = result?.data?.transactions?.edges;
+      return edges.flatMap((edge: any) => edge.transaction);
+    });
   }
 
   async getRealms(pageOption?: PageOption): Promise<any | null> {
@@ -61,7 +67,10 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient.query(makeRealmsQuery(), pageOption);
+    return this.indexerClient.pageQuery(makeRealmsQuery()).then(result => {
+      const edges = result?.data?.transactions?.edges;
+      return edges.flatMap((edge: any) => edge.transaction);
+    });
   }
 
   async getRealm(realmPath: string): Promise<RealmTransaction | null> {
@@ -69,11 +78,13 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient.query(makeRealmQuery(realmPath)).then(result => {
-      if (!result?.data?.transactions || result?.data?.transactions.length === 0) {
+    return this.indexerClient.pageQuery(makeRealmQuery(realmPath)).then(result => {
+      const edges = result?.data?.transactions?.edges;
+      if (!edges || edges.length === 0) {
         return null;
       }
-      return result?.data?.transactions[0];
+
+      return edges[0].transaction;
     });
   }
 
@@ -130,37 +141,24 @@ export class RealmRepository implements IRealmRepository {
     }
   }
 
-  async getRealmTransactions(
-    realmPath: string,
-    pageOption?: PageOption,
-  ): Promise<TransactionWithEvent[] | null> {
-    if (!this.indexerClient) {
-      return null;
-    }
-
-    return this.indexerClient.query(makeRealmTransactionsQuery(), pageOption).then(
-      result =>
-        result?.data?.transactions.filter((transaction: RealmTransaction) => {
-          return transaction.messages.find((message: any) => {
-            return (
-              message?.value?.pkg_path === realmPath || message?.value?.package?.path === realmPath
-            );
-          });
-        }) || [],
-    );
-  }
-
-  async getRealmTransactionsWithArgs(
-    realmPath: string,
-    pageOption?: PageOption,
-  ): Promise<RealmTransaction[] | null> {
+  async getRealmTransactions(realmPath: string): Promise<TransactionWithEvent[] | null> {
     if (!this.indexerClient) {
       return null;
     }
 
     return this.indexerClient
-      .query(makeRealmTransactionsWithArgsQuery(realmPath), pageOption)
-      .then(result => result?.data?.transactions || []);
+      .pageQuery<TransactionWithEvent>(makeRealmTransactionsQuery(realmPath))
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
+  }
+
+  async getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient
+      .pageQuery(makeRealmTransactionsWithArgsQuery(realmPath))
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
   }
 
   async getRealmCallTransactionsWithArgs(
@@ -171,8 +169,8 @@ export class RealmRepository implements IRealmRepository {
     }
 
     return this.indexerClient
-      .query(makeRealmCallTransactionsWithArgsQuery(realmPath))
-      .then(result => result?.data?.transactions || []);
+      .pageQuery(makeRealmCallTransactionsWithArgsQuery(realmPath))
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
   }
 
   async getRealmTotalSupply(realmPath: string): Promise<number | null> {
@@ -193,8 +191,8 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions: RealmTransaction[] | null = await this.indexerClient
-      .query(makeRealmTransactionInfosQuery())
-      .then(result => result?.data?.transactions || [])
+      .pageQuery(makeRealmTransactionInfosQuery())
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || [])
       .catch(() => null);
     if (!transactions) {
       return null;
@@ -239,8 +237,8 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions: RealmTransaction[] | null = await this.indexerClient
-      .query(makeRealmTransactionInfoQuery(packagePath))
-      .then(result => result?.data?.transactions || [])
+      .pageQuery(makeRealmTransactionInfoQuery(packagePath))
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || [])
       .catch(() => null);
     if (!transactions) {
       return null;
@@ -279,7 +277,7 @@ export class RealmRepository implements IRealmRepository {
     );
   }
 
-  async getRealmPackages(): Promise<{
+  async getRealmPackages(cursor: string | null): Promise<{
     pageInfo: PageInfo;
     transactions: RealmTransaction<AddPackageValue>[];
   } | null> {
@@ -287,42 +285,49 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient
-      .pageQuery<RealmTransaction<AddPackageValue>>(makeRealmPackagesQuery())
-      .then(result => {
-        const edges = result?.data?.transactions.edges || [];
-        const transactions = edges.map(edge => edge.transaction);
-        return {
-          pageInfo: result.data.transactions.pageInfo,
-          transactions,
-        };
-      });
+    const response: {
+      data: PageQueryResponse<RealmTransaction<AddPackageValue>>;
+    } = await this.indexerClient.pageQuery<RealmTransaction<AddPackageValue>>(
+      makeRealmPackagesQuery(cursor),
+    );
+
+    const pageInfo = response?.data?.transactions?.pageInfo;
+    const transactionEdges = response?.data?.transactions?.edges || [];
+    const transactions = transactionEdges.map(edge => edge.transaction);
+
+    return {
+      transactions,
+      pageInfo,
+    };
   }
 
   async getTokens(): Promise<GRC20Info[] | null> {
-    if (!this.indexerClient) {
+    if (!this.onblocRPCClient) {
       return null;
     }
 
-    const transactions = await this.indexerClient
-      .query(makeTokensQuery())
-      .then(result => result?.data?.transactions || [])
-      .then((transactions: RealmTransaction<AddPackageValue>[]) => transactions);
-    return transactions
-      .flatMap(tx => tx.messages)
-      .map(message => {
-        for (const file of message.value.package?.files || []) {
-          const info = parseGRC20InfoByFile(file.body) || parseBankerGRC20InfoByFile(file.body);
-          if (info) {
-            return {
-              ...info,
-              packagePath: message.value.package?.path || '',
-            };
-          }
-        }
-        return null;
-      })
-      .filter(info => !!info) as GRC20Info[];
+    const request = makeRPCRequest({method: 'getGRC20Tokens'});
+    const response = await this.onblocRPCClient.call<
+      {
+        name: string;
+        owner: string;
+        symbol: string;
+        packagePath: string;
+        decimals: number;
+      }[]
+    >(request);
+
+    const result = response.result;
+    if (!result) {
+      return null;
+    }
+
+    return result.map(tokenInfo => ({
+      ...tokenInfo,
+      functions: [],
+      totalSupply: 0,
+      holders: 0,
+    }));
   }
 
   async getToken(packagePath: string): Promise<{
@@ -334,8 +339,8 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const transactions = await this.indexerClient
-      .query(makeTokenQuery(packagePath))
-      .then(result => (result?.data?.transactions as RealmTransaction<AddPackageValue>[]) || null)
+      .pageQuery<RealmTransaction<AddPackageValue>>(makeTokenQuery(packagePath))
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || [])
       .catch(() => null);
     if (!transactions || transactions?.length < 1) {
       return null;
@@ -389,9 +394,31 @@ export class RealmRepository implements IRealmRepository {
       return {};
     }
 
+    if (this.onblocRPCClient) {
+      const response = await this.onblocRPCClient.call<
+        {
+          address: string;
+          name: string;
+        }[]
+      >(
+        makeRPCRequest({
+          method: 'getUsernames',
+        }),
+      );
+
+      if (!response.result) {
+        return {};
+      }
+
+      return response.result.reduce<{[key in string]: string}>((accum, current) => {
+        accum[current.address] = current.name;
+        return accum;
+      }, {});
+    }
+
     const transactions = await this.indexerClient
-      .query(makeUsernameQuery())
-      .then(result => (result?.data?.transactions as RealmTransaction<MsgCallValue>[]) || null)
+      .pageQuery<RealmTransaction<MsgCallValue>>(makeUsernameQuery())
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || [])
       .catch(() => null);
 
     if (!transactions) {

@@ -1,5 +1,6 @@
 export enum QUERY_KEY {
   getRealms = 'getRealms',
+  getLatestRealms = 'getLatestRealms',
   getRealm = 'getRealm',
   getRealmFunctions = 'getRealmFunctions',
   getRealmPackages = 'getRealmPackages',

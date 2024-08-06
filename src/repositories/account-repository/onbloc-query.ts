@@ -30,7 +30,12 @@ export const makeAccountTransactionsQuery = (
             type_url: exec
             vm_param: {
               exec: {
-                func: "Transfer"
+                caller: "${address}"
+              }
+              add_package: {
+                creator: "${address}"
+              }
+              run: {
                 caller: "${address}"
               }
             }
@@ -64,6 +69,20 @@ export const makeAccountTransactionsQuery = (
           gas_fee {
             amount
           }
+          response {
+            events {
+              __typename
+              ...on GnoEvent {
+                type
+                pkg_path
+                func
+                attrs {
+                  key
+                  value
+                }
+              }
+            }
+          }
           messages {
             value {
               __typename
@@ -77,9 +96,11 @@ export const makeAccountTransactionsQuery = (
                 send
                 func
                 pkg_path
+                args
               }
               ... on MsgAddPackage {
                 creator
+                deposit
                 package {
                   path
                 }
@@ -99,64 +120,10 @@ export const makeAccountTransactionsQuery = (
   }
 `;
 
-export const makeTransactionsQuery = (fromBlockHeight: number) => gql`
-  {
-    transactions(filter: {
-      from_block_height: ${fromBlockHeight}
-    }) {
-      hash
-      index
-      success
-      block_height
-      gas_fee {
-        amount
-      }
-      messages {
-        value {
-          __typename
-          ... on BankMsgSend {
-            from_address
-            to_address
-            amount
-          }
-          ... on MsgCall {
-            caller
-            send
-            func
-            pkg_path
-          }
-          ... on MsgAddPackage {
-            creator
-            package {
-              path
-            }
-          }
-          ... on MsgRun {
-            caller
-            send
-            package {
-              path
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-export const makeTransactionHashQuery = (hash: string) => gql`
-  {
-    transactions(filter: {hash: "${hash}"}) {
-      hash
-      block_height
-    }
-  }
-`;
-
 export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => gql`
 {
   transactions(filter: {
-    message: {
+    messages: {
       type_url: exec
       vm_param: {
         exec: {
@@ -166,25 +133,33 @@ export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => 
       }
     }
   }) {
-    hash
-    index
-    success
-    block_height
-    gas_wanted
-    gas_used
-    gas_fee {
-      amount
-      denom
+    pageInfo {
+      last
+      hasNext
     }
-    messages {
-      value {
-        __typename
-        ...on MsgCall {
-          caller
-          send
-          pkg_path
-          func
-          args
+    edges {
+      transaction {
+        hash
+        index
+        success
+        block_height
+        gas_wanted
+        gas_used
+        gas_fee {
+          amount
+          denom
+        }
+        messages {
+          value {
+            __typename
+            ...on MsgCall {
+              caller
+              send
+              pkg_path
+              func
+              args
+            }
+          }
         }
       }
     }

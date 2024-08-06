@@ -40,3 +40,9 @@ export const getLocalDateString = (d: any) => {
   const offsetHoursString = offsetHours === 0 ? 'UTC' : `UTC${sign}${Math.abs(offsetHours)}`;
   return `${value} (${offsetHoursString})`;
 };
+
+export const dateToStr = (date: Date): string => {
+  const monthStr = `00${date.getMonth() + 1}`.slice(-2);
+  const dateStr = `00${date.getDate()}`.slice(-2);
+  return [date.getFullYear(), monthStr, dateStr].join('-');
+};
