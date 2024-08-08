@@ -92,9 +92,12 @@ export const BlockDatatable = () => {
       .key('total_fees')
       .name('Total Fees')
       .width(163)
-      .renderOption(totalFees => (
-        <DatatableItem.Amount value={totalFees?.value || 0} denom={totalFees?.denom || ''} />
-      ))
+      .renderOption((_, data) => {
+        if (data.numTxs === 0) {
+          return <DatatableItem.Amount value={'0'} denom={'GNOT'} />;
+        }
+        return <DatatableItem.LazyBlockTotalFee blockHeight={data.height} />;
+      })
       .build();
   };
 
