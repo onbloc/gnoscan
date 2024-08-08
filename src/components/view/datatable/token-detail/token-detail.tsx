@@ -123,7 +123,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
       .name('Fee')
       .width(113)
       .className('fee')
-      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.amount)} />)
+      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
       .build();
   };
 

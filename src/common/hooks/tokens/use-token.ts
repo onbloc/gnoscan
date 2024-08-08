@@ -26,7 +26,8 @@ export const useToken = (path: string[] | string | undefined) => {
   const {data, isFetched} = useGetGRC20Token(packagePath);
   const {data: realmFunctions, isFetched: isFetchedRealmFunctions} =
     useGetRealmFunctionsQuery(packagePath);
-  const {data: realmTransactions} = useGetRealmTransactionsWithArgsQuery(packagePath);
+  const {data: realmTransactions, isFetched: isFetchedRealmTransactions} =
+    useGetRealmTransactionsWithArgsQuery(packagePath);
   const [currentPage, setCurrentPage] = useState(0);
 
   const holders = useMemo(() => {
@@ -92,7 +93,7 @@ export const useToken = (path: string[] | string | undefined) => {
 
   return {
     isFetched: isFetched && isFetchedRealmFunctions,
-    isFetchedTransactions: isFetchedTransactionWithTimes,
+    isFetchedTransactions: isFetchedRealmTransactions,
     summary: {
       name: data?.tokenInfo.name || '',
       symbol: data?.tokenInfo.symbol || '',
