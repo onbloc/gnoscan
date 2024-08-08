@@ -1,18 +1,40 @@
 import {useMemo} from 'react';
 import {useGetMonthlyTransactionStatInfo} from '../common/use-get-monthly-transaction-stat-info';
 
-export const useTotalGasInfoApi = () => {
+export const useTotalGasInfoApi = (period?: number) => {
   const {data, isFetched} = useGetMonthlyTransactionStatInfo();
 
-  const transactionRealmGasInfo = useMemo(() => {
+  const realmGasSharedInfo = useMemo(() => {
     if (!data) {
+      return null;
+    }
+    if (!period || period === 7) {
+      return data.realmGasSharedInfoOfWeek;
+    }
+
+    return data.realmGasSharedInfoOfMonth;
+  }, [period, data]);
+
+  const bestRealms = useMemo(() => {
+    if (!data) {
+      return null;
+    }
+    if (!period || period === 7) {
+      return data.bestRealmsOfWeek;
+    }
+
+    return data.bestRealmsOfMonth;
+  }, [period, data]);
+
+  const transactionRealmGasInfo = useMemo(() => {
+    if (!realmGasSharedInfo || !bestRealms) {
       return null;
     }
 
     const dateTotalGas: {[key in string]: number} = {};
     const realmTotalGas: {[key in string]: number} = {};
-    const gasSharedInfo = data.realmGasSharedInfo;
-    const bestRealmPaths = [...data.bestRealms.map(d => d.packagePath), 'rest'];
+    const gasSharedInfo = realmGasSharedInfo;
+    const bestRealmPaths = [...bestRealms.map(d => d.packagePath), 'rest'];
 
     const transactionInfo = Object.keys(gasSharedInfo).reduce<{
       [key in string]: {[key in string]: number};
@@ -39,7 +61,7 @@ export const useTotalGasInfoApi = () => {
         })),
       })),
     };
-  }, [data]);
+  }, [bestRealms, realmGasSharedInfo]);
 
   return {
     isFetched,

@@ -20,7 +20,7 @@ export const MainRealmTotalGasShare = () => {
   const [period, setPeriod] = useState(7);
   const {isCustomNetwork} = useNetworkProvider();
   const useTotalGasInfoHook = isCustomNetwork ? useTotalGasInfo : useTotalGasInfoApi;
-  const {isFetched, transactionRealmGasInfo} = useTotalGasInfoHook();
+  const {isFetched, transactionRealmGasInfo} = useTotalGasInfoHook(period);
 
   const labels = useMemo(() => {
     const now = new Date();

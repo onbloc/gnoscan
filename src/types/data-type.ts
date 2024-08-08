@@ -88,8 +88,10 @@ export interface TotalTransactionStatInfo {
 export interface MonthlyTransactionStatInfo {
   accounts: MonthlyAccountTransaction[];
   dailyTransactionInfo: Record<string, MonthlyDailyTransaction>;
-  realmGasSharedInfo: Record<string, Record<string, MonthlyRealmGasShared>>;
-  bestRealms: MonthlyRealmGasShared[];
+  realmGasSharedInfoOfMonth: Record<string, Record<string, MonthlyRealmGasShared>>;
+  realmGasSharedInfoOfWeek: Record<string, Record<string, MonthlyRealmGasShared>>;
+  bestRealmsOfMonth: MonthlyRealmGasShared[];
+  bestRealmsOfWeek: MonthlyRealmGasShared[];
 }
 
 export interface MonthlyAccountTransaction {
