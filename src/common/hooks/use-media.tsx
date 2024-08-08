@@ -6,8 +6,18 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const Mobile = ({children}: Props) => {
+export const Mobile: React.FC<React.PropsWithChildren> = ({children}) => {
   const isMobile = useMediaQuery({maxWidth: 767});
+
+  if (!isMobile) {
+    return <React.Fragment />;
+  }
+
+  return <React.Fragment>{children}</React.Fragment>;
+};
+
+export const NonMobile: React.FC<React.PropsWithChildren> = ({children}) => {
+  const isMobile = useMediaQuery({minWidth: 767});
   return <>{isMobile && children}</>;
 };
 
