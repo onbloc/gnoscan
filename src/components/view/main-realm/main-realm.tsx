@@ -3,17 +3,20 @@
 import React from 'react';
 import styled from 'styled-components';
 import Card from '@/components/ui/card';
-import Text from '@/components/ui/text';
 import {eachMedia} from '@/common/hooks/use-media';
 import {MainRealmTotalGasShare} from '.';
 import ActiveNewest from '../main-active-list/active-newest';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {MainRealmTotalGasShareApi} from './total-gas-share/total-gas-share-api';
 
 const MainRealm = () => {
   const media = eachMedia();
+  const {isCustomNetwork} = useNetworkProvider();
+
   return (
     <Wrapper className={media}>
       <Card height="368px" className="card-1">
-        <MainRealmTotalGasShare />
+        {isCustomNetwork ? <MainRealmTotalGasShare /> : <MainRealmTotalGasShareApi />}
       </Card>
       <ActiveNewest />
     </Wrapper>

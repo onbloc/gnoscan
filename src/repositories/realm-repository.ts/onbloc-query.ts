@@ -55,7 +55,11 @@ export const makeRealmQuery = (packagePath: string) => gql`
 
 export const makeRealmsQuery = () => gql`
   {
-    transactions(filter: {success: true, messages: {type_url: add_package}}) {
+    transactions(
+      filter: {success: true, messages: {type_url: add_package}}
+      ascending: false
+      size: 10000
+    ) {
       edges {
         transaction {
           hash
@@ -366,7 +370,7 @@ export const makeRealmPackagesQuery = (cursor: string | null) => gql`
     transactions(
       filter: {success: true, messages: {type_url: add_package}}
       after: ${cursor ? `"${cursor}"` : 'null'}
-      size: 10000
+      size: 20
       ascending: false
     ) {
       pageInfo {

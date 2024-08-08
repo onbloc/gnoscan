@@ -53,28 +53,28 @@ const ActiveNewest = () => {
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[1]} color="blue">
                 <Link href={getUrlWithNetwork(`/realms/details?path=${realm.packagePath}`)}>
-                  <span>
-                    <Tooltip content={realm.packagePath}>
-                      {makeDisplayRealmPath(realm.packagePath)}
-                    </Tooltip>
-                  </span>
+                  <Tooltip content={realm.packagePath}>
+                    {makeDisplayRealmPath(realm.packagePath)}
+                  </Tooltip>
                 </Link>
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">
-                <Link href={getUrlWithNetwork(`/accounts/${realm.creator}`)} passHref>
-                  <FitContentA>
+                <FitContentA>
+                  <Link href={getUrlWithNetwork(`/accounts/${realm.creator}`)} passHref>
                     <Tooltip content={realm.creator}>
                       {getName(realm.creator) || textEllipsis(realm.creator)}
                     </Tooltip>
-                  </FitContentA>
-                </Link>
+                  </Link>
+                </FitContentA>
               </StyledText>
               <LazyFunctions path={realm.packagePath} />
               <LazyRealmCalls path={realm.packagePath} />
               <StyledText type="p4" width={colWidth.newest[5]} color="blue">
-                <Link href={getUrlWithNetwork(`/blocks/${realm.blockHeight}`)} passHref>
-                  <FitContentA>{realm.blockHeight}</FitContentA>
-                </Link>
+                <FitContentA>
+                  <Link href={getUrlWithNetwork(`/blocks/${realm.blockHeight}`)} passHref>
+                    {realm.blockHeight}
+                  </Link>
+                </FitContentA>
               </StyledText>
             </List>
           ))}

@@ -5,18 +5,18 @@ import styled from 'styled-components';
 import Text from '@/components/ui/text';
 import theme from '@/styles/theme';
 import {Spinner} from '@/components/ui/loading';
-import {useTotalGasInfo} from '@/common/hooks/main/use-total-gas-info';
 import BigNumber from 'bignumber.js';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
+import {useTotalGasInfoApi} from '@/common/hooks/main/use-total-gas-info-api';
 import {dateToStr} from '@/common/utils/date-util';
 
 const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
   ssr: false,
 });
 
-export const MainRealmTotalGasShare = () => {
+export const MainRealmTotalGasShareApi = () => {
   const [period, setPeriod] = useState(7);
-  const {isFetched, transactionRealmGasInfo} = useTotalGasInfo();
+  const {isFetched, transactionRealmGasInfo} = useTotalGasInfoApi(period);
 
   const labels = useMemo(() => {
     const now = new Date();

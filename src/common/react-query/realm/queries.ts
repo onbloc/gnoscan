@@ -71,24 +71,26 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
         return [];
       }
 
-      return result.flatMap((transaction: any) => {
-        const tx = transaction;
-        return tx.messages.map((message: any) => ({
-          hash: tx.hash,
-          index: tx.index,
-          success: tx.success,
-          blockHeight: tx.block_height,
-          packageName: message.value.package.name,
-          packagePath: message.value.package.path,
-          creator: message.value.creator,
-          functionCount: 0,
-          totalCalls: 0,
-          totalGasUsed: {
-            value: '0',
-            denom: 'GNOT',
-          },
-        }));
-      });
+      return (
+        result?.flatMap((transaction: any) => {
+          const tx = transaction;
+          return tx.messages.map((message: any) => ({
+            hash: tx.hash,
+            index: tx.index,
+            success: tx.success,
+            blockHeight: tx.block_height,
+            packageName: message.value.package.name,
+            packagePath: message.value.package.path,
+            creator: message.value.creator,
+            functionCount: 0,
+            totalCalls: 0,
+            totalGasUsed: {
+              value: '0',
+              denom: 'GNOT',
+            },
+          }));
+        }) || []
+      );
     },
     select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository,
@@ -148,7 +150,6 @@ export const useGetRealmFunctionsQuery = (
 };
 
 export const useGetRealmPackagesInfinity = (
-  pageSize = 20,
   options?: UseInfiniteQueryOptions<any | null, Error>,
 ) => {
   const {currentNetwork} = useNetworkProvider();
@@ -160,34 +161,37 @@ export const useGetRealmPackagesInfinity = (
       if (!lastPage) {
         return null;
       }
-      return lastPage.pageInfo.last;
+
+      return lastPage?.pageInfo?.last || null;
     },
     queryFn: async context => {
       if (!realmRepository) {
         return null;
       }
       const cursor = context?.pageParam || null;
-      const result = await realmRepository.getRealmPackages(cursor).then(result =>
-        result?.transactions.flatMap(tx =>
-          tx.messages.map(message => ({
-            hash: tx.hash,
-            index: tx.index,
-            success: tx.success,
-            blockHeight: tx.block_height,
-            packageName: message.value.package?.name || '',
-            packagePath: message.value.package?.path || '',
-            creator: message.value.creator,
-            functionCount: 0,
-            totalCalls: 0,
-            totalGasUsed: {
-              value: '0',
-              denom: 'GNOT',
-            },
-          })),
-        ),
+      const response = await realmRepository.getRealmPackages(cursor);
+      const transactions = response?.transactions.flatMap(tx =>
+        tx.messages.map(message => ({
+          hash: tx.hash,
+          index: tx.index,
+          success: tx.success,
+          blockHeight: tx.block_height,
+          packageName: message.value.package?.name || '',
+          packagePath: message.value.package?.path || '',
+          creator: message.value.creator,
+          functionCount: 0,
+          totalCalls: 0,
+          totalGasUsed: {
+            value: '0',
+            denom: 'GNOT',
+          },
+        })),
       );
 
-      return result;
+      return {
+        pageInfo: response?.pageInfo,
+        transactions: transactions || [],
+      };
     },
     enabled: !!realmRepository,
     keepPreviousData: true,

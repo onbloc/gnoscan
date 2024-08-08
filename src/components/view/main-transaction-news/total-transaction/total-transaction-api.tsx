@@ -1,16 +1,16 @@
 import React, {useMemo} from 'react';
 import dynamic from 'next/dynamic';
 import {Spinner} from '@/components/ui/loading';
-import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
 import {DAY_TIME} from '@/common/values/constant-value';
+import {useTotalDailyInfoApi} from '@/common/hooks/main/use-total-daily-info-api';
 import {dateToStr} from '@/common/utils/date-util';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
 });
 
-export const MainTotalTransaction = () => {
-  const {isFetched, transactionInfo} = useTotalDailyInfo();
+export const MainTotalTransactionApi = () => {
+  const {isFetched, transactionInfo} = useTotalDailyInfoApi();
 
   const labels = useMemo(() => {
     const now = new Date();

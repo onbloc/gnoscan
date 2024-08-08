@@ -82,7 +82,7 @@ export const makeRealmEdgesQuery = () => gql`
 
 export const makeRealmsQuery = () => gql`
   {
-    transactions(filter: {success: true, message: {type_url: add_package}}, ascending: false) {
+    transactions(filter: {success: true, message: {type_url: add_package}}) {
       hash
       index
       success

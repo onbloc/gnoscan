@@ -24,12 +24,13 @@ import BigNumber from 'bignumber.js';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {useUpdateTime} from '@/common/hooks/main/use-update-time';
 import {MonthlyAccountTransaction} from '@/types/data-type';
+import {useMonthlyActiveAccountsApi} from '@/common/hooks/main/use-monthly-active-accounts-api';
 
-const ActiveAccount = () => {
+const ActiveAccountApi = () => {
   const media = eachMedia();
   const {getUrlWithNetwork} = useNetwork();
   const {updatedAt} = useUpdateTime();
-  const useMonthlyActiveAccountsHook = useMonthlyActiveAccounts;
+  const useMonthlyActiveAccountsHook = useMonthlyActiveAccountsApi;
   const {isFetched, data: accounts} = useMonthlyActiveAccountsHook();
   const {isFetched: isFetchedUsername, getName} = useUsername();
 
@@ -110,4 +111,4 @@ const LazyAccountBalance: React.FC<{address: string}> = ({address}) => {
   );
 };
 
-export default ActiveAccount;
+export default ActiveAccountApi;

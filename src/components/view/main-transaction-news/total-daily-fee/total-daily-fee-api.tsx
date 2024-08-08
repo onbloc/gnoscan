@@ -1,16 +1,18 @@
 import React, {useMemo} from 'react';
 import dynamic from 'next/dynamic';
 import {Spinner} from '@/components/ui/loading';
-import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
+import BigNumber from 'bignumber.js';
+import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {DAY_TIME} from '@/common/values/constant-value';
+import {useTotalDailyInfoApi} from '@/common/hooks/main/use-total-daily-info-api';
 import {dateToStr} from '@/common/utils/date-util';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
 });
 
-export const MainTotalTransaction = () => {
-  const {isFetched, transactionInfo} = useTotalDailyInfo();
+export const MainTotalDailyFeeApi = () => {
+  const {isFetched, transactionInfo} = useTotalDailyInfoApi();
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -39,14 +41,20 @@ export const MainTotalTransaction = () => {
       }
       return {
         date: label,
-        value: info.txCount,
+        value: BigNumber(info.totalGasFee.value)
+          .shiftedBy(GNOTToken.decimals * -1)
+          .toNumber(),
       };
     });
   }, [labels, transactionInfo]);
 
   return (
     <React.Fragment>
-      {isFetched ? <BarChart labels={labels} datas={chartData} /> : <Spinner position="center" />}
+      {isFetched ? (
+        <BarChart isDenom labels={labels} datas={chartData} />
+      ) : (
+        <Spinner position="center" />
+      )}
     </React.Fragment>
   );
 };

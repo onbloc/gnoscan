@@ -5,8 +5,6 @@ import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
 import BigNumber from 'bignumber.js';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {DAY_TIME} from '@/common/values/constant-value';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {useTotalDailyInfoApi} from '@/common/hooks/main/use-total-daily-info-api';
 import {dateToStr} from '@/common/utils/date-util';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
@@ -14,9 +12,7 @@ const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.B
 });
 
 export const MainTotalDailyFee = () => {
-  const {isCustomNetwork} = useNetworkProvider();
-  const useTotalDailyInfoHook = isCustomNetwork ? useTotalDailyInfo : useTotalDailyInfoApi;
-  const {isFetched, transactionInfo} = useTotalDailyInfoHook();
+  const {isFetched, transactionInfo} = useTotalDailyInfo();
 
   const labels = useMemo(() => {
     const now = new Date();

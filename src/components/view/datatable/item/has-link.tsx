@@ -16,17 +16,17 @@ export const HasLink = ({text, textSize = 'p4', path, color = 'blue'}: Props) =>
   const {getUrlWithNetwork} = useNetwork();
 
   return (
-    <Link href={getUrlWithNetwork(path)} passHref>
-      <StyledA>
+    <StyledA>
+      <Link href={getUrlWithNetwork(path)} passHref>
         <Text type={textSize} color={color}>
           {text}
         </Text>
-      </StyledA>
-    </Link>
+      </Link>
+    </StyledA>
   );
 };
 
-const StyledA = styled.a`
+const StyledA = styled.span`
   width: 100%;
   max-width: fit-content;
 `;

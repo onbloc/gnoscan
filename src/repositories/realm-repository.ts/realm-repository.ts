@@ -8,7 +8,6 @@ import {
   RealmTransaction,
   RealmTransactionInfo,
 } from './types';
-import {gql} from '@apollo/client';
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCI} from '@gnolang/tm2-js-client';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
@@ -61,7 +60,14 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient.query(makeRealmsQuery(), pageOption);
+    const response = await this.indexerClient
+      .query(makeRealmsQuery(), pageOption)
+      .catch(() => null);
+    if (!response) {
+      return null;
+    }
+
+    return response.data?.transactions;
   }
 
   async getRealm(realmPath: string): Promise<RealmTransaction | null> {
