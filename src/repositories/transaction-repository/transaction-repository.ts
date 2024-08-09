@@ -6,26 +6,28 @@ import {
   makeSimpleTransactionsByFromHeight,
   makeTransactionHashQuery,
 } from './query';
-import {Transaction} from '@/types/data-type';
+import {TotalTransactionStatInfo, Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
 import {PageOption} from '@/common/clients/indexer-client/types';
 import {makeTransactionsQuery} from '../account-repository/query';
+import {getDefaultMessage} from '../utility';
 
 function mapTransaction(data: any): Transaction {
-  const firstMessage = data.messages[0]?.value;
+  const defaultMessage = getDefaultMessage(data.messages[0])?.value;
   const amountValue =
-    firstMessage?.amount || firstMessage?.send || firstMessage?.deposit || '0ugnot';
+    defaultMessage?.amount || defaultMessage?.send || defaultMessage?.deposit || '0ugnot';
   return {
     hash: data.hash,
     success: data.success === true,
     numOfMessage: data.messages.length,
-    type: firstMessage?.__typename,
-    packagePath: firstMessage?.package?.path || firstMessage?.pkg_path || firstMessage?.__typename,
-    functionName: firstMessage?.func || firstMessage?.__typename,
+    type: defaultMessage?.__typename,
+    packagePath:
+      defaultMessage?.package?.path || defaultMessage?.pkg_path || defaultMessage?.__typename,
+    functionName: defaultMessage?.func || defaultMessage?.__typename,
     blockHeight: data.block_height,
-    from: firstMessage?.caller || firstMessage?.creator || firstMessage?.from_address,
-    to: firstMessage?.to_address,
+    from: defaultMessage?.caller || defaultMessage?.creator || defaultMessage?.from_address,
+    to: defaultMessage?.to_address,
     amount: {
       value: parseTokenAmount(amountValue).toString() || '0',
       denom: 'ugnot',
@@ -56,15 +58,14 @@ export class TransactionRepository implements ITransactionRepository {
     if (!pageOption) {
       const results: Transaction[] = [];
       let fromBlockHeight = 1;
-      let hasError = true;
+      let hasNext = true;
       try {
-        while (hasError === true) {
+        while (hasNext === true) {
           const response = await this.indexerClient?.query(makeTransactionsQuery(fromBlockHeight));
-          const transactions = response?.data?.transactions;
-          hasError = Array.isArray(response.errors);
-          if (hasError) {
-            fromBlockHeight =
-              transactions[response?.data?.transactions?.length - 1].block_height + 1;
+          const transactions = response?.data?.transactions || [];
+          hasNext = Array.isArray(response.errors) && transactions.length > 0;
+          if (hasNext) {
+            fromBlockHeight = transactions[transactions.length - 1].block_height + 1;
           }
           results.push(...transactions.map(mapTransaction));
         }
@@ -87,24 +88,12 @@ export class TransactionRepository implements ITransactionRepository {
       .then(result => result?.data?.transactions?.map(mapTransaction) || []);
   }
 
-  async getTransactionsPage(
-    minBlockHeight: number,
-    maxBlockHeight: number,
-    pageOption: PageOption,
-  ): Promise<Transaction[]> {
-    if (!this.indexerClient || !pageOption) {
-      return [];
-    }
+  async getTransactionsPage(): Promise<null> {
+    return null;
+  }
 
-    return this.indexerClient
-      ?.queryWithOptions(
-        makeTransactionsQuery(1),
-        pageOption || {
-          page: 0,
-          pageSize: 0,
-        },
-      )
-      .then(result => result?.data?.transactions?.map(mapTransaction) || []);
+  getTransactionStatInfo(): Promise<TotalTransactionStatInfo> {
+    throw new Error('not supported');
   }
 
   async getTransactionBlockHeight(transactionHash: string): Promise<number | null> {
@@ -119,11 +108,13 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     if (this.indexerClient) {
-      return this.indexerClient
-        ?.query(makeTransactionHashQuery(transactionHash))
-        .then(result =>
-          result.data.transactions.length > 0 ? result.data.transactions[0].block_height : null,
-        );
+      return this.indexerClient?.query(makeTransactionHashQuery(transactionHash)).then(result => {
+        const transactions = result?.data?.transactions || [];
+        if (transactions.length === 0) {
+          return null;
+        }
+        return transactions[0].block_height;
+      });
     }
 
     return null;
@@ -164,16 +155,16 @@ export class TransactionRepository implements ITransactionRepository {
 
     const results: any[] = [];
     let fromBlockHeight = 1;
-    let hasError = true;
+    let hasNext = true;
     try {
-      while (hasError === true) {
+      while (hasNext === true) {
         const response = await this.indexerClient?.query(
           makeSimpleTransactionsByFromHeight(fromBlockHeight),
         );
-        const transactions = response?.data?.transactions;
-        hasError = Array.isArray(response.errors);
-        if (hasError) {
-          fromBlockHeight = transactions[response?.data?.transactions?.length - 1].block_height + 1;
+        const transactions = response?.data?.transactions || [];
+        hasNext = Array.isArray(response.errors) && transactions.length > 0;
+        if (hasNext) {
+          fromBlockHeight = transactions[transactions.length - 1].block_height + 1;
         }
         results.push(...transactions);
       }
@@ -183,5 +174,9 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     return results;
+  }
+
+  async getMonthlyTransactionStatInfo(): Promise<null> {
+    return null;
   }
 }

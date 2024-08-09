@@ -19,6 +19,8 @@ import {useNetwork} from '@/common/hooks/use-network';
 import {useUsername} from '@/common/hooks/account/use-username';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {formatDisplayPackagePath, makeDisplayNumber} from '@/common/utils/string-util';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {TokenDetailDatatablePage} from '@/components/view/datatable/token-detail/token-detail-page';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -30,6 +32,7 @@ const TOOLTIP_PACKAGE_PATH = (
 const TokenDetails = () => {
   const {isFetched: isFetchedUsername, getName} = useUsername();
   const {getUrlWithNetwork} = useNetwork();
+  const {isCustomNetwork} = useNetworkProvider();
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
@@ -152,7 +155,8 @@ const TokenDetails = () => {
           </DataSection>
 
           <DataSection title="Transactions">
-            {currentPath && <TokenDetailDatatable path={currentPath} />}
+            {currentPath && isCustomNetwork && <TokenDetailDatatable path={currentPath} />}
+            {currentPath && !isCustomNetwork && <TokenDetailDatatablePage path={currentPath} />}
           </DataSection>
         </>
       )}

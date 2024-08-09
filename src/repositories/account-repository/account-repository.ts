@@ -2,7 +2,6 @@ import {parseABCI} from '@gnolang/tm2-js-client';
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
-import {parseTokenAmount} from '@/common/utils/token.utility';
 import {Transaction} from '@/types/data-type';
 
 import {
@@ -11,41 +10,13 @@ import {
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
 } from '../response/transaction.mapper';
-import {PageOption} from '@/common/clients/indexer-client/types';
-import {IAccountRepository} from './types';
+import {AccountTransactionResponse, IAccountRepository} from './types';
 import {
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
-  makeTransactionsQuery,
   makeVMTransactionsByAddressQuery,
 } from './query';
-
-function mapTransaction(data: any): Transaction {
-  const firstMessage = data.messages[0]?.value;
-  const amountValue =
-    firstMessage?.amount || firstMessage?.send || firstMessage?.deposit || '0ugnot';
-  return {
-    hash: data.hash,
-    success: data.success === true,
-    numOfMessage: data.messages.length,
-    type: firstMessage?.__typename,
-    packagePath: firstMessage?.package?.path || firstMessage?.pkg_path || firstMessage?.__typename,
-    functionName: firstMessage?.func || firstMessage?.__typename,
-    blockHeight: data.block_height,
-    from: firstMessage?.caller || firstMessage?.creator || firstMessage?.from_address,
-    to: firstMessage?.to_address,
-    amount: {
-      value: parseTokenAmount(amountValue).toString() || '0',
-      denom: 'ugnot',
-    },
-    time: '',
-    fee: {
-      value: data?.gas_fee?.amount || '0',
-      denom: 'ugnot',
-    },
-  };
-}
 
 export class AccountRepository implements IAccountRepository {
   constructor(
@@ -83,40 +54,8 @@ export class AccountRepository implements IAccountRepository {
     return Promise.all(fetchers).then(results => results.filter(result => !!result));
   }
 
-  async getTransactions(minBlockHeight: number, maxBlockHeight: number): Promise<Transaction[]> {
-    if (!this.indexerClient) {
-      return [];
-    }
-
-    const results: Transaction[] = [];
-    let fromBlockHeight = 1;
-    let hasError = true;
-    try {
-      while (hasError === true) {
-        const response = await this.indexerClient?.query(makeTransactionsQuery(fromBlockHeight));
-        const transactions = response?.data?.transactions;
-        hasError = Array.isArray(response.errors);
-        if (hasError) {
-          fromBlockHeight = transactions[response?.data?.transactions?.length - 1].block_height + 1;
-        }
-        results.push(...transactions.map(mapTransaction));
-      }
-    } catch (e) {
-      console.error(e);
-      return [];
-    }
-
-    return results;
-  }
-
-  async getTransactionsByPagination(pageOption: PageOption): Promise<Transaction[]> {
-    if (!this.indexerClient) {
-      return [];
-    }
-
-    return this.indexerClient
-      ?.query(makeTransactionsQuery(1))
-      .then(result => result?.data?.transactions?.map(mapTransaction) || []);
+  async getAccountTransactions(): Promise<AccountTransactionResponse> {
+    throw new Error('not supported function');
   }
 
   async getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {
@@ -125,7 +64,7 @@ export class AccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.query(makeGRC20ReceivedTransactionsByAddressQuery(address))
+      ?.query<any>(makeGRC20ReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
       .then(transactions =>
         transactions

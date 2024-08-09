@@ -1,13 +1,18 @@
-import {Amount, Board} from '@/types/data-type';
+import {Amount, Blog, BlogDetail} from '@/types/data-type';
 import {TransactionWithEvent} from '../response/transaction.types';
-import {PageOption} from '@/common/clients/indexer-client/types';
+import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
 
 export interface IRealmRepository {
+  getLatestRealms(): Promise<any | null>;
+
   getRealms(pageOption?: PageOption): Promise<any | null>;
 
   getRealm(realmPath: string): Promise<RealmTransaction | null>;
 
-  getRealmPackages(pageOption: PageOption): Promise<RealmTransaction<AddPackageValue>[] | null>;
+  getRealmPackages(cursor: string | null): Promise<{
+    pageInfo: PageInfo;
+    transactions: RealmTransaction<AddPackageValue>[];
+  } | null>;
 
   getRealmFunctions(realmPath: string): Promise<RealmFunction[] | null>;
 
@@ -15,6 +20,14 @@ export interface IRealmRepository {
     realmPath: string,
     pageOption?: PageOption,
   ): Promise<TransactionWithEvent[] | null>;
+
+  getRealmTransactionsByEvent(
+    realmPath: string,
+    cursor?: string | null,
+  ): Promise<{
+    pageInfo: PageInfo;
+    transactions: TransactionWithEvent[];
+  } | null>;
 
   getRealmTransactionsWithArgs(
     realmPath: string,
@@ -25,6 +38,8 @@ export interface IRealmRepository {
     realmPath: string,
     pageOption?: PageOption,
   ): Promise<RealmTransaction<MsgCallValue>[] | null>;
+
+  getTokenHolders(realmPath: string): Promise<number>;
 
   getRealmTotalSupply(realmPath: string): Promise<number | null>;
 
@@ -43,7 +58,9 @@ export interface IRealmRepository {
 
   getUsernames(): Promise<{[key in string]: string}>;
 
-  getBoards(): Promise<Board[]>;
+  getBlogs(): Promise<Blog[]>;
+
+  getBlogPublisher(path: string): Promise<string | null>;
 }
 
 export interface RealmFunction {

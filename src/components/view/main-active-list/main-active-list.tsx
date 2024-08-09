@@ -4,11 +4,13 @@ import Card from '@/components/ui/card';
 import mixins from '@/styles/mixins';
 import {eachMedia} from '@/common/hooks/use-media';
 import ActiveAccount from './active-account';
-import ActiveBoards from './active-boards';
 import Text from '@/components/ui/text';
 import {AmountText} from '@/components/ui/text/amount-text';
 import {TextProps} from '@/components/ui/text/text';
 import {PaletteKeyType} from '@/styles';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import ActiveAccountApi from './active-account/active-account-api';
+import ActiveLatestBlogs from './active-latest-blogs/active-latest-blogs';
 
 interface StyledTextProps extends TextProps {
   width?: string;
@@ -18,22 +20,34 @@ interface StyledTextProps extends TextProps {
 export const listTitle = {
   accounts: ['No.', 'Account', 'Total Txs', 'Non-Transfer Txs', 'Balance (GNOT)'],
   boards: ['No.', 'Name', 'Replies', 'Reposts', 'Unique Users'],
+  blogs: ['No.', 'Title', 'Publisher'],
   newest: ['No.', 'Path', 'Publisher', 'Functions', 'Calls', 'Block'],
 };
 
 export const colWidth = {
   accounts: ['52px', '127px', '114px', '138px', '127px'],
   boards: ['52px', '126.5px', '126.5px', '126.5px', '126.5px'],
+  blogs: ['52px', '380px', '126px'],
   newest: ['52px', '101px', '101px', '101px', '101px', '102px'],
 };
 
 const MainActiveList = () => {
   const media = eachMedia();
+  const {isCustomNetwork} = useNetworkProvider();
 
   return (
     <Wrapper className={media}>
-      <ActiveAccount />
-      <ActiveBoards />
+      {isCustomNetwork ? (
+        <React.Fragment>
+          <ActiveAccount />
+          <ActiveLatestBlogs />
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <ActiveAccountApi />
+          <ActiveLatestBlogs />
+        </React.Fragment>
+      )}
     </Wrapper>
   );
 };
@@ -90,6 +104,7 @@ const textStyle = css`
     a {
       ${mixins.flexbox('row', 'center', 'flex-start', false)};
       width: fit-content;
+      max-width: 100%;
     }
   }
 `;
@@ -120,7 +135,7 @@ export const StyledAmountText = styled(AmountText)<{width?: string; color?: Pale
   }
 `;
 
-export const FitContentA = styled.a`
+export const FitContentA = styled.span`
   width: fit-content;
 `;
 

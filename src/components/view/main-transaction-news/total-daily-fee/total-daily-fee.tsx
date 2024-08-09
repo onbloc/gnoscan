@@ -5,6 +5,7 @@ import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
 import BigNumber from 'bignumber.js';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {DAY_TIME} from '@/common/values/constant-value';
+import {dateToStr} from '@/common/utils/date-util';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
@@ -26,9 +27,7 @@ export const MainTotalDailyFee = () => {
     return Array.from({length: barCount})
       .map((_, index) => new Date(todayTime - DAY_TIME * index))
       .sort((d1, d2) => d1.getTime() - d2.getTime())
-      .map(date => {
-        return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
-      });
+      .map(dateToStr);
   }, []);
 
   const chartData = useMemo(() => {
@@ -42,7 +41,7 @@ export const MainTotalDailyFee = () => {
       }
       return {
         date: label,
-        value: BigNumber(info.gasFee.value)
+        value: BigNumber(info.totalGasFee.value)
           .shiftedBy(GNOTToken.decimals * -1)
           .toNumber(),
       };

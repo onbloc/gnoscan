@@ -11,6 +11,7 @@ import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {useToken} from '@/common/hooks/tokens/use-token';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {useTokenTransactions} from '@/common/hooks/tokens/use-token-transactions';
 
 interface Props {
   path: string[] | any;
@@ -29,7 +30,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
   const themeMode = useRecoilValue(themeState);
 
   const {getTokenAmount} = useTokenMeta();
-  const {isFetchedTransactions, transactions, hasNextPage, nextPage} = useToken(path);
+  const {isFetchedTransactions, transactions, hasNextPage, nextPage} = useTokenTransactions(path);
 
   const createHeaders = () => {
     return [
@@ -123,7 +124,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
       .name('Fee')
       .width(113)
       .className('fee')
-      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.amount)} />)
+      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
       .build();
   };
 

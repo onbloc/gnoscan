@@ -12,6 +12,7 @@ import {
 import {Transaction} from '@/types/data-type';
 import {mapTransactionByRealm} from '@/repositories/realm-repository.ts/mapper';
 import {mapVMTransaction} from '@/repositories/response/transaction.mapper';
+import {PageInfo} from '@/common/clients/indexer-client/types';
 
 export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
   const {currentNetwork} = useNetworkProvider();
@@ -28,9 +29,53 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
         return [];
       }
 
+      return result.flatMap((transaction: any) => {
+        const tx = transaction;
+        return tx.messages.map((message: any) => ({
+          hash: tx.hash,
+          index: tx.index,
+          success: tx.success,
+          blockHeight: tx.block_height,
+          packageName: message.value.package.name,
+          packagePath: message.value.package.path,
+          creator: message.value.creator,
+          functionCount: 0,
+          totalCalls: 0,
+          totalGasUsed: {
+            value: '0',
+            denom: 'GNOT',
+          },
+        }));
+      });
+    },
+    select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
+    enabled: !!realmRepository,
+    ...options,
+    keepPreviousData: true,
+    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<any, Error>({
+    queryKey: [QUERY_KEY.getLatestRealms, currentNetwork?.chainId || ''],
+    queryFn: async () => {
+      if (!realmRepository) {
+        return [];
+      }
+      const result = await realmRepository.getLatestRealms();
+      if (!result) {
+        return [];
+      }
+
       return (
-        result?.data?.transactions?.flatMap((tx: any) =>
-          tx.messages.map((message: any) => ({
+        result?.flatMap((transaction: any) => {
+          const tx = transaction;
+          return tx.messages.map((message: any) => ({
             hash: tx.hash,
             index: tx.index,
             success: tx.success,
@@ -44,8 +89,8 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
               value: '0',
               denom: 'GNOT',
             },
-          })),
-        ) || []
+          }));
+        }) || []
       );
     },
     select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
@@ -58,7 +103,7 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
 };
 
 export const useGetRealmQuery = (
-  packagePath: string,
+  packagePath: string | null,
   options?: UseQueryOptions<RealmTransaction<AddPackageValue> | null, Error>,
 ) => {
   const {currentNetwork} = useNetworkProvider();
@@ -67,7 +112,7 @@ export const useGetRealmQuery = (
   return useQuery<RealmTransaction<AddPackageValue> | null, Error>({
     queryKey: [QUERY_KEY.getRealm, currentNetwork?.chainId || '', packagePath],
     queryFn: async () => {
-      if (!realmRepository) {
+      if (!realmRepository || !packagePath) {
         return null;
       }
 
@@ -106,7 +151,6 @@ export const useGetRealmFunctionsQuery = (
 };
 
 export const useGetRealmPackagesInfinity = (
-  pageSize = 20,
   options?: UseInfiniteQueryOptions<any | null, Error>,
 ) => {
   const {currentNetwork} = useNetworkProvider();
@@ -114,46 +158,41 @@ export const useGetRealmPackagesInfinity = (
 
   return useInfiniteQuery<any | null, Error>({
     queryKey: [QUERY_KEY.getRealmPackages, currentNetwork?.chainId || ''],
-    getNextPageParam: (lastPage, pages) => {
+    getNextPageParam: lastPage => {
       if (!lastPage) {
-        return false;
+        return null;
       }
-      if (lastPage.length < pageSize) {
-        return false;
-      }
-      return pages.length;
+
+      return lastPage?.pageInfo?.last || null;
     },
     queryFn: async context => {
       if (!realmRepository) {
         return null;
       }
-      const currentPageIndex = context?.pageParam || 0;
-      const result = await realmRepository
-        .getRealmPackages({
-          page: currentPageIndex,
-          pageSize,
-        })
-        .then(result =>
-          result?.flatMap(tx =>
-            tx.messages.map(message => ({
-              hash: tx.hash,
-              index: tx.index,
-              success: tx.success,
-              blockHeight: tx.block_height,
-              packageName: message.value.package?.name || '',
-              packagePath: message.value.package?.path || '',
-              creator: message.value.creator,
-              functionCount: 0,
-              totalCalls: 0,
-              totalGasUsed: {
-                value: '0',
-                denom: 'GNOT',
-              },
-            })),
-          ),
-        );
+      const cursor = context?.pageParam || null;
+      const response = await realmRepository.getRealmPackages(cursor);
+      const transactions = response?.transactions.flatMap(tx =>
+        tx.messages.map(message => ({
+          hash: tx.hash,
+          index: tx.index,
+          success: tx.success,
+          blockHeight: tx.block_height,
+          packageName: message.value.package?.name || '',
+          packagePath: message.value.package?.path || '',
+          creator: message.value.creator,
+          functionCount: 0,
+          totalCalls: 0,
+          totalGasUsed: {
+            value: '0',
+            denom: 'GNOT',
+          },
+        })),
+      );
 
-      return result;
+      return {
+        pageInfo: response?.pageInfo,
+        transactions: transactions || [],
+      };
     },
     enabled: !!realmRepository,
     keepPreviousData: true,
@@ -244,22 +283,8 @@ export const useGetHoldersQuery = (
       if (!realmRepository || !realmPath) {
         return 0;
       }
-      const transactions = await realmRepository.getRealmCallTransactionsWithArgs(realmPath);
-      if (!transactions) {
-        return 0;
-      }
 
-      const addresses = transactions
-        .flatMap(tx =>
-          tx.messages.flatMap(message => {
-            const caller = message.value.caller;
-            const receiver = message.value?.args?.[0];
-            return [caller, receiver];
-          }),
-        )
-        .filter(address => !!address);
-
-      return [...new Set(addresses)].length;
+      return realmRepository.getTokenHolders(realmPath);
     },
     enabled: !!realmRepository && !!realmPath,
     ...options,
@@ -312,6 +337,96 @@ export const useGetRealmTransactionsWithArgsQuery = (
       return transactions.map(mapTransactionByRealm);
     },
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
+    enabled: !!realmRepository && !!realmPath,
+    ...options,
+  });
+};
+
+export const useGetRealmTransactionsByEventQuery = (
+  realmPath: string | null,
+  options?: UseQueryOptions<Transaction[], Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<Transaction[], Error>({
+    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || '', realmPath],
+    queryFn: async () => {
+      if (!realmRepository || !realmPath) {
+        return [];
+      }
+      const result = await realmRepository.getRealmTransactionsByEvent(realmPath);
+      if (!result) {
+        return [];
+      }
+
+      return result.transactions.map(mapTransactionByRealm);
+    },
+    select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
+    enabled: !!realmRepository && !!realmPath,
+    ...options,
+  });
+};
+
+export const useGetRealmTransactionsByEventInfinityQuery = (
+  realmPath: string | null,
+  options?: UseInfiniteQueryOptions<
+    {
+      pageInfo: PageInfo;
+      transactions: Transaction[];
+    },
+    Error
+  >,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useInfiniteQuery<
+    {
+      pageInfo: PageInfo;
+      transactions: Transaction[];
+    },
+    Error
+  >({
+    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || '', realmPath],
+    getNextPageParam: lastPage => {
+      if (!lastPage?.pageInfo?.hasNext) {
+        return false;
+      }
+
+      return lastPage.pageInfo;
+    },
+    queryFn: async context => {
+      if (!realmRepository || !realmPath) {
+        return {
+          pageInfo: {
+            hasNext: false,
+            last: null,
+          },
+          transactions: [],
+        };
+      }
+
+      const cursor = context?.pageParam?.last || null;
+      const result = await realmRepository.getRealmTransactionsByEvent(realmPath, cursor);
+      if (!result) {
+        return {
+          pageInfo: {
+            hasNext: false,
+            last: null,
+          },
+          transactions: [],
+        };
+      }
+
+      return {
+        pageInfo: {
+          hasNext: result?.pageInfo?.hasNext || false,
+          last: result?.pageInfo?.last || null,
+        },
+        transactions: result.transactions.map(mapTransactionByRealm),
+      };
+    },
     enabled: !!realmRepository && !!realmPath,
     ...options,
   });

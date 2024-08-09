@@ -1,11 +1,13 @@
 export enum QUERY_KEY {
   getRealms = 'getRealms',
+  getLatestRealms = 'getLatestRealms',
   getRealm = 'getRealm',
   getRealmFunctions = 'getRealmFunctions',
   getRealmPackages = 'getRealmPackages',
   getRealmTransactions = 'getRealmTransactions',
   getRealmTransactionInfo = 'getRealmTransactionInfo',
   getRealmTransactionsWithArgs = 'getRealmTransactionsWithArgs',
+  getRealmTransactionsByEvent = 'getRealmTransactionsByEvent',
   getGRC20Tokens = 'getGRC20Tokens',
   getGRC20Token = 'getGRC20Token',
   getRealmTotalSupply = 'getRealmTotalSupply',

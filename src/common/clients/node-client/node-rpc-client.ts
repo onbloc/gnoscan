@@ -20,7 +20,6 @@ import {
 
 function handleResponse<T>(response: RPCResponse<T>): T {
   if (!response.result) {
-    console.log(response.error);
     throw new Error('error');
   }
   return response.result;
@@ -172,10 +171,10 @@ export class NodeRPCClient implements NodeClient {
   abciQueryVMQueryEvaluation(
     packagePath: string,
     funcName: string,
-    args: string[],
+    args: (string | number)[],
   ): Promise<NodeResponseABCIQuery> {
     const path = 'vm/qeval';
-    const paramArgs = args.map(arg => `"${arg}"`).join(',');
+    const paramArgs = args.map(arg => (typeof arg === 'string' ? `"${arg}"` : `${arg}`)).join(',');
     const paramQuery = `${funcName}(${paramArgs})`;
     const paramQueryString = prepareVMABCIEvaluateExpressionQuery([packagePath, paramQuery]);
 

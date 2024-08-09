@@ -8,12 +8,11 @@ import {
   RealmTransaction,
   RealmTransactionInfo,
 } from './types';
-import {gql} from '@apollo/client';
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCI} from '@gnolang/tm2-js-client';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
 import {parseTokenAmount} from '@/common/utils/token.utility';
-import {Amount, Board} from '@/types/data-type';
+import {Amount, Blog, BlogDetail, Board} from '@/types/data-type';
 import {isAddPackageMessageValue} from './mapper';
 import {
   GRC20_FUNCTIONS,
@@ -26,7 +25,7 @@ import {
   extractStringFromResponse,
   parseABCIQueryNumberResponse,
 } from '@/common/clients/node-client/utility';
-import {PageOption} from '@/common/clients/indexer-client/types';
+import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
 import {
   makeRealmTransactionInfoQuery,
   makeTokenQuery,
@@ -39,20 +38,38 @@ import {
   makeRealmTransactionInfosQuery,
   makeRealmTransactionsQuery,
   makeRealmTransactionsWithArgsQuery,
+  makeRealmTransactionsByEventQuery,
 } from './query';
+import BigNumber from 'bignumber.js';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
     private nodeClient: NodeRPCClient | null,
     private indexerClient: IndexerClient | null,
+    private mainNodeRPCClient: NodeRPCClient | null,
   ) {}
+
+  async getLatestRealms(pageOption?: PageOption): Promise<any | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    return this.indexerClient.query(makeRealmsQuery(), pageOption);
+  }
 
   async getRealms(pageOption?: PageOption): Promise<any | null> {
     if (!this.indexerClient) {
       return null;
     }
 
-    return this.indexerClient.query(makeRealmsQuery(), pageOption);
+    const response = await this.indexerClient
+      .query(makeRealmsQuery(), pageOption)
+      .catch(() => null);
+    if (!response) {
+      return null;
+    }
+
+    return response.data?.transactions;
   }
 
   async getRealm(realmPath: string): Promise<RealmTransaction | null> {
@@ -139,6 +156,28 @@ export class RealmRepository implements IRealmRepository {
           });
         }) || [],
     );
+  }
+
+  async getRealmTransactionsByEvent(realmPath: string): Promise<{
+    pageInfo: PageInfo;
+    transactions: TransactionWithEvent[];
+  } | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    const transactions = await this.indexerClient
+      .query<TransactionWithEvent>(makeRealmTransactionsByEventQuery(realmPath))
+      .then(result => result?.data?.transactions || []);
+    const pageInfo = {
+      last: null,
+      hasNext: false,
+    };
+
+    return {
+      pageInfo,
+      transactions,
+    };
   }
 
   async getRealmTransactionsWithArgs(
@@ -270,17 +309,24 @@ export class RealmRepository implements IRealmRepository {
     );
   }
 
-  async getRealmPackages(
-    pageOption: PageOption,
-  ): Promise<RealmTransaction<AddPackageValue>[] | null> {
+  async getRealmPackages(): Promise<{
+    pageInfo: PageInfo;
+    transactions: RealmTransaction<AddPackageValue>[];
+  } | null> {
     if (!this.indexerClient) {
       return null;
     }
 
     return this.indexerClient
-      .queryWithOptions(makeRealmPackagesQuery(), pageOption)
-      .then(result => result?.data?.transactions || [])
-      .then((transactions: RealmTransaction<AddPackageValue>[]) => transactions);
+      .pageQuery<RealmTransaction<AddPackageValue>>(makeRealmPackagesQuery())
+      .then(result => {
+        const edges = result?.data?.transactions.edges || [];
+        const transactions = edges.map(edge => edge.transaction);
+        return {
+          pageInfo: result.data.transactions.pageInfo,
+          transactions,
+        };
+      });
   }
 
   async getTokens(): Promise<GRC20Info[] | null> {
@@ -392,41 +438,107 @@ export class RealmRepository implements IRealmRepository {
       }, {});
   }
 
-  async getBoards(): Promise<Board[]> {
+  async getTokenHolders(packagePath: string): Promise<number> {
     if (!this.nodeClient) {
+      return 0;
+    }
+
+    const nodeResponse = await this.nodeClient.abciQueryVMQueryRender(packagePath + ':', []);
+    const responseData = nodeResponse.response.ResponseBase.Data
+      ? extractStringFromResponse(nodeResponse.response.ResponseBase.Data)
+      : '';
+
+    if (responseData) {
+      const regex = /(?:\*\s*)?\**\s*(?:Known\s+)?(accounts|users|holders)\**\s*:\s*(\d+)/i;
+      const match = responseData.match(regex);
+
+      if (match && match.length > 2) {
+        return BigNumber(match[2]).toNumber();
+      }
+    }
+
+    // If it can't be parsed in render function, look up the transaction.
+    if (!this.indexerClient) {
+      return 0;
+    }
+
+    const transactions = await this.indexerClient
+      .pageQuery(makeRealmTransactionsWithArgsQuery(packagePath))
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
+
+    if (!transactions) {
+      return 0;
+    }
+
+    const addresses = transactions
+      .flatMap(tx =>
+        tx.messages.flatMap((message: any) => {
+          const caller = message.value.caller;
+          const receiver = message.value?.args?.[0];
+          return [caller, receiver];
+        }),
+      )
+      .filter(address => !!address);
+
+    return [...new Set(addresses)].length;
+  }
+
+  async getBlogs(): Promise<Blog[]> {
+    if (!this.mainNodeRPCClient) {
       return [];
     }
 
-    const response = await this.nodeClient
-      .abciQueryVMQueryRender('gno.land/r/demo/boards:', [])
-      .then(response => response?.response?.ResponseBase?.Data);
+    const responseData = await this.mainNodeRPCClient
+      .abciQueryVMQueryRender('gno.land/r/gnoland/blog:', [])
+      .then(response => response?.response?.ResponseBase?.Data)
+      .then(extractStringFromResponse);
 
-    if (!response) {
+    if (!responseData) {
       return [];
     }
 
-    const data = extractStringFromResponse(response);
-    const lines = data
-      .trim()
-      .split('\n')
-      .filter(line => line.length > 1)
-      .map(line => line.trim().slice(2));
+    const results: Blog[] = [];
 
-    return lines
-      .map((line, index) => {
-        const match = line.match(/\[(.*?)\]\((.*?)\)/);
-        if (!match) {
-          return null;
-        }
+    const regex = /### \[(.+?)\]\((.+?)\)\s+(\d{2} \w+ \d{4})/g;
 
-        const path = match[1];
-        const name = match[1].split(':')[1];
-        return {
-          index,
-          path,
-          name,
-        };
-      })
-      .filter(result => !!result) as Board[];
+    let match;
+    let index = 0;
+    while ((match = regex.exec(responseData)) !== null && index < 10) {
+      const [, title, path, date] = match;
+      results.push({
+        index,
+        title,
+        path,
+        date,
+      });
+      index++;
+    }
+
+    return results;
+  }
+
+  async getBlogPublisher(path: string): Promise<string | null> {
+    if (!this.mainNodeRPCClient) {
+      return null;
+    }
+
+    const responseData = await this.mainNodeRPCClient
+      .abciQueryVMQueryRender('gno.land' + path, [])
+      .then(response => response?.response?.ResponseBase?.Data)
+      .then(extractStringFromResponse);
+
+    if (!responseData) {
+      return null;
+    }
+
+    const regex = /Published by ([\w\d]+) to Gnoland's Blog/g;
+    let match;
+    let lastMatch = null;
+
+    while ((match = regex.exec(responseData)) !== null) {
+      lastMatch = match[1]; // 매칭된 주소 값을 저장
+    }
+
+    return lastMatch;
   }
 }

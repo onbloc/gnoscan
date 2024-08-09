@@ -1,5 +1,85 @@
 import {gql} from '@apollo/client';
 
+export const makeRealmEdgeQuery = (packagePath: string) => gql`
+{
+  transactions(
+    filter: {
+      success: true
+      message: {
+        route: vm
+        type_url: add_package
+        vm_param: {
+          add_package: {
+            package: {
+              path: "${packagePath}"
+            }
+          }
+        }
+      }
+    }
+    size: 1
+  ) {
+    edges {
+      transaction {
+        hash
+        index
+        success
+        block_height
+        gas_wanted
+        gas_used
+        gas_fee {
+          amount
+          denom
+        }
+        messages {
+          value {
+            __typename
+            ...on MsgAddPackage {
+              creator
+              deposit
+              package {
+                name
+                path
+                files {
+                  name
+                  body
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
+
+export const makeRealmEdgesQuery = () => gql`
+  {
+    transactions(filter: {success: true, message: {type_url: add_package}}) {
+      edges {
+        transaction {
+          hash
+          index
+          success
+          block_height
+          messages {
+            value {
+              __typename
+              ... on MsgAddPackage {
+                creator
+                package {
+                  name
+                  path
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const makeRealmsQuery = () => gql`
   {
     transactions(filter: {success: true, message: {type_url: add_package}}) {
@@ -91,6 +171,50 @@ export const makeRealmTransactionsQuery = () => gql`
           }
         }
       }
+      gas_used
+      gas_fee {
+        amount
+        denom
+      }
+      messages {
+        value {
+          __typename
+          ... on MsgAddPackage {
+            creator
+            deposit
+            package {
+              name
+              path
+            }
+          }
+          ... on MsgCall {
+            caller
+            send
+            pkg_path
+            func
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const makeRealmTransactionsByEventQuery = (packagePath: string) => gql`
+  {
+    transactions(
+      filter: {
+        events: [
+          {
+            pkg_path: "${packagePath}"
+          }
+        ]
+      }
+    ) {
+      hash
+      index
+      success
+      block_height
+      gas_wanted
       gas_used
       gas_fee {
         amount
