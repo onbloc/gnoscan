@@ -1,4 +1,4 @@
-import {Amount, Board} from '@/types/data-type';
+import {Amount, Blog, BlogDetail} from '@/types/data-type';
 import {TransactionWithEvent} from '../response/transaction.types';
 import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
 
@@ -50,7 +50,9 @@ export interface IRealmRepository {
 
   getUsernames(): Promise<{[key in string]: string}>;
 
-  getBoards(): Promise<Board[]>;
+  getBlogs(): Promise<Blog[]>;
+
+  getBlogPublisher(path: string): Promise<string | null>;
 }
 
 export interface RealmFunction {
