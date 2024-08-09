@@ -24,6 +24,9 @@ import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {EventDatatable} from '@/components/view/datatable/event';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
 import {useUsername} from '@/common/hooks/account/use-username';
+import {useGetRealmTransactionsQuery} from '@/common/react-query/realm';
+import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
+import BigNumber from 'bignumber.js';
 import {formatDisplayPackagePath} from '@/common/utils/string-util';
 
 const TOOLTIP_PACKAGE_PATH = (
@@ -255,20 +258,13 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
             <DLWrap desktop={desktop}>
               <dt>Contract Calls</dt>
               <dd>
-                <Badge>{summary?.contractCalls || '0'}</Badge>
+                <LazyTotalContractCalls packagePath={path} />
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Total Used Fees</dt>
               <dd>
-                <Badge>
-                  <AmountText
-                    minSize="body1"
-                    maxSize="p4"
-                    value={summary?.totalUsedFees?.value || 0}
-                    denom={summary?.totalUsedFees?.denom || 'GNOT'}
-                  />
-                </Badge>
+                <LazyTotalUsedFeeAmount packagePath={path} />
               </dd>
             </DLWrap>
             {summary?.files && (
@@ -285,6 +281,74 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
         </>
       )}
     </DetailsPageLayout>
+  );
+};
+
+const LazyTotalContractCalls: React.FC<{packagePath: string}> = ({packagePath}) => {
+  const {data: realmTransactions, isFetched: isFetchedRealmTransactions} =
+    useGetRealmTransactionsQuery(packagePath);
+
+  const totalContractCalls = useMemo(() => {
+    if (!realmTransactions || !isFetchedRealmTransactions) {
+      return null;
+    }
+
+    if (!realmTransactions) {
+      return '0';
+    }
+
+    const totalCount = realmTransactions.filter(tx => tx.type === '/vm.m_call').length;
+
+    return BigNumber(totalCount).toFormat();
+  }, [realmTransactions]);
+
+  if (!totalContractCalls) {
+    return <SkeletonBar />;
+  }
+
+  return <Badge>{totalContractCalls}</Badge>;
+};
+
+const LazyTotalUsedFeeAmount: React.FC<{packagePath: string}> = ({packagePath}) => {
+  const {data: realmTransactions, isFetched: isFetchedRealmTransactions} =
+    useGetRealmTransactionsQuery(packagePath);
+  const {getTokenAmount} = useTokenMeta();
+
+  const totalUsedFee = useMemo(() => {
+    if (!isFetchedRealmTransactions) {
+      return null;
+    }
+
+    if (!realmTransactions) {
+      return {
+        value: 0,
+        denom: GNOTToken.denom,
+      };
+    }
+
+    const totalUsedFeeAmount = realmTransactions
+      .filter(tx => tx.type === '/vm.m_call')
+      .map(tx => Number(tx.fee?.value || 0))
+      .reduce((accum, current) => accum + current, 0);
+
+    return {
+      value: totalUsedFeeAmount,
+      denom: GNOTToken.denom,
+    };
+  }, [realmTransactions]);
+
+  if (!totalUsedFee) {
+    return <SkeletonBar />;
+  }
+
+  return (
+    <Badge>
+      <AmountText
+        minSize="body1"
+        maxSize="p4"
+        {...getTokenAmount(totalUsedFee.denom, totalUsedFee.value)}
+      />
+    </Badge>
   );
 };
 

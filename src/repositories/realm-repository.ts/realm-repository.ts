@@ -232,29 +232,21 @@ export class RealmRepository implements IRealmRepository {
 
     return transactions.reduce<{[key in string]: RealmTransactionInfo}>(
       (accum: {[key in string]: RealmTransactionInfo}, current: RealmTransaction) => {
-        let packagePath: string | null = null;
+        const packagePathsOfMessages = current.messages
+          .filter(message => !isAddPackageMessageValue(message.value))
+          .map(message => (message.value as MsgCallValue).pkg_path || '')
+          .filter(packagePath => !!packagePath);
 
-        let msgCallCount = 0;
-        let gasUsed = current.gas_fee.amount;
-        for (const message of current.messages) {
-          if (isAddPackageMessageValue(message.value)) {
-            packagePath = message.value.package?.path || null;
-          } else if (message.value.__typename === 'MsgCall') {
-            packagePath = message.value.pkg_path || null;
-            msgCallCount += 1;
-          }
-        }
-
-        if (packagePath) {
-          if (accum[packagePath]) {
-            msgCallCount += accum[packagePath].msgCallCount;
-            gasUsed += accum[packagePath].gasUsed;
+        for (const packagePath of [...new Set(packagePathsOfMessages)]) {
+          if (!accum[packagePath]) {
+            accum[packagePath] = {
+              gasUsed: 0,
+              msgCallCount: 0,
+            };
           }
 
-          accum[packagePath] = {
-            msgCallCount,
-            gasUsed,
-          };
+          accum[packagePath].gasUsed += current.gas_fee.amount;
+          accum[packagePath].msgCallCount += 1;
         }
 
         return accum;
@@ -278,29 +270,14 @@ export class RealmRepository implements IRealmRepository {
 
     return transactions.reduce<RealmTransactionInfo>(
       (accum: RealmTransactionInfo, current: RealmTransaction) => {
-        let packagePath: string | null = null;
+        const availableTransactionCallMessages = current.messages.filter(
+          message =>
+            !isAddPackageMessageValue(message.value) && message.value.pkg_path === packagePath,
+        );
 
-        for (const message of current.messages) {
-          let msgCallCount = 0;
-          let gasUsed = current.gas_fee.amount;
-          if (isAddPackageMessageValue(message.value)) {
-            packagePath = message.value.package?.path || null;
-          } else if (message.value.__typename === 'MsgCall') {
-            packagePath = message.value.pkg_path || null;
-            msgCallCount += 1;
-          }
-
-          if (packagePath) {
-            if (accum) {
-              msgCallCount += accum.msgCallCount;
-              gasUsed += accum.gasUsed;
-            }
-
-            accum = {
-              msgCallCount,
-              gasUsed,
-            };
-          }
+        if (availableTransactionCallMessages.length > 0) {
+          accum.gasUsed += current.gas_fee.amount;
+          accum.msgCallCount += 1;
         }
 
         return accum;
