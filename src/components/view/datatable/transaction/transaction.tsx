@@ -10,11 +10,9 @@ import {Transaction} from '@/types/data-type';
 import theme from '@/styles/theme';
 import {Button} from '@/components/ui/button';
 import {eachMedia} from '@/common/hooks/use-media';
-import {useTransactions} from '@/common/hooks/transactions/use-transactions';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {useUsername} from '@/common/hooks/account/use-username';
 import useLoading from '@/common/hooks/use-loading';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 import {useAllTransactions} from '@/common/hooks/transactions/use-all-transactions';
 
 interface TransactionWithTime extends Transaction {
@@ -43,18 +41,9 @@ function mapDisplayFunctionName(type: string, functionName: string) {
 export const TransactionDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {isCustomNetwork} = useNetworkProvider();
 
   const {getTokenAmount} = useTokenMeta();
-  const useAllTransactionsResult = useAllTransactions({
-    enabled: isCustomNetwork === false,
-  });
-  const useTransactionsResult = useTransactions({
-    enabled: isCustomNetwork === true,
-  });
-  const {transactions, hasNextPage, isError, isFetched, nextPage} = isCustomNetwork
-    ? useTransactionsResult
-    : useAllTransactionsResult;
+  const {transactions, hasNextPage, isError, isFetched, nextPage} = useAllTransactions({});
 
   const {isFetched: isFetchedUsername, getName} = useUsername();
   const [development, setDevelopment] = useState(false);

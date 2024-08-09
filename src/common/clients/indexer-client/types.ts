@@ -122,3 +122,41 @@ export interface Event {
   func: string;
   attrs?: any;
 }
+
+export interface PageInfo {
+  last: string | null;
+  hasNext: boolean;
+}
+
+export interface BlockEdge<T> {
+  cursor: string | null;
+  block: T;
+}
+
+export interface TransactionEdge<T> {
+  cursor: string | null;
+  transaction: T;
+}
+
+export interface TransactionPageQueryResponse<T> {
+  transactions: {
+    pageInfo: PageInfo;
+    edges: TransactionEdge<T>[];
+  };
+}
+
+export interface QueryResponse<T> {
+  blocks: T[];
+  transactions: T[];
+}
+
+export interface PageQueryResponse<T> {
+  blocks: {
+    pageInfo: PageInfo;
+    edges: BlockEdge<T>[];
+  };
+  transactions: {
+    pageInfo: PageInfo;
+    edges: TransactionEdge<T>[];
+  };
+}

@@ -23,3 +23,4 @@ export * from './lazy-functions';
 export * from './lazy-fee-amount';
 export * from './lazy-total-calls';
 export * from './lazy-date';
+export * from './lazy-block-total-fee';

@@ -50,7 +50,7 @@ export const useGetValidatorInfosQuery = (
   const {chainRepository} = useServiceProvider();
 
   return useQuery<ValidatorInfo[] | null, Error>({
-    queryKey: [QUERY_KEY.getValidators, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getValidatorInfos, currentNetwork?.chainId || ''],
     queryFn: () => {
       if (!chainRepository) {
         return [];

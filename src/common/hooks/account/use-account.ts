@@ -70,7 +70,8 @@ export const useAccount = (address: string) => {
   }
 
   return {
-    isFetched:
+    isFetched: isFetchedTokenMeta,
+    isFetchedAssets:
       isFetchedNativeTokenBalance &&
       isFetchedGRC20TokenBalance &&
       isFetchedGRC20Tokens &&

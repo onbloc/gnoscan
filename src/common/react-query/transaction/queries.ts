@@ -1,8 +1,9 @@
 import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
 import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
 import {QUERY_KEY} from './types';
-import {Transaction} from '@/types/data-type';
+import {TotalTransactionStatInfo, Transaction} from '@/types/data-type';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {PageInfo} from '@/common/clients/indexer-client/types';
 
 export const useGetTransactionBlockHeightQuery = (
   hash: string,
@@ -41,6 +42,27 @@ export const useGetTransactionBlockHeightQuery = (
   });
 };
 
+export const useGetTransactionStatInfoQuery = (
+  totalTx: string | null,
+  options?: UseQueryOptions<TotalTransactionStatInfo | null, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {transactionRepository} = useServiceProvider();
+
+  return useQuery<TotalTransactionStatInfo | null, Error>({
+    queryKey: [QUERY_KEY.getTransactionStatInfo, currentNetwork?.chainId || '', totalTx],
+    queryFn: async () => {
+      if (!transactionRepository) {
+        return null;
+      }
+
+      return transactionRepository.getTransactionStatInfo().catch(() => null);
+    },
+    ...options,
+    keepPreviousData: true,
+    enabled: !!transactionRepository && options?.enabled,
+  });
+};
 export const useGetTransactionsQuery = (
   totalTx: string | null,
   options?: UseQueryOptions<Transaction[] | null, Error>,
@@ -67,48 +89,38 @@ export const useGetTransactionsQuery = (
 
 export const useGetTransactionsInfinityQuery = (
   totalTx: string | null,
-  pageOption = {page: 0, pageSize: 20},
-  options?: UseInfiniteQueryOptions<Transaction[] | null, Error>,
+  options?: UseInfiniteQueryOptions<
+    {
+      pageInfo: PageInfo;
+      transactions: Transaction[];
+    } | null,
+    Error
+  >,
 ) => {
   const {currentNetwork} = useNetworkProvider();
   const {transactionRepository} = useServiceProvider();
 
-  return useInfiniteQuery<Transaction[] | null, Error>({
+  return useInfiniteQuery<
+    {
+      pageInfo: PageInfo;
+      transactions: Transaction[];
+    } | null,
+    Error
+  >({
     queryKey: [QUERY_KEY.getTransactionInfinity, currentNetwork?.chainId || '', totalTx || '0'],
-    getNextPageParam: (lastPage, pages) => {
+    getNextPageParam: lastPage => {
       if (!lastPage) {
-        return false;
+        return null;
       }
-      return pages.length;
+      return lastPage.pageInfo.last;
     },
     queryFn: async context => {
       if (!transactionRepository || !totalTx) {
         return null;
       }
-      const totalPage = Math.floor(Number(totalTx) / pageOption.pageSize);
-      const currentPageIndex = totalPage - (context?.pageParam || 0);
-      const pageSize = pageOption.pageSize;
 
-      const isRemainItem = (context?.pageParam || 0) === 0;
-      const fetchQueries = [];
-      if (isRemainItem) {
-        fetchQueries.push(
-          await transactionRepository.getTransactionsPage(0, 0, {
-            page: currentPageIndex,
-            pageSize: pageSize,
-          }),
-        );
-      }
-
-      fetchQueries.push(
-        await transactionRepository.getTransactionsPage(0, 0, {
-          page: currentPageIndex - 1,
-          pageSize: pageSize,
-        }),
-      );
-      return Promise.all(fetchQueries).then(results => {
-        return results.flatMap(result => result).sort((a1, a2) => a2.blockHeight - a1.blockHeight);
-      });
+      const cursor = context?.pageParam || null;
+      return transactionRepository.getTransactionsPage(cursor);
     },
     enabled: !!transactionRepository && options?.enabled,
     keepPreviousData: true,
@@ -116,45 +128,28 @@ export const useGetTransactionsInfinityQuery = (
   });
 };
 
-export const useGetUsingAccountTransactionCount = (
-  options?: UseQueryOptions<
-    {
-      accounts: string[];
-      length: number;
-    },
-    Error
-  >,
-) => {
-  const {currentNetwork} = useNetworkProvider();
+export const useGetUsingAccountTransactionCount = (options?: UseQueryOptions<number, Error>) => {
+  const {currentNetwork, isCustomNetwork} = useNetworkProvider();
   const {transactionRepository} = useServiceProvider();
 
-  return useQuery<
-    {
-      accounts: string[];
-      length: number;
-    },
-    Error
-  >({
+  return useQuery<number, Error>({
     queryKey: [QUERY_KEY.useGetUsingAccountTransactionCount, currentNetwork?.chainId || ''],
     queryFn: async () => {
       if (!transactionRepository) {
-        return {
-          accounts: [],
-          length: 0,
-        };
+        return 0;
       }
+
+      if (!isCustomNetwork) {
+        return transactionRepository.getTransactionStatInfo().then(statInfo => statInfo.accounts);
+      }
+
       const transactions = await transactionRepository.getTransactions(0, 0);
       const allAccounts: string[] = transactions
         .flatMap(tx => [tx?.from, tx?.to || ''])
         .filter(account => !!account);
-      console.log(transactions);
 
       const accounts = [...new Set(allAccounts)];
-      const length = accounts.length;
-      return {
-        accounts,
-        length,
-      };
+      return accounts.length;
     },
     enabled: !!transactionRepository && options?.enabled,
     keepPreviousData: true,

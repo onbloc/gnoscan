@@ -18,7 +18,9 @@ import {useToken} from '@/common/hooks/tokens/use-token';
 import {useNetwork} from '@/common/hooks/use-network';
 import {useUsername} from '@/common/hooks/account/use-username';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {makeDisplayNumber} from '@/common/utils/string-util';
+import {formatDisplayPackagePath, makeDisplayNumber} from '@/common/utils/string-util';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {TokenDetailDatatablePage} from '@/components/view/datatable/token-detail/token-detail-page';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -30,6 +32,7 @@ const TOOLTIP_PACKAGE_PATH = (
 const TokenDetails = () => {
   const {isFetched: isFetchedUsername, getName} = useUsername();
   const {getUrlWithNetwork} = useNetwork();
+  const {isCustomNetwork} = useNetworkProvider();
   const desktop = isDesktop();
   const router = useRouter();
   const {path} = router.query;
@@ -96,7 +99,7 @@ const TokenDetails = () => {
                   <Text type="p4" color="blue" className="username-text">
                     <StyledA
                       href={getUrlWithNetwork(`/realms/details?path=${summary.packagePath}`)}>
-                      {summary.packagePath}
+                      {formatDisplayPackagePath(summary.packagePath)}
                     </StyledA>
                   </Text>
                   <Tooltip
@@ -127,17 +130,17 @@ const TokenDetails = () => {
               <dd>
                 <Badge>
                   {summary.owner && summary.owner === 'genesis' ? (
-                    <Text type="p4" color="blue">
+                    <Text type="p4" color="blue" className="ellipsis">
                       {summary.owner}
                     </Text>
                   ) : (
-                    <Link href={getUrlWithNetwork(`/accounts/${summary.owner}`)} passHref>
-                      <FitContentA>
-                        <Text type="p4" color="blue">
+                    <FitContentA>
+                      <Link href={getUrlWithNetwork(`/accounts/${summary.owner}`)} passHref>
+                        <Text type="p4" color="blue" className="ellipsis">
                           {getName(summary.owner) || summary.owner}
                         </Text>
-                      </FitContentA>
-                    </Link>
+                      </Link>
+                    </FitContentA>
                   )}
                 </Badge>
               </dd>
@@ -152,7 +155,8 @@ const TokenDetails = () => {
           </DataSection>
 
           <DataSection title="Transactions">
-            {currentPath && <TokenDetailDatatable path={currentPath} />}
+            {currentPath && isCustomNetwork && <TokenDetailDatatable path={currentPath} />}
+            {currentPath && !isCustomNetwork && <TokenDetailDatatablePage path={currentPath} />}
           </DataSection>
         </>
       )}

@@ -12,19 +12,16 @@ export const useTransactions = ({enabled = true}) => {
     hasNextPage,
     fetchNextPage,
     isFetched: isFetchedTransactions,
-  } = useGetTransactionsInfinityQuery(
-    latestBlock?.block_meta.header.total_txs || null,
-    {page: 0, pageSize: PAGE_LIMIT},
-    {enabled},
-  );
+  } = useGetTransactionsInfinityQuery(latestBlock?.block_meta.header.total_txs || null, {enabled});
 
   const transactions = useMemo(() => {
     if (!data) {
       return null;
     }
 
-    return data.pages
-      .flatMap(page => page || [])
+    const transactions = data.pages.flatMap(page => page?.transactions || []);
+
+    return transactions
       .sort((t1, t2) => t2.blockHeight - t1.blockHeight)
       .filter((_, index) => index < data.pages.length * PAGE_LIMIT);
   }, [data]);
@@ -50,9 +47,7 @@ export const useTransactions = ({enabled = true}) => {
     transactions: transactionWithTimes || [],
     isFetched: isFetched,
     isError,
-    nextPage: () => {
-      fetchNextPage();
-    },
+    nextPage: fetchNextPage,
     hasNextPage: !!hasNextPage,
   };
 };

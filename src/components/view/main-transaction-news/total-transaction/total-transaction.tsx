@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import {Spinner} from '@/components/ui/loading';
 import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
 import {DAY_TIME} from '@/common/values/constant-value';
+import {dateToStr} from '@/common/utils/date-util';
 
 const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
   ssr: false,
@@ -24,9 +25,7 @@ export const MainTotalTransaction = () => {
     return Array.from({length: barCount})
       .map((_, index) => new Date(todayTime - DAY_TIME * index))
       .sort((d1, d2) => d1.getTime() - d2.getTime())
-      .map(date => {
-        return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
-      });
+      .map(dateToStr);
   }, []);
 
   const chartData = useMemo(() => {
@@ -40,7 +39,7 @@ export const MainTotalTransaction = () => {
       }
       return {
         date: label,
-        value: info.totalTxs,
+        value: info.txCount,
       };
     });
   }, [labels, transactionInfo]);

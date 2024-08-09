@@ -14,7 +14,7 @@ export const GlobalStyle = createGlobalStyle`
   body {
     ${scrollbarStyle};
     &.scroll-visible::-webkit-scrollbar {
-      width: 8px;
+      width: 0;
     }
   }
 

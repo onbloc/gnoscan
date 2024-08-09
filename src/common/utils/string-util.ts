@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import {isBech32Address} from './bech32.utility';
 
 export function textEllipsis(value: string, num?: number): string {
   const length = num ?? 4;
@@ -71,4 +72,15 @@ export function makeQueryString(params: {[key in string]: string} | null) {
   return Object.entries(params)
     .map(entry => `${entry[0]}=${entry[1]}`)
     .join('&');
+}
+
+export function formatDisplayPackagePath(packagePath: string | null | undefined): string {
+  if (!packagePath) {
+    return '';
+  }
+
+  const elements = packagePath.split('/');
+  return elements
+    .map(element => (isBech32Address(element) ? textEllipsis(element, 4) : element))
+    .join('/');
 }

@@ -29,7 +29,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const {getTokenAmount} = useTokenMeta();
 
-  const {isFetched, realmTransactions, hasNextPage, nextPage} = useRealm(pkgPath);
+  const {isFetchedTransactions, realmTransactions, hasNextPage, nextPage} = useRealm(pkgPath);
 
   const createHeaders = () => {
     return [
@@ -130,7 +130,7 @@ export const RealmDetailDatatable = ({pkgPath}: Props) => {
   return (
     <Container>
       <Datatable
-        loading={!isFetched}
+        loading={!isFetchedTransactions}
         headers={createHeaders().map(item => {
           return {
             ...item,

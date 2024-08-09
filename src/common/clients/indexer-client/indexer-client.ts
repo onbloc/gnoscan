@@ -1,6 +1,7 @@
 import {ApolloClient, DocumentNode, InMemoryCache} from '@apollo/client';
-import {PageOption} from './types';
+import {PageOption, PageQueryResponse, QueryResponse} from './types';
 import axios, {AxiosInstance} from 'axios';
+import {GraphQLFormattedError} from 'graphql';
 
 export class IndexerClient {
   public apolloClient: ApolloClient<unknown>;
@@ -16,9 +17,9 @@ export class IndexerClient {
     });
   }
 
-  public query(qry: DocumentNode, pageOption?: PageOption) {
+  public query<T = any>(qry: DocumentNode, pageOption?: PageOption) {
     if (pageOption) {
-      return this.apolloClient.query({
+      return this.apolloClient.query<QueryResponse<T>>({
         query: qry,
         fetchPolicy: 'no-cache',
         context: {
@@ -34,7 +35,14 @@ export class IndexerClient {
       .post('', {
         query: qry.loc?.source.body,
       })
-      .then(result => result?.data);
+      .then<{data?: QueryResponse<T>; errors?: GraphQLFormattedError[]}>(result => result?.data);
+  }
+
+  public pageQuery<T = any>(qry: DocumentNode) {
+    return this.apolloClient.query<PageQueryResponse<T>>({
+      query: qry,
+      fetchPolicy: 'no-cache',
+    });
   }
 
   public queryWithOptions(qry: DocumentNode, pageOption: PageOption) {

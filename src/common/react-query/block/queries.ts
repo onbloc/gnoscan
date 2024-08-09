@@ -104,6 +104,7 @@ export const useGetBlocksQuery = (
           const proposerAddress = Array.isArray(block.header.proposer_address)
             ? toBech32Address('g', block.header.proposer_address)
             : block.header.proposer_address;
+
           return {
             hash: block.block_id.hash,
             height: Number(block.header.height),

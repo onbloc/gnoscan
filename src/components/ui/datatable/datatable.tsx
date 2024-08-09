@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from 'react';
 import styled from 'styled-components';
 import {DatatableData, DatatableHeader} from '.';
-import IconTabelLoading from '@/assets/svgs/icon-table-loading.svg';
+import IconTableLoading from '@/assets/svgs/icon-table-loading.svg';
 import {zindex} from '@/common/values/z-index';
 
 interface Props<T> {
@@ -49,7 +49,7 @@ export const Datatable = <T extends {[key in string]: any}>({
         />
         {loading && (
           <div className="loading-wrapper">
-            <IconTabelLoading />
+            <IconTableLoading />
           </div>
         )}
         {!loading && datas && datas?.length > 0 && (

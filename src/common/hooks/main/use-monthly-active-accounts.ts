@@ -1,12 +1,13 @@
 import {useMemo} from 'react';
 import {useGetBefore30DBlock} from '../common/use-get-before-30d-block';
 import {useGetSimpleTransactions} from '../common/use-get-simple-transactions';
+import {MonthlyAccountTransaction} from '@/types/data-type';
 
 export const useMonthlyActiveAccounts = () => {
   const {data: blockHeightOfBefor30d} = useGetBefore30DBlock();
   const {data, isFetched} = useGetSimpleTransactions(blockHeightOfBefor30d);
 
-  const activeUsers = useMemo(() => {
+  const activeUsers: MonthlyAccountTransaction[] = useMemo(() => {
     if (!data) {
       return [];
     }
@@ -43,10 +44,10 @@ export const useMonthlyActiveAccounts = () => {
     return Object.entries(accountTransactionMap)
       .map(entry => ({
         account: entry[0],
-        totalTxs: entry[1].totalTxs,
-        nonTransferTxs: entry[1].nonTransferTxs,
+        totalTransaction: entry[1].totalTxs,
+        nonTransferTransaction: entry[1].nonTransferTxs,
       }))
-      .sort((t1, t2) => t2.totalTxs - t1.totalTxs)
+      .sort((t1, t2) => t2.totalTransaction - t1.totalTransaction)
       .filter((_, index) => index < 10);
   }, [data]);
 

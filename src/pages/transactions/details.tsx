@@ -23,6 +23,8 @@ import {Transaction} from '@/types/data-type';
 import {EventDatatable} from '@/components/view/datatable/event';
 import {useNetwork} from '@/common/hooks/use-network';
 import {makeSafeBase64Hash} from '@/common/utils/transaction.utility';
+import {formatDisplayPackagePath} from '@/common/utils/string-util';
+import {useUsername} from '@/common/hooks/account/use-username';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -249,7 +251,9 @@ const ContractDetails: React.FC<{
                         )}
                         passHref>
                         <FitContentA>
-                          {message?.package?.path || message?.pkg_path || '-'}
+                          {formatDisplayPackagePath(
+                            message?.package?.path || message?.pkg_path || '-',
+                          )}
                         </FitContentA>
                       </Link>
                     </Text>
@@ -326,6 +330,7 @@ const CallerContract = ({message, desktop}: any) => {
 
 const AddPkgContract = ({message, desktop}: any) => {
   const {getUrlWithNetwork} = useNetwork();
+  const {getName} = useUsername();
   return (
     <DLWrap desktop={desktop} key={v1()}>
       <dt>Creator</dt>
@@ -333,8 +338,8 @@ const AddPkgContract = ({message, desktop}: any) => {
         <Badge>
           <Link href={getUrlWithNetwork(`/accounts/${message?.package?.creator}`)} passHref>
             <FitContentA>
-              <Text type="p4" color="blue">
-                {message?.creator || '-'}
+              <Text type="p4" color="blue" className="ellipsis">
+                {getName(message?.creator || '-')}
               </Text>
             </FitContentA>
           </Link>

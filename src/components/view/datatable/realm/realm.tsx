@@ -29,7 +29,14 @@ export const RealmDatatable = () => {
     field: 'none',
     order: 'none',
   });
-  const {realms, isFetched, hasNextPage, nextPage: fetchNextPage} = useRealms(true, sortOption);
+  const {
+    realms,
+    isFetched,
+    hasNextPage,
+    nextPage: fetchNextPage,
+    isDefault,
+    defaultFromHeight,
+  } = useRealms(true, sortOption);
   const {isFetched: isFetchedUsername, getName} = useUsername();
   useLoading({finished: isFetched && isFetchedUsername});
 
@@ -105,7 +112,11 @@ export const RealmDatatable = () => {
       .sort()
       .width(163)
       .renderOption((_, data: any) => (
-        <DatatableItem.LazyTotalCalls packagePath={data?.packagePath} />
+        <DatatableItem.LazyTotalCalls
+          packagePath={data?.packagePath}
+          isDefault={isDefault}
+          defaultFromHeight={defaultFromHeight}
+        />
       ))
       .build();
   };
@@ -115,7 +126,13 @@ export const RealmDatatable = () => {
       .key('packagePath')
       .name('Total Gas Used')
       .width(163)
-      .renderOption(packagePath => <DatatableItem.LazyFeeAmount packagePath={packagePath} />)
+      .renderOption(packagePath => (
+        <DatatableItem.LazyFeeAmount
+          packagePath={packagePath}
+          isDefault={isDefault}
+          defaultFromHeight={defaultFromHeight}
+        />
+      ))
       .build();
   };
 

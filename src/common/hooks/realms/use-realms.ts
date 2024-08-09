@@ -1,6 +1,12 @@
-import {useGetRealmsQuery, useGetRealmTransactionInfosQuery} from '@/common/react-query/realm';
+import {
+  useGetRealmPackagesInfinity,
+  useGetRealmsQuery,
+  useGetRealmTransactionInfosByFromHeightQuery,
+  useGetRealmTransactionInfosQuery,
+} from '@/common/react-query/realm';
 import {useEffect, useMemo, useState} from 'react';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
+import {useNetworkProvider} from '../provider/use-network-provider';
 
 export const useRealms = (
   paging = true,
@@ -9,19 +15,68 @@ export const useRealms = (
     order: string;
   },
 ) => {
+  const {isCustomNetwork} = useNetworkProvider();
   const {getTokenAmount} = useTokenMeta();
-  const {data, isFetched} = useGetRealmsQuery();
+  const {
+    data: defaultData,
+    isFetched: isFetchedDefault,
+    hasNextPage: hasNextPageDefault,
+  } = useGetRealmPackagesInfinity({enabled: !isCustomNetwork});
+
+  const defaultFromHeight = useMemo(() => {
+    if (!defaultData) {
+      return null;
+    }
+
+    const transactions = defaultData?.pages?.flatMap(page => page?.transactions || []);
+    if (transactions.length === 0) {
+      return null;
+    }
+
+    return Number(transactions?.[transactions.length - 1]?.blockHeight || 0) || null;
+  }, [defaultData]);
+
+  const {isFetched: isFetchedDefaultRealmTransactionInfo} =
+    useGetRealmTransactionInfosByFromHeightQuery(defaultFromHeight, {
+      enabled: !!defaultFromHeight,
+    });
+
+  const {data, isFetched: isFetchedAll} = useGetRealmsQuery();
   const [currentPage, setCurrentPage] = useState(0);
   const {data: realmTransactionInfos, isFetched: isFetchedRealmTransactionInfos} =
     useGetRealmTransactionInfosQuery();
 
+  const isDefault = useMemo(() => {
+    if (isCustomNetwork) {
+      return false;
+    }
+
+    if (!sortOptions) {
+      return true;
+    }
+
+    return sortOptions.field === 'none' && sortOptions.order === 'none';
+  }, [isCustomNetwork, isFetchedAll, sortOptions]);
+
+  const isFetched = useMemo(() => {
+    if (isDefault) {
+      return isFetchedDefault;
+    }
+
+    return isFetchedAll;
+  }, [isDefault, isFetchedAll, isFetchedDefault]);
+
   const hasNextPage = useMemo(() => {
+    if (isDefault) {
+      return hasNextPageDefault;
+    }
+
     if (!data || !paging) {
       return false;
     }
 
     return data.length > (currentPage + 1) * 20;
-  }, [currentPage, data, paging]);
+  }, [isDefault, data, paging, currentPage, hasNextPageDefault]);
 
   const dataWithTransactionInfo = useMemo(() => {
     if (!data || !realmTransactionInfos) {
@@ -55,6 +110,10 @@ export const useRealms = (
   }, [data, realmTransactionInfos, sortOptions]);
 
   const realms = useMemo(() => {
+    if (isDefault) {
+      return defaultData?.pages?.flatMap(page => page?.transactions || []) || [];
+    }
+
     if (!sortedData) {
       return [];
     }
@@ -66,7 +125,7 @@ export const useRealms = (
       : sortedData;
 
     return filteredData;
-  }, [sortedData, currentPage, paging, sortOptions]);
+  }, [isDefault, sortedData, currentPage, paging, defaultData?.pages]);
 
   function sort(data1: any, data2: any) {
     if (!sortOptions || sortOptions.field === 'none') {
@@ -101,10 +160,13 @@ export const useRealms = (
   }, [sortOptions]);
 
   return {
+    isDefault,
     realms,
-    realmTransactionInfos,
-    isFetched: isFetched,
+    realmTransactionInfos: realmTransactionInfos,
+    isFetched,
     isFetchedRealmTransactionInfos,
+    isFetchedDefaultRealmTransactionInfo,
+    defaultFromHeight,
     nextPage,
     hasNextPage,
   };

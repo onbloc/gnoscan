@@ -1,10 +1,8 @@
 import {useQuery} from 'react-query';
 import {useServiceProvider} from '../provider/use-service-provider';
 import {useNetwork} from '../use-network';
-import {useNetworkProvider} from '../provider/use-network-provider';
 
 export const useGetUsername = () => {
-  const {indexerQueryClient} = useNetworkProvider();
   const {currentNetwork} = useNetwork();
   const {realmRepository} = useServiceProvider();
 
@@ -16,7 +14,7 @@ export const useGetUsername = () => {
       }
       return realmRepository.getUsernames();
     },
-    enabled: !!realmRepository || !!indexerQueryClient,
+    enabled: !!realmRepository,
     cacheTime: 10 * 60 * 1000,
     staleTime: 10 * 60 * 1000,
   });

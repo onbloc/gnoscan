@@ -84,6 +84,7 @@ export const useNetwork = () => {
     setCurrentNetwork({
       isCustom: false,
       chainId: chain.chainId,
+      apiUrl: chain.apiUrl,
       rpcUrl: chain.rpcUrl,
       indexerUrl: chain.indexerUrl,
     });
@@ -100,6 +101,7 @@ export const useNetwork = () => {
     setCurrentNetwork({
       isCustom: true,
       chainId: '',
+      apiUrl: '',
       rpcUrl,
       indexerUrl,
     });

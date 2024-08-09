@@ -33,7 +33,7 @@ export const AreaChartTooltip = ({
       return (
         <>
           <strong>{integer}</strong>
-          {`.${decimal}`}
+          {decimal ? `.${decimal}` : ''}
         </>
       );
     } catch (e) {}
@@ -68,7 +68,7 @@ export const AreaChartTooltip = ({
       if (dotIndex < 0) {
         return {
           integer: valueStr,
-          decimal: '0',
+          decimal: '',
         };
       }
 
@@ -98,7 +98,7 @@ export const AreaChartTooltip = ({
         <span className="title">{makeAreaGraphDisplayLabel(packagePath)}</span>
         <span className="value">
           <strong>{integer}</strong>
-          {`.${decimal}`}
+          {decimal ? `.${decimal}` : ''}
         </span>
         <span className="rate">{`${Math.round(data?.rate || 0)}%`}</span>
       </div>
