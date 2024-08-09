@@ -17,7 +17,7 @@ export const LazyTotalCalls = ({packagePath, maxSize = 'p4', minSize = 'body1'}:
     if (!transactionInfo) {
       return null;
     }
-    return transactionInfo?.[packagePath].msgCallCount || 0;
+    return transactionInfo?.[packagePath]?.msgCallCount || 0;
   }, [packagePath, transactionInfo]);
 
   if (!isFetched || totalCalls === null) {
