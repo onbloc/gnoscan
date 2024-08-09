@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {isDesktop} from '@/common/hooks/use-media';
+import {isDesktop, NonMobile} from '@/common/hooks/use-media';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
 import {DLWrap, FitContentA, LinkWrapper} from '@/components/ui/detail-page-common-styles';
@@ -24,6 +24,7 @@ import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
 import {EventDatatable} from '@/components/view/datatable/event';
 import DataListSection from '@/components/view/details-data-section/data-list-section';
 import {useUsername} from '@/common/hooks/account/use-username';
+import {formatDisplayPackagePath} from '@/common/utils/string-util';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -131,7 +132,10 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               </dt>
               <dd className="path-wrapper">
                 <Badge>
-                  {summary?.path}
+                  <Text type="p4" color="reverse" className="ellipsis">
+                    {formatDisplayPackagePath(summary?.path)}
+                  </Text>
+
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
@@ -142,19 +146,24 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                   </Tooltip>
                 </Badge>
 
-                <LinkWrapper onClick={moveGnoStudioViewRealm}>
-                  <Text type="p4" className="ellipsis">
-                    Try in GnoStudio
-                  </Text>
-                  <IconLink className="icon-link" />
-                </LinkWrapper>
+                <NonMobile>
+                  <LinkWrapper onClick={moveGnoStudioViewRealm}>
+                    <Text type="p4" className="ellipsis">
+                      Try in GnoStudio
+                    </Text>
+                    <IconLink className="icon-link" />
+                  </LinkWrapper>
+                </NonMobile>
               </dd>
             </DLWrap>
             <DLWrap desktop={desktop}>
               <dt>Realm Address</dt>
               <dd>
                 <Badge>
-                  {summary?.realmAddress || ''}
+                  <Text type="p4" color="reverse" className="ellipsis">
+                    {summary?.realmAddress || ''}
+                  </Text>
+
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
@@ -195,15 +204,15 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link
-                      href={getUrlWithNetwork(`/accounts/${summary?.publisherAddress}`)}
-                      passHref>
-                      <FitContentA>
+                    <FitContentA>
+                      <Link
+                        href={getUrlWithNetwork(`/accounts/${summary?.publisherAddress}`)}
+                        passHref>
                         <Text type="p4" color="blue" className="ellipsis">
                           {getName(summary?.publisherAddress || '') || summary?.publisherAddress}
                         </Text>
-                      </FitContentA>
-                    </Link>
+                      </Link>
+                    </FitContentA>
                   )}
                 </Badge>
               </dd>
