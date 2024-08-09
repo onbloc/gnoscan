@@ -224,6 +224,31 @@ export const useGetRealmTransactionInfoQuery = (
   });
 };
 
+export const useGetRealmTransactionInfosByFromHeightQuery = (
+  fromHeight: number | null | undefined,
+  options?: UseQueryOptions<{[key in string]: RealmTransactionInfo} | null, Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<{[key in string]: RealmTransactionInfo} | null, Error>({
+    queryKey: [
+      QUERY_KEY.getRealmTransactionInfosByFromHeight,
+      currentNetwork?.chainId || '',
+      fromHeight,
+    ],
+    queryFn: async () => {
+      if (!realmRepository || !fromHeight) {
+        return null;
+      }
+      const result = await realmRepository.getRealmTransactionInfos(fromHeight);
+      return result;
+    },
+    enabled: !!realmRepository,
+    ...options,
+  });
+};
+
 export const useGetRealmTransactionInfosQuery = (
   options?: UseQueryOptions<{[key in string]: RealmTransactionInfo} | null, Error>,
 ) => {
@@ -236,8 +261,7 @@ export const useGetRealmTransactionInfosQuery = (
       if (!realmRepository) {
         return null;
       }
-      const result = await realmRepository.getRealmTransactionInfos();
-      return result;
+      return await realmRepository.getRealmTransactionInfos();
     },
     enabled: !!realmRepository,
     ...options,

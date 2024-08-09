@@ -43,7 +43,9 @@ export interface IRealmRepository {
 
   getRealmTotalSupply(realmPath: string): Promise<number | null>;
 
-  getRealmTransactionInfos(): Promise<{[key in string]: RealmTransactionInfo} | null>;
+  getRealmTransactionInfos(
+    fromHeight?: number,
+  ): Promise<{[key in string]: RealmTransactionInfo} | null>;
 
   getRealmTransactionInfo(packagePath: string): Promise<RealmTransactionInfo | null>;
 
