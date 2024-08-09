@@ -9,11 +9,12 @@ import {
 import {toNumber, toString} from '@/common/utils/string-util';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
 import {parseTokenAmount} from '@/common/utils/token.utility';
+import {getDefaultMessage} from '../utility';
 
 export function mapSendTransactionByBankMsgSend(
   tx: TransactionWithEvent<BankSendValue>,
 ): Transaction {
-  const firstMessage = tx.messages[0];
+  const defaultMessage = getDefaultMessage(tx.messages);
 
   return {
     hash: tx.hash,
@@ -23,14 +24,14 @@ export function mapSendTransactionByBankMsgSend(
     packagePath: '/bank.MsgSend',
     functionName: 'Transfer',
     blockHeight: toNumber(tx.block_height),
-    from: toString(firstMessage.value.from_address),
-    to: toString(firstMessage.value.to_address),
+    from: toString(defaultMessage.value.from_address),
+    to: toString(defaultMessage.value.to_address),
     amount: {
       value: '0',
       denom: GNOTToken.denom,
     },
     amountOut: {
-      value: parseTokenAmount(toString(firstMessage.value.amount)).toString(),
+      value: parseTokenAmount(toString(defaultMessage.value.amount)).toString(),
       denom: GNOTToken.denom,
     },
     time: '',
@@ -43,7 +44,7 @@ export function mapSendTransactionByBankMsgSend(
       tx?.response?.events?.map((event, index) => ({
         transactionHash: tx.hash,
         id: tx.hash + '_' + index,
-        caller: firstMessage.value.from_address,
+        caller: defaultMessage.value.from_address,
         attrs: event.attrs,
         blockHeight: tx.block_height,
         functionName: event.func,
@@ -57,25 +58,25 @@ export function mapSendTransactionByBankMsgSend(
 export function mapReceivedTransactionByMsgCall(
   tx: TransactionWithEvent<MsgCallValue>,
 ): Transaction {
-  const firstMessage = tx.messages[0];
+  const defaultMessage = getDefaultMessage(tx.messages);
 
   return {
     hash: tx.hash,
     success: tx.success,
     numOfMessage: tx.messages.length,
     type: '/vm.m_call',
-    packagePath: toString(firstMessage.value.pkg_path),
+    packagePath: toString(defaultMessage.value.pkg_path),
     functionName: 'Transfer',
     blockHeight: toNumber(tx.block_height),
-    from: toString(firstMessage.value.caller),
-    to: toString(firstMessage.value.args?.[0]),
+    from: toString(defaultMessage.value.caller),
+    to: toString(defaultMessage.value.args?.[0]),
     amount: {
-      value: toString(firstMessage.value.args?.[1] || 0),
-      denom: toString(firstMessage.value.pkg_path),
+      value: toString(defaultMessage.value.args?.[1] || 0),
+      denom: toString(defaultMessage.value.pkg_path),
     },
     amountOut: {
       value: '0',
-      denom: toString(firstMessage.value.pkg_path),
+      denom: toString(defaultMessage.value.pkg_path),
     },
     time: '',
     fee: {
@@ -87,7 +88,7 @@ export function mapReceivedTransactionByMsgCall(
       tx?.response?.events?.map((event, index) => ({
         transactionHash: tx.hash,
         id: tx.hash + '_' + index,
-        caller: toString(firstMessage.value.caller),
+        caller: toString(defaultMessage.value.caller),
         attrs: event.attrs,
         blockHeight: tx.block_height,
         functionName: event.func,
@@ -101,7 +102,7 @@ export function mapReceivedTransactionByMsgCall(
 export function mapReceivedTransactionByBankMsgSend(
   tx: TransactionWithEvent<BankSendValue>,
 ): Transaction {
-  const firstMessage = tx.messages[0];
+  const defaultMessage = getDefaultMessage(tx.messages);
 
   return {
     hash: tx.hash,
@@ -111,10 +112,10 @@ export function mapReceivedTransactionByBankMsgSend(
     packagePath: '/bank.MsgSend',
     functionName: 'Transfer',
     blockHeight: toNumber(tx.block_height),
-    from: toString(firstMessage.value.from_address),
-    to: toString(firstMessage.value.to_address),
+    from: toString(defaultMessage.value.from_address),
+    to: toString(defaultMessage.value.to_address),
     amount: {
-      value: parseTokenAmount(firstMessage.value.amount).toString(),
+      value: parseTokenAmount(defaultMessage.value.amount).toString(),
       denom: GNOTToken.denom,
     },
     amountOut: {
@@ -131,7 +132,7 @@ export function mapReceivedTransactionByBankMsgSend(
       tx?.response?.events?.map((event, index) => ({
         transactionHash: tx.hash,
         id: tx.hash + '_' + index,
-        caller: firstMessage.value.from_address,
+        caller: defaultMessage.value.from_address,
         attrs: event.attrs,
         blockHeight: tx.block_height,
         functionName: event.func,
@@ -145,10 +146,10 @@ export function mapReceivedTransactionByBankMsgSend(
 export function mapVMTransaction(
   tx: TransactionWithEvent<AddPackageValue | MsgRunValue | MsgCallValue>,
 ): Transaction {
-  const firstMessage = tx.messages[0];
+  const defaultMessage = getDefaultMessage(tx.messages);
 
-  if (firstMessage.value.__typename === 'MsgAddPackage') {
-    const messageValue = firstMessage.value as AddPackageValue;
+  if (defaultMessage.value.__typename === 'MsgAddPackage') {
+    const messageValue = defaultMessage.value as AddPackageValue;
     return {
       hash: tx.hash,
       success: tx.success,
@@ -193,8 +194,8 @@ export function mapVMTransaction(
     };
   }
 
-  if (firstMessage.value.__typename === 'MsgCall') {
-    const messageValue = firstMessage.value as MsgCallValue;
+  if (defaultMessage.value.__typename === 'MsgCall') {
+    const messageValue = defaultMessage.value as MsgCallValue;
     const isTransfer = messageValue.func === 'Transfer';
 
     return {
@@ -236,7 +237,7 @@ export function mapVMTransaction(
         })) || [],
     };
   }
-  const messageValue = firstMessage.value as MsgRunValue;
+  const messageValue = defaultMessage.value as MsgRunValue;
 
   return {
     hash: tx.hash,

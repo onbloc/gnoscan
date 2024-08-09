@@ -39,6 +39,7 @@ import {
   makeRealmTransactionsQuery,
   makeRealmTransactionsWithArgsQuery,
   makeLatestRealmsQuery,
+  makeRealmTransactionsByEventQuery,
 } from './onbloc-query';
 import {makeRPCRequest, RPCClient} from '@/common/clients/rpc-client';
 import BigNumber from 'bignumber.js';
@@ -149,6 +150,30 @@ export class OnblocRealmRepository implements IRealmRepository {
     return this.indexerClient
       .pageQuery<TransactionWithEvent>(makeRealmTransactionsQuery(realmPath))
       .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
+  }
+
+  async getRealmTransactionsByEvent(
+    realmPath: string,
+    cursor?: string | null,
+  ): Promise<{
+    pageInfo: PageInfo;
+    transactions: TransactionWithEvent[];
+  } | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    const response = await this.indexerClient.pageQuery<TransactionWithEvent>(
+      makeRealmTransactionsByEventQuery(realmPath, cursor || null),
+    );
+
+    const transactions = response?.data?.transactions.edges.map(edge => edge.transaction) || [];
+    const pageInfo = response?.data?.transactions.pageInfo;
+
+    return {
+      transactions,
+      pageInfo,
+    };
   }
 
   async getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null> {

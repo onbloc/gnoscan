@@ -11,21 +11,23 @@ import {parseTokenAmount} from '@/common/utils/token.utility';
 import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
 import {PageOption} from '@/common/clients/indexer-client/types';
 import {makeTransactionsQuery} from '../account-repository/query';
+import {getDefaultMessage} from '../utility';
 
 function mapTransaction(data: any): Transaction {
-  const firstMessage = data.messages[0]?.value;
+  const defaultMessage = getDefaultMessage(data.messages[0])?.value;
   const amountValue =
-    firstMessage?.amount || firstMessage?.send || firstMessage?.deposit || '0ugnot';
+    defaultMessage?.amount || defaultMessage?.send || defaultMessage?.deposit || '0ugnot';
   return {
     hash: data.hash,
     success: data.success === true,
     numOfMessage: data.messages.length,
-    type: firstMessage?.__typename,
-    packagePath: firstMessage?.package?.path || firstMessage?.pkg_path || firstMessage?.__typename,
-    functionName: firstMessage?.func || firstMessage?.__typename,
+    type: defaultMessage?.__typename,
+    packagePath:
+      defaultMessage?.package?.path || defaultMessage?.pkg_path || defaultMessage?.__typename,
+    functionName: defaultMessage?.func || defaultMessage?.__typename,
     blockHeight: data.block_height,
-    from: firstMessage?.caller || firstMessage?.creator || firstMessage?.from_address,
-    to: firstMessage?.to_address,
+    from: defaultMessage?.caller || defaultMessage?.creator || defaultMessage?.from_address,
+    to: defaultMessage?.to_address,
     amount: {
       value: parseTokenAmount(amountValue).toString() || '0',
       denom: 'ugnot',

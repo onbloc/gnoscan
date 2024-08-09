@@ -12,6 +12,7 @@ import {GnoEvent, Transaction} from '@/types/data-type';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {GNOTToken} from '../common/use-token-meta';
 import {toBech32Address} from '@/common/utils/bech32.utility';
+import {getDefaultMessageByBlockTransaction} from '@/repositories/utility';
 
 export const useBlock = (height: number) => {
   const {data: latestBlockHeight} = useGetLatestBlockHeightQuery();
@@ -61,20 +62,22 @@ export const useBlock = (height: number) => {
     }
     return transactions?.map((transaction, index) => {
       const result = blockResult.deliver_tx.find((_, resultIndex) => index === resultIndex);
-      const firstMessage = makeTransactionMessageInfo(transaction.messages[0]);
+      const defaultMessage = makeTransactionMessageInfo(
+        getDefaultMessageByBlockTransaction(transaction.messages),
+      );
       const feeAmount = parseTokenAmount(transaction.fee?.gasFee || '0ugnot');
 
       return {
         hash: transaction.hash,
         success: !result?.ResponseBase?.Error,
         numOfMessage: transaction.messages.length,
-        type: firstMessage?.type || '',
-        packagePath: firstMessage?.packagePath || '',
-        functionName: firstMessage?.functionName || '',
+        type: defaultMessage?.type || '',
+        packagePath: defaultMessage?.packagePath || '',
+        functionName: defaultMessage?.functionName || '',
         blockHeight: blockHeight || 0,
-        from: firstMessage?.from || '',
-        to: firstMessage?.to || '',
-        amount: firstMessage?.amount || {
+        from: defaultMessage?.from || '',
+        to: defaultMessage?.to || '',
+        amount: defaultMessage?.amount || {
           value: '0',
           denom: GNOTToken.denom,
         },

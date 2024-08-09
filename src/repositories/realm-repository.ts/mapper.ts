@@ -1,6 +1,7 @@
 import {Transaction} from '@/types/data-type';
 import {AddPackageValue, MsgCallValue, RealmTransaction} from './types';
 import {toNumber, toString} from '@/common/utils/string-util';
+import {getDefaultMessage} from '../utility';
 
 export function isAddPackageMessageValue(
   messageValue: AddPackageValue | MsgCallValue,
@@ -9,21 +10,21 @@ export function isAddPackageMessageValue(
 }
 
 export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
-  const firstMessage = tx.messages[0];
-  if (isAddPackageMessageValue(firstMessage.value)) {
+  const defaultMessage = getDefaultMessage(tx.messages);
+  if (isAddPackageMessageValue(defaultMessage.value)) {
     return {
       hash: tx.hash,
       success: tx.success,
       numOfMessage: tx.messages.length,
       type: '/vm.m_addpkg',
-      packagePath: toString(firstMessage.value.package?.path),
+      packagePath: toString(defaultMessage.value.package?.path),
       gasUsed: {
         value: `${tx.gas_used || 0}`,
         denom: 'ugnot',
       },
       functionName: 'AddPkg',
       blockHeight: toNumber(tx.block_height),
-      from: toString(firstMessage.value.creator),
+      from: toString(defaultMessage.value.creator),
       amount: {
         value: '0',
         denom: 'ugnot',
@@ -37,20 +38,20 @@ export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
     };
   }
 
-  if (tx.messages.length === 1 && firstMessage.value.func === 'Transfer') {
+  if (tx.messages.length === 1 && defaultMessage.value.func === 'Transfer') {
     return {
       hash: tx.hash,
       success: tx.success,
       numOfMessage: tx.messages.length,
       type: '/vm.m_call',
-      packagePath: toString(firstMessage.value.pkg_path),
-      functionName: toString(firstMessage.value.func),
+      packagePath: toString(defaultMessage.value.pkg_path),
+      functionName: toString(defaultMessage.value.func),
       blockHeight: toNumber(tx.block_height),
-      from: toString(firstMessage.value.caller),
-      to: firstMessage.value.args?.[1] || '',
+      from: toString(defaultMessage.value.caller),
+      to: defaultMessage.value.args?.[1] || '',
       amount: {
-        value: toString(firstMessage.value.args?.[1] || 0),
-        denom: firstMessage.value.pkg_path || '',
+        value: toString(defaultMessage.value.args?.[1] || 0),
+        denom: defaultMessage.value.pkg_path || '',
       },
       time: '',
       fee: {
@@ -66,12 +67,12 @@ export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
     success: tx.success,
     numOfMessage: tx.messages.length,
     type: '/vm.m_call',
-    packagePath: toString(firstMessage.value.pkg_path),
-    functionName: toString(firstMessage.value.func),
+    packagePath: toString(defaultMessage.value.pkg_path),
+    functionName: toString(defaultMessage.value.func),
     blockHeight: toNumber(tx.block_height),
-    from: toString(firstMessage.value.caller),
+    from: toString(defaultMessage.value.caller),
     amount: {
-      value: toString(firstMessage.value.send),
+      value: toString(defaultMessage.value.send),
       denom: 'ugnot',
     },
     time: '',

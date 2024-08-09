@@ -19,6 +19,7 @@ import {
   makeNativeTokenSendTransactionsByAddressQuery,
   makeVMTransactionsByAddressQuery,
 } from './onbloc-query';
+import {getDefaultMessage} from '../utility';
 
 export class OnblocAccountRepository implements IAccountRepository {
   constructor(
@@ -84,17 +85,17 @@ export class OnblocAccountRepository implements IAccountRepository {
       const mappedTransactions = transactionEdges
         .map((edge: any) => edge.transaction)
         .map(tx => {
-          const firstMessage = tx.messages[0].value;
-          const typename = firstMessage.__typename;
+          const defaultMessage = getDefaultMessage(tx.messages);
+          const typename = defaultMessage.__typename;
           switch (typename) {
             case 'BankMsgSend':
-              if (firstMessage?.from_address === address) {
+              if (defaultMessage?.from_address === address) {
                 return mapSendTransactionByBankMsgSend(tx);
               }
               return mapReceivedTransactionByBankMsgSend(tx);
             case 'MsgCall':
-              if (firstMessage?.func === 'Transfer') {
-                if (firstMessage.args?.[0] === address) {
+              if (defaultMessage?.func === 'Transfer') {
+                if (defaultMessage.args?.[0] === address) {
                   return mapReceivedTransactionByMsgCall(tx);
                 }
               }

@@ -12,6 +12,7 @@ import {
 import {Transaction} from '@/types/data-type';
 import {mapTransactionByRealm} from '@/repositories/realm-repository.ts/mapper';
 import {mapVMTransaction} from '@/repositories/response/transaction.mapper';
+import {PageInfo} from '@/common/clients/indexer-client/types';
 
 export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
   const {currentNetwork} = useNetworkProvider();
@@ -336,6 +337,96 @@ export const useGetRealmTransactionsWithArgsQuery = (
       return transactions.map(mapTransactionByRealm);
     },
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
+    enabled: !!realmRepository && !!realmPath,
+    ...options,
+  });
+};
+
+export const useGetRealmTransactionsByEventQuery = (
+  realmPath: string | null,
+  options?: UseQueryOptions<Transaction[], Error>,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<Transaction[], Error>({
+    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || '', realmPath],
+    queryFn: async () => {
+      if (!realmRepository || !realmPath) {
+        return [];
+      }
+      const result = await realmRepository.getRealmTransactionsByEvent(realmPath);
+      if (!result) {
+        return [];
+      }
+
+      return result.transactions.map(mapTransactionByRealm);
+    },
+    select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
+    enabled: !!realmRepository && !!realmPath,
+    ...options,
+  });
+};
+
+export const useGetRealmTransactionsByEventInfinityQuery = (
+  realmPath: string | null,
+  options?: UseInfiniteQueryOptions<
+    {
+      pageInfo: PageInfo;
+      transactions: Transaction[];
+    },
+    Error
+  >,
+) => {
+  const {currentNetwork} = useNetworkProvider();
+  const {realmRepository} = useServiceProvider();
+
+  return useInfiniteQuery<
+    {
+      pageInfo: PageInfo;
+      transactions: Transaction[];
+    },
+    Error
+  >({
+    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || '', realmPath],
+    getNextPageParam: lastPage => {
+      if (!lastPage?.pageInfo?.hasNext) {
+        return false;
+      }
+
+      return lastPage.pageInfo;
+    },
+    queryFn: async context => {
+      if (!realmRepository || !realmPath) {
+        return {
+          pageInfo: {
+            hasNext: false,
+            last: null,
+          },
+          transactions: [],
+        };
+      }
+
+      const cursor = context?.pageParam?.last || null;
+      const result = await realmRepository.getRealmTransactionsByEvent(realmPath, cursor);
+      if (!result) {
+        return {
+          pageInfo: {
+            hasNext: false,
+            last: null,
+          },
+          transactions: [],
+        };
+      }
+
+      return {
+        pageInfo: {
+          hasNext: result?.pageInfo?.hasNext || false,
+          last: result?.pageInfo?.last || null,
+        },
+        transactions: result.transactions.map(mapTransactionByRealm),
+      };
+    },
     enabled: !!realmRepository && !!realmPath,
     ...options,
   });
