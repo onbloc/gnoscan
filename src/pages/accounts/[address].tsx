@@ -21,6 +21,7 @@ import {useUsername} from '@/common/hooks/account/use-username';
 import {isBech32Address} from '@/common/utils/bech32.utility';
 import IconLink from '@/assets/svgs/icon-link.svg';
 import {useNetwork} from '@/common/hooks/use-network';
+import IconTableLoading from '@/assets/svgs/icon-table-loading.svg';
 
 interface AccountDetailsPageProps {
   address: string;
@@ -71,7 +72,13 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
     return `https://${currentNetwork.chainId}.gno.land/r/demo/users:${username}`;
   }, [currentNetwork, username]);
 
-  const {isFetched, tokenBalances, transactionEvents} = useAccount(bech32Address || '');
+  const {
+    isFetched,
+    isFetchedAssets,
+    isFetchedAccountTransactions,
+    tokenBalances,
+    transactionEvents,
+  } = useAccount(bech32Address || '');
   const [currentTab, setCurrentTab] = useState('Transactions');
 
   const detailTabs = useMemo(() => {
@@ -89,7 +96,7 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
   return (
     <DetailsPageLayout
       title="Account Details"
-      visible={!isFetched}
+      visible={!(isFetched && isFetchedUsername)}
       keyword={`${bech32Address || address}`}
       error={isError}>
       <DataSection title="Address">
@@ -104,6 +111,7 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
               width={85}>
               <IconCopy className={`svg-icon ${username ? '' : 'tidy'}`} />
             </Tooltip>
+
             {username && (
               <Text type="p4" color="blue" className="username-text">
                 <StyledA href={gnoUserUrl || ''} target="_blank" rel="noreferrer">
@@ -115,35 +123,43 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
           </AddressTextBox>
         </GrayBox>
       </DataSection>
-      <DataSection title="Assets">
-        <Content className={media}>
-          {tokenBalances.map((amount: Amount, index: number) => (
-            <GrayBox key={index} padding={desktop ? '16px 24px' : '12px 16px'}>
-              <LogoImg>
-                {getTokenImage(amount.denom) ? (
-                  <img src={getTokenImage(amount.denom)} alt="token-image" />
-                ) : (
-                  <UnknownToken className="unknown-token" width="40" height="40" />
-                )}
-              </LogoImg>
 
-              <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
-                {getTokenInfo(amount.denom)?.name || ''}
-              </Text>
-              <AmountText
-                minSize="p4"
-                maxSize="p3"
-                {...getTokenAmount(amount.denom, amount.value)}
-              />
-            </GrayBox>
-          ))}
+      <DataSection title="Assets">
+        <Content className={isFetchedAssets ? media : ''}>
+          {isFetchedAssets &&
+            tokenBalances.map((amount: Amount, index: number) => (
+              <GrayBox key={index} padding={desktop ? '16px 24px' : '12px 16px'}>
+                <LogoImg>
+                  {getTokenImage(amount.denom) ? (
+                    <img src={getTokenImage(amount.denom)} alt="token-image" />
+                  ) : (
+                    <UnknownToken className="unknown-token" width="40" height="40" />
+                  )}
+                </LogoImg>
+
+                <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
+                  {getTokenInfo(amount.denom)?.name || ''}
+                </Text>
+                <AmountText
+                  minSize="p4"
+                  maxSize="p3"
+                  {...getTokenAmount(amount.denom, amount.value)}
+                />
+              </GrayBox>
+            ))}
+
+          {!isFetchedAssets && (
+            <div className="loading-wrapper">
+              <IconTableLoading />
+            </div>
+          )}
         </Content>
       </DataSection>
 
       <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
         {currentTab === 'Transactions' && <AccountDetailDatatable address={`${bech32Address}`} />}
         {currentTab === 'Events' && (
-          <EventDatatable isFetched={isFetched} events={transactionEvents} />
+          <EventDatatable isFetched={isFetchedAccountTransactions} events={transactionEvents} />
         )}
       </DataListSection>
     </DetailsPageLayout>
@@ -201,6 +217,25 @@ const Content = styled.div<StyleProps>`
   grid-gap: 16px;
   &.desktop {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .loading-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      animation: rotating 2s linear infinite;
+    }
+
+    stop {
+      stop-color: ${({theme}) => theme.colors.surface};
+    }
+
+    circle {
+      fill: ${({theme}) => theme.colors.surface};
+    }
   }
 `;
 
