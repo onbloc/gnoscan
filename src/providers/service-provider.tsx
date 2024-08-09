@@ -1,9 +1,16 @@
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 import {AccountRepository, IAccountRepository} from '@/repositories/account-repository';
-import {BlockRepository, IBlockRepository} from '@/repositories/block-repository';
+import {OnblocAccountRepository} from '@/repositories/account-repository/onbloc-account-repository';
+import {
+  BlockRepository,
+  IBlockRepository,
+  OnblocBlockRepository,
+} from '@/repositories/block-repository';
 import {ChainRepository, IChainRepository} from '@/repositories/chain-repository';
 import {IRealmRepository, RealmRepository} from '@/repositories/realm-repository.ts';
+import {OnblocRealmRepository} from '@/repositories/realm-repository.ts/onbloc-realm-repository';
 import {ITransactionRepository, TransactionRepository} from '@/repositories/transaction-repository';
+import {OnblocTransactionRepository} from '@/repositories/transaction-repository/onbloc-transaction-repository';
 import {createContext, useMemo} from 'react';
 
 interface ServiceContextProps {
@@ -17,7 +24,8 @@ interface ServiceContextProps {
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
 
 const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
-  const {indexerQueryClient, nodeRPCClient} = useNetworkProvider();
+  const {indexerQueryClient, nodeRPCClient, onblocRPCClient, isCustomNetwork} =
+    useNetworkProvider();
 
   const chainRepository = useMemo(
     () => (nodeRPCClient ? new ChainRepository(nodeRPCClient) : null),
@@ -28,29 +36,49 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
     if (!nodeRPCClient) {
       return null;
     }
+
+    if (!isCustomNetwork) {
+      return new OnblocBlockRepository(nodeRPCClient, indexerQueryClient);
+    }
+
     return new BlockRepository(nodeRPCClient, indexerQueryClient);
-  }, [nodeRPCClient, indexerQueryClient]);
+  }, [nodeRPCClient, isCustomNetwork, indexerQueryClient]);
 
   const transactionRepository = useMemo(() => {
     if (!nodeRPCClient) {
       return null;
     }
+
+    if (!isCustomNetwork && onblocRPCClient) {
+      return new OnblocTransactionRepository(nodeRPCClient, indexerQueryClient, onblocRPCClient);
+    }
+
     return new TransactionRepository(nodeRPCClient, indexerQueryClient);
-  }, [nodeRPCClient, indexerQueryClient]);
+  }, [nodeRPCClient, isCustomNetwork, indexerQueryClient, onblocRPCClient]);
 
   const realmRepository = useMemo(() => {
     if (!nodeRPCClient) {
       return null;
     }
+
+    if (!isCustomNetwork) {
+      return new OnblocRealmRepository(nodeRPCClient, indexerQueryClient, onblocRPCClient);
+    }
+
     return new RealmRepository(nodeRPCClient, indexerQueryClient);
-  }, [nodeRPCClient, indexerQueryClient]);
+  }, [nodeRPCClient, isCustomNetwork, indexerQueryClient, onblocRPCClient]);
 
   const accountRepository = useMemo(() => {
     if (!nodeRPCClient) {
       return null;
     }
+
+    if (!isCustomNetwork) {
+      return new OnblocAccountRepository(nodeRPCClient, indexerQueryClient);
+    }
+
     return new AccountRepository(nodeRPCClient, indexerQueryClient);
-  }, [nodeRPCClient, indexerQueryClient]);
+  }, [nodeRPCClient, isCustomNetwork, indexerQueryClient]);
 
   return (
     <ServiceContext.Provider

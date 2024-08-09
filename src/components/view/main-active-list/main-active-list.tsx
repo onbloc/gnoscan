@@ -9,6 +9,8 @@ import Text from '@/components/ui/text';
 import {AmountText} from '@/components/ui/text/amount-text';
 import {TextProps} from '@/components/ui/text/text';
 import {PaletteKeyType} from '@/styles';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import ActiveAccountApi from './active-account/active-account-api';
 
 interface StyledTextProps extends TextProps {
   width?: string;
@@ -29,11 +31,21 @@ export const colWidth = {
 
 const MainActiveList = () => {
   const media = eachMedia();
+  const {isCustomNetwork} = useNetworkProvider();
 
   return (
     <Wrapper className={media}>
-      <ActiveAccount />
-      <ActiveBoards />
+      {isCustomNetwork ? (
+        <React.Fragment>
+          <ActiveAccount />
+          <ActiveBoards />
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <ActiveAccountApi />
+          <ActiveBoards />
+        </React.Fragment>
+      )}
     </Wrapper>
   );
 };
@@ -120,7 +132,7 @@ export const StyledAmountText = styled(AmountText)<{width?: string; color?: Pale
   }
 `;
 
-export const FitContentA = styled.a`
+export const FitContentA = styled.span`
   width: fit-content;
 `;
 

@@ -1,5 +1,5 @@
-import {PageOption} from '@/common/clients/indexer-client/types';
-import {Transaction} from '@/types/data-type';
+import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
+import {MonthlyTransactionStatInfo, TotalTransactionStatInfo, Transaction} from '@/types/data-type';
 
 export interface ITransactionRepository {
   getTransactions(
@@ -8,11 +8,12 @@ export interface ITransactionRepository {
     pageOption?: PageOption,
   ): Promise<Transaction[]>;
 
-  getTransactionsPage(
-    minBlockHeight: number,
-    maxBlockHeight: number,
-    pageOption: PageOption,
-  ): Promise<Transaction[]>;
+  getTransactionsPage(cursor: string | null): Promise<{
+    pageInfo: PageInfo;
+    transactions: Transaction[];
+  } | null>;
+
+  getTransactionStatInfo(): Promise<TotalTransactionStatInfo>;
 
   getTransactionBlockHeight(transactionHash: string): Promise<number | null>;
 
@@ -22,4 +23,6 @@ export interface ITransactionRepository {
   ): Promise<Transaction[] | null>;
 
   getSimpleTransactionsByFromHeight(height: number): Promise<any[]>;
+
+  getMonthlyTransactionStatInfo(): Promise<MonthlyTransactionStatInfo | null>;
 }

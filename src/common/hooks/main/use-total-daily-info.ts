@@ -2,50 +2,50 @@ import {useMemo} from 'react';
 import {useGetBefore30DBlock} from '../common/use-get-before-30d-block';
 import {useGetSimpleTransactions} from '../common/use-get-simple-transactions';
 import {useGetSimpleTransactionWithTimes} from '../common/use-get-block-times';
+import {MonthlyDailyTransaction} from '@/types/data-type';
+import {dateToStr} from '@/common/utils/date-util';
 
 export const useTotalDailyInfo = () => {
   const {data: blockHeightOfBefor30d} = useGetBefore30DBlock();
   const {data: simpleTransactions} = useGetSimpleTransactions(blockHeightOfBefor30d);
   const {data, isFetched} = useGetSimpleTransactionWithTimes(simpleTransactions);
 
-  const transactionInfo = useMemo(() => {
+  const transactionInfo: {
+    date: string;
+    totalGasFee: {
+      value: number;
+      denom: string;
+    };
+    txCount: number;
+  }[] = useMemo(() => {
     if (!data) {
       return [];
     }
 
     const transactionInfo: {
-      [key in string]: {
-        gasUsed: number;
-        gasFee: number;
-        totalTxs: number;
-      };
+      [key in string]: MonthlyDailyTransaction;
     } = {};
 
     data?.forEach(tx => {
       const blockTime = new Date(tx.time || '');
-      const dateKey = [
-        blockTime.getUTCFullYear(),
-        blockTime.getUTCMonth() + 1,
-        blockTime.getUTCDate(),
-      ].join('-');
+      const dateKey = dateToStr(blockTime);
 
-      const gasUsed = (transactionInfo?.[dateKey]?.gasUsed || 0) + Number(tx.gas_used);
-      const gasFee = (transactionInfo?.[dateKey]?.gasFee || 0) + Number(tx.gas_fee.amount);
-      const totalTxs = (transactionInfo?.[dateKey]?.totalTxs || 0) + 1;
+      const totalGasFee =
+        (transactionInfo?.[dateKey]?.totalGasFee || 0) + Number(tx.gas_fee.amount);
+      const txCount = (transactionInfo?.[dateKey]?.txCount || 0) + 1;
       transactionInfo[dateKey] = {
-        gasUsed,
-        gasFee,
-        totalTxs,
+        totalGasFee,
+        txCount,
       };
     });
 
     return Object.entries(transactionInfo).map(entry => ({
       date: entry[0],
-      gasFee: {
-        value: entry[1].gasFee,
+      totalGasFee: {
+        value: entry[1].totalGasFee,
         denom: 'ugnot',
       },
-      totalTxs: entry[1].totalTxs,
+      txCount: entry[1].txCount,
     }));
   }, [data]);
 

@@ -8,7 +8,6 @@ import {
   RealmTransaction,
   RealmTransactionInfo,
 } from './types';
-import {gql} from '@apollo/client';
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCI} from '@gnolang/tm2-js-client';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
@@ -26,7 +25,7 @@ import {
   extractStringFromResponse,
   parseABCIQueryNumberResponse,
 } from '@/common/clients/node-client/utility';
-import {PageOption} from '@/common/clients/indexer-client/types';
+import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
 import {
   makeRealmTransactionInfoQuery,
   makeTokenQuery,
@@ -40,6 +39,7 @@ import {
   makeRealmTransactionsQuery,
   makeRealmTransactionsWithArgsQuery,
 } from './query';
+import BigNumber from 'bignumber.js';
 
 export class RealmRepository implements IRealmRepository {
   constructor(
@@ -47,12 +47,27 @@ export class RealmRepository implements IRealmRepository {
     private indexerClient: IndexerClient | null,
   ) {}
 
-  async getRealms(pageOption?: PageOption): Promise<any | null> {
+  async getLatestRealms(pageOption?: PageOption): Promise<any | null> {
     if (!this.indexerClient) {
       return null;
     }
 
     return this.indexerClient.query(makeRealmsQuery(), pageOption);
+  }
+
+  async getRealms(pageOption?: PageOption): Promise<any | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    const response = await this.indexerClient
+      .query(makeRealmsQuery(), pageOption)
+      .catch(() => null);
+    if (!response) {
+      return null;
+    }
+
+    return response.data?.transactions;
   }
 
   async getRealm(realmPath: string): Promise<RealmTransaction | null> {
@@ -270,17 +285,24 @@ export class RealmRepository implements IRealmRepository {
     );
   }
 
-  async getRealmPackages(
-    pageOption: PageOption,
-  ): Promise<RealmTransaction<AddPackageValue>[] | null> {
+  async getRealmPackages(): Promise<{
+    pageInfo: PageInfo;
+    transactions: RealmTransaction<AddPackageValue>[];
+  } | null> {
     if (!this.indexerClient) {
       return null;
     }
 
     return this.indexerClient
-      .queryWithOptions(makeRealmPackagesQuery(), pageOption)
-      .then(result => result?.data?.transactions || [])
-      .then((transactions: RealmTransaction<AddPackageValue>[]) => transactions);
+      .pageQuery<RealmTransaction<AddPackageValue>>(makeRealmPackagesQuery())
+      .then(result => {
+        const edges = result?.data?.transactions.edges || [];
+        const transactions = edges.map(edge => edge.transaction);
+        return {
+          pageInfo: result.data.transactions.pageInfo,
+          transactions,
+        };
+      });
   }
 
   async getTokens(): Promise<GRC20Info[] | null> {
@@ -390,6 +412,51 @@ export class RealmRepository implements IRealmRepository {
         }
         return accum;
       }, {});
+  }
+
+  async getTokenHolders(packagePath: string): Promise<number> {
+    if (!this.nodeClient) {
+      return 0;
+    }
+
+    const nodeResponse = await this.nodeClient.abciQueryVMQueryRender(packagePath + ':', []);
+    const responseData = nodeResponse.response.ResponseBase.Data
+      ? extractStringFromResponse(nodeResponse.response.ResponseBase.Data)
+      : '';
+
+    if (responseData) {
+      const regex = /(?:\*\s*)?\**\s*(?:Known\s+)?(accounts|users|holders)\**\s*:\s*(\d+)/i;
+      const match = responseData.match(regex);
+
+      if (match && match.length > 2) {
+        return BigNumber(match[2]).toNumber();
+      }
+    }
+
+    // If it can't be parsed in render function, look up the transaction.
+    if (!this.indexerClient) {
+      return 0;
+    }
+
+    const transactions = await this.indexerClient
+      .pageQuery(makeRealmTransactionsWithArgsQuery(packagePath))
+      .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
+
+    if (!transactions) {
+      return 0;
+    }
+
+    const addresses = transactions
+      .flatMap(tx =>
+        tx.messages.flatMap((message: any) => {
+          const caller = message.value.caller;
+          const receiver = message.value?.args?.[0];
+          return [caller, receiver];
+        }),
+      )
+      .filter(address => !!address);
+
+    return [...new Set(addresses)].length;
   }
 
   async getBoards(): Promise<Board[]> {

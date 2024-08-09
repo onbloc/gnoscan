@@ -15,7 +15,7 @@ interface NetworkContextProps {
 
   currentNetwork: ChainModel | null;
 
-  isCustomNetwork: boolean | null;
+  isCustomNetwork: boolean;
 
   nodeRPCClient: NodeRPCClient | null;
 
@@ -48,6 +48,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
         setCurrentNetwork({
           isCustom: true,
           chainId: '',
+          apiUrl: '',
           rpcUrl: query?.rpcUrl?.toString() || '',
           indexerUrl: query?.indexerUrl?.toString() || '',
         });
@@ -57,6 +58,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
       setCurrentNetwork({
         isCustom: false,
         chainId: chain.chainId,
+        apiUrl: chain.apiUrl || '',
         rpcUrl: chain.rpcUrl || '',
         indexerUrl: chain.indexerUrl || '',
       });
@@ -84,9 +86,14 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
 
   const isCustomNetwork = useMemo(() => {
     if (!currentNetworkModel) {
-      return null;
+      return false;
     }
-    return !!currentNetworkModel.apiUrl;
+
+    if (!currentNetworkModel.apiUrl) {
+      return true;
+    }
+
+    return false;
   }, [currentNetworkModel]);
 
   const nodeRPCClient = useMemo(() => {
@@ -124,7 +131,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
       return null;
     }
 
-    const rpcUrl = currentNetworkModel.apiUrl + '/gno' || '';
+    const rpcUrl = `${currentNetworkModel.apiUrl || ''}/gno`;
     return new HttpRPCClient(rpcUrl);
   }, [currentNetworkModel]);
 
