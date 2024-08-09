@@ -24,7 +24,7 @@ interface ServiceContextProps {
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
 
 const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
-  const {indexerQueryClient, nodeRPCClient, onblocRPCClient, isCustomNetwork} =
+  const {indexerQueryClient, nodeRPCClient, onblocRPCClient, mainNodeRPCClient, isCustomNetwork} =
     useNetworkProvider();
 
   const chainRepository = useMemo(
@@ -62,10 +62,15 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
     }
 
     if (!isCustomNetwork) {
-      return new OnblocRealmRepository(nodeRPCClient, indexerQueryClient, onblocRPCClient);
+      return new OnblocRealmRepository(
+        nodeRPCClient,
+        indexerQueryClient,
+        onblocRPCClient,
+        mainNodeRPCClient,
+      );
     }
 
-    return new RealmRepository(nodeRPCClient, indexerQueryClient);
+    return new RealmRepository(nodeRPCClient, indexerQueryClient, mainNodeRPCClient);
   }, [nodeRPCClient, isCustomNetwork, indexerQueryClient, onblocRPCClient]);
 
   const accountRepository = useMemo(() => {

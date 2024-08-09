@@ -1,7 +1,6 @@
 import {useQuery} from 'react-query';
 import {useServiceProvider} from '../provider/use-service-provider';
-import {useNetwork} from '../use-network';
-import {Board} from '@/types/data-type';
+import {Blog, BlogDetail} from '@/types/data-type';
 
 export interface SimpleTransaction {
   success: boolean;
@@ -25,17 +24,31 @@ export interface SimpleTransaction {
   gas_wanted: number;
 }
 
-export const useGetBoard = (blockHeight?: number | null) => {
-  const {currentNetwork} = useNetwork();
+export const useGetBlogs = (blockHeight?: number | null) => {
   const {realmRepository} = useServiceProvider();
 
-  return useQuery<Board[]>({
-    queryKey: ['useGetBoard', currentNetwork?.chainId, blockHeight || ''],
+  return useQuery<Blog[]>({
+    queryKey: ['useGetBlogs', blockHeight || ''],
     queryFn: () => {
       if (!realmRepository) {
         return [];
       }
-      return realmRepository.getBoards();
+      return realmRepository.getBlogs();
+    },
+    enabled: !!realmRepository,
+  });
+};
+
+export const useGetBlogPublisher = (path: string) => {
+  const {realmRepository} = useServiceProvider();
+
+  return useQuery<string | null>({
+    queryKey: ['useGetBlogPublisher', path],
+    queryFn: () => {
+      if (!realmRepository) {
+        return null;
+      }
+      return realmRepository.getBlogPublisher(path);
     },
     enabled: !!realmRepository,
   });

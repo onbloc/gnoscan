@@ -19,6 +19,9 @@ interface NetworkContextProps {
 
   nodeRPCClient: NodeRPCClient | null;
 
+  // current main is portal-loop
+  mainNodeRPCClient: NodeRPCClient | null;
+
   indexerQueryClient: IndexerClient | null;
 
   onblocRPCClient: RPCClient | null;
@@ -135,6 +138,15 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     return new HttpRPCClient(rpcUrl);
   }, [currentNetworkModel]);
 
+  const mainNodeRPCClient = useMemo(() => {
+    const mainNetwork = chains.find(chain => chain.chainId === 'portal-loop');
+    if (!mainNetwork) {
+      return null;
+    }
+
+    return new NodeRPCClient(mainNetwork.rpcUrl || '', mainNetwork.chainId);
+  }, [chains]);
+
   const apolloClient = useMemo(() => {
     if (!indexerQueryClient) {
       return new ApolloClient({cache: new InMemoryCache()});
@@ -152,6 +164,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
         nodeRPCClient,
         indexerQueryClient,
         onblocRPCClient,
+        mainNodeRPCClient,
       }}>
       <ApolloProvider client={apolloClient}>{children}</ApolloProvider>
     </NetworkContext.Provider>

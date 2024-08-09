@@ -12,7 +12,7 @@ import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCI} from '@gnolang/tm2-js-client';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
 import {parseTokenAmount} from '@/common/utils/token.utility';
-import {Amount, Board} from '@/types/data-type';
+import {Amount, Blog, BlogDetail, Board} from '@/types/data-type';
 import {isAddPackageMessageValue} from './mapper';
 import {
   GRC20_FUNCTIONS,
@@ -45,6 +45,7 @@ export class RealmRepository implements IRealmRepository {
   constructor(
     private nodeClient: NodeRPCClient | null,
     private indexerClient: IndexerClient | null,
+    private mainNodeRPCClient: NodeRPCClient | null,
   ) {}
 
   async getLatestRealms(pageOption?: PageOption): Promise<any | null> {
@@ -459,41 +460,62 @@ export class RealmRepository implements IRealmRepository {
     return [...new Set(addresses)].length;
   }
 
-  async getBoards(): Promise<Board[]> {
-    if (!this.nodeClient) {
+  async getBlogs(): Promise<Blog[]> {
+    if (!this.mainNodeRPCClient) {
       return [];
     }
 
-    const response = await this.nodeClient
-      .abciQueryVMQueryRender('gno.land/r/demo/boards:', [])
-      .then(response => response?.response?.ResponseBase?.Data);
+    const responseData = await this.mainNodeRPCClient
+      .abciQueryVMQueryRender('gno.land/r/gnoland/blog:', [])
+      .then(response => response?.response?.ResponseBase?.Data)
+      .then(extractStringFromResponse);
 
-    if (!response) {
+    if (!responseData) {
       return [];
     }
 
-    const data = extractStringFromResponse(response);
-    const lines = data
-      .trim()
-      .split('\n')
-      .filter(line => line.length > 1)
-      .map(line => line.trim().slice(2));
+    const results: Blog[] = [];
 
-    return lines
-      .map((line, index) => {
-        const match = line.match(/\[(.*?)\]\((.*?)\)/);
-        if (!match) {
-          return null;
-        }
+    const regex = /### \[(.+?)\]\((.+?)\)\s+(\d{2} \w+ \d{4})/g;
 
-        const path = match[1];
-        const name = match[1].split(':')[1];
-        return {
-          index,
-          path,
-          name,
-        };
-      })
-      .filter(result => !!result) as Board[];
+    let match;
+    let index = 0;
+    while ((match = regex.exec(responseData)) !== null && index < 10) {
+      const [, title, path, date] = match;
+      results.push({
+        index,
+        title,
+        path,
+        date,
+      });
+      index++;
+    }
+
+    return results;
+  }
+
+  async getBlogPublisher(path: string): Promise<string | null> {
+    if (!this.mainNodeRPCClient) {
+      return null;
+    }
+
+    const responseData = await this.mainNodeRPCClient
+      .abciQueryVMQueryRender('gno.land' + path, [])
+      .then(response => response?.response?.ResponseBase?.Data)
+      .then(extractStringFromResponse);
+
+    if (!responseData) {
+      return null;
+    }
+
+    const regex = /Published by ([\w\d]+) to Gnoland's Blog/g;
+    let match;
+    let lastMatch = null;
+
+    while ((match = regex.exec(responseData)) !== null) {
+      lastMatch = match[1]; // 매칭된 주소 값을 저장
+    }
+
+    return lastMatch;
   }
 }

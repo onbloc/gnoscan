@@ -4,6 +4,20 @@ export interface Board {
   name: string;
 }
 
+export interface Blog {
+  index: number;
+  title: string;
+  path: string;
+  date: string;
+}
+
+export interface BlogDetail {
+  index: number;
+  title: string;
+  path: string;
+  date: string;
+}
+
 export interface Block {
   hash: string;
   height: number;
