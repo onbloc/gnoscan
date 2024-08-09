@@ -20,7 +20,7 @@ export const LazyFeeAmount = ({packagePath, maxSize = 'p4', minSize = 'body1'}: 
     if (!transactionInfo) {
       return null;
     }
-    return getTokenAmount('ugnot', transactionInfo?.[packagePath].gasUsed || 0);
+    return getTokenAmount('ugnot', transactionInfo?.[packagePath]?.gasUsed || 0);
   }, [getTokenAmount, packagePath, transactionInfo]);
 
   if (!isFetched || !amount) {
