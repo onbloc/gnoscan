@@ -2,7 +2,6 @@ import {parseABCI} from '@gnolang/tm2-js-client';
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
-import {parseTokenAmount} from '@/common/utils/token.utility';
 import {Transaction} from '@/types/data-type';
 
 import {
@@ -11,41 +10,13 @@ import {
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
 } from '../response/transaction.mapper';
-import {PageOption} from '@/common/clients/indexer-client/types';
 import {AccountTransactionResponse, IAccountRepository} from './types';
 import {
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
-  makeTransactionsQuery,
   makeVMTransactionsByAddressQuery,
 } from './query';
-
-function mapTransaction(data: any): Transaction {
-  const firstMessage = data.messages[0]?.value;
-  const amountValue =
-    firstMessage?.amount || firstMessage?.send || firstMessage?.deposit || '0ugnot';
-  return {
-    hash: data.hash,
-    success: data.success === true,
-    numOfMessage: data.messages.length,
-    type: firstMessage?.__typename,
-    packagePath: firstMessage?.package?.path || firstMessage?.pkg_path || firstMessage?.__typename,
-    functionName: firstMessage?.func || firstMessage?.__typename,
-    blockHeight: data.block_height,
-    from: firstMessage?.caller || firstMessage?.creator || firstMessage?.from_address,
-    to: firstMessage?.to_address,
-    amount: {
-      value: parseTokenAmount(amountValue).toString() || '0',
-      denom: 'ugnot',
-    },
-    time: '',
-    fee: {
-      value: data?.gas_fee?.amount || '0',
-      denom: 'ugnot',
-    },
-  };
-}
 
 export class AccountRepository implements IAccountRepository {
   constructor(
