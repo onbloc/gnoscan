@@ -16,7 +16,6 @@ const useSearchQuery = (keyword: string) => {
   const {data: tokens} = useGetGRC20Tokens();
   const {data: realms} = useGetRealmsQuery();
   const {usernames} = useUsername();
-  const {data: accounts} = useGetUsingAccountTransactionCount();
 
   const {data}: UseQueryResult<keyOfSearch> = useQuery(
     [
@@ -28,32 +27,14 @@ const useSearchQuery = (keyword: string) => {
     ],
     async () => {
       const users = Object.entries(usernames || {})
-        .filter(entry => entry[1].includes(keyword))
+        .filter(entry => entry[0].includes(keyword) || entry[1].includes(keyword))
         .map(entry => ({
           username: entry[0],
           address: entry[1],
         }))
         .sort((u1, u2) => (u1.address > u2.address ? 1 : -1))
         .filter((_, index) => index < 5);
-      const addresses =
-        accounts?.accounts
-          .filter(address => {
-            if (users.findIndex(user => user.address === address) > -1) {
-              return false;
-            }
-            return address.includes(keyword);
-          })
-          .sort()
-          .filter((_, index) => index < 5) || [];
-      const filteredAddresses = [
-        ...new Set([
-          ...users,
-          ...addresses.map(address => ({
-            username: usernames?.[address],
-            address,
-          })),
-        ]),
-      ].filter((_, index) => index < 5);
+      const filteredAddresses = users;
 
       const filteredTokens =
         tokens

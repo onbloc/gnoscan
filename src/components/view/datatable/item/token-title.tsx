@@ -22,7 +22,7 @@ export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
       return null;
     }
     return getTokenImage(imagePath);
-  }, [imagePath, isFetchedGRC20Tokens]);
+  }, [imagePath, isFetchedGRC20Tokens, getTokenImage]);
 
   return (
     <a href={getUrlWithNetwork(`/tokens/${pkgPath}`)}>
