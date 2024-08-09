@@ -54,6 +54,33 @@ export const makeTransactionHashQuery = (hash: string) => gql`
   }
 `;
 
+export const makeGRC20ReceivedEvents = (address: string) => gql`
+  {
+    transactions(
+      filter: {
+        success: true
+        events: [
+          {
+            type: "Transfer"
+            attrs: [{key: "to", value: "${address}"}]
+          }
+        ]
+        message: {type_url: exec}
+      }
+    ) {
+      response {
+        events {
+          ... on GnoEvent {
+            type
+            pkg_path
+            func
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => gql`
 {
   transactions(filter: {

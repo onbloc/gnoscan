@@ -79,6 +79,11 @@ export interface Transaction {
   events?: GnoEvent[];
 }
 
+export interface TransactionEvent {
+  summary: GnoEvent;
+  events: GnoEvent[];
+}
+
 export interface GnoEvent {
   id: string;
   blockHeight: number;

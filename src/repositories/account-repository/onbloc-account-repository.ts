@@ -2,7 +2,6 @@ import {parseABCI} from '@gnolang/tm2-js-client';
 import {NodeRPCClient} from '@/common/clients/node-client';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
 import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
-import {parseTokenAmount} from '@/common/utils/token.utility';
 import {Transaction} from '@/types/data-type';
 
 import {
@@ -14,12 +13,15 @@ import {
 import {AccountTransactionResponse, IAccountRepository} from './types';
 import {
   makeAccountTransactionsQuery,
+  makeGRC20ReceivedEvents,
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
   makeVMTransactionsByAddressQuery,
 } from './onbloc-query';
 import {getDefaultMessage} from '../utility';
+import {ApolloQueryResult} from '@apollo/client';
+import {PageQueryResponse} from '@/common/clients/indexer-client/types';
 
 export class OnblocAccountRepository implements IAccountRepository {
   constructor(
@@ -54,7 +56,9 @@ export class OnblocAccountRepository implements IAccountRepository {
           : null,
       ),
     );
-    return Promise.all(fetchers).then(results => results.filter(result => !!result));
+    return Promise.all(fetchers).then(results =>
+      results.filter(result => !!result && result.value !== '0'),
+    );
   }
 
   async getAccountTransactions(
@@ -116,6 +120,37 @@ export class OnblocAccountRepository implements IAccountRepository {
       transactions,
       pageInfo,
     };
+  }
+
+  async getGRC20ReceivedPackagePaths(address: string): Promise<string[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    const packagePaths: string[] = [];
+
+    let hasNext = true;
+    let cursor: string | null = null;
+    while (hasNext) {
+      const response: ApolloQueryResult<PageQueryResponse<any>> =
+        await this.indexerClient.pageQuery(makeGRC20ReceivedEvents(address, cursor));
+
+      const pageInfo = response.data.transactions.pageInfo;
+      const edges = response.data.transactions.edges;
+
+      const paths: string[] = edges
+        .flatMap(edge => edge.transaction?.response?.events || [])
+        .filter(event => event?.type === 'Transfer')
+        .map(event => event.pkg_path || '');
+
+      const uniquePaths: string[] = [...new Set(paths)];
+      packagePaths.push(...uniquePaths.filter(path => !packagePaths.includes(path) && path !== ''));
+
+      hasNext = pageInfo.hasNext;
+      cursor = pageInfo.last;
+    }
+
+    return packagePaths;
   }
 
   async getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {

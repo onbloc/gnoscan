@@ -120,6 +120,42 @@ export const makeAccountTransactionsQuery = (
   }
 `;
 
+export const makeGRC20ReceivedEvents = (address: string, cursor: string | null) => gql`
+  {
+    transactions(
+      filter: {
+        success: true
+        events: [
+          {
+            type: "Transfer"
+            attrs: [{key: "to", value: "${address}"}]
+          }
+        ]
+        messages: {type_url: exec}
+      }
+      after: ${cursor ? `"${cursor}"` : 'null'}
+    ) {
+      pageInfo {
+        last
+        hasNext
+      }
+      edges {
+        transaction {
+          response {
+            events {
+              ... on GnoEvent {
+                type
+                pkg_path
+                func
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => gql`
 {
   transactions(filter: {
