@@ -12,7 +12,7 @@ import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCI} from '@gnolang/tm2-js-client';
 import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
 import {parseTokenAmount} from '@/common/utils/token.utility';
-import {Amount, Blog, BlogDetail, Board} from '@/types/data-type';
+import {Amount, Blog} from '@/types/data-type';
 import {isAddPackageMessageValue} from './mapper';
 import {
   GRC20_FUNCTIONS,
@@ -210,13 +210,15 @@ export class OnblocRealmRepository implements IRealmRepository {
       .catch(() => null);
   }
 
-  async getRealmTransactionInfos(): Promise<{[key in string]: RealmTransactionInfo} | null> {
+  async getRealmTransactionInfos(
+    fromHeight?: number,
+  ): Promise<{[key in string]: RealmTransactionInfo} | null> {
     if (!this.indexerClient) {
       return null;
     }
 
     const transactions: RealmTransaction[] | null = await this.indexerClient
-      .pageQuery(makeRealmTransactionInfosQuery())
+      .pageQuery(makeRealmTransactionInfosQuery(fromHeight))
       .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || [])
       .catch(() => null);
 

@@ -1,6 +1,7 @@
 import {
   useGetRealmPackagesInfinity,
   useGetRealmsQuery,
+  useGetRealmTransactionInfosByFromHeightQuery,
   useGetRealmTransactionInfosQuery,
 } from '@/common/react-query/realm';
 import {useEffect, useMemo, useState} from 'react';
@@ -21,13 +22,32 @@ export const useRealms = (
     isFetched: isFetchedDefault,
     hasNextPage: hasNextPageDefault,
   } = useGetRealmPackagesInfinity({enabled: !isCustomNetwork});
+
+  const defaultFromHeight = useMemo(() => {
+    if (!defaultData) {
+      return null;
+    }
+
+    const transactions = defaultData?.pages?.flatMap(page => page?.transactions || []);
+    if (transactions.length === 0) {
+      return null;
+    }
+
+    return Number(transactions?.[transactions.length - 1]?.blockHeight || 0) || null;
+  }, [defaultData]);
+
+  const {isFetched: isFetchedDefaultRealmTransactionInfo} =
+    useGetRealmTransactionInfosByFromHeightQuery(defaultFromHeight, {
+      enabled: !!defaultFromHeight,
+    });
+
   const {data, isFetched: isFetchedAll} = useGetRealmsQuery();
   const [currentPage, setCurrentPage] = useState(0);
   const {data: realmTransactionInfos, isFetched: isFetchedRealmTransactionInfos} =
     useGetRealmTransactionInfosQuery();
 
   const isDefault = useMemo(() => {
-    if (isCustomNetwork || isFetchedAll) {
+    if (isCustomNetwork) {
       return false;
     }
 
@@ -140,10 +160,13 @@ export const useRealms = (
   }, [sortOptions]);
 
   return {
+    isDefault,
     realms,
-    realmTransactionInfos,
-    isFetched: isFetched,
+    realmTransactionInfos: realmTransactionInfos,
+    isFetched,
     isFetchedRealmTransactionInfos,
+    isFetchedDefaultRealmTransactionInfo,
+    defaultFromHeight,
     nextPage,
     hasNextPage,
   };

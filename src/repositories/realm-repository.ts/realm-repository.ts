@@ -217,13 +217,15 @@ export class RealmRepository implements IRealmRepository {
       .catch(() => null);
   }
 
-  async getRealmTransactionInfos(): Promise<{[key in string]: RealmTransactionInfo} | null> {
+  async getRealmTransactionInfos(
+    fromHeight?: number,
+  ): Promise<{[key in string]: RealmTransactionInfo} | null> {
     if (!this.indexerClient) {
       return null;
     }
 
     const transactions: RealmTransaction[] | null = await this.indexerClient
-      .query(makeRealmTransactionInfosQuery())
+      .query(makeRealmTransactionInfosQuery(fromHeight))
       .then(result => result?.data?.transactions || [])
       .catch(() => null);
     if (!transactions) {

@@ -321,9 +321,14 @@ export const makeRealmCallTransactionsWithArgsQuery = (packagePath: string) => g
   }
 }`;
 
-export const makeRealmTransactionInfosQuery = () => gql`
+export const makeRealmTransactionInfosQuery = (fromHeight?: number) => gql`
   {
-    transactions(filter: {message: {route: vm}}) {
+    transactions(
+      filter: {
+        message: {route: vm}
+        ${fromHeight ? `from_block_height: ${fromHeight}` : ''}
+      }
+    ) {
       hash
       index
       success
