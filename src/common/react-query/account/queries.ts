@@ -64,11 +64,11 @@ export const useGetGRC20TokenBalances = (
         return [];
       }
 
-      const results = await accountRepository
-        .getGRC20ReceivedTransactionsByAddress(address)
-        .then(txs => txs?.map(tx => tx.packagePath) || []);
-      const assets = [...new Set(results)];
-      return accountRepository.getGRC20TokensBalances(address, assets);
+      const assets = await accountRepository
+        .getGRC20ReceivedPackagePaths(address)
+        .catch(() => null);
+
+      return accountRepository.getGRC20TokensBalances(address, assets || []);
     },
     enabled: !!accountRepository,
     ...options,

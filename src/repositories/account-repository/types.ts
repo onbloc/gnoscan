@@ -7,6 +7,7 @@ export interface IAccountRepository {
     address: string,
     cursor: string | null,
   ): Promise<AccountTransactionResponse>;
+  getGRC20ReceivedPackagePaths(address: string): Promise<string[] | null>;
   getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null>;
   getNativeTokenSendTransactionsByAddress(address: string): Promise<Transaction[] | null>;
   getNativeTokenReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null>;

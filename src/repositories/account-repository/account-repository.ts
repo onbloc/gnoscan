@@ -10,13 +10,16 @@ import {
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
 } from '../response/transaction.mapper';
+import {QueryResponse} from '@/common/clients/indexer-client/types';
 import {AccountTransactionResponse, IAccountRepository} from './types';
 import {
+  makeGRC20ReceivedEvents,
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
   makeVMTransactionsByAddressQuery,
 } from './query';
+import {GraphQLFormattedError} from 'graphql';
 
 export class AccountRepository implements IAccountRepository {
   constructor(
@@ -56,6 +59,24 @@ export class AccountRepository implements IAccountRepository {
 
   async getAccountTransactions(): Promise<AccountTransactionResponse> {
     throw new Error('not supported function');
+  }
+
+  async getGRC20ReceivedPackagePaths(address: string): Promise<string[] | null> {
+    if (!this.indexerClient) {
+      return null;
+    }
+
+    const response: {data?: QueryResponse<any>; errors?: readonly GraphQLFormattedError[]} =
+      await this.indexerClient.query(makeGRC20ReceivedEvents(address));
+
+    const transactions = response?.data?.transactions || [];
+    const paths: string[] = transactions
+      .flatMap(transaction => transaction.response?.events || [])
+      .filter(event => event?.type === 'Transfer')
+      .map(event => event.pkg_path || '');
+
+    const uniquePaths: string[] = [...new Set(paths)];
+    return uniquePaths;
   }
 
   async getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {
