@@ -11,7 +11,7 @@ import {useRecoilValue} from 'recoil';
 import {themeState} from '@/states';
 import {useToken} from '@/common/hooks/tokens/use-token';
 import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {useTokenTransactions} from '@/common/hooks/tokens/use-token-transactions';
+import {useTokenTransactionsInfinity} from '@/common/hooks/tokens/use-token-transactions-onbloc';
 
 interface Props {
   path: string[] | any;
@@ -25,12 +25,13 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const TokenDetailDatatable = ({path}: Props) => {
+export const TokenDetailDatatablePage = ({path}: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
   const {getTokenAmount} = useTokenMeta();
-  const {isFetchedTransactions, transactions, hasNextPage, nextPage} = useTokenTransactions(path);
+  const {isFetchedTransactions, transactions, hasNextPage, nextPage} =
+    useTokenTransactionsInfinity(path);
 
   const createHeaders = () => {
     return [
@@ -68,6 +69,7 @@ export const TokenDetailDatatable = ({path}: Props) => {
           type={data.type}
           func={data.functionName}
           packagePath={data.packagePath}
+          msgNum={data.numOfMessage}
         />
       ))
       .build();

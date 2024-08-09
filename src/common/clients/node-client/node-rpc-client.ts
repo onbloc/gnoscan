@@ -20,7 +20,6 @@ import {
 
 function handleResponse<T>(response: RPCResponse<T>): T {
   if (!response.result) {
-    console.log(response.error);
     throw new Error('error');
   }
   return response.result;
