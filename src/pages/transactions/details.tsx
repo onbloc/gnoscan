@@ -1,30 +1,30 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import styled from 'styled-components';
+import IconCopy from '@/assets/svgs/icon-copy.svg';
+import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
+import {useUsername} from '@/common/hooks/account/use-username';
 import {useRouter} from '@/common/hooks/common/use-router';
+import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
+import {useTransaction} from '@/common/hooks/transactions/use-transaction';
 import {isDesktop} from '@/common/hooks/use-media';
+import {useNetwork} from '@/common/hooks/use-network';
+import {formatDisplayPackagePath} from '@/common/utils/string-util';
+import {parseTokenAmount} from '@/common/utils/token.utility';
+import {makeSafeBase64Hash} from '@/common/utils/transaction.utility';
 import {DetailsPageLayout} from '@/components/core/layout';
 import Badge from '@/components/ui/badge';
 import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
-import DataSection from '@/components/view/details-data-section';
-import IconCopy from '@/assets/svgs/icon-copy.svg';
-import Text from '@/components/ui/text';
-import Tooltip from '@/components/ui/tooltip';
-import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
-import Link from 'next/link';
-import {AmountText} from '@/components/ui/text/amount-text';
 import ShowLog from '@/components/ui/show-log';
-import {v1} from 'uuid';
-import mixins from '@/styles/mixins';
-import {useTransaction} from '@/common/hooks/transactions/use-transaction';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import DataListSection from '@/components/view/details-data-section/data-list-section';
-import {Transaction} from '@/types/data-type';
+import Text from '@/components/ui/text';
+import {AmountText} from '@/components/ui/text/amount-text';
+import Tooltip from '@/components/ui/tooltip';
 import {EventDatatable} from '@/components/view/datatable/event';
-import {useNetwork} from '@/common/hooks/use-network';
-import {makeSafeBase64Hash} from '@/common/utils/transaction.utility';
-import {formatDisplayPackagePath} from '@/common/utils/string-util';
-import {useUsername} from '@/common/hooks/account/use-username';
+import DataSection from '@/components/view/details-data-section';
+import DataListSection from '@/components/view/details-data-section/data-list-section';
+import mixins from '@/styles/mixins';
+import {Transaction} from '@/types/data-type';
+import Link from 'next/link';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import styled from 'styled-components';
+import {v1} from 'uuid';
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -192,6 +192,18 @@ const ContractDetails: React.FC<{
     return transactionItem?.messages;
   }, [transactionItem?.messages]);
 
+  const hasCaller = useCallback((message: any): boolean => {
+    if (['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type'])) {
+      return false;
+    }
+
+    if (message['@type'] === '/vm.m_call' && message?.func === 'Transfer') {
+      return false;
+    }
+
+    return true;
+  }, []);
+
   const getContractType = useCallback((message: any) => {
     switch (message['@type']) {
       case '/bank.MsgSend':
@@ -288,9 +300,7 @@ const ContractDetails: React.FC<{
           {message['@type'] === '/vm.m_addpkg' && (
             <AddPkgContract message={message} desktop={desktop} />
           )}
-          {!['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type']) &&
-            !!message?.func &&
-            message?.func !== 'Transfer' && <CallerContract message={message} desktop={desktop} />}
+          {hasCaller(message) && <CallerContract message={message} desktop={desktop} />}
         </ContractListBox>
       ))}
       {transactionItem?.rawContent && (
@@ -331,15 +341,24 @@ const CallerContract = ({message, desktop}: any) => {
 const AddPkgContract = ({message, desktop}: any) => {
   const {getUrlWithNetwork} = useNetwork();
   const {getName} = useUsername();
+
+  const creatorAddress = useMemo(() => {
+    return message?.creator || '';
+  }, [message?.creator]);
+
+  const creatorName = useMemo(() => {
+    return getName(creatorAddress) || creatorAddress || '';
+  }, [getName, creatorAddress]);
+
   return (
     <DLWrap desktop={desktop} key={v1()}>
       <dt>Creator</dt>
       <dd>
         <Badge>
-          <Link href={getUrlWithNetwork(`/accounts/${message?.package?.creator}`)} passHref>
+          <Link href={getUrlWithNetwork(`/accounts/${creatorAddress}`)} passHref>
             <FitContentA>
-              <Text type="p4" color="blue" className="ellipsis">
-                {getName(message?.creator || '-')}
+              <Text type="p4" color="blue" className={'ellipsis'}>
+                {creatorAddress ? <Tooltip content={creatorAddress}>{creatorName}</Tooltip> : '-'}
               </Text>
             </FitContentA>
           </Link>
