@@ -1,16 +1,18 @@
-import {parseABCI} from '@gnolang/tm2-js-client';
-import {NodeRPCClient} from '@/common/clients/node-client';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
+import {NodeRPCClient} from '@/common/clients/node-client';
 import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
 import {Transaction} from '@/types/data-type';
+import {parseABCI} from '@gnolang/tm2-js-client';
 
+import {PageQueryResponse} from '@/common/clients/indexer-client/types';
+import {ApolloQueryResult} from '@apollo/client';
 import {
   mapReceivedTransactionByBankMsgSend,
   mapReceivedTransactionByMsgCall,
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
 } from '../response/transaction.mapper';
-import {AccountTransactionResponse, IAccountRepository} from './types';
+import {getDefaultMessage} from '../utility';
 import {
   makeAccountTransactionsQuery,
   makeGRC20ReceivedEvents,
@@ -19,9 +21,7 @@ import {
   makeNativeTokenSendTransactionsByAddressQuery,
   makeVMTransactionsByAddressQuery,
 } from './onbloc-query';
-import {getDefaultMessage} from '../utility';
-import {ApolloQueryResult} from '@apollo/client';
-import {PageQueryResponse} from '@/common/clients/indexer-client/types';
+import {AccountTransactionResponse, IAccountRepository} from './types';
 
 export class OnblocAccountRepository implements IAccountRepository {
   constructor(
@@ -80,7 +80,7 @@ export class OnblocAccountRepository implements IAccountRepository {
 
     try {
       const response = await this.indexerClient?.pageQuery(
-        makeAccountTransactionsQuery(address, cursor),
+        makeAccountTransactionsQuery(address, cursor, 10_000),
       );
       const transactionEdges = response?.data?.transactions.edges;
       const pageInfo = response?.data?.transactions.pageInfo;
@@ -88,6 +88,23 @@ export class OnblocAccountRepository implements IAccountRepository {
       pageInfo.hasNext = pageInfo?.hasNext || false;
       const mappedTransactions = transactionEdges
         .map((edge: any) => edge.transaction)
+        .filter((tx: any) => {
+          const defaultMessage = getDefaultMessage(tx.messages);
+          const typename = defaultMessage.__typename;
+          if (defaultMessage.success) {
+            return true;
+          }
+
+          if (typename !== 'MsgCall') {
+            return true;
+          }
+
+          if (defaultMessage?.func !== 'Transfer' || defaultMessage.args?.[0] !== address) {
+            return true;
+          }
+
+          return false;
+        })
         .map(tx => {
           const defaultMessage = getDefaultMessage(tx.messages);
           const typename = defaultMessage.__typename;

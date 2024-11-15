@@ -8,7 +8,6 @@ export const makeAccountTransactionsQuery = (
   {
     transactions(
       filter: {
-        success: true
         messages: [
           {
             type_url: send
