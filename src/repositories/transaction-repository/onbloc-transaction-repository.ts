@@ -1,19 +1,19 @@
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {ITransactionRepository} from './types';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
+import {PageInfo, PageOption, PageQueryResponse} from '@/common/clients/indexer-client/types';
+import {NodeRPCClient} from '@/common/clients/node-client';
+import {makeRPCRequest, RPCClient} from '@/common/clients/rpc-client';
+import {parseTokenAmount} from '@/common/utils/token.utility';
+import {MonthlyTransactionStatInfo, TotalTransactionStatInfo, Transaction} from '@/types/data-type';
+import {ApolloQueryResult} from '@apollo/client';
+import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
+import {getDefaultMessage} from '../utility';
 import {
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeSimpleTransactionsByFromHeight,
   makeTransactionHashQuery,
   makeTransactionsQuery,
 } from './onbloc-query';
-import {MonthlyTransactionStatInfo, TotalTransactionStatInfo, Transaction} from '@/types/data-type';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
-import {PageInfo, PageOption, PageQueryResponse} from '@/common/clients/indexer-client/types';
-import {makeRPCRequest, RPCClient} from '@/common/clients/rpc-client';
-import {ApolloQueryResult} from '@apollo/client';
-import {getDefaultMessage} from '../utility';
+import {ITransactionRepository} from './types';
 
 function mapTransaction(data: any): Transaction {
   const defaultMessage = getDefaultMessage(data.messages).value;
@@ -178,20 +178,19 @@ export class OnblocTransactionRepository implements ITransactionRepository {
     }
 
     const results: any[] = [];
-    let fromBlockHeight = 1;
+    let fromBlockHeight = height;
     let hasError = true;
     try {
       while (hasError === true) {
         const response = await this.indexerClient?.pageQuery<any>(
           makeSimpleTransactionsByFromHeight(fromBlockHeight),
         );
-        const transactionEdges = response?.data?.transactions.edges;
+        const transactions = response?.data?.transactions.edges.map(edge => edge.transaction);
         hasError = Array.isArray(response.errors);
         if (hasError) {
-          fromBlockHeight =
-            transactionEdges[transactionEdges?.length - 1].transaction.block_height + 1;
+          fromBlockHeight = transactions[transactions?.length - 1].transaction.block_height + 1;
         }
-        results.push(...transactionEdges);
+        results.push(...transactions);
       }
     } catch (e) {
       console.error(e);
