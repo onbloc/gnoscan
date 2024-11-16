@@ -116,16 +116,20 @@ export class OnblocAccountRepository implements IAccountRepository {
         })
         .map(tx => {
           const defaultMessage = getDefaultMessage(tx.messages);
-          const typename = defaultMessage.__typename;
+          const typename: string | null = defaultMessage.__typename || null;
+          const functionName: string | null = defaultMessage?.func || null;
+          const messageArguments: string[] | null = defaultMessage?.args || null;
+
           switch (typename) {
             case 'BankMsgSend':
-              if (defaultMessage?.from_address === address) {
+              const fromAddress: string | null = defaultMessage?.from_address || null;
+              if (fromAddress === address) {
                 return mapSendTransactionByBankMsgSend(tx);
               }
               return mapReceivedTransactionByBankMsgSend(tx);
             case 'MsgCall':
-              if (defaultMessage?.func === 'Transfer') {
-                if (defaultMessage.args?.[0] === address) {
+              if (functionName === 'Transfer') {
+                if (messageArguments && messageArguments[ZERO_NUMBER] === address) {
                   return mapReceivedTransactionByMsgCall(tx);
                 }
               }
