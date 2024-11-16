@@ -1,15 +1,16 @@
-import {useGetTransactionBlockHeightQuery} from '@/common/react-query/transaction';
+import BigNumber from 'bignumber.js';
 import {useMemo} from 'react';
+
+import {useGetTransactionBlockHeightQuery} from '@/common/react-query/transaction';
 import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
+import {makeDisplayNumber} from '@/common/utils/string-util';
+import {parseTokenAmount} from '@/common/utils/token.utility';
 import {
   decodeTransaction,
   makeSafeBase64Hash,
   makeTransactionMessageInfo,
 } from '@/common/utils/transaction.utility';
 import {Transaction} from '@/types/data-type';
-import {makeDisplayNumber} from '@/common/utils/string-util';
-import BigNumber from 'bignumber.js';
-import {parseTokenAmount} from '@/common/utils/token.utility';
 import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useTransaction = (hash: string) => {
@@ -163,6 +164,7 @@ export const useTransaction = (hash: string) => {
   return {
     network,
     timeStamp,
+    blockResult,
     gas,
     transactionItem,
     transactionEvents,
