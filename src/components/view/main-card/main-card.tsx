@@ -1,30 +1,16 @@
 'use client';
 
-import React, {useEffect, useMemo} from 'react';
-import styled from 'styled-components';
-import Card from '@/components/ui/card';
-import {eachMedia} from '@/common/hooks/use-media';
-import mixins from '@/styles/mixins';
-import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
-import dynamic from 'next/dynamic';
-import Text from '@/components/ui/text';
 import IconInfo from '@/assets/svgs/icon-info.svg';
+import {eachMedia} from '@/common/hooks/use-media';
 import {Button} from '@/components/ui/button';
+import Card from '@/components/ui/card';
+import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
+import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
-import {SupplyCard, BlockCard, TxsCard, AccountCard} from './cards';
-import {dehydrate, QueryClient} from 'react-query';
-
-// export async function getStaticProps() {
-//   const queryClient = new QueryClient();
-
-//   await queryClient.prefetchQuery('posts', useInfoCard);
-
-//   return {
-//     props: {
-//       dehydratedState: dehydrate(queryClient),
-//     },
-//   };
-// }
+import mixins from '@/styles/mixins';
+import React from 'react';
+import styled from 'styled-components';
+import {AccountCard, BlockCard, SupplyCard, TxsCard} from './cards';
 
 const MainCard = () => {
   const media = eachMedia();
@@ -36,7 +22,7 @@ const MainCard = () => {
           GNOT&nbsp;Supply
           <Tooltip
             width={229}
-            content="This number represents the total supply at Genesis in Testnet 3, which is subject to change in mainnet.">
+            content="This number represents the total supply at Genesis in testnets, which can be subject to change in mainnet.">
             <Button width="16px" height="16px" radius="50%" bgColor="base">
               <IconInfo className="svg-info" />
             </Button>
