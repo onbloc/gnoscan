@@ -5,6 +5,8 @@ import {Transaction} from '@/types/data-type';
 import {parseABCI} from '@gnolang/tm2-js-client';
 
 import {PageQueryResponse} from '@/common/clients/indexer-client/types';
+import {ZERO_NUMBER} from '@/common/values/number.constant';
+import {MAX_QUERY_SIZE} from '@/common/values/query.constant';
 import {ApolloQueryResult} from '@apollo/client';
 import {
   mapReceivedTransactionByBankMsgSend,
@@ -80,7 +82,7 @@ export class OnblocAccountRepository implements IAccountRepository {
 
     try {
       const response = await this.indexerClient?.pageQuery(
-        makeAccountTransactionsQuery(address, cursor, 10_000),
+        makeAccountTransactionsQuery(address, cursor, MAX_QUERY_SIZE),
       );
       const transactionEdges = response?.data?.transactions.edges;
       const pageInfo = response?.data?.transactions.pageInfo;
@@ -90,7 +92,10 @@ export class OnblocAccountRepository implements IAccountRepository {
         .map((edge: any) => edge.transaction)
         .filter((tx: any) => {
           const defaultMessage = getDefaultMessage(tx.messages);
-          const typename = defaultMessage.__typename;
+          const typename: string | null = defaultMessage.__typename || null;
+          const functionName: string | null = defaultMessage?.func || null;
+          const messageArguments: string[] | null = defaultMessage?.args || null;
+
           if (defaultMessage.success) {
             return true;
           }
@@ -99,7 +104,11 @@ export class OnblocAccountRepository implements IAccountRepository {
             return true;
           }
 
-          if (defaultMessage?.func !== 'Transfer' || defaultMessage.args?.[0] !== address) {
+          if (
+            functionName !== 'Transfer' ||
+            messageArguments === null ||
+            messageArguments[ZERO_NUMBER] !== address
+          ) {
             return true;
           }
 
