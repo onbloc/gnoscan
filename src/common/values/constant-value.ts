@@ -7,10 +7,8 @@ export const DAY_TIME = 86_400_000 as const; // Day time: 24 * 60 * 60 * 1000
 
 export enum ChainType {
   TESTNET5 = 'test5',
-  TESTNET4 = 'test4',
   PORTAL_LOOP = 'portal-loop',
 }
 
 export const TESTNET5_CHAIN_ID = 'test5';
-export const TESTNET4_CHAIN_ID = 'test4';
 export const PORTAL_LOOP_CHAIN_ID = 'portal-loop';
