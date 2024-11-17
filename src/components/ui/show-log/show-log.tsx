@@ -1,11 +1,11 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import styled, {css} from 'styled-components';
 import {isDesktop} from '@/common/hooks/use-media';
-import Text from '@/components/ui/text';
-import {ViewMoreButton} from '@/components/ui/button';
-import mixins from '@/styles/mixins';
-import {v1} from 'uuid';
 import {scrollbarStyle, useScrollbar} from '@/common/hooks/use-scroll-bar';
+import {ViewMoreButton} from '@/components/ui/button';
+import Text from '@/components/ui/text';
+import mixins from '@/styles/mixins';
+import React, {useCallback, useRef, useState} from 'react';
+import styled, {css} from 'styled-components';
+import {v1} from 'uuid';
 interface StyleProps {
   desktop?: boolean;
   showLog?: boolean;
@@ -131,10 +131,7 @@ const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap
-            desktop={desktop}
-            showLog={showLog}
-            className={scrollVisible ? 'scroll-visible' : ''}>
+          <LogWrap desktop={desktop} showLog={showLog} className={'scroll-visible'}>
             <Log
               onMouseEnter={onFocusIn}
               onMouseLeave={onFocusOut}

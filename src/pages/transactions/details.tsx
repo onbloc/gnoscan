@@ -52,8 +52,16 @@ const TransactionDetails = () => {
   const {asPath, push} = useRouter();
   const {getUrlWithNetwork} = useNetwork();
   const hash = parseTxHash(asPath);
-  const {gas, network, timeStamp, transactionItem, transactionEvents, isFetched, isError} =
-    useTransaction(hash);
+  const {
+    gas,
+    network,
+    timeStamp,
+    transactionItem,
+    blockResult,
+    transactionEvents,
+    isFetched,
+    isError,
+  } = useTransaction(hash);
   const [currentTab, setCurrentTab] = useState('Contract');
 
   const detailTabs = useMemo(() => {
@@ -67,6 +75,18 @@ const TransactionDetails = () => {
       },
     ];
   }, [transactionEvents]);
+
+  const blockResultLog = useMemo(() => {
+    if (transactionItem?.success !== false) {
+      return null;
+    }
+
+    try {
+      return JSON.stringify(blockResult, null, 2);
+    } catch {
+      return null;
+    }
+  }, [transactionItem, blockResult]);
 
   useEffect(() => {
     if (hash === '') {
@@ -162,6 +182,9 @@ const TransactionDetails = () => {
                 <Badge>{transactionItem.memo}</Badge>
               </dd>
             </DLWrap>
+            {!transactionItem.success && (
+              <ShowLog isTabLog={false} logData={blockResultLog || ''} btnTextType="Error Logs" />
+            )}
           </DataSection>
 
           <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
