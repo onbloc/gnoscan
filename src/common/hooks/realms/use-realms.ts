@@ -21,6 +21,7 @@ export const useRealms = (
     data: defaultData,
     isFetched: isFetchedDefault,
     hasNextPage: hasNextPageDefault,
+    fetchNextPage,
   } = useGetRealmPackagesInfinity({enabled: !isCustomNetwork});
 
   const defaultFromHeight = useMemo(() => {
@@ -150,9 +151,10 @@ export const useRealms = (
 
   function nextPage() {
     if (!paging) {
+      setCurrentPage(prev => prev + 1);
       return;
     }
-    setCurrentPage(prev => prev + 1);
+    fetchNextPage();
   }
 
   useEffect(() => {

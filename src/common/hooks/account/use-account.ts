@@ -1,11 +1,11 @@
-import {useMemo, useState} from 'react';
-import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 import {
   useGetAccountTransactions,
   useGetGRC20TokenBalances,
   useGetNativeTokenBalance,
 } from '@/common/react-query/account';
+import {useMemo, useState} from 'react';
 import {useMakeTransactionsWithTime} from '../common/use-make-transactions-with-time';
+import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useAccount = (address: string) => {
   const {isFetchedGRC20Tokens, isFetchedTokenMeta} = useTokenMeta();
@@ -58,12 +58,12 @@ export const useAccount = (address: string) => {
   }, [accountTransactions]);
 
   const hasNextPage = useMemo(() => {
-    if (!accountTransactions) {
+    if (!transactions) {
       return false;
     }
 
-    return accountTransactions.length > (currentPage + 1) * 20;
-  }, [accountTransactions, currentPage]);
+    return transactions.length > (currentPage + 1) * 20;
+  }, [transactions, currentPage]);
 
   function nextPage() {
     setCurrentPage(prev => prev + 1);
@@ -78,7 +78,7 @@ export const useAccount = (address: string) => {
       isFetchedTokenMeta,
     accountTransactions: transactionWithTimes,
     transactionEvents,
-    isFetchedAccountTransactions: isFetchedTransactions && isFetchedTransactionWithTimes,
+    isFetchedAccountTransactions: isFetchedTransactions,
     tokenBalances,
     username: undefined,
     hasNextPage,

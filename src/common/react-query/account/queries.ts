@@ -1,17 +1,11 @@
-import {
-  InfiniteData,
-  UseInfiniteQueryOptions,
-  UseQueryOptions,
-  useInfiniteQuery,
-  useQuery,
-} from 'react-query';
-import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
-import {QUERY_KEY} from './types';
-import {Amount, Transaction} from '@/types/data-type';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {parseTokenAmount} from '@/common/utils/token.utility';
 import {GNOTToken} from '@/common/hooks/common/use-token-meta';
+import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
+import {parseTokenAmount} from '@/common/utils/token.utility';
 import {AccountTransactionResponse} from '@/repositories/account-repository';
+import {Amount, Transaction} from '@/types/data-type';
+import {UseQueryOptions, useQuery} from 'react-query';
+import {QUERY_KEY} from './types';
 
 export const useGetNativeTokenBalance = (
   address: string,
