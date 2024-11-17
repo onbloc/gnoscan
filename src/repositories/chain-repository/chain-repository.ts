@@ -10,7 +10,7 @@ export class ChainRepository implements IChainRepository {
   async getTokenSupply(): Promise<TokenSupplyInfo> {
     return {
       totalSupplyAmount: 1_000_000_000_000_000,
-      airdropSupplyAmount: 750_000_000_000_000,
+      airdropSupplyAmount: 700_000_000_000_000,
       airdropHolder: 656_740,
     };
   }
