@@ -1,11 +1,11 @@
-import {useMemo, useState} from 'react';
-import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 import {
   useGetAccountTransactions,
   useGetGRC20TokenBalances,
   useGetNativeTokenBalance,
 } from '@/common/react-query/account';
+import {useMemo, useState} from 'react';
 import {useMakeTransactionsWithTime} from '../common/use-make-transactions-with-time';
+import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
 
 export const useAccount = (address: string) => {
   const {isFetchedGRC20Tokens, isFetchedTokenMeta} = useTokenMeta();
@@ -57,13 +57,21 @@ export const useAccount = (address: string) => {
     return accountTransactions.flatMap(transaction => transaction.events || []);
   }, [accountTransactions]);
 
-  const hasNextPage = useMemo(() => {
-    if (!accountTransactions) {
+  const isFetchedAccountTransactions = useMemo(() => {
+    if (!transactions || !transactionWithTimes) {
       return false;
     }
 
-    return accountTransactions.length > (currentPage + 1) * 20;
-  }, [accountTransactions, currentPage]);
+    return isFetchedTransactionWithTimes;
+  }, [isFetchedTransactionWithTimes, transactionWithTimes, transactions]);
+
+  const hasNextPage = useMemo(() => {
+    if (!transactions || !isFetchedAccountTransactions) {
+      return false;
+    }
+
+    return transactions.length > (currentPage + 1) * 20;
+  }, [isFetchedAccountTransactions, transactions, currentPage]);
 
   function nextPage() {
     setCurrentPage(prev => prev + 1);
@@ -78,7 +86,7 @@ export const useAccount = (address: string) => {
       isFetchedTokenMeta,
     accountTransactions: transactionWithTimes,
     transactionEvents,
-    isFetchedAccountTransactions: isFetchedTransactions && isFetchedTransactionWithTimes,
+    isFetchedAccountTransactions,
     tokenBalances,
     username: undefined,
     hasNextPage,

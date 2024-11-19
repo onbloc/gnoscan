@@ -1,17 +1,17 @@
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {ITransactionRepository} from './types';
 import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
+import {PageOption} from '@/common/clients/indexer-client/types';
+import {NodeRPCClient} from '@/common/clients/node-client';
+import {parseTokenAmount} from '@/common/utils/token.utility';
+import {TotalTransactionStatInfo, Transaction} from '@/types/data-type';
+import {makeTransactionsQuery} from '../account-repository/query';
+import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
+import {getDefaultMessage} from '../utility';
 import {
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeSimpleTransactionsByFromHeight,
   makeTransactionHashQuery,
 } from './query';
-import {TotalTransactionStatInfo, Transaction} from '@/types/data-type';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
-import {PageOption} from '@/common/clients/indexer-client/types';
-import {makeTransactionsQuery} from '../account-repository/query';
-import {getDefaultMessage} from '../utility';
+import {ITransactionRepository} from './types';
 
 function mapTransaction(data: any): Transaction {
   const defaultMessage = getDefaultMessage(data.messages[0])?.value;
@@ -154,7 +154,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     const results: any[] = [];
-    let fromBlockHeight = 1;
+    let fromBlockHeight = height;
     let hasNext = true;
     try {
       while (hasNext === true) {

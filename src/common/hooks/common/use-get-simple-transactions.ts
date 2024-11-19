@@ -1,7 +1,6 @@
 import {useQuery} from 'react-query';
 import {useServiceProvider} from '../provider/use-service-provider';
 import {useNetwork} from '../use-network';
-import {useNetworkProvider} from '../provider/use-network-provider';
 
 export interface SimpleTransaction {
   success: boolean;
@@ -27,13 +26,12 @@ export interface SimpleTransaction {
 
 export const useGetSimpleTransactions = (blockHeight?: number | null) => {
   const {currentNetwork} = useNetwork();
-  const {isCustomNetwork} = useNetworkProvider();
   const {transactionRepository} = useServiceProvider();
 
   return useQuery<SimpleTransaction[] | null>({
     queryKey: ['useGetSimpleTransactions', currentNetwork?.chainId, blockHeight || ''],
     queryFn: () => {
-      if (!transactionRepository || !blockHeight || !isCustomNetwork) {
+      if (!transactionRepository || !blockHeight) {
         return null;
       }
       return transactionRepository.getSimpleTransactionsByFromHeight(blockHeight);
