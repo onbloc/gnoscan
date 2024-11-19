@@ -65,6 +65,14 @@ export const useAccount = (address: string) => {
     return transactions.length > (currentPage + 1) * 20;
   }, [transactions, currentPage]);
 
+  const isFetchedAccountTransactions = useMemo(() => {
+    if (!transactions || !transactionWithTimes) {
+      return false;
+    }
+
+    return isFetchedTransactionWithTimes;
+  }, [isFetchedTransactionWithTimes, transactionWithTimes, transactions]);
+
   function nextPage() {
     setCurrentPage(prev => prev + 1);
   }
@@ -78,7 +86,7 @@ export const useAccount = (address: string) => {
       isFetchedTokenMeta,
     accountTransactions: transactionWithTimes,
     transactionEvents,
-    isFetchedAccountTransactions: isFetchedTransactions,
+    isFetchedAccountTransactions,
     tokenBalances,
     username: undefined,
     hasNextPage,
