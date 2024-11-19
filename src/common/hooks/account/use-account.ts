@@ -57,14 +57,6 @@ export const useAccount = (address: string) => {
     return accountTransactions.flatMap(transaction => transaction.events || []);
   }, [accountTransactions]);
 
-  const hasNextPage = useMemo(() => {
-    if (!transactions) {
-      return false;
-    }
-
-    return transactions.length > (currentPage + 1) * 20;
-  }, [transactions, currentPage]);
-
   const isFetchedAccountTransactions = useMemo(() => {
     if (!transactions || !transactionWithTimes) {
       return false;
@@ -72,6 +64,14 @@ export const useAccount = (address: string) => {
 
     return isFetchedTransactionWithTimes;
   }, [isFetchedTransactionWithTimes, transactionWithTimes, transactions]);
+
+  const hasNextPage = useMemo(() => {
+    if (!transactions || !isFetchedAccountTransactions) {
+      return false;
+    }
+
+    return transactions.length > (currentPage + 1) * 20;
+  }, [isFetchedAccountTransactions, transactions, currentPage]);
 
   function nextPage() {
     setCurrentPage(prev => prev + 1);
