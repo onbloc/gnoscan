@@ -116,7 +116,7 @@ export class OnblocAccountRepository implements IAccountRepository {
         })
         .map(tx => {
           const defaultMessage = getDefaultMessage(tx.messages);
-          const typename: string | null = defaultMessage.__typename || null;
+          const typename: string | null = defaultMessage?.value?.__typename || null;
           const functionName: string | null = defaultMessage?.func || null;
           const messageArguments: string[] | null = defaultMessage?.args || null;
 
