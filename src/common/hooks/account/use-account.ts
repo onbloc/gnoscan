@@ -57,13 +57,21 @@ export const useAccount = (address: string) => {
     return accountTransactions.flatMap(transaction => transaction.events || []);
   }, [accountTransactions]);
 
+  const isFetchedAccountTransactions = useMemo(() => {
+    if (!transactions || !transactionWithTimes) {
+      return false;
+    }
+
+    return isFetchedTransactionWithTimes;
+  }, [isFetchedTransactionWithTimes, transactionWithTimes, transactions]);
+
   const hasNextPage = useMemo(() => {
-    if (!transactions) {
+    if (!transactions || !isFetchedAccountTransactions) {
       return false;
     }
 
     return transactions.length > (currentPage + 1) * 20;
-  }, [transactions, currentPage]);
+  }, [isFetchedAccountTransactions, transactions, currentPage]);
 
   function nextPage() {
     setCurrentPage(prev => prev + 1);
@@ -78,7 +86,7 @@ export const useAccount = (address: string) => {
       isFetchedTokenMeta,
     accountTransactions: transactionWithTimes,
     transactionEvents,
-    isFetchedAccountTransactions: isFetchedTransactions,
+    isFetchedAccountTransactions,
     tokenBalances,
     username: undefined,
     hasNextPage,
