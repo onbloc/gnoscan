@@ -1,39 +1,84 @@
 [
   {
-    "address": "g19v2h4pn6lrf8pwvhn8h0anek0cpt2tmhye4vkv",
+    "address": "g1qn3jwvdpva622j3fyudqy65zstnqx2wnqhrs3s",
     "pub_key": {
       "@type": "/tm.PubKeyEd25519",
-      "value": "b0bw/4GEumi09c6uhTutrjXoV7lUAxGZQqcT+MbaFBQ="
+      "value": "zaBcr0biE2vRjIopHCLtDgte/5tKuCEdlBLvmfgRuZI="
     },
     "power": "1",
-    "name": "core-val-1"
+    "name": "gnocore-val-01"
   },
   {
-    "address": "g13us7swtc9hq550y9v4z6vcarak9vf8nqdvcqj4",
+    "address": "g1gtu9czw9qavrtdnf936usvwjwyjz0x0jk243au",
     "pub_key": {
       "@type": "/tm.PubKeyEd25519",
-      "value": "6FXDIqlSEl5pbPMMTLSa12XC99lWGQIRVm82bWTQibo="
+      "value": "VI8ITXN0TXGvOBjCbu5Rmus5zzqn79ws7AQeIqr6t2o="
     },
     "power": "1",
-    "name": "core-val-2"
+    "name": "gnocore-val-02"
   },
   {
-    "address": "g1ectm6algkfw3qnjmjvx7hacmh358t36ggj5lqv",
+    "address": "g19emxxnzzfa0pkffvthrss5drgccjnwj8mdme4f",
     "pub_key": {
       "@type": "/tm.PubKeyEd25519",
-      "value": "gqFJlETPoCVCnRnCVuRjpY47Yj2kxm5R2ukPFHtlLr4="
+      "value": "KOdOfBaohI3Vc4JXfn/IhNzu0xcHpQLLDUpdeONtV5k="
     },
     "power": "1",
-    "name": "core-val-3"
+    "name": "gnocore-val-03"
   },
   {
-    "address": "g1tcxls3ylnrwrq95j33xpyuct4l370ra7jca4kj",
+    "address": "g1hyxtsgjr5zt06jcx4z0xenn3u442ad2xgzu7lp",
     "pub_key": {
       "@type": "/tm.PubKeyEd25519",
-      "value": "n+j30mkr4dHWZlrq2MMrbR1YcIDDf3UiyEDF2oSFp3M="
+      "value": "kruC6RrR7xeto1qc9guTHFCtRylfZumW4ohSYdQLJvY="
     },
     "power": "1",
-    "name": "core-val-4"
+    "name": "gnocore-val-04"
+  },
+  {
+    "address": "g1l072ma0vfhx7s4vpevfvuxd6wzkv5ztt7gh99w",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "LYKKNTZyLdOaIvnek1yoSxqnIU4dEjh3Xd+wd4Ru2lc="
+    },
+    "power": "1",
+    "name": "gnocore-val-05"
+  },
+  {
+    "address": "g1uwqd3284kuzm56auwyc9d87jf3953tp9pnt506",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "nNt5eD77biTXnPj4/qt0CA83qJfRbPJsYIGY8X0o+vA="
+    },
+    "power": "1",
+    "name": "gnocore-val-06"
+  },
+  {
+    "address": "g1ut590acnamvhkrh4qz6dz9zt9e3hyu499u0gvl",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "KRPAQ2SLZvQUrc9P2l/DCEH6okMX13bds5Ma/wOQgBM="
+    },
+    "power": "1",
+    "name": "berty-val-1"
+  },
+  {
+    "address": "g1arkzjfrte9l97v9q2qye07v0lw07039gaa3hfy",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "2Y0npl9WoOk9pIs2Dwv9IjsNbiuCWw6srsPKRf4sUro="
+    },
+    "power": "1",
+    "name": "onbloc-val-1"
+  },
+  {
+    "address": "g1x0m33nyne064xdx7tvlfcjwd4xkajjar6h523z",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "6h57Ku4O6NFK7SS53Zxm/2rJEq4zVeznKvphAei5Z5g="
+    },
+    "power": "1",
+    "name": "onbloc-val-2"
   },
   {
     "address": "g1mxguhd5zacar64txhfm0v7hhtph5wur5hx86vs",
@@ -54,12 +99,57 @@
     "name": "devx-val-2"
   },
   {
-    "address": "g1gav33elude7prcdctpjekze7ft9l8qdjxqaj6d",
+    "address": "g1sll4rtvrepdyzcvg5ml0kjtl7fnwgcsxgg9s5q",
     "pub_key": {
       "@type": "/tm.PubKeyEd25519",
-      "value": "+DJIo04cO4y+144EdXCw3ED/plkOhWDJ8FP1ScF40m4="
+      "value": "/HUSFQ2i/azLfjsEdvQZ25MijKlWtrVgM2EvGPYQfi8="
     },
     "power": "1",
-    "name": "onbloc-val-1"
+    "name": "devx-val-3"
+  },
+  {
+    "address": "g1aa5pp94eaextkump38766hpdra74xtfh805msv",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "ZPTP49G2+f0YPhHQbJz2SUKRLgvAl8T5d7SHNfkj7NI="
+    },
+    "power": "1",
+    "name": "devx-val-4"
+  },
+  {
+    "address": "g1r2lwzu0y0na4686a0lz4f2zqxlffqkfm7lqqqp",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "KBwS/hUFKZQ5OMsgJmA+HGYpMaWmRZ9jebigROovjDw="
+    },
+    "power": "1",
+    "name": "tori-val-1"
+  },
+  {
+    "address": "g1ecdu2gwz9d46srrhpu7k60pnrquvle5z2a5nn0",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "THkdb/gDwFKygxeDjT10HSuE1kvUSkeNovFQr0iqMa4="
+    },
+    "power": "1",
+    "name": "aib-val-01"
+  },
+  {
+    "address": "g169wsuqlrscnvxtsu6wrc0zuwn39tmctw7q9f0q",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "s1avVD0bSF+yAPn/ow3+WKKzd/AyxhLng4gq/8Ho51w="
+    },
+    "power": "1",
+    "name": "aib-val-02"
+  },
+  {
+    "address": "g1hfwh3ufph3zczs5wu4qvpgtv79fzh30rgzdux8",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "GNEDRfKnX85qpl127T/OSuZClLzAjnUV1Ojp9QQgvhM="
+    },
+    "power": "1",
+    "name": "aib-val-03"
   }
 ]
