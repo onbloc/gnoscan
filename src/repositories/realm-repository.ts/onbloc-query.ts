@@ -5,7 +5,7 @@ export const makeRealmQuery = (packagePath: string) => gql`
   transactions(
     filter: {
       success: true
-      messages: {
+      message: {
         route: vm
         type_url: add_package
         vm_param: {
@@ -56,7 +56,7 @@ export const makeRealmQuery = (packagePath: string) => gql`
 export const makeRealmsQuery = () => gql`
   {
     transactions(
-      filter: {success: true, messages: {type_url: add_package}}
+      filter: {success: true, message: {type_url: add_package}}
       ascending: false
       size: 10000
     ) {
@@ -87,7 +87,7 @@ export const makeRealmsQuery = () => gql`
 export const makeLatestRealmsQuery = () => gql`
   {
     transactions(
-      filter: {success: true, messages: {type_url: add_package}}
+      filter: {success: true, message: {type_url: add_package}}
       ascending: false
       size: 10
     ) {
@@ -119,7 +119,7 @@ export const makeRealmTransactionsQuery = (packagePath: string) => gql`
   {
     transactions(
       filter: {
-        messages: {
+        message: {
           vm_param: {
             add_package: {
               package: {
@@ -246,7 +246,7 @@ export const makeRealmTransactionsByEventQuery = (
 export const makeRealmTransactionsWithArgsQuery = (packagePath: string) => gql`
 {
   transactions(filter: {
-    messages: {
+    message: {
       vm_param: {
 				add_package: {
           package: {
@@ -300,7 +300,7 @@ export const makeRealmCallTransactionsWithArgsQuery = (packagePath: string) => g
 {
   transactions(filter: {
     success:true
-    messages: {
+    message: {
       type_url: exec
       vm_param: {
         exec: {
@@ -333,7 +333,7 @@ export const makeRealmTransactionInfosQuery = (fromHeight?: number) => gql`
   {
     transactions(
       filter: {
-        messages: {route: vm}
+        message: {route: vm}
         ${fromHeight ? `from_block_height: ${fromHeight}` : ''}
       }
     ) {
@@ -374,7 +374,7 @@ export const makeRealmTransactionInfosQuery = (fromHeight?: number) => gql`
 export const makeRealmTransactionInfoQuery = (packagePath: string) => gql`
 {
   transactions(filter: {
-    messages: {
+    message: {
       route: vm
       vm_param: {
         add_package: {
@@ -431,7 +431,7 @@ export const makeRealmTransactionInfoQuery = (packagePath: string) => gql`
 export const makeRealmPackagesQuery = (cursor: string | null) => gql`
   {
     transactions(
-      filter: {success: true, messages: {type_url: add_package}}
+      filter: {success: true, message: {type_url: add_package}}
       after: ${cursor ? `"${cursor}"` : 'null'}
       size: 20
       ascending: false
@@ -470,7 +470,7 @@ export const makeRealmPackagesQuery = (cursor: string | null) => gql`
 
 export const makeTokensQuery = () => gql`
   {
-    transactions(filter: {success: true, messages: {type_url: add_package}}) {
+    transactions(filter: {success: true, message: {type_url: add_package}}) {
       edges {
         transaction {
           hash
@@ -504,7 +504,7 @@ export const makeTokenQuery = (packagePath: string) => gql`
   transactions(
     filter: {
       success: true
-      messages: {
+      message: {
         type_url: add_package
         vm_param: {add_package: {package: {path: "${packagePath}"}}}
       }
@@ -544,7 +544,7 @@ export const makeUsernameQuery = () => gql`
     transactions(
       filter: {
         success: true
-        messages: {
+        message: {
           type_url: exec
           vm_param: {exec: {pkg_path: "gno.land/r/demo/users", func: "Register"}}
         }
