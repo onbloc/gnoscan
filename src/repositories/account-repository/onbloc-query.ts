@@ -8,7 +8,7 @@ export const makeAccountTransactionsQuery = (
   {
     transactions(
       filter: {
-        messages: [
+        message: [
           {
             type_url: send
             bank_param: {
@@ -130,7 +130,7 @@ export const makeGRC20ReceivedEvents = (address: string, cursor: string | null) 
             attrs: [{key: "to", value: "${address}"}]
           }
         ]
-        messages: {type_url: exec}
+        message: {type_url: exec}
       }
       after: ${cursor ? `"${cursor}"` : 'null'}
     ) {
@@ -158,7 +158,7 @@ export const makeGRC20ReceivedEvents = (address: string, cursor: string | null) 
 export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => gql`
 {
   transactions(filter: {
-    messages: {
+    message: {
       type_url: exec
       vm_param: {
         exec: {
