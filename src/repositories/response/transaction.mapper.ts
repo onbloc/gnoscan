@@ -145,7 +145,7 @@ export function mapReceivedTransactionByBankMsgSend(
 }
 
 export function mapVMTransaction(
-  tx: TransactionWithEvent<AddPackageValue | MsgRunValue | MsgCallValue>,
+  tx: TransactionWithEvent<BankSendValue | AddPackageValue | MsgRunValue | MsgCallValue>,
 ): Transaction {
   const defaultMessage = getDefaultMessage(tx.messages);
 
