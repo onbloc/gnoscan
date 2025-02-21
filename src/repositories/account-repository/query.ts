@@ -14,7 +14,6 @@ export const makeTransactionsQuery = (fromBlockHeight: number) => gql`
       }
       messages {
         value {
-          __typename
           ... on BankMsgSend {
             from_address
             to_address
@@ -106,7 +105,6 @@ export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => 
     }
     messages {
       value {
-        __typename
         ...on MsgCall {
           caller
           send
@@ -139,7 +137,6 @@ export const makeNativeTokenSendTransactionsByAddressQuery = (address: string) =
     gas_wanted
     response {
       events {
-        __typename
         ...on GnoEvent {
           type
           pkg_path
@@ -158,7 +155,6 @@ export const makeNativeTokenSendTransactionsByAddressQuery = (address: string) =
     }
     messages {
       value {
-        __typename
         ...on BankMsgSend{
           from_address
           to_address
@@ -189,7 +185,6 @@ export const makeNativeTokenReceivedTransactionsByAddressQuery = (address: strin
     gas_wanted
     response {
       events {
-        __typename
         ...on GnoEvent {
           type
           pkg_path
@@ -208,7 +203,6 @@ export const makeNativeTokenReceivedTransactionsByAddressQuery = (address: strin
     }
     messages {
       value {
-        __typename
         ...on BankMsgSend{
           from_address
           to_address
@@ -245,7 +239,6 @@ export const makeVMTransactionsByAddressQuery = (address: string) => gql`
     gas_wanted
     response {
       events {
-        __typename
         ...on GnoEvent {
           type
           pkg_path
@@ -264,7 +257,6 @@ export const makeVMTransactionsByAddressQuery = (address: string) => gql`
     }
     messages {
         value {
-          __typename
           ... on BankMsgSend {
             from_address
             to_address

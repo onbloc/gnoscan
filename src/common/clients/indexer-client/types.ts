@@ -99,28 +99,19 @@ export interface Response {
   log: string;
   info: string;
   data: string;
-  events: (Event | Events2)[];
+  events: Event[];
 }
 
-export interface Events2 {
-  __typename: string;
+export interface Event {
   type: string;
   pkg_path: string;
   func: string;
-  attrs: Attr[];
+  attrs?: Attr[] | null;
 }
 
 export interface Attr {
   key: string;
   value: string;
-}
-
-export interface Event {
-  __typename: string;
-  type: string;
-  pkg_path: string;
-  func: string;
-  attrs?: any;
 }
 
 export interface PageInfo {

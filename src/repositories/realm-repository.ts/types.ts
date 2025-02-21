@@ -1,6 +1,6 @@
-import {Amount, Blog, BlogDetail} from '@/types/data-type';
-import {TransactionWithEvent} from '../response/transaction.types';
 import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
+import {Amount, Blog} from '@/types/data-type';
+import {TransactionWithEvent} from '../response/transaction.types';
 
 export interface IRealmRepository {
   getLatestRealms(): Promise<any | null>;
@@ -102,7 +102,6 @@ export interface RealmTransaction<T = MsgCallValue | AddPackageValue> {
 }
 
 export interface MsgCallValue {
-  __typename: string;
   caller?: string;
   send?: string;
   pkg_path?: string;
@@ -111,7 +110,6 @@ export interface MsgCallValue {
 }
 
 export interface AddPackageValue {
-  __typename: string;
   creator?: string;
   deposit?: string;
   package?: Package;

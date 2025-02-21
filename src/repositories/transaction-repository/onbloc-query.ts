@@ -14,7 +14,6 @@ export const TRANSACTIONS_QUERY = gql`
           }
           messages {
             value {
-              __typename
               ... on BankMsgSend {
                 from_address
                 to_address
@@ -70,7 +69,6 @@ export const makeTransactionsQuery = (cursor: string | null) => gql`
           }
           messages {
             value {
-              __typename
               ... on BankMsgSend {
                 from_address
                 to_address
@@ -143,7 +141,6 @@ export const makeGRC20ReceivedTransactionsByAddressQuery = (address: string) => 
         }
         messages {
           value {
-            __typename
             ...on  MsgCall{
               caller
               send

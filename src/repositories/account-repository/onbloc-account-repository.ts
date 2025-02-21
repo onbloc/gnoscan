@@ -8,6 +8,7 @@ import {PageQueryResponse} from '@/common/clients/indexer-client/types';
 import {ZERO_NUMBER} from '@/common/values/number.constant';
 import {MAX_QUERY_SIZE} from '@/common/values/query.constant';
 import {ApolloQueryResult} from '@apollo/client';
+import {isBankSendMessageValue, isMsgCallMessageValue} from '../realm-repository.ts/mapper';
 import {
   mapReceivedTransactionByBankMsgSend,
   mapReceivedTransactionByMsgCall,
@@ -92,7 +93,6 @@ export class OnblocAccountRepository implements IAccountRepository {
         .map((edge: any) => edge.transaction)
         .filter((tx: any) => {
           const defaultMessage = getDefaultMessage(tx.messages);
-          const typename: string | null = defaultMessage.__typename || null;
           const functionName: string | null = defaultMessage?.func || null;
           const messageArguments: string[] | null = defaultMessage?.args || null;
 
@@ -100,7 +100,7 @@ export class OnblocAccountRepository implements IAccountRepository {
             return true;
           }
 
-          if (typename !== 'MsgCall') {
+          if (isMsgCallMessageValue(defaultMessage.value)) {
             return true;
           }
 
@@ -116,26 +116,27 @@ export class OnblocAccountRepository implements IAccountRepository {
         })
         .map(tx => {
           const defaultMessage = getDefaultMessage(tx.messages);
-          const typename: string | null = defaultMessage?.value?.__typename || null;
           const functionName: string | null = defaultMessage?.func || null;
           const messageArguments: string[] | null = defaultMessage?.args || null;
 
-          switch (typename) {
-            case 'BankMsgSend':
-              const fromAddress: string | null = defaultMessage?.from_address || null;
-              if (fromAddress === address) {
-                return mapSendTransactionByBankMsgSend(tx);
-              }
-              return mapReceivedTransactionByBankMsgSend(tx);
-            case 'MsgCall':
-              if (functionName === 'Transfer') {
-                if (messageArguments && messageArguments[ZERO_NUMBER] === address) {
-                  return mapReceivedTransactionByMsgCall(tx);
-                }
-              }
-            default:
-              return mapVMTransaction(tx);
+          if (isBankSendMessageValue(defaultMessage)) {
+            const fromAddress: string | null = defaultMessage?.from_address || null;
+            if (fromAddress === address) {
+              return mapSendTransactionByBankMsgSend(tx);
+            }
+
+            return mapReceivedTransactionByBankMsgSend(tx);
           }
+
+          if (isMsgCallMessageValue(defaultMessage.value)) {
+            if (functionName === 'Transfer') {
+              if (messageArguments && messageArguments[ZERO_NUMBER] === address) {
+                return mapReceivedTransactionByMsgCall(tx);
+              }
+            }
+          }
+
+          return mapVMTransaction(tx);
         });
       transactions.push(...mappedTransactions);
     } catch (e) {
