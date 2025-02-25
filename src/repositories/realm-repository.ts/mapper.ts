@@ -1,12 +1,39 @@
-import {Transaction} from '@/types/data-type';
-import {AddPackageValue, MsgCallValue, RealmTransaction} from './types';
 import {toNumber, toString} from '@/common/utils/string-util';
+import {Transaction} from '@/types/data-type';
+import {BankSendValue, MsgRunValue} from '../response/transaction.types';
 import {getDefaultMessage} from '../utility';
+import {AddPackageValue, MsgCallValue, RealmTransaction} from './types';
 
-export function isAddPackageMessageValue(
-  messageValue: AddPackageValue | MsgCallValue,
-): messageValue is AddPackageValue {
-  return messageValue.__typename === 'MsgAddPackage';
+export function isAddPackageMessageValue(messageValue: any): messageValue is AddPackageValue {
+  return messageValue?.creator !== undefined && messageValue?.package !== undefined;
+}
+
+export function isMsgCallMessageValue(messageValue: any): messageValue is MsgCallValue {
+  return messageValue?.caller !== undefined && messageValue?.pkg_path !== undefined;
+}
+
+export function isBankSendMessageValue(messageValue: any): messageValue is BankSendValue {
+  return messageValue?.from_address !== undefined && messageValue?.to_address !== undefined;
+}
+
+export function isMsgRunMessageValue(messageValue: any): messageValue is MsgRunValue {
+  return messageValue?.caller !== undefined && messageValue?.package !== undefined;
+}
+
+export function mapTransactionTypeNameByMessage(message: any): string {
+  if (isMsgCallMessageValue(message)) {
+    return 'MsgCall';
+  }
+
+  if (isAddPackageMessageValue(message)) {
+    return 'AddPackage';
+  }
+
+  if (isMsgRunMessageValue(message)) {
+    return 'MsgRun';
+  }
+
+  return 'BankMsgSend';
 }
 
 export function mapTransactionByRealm(tx: RealmTransaction): Transaction {

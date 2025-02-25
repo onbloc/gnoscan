@@ -1,7 +1,6 @@
-import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
-import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
-import {QUERY_KEY} from './types';
+import {PageInfo} from '@/common/clients/indexer-client/types';
 import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
 import {
   AddPackageValue,
   GRC20Info,
@@ -9,10 +8,11 @@ import {
   RealmTransaction,
   RealmTransactionInfo,
 } from '@/repositories/realm-repository.ts';
-import {Transaction} from '@/types/data-type';
 import {mapTransactionByRealm} from '@/repositories/realm-repository.ts/mapper';
 import {mapVMTransaction} from '@/repositories/response/transaction.mapper';
-import {PageInfo} from '@/common/clients/indexer-client/types';
+import {Transaction} from '@/types/data-type';
+import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
+import {QUERY_KEY} from './types';
 
 export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
   const {currentNetwork} = useNetworkProvider();
@@ -122,7 +122,7 @@ export const useGetRealmQuery = (
       }
 
       const balance = await realmRepository.getRealmBalance(packagePath);
-      return {...result, balance};
+      return {...result, balance} as RealmTransaction<AddPackageValue>;
     },
     enabled: !!realmRepository,
     ...options,
@@ -384,7 +384,7 @@ export const useGetRealmTransactionsByEventQuery = (
         return [];
       }
 
-      return result.transactions.map(mapTransactionByRealm);
+      return result.transactions.map((tx: any) => mapTransactionByRealm(tx));
     },
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository && !!realmPath,
@@ -448,7 +448,7 @@ export const useGetRealmTransactionsByEventInfinityQuery = (
           hasNext: result?.pageInfo?.hasNext || false,
           last: result?.pageInfo?.last || null,
         },
-        transactions: result.transactions.map(mapTransactionByRealm),
+        transactions: result.transactions.map((tx: any) => mapTransactionByRealm(tx)),
       };
     },
     enabled: !!realmRepository && !!realmPath,

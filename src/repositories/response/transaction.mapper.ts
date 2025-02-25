@@ -1,4 +1,9 @@
+import {GNOTToken} from '@/common/hooks/common/use-token-meta';
+import {toNumber, toString} from '@/common/utils/string-util';
+import {parseTokenAmount} from '@/common/utils/token.utility';
 import {Transaction} from '@/types/data-type';
+import {isAddPackageMessageValue, isMsgCallMessageValue} from '../realm-repository.ts/mapper';
+import {getDefaultMessage} from '../utility';
 import {
   AddPackageValue,
   BankSendValue,
@@ -6,10 +11,6 @@ import {
   MsgRunValue,
   TransactionWithEvent,
 } from './transaction.types';
-import {toNumber, toString} from '@/common/utils/string-util';
-import {GNOTToken} from '@/common/hooks/common/use-token-meta';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {getDefaultMessage} from '../utility';
 
 export function mapSendTransactionByBankMsgSend(
   tx: TransactionWithEvent<BankSendValue>,
@@ -144,11 +145,11 @@ export function mapReceivedTransactionByBankMsgSend(
 }
 
 export function mapVMTransaction(
-  tx: TransactionWithEvent<AddPackageValue | MsgRunValue | MsgCallValue>,
+  tx: TransactionWithEvent<BankSendValue | AddPackageValue | MsgRunValue | MsgCallValue>,
 ): Transaction {
   const defaultMessage = getDefaultMessage(tx.messages);
 
-  if (defaultMessage.value.__typename === 'MsgAddPackage') {
+  if (isAddPackageMessageValue(defaultMessage.value)) {
     const messageValue = defaultMessage.value as AddPackageValue;
     return {
       hash: tx.hash,
@@ -194,7 +195,7 @@ export function mapVMTransaction(
     };
   }
 
-  if (defaultMessage.value.__typename === 'MsgCall') {
+  if (isMsgCallMessageValue(defaultMessage.value)) {
     const messageValue = defaultMessage.value as MsgCallValue;
     const isTransfer = messageValue.func === 'Transfer';
 

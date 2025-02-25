@@ -5,7 +5,10 @@ import {makeRPCRequest, RPCClient} from '@/common/clients/rpc-client';
 import {parseTokenAmount} from '@/common/utils/token.utility';
 import {MonthlyTransactionStatInfo, TotalTransactionStatInfo, Transaction} from '@/types/data-type';
 import {ApolloQueryResult} from '@apollo/client';
-import {mapTransactionByRealm} from '../realm-repository.ts/mapper';
+import {
+  mapTransactionByRealm,
+  mapTransactionTypeNameByMessage,
+} from '../realm-repository.ts/mapper';
 import {getDefaultMessage} from '../utility';
 import {
   makeGRC20ReceivedTransactionsByAddressQuery,
@@ -19,14 +22,14 @@ function mapTransaction(data: any): Transaction {
   const defaultMessage = getDefaultMessage(data.messages).value;
   const amountValue =
     defaultMessage?.amount || defaultMessage?.send || defaultMessage?.deposit || '0ugnot';
+  const typeName = mapTransactionTypeNameByMessage(defaultMessage);
   return {
     hash: data.hash,
     success: data.success === true,
     numOfMessage: data.messages.length,
-    type: defaultMessage?.__typename,
-    packagePath:
-      defaultMessage?.package?.path || defaultMessage?.pkg_path || defaultMessage?.__typename,
-    functionName: defaultMessage?.func || defaultMessage?.__typename,
+    type: typeName,
+    packagePath: defaultMessage?.package?.path || defaultMessage?.pkg_path || typeName,
+    functionName: defaultMessage?.func || typeName,
     blockHeight: data.block_height,
     from: defaultMessage?.caller || defaultMessage?.creator || defaultMessage?.from_address,
     to: defaultMessage?.to_address,

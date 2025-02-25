@@ -33,7 +33,6 @@ export const makeRealmQuery = (packagePath: string) => gql`
         }
         messages {
           value {
-            __typename
             ...on MsgAddPackage {
               creator
               deposit
@@ -68,7 +67,6 @@ export const makeRealmsQuery = () => gql`
           block_height
           messages {
             value {
-              __typename
               ... on MsgAddPackage {
                 creator
                 package {
@@ -99,7 +97,6 @@ export const makeLatestRealmsQuery = () => gql`
           block_height
           messages {
             value {
-              __typename
               ... on MsgAddPackage {
                 creator
                 package {
@@ -148,7 +145,6 @@ export const makeRealmTransactionsQuery = (packagePath: string) => gql`
           }
           response {
             events {
-              __typename
               ... on GnoEvent {
                 type
                 pkg_path
@@ -162,7 +158,6 @@ export const makeRealmTransactionsQuery = (packagePath: string) => gql`
           }
           messages {
             value {
-              __typename
               ... on MsgAddPackage {
                 creator
                 deposit
@@ -220,7 +215,6 @@ export const makeRealmTransactionsByEventQuery = (
           }
           messages {
             value {
-              __typename
               ... on MsgAddPackage {
                 creator
                 deposit
@@ -273,7 +267,6 @@ export const makeRealmTransactionsWithArgsQuery = (packagePath: string) => gql`
         }
         messages {
           value {
-            __typename
             ...on MsgAddPackage {
               creator
               deposit
@@ -348,7 +341,6 @@ export const makeRealmTransactionInfosQuery = (fromHeight?: number) => gql`
           gas_used
           messages {
             value {
-              __typename
               ... on MsgAddPackage {
                 creator
                 deposit
@@ -405,7 +397,6 @@ export const makeRealmTransactionInfoQuery = (packagePath: string) => gql`
         gas_used
         messages {
           value {
-            __typename
             ... on MsgAddPackage {
               creator
               deposit
@@ -448,7 +439,6 @@ export const makeRealmPackagesQuery = (cursor: string | null) => gql`
           block_height
           messages {
             value {
-              __typename
               ... on MsgAddPackage {
                 creator
                 package {
@@ -479,7 +469,6 @@ export const makeTokensQuery = () => gql`
           block_height
           messages {
             value {
-              __typename
               ... on MsgAddPackage {
                 creator
                 package {
@@ -519,7 +508,6 @@ export const makeTokenQuery = (packagePath: string) => gql`
         block_height
         messages {
           value {
-            __typename
             ... on MsgAddPackage {
               creator
               package {
@@ -557,7 +545,6 @@ export const makeUsernameQuery = () => gql`
           success
           messages {
             value {
-              __typename
               ... on MsgCall {
                 args
                 caller
