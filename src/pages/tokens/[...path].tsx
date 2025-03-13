@@ -25,7 +25,7 @@ import {TokenDetailDatatablePage} from '@/components/view/datatable/token-detail
 const TOOLTIP_PACKAGE_PATH = (
   <>
     A unique identifier that serves as
-    <br />a contract address on Gnoland.
+    <br />a contract address on gno.land.
   </>
 );
 

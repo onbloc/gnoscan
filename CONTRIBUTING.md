@@ -1,11 +1,11 @@
 ## Contributing
-Thank you for considering contributing to Gnoscan! We value and appreciate your input. Before submitting a pull request, please check the guidelines below.
+Thank you for considering contributing to GnoScan! We value and appreciate your input. Before submitting a pull request, please check the guidelines below.
 
 ### How to Contribute	
 
 **Steps**
 1. Check existing issues or pull requests before submitting a new one to avoid duplicate submissions.
-2. Fork the Gnoscan repository.
+2. Fork the GnoScan repository.
 3. Create a new branch for your changes.
 4. Make changes and commit them with a concise and descriptive message using the [Conventional Commits](https://www.conventionalcommits.org/) format. Please check spelling, grammar, and remove any trailing whitespace.
 5. Push your branch to your forked repository.
