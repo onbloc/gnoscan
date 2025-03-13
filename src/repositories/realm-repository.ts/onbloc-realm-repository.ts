@@ -491,7 +491,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     }
 
     const responseData = await this.mainNodeRPCClient
-      .abciQueryVMQueryRender('gno.land/r/gno.land/blog:', [])
+      .abciQueryVMQueryRender('gno.land/r/gnoland/blog:', [])
       .then(response => response?.response?.ResponseBase?.Data)
       .then(extractStringFromResponse);
 
