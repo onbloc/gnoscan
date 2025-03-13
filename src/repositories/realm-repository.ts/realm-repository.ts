@@ -468,7 +468,7 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const responseData = await this.mainNodeRPCClient
-      .abciQueryVMQueryRender('gno.land/r/gnoland/blog:', [])
+      .abciQueryVMQueryRender('gno.land/r/gno.land/blog:', [])
       .then(response => response?.response?.ResponseBase?.Data)
       .then(extractStringFromResponse);
 
@@ -510,7 +510,7 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    const regex = /Published by ([\w\d]+) to Gnoland's Blog/g;
+    const regex = /Published by ([\w\d]+) to gno.land's Blog/g;
     let match;
     let lastMatch = null;
 

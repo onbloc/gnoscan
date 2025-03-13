@@ -41,7 +41,7 @@ const Definition = ({isDesktop}: ModProps) => {
         <GnoscanSymbolLight className="svg-icon" width="18" height="18" />
       )}
       <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
-        Powered by Gnoland Blockchain
+        Powered by gno.land Blockchain
       </Text>
     </DefinitionWrapper>
   );
@@ -51,7 +51,7 @@ const Copyright = ({isDesktop}: ModProps) => {
   const year = new Date().getFullYear();
   return (
     <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary" margin="0 9px 0 0">
-      {`@ ${year} Gnoscan`}
+      {`@ ${year} GnoScan`}
     </Text>
   );
 };

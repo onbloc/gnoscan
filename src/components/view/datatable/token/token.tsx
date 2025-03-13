@@ -16,7 +16,7 @@ import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
 const TOOLTIP_PACAKGE_PATH = (
   <>
     A unique identifier that serves as
-    <br />a contract address on Gnoland.
+    <br />a contract address on gno.land.
   </>
 );
 
