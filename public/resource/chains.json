@@ -1,10 +1,10 @@
 [
   {
-    "name": "Testnet 5",
-    "chainId": "test5",
-    "apiUrl": "https://test5.api.onbloc.xyz/v1",
-    "rpcUrl": "https://test5.onbloc.xyz:443",
-    "indexerUrl": "https://test5.indexer.onbloc.xyz"
+    "name": "Testnet 6",
+    "chainId": "test6",
+    "apiUrl": "https://test6.api.onbloc.xyz/v1",
+    "rpcUrl": "https://test6.onbloc.xyz:443",
+    "indexerUrl": "https://test6.indexer.onbloc.xyz"
   },
   {
     "name": "Portal Loop",
