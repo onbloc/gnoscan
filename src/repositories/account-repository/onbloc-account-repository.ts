@@ -119,7 +119,7 @@ export class OnblocAccountRepository implements IAccountRepository {
           const functionName: string | null = defaultMessage?.func || null;
           const messageArguments: string[] | null = defaultMessage?.args || null;
 
-          if (isBankSendMessageValue(defaultMessage)) {
+          if (isBankSendMessageValue(defaultMessage?.value)) {
             const fromAddress: string | null = defaultMessage?.from_address || null;
             if (fromAddress === address) {
               return mapSendTransactionByBankMsgSend(tx);

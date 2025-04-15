@@ -1,0 +1,74 @@
+[
+  {
+    "address": "g1wsa9j6nel8ltt6q2lmf78585ymyfh5nsvhaxa3",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "b6pUd9NubqpqqyQBCxBJnaM7ue3dbd6/gGqxfHsWf/M="
+    },
+    "power": "1",
+    "name": "gnocore-val-01"
+  },
+  {
+    "address": "g13762rd7y8s7jcc6uc4lyxv269hguchhpyzaamt",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "Um1zju0AZkJbnsF4Mr8OctQZ3Fli1kZYT4NN46hW0rM="
+    },
+    "power": "1",
+    "name": "gnocore-val-02"
+  },
+  {
+    "address": "g1mxguhd5zacar64txhfm0v7hhtph5wur5hx86vs",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "C0l3PwIhnCmIG3YiAa9jf/uuvZj1ob7lolasnEhDgBE="
+    },
+    "power": "1",
+    "name": "devx-val-01"
+  },
+  {
+    "address": "g1t9ctfa468hn6czff8kazw08crazehcxaqa2uaa",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "wBqj3F9RgIJ12UqGq5okzHfVbbd6H5AF5y4as8Ovx00="
+    },
+    "power": "1",
+    "name": "devx-val-02"
+  },
+  {
+    "address": "g12yvv8pl5s20suxyd30g7ychqenamtlhctgfu90",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "/QmwT6eVF23U92p5der0lWL3IQcoRPgVHHXrk3scQEs="
+    },
+    "power": "1",
+    "name": "aib-val-01"
+  },
+  {
+    "address": "g1p3lyk676gludkk6hqceem58c6xgnpsld45s4v9",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "p1QkqGuchQcMcsLMZn3neuRacJyQqhfYamh84gDLFzk="
+    },
+    "power": "1",
+    "name": "aib-val-02"
+  },
+  {
+    "address": "g14cppfre9hsvu6p4scttuyu7mj082lfwxl7hvz9",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "ZP5vv4fiv6k70/S1TzCR5Oc6pnpTXyiopTxS73oJetQ="
+    },
+    "power": "1",
+    "name": "onbloc-val-01"
+  },
+  {
+    "address": "g1927k3s7q9ujla04r5zy7q5m3gl84wsrart6663",
+    "pub_key": {
+      "@type": "/tm.PubKeyEd25519",
+      "value": "e0rrfvXhjZ0q3UxATo4yuGR0/CkfzCq3aIAjrHW8sCw="
+    },
+    "power": "1",
+    "name": "onbloc-val-02"
+  }
+]
