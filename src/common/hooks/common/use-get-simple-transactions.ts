@@ -1,6 +1,6 @@
-import {useQuery} from 'react-query';
-import {useServiceProvider} from '../provider/use-service-provider';
-import {useNetwork} from '../use-network';
+import { useQuery } from "react-query";
+import { useServiceProvider } from "../provider/use-service-provider";
+import { useNetwork } from "../use-network";
 
 export interface SimpleTransaction {
   success: boolean;
@@ -25,11 +25,11 @@ export interface SimpleTransaction {
 }
 
 export const useGetSimpleTransactions = (blockHeight?: number | null) => {
-  const {currentNetwork} = useNetwork();
-  const {transactionRepository} = useServiceProvider();
+  const { currentNetwork } = useNetwork();
+  const { transactionRepository } = useServiceProvider();
 
   return useQuery<SimpleTransaction[] | null>({
-    queryKey: ['useGetSimpleTransactions', currentNetwork?.chainId, blockHeight || ''],
+    queryKey: ["useGetSimpleTransactions", currentNetwork?.chainId, blockHeight || ""],
     queryFn: () => {
       if (!transactionRepository || !blockHeight) {
         return null;

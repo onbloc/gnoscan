@@ -1,25 +1,22 @@
-import {GNOTToken} from '@/common/hooks/common/use-token-meta';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {AccountTransactionResponse} from '@/repositories/account-repository';
-import {Amount, Transaction} from '@/types/data-type';
-import {UseQueryOptions, useQuery} from 'react-query';
-import {QUERY_KEY} from './types';
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { parseTokenAmount } from "@/common/utils/token.utility";
+import { AccountTransactionResponse } from "@/repositories/account-repository";
+import { Amount, Transaction } from "@/types/data-type";
+import { UseQueryOptions, useQuery } from "react-query";
+import { QUERY_KEY } from "./types";
 
-export const useGetNativeTokenBalance = (
-  address: string,
-  options?: UseQueryOptions<Amount, Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {accountRepository} = useServiceProvider();
+export const useGetNativeTokenBalance = (address: string, options?: UseQueryOptions<Amount, Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { accountRepository } = useServiceProvider();
 
   return useQuery<Amount, Error>({
-    queryKey: [QUERY_KEY.getNativeBalances, currentNetwork?.chainId || '', address],
+    queryKey: [QUERY_KEY.getNativeBalances, currentNetwork?.chainId || "", address],
     queryFn: () => {
       if (!accountRepository) {
         return {
-          value: '0',
+          value: "0",
           denom: GNOTToken.denom,
         };
       }
@@ -27,15 +24,15 @@ export const useGetNativeTokenBalance = (
       return accountRepository
         .getNativeTokensBalances(address)
         .then(result => {
-          const nativeValue = result.split(',');
-          const amountValue = parseTokenAmount(nativeValue?.[0] || '').toString();
+          const nativeValue = result.split(",");
+          const amountValue = parseTokenAmount(nativeValue?.[0] || "").toString();
           return {
             value: amountValue,
             denom: GNOTToken.denom,
           };
         })
         .catch(() => ({
-          value: '0',
+          value: "0",
           denom: GNOTToken.denom,
         }));
     },
@@ -44,23 +41,18 @@ export const useGetNativeTokenBalance = (
   });
 };
 
-export const useGetGRC20TokenBalances = (
-  address: string,
-  options?: UseQueryOptions<Amount[], Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {accountRepository} = useServiceProvider();
+export const useGetGRC20TokenBalances = (address: string, options?: UseQueryOptions<Amount[], Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { accountRepository } = useServiceProvider();
 
   return useQuery<Amount[], Error>({
-    queryKey: [QUERY_KEY.getGRC20Balances, currentNetwork?.chainId || '', address],
+    queryKey: [QUERY_KEY.getGRC20Balances, currentNetwork?.chainId || "", address],
     queryFn: async () => {
       if (!accountRepository) {
         return [];
       }
 
-      const assets = await accountRepository
-        .getGRC20ReceivedPackagePaths(address)
-        .catch(() => null);
+      const assets = await accountRepository.getGRC20ReceivedPackagePaths(address).catch(() => null);
 
       return accountRepository.getGRC20TokensBalances(address, assets || []);
     },
@@ -69,15 +61,12 @@ export const useGetGRC20TokenBalances = (
   });
 };
 
-export const useGetAccountTransactions = (
-  address: string,
-  options?: UseQueryOptions<Transaction[], Error>,
-) => {
-  const {currentNetwork, isCustomNetwork} = useNetworkProvider();
-  const {accountRepository} = useServiceProvider();
+export const useGetAccountTransactions = (address: string, options?: UseQueryOptions<Transaction[], Error>) => {
+  const { currentNetwork, isCustomNetwork } = useNetworkProvider();
+  const { accountRepository } = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getAccountTransactions, currentNetwork?.chainId || '', address],
+    queryKey: [QUERY_KEY.getAccountTransactions, currentNetwork?.chainId || "", address],
     queryFn: async () => {
       if (!accountRepository) {
         return [];
@@ -91,9 +80,7 @@ export const useGetAccountTransactions = (
           accountRepository.getVMTransactionsByAddress(address),
         ])
           .then(results =>
-            results
-              .filter(result => result != null)
-              .flatMap(transactions => transactions as Transaction[]),
+            results.filter(result => result != null).flatMap(transactions => transactions as Transaction[]),
           )
           .catch(() => null);
 
@@ -101,15 +88,12 @@ export const useGetAccountTransactions = (
           return [];
         }
 
-        const transactionMap = transactions.reduce<{[key in number]: Transaction}>(
-          (accum, current) => {
-            if (!accum?.[current.blockHeight]) {
-              accum[current.blockHeight] = current;
-            }
-            return accum;
-          },
-          {},
-        );
+        const transactionMap = transactions.reduce<{ [key in number]: Transaction }>((accum, current) => {
+          if (!accum?.[current.blockHeight]) {
+            accum[current.blockHeight] = current;
+          }
+          return accum;
+        }, {});
 
         return Object.values(transactionMap);
       }

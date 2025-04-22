@@ -1,11 +1,5 @@
-export const GRC20_FUNCTIONS = [
-  'TotalSupply',
-  'BalanceOf',
-  'Transfer',
-  'Allowance',
-  'Approve',
-  'TransferFrom',
-];
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const GRC20_FUNCTIONS = ["TotalSupply", "BalanceOf", "Transfer", "Allowance", "Approve", "TransferFrom"];
 
 export function parseGRC20InfoByFile(file: string): {
   name: string;
@@ -14,7 +8,7 @@ export function parseGRC20InfoByFile(file: string): {
   owner: string;
 } | null {
   const constructRegexp = /\((.*)\)/;
-  const constructFunctionName = '.NewAdminToken';
+  const constructFunctionName = ".NewAdminToken";
   const functionRegexp = /([a-zA-Z0-9])+/;
   const adminRegexp = /(\w+)\s+std\.Address\s*=\s*"([^"]*)"/;
 
@@ -24,11 +18,11 @@ export function parseGRC20InfoByFile(file: string): {
     decimals: number;
     owner: string;
   } | null = null;
-  let owner: string | null = '';
+  let owner: string | null = "";
   const functions: string[] = [];
 
-  for (const line of file.split('\n')) {
-    const trimLine = line.replaceAll('\t', '').trim();
+  for (const line of file.split("\n")) {
+    const trimLine = line.replaceAll("\t", "").trim();
 
     if (!owner) {
       const adminParams = trimLine.match(adminRegexp);
@@ -40,22 +34,22 @@ export function parseGRC20InfoByFile(file: string): {
     if (!grc20Info && trimLine.includes(constructFunctionName)) {
       const exec = constructRegexp.exec(trimLine);
       if (exec && exec.length > 1) {
-        const paramStr = exec[1].replaceAll('"', '');
-        const params = paramStr.split(',').map(param => param.trim());
+        const paramStr = exec[1].replaceAll(`"`, ""); // eslint-disable-line quotes
+        const params = paramStr.split(",").map(param => param.trim());
 
         if (params.length > 2) {
           grc20Info = {
             name: params[0],
             symbol: params[1],
             decimals: Number(params[2]),
-            owner: '',
+            owner: "",
           };
         }
       }
     }
 
-    if (trimLine.startsWith('func')) {
-      const results = trimLine.replace('func', '').match(functionRegexp);
+    if (trimLine.startsWith("func")) {
+      const results = trimLine.replace("func", "").match(functionRegexp);
       const functionName = results?.[0];
       if (functionName) {
         functions.push(functionName);
@@ -70,7 +64,7 @@ export function parseGRC20InfoByFile(file: string): {
   if (!GRC20_FUNCTIONS.every(func => functions.includes(func))) {
     return null;
   }
-  return {...grc20Info, owner};
+  return { ...grc20Info, owner };
 }
 
 export function parseBankerGRC20InfoByFile(file: string): {

@@ -1,6 +1,4 @@
-export interface TransactionWithEvent<
-  T = MsgCallValue | MsgRunValue | AddPackageValue | BankSendValue,
-> {
+export interface TransactionWithEvent<T = MsgCallValue | MsgRunValue | AddPackageValue | BankSendValue> {
   hash: string;
   index: number;
   success: boolean;

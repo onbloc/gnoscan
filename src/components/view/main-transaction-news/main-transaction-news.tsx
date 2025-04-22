@@ -1,32 +1,32 @@
-'use client';
+"use client";
 
-import React from 'react';
-import styled from 'styled-components';
-import Card from '@/components/ui/card';
-import Text from '@/components/ui/text';
-import {eachMedia} from '@/common/hooks/use-media';
-import {MainTotalTransaction} from '.';
-import {MainTotalDailyFee} from '.';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {MainTotalTransactionApi} from './total-transaction/total-transaction-api';
-import {MainTotalDailyFeeApi} from './total-daily-fee/total-daily-fee-api';
+import React from "react";
+import styled from "styled-components";
+import Card from "@/components/ui/card";
+import Text from "@/components/ui/text";
+import { eachMedia } from "@/common/hooks/use-media";
+import { MainTotalTransaction } from ".";
+import { MainTotalDailyFee } from ".";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { MainTotalTransactionApi } from "./total-transaction/total-transaction-api";
+import { MainTotalDailyFeeApi } from "./total-daily-fee/total-daily-fee-api";
 
 const MainTransactionNews = () => {
   const media = eachMedia();
-  const {isCustomNetwork} = useNetworkProvider();
+  const { isCustomNetwork } = useNetworkProvider();
 
   return (
     <Wrapper className={media}>
       <Card height="274px" className="card-1">
         <Text className="title" type="h6" color="primary">
-          {'Total Daily Transactions'}
+          {"Total Daily Transactions"}
         </Text>
         {isCustomNetwork ? <MainTotalTransaction /> : <MainTotalTransactionApi />}
       </Card>
 
       <Card height="274px" className="card-2">
         <Text className="title" type="h6" color="primary">
-          {'Total Daily Fees (in GNOTs)'}
+          {"Total Daily Fees (in GNOTs)"}
         </Text>
         {isCustomNetwork ? <MainTotalDailyFee /> : <MainTotalDailyFeeApi />}
       </Card>

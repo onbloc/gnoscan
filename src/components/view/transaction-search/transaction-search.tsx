@@ -1,10 +1,10 @@
-import React, {useCallback, useState} from 'react';
-import {TransactionSearchWrapper} from './transaction-search.styles';
-import {MainInput} from '@/components/ui/input';
-import {debounce} from '@/common/utils/string-util';
+import React, { useCallback, useState } from "react";
+import { TransactionSearchWrapper } from "./transaction-search.styles";
+import { MainInput } from "@/components/ui/input";
+import { debounce } from "@/common/utils/string-util";
 
 const TransactionSearch: React.FC = () => {
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,7 +14,7 @@ const TransactionSearch: React.FC = () => {
   );
 
   const clearValue = () => {
-    setKeyword('');
+    setKeyword("");
   };
 
   return (

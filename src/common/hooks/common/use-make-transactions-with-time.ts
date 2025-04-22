@@ -1,17 +1,14 @@
-import {useQuery} from 'react-query';
-import {useServiceProvider} from '../provider/use-service-provider';
-import {useNetwork} from '../use-network';
-import {Transaction} from '@/types/data-type';
+import { useQuery } from "react-query";
+import { useServiceProvider } from "../provider/use-service-provider";
+import { useNetwork } from "../use-network";
+import { Transaction } from "@/types/data-type";
 
-export const useMakeTransactionsWithTime = (
-  key: string,
-  transactions: Transaction[] | null | undefined,
-) => {
-  const {currentNetwork} = useNetwork();
-  const {blockRepository} = useServiceProvider();
+export const useMakeTransactionsWithTime = (key: string, transactions: Transaction[] | null | undefined) => {
+  const { currentNetwork } = useNetwork();
+  const { blockRepository } = useServiceProvider();
 
   return useQuery<Transaction[] | null>({
-    queryKey: ['useMakeTransactionsWithTime', currentNetwork?.chainId, key || ''],
+    queryKey: ["useMakeTransactionsWithTime", currentNetwork?.chainId, key || ""],
     queryFn: () => {
       if (!transactions) {
         return null;
@@ -22,7 +19,7 @@ export const useMakeTransactionsWithTime = (
           const time = await blockRepository?.getBlockTime(transaction.blockHeight);
           return {
             ...transaction,
-            time: time || '',
+            time: time || "",
           };
         }),
       );

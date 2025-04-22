@@ -1,6 +1,6 @@
-import mixins, {MixinsType} from '@/styles/mixins';
-import React from 'react';
-import styled, {css, CSSProp, keyframes} from 'styled-components';
+import mixins, { MixinsType } from "@/styles/mixins";
+import React from "react";
+import styled, { css, CSSProp, keyframes } from "styled-components";
 
 const spinAnimation = keyframes`
   0% {
@@ -11,11 +11,11 @@ const spinAnimation = keyframes`
   }
 `;
 
-const SpinRing = styled.div<{position?: CSSProp}>`
-  ${mixins.flexbox('row', 'center', 'center')};
+const SpinRing = styled.div<{ position?: CSSProp }>`
+  ${mixins.flexbox("row", "center", "center")};
 
-  ${({position}) =>
-    position === 'center'
+  ${({ position }) =>
+    position === "center"
       ? css`
           position: absolute;
           top: 50%;
@@ -29,12 +29,12 @@ const SpinRing = styled.div<{position?: CSSProp}>`
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background-image: ${({theme}) =>
+  background-image: ${({ theme }) =>
     `linear-gradient(359.87deg, ${theme.colors.select} 8.53%, rgba(0, 0, 0, 0) 69.1%)`};
   animation: ${spinAnimation} 0.9s linear infinite;
   :before {
-    content: '';
-    background-color: ${({theme}) => theme.colors.surface};
+    content: "";
+    background-color: ${({ theme }) => theme.colors.surface};
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -48,10 +48,10 @@ const SpinBall = styled.span`
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background-color: ${({theme}) => theme.colors.base};
+  background-color: ${({ theme }) => theme.colors.base};
 `;
 
-export const Spinner = ({position}: {position?: string}) => (
+export const Spinner = ({ position }: { position?: string }) => (
   <SpinRing position={position}>
     <SpinBall />
   </SpinRing>

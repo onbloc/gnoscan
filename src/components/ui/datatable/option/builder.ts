@@ -1,14 +1,15 @@
-import {PaletteKeyType} from '@/styles';
-import {ReactNode} from 'react';
-import {Header} from '../header';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { PaletteKeyType } from "@/styles";
+import { ReactNode } from "react";
+import { Header } from "../header";
 
 export class Builder<T> {
   options: Header<T>;
 
   constructor() {
     this.options = {
-      key: '',
-      name: '',
+      key: "",
+      name: "",
     };
   }
 
@@ -33,7 +34,7 @@ export class Builder<T> {
   }
 
   public themeMode(themeMode: string) {
-    const themeModeValue = themeMode !== 'dark' ? 'light' : 'dark';
+    const themeModeValue = themeMode !== "dark" ? "light" : "dark";
     this.options = {
       ...this.options,
       themeMode: themeModeValue,
@@ -50,7 +51,7 @@ export class Builder<T> {
   }
 
   public width(width: string | number) {
-    const widthValue = typeof width === 'number' ? `${width}px` : width;
+    const widthValue = typeof width === "number" ? `${width}px` : width;
     this.options = {
       ...this.options,
       width: widthValue,
@@ -58,7 +59,7 @@ export class Builder<T> {
     return this;
   }
 
-  public headerAlign(headerAlign: 'left' | 'center' | 'right') {
+  public headerAlign(headerAlign: "left" | "center" | "right") {
     this.options = {
       ...this.options,
       headerAlign: headerAlign,
@@ -66,7 +67,7 @@ export class Builder<T> {
     return this;
   }
 
-  public align(align: 'left' | 'center' | 'right') {
+  public align(align: "left" | "center" | "right") {
     this.options = {
       ...this.options,
       align: align,

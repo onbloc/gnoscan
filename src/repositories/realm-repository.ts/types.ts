@@ -1,6 +1,7 @@
-import {PageInfo, PageOption} from '@/common/clients/indexer-client/types';
-import {Amount, Blog} from '@/types/data-type';
-import {TransactionWithEvent} from '../response/transaction.types';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { PageInfo, PageOption } from "@/common/clients/indexer-client/types";
+import { Amount, Blog } from "@/types/data-type";
+import { TransactionWithEvent } from "../response/transaction.types";
 
 export interface IRealmRepository {
   getLatestRealms(): Promise<any | null>;
@@ -16,10 +17,7 @@ export interface IRealmRepository {
 
   getRealmFunctions(realmPath: string): Promise<RealmFunction[] | null>;
 
-  getRealmTransactions(
-    realmPath: string,
-    pageOption?: PageOption,
-  ): Promise<TransactionWithEvent[] | null>;
+  getRealmTransactions(realmPath: string, pageOption?: PageOption): Promise<TransactionWithEvent[] | null>;
 
   getRealmTransactionsByEvent(
     realmPath: string,
@@ -29,10 +27,7 @@ export interface IRealmRepository {
     transactions: TransactionWithEvent[];
   } | null>;
 
-  getRealmTransactionsWithArgs(
-    realmPath: string,
-    pageOption?: PageOption,
-  ): Promise<RealmTransaction[] | null>;
+  getRealmTransactionsWithArgs(realmPath: string, pageOption?: PageOption): Promise<RealmTransaction[] | null>;
 
   getRealmCallTransactionsWithArgs(
     realmPath: string,
@@ -43,9 +38,7 @@ export interface IRealmRepository {
 
   getRealmTotalSupply(realmPath: string): Promise<number | null>;
 
-  getRealmTransactionInfos(
-    fromHeight?: number,
-  ): Promise<{[key in string]: RealmTransactionInfo} | null>;
+  getRealmTransactionInfos(fromHeight?: number): Promise<{ [key in string]: RealmTransactionInfo } | null>;
 
   getRealmTransactionInfo(packagePath: string): Promise<RealmTransactionInfo | null>;
 
@@ -58,7 +51,7 @@ export interface IRealmRepository {
     tokenInfo: GRC20Info;
   } | null>;
 
-  getUsernames(): Promise<{[key in string]: string}>;
+  getUsernames(): Promise<{ [key in string]: string }>;
 
   getBlogs(): Promise<Blog[]>;
 

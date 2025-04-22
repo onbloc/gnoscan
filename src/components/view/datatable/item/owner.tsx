@@ -1,16 +1,16 @@
-import {useNetwork} from '@/common/hooks/use-network';
-import {textEllipsis} from '@/common/utils/string-util';
-import Tooltip from '@/components/ui/tooltip';
-import React, {useMemo} from 'react';
-import styled from 'styled-components';
+import { useNetwork } from "@/common/hooks/use-network";
+import { textEllipsis } from "@/common/utils/string-util";
+import Tooltip from "@/components/ui/tooltip";
+import React, { useMemo } from "react";
+import styled from "styled-components";
 
 interface Props {
   publisher: string | undefined;
   publisherUsername: string | undefined;
 }
 
-export const Owner = ({publisher, publisherUsername}: Props) => {
-  const {getUrlWithNetwork} = useNetwork();
+export const Owner = ({ publisher, publisherUsername }: Props) => {
+  const { getUrlWithNetwork } = useNetwork();
   const renderTooltip = () => {
     return <TooltipWrapper>{publisher}</TooltipWrapper>;
   };
@@ -24,12 +24,12 @@ export const Owner = ({publisher, publisherUsername}: Props) => {
       return textEllipsis(publisher, 8);
     }
 
-    return '-';
+    return "-";
   }, [publisher, publisherUsername]);
 
   return (
     <Container>
-      {publisher && publisher !== 'genesis' ? (
+      {publisher && publisher !== "genesis" ? (
         <Tooltip content={renderTooltip()}>
           <OwnerLink href={getUrlWithNetwork(`/accounts/${publisher}`)}>
             <OwnerText>{displayName}</OwnerText>
@@ -57,7 +57,7 @@ const OwnerLink = styled.a`
 
 const OwnerText = styled.span`
   width: 100%;
-  color: ${({theme}) => theme.colors.blue};
+  color: ${({ theme }) => theme.colors.blue};
 `;
 
 const TooltipWrapper = styled.span`

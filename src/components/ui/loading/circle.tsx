@@ -1,5 +1,5 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
 interface CircleProps {
   width?: string;
@@ -9,13 +9,13 @@ interface CircleProps {
 }
 
 const CircleStyle = styled.div<CircleProps>`
-  width: ${({width}) => width && width};
-  height: ${({height}) => height && height};
-  background-color: ${({theme, bgColor}) => (bgColor ? bgColor : theme.colors.dimmed50)};
-  margin: ${({margin}) => margin && margin};
+  width: ${({ width }) => width && width};
+  height: ${({ height }) => height && height};
+  background-color: ${({ theme, bgColor }) => (bgColor ? bgColor : theme.colors.dimmed50)};
+  margin: ${({ margin }) => margin && margin};
   border-radius: 50%;
 `;
 
-export const Circle = ({width, height, bgColor, margin}: CircleProps) => {
+export const Circle = ({ width, height, bgColor, margin }: CircleProps) => {
   return <CircleStyle width={width} height={height} bgColor={bgColor} margin={margin} />;
 };

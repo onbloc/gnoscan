@@ -1,27 +1,27 @@
-import React, {useMemo, useState} from 'react';
-import dynamic from 'next/dynamic';
-import {DAY_TIME} from '@/common/values/constant-value';
-import styled from 'styled-components';
-import Text from '@/components/ui/text';
-import theme from '@/styles/theme';
-import {Spinner} from '@/components/ui/loading';
-import {useTotalGasInfo} from '@/common/hooks/main/use-total-gas-info';
-import BigNumber from 'bignumber.js';
-import {GNOTToken} from '@/common/hooks/common/use-token-meta';
-import {dateToStr} from '@/common/utils/date-util';
+import React, { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { DAY_TIME } from "@/common/values/constant-value";
+import styled from "styled-components";
+import Text from "@/components/ui/text";
+import theme from "@/styles/theme";
+import { Spinner } from "@/components/ui/loading";
+import { useTotalGasInfo } from "@/common/hooks/main/use-total-gas-info";
+import BigNumber from "bignumber.js";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { dateToStr } from "@/common/utils/date-util";
 
-const AreaChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.AreaChart), {
+const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
 });
 
 export const MainRealmTotalGasShare = () => {
   const [period, setPeriod] = useState(7);
-  const {isFetched, transactionRealmGasInfo} = useTotalGasInfo();
+  const { isFetched, transactionRealmGasInfo } = useTotalGasInfo();
 
   const labels = useMemo(() => {
     const now = new Date();
 
-    return Array.from({length: period})
+    return Array.from({ length: period })
       .map((_, index) => new Date(now.getTime() - DAY_TIME * index))
       .sort((d1, d2) => d1.getTime() - d2.getTime())
       .map(dateToStr);
@@ -37,11 +37,11 @@ export const MainRealmTotalGasShare = () => {
      * Generate data by date with key as realmPath.
      */
     return [...transactionRealmGasInfo.displayRealms].reduce<{
-      [key in string]: {value: number; rate: number}[];
+      [key in string]: { value: number; rate: number }[];
     }>((accum, current) => {
       const currentLabel = transactionRealmGasInfo.displayRealms.includes(current)
-        ? current.replace('gno.land', '')
-        : 'rest';
+        ? current.replace("gno.land", "")
+        : "rest";
       accum[currentLabel] = labels.map(date => {
         const totalGas = dateTotalGas[date];
         const dateResult = transactionRealmGasInfo.results.find(result => date === result.date);
@@ -75,13 +75,13 @@ export const MainRealmTotalGasShare = () => {
     <Wrapper>
       <div className="title-wrapper">
         <Text className="title" type="h6" color="primary">
-          {'Total Gas Share By Realms (in GNOTs)'}
+          {"Total Gas Share By Realms (in GNOTs)"}
         </Text>
         <div className="period-selector">
-          <span className={period === 7 ? 'active' : ''} onClick={() => onClickPeriod(7)}>
+          <span className={period === 7 ? "active" : ""} onClick={() => onClickPeriod(7)}>
             7D
           </span>
-          <span className={period === 30 ? 'active' : ''} onClick={() => onClickPeriod(30)}>
+          <span className={period === 30 ? "active" : ""} onClick={() => onClickPeriod(30)}>
             30D
           </span>
         </div>
@@ -90,7 +90,7 @@ export const MainRealmTotalGasShare = () => {
         <AreaChart
           labels={labels}
           datas={transactionGasData}
-          colors={['#2090F3', '#786AEC', '#FDD15C', '#617BE3', '#30BDD2', '#83CFAA']}
+          colors={["#2090F3", "#786AEC", "#FDD15C", "#617BE3", "#30BDD2", "#83CFAA"]}
         />
       ) : (
         <Spinner position="center" />
@@ -123,7 +123,7 @@ const Wrapper = styled.div`
 
   & .period-selector {
     display: flex;
-    color: ${({theme}) => theme.colors.tertiary};
+    color: ${({ theme }) => theme.colors.tertiary};
 
     span {
       width: 60px;
@@ -131,13 +131,13 @@ const Wrapper = styled.div`
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      border: 1px solid ${({theme}) => theme.colors.tertiary};
+      border: 1px solid ${({ theme }) => theme.colors.tertiary};
       ${theme.fonts.p4};
       cursor: pointer;
 
       &.active {
         cursor: auto;
-        background-color: ${({theme}) => theme.colors.select};
+        background-color: ${({ theme }) => theme.colors.select};
       }
 
       &:first-child {

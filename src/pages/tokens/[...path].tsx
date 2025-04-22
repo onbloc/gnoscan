@@ -1,26 +1,26 @@
-import React, {useMemo} from 'react';
-import {useRouter} from '@/common/hooks/common/use-router';
-import {isDesktop} from '@/common/hooks/use-media';
-import {DetailsPageLayout} from '@/components/core/layout';
-import Badge from '@/components/ui/badge';
-import {DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
-import DataSection from '@/components/view/details-data-section';
-import Text from '@/components/ui/text';
-import Link from 'next/link';
-import ShowLog from '@/components/ui/show-log';
-import {TokenDetailDatatable} from '@/components/view/datatable';
-import Tooltip from '@/components/ui/tooltip';
-import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
-import IconCopy from '@/assets/svgs/icon-copy.svg';
-import styled from 'styled-components';
-import mixins from '@/styles/mixins';
-import {useToken} from '@/common/hooks/tokens/use-token';
-import {useNetwork} from '@/common/hooks/use-network';
-import {useUsername} from '@/common/hooks/account/use-username';
-import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {formatDisplayPackagePath, makeDisplayNumber} from '@/common/utils/string-util';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {TokenDetailDatatablePage} from '@/components/view/datatable/token-detail/token-detail-page';
+import React, { useMemo } from "react";
+import { useRouter } from "@/common/hooks/common/use-router";
+import { isDesktop } from "@/common/hooks/use-media";
+import { DetailsPageLayout } from "@/components/core/layout";
+import Badge from "@/components/ui/badge";
+import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import DataSection from "@/components/view/details-data-section";
+import Text from "@/components/ui/text";
+import Link from "next/link";
+import ShowLog from "@/components/ui/show-log";
+import { TokenDetailDatatable } from "@/components/view/datatable";
+import Tooltip from "@/components/ui/tooltip";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import IconCopy from "@/assets/svgs/icon-copy.svg";
+import styled from "styled-components";
+import mixins from "@/styles/mixins";
+import { useToken } from "@/common/hooks/tokens/use-token";
+import { useNetwork } from "@/common/hooks/use-network";
+import { useUsername } from "@/common/hooks/account/use-username";
+import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { TokenDetailDatatablePage } from "@/components/view/datatable/token-detail/token-detail-page";
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -30,16 +30,16 @@ const TOOLTIP_PACKAGE_PATH = (
 );
 
 const TokenDetails = () => {
-  const {isFetched: isFetchedUsername, getName} = useUsername();
-  const {getUrlWithNetwork} = useNetwork();
-  const {isCustomNetwork} = useNetworkProvider();
+  const { isFetched: isFetchedUsername, getName } = useUsername();
+  const { getUrlWithNetwork } = useNetwork();
+  const { isCustomNetwork } = useNetworkProvider();
   const desktop = isDesktop();
   const router = useRouter();
-  const {path} = router.query;
-  const currentPath = Array.isArray(path) ? path.join('/').split('?')[0] : path?.toString();
+  const { path } = router.query;
+  const currentPath = Array.isArray(path) ? path.join("/").split("?")[0] : path?.toString();
 
-  const {isFetched: isFetchedToken, summary, files} = useToken(currentPath);
-  const {isFetchedGRC20Tokens, getTokenAmount} = useTokenMeta();
+  const { isFetched: isFetchedToken, summary, files } = useToken(currentPath);
+  const { isFetchedGRC20Tokens, getTokenAmount } = useTokenMeta();
 
   const isFetched = useMemo(() => {
     return isFetchedToken && isFetchedUsername && isFetchedGRC20Tokens;
@@ -47,17 +47,18 @@ const TokenDetails = () => {
 
   const displayTotalSupply = useMemo(() => {
     if (!isFetchedGRC20Tokens) {
-      return '-';
+      return "-";
     }
     return makeDisplayNumber(getTokenAmount(summary.packagePath, summary.totalSupply).value);
   }, [isFetchedGRC20Tokens, summary.packagePath, summary.totalSupply]);
 
   return (
     <DetailsPageLayout
-      title={'Token Details'}
+      title={"Token Details"}
       visible={!isFetched}
-      error={isFetched && summary?.packagePath === ''}
-      keyword={`${currentPath}`}>
+      error={isFetched && summary?.packagePath === ""}
+      keyword={`${currentPath}`}
+    >
       {summary.packagePath && (
         <>
           <DataSection title="Summary">
@@ -97,8 +98,7 @@ const TokenDetails = () => {
               <dd>
                 <Badge>
                   <Text type="p4" color="blue" className="username-text">
-                    <StyledA
-                      href={getUrlWithNetwork(`/realms/details?path=${summary.packagePath}`)}>
+                    <StyledA href={getUrlWithNetwork(`/realms/details?path=${summary.packagePath}`)}>
                       {formatDisplayPackagePath(summary.packagePath)}
                     </StyledA>
                   </Text>
@@ -107,7 +107,8 @@ const TokenDetails = () => {
                     content="Copied!"
                     trigger="click"
                     copyText={summary.packagePath}
-                    width={85}>
+                    width={85}
+                  >
                     <IconCopy className="svg-icon" />
                   </Tooltip>
                 </Badge>
@@ -129,7 +130,7 @@ const TokenDetails = () => {
               <dt>Owner</dt>
               <dd>
                 <Badge>
-                  {summary.owner && summary.owner === 'genesis' ? (
+                  {summary.owner && summary.owner === "genesis" ? (
                     <Text type="p4" color="blue" className="ellipsis">
                       {summary.owner}
                     </Text>
@@ -165,7 +166,7 @@ const TokenDetails = () => {
 };
 
 const StyledA = styled.a`
-  ${mixins.flexbox('row', 'center', 'center')};
+  ${mixins.flexbox("row", "center", "center")};
 `;
 
 export default TokenDetails;

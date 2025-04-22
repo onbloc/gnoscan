@@ -1,18 +1,18 @@
-import {useMemo} from 'react';
-import {useGetTransactionsInfinityQuery} from '@/common/react-query/transaction';
-import {useGetLatestBlock} from '../common/use-get-latest-block';
-import {useMakeTransactionsWithTime} from '../common/use-make-transactions-with-time';
+import { useMemo } from "react";
+import { useGetTransactionsInfinityQuery } from "@/common/react-query/transaction";
+import { useGetLatestBlock } from "../common/use-get-latest-block";
+import { useMakeTransactionsWithTime } from "../common/use-make-transactions-with-time";
 
 const PAGE_LIMIT = 20;
 
-export const useTransactions = ({enabled = true}) => {
-  const {latestBlock} = useGetLatestBlock();
+export const useTransactions = ({ enabled = true }) => {
+  const { latestBlock } = useGetLatestBlock();
   const {
     data = null,
     hasNextPage,
     fetchNextPage,
     isFetched: isFetchedTransactions,
-  } = useGetTransactionsInfinityQuery(latestBlock?.block_meta.header.total_txs || null, {enabled});
+  } = useGetTransactionsInfinityQuery(latestBlock?.block_meta.header.total_txs || null, { enabled });
 
   const transactions = useMemo(() => {
     if (!data) {
@@ -26,7 +26,7 @@ export const useTransactions = ({enabled = true}) => {
       .filter((_, index) => index < data.pages.length * PAGE_LIMIT);
   }, [data]);
 
-  const {data: transactionWithTimes = null, isError} = useMakeTransactionsWithTime(
+  const { data: transactionWithTimes = null, isError } = useMakeTransactionsWithTime(
     `transactions/${transactions?.length || 0}`,
     transactions,
   );

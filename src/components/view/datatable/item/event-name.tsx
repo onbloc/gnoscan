@@ -1,16 +1,16 @@
-import Badge from '@/components/ui/badge';
-import Text from '@/components/ui/text';
-import React from 'react';
-import styled from 'styled-components';
+import Badge from "@/components/ui/badge";
+import Text from "@/components/ui/text";
+import React from "react";
+import styled from "styled-components";
 
 interface Props {
   eventName: string;
 }
 
-export const EventName = ({eventName}: Props) => {
+export const EventName = ({ eventName }: Props) => {
   return (
     <EventNameWrapper className="ellipsis">
-      <Badge className="event-name" type="blue" margin={'0'}>
+      <Badge className="event-name" type="blue" margin={"0"}>
         <Text type="p4" color="white">
           {eventName}
         </Text>

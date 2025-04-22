@@ -1,1 +1,1 @@
-export * from './realm-detail';
+export * from "./realm-detail";

@@ -1,1 +1,1 @@
-export * from './event-datatable';
+export * from "./event-datatable";

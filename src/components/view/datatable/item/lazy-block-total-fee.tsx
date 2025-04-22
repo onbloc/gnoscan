@@ -1,14 +1,14 @@
-import React, {useMemo} from 'react';
-import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {useGetRealmTransactionInfosQuery} from '@/common/react-query/realm';
-import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
-import {AmountText} from '@/components/ui/text/amount-text';
-import {FontsType} from '@/styles';
-import {Amount} from '@/types/data-type';
-import {useGetBlockQuery} from '@/common/react-query/block';
-import {decodeTransaction} from '@/common/utils/transaction.utility';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import BigNumber from 'bignumber.js';
+import React, { useMemo } from "react";
+import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useGetRealmTransactionInfosQuery } from "@/common/react-query/realm";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import { AmountText } from "@/components/ui/text/amount-text";
+import { FontsType } from "@/styles";
+import { Amount } from "@/types/data-type";
+import { useGetBlockQuery } from "@/common/react-query/block";
+import { decodeTransaction } from "@/common/utils/transaction.utility";
+import { parseTokenAmount } from "@/common/utils/token.utility";
+import BigNumber from "bignumber.js";
 
 interface Props {
   blockHeight: number;
@@ -16,8 +16,8 @@ interface Props {
   minSize?: FontsType;
 }
 
-export const LazyBlockTotalFee = ({blockHeight, maxSize = 'p4', minSize = 'body1'}: Props) => {
-  const {data: block, isFetched} = useGetBlockQuery(blockHeight);
+export const LazyBlockTotalFee = ({ blockHeight, maxSize = "p4", minSize = "body1" }: Props) => {
+  const { data: block, isFetched } = useGetBlockQuery(blockHeight);
 
   const totalFee = useMemo(() => {
     if (!isFetched || !block) {
@@ -45,10 +45,8 @@ export const LazyBlockTotalFee = ({blockHeight, maxSize = 'p4', minSize = 'body1
   }, [totalFee]);
 
   if (!isFetched || !amount) {
-    return <SkeletonBar height={'20px'} />;
+    return <SkeletonBar height={"20px"} />;
   }
 
-  return (
-    <AmountText value={amount.value} denom={amount.denom} maxSize={maxSize} minSize={minSize} />
-  );
+  return <AmountText value={amount.value} denom={amount.denom} maxSize={maxSize} minSize={minSize} />;
 };

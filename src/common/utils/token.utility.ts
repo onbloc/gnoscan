@@ -1,4 +1,4 @@
-export function parseTokenAmount(tokenAmount: string, denomination = 'ugnot'): number {
+export function parseTokenAmount(tokenAmount: string, denomination = "ugnot"): number {
   const pattern = new RegExp(`^(\\d+)${denomination}$`);
   const match = tokenAmount.match(pattern);
 

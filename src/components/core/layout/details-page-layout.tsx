@@ -1,13 +1,13 @@
-import {isDesktop} from '@/common/hooks/use-media';
-import React from 'react';
-import styled from 'styled-components';
-import Text from '@/components/ui/text';
-import mixins from '@/styles/mixins';
-import LoadingPage from '@/components/view/loading/page';
-import NotFound from '@/components/view/not-found/not-found';
+import { isDesktop } from "@/common/hooks/use-media";
+import React from "react";
+import styled from "styled-components";
+import Text from "@/components/ui/text";
+import mixins from "@/styles/mixins";
+import LoadingPage from "@/components/view/loading/page";
+import NotFound from "@/components/view/not-found/not-found";
 interface StyleProps {
   desktop?: boolean;
-  titleAlign?: 'center' | 'flex-start' | 'flex-end' | 'space-between';
+  titleAlign?: "center" | "flex-start" | "flex-end" | "space-between";
   visible?: boolean;
   keyword?: string;
   error?: boolean;
@@ -22,9 +22,9 @@ export const DetailsPageLayout = ({
   children,
   title,
   titleOption,
-  titleAlign = 'flex-start',
+  titleAlign = "flex-start",
   visible,
-  keyword = '',
+  keyword = "",
   error,
 }: DetailsLayoutProps) => {
   const desktop = isDesktop();
@@ -38,10 +38,11 @@ export const DetailsPageLayout = ({
         ) : (
           <Content desktop={desktop} titleAlign={titleAlign} visible={!visible}>
             <Text
-              type={desktop ? 'h2' : 'p2'}
+              type={desktop ? "h2" : "p2"}
               color="primary"
-              margin={desktop ? '0px 0px 24px' : '0px 0px 16px'}
-              className="content-text">
+              margin={desktop ? "0px 0px 24px" : "0px 0px 16px"}
+              className="content-text"
+            >
               {title}
               {titleOption && titleOption}
             </Text>
@@ -60,20 +61,20 @@ const Wrapper = styled.main`
 
 const Content = styled.div<StyleProps>`
   width: 100%;
-  background-color: ${({theme}) => theme.colors.surface};
+  background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 10px;
-  padding: ${({desktop}) => (desktop ? '24px' : '16px')};
-  margin: ${({desktop}) => (desktop ? '40px 0px' : '24px 0px')};
+  padding: ${({ desktop }) => (desktop ? "24px" : "16px")};
+  margin: ${({ desktop }) => (desktop ? "40px 0px" : "24px 0px")};
   .content-text {
-    ${({titleAlign}) => mixins.flexbox('row', 'center', titleAlign ?? 'center')};
+    ${({ titleAlign }) => mixins.flexbox("row", "center", titleAlign ?? "center")};
   }
-  ${({visible}) => !visible && 'display: none;'}
+  ${({ visible }) => !visible && "display: none;"}
 
   .address-tooltip {
     vertical-align: text-bottom;
   }
   .svg-icon {
-    stroke: ${({theme}) => theme.colors.primary};
+    stroke: ${({ theme }) => theme.colors.primary};
     margin-left: 5px;
   }
 
@@ -98,9 +99,9 @@ const Content = styled.div<StyleProps>`
     align-items: center;
 
     svg {
-      fill: ${({theme}) => theme.colors.tertiary};
+      fill: ${({ theme }) => theme.colors.tertiary};
       & .icon-tooltip_svg__bg {
-        fill: ${({theme}) => theme.colors.surface};
+        fill: ${({ theme }) => theme.colors.surface};
       }
     }
   }

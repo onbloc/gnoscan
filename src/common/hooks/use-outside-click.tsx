@@ -1,4 +1,4 @@
-import {BaseSyntheticEvent, useEffect, useRef} from 'react';
+import { BaseSyntheticEvent, useEffect, useRef } from "react";
 
 const useOutSideClick = (callback: (e?: CustomEvent<MouseEvent | TouchEvent>) => void) => {
   const ref = useRef<HTMLElement>(null);
@@ -8,11 +8,11 @@ const useOutSideClick = (callback: (e?: CustomEvent<MouseEvent | TouchEvent>) =>
         callback();
       }
     };
-    document.addEventListener('mousedown', listener as EventListener);
-    document.addEventListener('touchstart', listener as EventListener);
+    document.addEventListener("mousedown", listener as EventListener);
+    document.addEventListener("touchstart", listener as EventListener);
     return () => {
-      document.removeEventListener('mousedown', listener as EventListener);
-      document.removeEventListener('touchstart', listener as EventListener);
+      document.removeEventListener("mousedown", listener as EventListener);
+      document.removeEventListener("touchstart", listener as EventListener);
     };
   }, [callback, ref]);
 

@@ -1,7 +1,8 @@
-import WebSocket from 'isomorphic-ws';
-import {RPCClient} from './rpc-client';
-import {RPCRequest} from './request';
-import {RPCResponse} from './response';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import WebSocket from "isomorphic-ws";
+import { RPCClient } from "./rpc-client";
+import { RPCRequest } from "./request";
+import { RPCResponse } from "./response";
 
 export class WsRPCClient implements RPCClient {
   private ws: WebSocket;
@@ -17,7 +18,7 @@ export class WsRPCClient implements RPCClient {
 
   constructor(connectUrl: string) {
     this.ws = new WebSocket(connectUrl);
-    this.ws.addEventListener('message', event => {
+    this.ws.addEventListener("message", event => {
       const response = JSON.parse(event.data as string) as RPCResponse<any>;
       const request = this.requestMap.get(response.id);
       if (request) {
@@ -53,10 +54,10 @@ export class WsRPCClient implements RPCClient {
       const timeout = setTimeout(() => {
         this.requestMap.delete(request.id);
 
-        reject(new Error('Request timed out'));
+        reject(new Error("Request timed out"));
       }, this.requestTimeout);
 
-      this.requestMap.set(request.id, {resolve, reject, timeout});
+      this.requestMap.set(request.id, { resolve, reject, timeout });
     });
 
     this.ws.send(JSON.stringify(request));
@@ -70,7 +71,7 @@ export class WsRPCClient implements RPCClient {
    */
   parseResponse<Result>(response: RPCResponse<Result>): Result {
     if (!response) {
-      throw new Error('invalid response');
+      throw new Error("invalid response");
     }
 
     if (response.error) {
@@ -78,7 +79,7 @@ export class WsRPCClient implements RPCClient {
     }
 
     if (!response.result) {
-      throw new Error('invalid response returned');
+      throw new Error("invalid response returned");
     }
 
     return response.result;
@@ -102,7 +103,7 @@ export class WsRPCClient implements RPCClient {
         currentAttempt++;
         if (currentAttempt >= maxNumberOfAttempts) {
           clearInterval(interval);
-          reject(new Error('Unable to establish WS connection'));
+          reject(new Error("Unable to establish WS connection"));
         }
       }, intervalTime);
     });

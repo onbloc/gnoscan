@@ -1,2 +1,2 @@
-export * from './bar-chart';
-export * from './tooltip';
+export * from "./bar-chart";
+export * from "./tooltip";

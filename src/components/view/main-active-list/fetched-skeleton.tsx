@@ -1,5 +1,5 @@
-import React from 'react';
-import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
+import React from "react";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 const FetchedSkeleton = () => {
   return (

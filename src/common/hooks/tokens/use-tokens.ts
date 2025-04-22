@@ -1,10 +1,11 @@
-import {useMemo, useState} from 'react';
-import {useGetGRC20Tokens} from '@/common/react-query/realm';
-import {GRC20_FUNCTIONS} from '@/common/utils/realm.utility';
-import {GRC20Info} from '@/repositories/realm-repository.ts';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useMemo, useState } from "react";
+import { useGetGRC20Tokens } from "@/common/react-query/realm";
+import { GRC20_FUNCTIONS } from "@/common/utils/realm.utility";
+import { GRC20Info } from "@/repositories/realm-repository.ts";
 
 export const useTokens = () => {
-  const {data, isFetched} = useGetGRC20Tokens();
+  const { data, isFetched } = useGetGRC20Tokens();
   const [currentPage, setCurrentPage] = useState(0);
 
   const hasNextPage = useMemo(() => {

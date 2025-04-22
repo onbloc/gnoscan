@@ -1,25 +1,22 @@
-import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
-import {PageOption} from '@/common/clients/indexer-client/types';
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {TotalTransactionStatInfo, Transaction} from '@/types/data-type';
-import {makeTransactionsQuery} from '../account-repository/query';
-import {
-  mapTransactionByRealm,
-  mapTransactionTypeNameByMessage,
-} from '../realm-repository.ts/mapper';
-import {getDefaultMessage} from '../utility';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
+import { PageOption } from "@/common/clients/indexer-client/types";
+import { NodeRPCClient } from "@/common/clients/node-client";
+import { parseTokenAmount } from "@/common/utils/token.utility";
+import { TotalTransactionStatInfo, Transaction } from "@/types/data-type";
+import { makeTransactionsQuery } from "../account-repository/query";
+import { mapTransactionByRealm, mapTransactionTypeNameByMessage } from "../realm-repository.ts/mapper";
+import { getDefaultMessage } from "../utility";
 import {
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeSimpleTransactionsByFromHeight,
   makeTransactionHashQuery,
-} from './query';
-import {ITransactionRepository} from './types';
+} from "./query";
+import { ITransactionRepository } from "./types";
 
 function mapTransaction(data: any): Transaction {
   const defaultMessage = getDefaultMessage(data.messages[0])?.value;
-  const amountValue =
-    defaultMessage?.amount || defaultMessage?.send || defaultMessage?.deposit || '0ugnot';
+  const amountValue = defaultMessage?.amount || defaultMessage?.send || defaultMessage?.deposit || "0ugnot";
   const typeName = mapTransactionTypeNameByMessage(defaultMessage);
   return {
     hash: data.hash,
@@ -32,22 +29,19 @@ function mapTransaction(data: any): Transaction {
     from: defaultMessage?.caller || defaultMessage?.creator || defaultMessage?.from_address,
     to: defaultMessage?.to_address,
     amount: {
-      value: parseTokenAmount(amountValue).toString() || '0',
-      denom: 'ugnot',
+      value: parseTokenAmount(amountValue).toString() || "0",
+      denom: "ugnot",
     },
-    time: '',
+    time: "",
     fee: {
-      value: data?.gas_fee?.amount || '0',
-      denom: 'ugnot',
+      value: data?.gas_fee?.amount || "0",
+      denom: "ugnot",
     },
   };
 }
 
 export class TransactionRepository implements ITransactionRepository {
-  constructor(
-    private nodeRPCClient: NodeRPCClient | null,
-    private indexerClient: IndexerClient | null,
-  ) {}
+  constructor(private nodeRPCClient: NodeRPCClient | null, private indexerClient: IndexerClient | null) {}
 
   async getTransactions(
     minBlockHeight: number,
@@ -96,7 +90,7 @@ export class TransactionRepository implements ITransactionRepository {
   }
 
   getTransactionStatInfo(): Promise<TotalTransactionStatInfo> {
-    throw new Error('not supported');
+    throw new Error("not supported");
   }
 
   async getTransactionBlockHeight(transactionHash: string): Promise<number | null> {
@@ -123,10 +117,7 @@ export class TransactionRepository implements ITransactionRepository {
     return null;
   }
 
-  async getGRC20ReceivedTransactionsByAddress(
-    address: string,
-    pageOption?: PageOption,
-  ): Promise<Transaction[] | null> {
+  async getGRC20ReceivedTransactionsByAddress(address: string, pageOption?: PageOption): Promise<Transaction[] | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -161,9 +152,7 @@ export class TransactionRepository implements ITransactionRepository {
     let hasNext = true;
     try {
       while (hasNext === true) {
-        const response = await this.indexerClient?.query(
-          makeSimpleTransactionsByFromHeight(fromBlockHeight),
-        );
+        const response = await this.indexerClient?.query(makeSimpleTransactionsByFromHeight(fromBlockHeight));
         const transactions = response?.data?.transactions || [];
         hasNext = Array.isArray(response.errors) && transactions.length > 0;
         if (hasNext) {

@@ -1,17 +1,18 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
-import React from 'react';
-import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import {DatatableItem} from '..';
-import useLoading from '@/common/hooks/use-loading';
-import {useRecoilValue} from 'recoil';
-import {themeState} from '@/states';
-import theme from '@/styles/theme';
-import styled from 'styled-components';
-import {eachMedia} from '@/common/hooks/use-media';
-import {Button} from '@/components/ui/button';
-import {useTokens} from '@/common/hooks/tokens/use-tokens';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import React from "react";
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
+import { DatatableItem } from "..";
+import useLoading from "@/common/hooks/use-loading";
+import { useRecoilValue } from "recoil";
+import { themeState } from "@/states";
+import theme from "@/styles/theme";
+import styled from "styled-components";
+import { eachMedia } from "@/common/hooks/use-media";
+import { Button } from "@/components/ui/button";
+import { useTokens } from "@/common/hooks/tokens/use-tokens";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -24,10 +25,10 @@ export const TokenDatatable = () => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
-  const {indexerQueryClient} = useNetworkProvider();
-  const {tokens, hasNextPage, isFetched, nextPage} = useTokens();
+  const { indexerQueryClient } = useNetworkProvider();
+  const { tokens, hasNextPage, isFetched, nextPage } = useTokens();
 
-  useLoading({finished: isFetched || !indexerQueryClient});
+  useLoading({ finished: isFetched || !indexerQueryClient });
 
   const createHeaders = () => {
     return [
@@ -42,8 +43,8 @@ export const TokenDatatable = () => {
 
   const createHeaderToken = () => {
     return DatatableOption.Builder.builder()
-      .key('token')
-      .name('Token')
+      .key("token")
+      .name("Token")
       .width(220)
       .renderOption((_, data: any) => (
         <DatatableItem.TokenTitle
@@ -59,50 +60,44 @@ export const TokenDatatable = () => {
 
   const createHeaderHolder = () => {
     return DatatableOption.Builder.builder()
-      .key('packagePath')
-      .name('Holders')
+      .key("packagePath")
+      .name("Holders")
       .width(110)
-      .renderOption(packagePath => (
-        <DatatableItem.LazyHolders realmPath={packagePath} maxSize="p4" minSize="body3" />
-      ))
+      .renderOption(packagePath => <DatatableItem.LazyHolders realmPath={packagePath} maxSize="p4" minSize="body3" />)
       .build();
   };
 
   const createHeaderFunction = () => {
     return DatatableOption.Builder.builder()
-      .key('functions')
-      .name('Functions')
+      .key("functions")
+      .name("Functions")
       .width(350)
-      .className('functions')
+      .className("functions")
       .renderOption(functions => <DatatableItem.Functions functions={functions} />)
       .build();
   };
 
   const createHeaderDecimal = () => {
-    return DatatableOption.Builder.builder().key('decimals').name('Decimals').width(110).build();
+    return DatatableOption.Builder.builder().key("decimals").name("Decimals").width(110).build();
   };
 
   const createHeaderTotalSupply = () => {
     return DatatableOption.Builder.builder()
-      .key('packagePath')
-      .name('Total Supply')
+      .key("packagePath")
+      .name("Total Supply")
       .width(180)
-      .renderOption(packagePath => (
-        <DatatableItem.LazyTotalSupply realmPath={packagePath} maxSize="p4" minSize="p4" />
-      ))
+      .renderOption(packagePath => <DatatableItem.LazyTotalSupply realmPath={packagePath} maxSize="p4" minSize="p4" />)
       .build();
   };
 
   const createHeaderPkgPath = () => {
     return DatatableOption.Builder.builder()
-      .key('packagePath')
-      .name('Path')
+      .key("packagePath")
+      .name("Path")
       .width(176)
-      .colorName('blue')
+      .colorName("blue")
       .tooltip(TOOLTIP_PACAKGE_PATH)
-      .renderOption(packagePath => (
-        <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} />
-      ))
+      .renderOption(packagePath => <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} />)
       .build();
   };
 
@@ -120,8 +115,8 @@ export const TokenDatatable = () => {
       />
       {hasNextPage ? (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={'4px'} onClick={() => nextPage()}>
-            {'View More Tokens'}
+          <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>
+            {"View More Tokens"}
           </Button>
         </div>
       ) : (
@@ -131,14 +126,14 @@ export const TokenDatatable = () => {
   );
 };
 
-const Container = styled.div<{maxWidth?: number}>`
+const Container = styled.div<{ maxWidth?: number }>`
   & {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: auto;
     align-items: center;
-    background-color: ${({theme}) => theme.colors.base};
+    background-color: ${({ theme }) => theme.colors.base};
     padding-bottom: 24px;
     border-radius: 10px;
 
@@ -153,8 +148,8 @@ const Container = styled.div<{maxWidth?: number}>`
       .more-button {
         width: 100%;
         padding: 16px;
-        color: ${({theme}) => theme.colors.primary};
-        background-color: ${({theme}) => theme.colors.surface};
+        color: ${({ theme }) => theme.colors.primary};
+        background-color: ${({ theme }) => theme.colors.surface};
         ${theme.fonts.p4}
         font-weight: 600;
 

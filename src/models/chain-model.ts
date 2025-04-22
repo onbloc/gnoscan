@@ -10,20 +10,20 @@ export interface ChainModel {
   indexerUrl: string | null;
 }
 
-export type ChainSupportType = 'ALL' | 'RPC_WITH_INDEXER' | 'RPC' | 'NONE';
+export type ChainSupportType = "ALL" | "RPC_WITH_INDEXER" | "RPC" | "NONE";
 
 export function getChainSupportType(chain: ChainModel): ChainSupportType {
   if (chain.apiUrl) {
-    return 'ALL';
+    return "ALL";
   }
 
   if (chain.rpcUrl && chain.indexerUrl) {
-    return 'RPC_WITH_INDEXER';
+    return "RPC_WITH_INDEXER";
   }
 
   if (chain.rpcUrl) {
-    return 'RPC';
+    return "RPC";
   }
 
-  return 'NONE';
+  return "NONE";
 }

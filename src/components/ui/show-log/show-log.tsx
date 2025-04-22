@@ -1,11 +1,12 @@
-import {isDesktop} from '@/common/hooks/use-media';
-import {scrollbarStyle, useScrollbar} from '@/common/hooks/use-scroll-bar';
-import {ViewMoreButton} from '@/components/ui/button';
-import Text from '@/components/ui/text';
-import mixins from '@/styles/mixins';
-import React, {useCallback, useRef, useState} from 'react';
-import styled, {css} from 'styled-components';
-import {v1} from 'uuid';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { isDesktop } from "@/common/hooks/use-media";
+import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
+import { ViewMoreButton } from "@/components/ui/button";
+import Text from "@/components/ui/text";
+import mixins from "@/styles/mixins";
+import React, { useCallback, useRef, useState } from "react";
+import styled, { css } from "styled-components";
+import { v1 } from "uuid";
 interface StyleProps {
   desktop?: boolean;
   showLog?: boolean;
@@ -38,14 +39,14 @@ const throttle = (func: Function, ms: number) => {
 };
 const delay = 10;
 
-const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps) => {
+const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogProps) => {
   const desktop: boolean = isDesktop();
   const [showLog, setShowLog] = useState(false);
   const [index, setIndex] = useState(0);
   const draggable = useRef<HTMLUListElement>(null);
   const [isDrag, setIsDrag] = useState(false);
   const [startX, setStartX] = useState<number>(0);
-  const {scrollVisible, onFocusIn, onFocusOut} = useScrollbar();
+  const { scrollVisible, onFocusIn, onFocusOut } = useScrollbar();
 
   const onDragStart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -59,7 +60,7 @@ const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps
   const onDragMove = (e: React.MouseEvent) => {
     if (!draggable.current) return;
     if (isDrag) {
-      const {scrollWidth, clientWidth, scrollLeft} = draggable.current;
+      const { scrollWidth, clientWidth, scrollLeft } = draggable.current;
       draggable.current.scrollLeft = startX - e.pageX;
       if (scrollLeft === 0) {
         setStartX(e.pageX);
@@ -91,13 +92,10 @@ const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps
                 onMouseDown={onDragStart}
                 onMouseMove={onThrottleDragMove}
                 onMouseUp={onDragEnd}
-                onMouseLeave={onDragEnd}>
+                onMouseLeave={onDragEnd}
+              >
                 {files?.map((file, i) => (
-                  <List
-                    key={v1()}
-                    active={i === index}
-                    onMouseDown={() => activeListHandler(i)}
-                    showLog={showLog}>
+                  <List key={v1()} active={i === index} onMouseDown={() => activeListHandler(i)} showLog={showLog}>
                     {file.name}
                   </List>
                 ))}
@@ -109,7 +107,8 @@ const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps
                   hasRadius={index === 0}
                   desktop={desktop}
                   showLog={showLog}
-                  className={scrollVisible ? 'scroll-visible' : ''}>
+                  className={scrollVisible ? "scroll-visible" : ""}
+                >
                   <Text type="p4" color="primary" className="inner-content">
                     {files[index].body}
                   </Text>
@@ -122,7 +121,8 @@ const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps
                   hasRadius={index === 0}
                   desktop={desktop}
                   showLog={showLog}
-                  className={scrollVisible ? 'scroll-visible' : ''}>
+                  className={scrollVisible ? "scroll-visible" : ""}
+                >
                   <Text type="p4" color="primary" className="inner-content">
                     {logData}
                   </Text>
@@ -131,12 +131,8 @@ const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap desktop={desktop} showLog={showLog} className={'scroll-visible'}>
-            <Log
-              onMouseEnter={onFocusIn}
-              onMouseLeave={onFocusOut}
-              desktop={desktop}
-              showLog={showLog}>
+          <LogWrap desktop={desktop} showLog={showLog} className={"scroll-visible"}>
+            <Log onMouseEnter={onFocusIn} onMouseLeave={onFocusOut} desktop={desktop} showLog={showLog}>
               <pre>
                 <Text type="p4" color="primary">
                   {logData}
@@ -146,18 +142,15 @@ const ShowLog = ({isTabLog, logData = '', files, btnTextType = ''}: ShowLogProps
           </LogWrap>
         )}
       </ShowLogsWrap>
-      <ViewMoreButton
-        text={showLog ? `Hide ${btnTextType}` : `Show ${btnTextType}`}
-        onClick={showLogHandler}
-      />
+      <ViewMoreButton text={showLog ? `Hide ${btnTextType}` : `Show ${btnTextType}`} onClick={showLogHandler} />
     </>
   );
 };
 
 const ShowLogsWrap = styled.div<StyleProps>`
-  ${mixins.flexbox('column', 'center', 'center')}
+  ${mixins.flexbox("column", "center", "center")}
   width: 100%;
-  margin-top: ${({showLog}) => (showLog ? '24px' : '8px')};
+  margin-top: ${({ showLog }) => (showLog ? "24px" : "8px")};
 `;
 
 const logWrapCommonStyle = css<StyleProps>`
@@ -168,19 +161,19 @@ const logWrapCommonStyle = css<StyleProps>`
 const TabLogWrap = styled.div<StyleProps>`
   ${logWrapCommonStyle};
   overflow: hidden;
-  color: ${({theme}) => theme.colors.reverse};
-  height: ${({showLog, desktop}) => {
+  color: ${({ theme }) => theme.colors.reverse};
+  height: ${({ showLog, desktop }) => {
     if (showLog) {
-      return desktop ? '572px' : '336px';
+      return desktop ? "572px" : "336px";
     } else {
-      return '0px';
+      return "0px";
     }
   }};
   .inner-tab {
     width: 100%;
     ul {
       width: 100%;
-      ${mixins.flexbox('row', 'center', 'flex-start')};
+      ${mixins.flexbox("row", "center", "flex-start")};
       overflow-x: auto;
       user-select: none;
     }
@@ -193,19 +186,19 @@ const LogWrap = styled.div<StyleProps>`
   width: 100%;
   overflow: auto;
   border-radius: 10px;
-  background-color: ${({theme}) => theme.colors.surface};
-  height: ${({showLog, desktop}) => {
+  background-color: ${({ theme }) => theme.colors.surface};
+  height: ${({ showLog, desktop }) => {
     if (showLog) {
-      return desktop ? '528px' : '292px';
+      return desktop ? "528px" : "292px";
     } else {
-      return '0px';
+      return "0px";
     }
   }};
 `;
 
 const Log = styled.div<StyleProps>`
   width: 100%;
-  padding: ${({showLog}) => (showLog ? '24px' : '0px 24px')};
+  padding: ${({ showLog }) => (showLog ? "24px" : "0px 24px")};
   word-break: keep-all;
   word-wrap: break-word;
   border-bottom-left-radius: 10px;
@@ -214,26 +207,26 @@ const Log = styled.div<StyleProps>`
 
 const TabLog = styled(Log)<StyleProps>`
   ${scrollbarStyle};
-  height: ${({showLog, desktop}) => {
+  height: ${({ showLog, desktop }) => {
     if (showLog) {
-      return desktop ? '528px' : '292px';
+      return desktop ? "528px" : "292px";
     } else {
-      return '0px';
+      return "0px";
     }
   }};
   overflow: auto;
-  background-color: ${({theme}) => theme.colors.surface};
+  background-color: ${({ theme }) => theme.colors.surface};
 `;
 
 const List = styled.li<StyleProps>`
-  ${({theme}) => theme.fonts.p4};
-  color: ${({active, theme}) => !active && theme.colors.tertiary};
+  ${({ theme }) => theme.fonts.p4};
+  color: ${({ active, theme }) => !active && theme.colors.tertiary};
   padding: 12px 16px;
   height: 44px;
   cursor: pointer;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  ${({active, theme}) =>
+  ${({ active, theme }) =>
     active &&
     css`
       background-color: ${theme.colors.surface};

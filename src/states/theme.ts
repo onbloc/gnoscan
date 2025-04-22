@@ -1,6 +1,6 @@
-import theme from '@/styles/theme';
-import {atom} from 'recoil';
-import {v1} from 'uuid';
+import theme from "@/styles/theme";
+import { atom } from "recoil";
+import { v1 } from "uuid";
 
 // type Theme = | 'dark' | 'light' | ''
 
@@ -10,5 +10,5 @@ import {v1} from 'uuid';
 
 export const themeState = atom({
   key: `theme/${v1()}`,
-  default: '',
+  default: "",
 });

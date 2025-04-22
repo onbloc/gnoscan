@@ -1,4 +1,4 @@
-import {gql} from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const makeRealmEdgeQuery = (packagePath: string) => gql`
 {
@@ -54,7 +54,7 @@ export const makeRealmEdgeQuery = (packagePath: string) => gql`
 
 export const makeRealmEdgesQuery = () => gql`
   {
-    transactions(filter: {success: true, message: {type_url: add_package}}) {
+    transactions(filter: { success: true, message: { type_url: add_package } }) {
       edges {
         transaction {
           hash
@@ -80,7 +80,7 @@ export const makeRealmEdgesQuery = () => gql`
 
 export const makeRealmsQuery = () => gql`
   {
-    transactions(filter: {success: true, message: {type_url: add_package}}) {
+    transactions(filter: { success: true, message: { type_url: add_package } }) {
       hash
       index
       success
@@ -147,7 +147,7 @@ export const makeRealmQuery = (packagePath: string) => gql`
 
 export const makeRealmTransactionsQuery = () => gql`
   {
-    transactions(filter: {message: {vm_param: {add_package: {}, exec: {}}}}) {
+    transactions(filter: { message: { vm_param: { add_package: {}, exec: {} } } }) {
       hash
       index
       success
@@ -318,7 +318,7 @@ export const makeRealmTransactionInfosQuery = (fromHeight?: number) => gql`
     transactions(
       filter: {
         message: {route: vm}
-        ${fromHeight ? `from_block_height: ${fromHeight}` : ''}
+        ${fromHeight ? `from_block_height: ${fromHeight}` : ""}
       }
     ) {
       hash
@@ -404,7 +404,7 @@ export const makeRealmTransactionInfoQuery = (packagePath: string) => gql`
 
 export const makeRealmPackagesQuery = () => gql`
   {
-    transactions(filter: {success: true, message: {type_url: add_package}}) {
+    transactions(filter: { success: true, message: { type_url: add_package } }) {
       hash
       index
       success
@@ -430,7 +430,7 @@ export const makeRealmPackagesQuery = () => gql`
 
 export const makeTokensQuery = () => gql`
   {
-    transactions(filter: {success: true, message: {type_url: add_package}}) {
+    transactions(filter: { success: true, message: { type_url: add_package } }) {
       hash
       index
       success
@@ -493,10 +493,7 @@ export const makeUsernameQuery = () => gql`
     transactions(
       filter: {
         success: true
-        message: {
-          type_url: exec
-          vm_param: {exec: {pkg_path: "gno.land/r/demo/users", func: "Register"}}
-        }
+        message: { type_url: exec, vm_param: { exec: { pkg_path: "gno.land/r/demo/users", func: "Register" } } }
       }
     ) {
       hash

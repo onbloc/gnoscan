@@ -1,6 +1,6 @@
-import {scrollbarStyle} from '@/common/hooks/use-scroll-bar';
-import {createGlobalStyle} from 'styled-components';
-import reset from 'styled-reset';
+import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
+import { createGlobalStyle } from "styled-components";
+import reset from "styled-reset";
 
 export const GlobalStyle = createGlobalStyle`
   ${reset}

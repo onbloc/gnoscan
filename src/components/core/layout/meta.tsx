@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import Head from "next/head";
 
 const Meta = () => (
   <>
@@ -14,11 +14,7 @@ const Meta = () => (
         key="desc"
       />
       <meta property="og:type" content="website" />
-      <meta
-        property="og:title"
-        content="GnoScan: A reliable gno.land blockchain explorer"
-        key="og:title"
-      />
+      <meta property="og:title" content="GnoScan: A reliable gno.land blockchain explorer" key="og:title" />
       <meta
         property="og:description"
         content="GnoScan is a gno.land blockchain explorer, making on-chain data readable and intuitive for everyone."

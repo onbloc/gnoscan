@@ -1,7 +1,8 @@
-import crypto from 'crypto';
-import {decodeTxMessages} from '@gnolang/gno-js-client';
-import {Tx, base64ToUint8Array} from '@gnolang/tm2-js-client';
-import {parseTokenAmount} from './token.utility';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import crypto from "crypto";
+import { decodeTxMessages } from "@gnolang/gno-js-client";
+import { Tx, base64ToUint8Array } from "@gnolang/tm2-js-client";
+import { parseTokenAmount } from "./token.utility";
 
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
@@ -17,7 +18,7 @@ export function decodeTransaction(tx: string) {
 
 export function makeSafeBase64Hash(data: string) {
   try {
-    return Buffer.from(data, 'base64').toString('base64');
+    return Buffer.from(data, "base64").toString("base64");
   } catch {
     return data;
   }
@@ -30,14 +31,14 @@ export function isHash(hash: string): boolean {
     }
 
     const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-    return base64regex.test(hash + '=') || base64regex.test(hash);
+    return base64regex.test(hash + "=") || base64regex.test(hash);
   } catch {
     return false;
   }
 }
 
 export function makeHash(bytes: Uint8Array) {
-  return crypto.createHash('sha256').setEncoding('utf-8').update(bytes).digest('base64');
+  return crypto.createHash("sha256").setEncoding("utf-8").update(bytes).digest("base64");
 }
 
 /**
@@ -45,22 +46,22 @@ export function makeHash(bytes: Uint8Array) {
  * Use when calling the tx endpoint of an RPC.
  */
 export function makeHexByBase64(base64Hash: string) {
-  const buffer = Buffer.from(base64Hash, 'base64');
-  return '0x' + buffer.toString('hex');
+  const buffer = Buffer.from(base64Hash, "base64");
+  return "0x" + buffer.toString("hex");
 }
 
 export function makeTransactionMessageInfo(message: any) {
-  switch (message['@type']) {
-    case '/vm.m_call': {
-      if (message.func === 'Transfer') {
+  switch (message["@type"]) {
+    case "/vm.m_call": {
+      if (message.func === "Transfer") {
         return {
-          type: message['@type'],
+          type: message["@type"],
           packagePath: message.pkg_path,
           functionName: message.func,
           from: message.caller,
-          to: message.args.length > 0 ? message.args[0] : '',
+          to: message.args.length > 0 ? message.args[0] : "",
           amount: {
-            value: message.args.length > 1 ? message.args[1] : '0',
+            value: message.args.length > 1 ? message.args[1] : "0",
             denom: message.pkg_path,
           },
         };
@@ -68,54 +69,54 @@ export function makeTransactionMessageInfo(message: any) {
       const amountValue = parseTokenAmount(message.send);
 
       return {
-        type: message['@type'],
+        type: message["@type"],
         packagePath: message.pkg_path,
         functionName: message.func,
         from: message.caller,
         amount: {
           value: amountValue,
-          denom: 'ugnot',
+          denom: "ugnot",
         },
       };
     }
-    case '/vm.m_addpkg': {
+    case "/vm.m_addpkg": {
       const amountValue = parseTokenAmount(message.deposit);
 
       return {
-        type: message['@type'],
-        packagePath: message.package?.path || message.package?.Path || '',
-        functionName: 'AddPkg',
+        type: message["@type"],
+        packagePath: message.package?.path || message.package?.Path || "",
+        functionName: "AddPkg",
         from: message.creator,
         amount: {
           value: amountValue,
-          denom: 'ugnot',
+          denom: "ugnot",
         },
       };
     }
-    case '/vm.m_run': {
+    case "/vm.m_run": {
       return {
-        type: message['@type'],
-        packagePath: message.package?.path || message.package?.Path || '',
-        functionName: 'MsgRun',
+        type: message["@type"],
+        packagePath: message.package?.path || message.package?.Path || "",
+        functionName: "MsgRun",
         from: message.caller,
         amount: {
-          value: '0',
-          denom: 'ugnot',
+          value: "0",
+          denom: "ugnot",
         },
       };
     }
-    case '/bank.MsgSend': {
+    case "/bank.MsgSend": {
       const amountValue = parseTokenAmount(message.amount);
 
       return {
-        type: message['@type'],
-        packagePath: '/bank.MsgSend',
-        functionName: 'Transfer',
+        type: message["@type"],
+        packagePath: "/bank.MsgSend",
+        functionName: "Transfer",
         from: message.from_address,
         to: message.to_address,
         amount: {
           value: amountValue,
-          denom: 'ugnot',
+          denom: "ugnot",
         },
       };
     }

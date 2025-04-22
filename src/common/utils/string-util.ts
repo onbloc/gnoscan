@@ -1,5 +1,6 @@
-import BigNumber from 'bignumber.js';
-import {isBech32Address} from './bech32.utility';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import BigNumber from "bignumber.js";
+import { isBech32Address } from "./bech32.utility";
 
 export function textEllipsis(value: string, num?: number): string {
   const length = num ?? 4;
@@ -28,10 +29,7 @@ export function makeDisplayTokenAmount(amount: string | number, decimals = 6): s
     .toFormat();
 }
 
-export function makeDisplayNumberWithDefault(
-  value: string | number | null | undefined,
-  defaultValue = '-',
-) {
+export function makeDisplayNumberWithDefault(value: string | number | null | undefined, defaultValue = "-") {
   if (value === null || value === undefined || BigNumber(value).isNaN()) {
     return defaultValue;
   }
@@ -41,10 +39,10 @@ export function makeDisplayNumberWithDefault(
 
 export function toString(value: string | number | null | undefined) {
   if (value === null || value === undefined) {
-    return '';
+    return "";
   }
 
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return value;
   }
 
@@ -64,23 +62,21 @@ export function toNumber(value: string | number | null | undefined) {
   return bn.toNumber();
 }
 
-export function makeQueryString(params: {[key in string]: string} | null) {
+export function makeQueryString(params: { [key in string]: string } | null) {
   if (!params) {
-    return '';
+    return "";
   }
 
   return Object.entries(params)
     .map(entry => `${entry[0]}=${entry[1]}`)
-    .join('&');
+    .join("&");
 }
 
 export function formatDisplayPackagePath(packagePath: string | null | undefined): string {
   if (!packagePath) {
-    return '';
+    return "";
   }
 
-  const elements = packagePath.split('/');
-  return elements
-    .map(element => (isBech32Address(element) ? textEllipsis(element, 4) : element))
-    .join('/');
+  const elements = packagePath.split("/");
+  return elements.map(element => (isBech32Address(element) ? textEllipsis(element, 4) : element)).join("/");
 }

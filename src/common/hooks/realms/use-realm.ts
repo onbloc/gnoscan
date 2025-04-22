@@ -1,23 +1,18 @@
-import {
-  useGetRealmFunctionsQuery,
-  useGetRealmQuery,
-  useGetRealmTransactionsQuery,
-} from '@/common/react-query/realm';
-import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
-import {toNumber, toString} from '@/common/utils/string-util';
-import {useMemo, useState} from 'react';
-import {useQuery} from 'react-query';
-import {useServiceProvider} from '../provider/use-service-provider';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useGetRealmFunctionsQuery, useGetRealmQuery, useGetRealmTransactionsQuery } from "@/common/react-query/realm";
+import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
+import { toNumber, toString } from "@/common/utils/string-util";
+import { useMemo, useState } from "react";
+import { useQuery } from "react-query";
+import { useServiceProvider } from "../provider/use-service-provider";
 
-const GNO_ADDRESS_PREFIX = 'g';
+const GNO_ADDRESS_PREFIX = "g";
 
 export const useRealm = (packagePath: string) => {
-  const {blockRepository} = useServiceProvider();
-  const {data: realm, isFetched: isFetchedRealm} = useGetRealmQuery(packagePath);
-  const {data: realmFunctions, isFetched: isFetchedRealmFunctions} =
-    useGetRealmFunctionsQuery(packagePath);
-  const {data: realmTransactions, isFetched: isFetchedRealmTransactions} =
-    useGetRealmTransactionsQuery(packagePath);
+  const { blockRepository } = useServiceProvider();
+  const { data: realm, isFetched: isFetchedRealm } = useGetRealmQuery(packagePath);
+  const { data: realmFunctions, isFetched: isFetchedRealmFunctions } = useGetRealmFunctionsQuery(packagePath);
+  const { data: realmTransactions, isFetched: isFetchedRealmTransactions } = useGetRealmTransactionsQuery(packagePath);
   const [currentPage, setCurrentPage] = useState(0);
 
   const summary = useMemo(() => {
@@ -29,10 +24,7 @@ export const useRealm = (packagePath: string) => {
     return {
       name: toString(addPackageMessage.package?.name),
       path: toString(addPackageMessage.package?.path),
-      realmAddress: toBech32AddressByPackagePath(
-        GNO_ADDRESS_PREFIX,
-        addPackageMessage.package?.path || '',
-      ),
+      realmAddress: toBech32AddressByPackagePath(GNO_ADDRESS_PREFIX, addPackageMessage.package?.path || ""),
       publisherAddress: toString(addPackageMessage.creator),
       funcs: realmFunctions?.map(func => func.functionName),
       blockPublished: toNumber(realm.block_height),
@@ -68,13 +60,13 @@ export const useRealm = (packagePath: string) => {
         },
         fee: {
           value: tx.fee.value,
-          denom: 'ugnot',
+          denom: "ugnot",
         },
       }));
   }, [realmTransactions?.length, currentPage]);
 
-  const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} = useQuery({
-    queryKey: ['realm/transactionWithTimes', packagePath, `${transactions?.length}`],
+  const { data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes } = useQuery({
+    queryKey: ["realm/transactionWithTimes", packagePath, `${transactions?.length}`],
     queryFn: () =>
       Promise.all(
         transactions?.map(async transaction => {

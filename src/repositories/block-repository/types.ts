@@ -1,4 +1,5 @@
-import {BlockMeta} from '@/common/clients/node-client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { BlockMeta } from "@/common/clients/node-client";
 
 export interface IBlockRepository {
   getLatestBlockHeight(): Promise<number | null>;

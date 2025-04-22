@@ -1,11 +1,11 @@
-import React from 'react';
-import styled from 'styled-components';
-import {useRouter} from 'next/router';
+import React from "react";
+import styled from "styled-components";
+import { useRouter } from "next/router";
 
-import NotFound from '@/components/view/not-found/not-found';
+import NotFound from "@/components/view/not-found/not-found";
 
 const NotFoundPage = () => {
-  const {asPath} = useRouter();
+  const { asPath } = useRouter();
 
   return (
     <Wrapper>

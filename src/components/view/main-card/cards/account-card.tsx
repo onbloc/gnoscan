@@ -1,14 +1,14 @@
-import React from 'react';
-import Text from '@/components/ui/text';
-import IconInfo from '@/assets/svgs/icon-info.svg';
-import {Button} from '@/components/ui/button';
-import Tooltip from '@/components/ui/tooltip';
-import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-import {useAccountSummaryInfo} from '@/common/hooks/main/use-account-summary-info';
-import {makeDisplayNumber} from '@/common/utils/string-util';
+import React from "react";
+import Text from "@/components/ui/text";
+import IconInfo from "@/assets/svgs/icon-info.svg";
+import { Button } from "@/components/ui/button";
+import Tooltip from "@/components/ui/tooltip";
+import { BundleDl, DataBoxContainer, FetchedComp } from "../main-card";
+import { useAccountSummaryInfo } from "@/common/hooks/main/use-account-summary-info";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 
 export const AccountCard = () => {
-  const {isFetched, accountSummaryInfo} = useAccountSummaryInfo();
+  const { isFetched, accountSummaryInfo } = useAccountSummaryInfo();
 
   return (
     <>

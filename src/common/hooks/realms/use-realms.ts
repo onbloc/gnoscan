@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   useGetRealmPackagesInfinity,
   useGetRealmsQuery,
   useGetRealmTransactionInfosByFromHeightQuery,
   useGetRealmTransactionInfosQuery,
-} from '@/common/react-query/realm';
-import {useEffect, useMemo, useState} from 'react';
-import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
-import {useNetworkProvider} from '../provider/use-network-provider';
+} from "@/common/react-query/realm";
+import { useEffect, useMemo, useState } from "react";
+import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
+import { useNetworkProvider } from "../provider/use-network-provider";
 
 export const useRealms = (
   paging = true,
@@ -15,14 +16,14 @@ export const useRealms = (
     order: string;
   },
 ) => {
-  const {isCustomNetwork} = useNetworkProvider();
-  const {getTokenAmount} = useTokenMeta();
+  const { isCustomNetwork } = useNetworkProvider();
+  const { getTokenAmount } = useTokenMeta();
   const {
     data: defaultData,
     isFetched: isFetchedDefault,
     hasNextPage: hasNextPageDefault,
     fetchNextPage,
-  } = useGetRealmPackagesInfinity({enabled: !isCustomNetwork});
+  } = useGetRealmPackagesInfinity({ enabled: !isCustomNetwork });
 
   const defaultFromHeight = useMemo(() => {
     if (!defaultData) {
@@ -37,15 +38,16 @@ export const useRealms = (
     return Number(transactions?.[transactions.length - 1]?.blockHeight || 0) || null;
   }, [defaultData]);
 
-  const {isFetched: isFetchedDefaultRealmTransactionInfo} =
-    useGetRealmTransactionInfosByFromHeightQuery(defaultFromHeight, {
+  const { isFetched: isFetchedDefaultRealmTransactionInfo } = useGetRealmTransactionInfosByFromHeightQuery(
+    defaultFromHeight,
+    {
       enabled: !!defaultFromHeight,
-    });
+    },
+  );
 
-  const {data, isFetched: isFetchedAll} = useGetRealmsQuery();
+  const { data, isFetched: isFetchedAll } = useGetRealmsQuery();
   const [currentPage, setCurrentPage] = useState(0);
-  const {data: realmTransactionInfos, isFetched: isFetchedRealmTransactionInfos} =
-    useGetRealmTransactionInfosQuery();
+  const { data: realmTransactionInfos, isFetched: isFetchedRealmTransactionInfos } = useGetRealmTransactionInfosQuery();
 
   const isDefault = useMemo(() => {
     if (isCustomNetwork) {
@@ -56,7 +58,7 @@ export const useRealms = (
       return true;
     }
 
-    return sortOptions.field === 'none' && sortOptions.order === 'none';
+    return sortOptions.field === "none" && sortOptions.order === "none";
   }, [isCustomNetwork, isFetchedAll, sortOptions]);
 
   const isFetched = useMemo(() => {
@@ -87,10 +89,7 @@ export const useRealms = (
     return data.map((realm: any) => ({
       ...realm,
       totalCalls: realmTransactionInfos?.[realm.packagePath]?.msgCallCount || 0,
-      totalGasUsed: getTokenAmount(
-        GNOTToken.denom,
-        realmTransactionInfos?.[realm.packagePath]?.gasUsed || 0,
-      ),
+      totalGasUsed: getTokenAmount(GNOTToken.denom, realmTransactionInfos?.[realm.packagePath]?.gasUsed || 0),
     }));
   }, [data, realmTransactionInfos]);
 
@@ -99,11 +98,11 @@ export const useRealms = (
       return null;
     }
 
-    if (!sortOptions || sortOptions.order === 'none') {
+    if (!sortOptions || sortOptions.order === "none") {
       return data;
     }
 
-    if (sortOptions.field === 'totalCalls') {
+    if (sortOptions.field === "totalCalls") {
       return dataWithTransactionInfo?.sort(sort) || null;
     }
 
@@ -121,27 +120,25 @@ export const useRealms = (
 
     const nextIndex = (currentPage + 1) * 20;
     const endIndex = sortedData.length > nextIndex ? nextIndex : sortedData.length;
-    const filteredData = paging
-      ? sortedData.filter((_: any, index: number) => index < endIndex)
-      : sortedData;
+    const filteredData = paging ? sortedData.filter((_: any, index: number) => index < endIndex) : sortedData;
 
     return filteredData;
   }, [isDefault, sortedData, currentPage, paging, defaultData?.pages]);
 
   function sort(data1: any, data2: any) {
-    if (!sortOptions || sortOptions.field === 'none') {
+    if (!sortOptions || sortOptions.field === "none") {
       return 0;
     }
 
-    if (sortOptions?.field === 'packageName') {
-      if (sortOptions.order === 'desc') {
+    if (sortOptions?.field === "packageName") {
+      if (sortOptions.order === "desc") {
         return data1.packageName < data2.packageName ? 1 : -1;
       }
       return data1.packageName > data2.packageName ? 1 : -1;
     }
 
-    if (sortOptions?.field === 'totalCalls') {
-      if (sortOptions.order === 'desc') {
+    if (sortOptions?.field === "totalCalls") {
+      if (sortOptions.order === "desc") {
         return Number(data2?.totalCalls) - Number(data1?.totalCalls);
       }
       return Number(data1?.totalCalls) - Number(data2?.totalCalls);

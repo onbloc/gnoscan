@@ -1,11 +1,11 @@
 import {
   useGetRealmTransactionInfosByFromHeightQuery,
   useGetRealmTransactionInfosQuery,
-} from '@/common/react-query/realm';
-import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
-import {AmountText} from '@/components/ui/text/amount-text';
-import {FontsType} from '@/styles';
-import React, {useMemo} from 'react';
+} from "@/common/react-query/realm";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import { AmountText } from "@/components/ui/text/amount-text";
+import { FontsType } from "@/styles";
+import React, { useMemo } from "react";
 
 interface Props {
   packagePath: string;
@@ -19,16 +19,13 @@ export const LazyTotalCalls = ({
   packagePath,
   isDefault,
   defaultFromHeight,
-  maxSize = 'p4',
-  minSize = 'body1',
+  maxSize = "p4",
+  minSize = "body1",
 }: Props) => {
-  const {data: defaultTransactionInfo} = useGetRealmTransactionInfosByFromHeightQuery(
-    defaultFromHeight,
-    {
-      enabled: !!isDefault,
-    },
-  );
-  const {data: transactionInfo} = useGetRealmTransactionInfosQuery();
+  const { data: defaultTransactionInfo } = useGetRealmTransactionInfosByFromHeightQuery(defaultFromHeight, {
+    enabled: !!isDefault,
+  });
+  const { data: transactionInfo } = useGetRealmTransactionInfosQuery();
 
   const totalCalls: number | null = useMemo(() => {
     if (isDefault) {
@@ -46,8 +43,8 @@ export const LazyTotalCalls = ({
   }, [packagePath, transactionInfo, isDefault, defaultTransactionInfo]);
 
   if (totalCalls === null) {
-    return <SkeletonBar height={'20px'} />;
+    return <SkeletonBar height={"20px"} />;
   }
 
-  return <AmountText value={totalCalls} denom={''} maxSize={maxSize} minSize={minSize} />;
+  return <AmountText value={totalCalls} denom={""} maxSize={maxSize} minSize={minSize} />;
 };

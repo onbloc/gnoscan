@@ -1,2 +1,2 @@
-export * from './main-realm';
-export * from './total-gas-share';
+export * from "./main-realm";
+export * from "./total-gas-share";

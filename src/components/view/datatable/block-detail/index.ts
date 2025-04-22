@@ -1,1 +1,1 @@
-export * from './block-detail';
+export * from "./block-detail";

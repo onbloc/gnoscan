@@ -1,33 +1,32 @@
-import {
-  useGetTransactionsQuery,
-  useGetTransactionStatInfoQuery,
-} from '@/common/react-query/transaction';
-import {makeDisplayNumber} from '@/common/utils/string-util';
-import BigNumber from 'bignumber.js';
-import {useMemo} from 'react';
-import {useGetBeforeBlockByDate} from '../common/use-get-before-1d-block';
-import {useGetFirstBlock} from '../common/use-get-first-block';
-import {useGetLatestBlock} from '../common/use-get-latest-block';
-import {useGetSimpleTransactions} from '../common/use-get-simple-transactions';
-import {GNOTToken} from '../common/use-token-meta';
-import {useNetworkProvider} from '../provider/use-network-provider';
+import { useGetTransactionsQuery, useGetTransactionStatInfoQuery } from "@/common/react-query/transaction";
+import { makeDisplayNumber } from "@/common/utils/string-util";
+import BigNumber from "bignumber.js";
+import { useMemo } from "react";
+import { useGetBeforeBlockByDate } from "../common/use-get-before-1d-block";
+import { useGetFirstBlock } from "../common/use-get-first-block";
+import { useGetLatestBlock } from "../common/use-get-latest-block";
+import { useGetSimpleTransactions } from "../common/use-get-simple-transactions";
+import { GNOTToken } from "../common/use-token-meta";
+import { useNetworkProvider } from "../provider/use-network-provider";
 
 export const useTransactionSummaryInfo = () => {
-  const {isCustomNetwork} = useNetworkProvider();
-  const {firstBlock} = useGetFirstBlock();
-  const {isFetched: isFetchedLatestBlock, latestBlock} = useGetLatestBlock();
-  const {isFetched: isFetchedTransactions, data: allTransactions} = useGetTransactionsQuery(
-    latestBlock?.block_meta.header.total_txs || '',
+  const { isCustomNetwork } = useNetworkProvider();
+  const { firstBlock } = useGetFirstBlock();
+  const { isFetched: isFetchedLatestBlock, latestBlock } = useGetLatestBlock();
+  const { isFetched: isFetchedTransactions, data: allTransactions } = useGetTransactionsQuery(
+    latestBlock?.block_meta.header.total_txs || "",
     {
       enabled: isCustomNetwork,
     },
   );
-  const {isFetched: isFetchedTransactionStatInfo, data: transactionStatInfo} =
-    useGetTransactionStatInfoQuery(latestBlock?.block_meta.header.total_txs || '', {
+  const { isFetched: isFetchedTransactionStatInfo, data: transactionStatInfo } = useGetTransactionStatInfoQuery(
+    latestBlock?.block_meta.header.total_txs || "",
+    {
       enabled: !isCustomNetwork,
-    });
-  const {data: blockHeightOfBefore1d} = useGetBeforeBlockByDate(1);
-  const {data: simpleTransactions} = useGetSimpleTransactions(blockHeightOfBefore1d);
+    },
+  );
+  const { data: blockHeightOfBefore1d } = useGetBeforeBlockByDate(1);
+  const { data: simpleTransactions } = useGetSimpleTransactions(blockHeightOfBefore1d);
 
   const isFetched = useMemo(() => {
     if (isCustomNetwork) {
@@ -40,17 +39,11 @@ export const useTransactionSummaryInfo = () => {
       }
     }
     return isFetchedLatestBlock || !!latestBlock;
-  }, [
-    isCustomNetwork,
-    isFetchedLatestBlock,
-    isFetchedTransactionStatInfo,
-    isFetchedTransactions,
-    latestBlock,
-  ]);
+  }, [isCustomNetwork, isFetchedLatestBlock, isFetchedTransactionStatInfo, isFetchedTransactions, latestBlock]);
 
   const totalTransactions = useMemo(() => {
     if (!latestBlock) {
-      return '0';
+      return "0";
     }
 
     return makeDisplayNumber(latestBlock.block.header.total_txs);
@@ -85,7 +78,7 @@ export const useTransactionSummaryInfo = () => {
 
   const transactionFeeAverage = useMemo(() => {
     if (!simpleTransactions || simpleTransactions.length === 0) {
-      return '0';
+      return "0";
     }
 
     const feeAmount =

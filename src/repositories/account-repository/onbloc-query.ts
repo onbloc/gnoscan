@@ -1,10 +1,6 @@
-import {gql} from '@apollo/client';
+import { gql } from "@apollo/client";
 
-export const makeAccountTransactionsQuery = (
-  address: string,
-  cursor: string | null,
-  size = 20,
-) => gql`
+export const makeAccountTransactionsQuery = (address: string, cursor: string | null, size = 20) => gql`
   {
     transactions(
       filter: {
@@ -52,7 +48,7 @@ export const makeAccountTransactionsQuery = (
       }
       size: ${size}
       ascending: false
-      after: ${cursor ? `"${cursor}"` : 'null'}
+      after: ${cursor ? `"${cursor}"` : "null"}
     ) {
       pageInfo {
         last
@@ -130,7 +126,7 @@ export const makeGRC20ReceivedEvents = (address: string, cursor: string | null) 
         ]
         message: {type_url: exec}
       }
-      after: ${cursor ? `"${cursor}"` : 'null'}
+      after: ${cursor ? `"${cursor}"` : "null"}
     ) {
       pageInfo {
         last

@@ -1,17 +1,17 @@
-import {useMemo} from 'react';
-import {useQuery} from 'react-query';
-import {useGetRealmTransactionsByEventInfinityQuery} from '@/common/react-query/realm';
-import {useServiceProvider} from '../provider/use-service-provider';
+import { useMemo } from "react";
+import { useQuery } from "react-query";
+import { useGetRealmTransactionsByEventInfinityQuery } from "@/common/react-query/realm";
+import { useServiceProvider } from "../provider/use-service-provider";
 
 export const useTokenTransactionsInfinity = (path: string[] | string | undefined) => {
-  const {blockRepository} = useServiceProvider();
+  const { blockRepository } = useServiceProvider();
 
   const packagePath = useMemo(() => {
     if (!path) {
       return null;
     }
     if (Array.isArray(path)) {
-      return path.join('/');
+      return path.join("/");
     }
     return path;
   }, [path]);
@@ -31,8 +31,8 @@ export const useTokenTransactionsInfinity = (path: string[] | string | undefined
     return realmTransactionPages.pages.flatMap(page => page?.transactions || []);
   }, [realmTransactionPages]);
 
-  const {data: transactionWithTimes = null} = useQuery({
-    queryKey: ['token/transactions', `${path}`, `${transactions?.length}`],
+  const { data: transactionWithTimes = null } = useQuery({
+    queryKey: ["token/transactions", `${path}`, `${transactions?.length}`],
     queryFn: () =>
       Promise.all(
         transactions?.map(async transaction => {

@@ -1,7 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
-import {DatatableHeader} from '..';
-import {DataRowItem} from './data-row-item';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from "react";
+import styled from "styled-components";
+import { DatatableHeader } from "..";
+import { DataRowItem } from "./data-row-item";
 
 interface Props<T> {
   headers: Array<DatatableHeader.Header<T>>;
@@ -9,11 +10,7 @@ interface Props<T> {
   renderDetails?: (data: T) => React.ReactNode;
 }
 
-export const DataRow = <T extends {[key in string]: any}>({
-  headers,
-  data,
-  renderDetails,
-}: Props<T>) => {
+export const DataRow = <T extends { [key in string]: any }>({ headers, data, renderDetails }: Props<T>) => {
   return (
     <DataRowContainer>
       <div className="row">
@@ -33,7 +30,7 @@ const DataRowContainer = styled.div`
     flex-direction: column;
     width: 100%;
     height: auto;
-    border-bottom: 1px solid ${({theme}) => theme.colors.dimmed50};
+    border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed50};
     align-items: center;
 
     .row {

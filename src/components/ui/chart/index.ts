@@ -9,19 +9,9 @@ import {
   Filler,
   Legend,
   BarElement,
-} from 'chart.js';
+} from "chart.js";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Filler,
-  Legend,
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Filler, Legend);
 
-export * from './area-chart';
-export * from './bar-chart';
+export * from "./area-chart";
+export * from "./bar-chart";

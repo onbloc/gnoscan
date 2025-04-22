@@ -1,5 +1,5 @@
-import {ValueWithDenomType} from '@/types/data-type';
-import BigNumber from 'bignumber.js';
+import { ValueWithDenomType } from "@/types/data-type";
+import BigNumber from "bignumber.js";
 
 interface TotalDailyFeeData {
   date: string;
@@ -35,16 +35,10 @@ export class TotalDailyFeeModel {
     });
   }
 
-  private static createData = ({
-    date,
-    fee,
-  }: {
-    date?: string;
-    fee?: ValueWithDenomType;
-  }): TotalDailyFeeData => {
-    const gasFee = fee?.value || '0';
+  private static createData = ({ date, fee }: { date?: string; fee?: ValueWithDenomType }): TotalDailyFeeData => {
+    const gasFee = fee?.value || "0";
     return {
-      date: date ?? '',
+      date: date ?? "",
       fee: new BigNumber(gasFee).toNumber(),
     };
   };

@@ -1,22 +1,23 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
-import React, {useCallback, useMemo, useState} from 'react';
-import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import styled from 'styled-components';
-import theme from '@/styles/theme';
-import {DatatableItem} from '..';
-import {useRecoilValue} from 'recoil';
-import {themeState} from '@/states';
-import {GnoEvent} from '@/types/data-type';
-import Text from '@/components/ui/text';
-import Link from 'next/link';
-import {useNetwork} from '@/common/hooks/use-network';
-import Tooltip from '@/components/ui/tooltip';
-import IconCopy from '@/assets/svgs/icon-copy.svg';
-import {useUsername} from '@/common/hooks/account/use-username';
-import {EVENT_TABLE_PAGE_SIZE} from '@/common/values/ui.constant';
-import {eachMedia} from '@/common/hooks/use-media';
-import {Button} from '@/components/ui/button';
+import React, { useCallback, useMemo, useState } from "react";
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
+import styled from "styled-components";
+import theme from "@/styles/theme";
+import { DatatableItem } from "..";
+import { useRecoilValue } from "recoil";
+import { themeState } from "@/states";
+import { GnoEvent } from "@/types/data-type";
+import Text from "@/components/ui/text";
+import Link from "next/link";
+import { useNetwork } from "@/common/hooks/use-network";
+import Tooltip from "@/components/ui/tooltip";
+import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { useUsername } from "@/common/hooks/account/use-username";
+import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
+import { eachMedia } from "@/common/hooks/use-media";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   isFetched: boolean;
@@ -31,10 +32,10 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const EventDatatable = ({isFetched, events}: Props) => {
+export const EventDatatable = ({ isFetched, events }: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const {isFetched: isFetchedUsername, getName} = useUsername();
+  const { isFetched: isFetchedUsername, getName } = useUsername();
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   const [page, setPage] = useState(0);
 
@@ -62,9 +63,7 @@ export const EventDatatable = ({isFetched, events}: Props) => {
   }, [events, page]);
 
   const toggleEventDetails = (eventId: string) => {
-    setActiveEvents(prev =>
-      prev.includes(eventId) ? prev.filter(id => id !== eventId) : [...prev, eventId],
-    );
+    setActiveEvents(prev => (prev.includes(eventId) ? prev.filter(id => id !== eventId) : [...prev, eventId]));
   };
 
   const createHeaders = () => {
@@ -81,8 +80,8 @@ export const EventDatatable = ({isFetched, events}: Props) => {
 
   const createHeaderEventId = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
-      .key('id')
-      .name('Identifier')
+      .key("id")
+      .name("Identifier")
       .width(200)
       .renderOption(id => <DatatableItem.EventId eventId={id} />)
       .build();
@@ -90,10 +89,10 @@ export const EventDatatable = ({isFetched, events}: Props) => {
 
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
-      .key('transactionHash')
-      .name('Tx hash')
+      .key("transactionHash")
+      .name("Tx hash")
       .width(200)
-      .colorName('blue')
+      .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption(txHash => <DatatableItem.TxHashCopy txHash={txHash} />)
       .build();
@@ -101,20 +100,20 @@ export const EventDatatable = ({isFetched, events}: Props) => {
 
   const createHeaderBlock = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
-      .key('blockHeight')
-      .name('Block')
+      .key("blockHeight")
+      .name("Block")
       .width(93)
-      .colorName('blue')
+      .colorName("blue")
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
   const createHeaderEventName = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
-      .key('type')
-      .name('Event Name')
+      .key("type")
+      .name("Event Name")
       .width(160)
-      .colorName('blue')
+      .colorName("blue")
       .renderOption(eventType => {
         return <DatatableItem.EventName eventName={eventType} />;
       })
@@ -123,42 +122,33 @@ export const EventDatatable = ({isFetched, events}: Props) => {
 
   const createHeaderEmittedFrom = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
-      .key('caller')
-      .name('Caller')
+      .key("caller")
+      .name("Caller")
       .width(180)
-      .colorName('blue')
-      .renderOption(caller => (
-        <DatatableItem.CallerCopy caller={caller} username={getName(caller)} />
-      ))
+      .colorName("blue")
+      .renderOption(caller => <DatatableItem.CallerCopy caller={caller} username={getName(caller)} />)
       .build();
   };
 
   const createHeaderTime = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
-      .key('time')
-      .name('Time')
+      .key("time")
+      .name("Time")
       .width(180)
-      .className('time')
+      .className("time")
       .renderOption((date, data) =>
-        !!date ? (
-          <DatatableItem.Date date={date} />
-        ) : (
-          <DatatableItem.LazyDate blockHeight={data.blockHeight} />
-        ),
+        !!date ? <DatatableItem.Date date={date} /> : <DatatableItem.LazyDate blockHeight={data.blockHeight} />,
       )
       .build();
   };
 
   const createToggleDetails = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
-      .key('id')
-      .name('')
+      .key("id")
+      .name("")
       .width(133)
       .renderOption(id => (
-        <DatatableItem.ToggleDetails
-          active={activeEvents.includes(id)}
-          onClick={() => toggleEventDetails(id)}
-        />
+        <DatatableItem.ToggleDetails active={activeEvents.includes(id)} onClick={() => toggleEventDetails(id)} />
       ))
       .build();
   };
@@ -186,8 +176,8 @@ export const EventDatatable = ({isFetched, events}: Props) => {
 
       {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={'4px'} onClick={nextPage}>
-            {'View More Events'}
+          <Button className={`more-button ${media}`} radius={"4px"} onClick={nextPage}>
+            {"View More Events"}
           </Button>
         </div>
       )}
@@ -195,7 +185,7 @@ export const EventDatatable = ({isFetched, events}: Props) => {
   );
 };
 
-const Container = styled.div<{maxWidth?: number}>`
+const Container = styled.div<{ maxWidth?: number }>`
   & {
     display: flex;
     flex-direction: column;
@@ -210,8 +200,8 @@ const Container = styled.div<{maxWidth?: number}>`
     .more-button {
       width: 100%;
       padding: 16px;
-      color: ${({theme}) => theme.colors.primary};
-      background-color: ${({theme}) => theme.colors.surface};
+      color: ${({ theme }) => theme.colors.primary};
+      background-color: ${({ theme }) => theme.colors.surface};
       ${theme.fonts.p4}
       font-weight: 600;
       margin-top: 24px;
@@ -223,22 +213,20 @@ const Container = styled.div<{maxWidth?: number}>`
   }
 `;
 
-const EventDetail: React.FC<{visible: boolean; event: GnoEvent}> = ({visible, event}) => {
-  const {getUrlWithNetwork} = useNetwork();
-  const {getName} = useUsername();
+const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible, event }) => {
+  const { getUrlWithNetwork } = useNetwork();
+  const { getName } = useUsername();
 
   return (
-    <EventDetailWrapper className={visible ? 'active' : 'hidden'}>
+    <EventDetailWrapper className={visible ? "active" : "hidden"}>
       {visible && (
         <div className="container">
           <div className="event-details-header">
             <div className="path-wrapper">
-              <Text type="p4" color={'primary'}>
-                Current Realm Path:{' '}
-                <Text type="p4" color={'blue'}>
-                  <Link
-                    href={getUrlWithNetwork(`/realms/details?path=${event.packagePath}`)}
-                    passHref>
+              <Text type="p4" color={"primary"}>
+                Current Realm Path:{" "}
+                <Text type="p4" color={"blue"}>
+                  <Link href={getUrlWithNetwork(`/realms/details?path=${event.packagePath}`)} passHref>
                     {event.packagePath}
                   </Link>
                   <Tooltip
@@ -246,16 +234,17 @@ const EventDetail: React.FC<{visible: boolean; event: GnoEvent}> = ({visible, ev
                     content="Copied!"
                     trigger="click"
                     copyText={event.packagePath}
-                    width={85}>
+                    width={85}
+                  >
                     <IconCopy className="svg-icon" />
                   </Tooltip>
                 </Text>
               </Text>
             </div>
             <div className="caller-wrapper">
-              <Text type="p4" color={'primary'}>
-                OriginCaller:{' '}
-                <Text type="p4" color={'blue'}>
+              <Text type="p4" color={"primary"}>
+                OriginCaller:{" "}
+                <Text type="p4" color={"blue"}>
                   <Link href={getUrlWithNetwork(`/accounts/${event.caller}`)} passHref>
                     {getName(event.caller) || event.caller}
                   </Link>
@@ -264,7 +253,8 @@ const EventDetail: React.FC<{visible: boolean; event: GnoEvent}> = ({visible, ev
                     content="Copied!"
                     trigger="click"
                     copyText={event.caller}
-                    width={85}>
+                    width={85}
+                  >
                     <IconCopy className="svg-icon" />
                   </Tooltip>
                 </Text>
@@ -273,40 +263,40 @@ const EventDetail: React.FC<{visible: boolean; event: GnoEvent}> = ({visible, ev
           </div>
           <div className="event-details-used">
             <div className="used-wrapper">
-              <Text type="p4" color={'primary'}>
+              <Text type="p4" color={"primary"}>
                 <span className="func-definition">func </span>
                 <span className="func-name">{event.functionName}</span>
-                {' → std.Emit("'}
+                {' → std.Emit("'} {/* eslint-disable-line quotes */}
                 <span className="event-name">{event.type}</span>
-                {'"'}
+                {'"'} {/* eslint-disable-line quotes */}
                 {event.attrs.map((attr, index) => (
                   <React.Fragment key={index}>
-                    {', '}
+                    {", "}
                     <span className="event-param">{attr.key}</span>
-                    {', '}
-                    <span className="event-param">{attr.key + '_value'}</span>
+                    {", "}
+                    <span className="event-param">{attr.key + "_value"}</span>
                   </React.Fragment>
                 ))}
-                {')'}
+                {")"}
               </Text>
             </div>
           </div>
           {event.attrs.length > 0 && (
             <div className="event-details-attributes">
               <div className="data-header">
-                <Text className="key" type="h7" color={'primary'}>
+                <Text className="key" type="h7" color={"primary"}>
                   Key
                 </Text>
-                <Text className="value" type="h7" color={'primary'}>
+                <Text className="value" type="h7" color={"primary"}>
                   Value
                 </Text>
               </div>
               {event.attrs.map((attribute, index) => (
                 <div key={index} className="data-value">
-                  <Text className="key" type="p4" color={'primary'}>
+                  <Text className="key" type="p4" color={"primary"}>
                     {attribute.key}
                   </Text>
-                  <Text className="value" type="p4" color={'primary'}>
+                  <Text className="value" type="p4" color={"primary"}>
                     {`"${attribute.value}"`}
                   </Text>
                 </div>
@@ -319,7 +309,7 @@ const EventDetail: React.FC<{visible: boolean; event: GnoEvent}> = ({visible, ev
   );
 };
 
-const EventDetailWrapper = styled.div<{maxWidth?: number}>`
+const EventDetailWrapper = styled.div<{ maxWidth?: number }>`
   & {
     display: flex;
     flex-direction: column;
@@ -335,7 +325,7 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
       width: 100%;
       height: auto;
       align-items: center;
-      background-color: ${({theme}) => theme.colors.surface};
+      background-color: ${({ theme }) => theme.colors.surface};
       gap: 16px;
       padding: 24px;
       border-radius: 10px;
@@ -358,7 +348,7 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
       .caller-wrapper {
         display: flex;
         width: 100%;
-        background-color: ${({theme}) => theme.colors.base};
+        background-color: ${({ theme }) => theme.colors.base};
         padding: 10px 12px;
         border-radius: 10px;
 
@@ -373,7 +363,7 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
     .event-details-attributes {
       display: flex;
       width: 100%;
-      background-color: ${({theme}) => theme.colors.base};
+      background-color: ${({ theme }) => theme.colors.base};
       border-radius: 10px;
     }
 
@@ -383,19 +373,19 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
       flex-direction: row;
 
       .func-definition {
-        color: ${({theme}) => theme.colors.funcDefinition};
+        color: ${({ theme }) => theme.colors.funcDefinition};
       }
 
       .func-name {
-        color: ${({theme}) => theme.colors.funcName};
+        color: ${({ theme }) => theme.colors.funcName};
       }
 
       .event-name {
-        color: ${({theme}) => theme.colors.eventName};
+        color: ${({ theme }) => theme.colors.eventName};
       }
 
       .event-param {
-        color: ${({theme}) => theme.colors.eventParam};
+        color: ${({ theme }) => theme.colors.eventParam};
       }
     }
 
@@ -403,7 +393,7 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
       flex-direction: column;
 
       & > div:not(:last-child) {
-        border-bottom: 1px solid ${({theme}) => theme.colors.surface};
+        border-bottom: 1px solid ${({ theme }) => theme.colors.surface};
       }
 
       .data-header {
@@ -431,7 +421,7 @@ const EventDetailWrapper = styled.div<{maxWidth?: number}>`
 
         .value {
           width: 100%;
-          color: ${({theme}) => theme.colors.eventParam};
+          color: ${({ theme }) => theme.colors.eventParam};
         }
       }
     }

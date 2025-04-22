@@ -1,8 +1,8 @@
-import Tooltip from '@/components/ui/tooltip';
-import theme from '@/styles/theme';
-import React from 'react';
-import styled from 'styled-components';
-import Text from '@/components/ui/text';
+import Tooltip from "@/components/ui/tooltip";
+import theme from "@/styles/theme";
+import React from "react";
+import styled from "styled-components";
+import Text from "@/components/ui/text";
 interface Props {
   type: string;
   func: string;
@@ -10,13 +10,13 @@ interface Props {
   msgNum?: number;
 }
 
-export const Type = ({type, func, packagePath, msgNum}: Props) => {
+export const Type = ({ type, func, packagePath, msgNum }: Props) => {
   const renderTooltip = () => {
     return (
       <TooltipWrapper>
         <span className="title">{type}</span>
         {packagePath && packagePath !== null ? (
-          <span className="info">{packagePath.replace('gno.land', '')}</span>
+          <span className="info">{packagePath.replace("gno.land", "")}</span>
         ) : (
           <></>
         )}
@@ -26,7 +26,7 @@ export const Type = ({type, func, packagePath, msgNum}: Props) => {
 
   return func ? (
     <TypeWrapper>
-      <Tooltip className={'ellipsis'} content={renderTooltip()}>
+      <Tooltip className={"ellipsis"} content={renderTooltip()}>
         <span className="function ellipsis">{func}</span>
       </Tooltip>
       {msgNum && msgNum > 1 && (
@@ -54,7 +54,7 @@ const TypeWrapper = styled.div`
       width: 100%;
       padding: 4px 16px;
       color: #fff;
-      background-color: ${({theme}) => theme.colors.blue};
+      background-color: ${({ theme }) => theme.colors.blue};
       border-radius: 4px;
     }
   }
@@ -78,7 +78,7 @@ const TooltipWrapper = styled.div`
     }
 
     .title {
-      color: ${({theme}) => theme.colors.secondary};
+      color: ${({ theme }) => theme.colors.secondary};
     }
 
     .info {
@@ -86,8 +86,8 @@ const TooltipWrapper = styled.div`
       height: fit-content;
       padding: 6px 10px;
       margin-top: 4px;
-      color: ${({theme}) => theme.colors.reverse};
-      background-color: ${({theme}) => theme.colors.pantone};
+      color: ${({ theme }) => theme.colors.reverse};
+      background-color: ${({ theme }) => theme.colors.pantone};
       border-radius: 4px;
     }
   }

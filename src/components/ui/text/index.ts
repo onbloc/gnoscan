@@ -1,3 +1,3 @@
-import Text from './text';
-export * from './';
+import Text from "./text";
+export * from "./";
 export default Text;

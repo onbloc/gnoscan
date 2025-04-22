@@ -1,31 +1,29 @@
-import {parseABCI} from '@gnolang/tm2-js-client';
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
-import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
-import {Transaction} from '@/types/data-type';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { parseABCI } from "@gnolang/tm2-js-client";
+import { NodeRPCClient } from "@/common/clients/node-client";
+import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
+import { parseABCIQueryNumberResponse } from "@/common/clients/node-client/utility";
+import { Transaction } from "@/types/data-type";
 
 import {
   mapReceivedTransactionByBankMsgSend,
   mapReceivedTransactionByMsgCall,
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
-} from '../response/transaction.mapper';
-import {QueryResponse} from '@/common/clients/indexer-client/types';
-import {AccountTransactionResponse, IAccountRepository} from './types';
+} from "../response/transaction.mapper";
+import { QueryResponse } from "@/common/clients/indexer-client/types";
+import { AccountTransactionResponse, IAccountRepository } from "./types";
 import {
   makeGRC20ReceivedEvents,
   makeGRC20ReceivedTransactionsByAddressQuery,
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
   makeVMTransactionsByAddressQuery,
-} from './query';
-import {GraphQLFormattedError} from 'graphql';
+} from "./query";
+import { GraphQLFormattedError } from "graphql";
 
 export class AccountRepository implements IAccountRepository {
-  constructor(
-    private nodeRPCClient: NodeRPCClient | null,
-    private indexerClient: IndexerClient | null,
-  ) {}
+  constructor(private nodeRPCClient: NodeRPCClient | null, private indexerClient: IndexerClient | null) {}
 
   async getNativeTokensBalances(address: string): Promise<any> {
     if (!this.nodeRPCClient) {
@@ -34,9 +32,7 @@ export class AccountRepository implements IAccountRepository {
 
     return this.nodeRPCClient
       .abciQueryBankBalances(address)
-      .then(response =>
-        response.response.ResponseBase.Data ? parseABCI(response.response.ResponseBase.Data) : null,
-      );
+      .then(response => (response.response.ResponseBase.Data ? parseABCI(response.response.ResponseBase.Data) : null));
   }
 
   async getGRC20TokensBalances(address: string, tokenPaths: string[]): Promise<any> {
@@ -45,7 +41,7 @@ export class AccountRepository implements IAccountRepository {
     }
 
     const fetchers = tokenPaths.map(path =>
-      this.nodeRPCClient?.abciQueryVMQueryEvaluation(path, 'BalanceOf', [address]).then(response =>
+      this.nodeRPCClient?.abciQueryVMQueryEvaluation(path, "BalanceOf", [address]).then(response =>
         response?.response?.ResponseBase?.Data
           ? {
               denom: path,
@@ -58,7 +54,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   async getAccountTransactions(): Promise<AccountTransactionResponse> {
-    throw new Error('not supported function');
+    throw new Error("not supported function");
   }
 
   async getGRC20ReceivedPackagePaths(address: string): Promise<string[] | null> {
@@ -66,14 +62,14 @@ export class AccountRepository implements IAccountRepository {
       return null;
     }
 
-    const response: {data?: QueryResponse<any>; errors?: readonly GraphQLFormattedError[]} =
+    const response: { data?: QueryResponse<any>; errors?: readonly GraphQLFormattedError[] } =
       await this.indexerClient.query(makeGRC20ReceivedEvents(address));
 
     const transactions = response?.data?.transactions || [];
     const paths: string[] = transactions
       .flatMap(transaction => transaction.response?.events || [])
-      .filter(event => event?.type === 'Transfer')
-      .map(event => event.pkg_path || '');
+      .filter(event => event?.type === "Transfer")
+      .map(event => event.pkg_path || "");
 
     const uniquePaths: string[] = [...new Set(paths)];
     return uniquePaths;
@@ -88,9 +84,7 @@ export class AccountRepository implements IAccountRepository {
       ?.query<any>(makeGRC20ReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
       .then(transactions =>
-        transactions
-          .map(mapReceivedTransactionByMsgCall)
-          .filter((tx: Transaction) => tx.to === address),
+        transactions.map(mapReceivedTransactionByMsgCall).filter((tx: Transaction) => tx.to === address),
       );
   }
 
@@ -105,9 +99,7 @@ export class AccountRepository implements IAccountRepository {
       .then(transactions => transactions.map(mapSendTransactionByBankMsgSend));
   }
 
-  async getNativeTokenReceivedTransactionsByAddress(
-    address: string,
-  ): Promise<Transaction[] | null> {
+  async getNativeTokenReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {
     if (!this.indexerClient) {
       return null;
     }

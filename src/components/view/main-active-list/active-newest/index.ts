@@ -1,2 +1,2 @@
-import ActiveNewest from './active-newest';
+import ActiveNewest from "./active-newest";
 export default ActiveNewest;

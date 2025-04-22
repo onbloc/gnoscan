@@ -1,8 +1,9 @@
-import React, {useEffect, useRef} from 'react';
-import styled from 'styled-components';
-import {DatatableData, DatatableHeader} from '.';
-import IconTableLoading from '@/assets/svgs/icon-table-loading.svg';
-import {zindex} from '@/common/values/z-index';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useRef } from "react";
+import styled from "styled-components";
+import { DatatableData, DatatableHeader } from ".";
+import IconTableLoading from "@/assets/svgs/icon-table-loading.svg";
+import { zindex } from "@/common/values/z-index";
 
 interface Props<T> {
   maxWidth?: number;
@@ -10,12 +11,12 @@ interface Props<T> {
   datas: Array<T> | null;
   supported?: boolean;
   loading?: boolean;
-  sortOption?: {field: string; order: string};
-  setSortOption?: (sortOption: {field: any; order: any}) => void;
+  sortOption?: { field: string; order: string };
+  setSortOption?: (sortOption: { field: any; order: any }) => void;
   renderDetails?: (data: T) => React.ReactNode;
 }
 
-export const Datatable = <T extends {[key in string]: any}>({
+export const Datatable = <T extends { [key in string]: any }>({
   headers,
   datas,
   maxWidth,
@@ -29,44 +30,36 @@ export const Datatable = <T extends {[key in string]: any}>({
 
   useEffect(() => {
     onHandleHideTooltips();
-    datatableRef.current?.addEventListener('scroll', onHandleHideTooltips);
+    datatableRef.current?.addEventListener("scroll", onHandleHideTooltips);
     return () => {
-      datatableRef.current?.removeEventListener('scroll', onHandleHideTooltips);
+      datatableRef.current?.removeEventListener("scroll", onHandleHideTooltips);
     };
   }, [datatableRef]);
 
   const onHandleHideTooltips = () => {
-    window?.dispatchEvent(new Event('resize'));
+    window?.dispatchEvent(new Event("resize"));
   };
 
   return (
     <Container maxWidth={maxWidth} ref={datatableRef}>
       <div className="scroll-wrapper">
-        <DatatableHeader.HeaderRow
-          headers={headers}
-          sortOption={sortOption}
-          setSortOption={setSortOption}
-        />
+        <DatatableHeader.HeaderRow headers={headers} sortOption={sortOption} setSortOption={setSortOption} />
         {loading && (
           <div className="loading-wrapper">
             <IconTableLoading />
           </div>
         )}
         {!loading && datas && datas?.length > 0 && (
-          <DatatableData.DataList
-            headers={headers}
-            datas={datas || []}
-            renderDetails={renderDetails}
-          />
+          <DatatableData.DataList headers={headers} datas={datas || []} renderDetails={renderDetails} />
         )}
         {!loading && !datas?.length && supported && (
           <div className="no-content-wrapper">
-            <span>{'No data to display'}</span>
+            <span>{"No data to display"}</span>
           </div>
         )}
         {!loading && !datas?.length && !supported && (
           <div className="no-content-wrapper">
-            <span>{'Not Supported'}</span>
+            <span>{"Not Supported"}</span>
           </div>
         )}
       </div>
@@ -74,7 +67,7 @@ export const Datatable = <T extends {[key in string]: any}>({
   );
 };
 
-const Container = styled.div<{maxWidth?: number}>`
+const Container = styled.div<{ maxWidth?: number }>`
   ::-webkit-scrollbar {
     width: 0px;
     display: none;
@@ -93,7 +86,7 @@ const Container = styled.div<{maxWidth?: number}>`
     width: 100%;
     height: auto;
     padding: 20px 24px;
-    background-color: ${({theme}) => theme.colors.base};
+    background-color: ${({ theme }) => theme.colors.base};
     border-radius: 10px;
     overflow-x: auto;
 
@@ -101,7 +94,7 @@ const Container = styled.div<{maxWidth?: number}>`
       display: flex;
       flex-direction: column;
       width: 100%;
-      min-width: ${({maxWidth}) => (maxWidth ? `${maxWidth}px` : '1146px')};
+      min-width: ${({ maxWidth }) => (maxWidth ? `${maxWidth}px` : "1146px")};
       z-index: ${zindex.scrollbar};
     }
 
@@ -126,11 +119,11 @@ const Container = styled.div<{maxWidth?: number}>`
       }
 
       stop {
-        stop-color: ${({theme}) => theme.colors.surface};
+        stop-color: ${({ theme }) => theme.colors.surface};
       }
 
       circle {
-        fill: ${({theme}) => theme.colors.surface};
+        fill: ${({ theme }) => theme.colors.surface};
       }
     }
 
@@ -142,7 +135,7 @@ const Container = styled.div<{maxWidth?: number}>`
       align-items: center;
 
       span {
-        color: ${({theme}) => theme.colors.tertiary};
+        color: ${({ theme }) => theme.colors.tertiary};
         font-weight: 400;
       }
     }

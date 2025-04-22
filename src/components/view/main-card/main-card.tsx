@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import IconInfo from '@/assets/svgs/icon-info.svg';
-import {eachMedia} from '@/common/hooks/use-media';
-import {Button} from '@/components/ui/button';
-import Card from '@/components/ui/card';
-import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
-import Text from '@/components/ui/text';
-import Tooltip from '@/components/ui/tooltip';
-import mixins from '@/styles/mixins';
-import React from 'react';
-import styled from 'styled-components';
-import {AccountCard, BlockCard, SupplyCard, TxsCard} from './cards';
+import IconInfo from "@/assets/svgs/icon-info.svg";
+import { eachMedia } from "@/common/hooks/use-media";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/ui/card";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import Text from "@/components/ui/text";
+import Tooltip from "@/components/ui/tooltip";
+import mixins from "@/styles/mixins";
+import React from "react";
+import styled from "styled-components";
+import { AccountCard, BlockCard, SupplyCard, TxsCard } from "./cards";
 
 const MainCard = () => {
   const media = eachMedia();
@@ -22,7 +22,8 @@ const MainCard = () => {
           GNOT&nbsp;Supply
           <Tooltip
             width={229}
-            content="This number represents the total supply at Genesis in testnets, which can be subject to change in mainnet.">
+            content="This number represents the total supply at Genesis in testnets, which can be subject to change in mainnet."
+          >
             <Button width="16px" height="16px" radius="50%" bgColor="base">
               <IconInfo className="svg-info" />
             </Button>
@@ -62,7 +63,7 @@ const MainCard = () => {
 export const FetchedComp = ({
   skeletonWidth,
   skeletonheight = 16,
-  skeletonMargin = '',
+  skeletonMargin = "",
   isFetched,
   renderComp,
 }: {
@@ -74,11 +75,7 @@ export const FetchedComp = ({
 }) => {
   return (
     <>
-      {isFetched ? (
-        renderComp
-      ) : (
-        <SkeletonBar width={skeletonWidth} height={skeletonheight} margin={skeletonMargin} />
-      )}
+      {isFetched ? renderComp : <SkeletonBar width={skeletonWidth} height={skeletonheight} margin={skeletonMargin} />}
     </>
   );
 };
@@ -99,31 +96,31 @@ export const Wrapper = styled.div`
     grid-gap: 16px;
   }
   .title-info {
-    ${mixins.flexbox('row', 'center', 'flex-start')};
+    ${mixins.flexbox("row", "center", "flex-start")};
     gap: 6px;
   }
   .svg-info {
-    fill: ${({theme}) => theme.colors.reverse};
+    fill: ${({ theme }) => theme.colors.reverse};
   }
 `;
 
 export const DataBoxContainer = styled.div`
-  background-color: ${({theme}) => theme.colors.base};
-  border: 1px solid ${({theme}) => theme.colors.dimmed50};
+  background-color: ${({ theme }) => theme.colors.base};
+  border: 1px solid ${({ theme }) => theme.colors.dimmed50};
   border-radius: 10px;
   width: 100%;
   padding: 16px;
   hr {
     width: 100%;
-    border-top: 1px solid ${({theme}) => theme.colors.dimmed50};
+    border-top: 1px solid ${({ theme }) => theme.colors.dimmed50};
     margin: 10px 0px;
   }
 `;
 
 export const BundleDl = styled.dl`
-  ${mixins.flexbox('row', 'center', 'space-between')};
+  ${mixins.flexbox("row", "center", "space-between")};
   dt {
-    ${mixins.flexbox('row', 'center', 'flex-start')};
+    ${mixins.flexbox("row", "center", "flex-start")};
     gap: 6px;
   }
 `;

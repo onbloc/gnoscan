@@ -1,2 +1,2 @@
-import SearchResult from './search-result';
+import SearchResult from "./search-result";
 export default SearchResult;

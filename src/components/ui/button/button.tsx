@@ -1,16 +1,16 @@
-import styled from 'styled-components';
-import React, {CSSProperties} from 'react';
-import mixins from '@/styles/mixins';
-import {PaletteKeyType} from '@/styles/theme';
-import {XOR} from '@/types';
+import styled from "styled-components";
+import React, { CSSProperties } from "react";
+import mixins from "@/styles/mixins";
+import { PaletteKeyType } from "@/styles/theme";
+import { XOR } from "@/types";
 
 export type ButtonProps = XOR<
   {
     fullWidth?: boolean;
-    height?: CSSProperties['height'];
+    height?: CSSProperties["height"];
     bgColor?: PaletteKeyType;
     children: React.ReactNode;
-    margin?: CSSProperties['margin'];
+    margin?: CSSProperties["margin"];
     radius?: string;
     className?: string;
     disabled?: boolean;
@@ -19,11 +19,11 @@ export type ButtonProps = XOR<
     id?: string;
   },
   {
-    width?: CSSProperties['width'];
-    height?: CSSProperties['height'];
+    width?: CSSProperties["width"];
+    height?: CSSProperties["height"];
     bgColor?: PaletteKeyType;
     children: React.ReactNode;
-    margin?: CSSProperties['margin'];
+    margin?: CSSProperties["margin"];
     radius?: string;
     className?: string;
     disabled?: boolean;
@@ -38,19 +38,19 @@ export const Button = (props: ButtonProps) => {
 };
 
 const ButtonWrapper = styled.button<ButtonProps>`
-  ${mixins.flexbox('row', 'center', 'center')};
-  width: ${({width, fullWidth}) => {
-    if (width) return typeof width === 'number' ? width + 'px' : width;
-    if (fullWidth) return '100%';
-    return 'auto';
+  ${mixins.flexbox("row", "center", "center")};
+  width: ${({ width, fullWidth }) => {
+    if (width) return typeof width === "number" ? width + "px" : width;
+    if (fullWidth) return "100%";
+    return "auto";
   }};
-  height: ${({height}) => {
-    if (height) return typeof height === 'number' ? height + 'px' : height;
-    return 'auto';
+  height: ${({ height }) => {
+    if (height) return typeof height === "number" ? height + "px" : height;
+    return "auto";
   }};
   margin: ${props => props.margin};
-  background-color: ${({theme, bgColor}) => theme.colors[bgColor ?? 'base']};
+  background-color: ${({ theme, bgColor }) => theme.colors[bgColor ?? "base"]};
   outline: none;
-  border-radius: ${({radius}) => (radius ? radius : '4px')};
-  cursor: ${props => (props.disabled ? 'default' : 'pointer')};
+  border-radius: ${({ radius }) => (radius ? radius : "4px")};
+  cursor: ${props => (props.disabled ? "default" : "pointer")};
 `;

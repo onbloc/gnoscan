@@ -1,6 +1,6 @@
-import {loadingState} from '@/states/loading';
-import {useEffect} from 'react';
-import {useRecoilState, useResetRecoilState} from 'recoil';
+import { loadingState } from "@/states/loading";
+import { useEffect } from "react";
+import { useRecoilState, useResetRecoilState } from "recoil";
 
 interface Props {
   finished?: boolean;

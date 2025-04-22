@@ -1,19 +1,19 @@
-import {formatEllipsis} from '@/common/utils';
-import Tooltip from '@/components/ui/tooltip';
-import React from 'react';
-import styled from 'styled-components';
+import { formatEllipsis } from "@/common/utils";
+import Tooltip from "@/components/ui/tooltip";
+import React from "react";
+import styled from "styled-components";
 
 interface Props {
   pkgPath: string | undefined;
 }
 
-export const PkgPath = ({pkgPath}: Props) => {
+export const PkgPath = ({ pkgPath }: Props) => {
   const renderTooltip = () => {
     return <TooltipWrapper>{pkgPath}</TooltipWrapper>;
   };
 
   const getDisplayPkgPath = (pkgPath?: string | undefined) => {
-    return pkgPath ? pkgPath : '-';
+    return pkgPath ? pkgPath : "-";
   };
 
   return (
@@ -37,7 +37,7 @@ const Container = styled.div`
 `;
 
 const PkgPathText = styled.span`
-  color: ${({theme}) => theme.colors.reverse};
+  color: ${({ theme }) => theme.colors.reverse};
   &.tooltip-path {
     cursor: pointer;
   }

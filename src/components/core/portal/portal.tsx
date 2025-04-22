@@ -1,16 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import {createPortal} from 'react-dom';
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface PortalProps {
   children: React.ReactNode;
   selector: string;
 }
 
-const Portal: React.FC<PortalProps> = ({children, selector}) => {
+const Portal: React.FC<PortalProps> = ({ children, selector }) => {
   const [element, setElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    setElement(document.getElementById(selector ?? 'modal-root'));
+    setElement(document.getElementById(selector ?? "modal-root"));
   }, [selector]);
 
   return <>{element ? createPortal(children, element) : null}</>;
