@@ -1,11 +1,7 @@
-import axios from 'axios';
-import {useEffect, useState} from 'react';
-import {
-  FetchNextPageOptions,
-  InfiniteData,
-  QueryObserverResult,
-  useInfiniteQuery,
-} from 'react-query';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { FetchNextPageOptions, InfiniteData, QueryObserverResult, useInfiniteQuery } from "react-query";
 
 interface Props {
   key: string | string[];
@@ -15,10 +11,10 @@ interface Props {
 
 interface SortOption {
   field: string;
-  order: 'asc' | 'desc' | 'none';
+  order: "asc" | "desc" | "none";
 }
 
-const usePageQuery = <T extends {[key in string]: any}>({
+const usePageQuery = <T extends { [key in string]: any }>({
   key,
   uri,
   pageable = false,
@@ -33,21 +29,20 @@ const usePageQuery = <T extends {[key in string]: any}>({
   finished: boolean;
   hasNextPage?: boolean;
 } => {
-  const [sortOption, setSortOption] = useState<SortOption>({field: 'none', order: 'none'});
-  const {data, fetchNextPage, refetch, isFetched, hasNextPage} = useInfiniteQuery(
+  const [sortOption, setSortOption] = useState<SortOption>({ field: "none", order: "none" });
+  const { data, fetchNextPage, refetch, isFetched, hasNextPage } = useInfiniteQuery(
     [key, sortOption, uri],
     query => fetchData(query.pageParam),
     {
       keepPreviousData: false,
-      getNextPageParam: (lastPage, pages) =>
-        !lastPage || !lastPage.next ? false : pages.length + 1,
+      getNextPageParam: (lastPage, pages) => (!lastPage || !lastPage.next ? false : pages.length + 1),
     },
   );
 
   const createParamSortOption = (sortOption: SortOption) => {
-    const {field, order} = sortOption;
-    if (field === 'none' || order === 'none') {
-      return '';
+    const { field, order } = sortOption;
+    if (field === "none" || order === "none") {
+      return "";
     }
 
     return `target_field=${field}&order=${order}`;
@@ -55,7 +50,7 @@ const usePageQuery = <T extends {[key in string]: any}>({
 
   const createParamPaging = (page: number | undefined) => {
     if (!pageable) {
-      return '';
+      return "";
     }
 
     const currentPage = page ?? 1;
@@ -65,9 +60,9 @@ const usePageQuery = <T extends {[key in string]: any}>({
 
   const fetchData = async (page: number | undefined) => {
     const params = `${createParamPaging(page)}&${createParamSortOption(sortOption)}`;
-    const apiUri = uri.includes('?') ? `${uri}&${params}` : `${uri}?${params}`;
+    const apiUri = uri.includes("?") ? `${uri}&${params}` : `${uri}?${params}`;
     const response = await axios.get<T>(apiUri);
-    if (typeof response.data === 'string') {
+    if (typeof response.data === "string") {
       return undefined;
     }
     return response.data;

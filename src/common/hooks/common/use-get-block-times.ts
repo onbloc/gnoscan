@@ -1,24 +1,18 @@
-import {useQuery} from 'react-query';
-import {useServiceProvider} from '../provider/use-service-provider';
-import {useGetLatestBlock} from './use-get-latest-block';
-import {useGetFirstBlock} from './use-get-first-block';
-import {useNetwork} from '../use-network';
-import {SimpleTransaction} from './use-get-simple-transactions';
+import { useQuery } from "react-query";
+import { useServiceProvider } from "../provider/use-service-provider";
+import { useGetLatestBlock } from "./use-get-latest-block";
+import { useGetFirstBlock } from "./use-get-first-block";
+import { useNetwork } from "../use-network";
+import { SimpleTransaction } from "./use-get-simple-transactions";
 
-export const useGetSimpleTransactionWithTimes = (
-  transactions: SimpleTransaction[] | null | undefined,
-) => {
-  const {currentNetwork} = useNetwork();
-  const {blockRepository} = useServiceProvider();
-  const {latestBlock} = useGetLatestBlock();
-  const {firstBlock} = useGetFirstBlock();
+export const useGetSimpleTransactionWithTimes = (transactions: SimpleTransaction[] | null | undefined) => {
+  const { currentNetwork } = useNetwork();
+  const { blockRepository } = useServiceProvider();
+  const { latestBlock } = useGetLatestBlock();
+  const { firstBlock } = useGetFirstBlock();
 
   return useQuery<SimpleTransaction[] | null>({
-    queryKey: [
-      'useGetSimpleTransactionWithTimes',
-      currentNetwork?.chainId,
-      transactions?.length || 0,
-    ],
+    queryKey: ["useGetSimpleTransactionWithTimes", currentNetwork?.chainId, transactions?.length || 0],
     queryFn: async () => {
       if (!blockRepository || !transactions || !firstBlock || !latestBlock) {
         return null;

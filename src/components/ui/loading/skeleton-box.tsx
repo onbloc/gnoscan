@@ -1,4 +1,4 @@
-import styled, {keyframes} from 'styled-components';
+import styled, { keyframes } from "styled-components";
 
 const pulseKeyframe = keyframes`
   to {
@@ -9,7 +9,7 @@ const pulseKeyframe = keyframes`
 export const SkeletonBoxStyle = styled.div`
   & {
     position: relative;
-    background-color: ${({theme}) => theme.colors.dimmed50};
+    background-color: ${({ theme }) => theme.colors.dimmed50};
     padding: 0px 17px 0px 14px;
     overflow: hidden;
   }
@@ -29,6 +29,6 @@ export const SkeletonBoxStyle = styled.div`
       rgba(170, 170, 170, 0.32) 100%
     );
     animation: ${pulseKeyframe} 2s ease infinite;
-    content: '';
+    content: "";
   }
 `;

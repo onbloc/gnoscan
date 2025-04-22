@@ -1,8 +1,9 @@
-import {toNumber, toString} from '@/common/utils/string-util';
-import {Transaction} from '@/types/data-type';
-import {BankSendValue, MsgRunValue} from '../response/transaction.types';
-import {getDefaultMessage} from '../utility';
-import {AddPackageValue, MsgCallValue, RealmTransaction} from './types';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { toNumber, toString } from "@/common/utils/string-util";
+import { Transaction } from "@/types/data-type";
+import { BankSendValue, MsgRunValue } from "../response/transaction.types";
+import { getDefaultMessage } from "../utility";
+import { AddPackageValue, MsgCallValue, RealmTransaction } from "./types";
 
 export function isAddPackageMessageValue(messageValue: any): messageValue is AddPackageValue {
   return messageValue?.creator !== undefined && messageValue?.package !== undefined;
@@ -22,18 +23,18 @@ export function isMsgRunMessageValue(messageValue: any): messageValue is MsgRunV
 
 export function mapTransactionTypeNameByMessage(message: any): string {
   if (isMsgCallMessageValue(message)) {
-    return 'MsgCall';
+    return "MsgCall";
   }
 
   if (isAddPackageMessageValue(message)) {
-    return 'AddPackage';
+    return "AddPackage";
   }
 
   if (isMsgRunMessageValue(message)) {
-    return 'MsgRun';
+    return "MsgRun";
   }
 
-  return 'BankMsgSend';
+  return "BankMsgSend";
 }
 
 export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
@@ -43,47 +44,47 @@ export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
       hash: tx.hash,
       success: tx.success,
       numOfMessage: tx.messages.length,
-      type: '/vm.m_addpkg',
+      type: "/vm.m_addpkg",
       packagePath: toString(defaultMessage.value.package?.path),
       gasUsed: {
         value: `${tx.gas_used || 0}`,
-        denom: 'ugnot',
+        denom: "ugnot",
       },
-      functionName: 'AddPkg',
+      functionName: "AddPkg",
       blockHeight: toNumber(tx.block_height),
       from: toString(defaultMessage.value.creator),
       amount: {
-        value: '0',
-        denom: 'ugnot',
+        value: "0",
+        denom: "ugnot",
       },
-      time: '',
+      time: "",
       fee: {
         value: toString(tx.gas_fee.amount),
-        denom: 'ugnot',
+        denom: "ugnot",
       },
       messages: tx.messages,
     };
   }
 
-  if (tx.messages.length === 1 && defaultMessage.value.func === 'Transfer') {
+  if (tx.messages.length === 1 && defaultMessage.value.func === "Transfer") {
     return {
       hash: tx.hash,
       success: tx.success,
       numOfMessage: tx.messages.length,
-      type: '/vm.m_call',
+      type: "/vm.m_call",
       packagePath: toString(defaultMessage.value.pkg_path),
       functionName: toString(defaultMessage.value.func),
       blockHeight: toNumber(tx.block_height),
       from: toString(defaultMessage.value.caller),
-      to: defaultMessage.value.args?.[1] || '',
+      to: defaultMessage.value.args?.[1] || "",
       amount: {
         value: toString(defaultMessage.value.args?.[1] || 0),
-        denom: defaultMessage.value.pkg_path || '',
+        denom: defaultMessage.value.pkg_path || "",
       },
-      time: '',
+      time: "",
       fee: {
         value: toString(tx.gas_fee.amount),
-        denom: 'ugnot',
+        denom: "ugnot",
       },
       messages: tx.messages,
     };
@@ -93,19 +94,19 @@ export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
     hash: tx.hash,
     success: tx.success,
     numOfMessage: tx.messages.length,
-    type: '/vm.m_call',
+    type: "/vm.m_call",
     packagePath: toString(defaultMessage.value.pkg_path),
     functionName: toString(defaultMessage.value.func),
     blockHeight: toNumber(tx.block_height),
     from: toString(defaultMessage.value.caller),
     amount: {
       value: toString(defaultMessage.value.send),
-      denom: 'ugnot',
+      denom: "ugnot",
     },
-    time: '',
+    time: "",
     fee: {
       value: toString(tx.gas_fee.amount),
-      denom: 'ugnot',
+      denom: "ugnot",
     },
     messages: tx.messages,
   };

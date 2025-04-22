@@ -1,4 +1,4 @@
-import {Option} from '../option';
+import { Option } from "../option";
 
 export interface Header<T> extends Option<T> {
   key: string;

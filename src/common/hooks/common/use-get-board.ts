@@ -1,6 +1,6 @@
-import {useQuery} from 'react-query';
-import {useServiceProvider} from '../provider/use-service-provider';
-import {Blog, BlogDetail} from '@/types/data-type';
+import { useQuery } from "react-query";
+import { useServiceProvider } from "../provider/use-service-provider";
+import { Blog, BlogDetail } from "@/types/data-type";
 
 export interface SimpleTransaction {
   success: boolean;
@@ -25,10 +25,10 @@ export interface SimpleTransaction {
 }
 
 export const useGetBlogs = (blockHeight?: number | null) => {
-  const {realmRepository} = useServiceProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<Blog[]>({
-    queryKey: ['useGetBlogs', blockHeight || ''],
+    queryKey: ["useGetBlogs", blockHeight || ""],
     queryFn: () => {
       if (!realmRepository) {
         return [];
@@ -40,10 +40,10 @@ export const useGetBlogs = (blockHeight?: number | null) => {
 };
 
 export const useGetBlogPublisher = (path: string) => {
-  const {realmRepository} = useServiceProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<string | null>({
-    queryKey: ['useGetBlogPublisher', path],
+    queryKey: ["useGetBlogPublisher", path],
     queryFn: () => {
       if (!realmRepository) {
         return null;

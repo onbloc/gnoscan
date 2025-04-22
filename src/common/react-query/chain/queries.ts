@@ -1,17 +1,15 @@
-import {UseQueryOptions, useQuery} from 'react-query';
-import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
-import {TokenSupplyInfo, ValidatorInfo} from '@/repositories/chain-repository';
-import {QUERY_KEY} from './types';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
+import { UseQueryOptions, useQuery } from "react-query";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { TokenSupplyInfo, ValidatorInfo } from "@/repositories/chain-repository";
+import { QUERY_KEY } from "./types";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
-export const useGetTokenSupplyQuery = (
-  options?: UseQueryOptions<TokenSupplyInfo | null, Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {chainRepository} = useServiceProvider();
+export const useGetTokenSupplyQuery = (options?: UseQueryOptions<TokenSupplyInfo | null, Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { chainRepository } = useServiceProvider();
 
   return useQuery<TokenSupplyInfo | null, Error>({
-    queryKey: [QUERY_KEY.getTokenSupply, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getTokenSupply, currentNetwork?.chainId || ""],
     queryFn: () => {
       if (!chainRepository) {
         return null;
@@ -23,15 +21,12 @@ export const useGetTokenSupplyQuery = (
   });
 };
 
-export const useGetValidatorsQuery = (
-  height: number,
-  options?: UseQueryOptions<string[] | null, Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {chainRepository} = useServiceProvider();
+export const useGetValidatorsQuery = (height: number, options?: UseQueryOptions<string[] | null, Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { chainRepository } = useServiceProvider();
 
   return useQuery<string[] | null, Error>({
-    queryKey: [QUERY_KEY.getValidators, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getValidators, currentNetwork?.chainId || ""],
     queryFn: () => {
       if (!chainRepository) {
         return null;
@@ -43,19 +38,17 @@ export const useGetValidatorsQuery = (
   });
 };
 
-export const useGetValidatorInfosQuery = (
-  options?: UseQueryOptions<ValidatorInfo[] | null, Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {chainRepository} = useServiceProvider();
+export const useGetValidatorInfosQuery = (options?: UseQueryOptions<ValidatorInfo[] | null, Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { chainRepository } = useServiceProvider();
 
   return useQuery<ValidatorInfo[] | null, Error>({
-    queryKey: [QUERY_KEY.getValidatorInfos, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getValidatorInfos, currentNetwork?.chainId || ""],
     queryFn: () => {
       if (!chainRepository) {
         return [];
       }
-      return chainRepository.getValidatorInfos(currentNetwork?.chainId || '');
+      return chainRepository.getValidatorInfos(currentNetwork?.chainId || "");
     },
     enabled: !!chainRepository,
     ...options,

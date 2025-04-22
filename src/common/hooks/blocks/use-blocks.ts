@@ -1,13 +1,12 @@
-import {useGetBlocksQuery, useGetLatestBlockHeightQuery} from '@/common/react-query/block';
-import {Block} from '@/types/data-type';
-import {useEffect, useMemo, useState} from 'react';
+import { useGetBlocksQuery, useGetLatestBlockHeightQuery } from "@/common/react-query/block";
+import { Block } from "@/types/data-type";
+import { useEffect, useMemo, useState } from "react";
 
 export const useBlocks = () => {
-  const {data: latestBlockHeight} = useGetLatestBlockHeightQuery();
+  const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number>();
 
-  const {data, fetchNextPage, hasNextPage, isFetched, isError} =
-    useGetBlocksQuery(currentBlockHeight);
+  const { data, fetchNextPage, hasNextPage, isFetched, isError } = useGetBlocksQuery(currentBlockHeight);
 
   const blocks = useMemo(() => {
     if (!data?.pages) {

@@ -1,9 +1,9 @@
-import React, {useEffect} from 'react';
-import styled from 'styled-components';
-import Search from '@/assets/svgs/icon-search.svg';
-import mixins from '@/styles/mixins';
-import SearchResult from '../search-result';
-import {useRouter} from '@/common/hooks/common/use-router';
+import React, { useEffect } from "react";
+import styled from "styled-components";
+import Search from "@/assets/svgs/icon-search.svg";
+import mixins from "@/styles/mixins";
+import SearchResult from "../search-result";
+import { useRouter } from "@/common/hooks/common/use-router";
 
 interface SubInputProps {
   className?: string;
@@ -12,7 +12,7 @@ interface SubInputProps {
   clearValue?: () => void;
 }
 
-export const SubInput = ({className = '', value, onChange, clearValue}: SubInputProps) => {
+export const SubInput = ({ className = "", value, onChange, clearValue }: SubInputProps) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export const SubInput = ({className = '', value, onChange, clearValue}: SubInput
   };
 
   const onKeyDownInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       moveSearchPage();
     }
   };
@@ -52,19 +52,19 @@ export const SubInput = ({className = '', value, onChange, clearValue}: SubInput
 };
 
 const Wrapper = styled.div`
-  ${mixins.flexbox('row', 'center', 'center')};
+  ${mixins.flexbox("row", "center", "center")};
   position: relative;
-  background-color: ${({theme}) => theme.colors.base};
+  background-color: ${({ theme }) => theme.colors.base};
   border-radius: 8px;
   height: 40px;
   width: 100%;
   .search-icon {
-    stroke: ${({theme}) => theme.colors.primary};
+    stroke: ${({ theme }) => theme.colors.primary};
   }
 `;
 
 const Button = styled.button`
-  ${mixins.flexbox('row', 'center', 'center')};
+  ${mixins.flexbox("row", "center", "center")};
   width: 48px;
   height: 100%;
   background-color: inherit;
@@ -74,15 +74,15 @@ const Button = styled.button`
 `;
 
 const Input = styled.input`
-  ${({theme}) => theme.fonts.p4};
+  ${({ theme }) => theme.fonts.p4};
   flex-grow: 1;
   height: 100%;
   padding-left: 16px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: ${({theme}) => theme.colors.reverse};
+  color: ${({ theme }) => theme.colors.reverse};
   &:placeholder {
-    color: ${({theme}) => theme.colors.tertiary};
+    color: ${({ theme }) => theme.colors.tertiary};
   }
 `;

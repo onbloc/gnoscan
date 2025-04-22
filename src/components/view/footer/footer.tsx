@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import mixins from '@/styles/mixins';
-import React from 'react';
-import styled, {css} from 'styled-components';
-import dynamic from 'next/dynamic';
-import {DarkModeToggle} from '@/components/ui/button';
-import Discord from '@/assets/svgs/icon-discord.svg';
-import Twitter from '@/assets/svgs/icon-twitter.svg';
-import GnoscanSymbol from '@/assets/svgs/icon-gnoscan-symbol.svg';
-import GnoscanSymbolLight from '@/assets/svgs/icon-gnoscan-symbol-light.svg';
-import Text from '@/components/ui/text';
-import {v1} from 'uuid';
-import {useThemeMode} from '@/common/hooks/use-theme-mode';
+import mixins from "@/styles/mixins";
+import React from "react";
+import styled, { css } from "styled-components";
+import dynamic from "next/dynamic";
+import { DarkModeToggle } from "@/components/ui/button";
+import Discord from "@/assets/svgs/icon-discord.svg";
+import Twitter from "@/assets/svgs/icon-twitter.svg";
+import GnoscanSymbol from "@/assets/svgs/icon-gnoscan-symbol.svg";
+import GnoscanSymbolLight from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
+import Text from "@/components/ui/text";
+import { v1 } from "uuid";
+import { useThemeMode } from "@/common/hooks/use-theme-mode";
 
-const Desktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.Desktop), {
+const Desktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.Desktop), {
   ssr: false,
 });
-const NotDesktop = dynamic(() => import('@/common/hooks/use-media').then(mod => mod.NotDesktop), {
+const NotDesktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NotDesktop), {
   ssr: false,
 });
 
@@ -25,13 +25,13 @@ interface ModProps {
 }
 
 const termsText = [
-  {title: 'Terms of Service', path: '/terms/service'},
-  {title: 'Contact', path: 'mailto:info@gnoscan.io'},
-  {title: 'Feedback', path: 'https://forms.gle/6L2yop3bEMwxk3KJ6'},
+  { title: "Terms of Service", path: "/terms/service" },
+  { title: "Contact", path: "mailto:info@gnoscan.io" },
+  { title: "Feedback", path: "https://forms.gle/6L2yop3bEMwxk3KJ6" },
 ];
 
-const Definition = ({isDesktop}: ModProps) => {
-  const {isDark} = useThemeMode();
+const Definition = ({ isDesktop }: ModProps) => {
+  const { isDark } = useThemeMode();
 
   return (
     <DefinitionWrapper isDesktop={isDesktop}>
@@ -40,27 +40,27 @@ const Definition = ({isDesktop}: ModProps) => {
       ) : (
         <GnoscanSymbolLight className="svg-icon" width="18" height="18" />
       )}
-      <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
+      <Text type={isDesktop ? "p4" : "body1"} color="tertiary">
         Powered by gno.land Blockchain
       </Text>
     </DefinitionWrapper>
   );
 };
 
-const Copyright = ({isDesktop}: ModProps) => {
+const Copyright = ({ isDesktop }: ModProps) => {
   const year = new Date().getFullYear();
   return (
-    <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary" margin="0 9px 0 0">
+    <Text type={isDesktop ? "p4" : "body1"} color="tertiary" margin="0 9px 0 0">
       {`@ ${year} GnoScan`}
     </Text>
   );
 };
 
-const Terms = ({isDesktop}: ModProps) => (
+const Terms = ({ isDesktop }: ModProps) => (
   <FTextWrapper isDesktop={isDesktop}>
     {termsText.map((v, i) => (
       <a className="hr-text" href={v.path} key={v1()}>
-        <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary">
+        <Text type={isDesktop ? "p4" : "body1"} color="tertiary">
           {v.title}
         </Text>
       </a>
@@ -68,9 +68,9 @@ const Terms = ({isDesktop}: ModProps) => (
   </FTextWrapper>
 );
 
-const Community = ({isDesktop}: ModProps) => (
+const Community = ({ isDesktop }: ModProps) => (
   <CommunityWrapper isDesktop={isDesktop}>
-    <Text type={isDesktop ? 'p4' : 'body1'} color="tertiary" className="hr-text">
+    <Text type={isDesktop ? "p4" : "body1"} color="tertiary" className="hr-text">
       Community:
     </Text>
     <SNS href="https://twitter.com/gnoscan" target="_blank">
@@ -111,59 +111,59 @@ export const Footer = () => {
 };
 
 const Wrapper = styled.footer<ModProps>`
-  ${mixins.flexbox('row', 'center', 'center')}
-  background-color: ${({theme}) => theme.colors.base};
+  ${mixins.flexbox("row", "center", "center")}
+  background-color: ${({ theme }) => theme.colors.base};
   margin-top: auto;
   padding: 24px 18px;
-  ${({isDesktop}) =>
+  ${({ isDesktop }) =>
     isDesktop
       ? css`
           height: 80px;
           .inner-layout {
             height: 100%;
-            ${mixins.flexbox('row', 'center', 'flex-start')}
+            ${mixins.flexbox("row", "center", "flex-start")}
           }
         `
       : css`
           height: 194px;
           .inner-layout {
             height: 100%;
-            ${mixins.flexbox('column', 'center', 'center')};
+            ${mixins.flexbox("column", "center", "center")};
           }
         `}
   .svg-icon {
-    fill: ${({theme}) => theme.colors.primary};
+    fill: ${({ theme }) => theme.colors.primary};
   }
 `;
 
 const DefinitionWrapper = styled.div<ModProps>`
-  ${mixins.flexbox('row', 'center', 'center')};
-  margin-right: ${({isDesktop}) => isDesktop && 'auto'};
-  margin-top: ${({isDesktop}) => !isDesktop && 'auto'};
+  ${mixins.flexbox("row", "center", "center")};
+  margin-right: ${({ isDesktop }) => isDesktop && "auto"};
+  margin-top: ${({ isDesktop }) => !isDesktop && "auto"};
   gap: 6px;
 `;
 
 const Hr = css`
-  content: '';
+  content: "";
   height: 12px;
   width: 1px;
-  background-color: ${({theme}) => theme.colors.tertiary};
-  ${mixins.posTopCenterLeft('-9px')}
+  background-color: ${({ theme }) => theme.colors.tertiary};
+  ${mixins.posTopCenterLeft("-9px")}
 `;
 
 const FTextWrapper = styled.div<ModProps>`
-  ${mixins.flexbox('row', 'center', 'center', false)};
-  margin: ${({isDesktop}) => !isDesktop && '16px auto 24px'};
+  ${mixins.flexbox("row", "center", "center", false)};
+  margin: ${({ isDesktop }) => !isDesktop && "16px auto 24px"};
   .hr-text {
     margin: 0px 9px;
-    ${mixins.flexbox('row', 'center', 'center', false)};
+    ${mixins.flexbox("row", "center", "center", false)};
     flex-wrap: wrap;
     position: relative;
     :before {
       ${Hr};
     }
     &:first-of-type:before {
-      display: ${({isDesktop}) => !isDesktop && 'none'};
+      display: ${({ isDesktop }) => !isDesktop && "none"};
     }
   }
 `;
@@ -179,11 +179,11 @@ const CommunityWrapper = styled(FTextWrapper)`
 `;
 
 const SNS = styled.a`
-  ${mixins.flexbox('row', 'center', 'center')};
+  ${mixins.flexbox("row", "center", "center")};
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: ${({theme}) => theme.colors.surface};
+  background-color: ${({ theme }) => theme.colors.surface};
   margin-right: 9px;
   :first-of-type {
     margin-left: 9px;

@@ -1,5 +1,5 @@
-import {ValueWithDenomType} from '@/types/data-type';
-import BigNumber from 'bignumber.js';
+import { ValueWithDenomType } from "@/types/data-type";
+import BigNumber from "bignumber.js";
 
 interface TotalGasShareData {
   date: string;
@@ -9,7 +9,7 @@ interface TotalGasShareData {
   percent: number;
 }
 
-type GraphDataSet = {[key in string]: GraphData[]};
+type GraphDataSet = { [key in string]: GraphData[] };
 
 interface GraphData {
   value: number;
@@ -44,17 +44,14 @@ export class TotalGasShareModel {
   }
 
   public get modelSetOfPackagePath() {
-    const initValue: {[key in string]: Array<TotalGasShareData>} = {};
-    const modelSet = this.datas.reduce(
-      (accum: {[key in string]: Array<TotalGasShareData>}, current) => {
-        if (!accum[current.packagePath]) {
-          accum[current.packagePath] = [];
-        }
-        accum[current.packagePath].push(current);
-        return accum;
-      },
-      initValue,
-    );
+    const initValue: { [key in string]: Array<TotalGasShareData> } = {};
+    const modelSet = this.datas.reduce((accum: { [key in string]: Array<TotalGasShareData> }, current) => {
+      if (!accum[current.packagePath]) {
+        accum[current.packagePath] = [];
+      }
+      accum[current.packagePath].push(current);
+      return accum;
+    }, initValue);
 
     return modelSet;
   }
@@ -63,23 +60,18 @@ export class TotalGasShareModel {
     const modelSet = this.modelSetOfPackagePath;
     const medelPackagePaths = Object.keys(modelSet);
     const packagePathOfDailyFee = medelPackagePaths.reduce(
-      (accum: Array<{packagePath: string; dailyFee: number}>, currentPackagePath) => {
-        const dailyFee = modelSet[currentPackagePath].reduce(
-          (accum, current) => accum + current.packageDailyFee,
-          0,
-        );
+      (accum: Array<{ packagePath: string; dailyFee: number }>, currentPackagePath) => {
+        const dailyFee = modelSet[currentPackagePath].reduce((accum, current) => accum + current.packageDailyFee, 0);
         accum.push({
           packagePath: currentPackagePath,
           dailyFee,
         });
         return accum;
       },
-      [] as Array<{packagePath: string; dailyFee: number}>,
+      [] as Array<{ packagePath: string; dailyFee: number }>,
     );
 
-    return packagePathOfDailyFee
-      .sort((d1, d2) => d1.dailyFee - d2.dailyFee)
-      .map(data => data.packagePath);
+    return packagePathOfDailyFee.sort((d1, d2) => d1.dailyFee - d2.dailyFee).map(data => data.packagePath);
   }
 
   public get chartData() {
@@ -97,13 +89,10 @@ export class TotalGasShareModel {
       for (let dateIndex = 0; dateIndex < labels.length; dateIndex++) {
         // Filter all data by comparing dates to the package paths that need to be calculated cumulatively.
         const result = this.datas
-          .filter(({date}) => date === labels[dateIndex])
-          .filter(({packagePath}) =>
+          .filter(({ date }) => date === labels[dateIndex])
+          .filter(({ packagePath }) =>
             rankPackagePaths
-              .slice(
-                0,
-                rankPackagePaths.findIndex(filteredPath => filteredPath === currentPackagePath) + 1,
-              )
+              .slice(0, rankPackagePaths.findIndex(filteredPath => filteredPath === currentPackagePath) + 1)
               .includes(packagePath),
           );
 
@@ -135,8 +124,8 @@ export class TotalGasShareModel {
   }) => {
     return packages.map(item => {
       return {
-        date: date ?? '',
-        packagePath: `${item.path}`.replace('gno.land', ''),
+        date: date ?? "",
+        packagePath: `${item.path}`.replace("gno.land", ""),
         packageDailyFee: BigNumber(item.daily_fee || 0).toNumber(),
         totalDailyFee: BigNumber(daily_total_fee.value || 0).toNumber(),
         percent: BigNumber(item.percent || 0).toNumber(),

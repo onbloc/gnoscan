@@ -1,4 +1,5 @@
-import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import {
   AddPackageValue,
   GRC20Info,
@@ -7,25 +8,18 @@ import {
   RealmFunction,
   RealmTransaction,
   RealmTransactionInfo,
-} from './types';
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {parseABCI} from '@gnolang/tm2-js-client';
-import {toBech32AddressByPackagePath} from '@/common/utils/bech32.utility';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {Amount, Blog} from '@/types/data-type';
-import {isAddPackageMessageValue} from './mapper';
-import {
-  GRC20_FUNCTIONS,
-  parseBankerGRC20InfoByFile,
-  parseGRC20InfoByFile,
-} from '@/common/utils/realm.utility';
-import {GNOTToken} from '@/common/hooks/common/use-token-meta';
-import {TransactionWithEvent} from '../response/transaction.types';
-import {
-  extractStringFromResponse,
-  parseABCIQueryNumberResponse,
-} from '@/common/clients/node-client/utility';
-import {PageInfo, PageOption, PageQueryResponse} from '@/common/clients/indexer-client/types';
+} from "./types";
+import { NodeRPCClient } from "@/common/clients/node-client";
+import { parseABCI } from "@gnolang/tm2-js-client";
+import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
+import { parseTokenAmount } from "@/common/utils/token.utility";
+import { Amount, Blog } from "@/types/data-type";
+import { isAddPackageMessageValue } from "./mapper";
+import { GRC20_FUNCTIONS, parseBankerGRC20InfoByFile, parseGRC20InfoByFile } from "@/common/utils/realm.utility";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { TransactionWithEvent } from "../response/transaction.types";
+import { extractStringFromResponse, parseABCIQueryNumberResponse } from "@/common/clients/node-client/utility";
+import { PageInfo, PageOption, PageQueryResponse } from "@/common/clients/indexer-client/types";
 import {
   makeRealmTransactionInfoQuery,
   makeTokenQuery,
@@ -40,9 +34,9 @@ import {
   makeRealmTransactionsWithArgsQuery,
   makeLatestRealmsQuery,
   makeRealmTransactionsByEventQuery,
-} from './onbloc-query';
-import {makeRPCRequest, RPCClient} from '@/common/clients/rpc-client';
-import BigNumber from 'bignumber.js';
+} from "./onbloc-query";
+import { makeRPCRequest, RPCClient } from "@/common/clients/rpc-client";
+import BigNumber from "bignumber.js";
 
 export class OnblocRealmRepository implements IRealmRepository {
   constructor(
@@ -94,7 +88,7 @@ export class OnblocRealmRepository implements IRealmRepository {
       return null;
     }
 
-    const realmAddress = toBech32AddressByPackagePath('g', realmPath);
+    const realmAddress = toBech32AddressByPackagePath("g", realmPath);
     return this.nodeClient
       .abciQueryBankBalances(realmAddress)
       .then(response => response?.response?.ResponseBase?.Data)
@@ -186,9 +180,7 @@ export class OnblocRealmRepository implements IRealmRepository {
       .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
   }
 
-  async getRealmCallTransactionsWithArgs(
-    realmPath: string,
-  ): Promise<RealmTransaction<MsgCallValue>[] | null> {
+  async getRealmCallTransactionsWithArgs(realmPath: string): Promise<RealmTransaction<MsgCallValue>[] | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -204,15 +196,13 @@ export class OnblocRealmRepository implements IRealmRepository {
     }
 
     return this.nodeClient
-      .abciQueryVMQueryEvaluation(realmPath, 'TotalSupply', [])
+      .abciQueryVMQueryEvaluation(realmPath, "TotalSupply", [])
       .then(response => response?.response?.ResponseBase?.Data || null)
       .then(parseABCIQueryNumberResponse)
       .catch(() => null);
   }
 
-  async getRealmTransactionInfos(
-    fromHeight?: number,
-  ): Promise<{[key in string]: RealmTransactionInfo} | null> {
+  async getRealmTransactionInfos(fromHeight?: number): Promise<{ [key in string]: RealmTransactionInfo } | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -226,11 +216,11 @@ export class OnblocRealmRepository implements IRealmRepository {
       return null;
     }
 
-    return transactions.reduce<{[key in string]: RealmTransactionInfo}>(
-      (accum: {[key in string]: RealmTransactionInfo}, current: RealmTransaction) => {
+    return transactions.reduce<{ [key in string]: RealmTransactionInfo }>(
+      (accum: { [key in string]: RealmTransactionInfo }, current: RealmTransaction) => {
         const packagePathsOfMessages = current.messages
           .filter(message => !isAddPackageMessageValue(message.value))
-          .map(message => (message.value as MsgCallValue).pkg_path || '')
+          .map(message => (message.value as MsgCallValue).pkg_path || "")
           .filter(packagePath => !!packagePath);
 
         for (const packagePath of [...new Set(packagePathsOfMessages)]) {
@@ -267,8 +257,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     return transactions.reduce<RealmTransactionInfo>(
       (accum: RealmTransactionInfo, current: RealmTransaction) => {
         const availableTransactionCallMessages = current.messages.filter(
-          message =>
-            !isAddPackageMessageValue(message.value) && message.value.pkg_path === packagePath,
+          message => !isAddPackageMessageValue(message.value) && message.value.pkg_path === packagePath,
         );
 
         if (availableTransactionCallMessages.length > 0) {
@@ -278,7 +267,7 @@ export class OnblocRealmRepository implements IRealmRepository {
 
         return accum;
       },
-      {msgCallCount: 0, gasUsed: 0},
+      { msgCallCount: 0, gasUsed: 0 },
     );
   }
 
@@ -292,9 +281,7 @@ export class OnblocRealmRepository implements IRealmRepository {
 
     const response: {
       data: PageQueryResponse<RealmTransaction<AddPackageValue>>;
-    } = await this.indexerClient.pageQuery<RealmTransaction<AddPackageValue>>(
-      makeRealmPackagesQuery(cursor),
-    );
+    } = await this.indexerClient.pageQuery<RealmTransaction<AddPackageValue>>(makeRealmPackagesQuery(cursor));
 
     const pageInfo = response?.data?.transactions?.pageInfo;
     const transactionEdges = response?.data?.transactions?.edges || [];
@@ -311,7 +298,7 @@ export class OnblocRealmRepository implements IRealmRepository {
       return null;
     }
 
-    const request = makeRPCRequest({method: 'getGRC20Tokens'});
+    const request = makeRPCRequest({ method: "getGRC20Tokens" });
     const response = await this.onblocRPCClient.call<
       {
         name: string;
@@ -360,8 +347,7 @@ export class OnblocRealmRepository implements IRealmRepository {
         }
 
         for (const file of files) {
-          const tokenInfo =
-            parseGRC20InfoByFile(file.body) || parseBankerGRC20InfoByFile(file.body);
+          const tokenInfo = parseGRC20InfoByFile(file.body) || parseBankerGRC20InfoByFile(file.body);
           const tokenPath = message.value.package?.path;
           if (tokenInfo && tokenPath === packagePath) {
             return {
@@ -394,7 +380,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     };
   }
 
-  async getUsernames(): Promise<{[key in string]: string}> {
+  async getUsernames(): Promise<{ [key in string]: string }> {
     if (!this.indexerClient) {
       return {};
     }
@@ -407,7 +393,7 @@ export class OnblocRealmRepository implements IRealmRepository {
         }[]
       >(
         makeRPCRequest({
-          method: 'getUsernames',
+          method: "getUsernames",
         }),
       );
 
@@ -415,7 +401,7 @@ export class OnblocRealmRepository implements IRealmRepository {
         return {};
       }
 
-      return response.result.reduce<{[key in string]: string}>((accum, current) => {
+      return response.result.reduce<{ [key in string]: string }>((accum, current) => {
         accum[current.address] = current.name;
         return accum;
       }, {});
@@ -432,7 +418,7 @@ export class OnblocRealmRepository implements IRealmRepository {
 
     return transactions
       .flatMap(tx => tx.messages)
-      .reduce<{[key in string]: string}>((accum, current) => {
+      .reduce<{ [key in string]: string }>((accum, current) => {
         if (current.value.caller && current.value.args) {
           accum[current.value.caller] = current.value.args?.[1] || current.value.caller;
         }
@@ -445,10 +431,10 @@ export class OnblocRealmRepository implements IRealmRepository {
       return 0;
     }
 
-    const nodeResponse = await this.nodeClient.abciQueryVMQueryRender(packagePath + ':', []);
+    const nodeResponse = await this.nodeClient.abciQueryVMQueryRender(packagePath + ":", []);
     const responseData = nodeResponse.response.ResponseBase.Data
       ? extractStringFromResponse(nodeResponse.response.ResponseBase.Data)
-      : '';
+      : "";
 
     if (responseData) {
       const regex = /(?:\*\s*)?\**\s*(?:Known\s+)?(accounts|users|holders)\**\s*:\s*(\d+)/i;
@@ -491,7 +477,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     }
 
     const responseData = await this.mainNodeRPCClient
-      .abciQueryVMQueryRender('gno.land/r/gnoland/blog:', [])
+      .abciQueryVMQueryRender("gno.land/r/gnoland/blog:", [])
       .then(response => response?.response?.ResponseBase?.Data)
       .then(extractStringFromResponse);
 
@@ -525,7 +511,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     }
 
     const responseData = await this.mainNodeRPCClient
-      .abciQueryVMQueryRender('gno.land' + path, [])
+      .abciQueryVMQueryRender("gno.land" + path, [])
       .then(response => response?.response?.ResponseBase?.Data)
       .then(extractStringFromResponse);
 

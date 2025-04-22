@@ -1,10 +1,10 @@
-import {useMemo} from 'react';
-import BigNumber from 'bignumber.js';
-import styled from 'styled-components';
+import { useMemo } from "react";
+import BigNumber from "bignumber.js";
+import styled from "styled-components";
 
-import Text from '@/components/ui/text';
-import {FontsType, PaletteKeyType} from '@/styles';
-import mixins from '@/styles/mixins';
+import Text from "@/components/ui/text";
+import { FontsType, PaletteKeyType } from "@/styles";
+import mixins from "@/styles/mixins";
 
 interface AmountTextProps {
   minSize: FontsType;
@@ -20,33 +20,33 @@ export const AmountText = ({
   minSize,
   maxSize,
   value,
-  denom = '',
-  color = 'primary',
+  denom = "",
+  color = "primary",
   decimals = 6,
   className,
 }: AmountTextProps) => {
   const numberValues = useMemo(() => {
-    const valueStr = typeof value === 'string' ? value.replace(/,/g, '') : value.toString();
+    const valueStr = typeof value === "string" ? value.replace(/,/g, "") : value.toString();
     if (BigNumber(valueStr).isNaN() || valueStr.length === 0) {
       return null;
     }
 
-    const numbers = valueStr.split('.');
+    const numbers = valueStr.split(".");
     if (numbers.length > 1) {
       return {
         integer: numbers[0],
-        decimal: numbers[1] || '0',
+        decimal: numbers[1] || "0",
       };
     }
     return {
       integer: numbers[0],
-      decimal: '0',
+      decimal: "0",
     };
   }, [value]);
 
   const formattedInteger = useMemo(() => {
     if (!numberValues) {
-      return '';
+      return "";
     }
 
     return BigNumber(numberValues.integer).toFormat(0);
@@ -54,11 +54,11 @@ export const AmountText = ({
 
   const formattedDecimals = useMemo(() => {
     if (!numberValues) {
-      return '';
+      return "";
     }
 
-    if (numberValues.decimal === '0') {
-      return '';
+    if (numberValues.decimal === "0") {
+      return "";
     }
 
     return `.${numberValues.decimal.toString().slice(0, decimals)}`;
@@ -86,7 +86,7 @@ export const AmountText = ({
 };
 
 const Wrapper = styled.div`
-  ${mixins.flexbox('row', 'center', 'flex-start')};
+  ${mixins.flexbox("row", "center", "flex-start")};
 
   &,
   & * {
@@ -95,6 +95,6 @@ const Wrapper = styled.div`
   }
 
   .decimals::after {
-    content: ' ';
+    content: " ";
   }
 `;

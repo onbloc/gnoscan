@@ -1,7 +1,7 @@
-import React from 'react';
-import Text from '@/components/ui/text';
-import {DetailsContainer} from '@/components/ui/detail-page-common-styles';
-import {isDesktop} from '@/common/hooks/use-media';
+import React from "react";
+import Text from "@/components/ui/text";
+import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
+import { isDesktop } from "@/common/hooks/use-media";
 
 interface DataListSectionProps {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ interface DataListSectionProps {
   setCurrentTab: (tab: string) => void;
 }
 
-const DataListSection = ({children, tabs, currentTab, setCurrentTab}: DataListSectionProps) => {
+const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
   const desktop = isDesktop();
   return (
     <DetailsContainer desktop={desktop}>
@@ -21,14 +21,15 @@ const DataListSection = ({children, tabs, currentTab, setCurrentTab}: DataListSe
         {tabs.map((tab, index) => (
           <div className="tab-item" key={index} onClick={() => setCurrentTab(tab.tabName)}>
             <Text
-              type={desktop ? 'h4' : 'h6'}
-              color={currentTab === tab.tabName ? 'primary' : 'tertiary'}
-              margin={desktop ? '0 0 16px 0' : '0 0 16px 0'}>
+              type={desktop ? "h4" : "h6"}
+              color={currentTab === tab.tabName ? "primary" : "tertiary"}
+              margin={desktop ? "0 0 16px 0" : "0 0 16px 0"}
+            >
               {tab.tabName}
             </Text>
             {tab.size !== undefined && (
-              <div className={desktop ? 'badge' : 'badge small'}>
-                <Text type={'p4'} color={'primary'}>
+              <div className={desktop ? "badge" : "badge small"}>
+                <Text type={"p4"} color={"primary"}>
                   {tab.size}
                 </Text>
               </div>

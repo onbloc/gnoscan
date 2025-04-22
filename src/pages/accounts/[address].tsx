@@ -1,27 +1,28 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
-import React, {useEffect, useMemo, useState} from 'react';
-import styled from 'styled-components';
-import {eachMedia, isDesktop} from '@/common/hooks/use-media';
-import {DetailsPageLayout} from '@/components/core/layout';
-import Text from '@/components/ui/text';
-import mixins from '@/styles/mixins';
-import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
-import IconCopy from '@/assets/svgs/icon-copy.svg';
-import {AmountText} from '@/components/ui/text/amount-text';
-import Tooltip from '@/components/ui/tooltip';
-import DataSection from '@/components/view/details-data-section';
-import {AccountDetailDatatable} from '@/components/view/datatable';
-import {useAccount} from '@/common/hooks/account/use-account';
-import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {Amount} from '@/types/data-type';
-import DataListSection from '@/components/view/details-data-section/data-list-section';
-import {EventDatatable} from '@/components/view/datatable/event';
-import {useUsername} from '@/common/hooks/account/use-username';
-import {isBech32Address} from '@/common/utils/bech32.utility';
-import IconLink from '@/assets/svgs/icon-link.svg';
-import {useNetwork} from '@/common/hooks/use-network';
-import IconTableLoading from '@/assets/svgs/icon-table-loading.svg';
+import React, { useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
+import { eachMedia, isDesktop } from "@/common/hooks/use-media";
+import { DetailsPageLayout } from "@/components/core/layout";
+import Text from "@/components/ui/text";
+import mixins from "@/styles/mixins";
+import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
+import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { AmountText } from "@/components/ui/text/amount-text";
+import Tooltip from "@/components/ui/tooltip";
+import DataSection from "@/components/view/details-data-section";
+import { AccountDetailDatatable } from "@/components/view/datatable";
+import { useAccount } from "@/common/hooks/account/use-account";
+import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { Amount } from "@/types/data-type";
+import DataListSection from "@/components/view/details-data-section/data-list-section";
+import { EventDatatable } from "@/components/view/datatable/event";
+import { useUsername } from "@/common/hooks/account/use-username";
+import { isBech32Address } from "@/common/utils/bech32.utility";
+import IconLink from "@/assets/svgs/icon-link.svg";
+import { useNetwork } from "@/common/hooks/use-network";
+import IconTableLoading from "@/assets/svgs/icon-table-loading.svg";
 
 interface AccountDetailsPageProps {
   address: string;
@@ -34,19 +35,19 @@ interface StyleProps {
   isDesktop?: boolean;
 }
 
-const AccountDetails = ({address}: AccountDetailsPageProps) => {
+const AccountDetails = ({ address }: AccountDetailsPageProps) => {
   const media = eachMedia();
   const desktop = isDesktop();
-  const {getTokenImage, getTokenAmount, getTokenInfo} = useTokenMeta();
-  const {currentNetwork} = useNetwork();
-  const {isFetched: isFetchedUsername, getName, getAddress} = useUsername();
+  const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
+  const { currentNetwork } = useNetwork();
+  const { isFetched: isFetchedUsername, getName, getAddress } = useUsername();
 
   const bech32Address = useMemo(() => {
     if (isBech32Address(address)) {
       return address;
     }
     if (!isFetchedUsername) {
-      return '';
+      return "";
     }
     return getAddress(address) || null;
   }, [address, isFetchedUsername]);
@@ -59,35 +60,31 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
     if (!isFetchedUsername) {
       return null;
     }
-    return getName(bech32Address || '');
+    return getName(bech32Address || "");
   }, [bech32Address, isFetchedUsername]);
 
   const gnoUserUrl = useMemo(() => {
     if (!username) {
       return null;
     }
-    if (!currentNetwork || currentNetwork?.chainId === 'portal-loop') {
+    if (!currentNetwork || currentNetwork?.chainId === "portal-loop") {
       return `https://gno.land/r/demo/users:${username}`;
     }
     return `https://${currentNetwork.chainId}.gno.land/r/demo/users:${username}`;
   }, [currentNetwork, username]);
 
-  const {
-    isFetched,
-    isFetchedAssets,
-    isFetchedAccountTransactions,
-    tokenBalances,
-    transactionEvents,
-  } = useAccount(bech32Address || '');
-  const [currentTab, setCurrentTab] = useState('Transactions');
+  const { isFetched, isFetchedAssets, isFetchedAccountTransactions, tokenBalances, transactionEvents } = useAccount(
+    bech32Address || "",
+  );
+  const [currentTab, setCurrentTab] = useState("Transactions");
 
   const detailTabs = useMemo(() => {
     return [
       {
-        tabName: 'Transactions',
+        tabName: "Transactions",
       },
       {
-        tabName: 'Events',
+        tabName: "Events",
         size: transactionEvents.length,
       },
     ];
@@ -98,23 +95,25 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
       title="Account Details"
       visible={!(isFetched && isFetchedUsername)}
       keyword={`${bech32Address || address}`}
-      error={isError}>
+      error={isError}
+    >
       <DataSection title="Address">
-        <GrayBox padding={desktop ? '22px 24px' : '12px 16px'}>
-          <AddressTextBox type={desktop ? 'p4' : 'p4'} color="primary" media={media}>
+        <GrayBox padding={desktop ? "22px 24px" : "12px 16px"}>
+          <AddressTextBox type={desktop ? "p4" : "p4"} color="primary" media={media}>
             {bech32Address}
             <Tooltip
               className="address-copy-tooltip"
               content="Copied!"
               trigger="click"
-              copyText={bech32Address || ''}
-              width={85}>
-              <IconCopy className={`svg-icon ${username ? '' : 'tidy'}`} />
+              copyText={bech32Address || ""}
+              width={85}
+            >
+              <IconCopy className={`svg-icon ${username ? "" : "tidy"}`} />
             </Tooltip>
 
             {username && (
               <Text type="p4" color="blue" className="username-text">
-                <StyledA href={gnoUserUrl || ''} target="_blank" rel="noreferrer">
+                <StyledA href={gnoUserUrl || ""} target="_blank" rel="noreferrer">
                   {username}
                   <IconLink className="svg-icon" />
                 </StyledA>
@@ -125,10 +124,10 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
       </DataSection>
 
       <DataSection title="Assets">
-        <Content className={isFetchedAssets ? media : ''}>
+        <Content className={isFetchedAssets ? media : ""}>
           {isFetchedAssets &&
             tokenBalances.map((amount: Amount, index: number) => (
-              <GrayBox key={index} padding={desktop ? '16px 24px' : '12px 16px'}>
+              <GrayBox key={index} padding={desktop ? "16px 24px" : "12px 16px"}>
                 <LogoImg>
                   {getTokenImage(amount.denom) ? (
                     <img src={getTokenImage(amount.denom)} alt="token-image" />
@@ -137,14 +136,10 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
                   )}
                 </LogoImg>
 
-                <Text type={desktop ? 'p3' : 'p4'} color="primary" margin="0px auto 0px 16px">
-                  {getTokenInfo(amount.denom)?.name || ''}
+                <Text type={desktop ? "p3" : "p4"} color="primary" margin="0px auto 0px 16px">
+                  {getTokenInfo(amount.denom)?.name || ""}
                 </Text>
-                <AmountText
-                  minSize="p4"
-                  maxSize="p3"
-                  {...getTokenAmount(amount.denom, amount.value)}
-                />
+                <AmountText minSize="p4" maxSize="p3" {...getTokenAmount(amount.denom, amount.value)} />
               </GrayBox>
             ))}
 
@@ -157,8 +152,8 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
       </DataSection>
 
       <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-        {currentTab === 'Transactions' && <AccountDetailDatatable address={`${bech32Address}`} />}
-        {currentTab === 'Events' && (
+        {currentTab === "Transactions" && <AccountDetailDatatable address={`${bech32Address}`} />}
+        {currentTab === "Events" && (
           <EventDatatable isFetched={isFetchedAccountTransactions} events={transactionEvents} />
         )}
       </DataListSection>
@@ -166,7 +161,7 @@ const AccountDetails = ({address}: AccountDetailsPageProps) => {
   );
 };
 
-export async function getServerSideProps({params}: any) {
+export async function getServerSideProps({ params }: any) {
   const keyword = params.address;
   return {
     props: {
@@ -183,21 +178,21 @@ const AddressTextBox = styled(Text)<StyleProps>`
     vertical-align: text-bottom;
   }
   .svg-icon {
-    stroke: ${({theme}) => theme.colors.primary};
+    stroke: ${({ theme }) => theme.colors.primary};
     margin-left: 5px;
   }
   .username-text {
-    ${mixins.flexbox('row', 'center', 'center', false)};
+    ${mixins.flexbox("row", "center", "center", false)};
     position: relative;
-    padding-left: ${({media}) => (media === 'mobile' ? '14px' : '40px')};
+    padding-left: ${({ media }) => (media === "mobile" ? "14px" : "40px")};
     word-break: keep-all;
     &:after {
-      content: '';
+      content: "";
       width: 1px;
       height: 18px;
-      background-color: ${({theme}) => theme.colors.primary};
+      background-color: ${({ theme }) => theme.colors.primary};
       ${mixins.posTopCenterLeft(0)};
-      margin-left: ${({media}) => (media === 'mobile' ? '7px' : '20px')};
+      margin-left: ${({ media }) => (media === "mobile" ? "7px" : "20px")};
     }
   }
 
@@ -230,33 +225,33 @@ const Content = styled.div<StyleProps>`
     }
 
     stop {
-      stop-color: ${({theme}) => theme.colors.surface};
+      stop-color: ${({ theme }) => theme.colors.surface};
     }
 
     circle {
-      fill: ${({theme}) => theme.colors.surface};
+      fill: ${({ theme }) => theme.colors.surface};
     }
   }
 `;
 
 const GrayBox = styled.div<StyleProps>`
-  ${mixins.flexbox('row', 'center', 'flex-start')};
+  ${mixins.flexbox("row", "center", "flex-start")};
   width: 100%;
-  padding: ${({padding}) => padding};
-  background-color: ${({theme}) => theme.colors.surface};
+  padding: ${({ padding }) => padding};
+  background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 4px;
 `;
 
 const StyledA = styled.a`
-  ${mixins.flexbox('row', 'center', 'center')};
+  ${mixins.flexbox("row", "center", "center")};
 `;
 
 const LogoImg = styled.div`
-  ${mixins.flexbox('row', 'center', 'center')};
+  ${mixins.flexbox("row", "center", "center")};
   border-radius: 50%;
-  background-color: ${({theme}) => theme.colors.base};
+  background-color: ${({ theme }) => theme.colors.base};
   .logo-icon {
-    fill: ${({theme}) => theme.colors.primary};
+    fill: ${({ theme }) => theme.colors.primary};
   }
   img {
     width: 40px;

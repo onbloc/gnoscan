@@ -1,7 +1,7 @@
-import theme, {Palette} from '@/styles/theme';
-import React from 'react';
-import styled from 'styled-components';
-import {AmountText} from '../../text/amount-text';
+import theme, { Palette } from "@/styles/theme";
+import React from "react";
+import styled from "styled-components";
+import { AmountText } from "../../text/amount-text";
 
 interface TooltipProps {
   title: string;
@@ -10,38 +10,34 @@ interface TooltipProps {
   isDenom?: boolean;
 }
 
-export const BarChartTooltip = ({themeMode, title, value, isDenom}: TooltipProps) => {
+export const BarChartTooltip = ({ themeMode, title, value, isDenom }: TooltipProps) => {
   return (
-    <TooltipContainer light={themeMode === 'light'}>
+    <TooltipContainer light={themeMode === "light"}>
       <div className="tooltip-header">
         <p className="tooltip-title">{title}</p>
       </div>
       <div className="tooltip-body">
         <div className="tooltip-content">
-          {isDenom ? (
-            <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={value} />
-          ) : (
-            <span>{value}</span>
-          )}
+          {isDenom ? <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={value} /> : <span>{value}</span>}
         </div>
       </div>
     </TooltipContainer>
   );
 };
 
-const TooltipContainer = styled.div<{light: boolean}>`
+const TooltipContainer = styled.div<{ light: boolean }>`
   & {
     display: flex;
     flex-direction: column;
     width: 156px;
     height: 84px;
-    background-color: ${({light}) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
+    background-color: ${({ light }) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
     padding: 16px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 8px;
 
     .tooltip-header {
-      color: ${({light}) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};
+      color: ${({ light }) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};
       margin-bottom: 4px;
       ${theme.fonts.body1};
     }
@@ -54,8 +50,8 @@ const TooltipContainer = styled.div<{light: boolean}>`
       display: flex;
       align-items: flex-end;
       justify-content: flex-start;
-      background-color: ${({theme}) => theme.colors.dimmed50};
-      color: ${({light}) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
+      background-color: ${({ theme }) => theme.colors.dimmed50};
+      color: ${({ light }) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
       ${theme.fonts.p4};
 
       span {

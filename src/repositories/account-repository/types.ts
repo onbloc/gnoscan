@@ -1,12 +1,10 @@
-import {Transaction} from '@/types/data-type';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Transaction } from "@/types/data-type";
 
 export interface IAccountRepository {
   getNativeTokensBalances(address: string): Promise<any>;
   getGRC20TokensBalances(address: string, tokenPaths: string[]): Promise<any>;
-  getAccountTransactions(
-    address: string,
-    cursor: string | null,
-  ): Promise<AccountTransactionResponse>;
+  getAccountTransactions(address: string, cursor: string | null): Promise<AccountTransactionResponse>;
   getGRC20ReceivedPackagePaths(address: string): Promise<string[] | null>;
   getGRC20ReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null>;
   getNativeTokenSendTransactionsByAddress(address: string): Promise<Transaction[] | null>;

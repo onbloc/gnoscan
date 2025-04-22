@@ -1,4 +1,4 @@
-import {HttpRPCClient, RPCClient, RPCResponse, makeRPCRequest} from '../rpc-client';
+import { HttpRPCClient, RPCClient, RPCResponse, makeRPCRequest } from "../rpc-client";
 import {
   NodeClient,
   NodeResponseABCIInfo,
@@ -10,17 +10,17 @@ import {
   NodeResponseStatus,
   NodeResponseTx,
   NodeResponseValidators,
-} from './types';
+} from "./types";
 import {
   makeRPCUrl,
   prepareVMABCIEvaluateExpressionQuery,
   prepareVMABCIQuery,
   prepareVMABCIQueryWithSeparator,
-} from './utility';
+} from "./utility";
 
 function handleResponse<T>(response: RPCResponse<T>): T {
   if (!response.result) {
-    throw new Error('error');
+    throw new Error("error");
   }
   return response.result;
 }
@@ -32,12 +32,12 @@ export class NodeRPCClient implements NodeClient {
   constructor(rpcUrl: string, chainId?: string) {
     const currentRPCUrl = makeRPCUrl(rpcUrl);
     this.rpcClient = new HttpRPCClient(currentRPCUrl.httpUrl);
-    this.chainId = chainId || '';
+    this.chainId = chainId || "";
   }
 
   health(): Promise<boolean> {
     const request = makeRPCRequest({
-      method: 'health',
+      method: "health",
       params: [],
     });
 
@@ -46,7 +46,7 @@ export class NodeRPCClient implements NodeClient {
 
   status(): Promise<NodeResponseStatus> {
     const request = makeRPCRequest({
-      method: 'status',
+      method: "status",
       params: [],
     });
 
@@ -55,7 +55,7 @@ export class NodeRPCClient implements NodeClient {
 
   genesis(): Promise<NodeResponseGenesis> {
     const request = makeRPCRequest({
-      method: 'genesis',
+      method: "genesis",
       params: [],
     });
 
@@ -64,7 +64,7 @@ export class NodeRPCClient implements NodeClient {
 
   block(height: number): Promise<NodeResponseBlock> {
     const request = makeRPCRequest({
-      method: 'block',
+      method: "block",
       params: [height.toString()],
     });
 
@@ -73,7 +73,7 @@ export class NodeRPCClient implements NodeClient {
 
   blockResults(height: number): Promise<NodeResponseBlockResults> {
     const request = makeRPCRequest({
-      method: 'block_results',
+      method: "block_results",
       params: [height.toString()],
     });
 
@@ -82,7 +82,7 @@ export class NodeRPCClient implements NodeClient {
 
   blockchain(minHeight: number, maxHeight: number): Promise<NodeResponseBlockchainInfo> {
     const request = makeRPCRequest({
-      method: 'blockchain',
+      method: "blockchain",
       params: [minHeight.toString(), maxHeight.toString()],
     });
 
@@ -91,7 +91,7 @@ export class NodeRPCClient implements NodeClient {
 
   validators(height: number): Promise<NodeResponseValidators> {
     const request = makeRPCRequest({
-      method: 'validators',
+      method: "validators",
       params: [height.toString()],
     });
 
@@ -100,7 +100,7 @@ export class NodeRPCClient implements NodeClient {
 
   tx(hash: string): Promise<NodeResponseTx> {
     const request = makeRPCRequest({
-      method: 'tx',
+      method: "tx",
       params: [hash],
     });
 
@@ -109,60 +109,60 @@ export class NodeRPCClient implements NodeClient {
 
   abciInfo(): Promise<NodeResponseABCIInfo> {
     const request = makeRPCRequest({
-      method: 'abci_info',
+      method: "abci_info",
       params: [],
     });
 
     return this.rpcClient.call<NodeResponseABCIInfo>(request).then(handleResponse);
   }
-  abciQuery(path: string, data = ''): Promise<NodeResponseABCIQuery> {
+  abciQuery(path: string, data = ""): Promise<NodeResponseABCIQuery> {
     const request = makeRPCRequest({
-      method: 'abci_query',
-      params: [path, data, '0', false],
+      method: "abci_query",
+      params: [path, data, "0", false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
   }
   abciQueryAuthAccount(address: string): Promise<NodeResponseABCIQuery> {
-    const path = 'auth/accounts/' + address;
+    const path = "auth/accounts/" + address;
 
     return this.abciQuery(path);
   }
   abciQueryBankBalances(address: string): Promise<NodeResponseABCIQuery> {
-    const path = 'bank/balances/' + address;
+    const path = "bank/balances/" + address;
 
     return this.abciQuery(path);
   }
 
   abciQueryVMQueryFuncs(packagePath: string): Promise<NodeResponseABCIQuery> {
-    const path = 'vm/qfuncs';
+    const path = "vm/qfuncs";
 
     const request = makeRPCRequest({
-      method: 'abci_query',
-      params: [path, prepareVMABCIQuery([packagePath]), '0', false],
+      method: "abci_query",
+      params: [path, prepareVMABCIQuery([packagePath]), "0", false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
   }
 
   abciQueryVMQueryFile(packagePath: string): Promise<NodeResponseABCIQuery> {
-    const path = 'vm/qfile';
+    const path = "vm/qfile";
 
     const request = makeRPCRequest({
-      method: 'abci_query',
-      params: [path, prepareVMABCIQuery([packagePath]), '0', false],
+      method: "abci_query",
+      params: [path, prepareVMABCIQuery([packagePath]), "0", false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
   }
 
   abciQueryVMQueryRender(packagePath: string, data: string[]): Promise<NodeResponseABCIQuery> {
-    const path = 'vm/qrender';
-    const paramQueryString = prepareVMABCIQueryWithSeparator([packagePath, ...data], ':');
+    const path = "vm/qrender";
+    const paramQueryString = prepareVMABCIQueryWithSeparator([packagePath, ...data], ":");
 
     const request = makeRPCRequest({
-      method: 'abci_query',
-      params: [path, paramQueryString, '0', false],
+      method: "abci_query",
+      params: [path, paramQueryString, "0", false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
@@ -173,14 +173,14 @@ export class NodeRPCClient implements NodeClient {
     funcName: string,
     args: (string | number)[],
   ): Promise<NodeResponseABCIQuery> {
-    const path = 'vm/qeval';
-    const paramArgs = args.map(arg => (typeof arg === 'string' ? `"${arg}"` : `${arg}`)).join(',');
+    const path = "vm/qeval";
+    const paramArgs = args.map(arg => (typeof arg === "string" ? `"${arg}"` : `${arg}`)).join(",");
     const paramQuery = `${funcName}(${paramArgs})`;
     const paramQueryString = prepareVMABCIEvaluateExpressionQuery([packagePath, paramQuery]);
 
     const request = makeRPCRequest({
-      method: 'abci_query',
-      params: [path, paramQueryString, '0', false],
+      method: "abci_query",
+      params: [path, paramQueryString, "0", false],
     });
 
     return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);

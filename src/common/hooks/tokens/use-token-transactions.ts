@@ -1,10 +1,11 @@
-import {useMemo, useState} from 'react';
-import {useQuery} from 'react-query';
-import {useGetRealmTransactionsWithArgsQuery} from '@/common/react-query/realm';
-import {useServiceProvider} from '../provider/use-service-provider';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useMemo, useState } from "react";
+import { useQuery } from "react-query";
+import { useGetRealmTransactionsWithArgsQuery } from "@/common/react-query/realm";
+import { useServiceProvider } from "../provider/use-service-provider";
 
 export const useTokenTransactions = (path: string[] | string | undefined) => {
-  const {blockRepository} = useServiceProvider();
+  const { blockRepository } = useServiceProvider();
 
   const packagePath = useMemo(() => {
     if (!path) {
@@ -12,13 +13,13 @@ export const useTokenTransactions = (path: string[] | string | undefined) => {
     }
 
     if (Array.isArray(path)) {
-      return path.join('/');
+      return path.join("/");
     }
 
     return path;
   }, [path]);
 
-  const {data: realmTransactions, isFetched: isFetchedTransactions} =
+  const { data: realmTransactions, isFetched: isFetchedTransactions } =
     useGetRealmTransactionsWithArgsQuery(packagePath);
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -44,8 +45,8 @@ export const useTokenTransactions = (path: string[] | string | undefined) => {
       }));
   }, [realmTransactions?.length, currentPage]);
 
-  const {data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes} = useQuery({
-    queryKey: ['token/transactions', `${path}`, `${transactions?.length}`],
+  const { data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes } = useQuery({
+    queryKey: ["token/transactions", `${path}`, `${transactions?.length}`],
     queryFn: () =>
       Promise.all(
         transactions?.map(async transaction => {
@@ -65,8 +66,7 @@ export const useTokenTransactions = (path: string[] | string | undefined) => {
   }
 
   return {
-    isFetchedTransactions:
-      isFetchedTransactions && transactions.length === transactionWithTimes?.length,
+    isFetchedTransactions: isFetchedTransactions && transactions.length === transactionWithTimes?.length,
     transactions: transactionWithTimes,
     hasNextPage,
     nextPage,

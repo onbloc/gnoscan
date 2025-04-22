@@ -1,2 +1,2 @@
-import ActiveAccount from './active-account';
+import ActiveAccount from "./active-account";
 export default ActiveAccount;

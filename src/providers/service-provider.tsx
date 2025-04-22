@@ -1,17 +1,13 @@
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {AccountRepository, IAccountRepository} from '@/repositories/account-repository';
-import {OnblocAccountRepository} from '@/repositories/account-repository/onbloc-account-repository';
-import {
-  BlockRepository,
-  IBlockRepository,
-  OnblocBlockRepository,
-} from '@/repositories/block-repository';
-import {ChainRepository, IChainRepository} from '@/repositories/chain-repository';
-import {IRealmRepository, RealmRepository} from '@/repositories/realm-repository.ts';
-import {OnblocRealmRepository} from '@/repositories/realm-repository.ts/onbloc-realm-repository';
-import {ITransactionRepository, TransactionRepository} from '@/repositories/transaction-repository';
-import {OnblocTransactionRepository} from '@/repositories/transaction-repository/onbloc-transaction-repository';
-import {createContext, useMemo} from 'react';
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { AccountRepository, IAccountRepository } from "@/repositories/account-repository";
+import { OnblocAccountRepository } from "@/repositories/account-repository/onbloc-account-repository";
+import { BlockRepository, IBlockRepository, OnblocBlockRepository } from "@/repositories/block-repository";
+import { ChainRepository, IChainRepository } from "@/repositories/chain-repository";
+import { IRealmRepository, RealmRepository } from "@/repositories/realm-repository.ts";
+import { OnblocRealmRepository } from "@/repositories/realm-repository.ts/onbloc-realm-repository";
+import { ITransactionRepository, TransactionRepository } from "@/repositories/transaction-repository";
+import { OnblocTransactionRepository } from "@/repositories/transaction-repository/onbloc-transaction-repository";
+import { createContext, useMemo } from "react";
 
 interface ServiceContextProps {
   chainRepository: IChainRepository | null;
@@ -23,14 +19,11 @@ interface ServiceContextProps {
 
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
 
-const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
-  const {indexerQueryClient, nodeRPCClient, onblocRPCClient, mainNodeRPCClient, isCustomNetwork} =
+const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { indexerQueryClient, nodeRPCClient, onblocRPCClient, mainNodeRPCClient, isCustomNetwork } =
     useNetworkProvider();
 
-  const chainRepository = useMemo(
-    () => (nodeRPCClient ? new ChainRepository(nodeRPCClient) : null),
-    [nodeRPCClient],
-  );
+  const chainRepository = useMemo(() => (nodeRPCClient ? new ChainRepository(nodeRPCClient) : null), [nodeRPCClient]);
 
   const blockRepository = useMemo(() => {
     if (!nodeRPCClient) {
@@ -62,12 +55,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
     }
 
     if (!isCustomNetwork) {
-      return new OnblocRealmRepository(
-        nodeRPCClient,
-        indexerQueryClient,
-        onblocRPCClient,
-        mainNodeRPCClient,
-      );
+      return new OnblocRealmRepository(nodeRPCClient, indexerQueryClient, onblocRPCClient, mainNodeRPCClient);
     }
 
     return new RealmRepository(nodeRPCClient, indexerQueryClient, mainNodeRPCClient);
@@ -93,7 +81,8 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({children}) => {
         transactionRepository,
         realmRepository,
         accountRepository,
-      }}>
+      }}
+    >
       {children}
     </ServiceContext.Provider>
   );

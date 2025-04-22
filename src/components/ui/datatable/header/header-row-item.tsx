@@ -1,21 +1,22 @@
-import React, {useEffect, useRef, useState} from 'react';
-import styled from 'styled-components';
-import {Header} from './header';
-import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
-import IconSortDown from '@/assets/svgs/icon-sort-down.svg';
-import IconSortUp from '@/assets/svgs/icon-sort-up.svg';
-import {DatatableOption} from '..';
-import Tooltip from '../../tooltip';
-import theme from '@/styles/theme';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useRef, useState } from "react";
+import styled from "styled-components";
+import { Header } from "./header";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import IconSortDown from "@/assets/svgs/icon-sort-down.svg";
+import IconSortUp from "@/assets/svgs/icon-sort-up.svg";
+import { DatatableOption } from "..";
+import Tooltip from "../../tooltip";
+import theme from "@/styles/theme";
 
 interface Props<T> {
   header: Header<T>;
-  sortOption?: {field: string; order: string};
-  setSortOption?: (sortOption: {field: string; order: string}) => void;
+  sortOption?: { field: string; order: string };
+  setSortOption?: (sortOption: { field: string; order: string }) => void;
   className?: string;
 }
 
-export const HeaderRowItem = <T extends {[key in string]: any}>({
+export const HeaderRowItem = <T extends { [key in string]: any }>({
   header,
   sortOption,
   setSortOption,
@@ -36,24 +37,24 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
   const getChangedSortOption = () => {
     const changedSortOption = {
       field: header.key,
-      order: 'desc',
+      order: "desc",
     };
 
     if (sortOption?.field !== header.key) {
       return changedSortOption;
     }
 
-    if (sortOption?.order === 'desc') {
+    if (sortOption?.order === "desc") {
       return {
         ...changedSortOption,
-        order: 'asc',
+        order: "asc",
       };
     }
 
-    if (sortOption?.order === 'asc') {
+    if (sortOption?.order === "asc") {
       return {
-        field: 'none',
-        order: 'none',
+        field: "none",
+        order: "none",
       };
     }
 
@@ -70,19 +71,18 @@ export const HeaderRowItem = <T extends {[key in string]: any}>({
       header.sort && (
         <SortContainer
           active={header.key === sortOption?.field}
-          order={sortOption?.order ?? ''}
-          onClick={handleSortOption}>
-          <IconSortUp className={'up'} />
-          <IconSortDown className={'down'} />
+          order={sortOption?.order ?? ""}
+          onClick={handleSortOption}
+        >
+          <IconSortUp className={"up"} />
+          <IconSortDown className={"down"} />
         </SortContainer>
       )
     );
   };
 
   return (
-    <ItemContainer
-      className={className || ''}
-      options={DatatableOption.headerOptionByHeader(header)}>
+    <ItemContainer className={className || ""} options={DatatableOption.headerOptionByHeader(header)}>
       <div className="content">{header.name}</div>
       {renderSort()}
       {renderTooltip()}
@@ -94,9 +94,9 @@ const ItemContainer = styled(DatatableOption.ColumnOption)`
   & {
     ${theme.fonts.p4};
     font-weight: 400;
-    color: ${({theme}) => theme.colors.tertiary};
-    justify-content: ${({options}) => options.headerAlign};
-    max-width: ${({options}) => options.width};
+    color: ${({ theme }) => theme.colors.tertiary};
+    justify-content: ${({ options }) => options.headerAlign};
+    max-width: ${({ options }) => options.width};
     .tooltip-wrapper {
       position: inherit;
       display: flex;
@@ -107,9 +107,9 @@ const ItemContainer = styled(DatatableOption.ColumnOption)`
       align-items: center;
 
       svg {
-        fill: ${({theme}) => theme.colors.tertiary};
+        fill: ${({ theme }) => theme.colors.tertiary};
         & .icon-tooltip_svg__bg {
-          fill: ${({theme}) => theme.colors.surface};
+          fill: ${({ theme }) => theme.colors.surface};
         }
       }
     }
@@ -118,12 +118,12 @@ const ItemContainer = styled(DatatableOption.ColumnOption)`
 
 const getSortIconColor = (active: boolean, order: string, expectedOrder: string, theme: any) => {
   if (active && order === expectedOrder) {
-    return theme?.colors?.blue ?? '';
+    return theme?.colors?.blue ?? "";
   }
-  return theme?.colors?.pantone ?? '';
+  return theme?.colors?.pantone ?? "";
 };
 
-const SortContainer = styled.div<{active: boolean; order: string}>`
+const SortContainer = styled.div<{ active: boolean; order: string }>`
   & {
     display: flex;
     flex-direction: column;
@@ -136,11 +136,11 @@ const SortContainer = styled.div<{active: boolean; order: string}>`
     ${theme.fonts.p4};
 
     .up {
-      fill: ${({active, order, theme}) => getSortIconColor(active, order, 'asc', theme)};
+      fill: ${({ active, order, theme }) => getSortIconColor(active, order, "asc", theme)};
     }
 
     .down {
-      fill: ${({active, order, theme}) => getSortIconColor(active, order, 'desc', theme)};
+      fill: ${({ active, order, theme }) => getSortIconColor(active, order, "desc", theme)};
     }
   }
 `;

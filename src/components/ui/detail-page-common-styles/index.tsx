@@ -1,5 +1,5 @@
-import mixins from '@/styles/mixins';
-import styled from 'styled-components';
+import mixins from "@/styles/mixins";
+import styled from "styled-components";
 
 interface StyleProps {
   media?: string;
@@ -8,13 +8,13 @@ interface StyleProps {
 }
 
 export const DetailsContainer = styled.div<StyleProps>`
-  ${mixins.flexbox('column', 'flex-start', 'space-between')};
-  background-color: ${({theme}) => theme.colors.base};
-  padding: ${({desktop}) => (desktop ? '24px' : '16px')};
+  ${mixins.flexbox("column", "flex-start", "space-between")};
+  background-color: ${({ theme }) => theme.colors.base};
+  padding: ${({ desktop }) => (desktop ? "24px" : "16px")};
   border-radius: 10px;
   width: 100%;
   &:not(:first-of-type) {
-    margin-top: ${({desktop}) => (desktop ? '24px' : '16px')};
+    margin-top: ${({ desktop }) => (desktop ? "24px" : "16px")};
   }
 
   .tab-area {
@@ -35,7 +35,7 @@ export const DetailsContainer = styled.div<StyleProps>`
         height: 28px;
         padding: 0 8px;
         border-radius: 14px;
-        background-color: ${({theme}) => theme.colors.surface};
+        background-color: ${({ theme }) => theme.colors.surface};
 
         &.small {
           width: fit-content;
@@ -49,15 +49,13 @@ export const DetailsContainer = styled.div<StyleProps>`
 `;
 
 export const DLWrap = styled.dl<StyleProps>`
-  ${({desktop}) =>
-    desktop
-      ? mixins.flexbox('row', 'center', 'flex-start')
-      : mixins.flexbox('column', 'flex-start', 'center')};
-  padding: ${({desktop}) => (desktop ? '18px 0px' : '12px 0px')};
+  ${({ desktop }) =>
+    desktop ? mixins.flexbox("row", "center", "flex-start") : mixins.flexbox("column", "flex-start", "center")};
+  padding: ${({ desktop }) => (desktop ? "18px 0px" : "12px 0px")};
   width: 100%;
-  color: ${({theme}) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.primary};
   &:not(:first-of-type) {
-    border-top: 1px solid ${({theme}) => theme.colors.dimmed100};
+    border-top: 1px solid ${({ theme }) => theme.colors.dimmed100};
   }
   &:first-of-type {
     padding-top: 0px;
@@ -66,18 +64,18 @@ export const DLWrap = styled.dl<StyleProps>`
     padding-bottom: 0px;
   }
   &.multiple-badges {
-    padding-top: ${({desktop}) => (desktop ? '0px' : '12px')};
+    padding-top: ${({ desktop }) => (desktop ? "0px" : "12px")};
     .badge {
-      margin-top: ${({desktop}) => (desktop ? '18px' : '12px')};
+      margin-top: ${({ desktop }) => (desktop ? "18px" : "12px")};
     }
   }
   dt {
-    color: ${({theme}) => theme.colors.tertiary};
-    width: ${({desktop}) => (desktop ? '200px' : '100%')};
-    ${({desktop, theme}) => (desktop ? theme.fonts.p3 : theme.fonts.p4)};
+    color: ${({ theme }) => theme.colors.tertiary};
+    width: ${({ desktop }) => (desktop ? "200px" : "100%")};
+    ${({ desktop, theme }) => (desktop ? theme.fonts.p3 : theme.fonts.p4)};
   }
   dd {
-    ${({theme}) => theme.fonts.p4};
+    ${({ theme }) => theme.fonts.p4};
     width: 100%;
     display: block;
 
@@ -123,15 +121,15 @@ export const DLWrap = styled.dl<StyleProps>`
 `;
 
 export const DateDiffText = styled.span`
-  color: ${({theme}) => theme.colors.tertiary};
+  color: ${({ theme }) => theme.colors.tertiary};
   position: relative;
   padding-left: 20px;
   white-space: nowrap;
   &:after {
-    content: '';
+    content: "";
     width: 1px;
     height: 10px;
-    background-color: ${({theme}) => theme.colors.dimmed100};
+    background-color: ${({ theme }) => theme.colors.dimmed100};
     ${mixins.posTopCenterLeft(0)};
     margin: 0px 10px;
   }
@@ -152,7 +150,7 @@ export const LinkWrapper = styled.a`
   align-self: flex-end;
   align-items: center;
   transition: 0.2s;
-  color: ${({theme}) => theme.colors.gray300};
+  color: ${({ theme }) => theme.colors.gray300};
   cursor: pointer;
 
   :hover {
@@ -164,7 +162,7 @@ export const LinkWrapper = styled.a`
     width: 18px;
     height: 18px;
     * {
-      stroke: ${({theme}) => theme.colors.gray300};
+      stroke: ${({ theme }) => theme.colors.gray300};
     }
   }
 `;

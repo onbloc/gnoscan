@@ -6,7 +6,7 @@ export const toGnot = (value: number, denom: string) => {
 };
 
 export const denomConvert = (denom: string) => {
-  return isUgnot(denom) ? 'GNOT' : `${denom}`.toUpperCase().trim();
+  return isUgnot(denom) ? "GNOT" : `${denom}`.toUpperCase().trim();
 };
 
 export const valueConvert = (value: number, denom: string) => {
@@ -14,5 +14,5 @@ export const valueConvert = (value: number, denom: string) => {
 };
 
 const isUgnot = (denom: string) => {
-  return ['ugnot', 'UGNOT'].includes(denom);
+  return ["ugnot", "UGNOT"].includes(denom);
 };

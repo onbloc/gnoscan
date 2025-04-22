@@ -1,24 +1,24 @@
-import styled, {css} from 'styled-components';
-import React, {CSSProperties, PropsWithChildren} from 'react';
-import {FontsType} from '@/styles/theme';
+import styled, { css } from "styled-components";
+import React, { CSSProperties, PropsWithChildren } from "react";
+import { FontsType } from "@/styles/theme";
 
-export interface TextProps extends React.ComponentPropsWithoutRef<'div'> {
+export interface TextProps extends React.ComponentPropsWithoutRef<"div"> {
   className?: string;
   type: FontsType;
-  display?: CSSProperties['display'];
-  textAlign?: CSSProperties['textAlign'];
+  display?: CSSProperties["display"];
+  textAlign?: CSSProperties["textAlign"];
   color?: string;
-  margin?: CSSProperties['margin'];
+  margin?: CSSProperties["margin"];
 }
 
 const Text = ({
   type,
   children,
-  display = 'block',
-  textAlign = 'left',
+  display = "block",
+  textAlign = "left",
   color,
   margin,
-  className = '',
+  className = "",
   ...restProps
 }: PropsWithChildren<TextProps>) => {
   return (
@@ -29,7 +29,8 @@ const Text = ({
       color={color}
       margin={margin}
       className={className}
-      {...restProps}>
+      {...restProps}
+    >
       {children}
     </Wrapper>
   );

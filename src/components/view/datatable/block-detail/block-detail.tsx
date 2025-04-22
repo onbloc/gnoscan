@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React, {useMemo} from 'react';
-import Datatable, {DatatableOption} from '@/components/ui/datatable';
-import styled from 'styled-components';
-import theme from '@/styles/theme';
-import {DatatableItem} from '..';
-import {useRecoilValue} from 'recoil';
-import {themeState} from '@/states';
-import {useBlock} from '@/common/hooks/blocks/use-block';
-import {Transaction} from '@/types/data-type';
-import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {useUsername} from '@/common/hooks/account/use-username';
+import React, { useMemo } from "react";
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
+import styled from "styled-components";
+import theme from "@/styles/theme";
+import { DatatableItem } from "..";
+import { useRecoilValue } from "recoil";
+import { themeState } from "@/states";
+import { useBlock } from "@/common/hooks/blocks/use-block";
+import { Transaction } from "@/types/data-type";
+import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useUsername } from "@/common/hooks/account/use-username";
 
 interface Props {
   height: string | number;
@@ -24,12 +24,12 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const BlockDetailDatatable = ({height}: Props) => {
+export const BlockDetailDatatable = ({ height }: Props) => {
   const themeMode = useRecoilValue(themeState);
-  const {getTokenAmount} = useTokenMeta();
-  const {isFetched: isFetchedUsername, getName} = useUsername();
+  const { getTokenAmount } = useTokenMeta();
+  const { isFetched: isFetchedUsername, getName } = useUsername();
 
-  const {isFetched, isFetchedBlockResult, transactionItems} = useBlock(Number(height));
+  const { isFetched, isFetchedBlockResult, transactionItems } = useBlock(Number(height));
 
   const loaded = useMemo(() => {
     return isFetched && isFetchedBlockResult && isFetchedUsername;
@@ -49,22 +49,22 @@ export const BlockDetailDatatable = ({height}: Props) => {
 
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<Transaction>()
-      .key('hash')
-      .name('Tx Hash')
+      .key("hash")
+      .name("Tx Hash")
       .width(210)
-      .colorName('blue')
+      .colorName("blue")
       .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} status={data.success ? 'success' : 'failure'} />
+        <DatatableItem.TxHash txHash={value} status={data.success ? "success" : "failure"} />
       ))
       .build();
   };
 
   const createHeaderType = () => {
     return DatatableOption.Builder.builder<Transaction>()
-      .key('type')
-      .name('Type')
+      .key("type")
+      .name("Type")
       .width(190)
-      .colorName('blue')
+      .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
         <DatatableItem.Type
@@ -79,20 +79,20 @@ export const BlockDetailDatatable = ({height}: Props) => {
 
   const createHeaderBlock = () => {
     return DatatableOption.Builder.builder<Transaction>()
-      .key('blockHeight')
-      .name('Block')
+      .key("blockHeight")
+      .name("Block")
       .width(113)
-      .colorName('blue')
+      .colorName("blue")
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
   };
 
   const createHeaderFrom = () => {
     return DatatableOption.Builder.builder<Transaction>()
-      .key('from')
-      .name('From')
+      .key("from")
+      .name("From")
       .width(170)
-      .colorName('blue')
+      .colorName("blue")
       .renderOption(fromAddress => {
         return <DatatableItem.Publisher address={fromAddress} username={getName(fromAddress)} />;
       })
@@ -101,10 +101,10 @@ export const BlockDetailDatatable = ({height}: Props) => {
 
   const createHeaderAmount = () => {
     return DatatableOption.Builder.builder<Transaction>()
-      .key('amount')
-      .name('Amount')
+      .key("amount")
+      .name("Amount")
       .width(190)
-      .renderOption((amount: {value: string; denom: string}, data) =>
+      .renderOption((amount: { value: string; denom: string }, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
@@ -116,21 +116,21 @@ export const BlockDetailDatatable = ({height}: Props) => {
 
   const createHeaderTime = () => {
     return DatatableOption.Builder.builder<Transaction>()
-      .key('time')
-      .name('Time')
+      .key("time")
+      .name("Time")
       .width(160)
-      .className('time')
+      .className("time")
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();
   };
 
   const createHeaderFee = () => {
     return DatatableOption.Builder.builder<Transaction>()
-      .key('fee')
-      .name('Fee')
+      .key("fee")
+      .name("Fee")
       .width(113)
-      .className('fee')
-      .renderOption(({value, denom}: {value: string; denom: string}) => (
+      .className("fee")
+      .renderOption(({ value, denom }: { value: string; denom: string }) => (
         <DatatableItem.Amount {...getTokenAmount(denom, value)} />
       ))
       .build();
@@ -152,7 +152,7 @@ export const BlockDetailDatatable = ({height}: Props) => {
   );
 };
 
-const Container = styled.div<{maxWidth?: number}>`
+const Container = styled.div<{ maxWidth?: number }>`
   & {
     display: flex;
     flex-direction: column;
@@ -167,8 +167,8 @@ const Container = styled.div<{maxWidth?: number}>`
     .more-button {
       width: 100%;
       padding: 16px;
-      color: ${({theme}) => theme.colors.primary};
-      background-color: ${({theme}) => theme.colors.surface};
+      color: ${({ theme }) => theme.colors.primary};
+      background-color: ${({ theme }) => theme.colors.surface};
       ${theme.fonts.p4}
       font-weight: 600;
       margin-top: 24px;

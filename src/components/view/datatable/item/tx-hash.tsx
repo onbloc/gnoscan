@@ -1,11 +1,11 @@
-import React from 'react';
-import styled from 'styled-components';
-import IconSuccess from '@/assets/svgs/icon-status-success.svg';
-import IconFail from '@/assets/svgs/icon-status-fail.svg';
-import {RPC_URI} from '@/common/values/constant-value';
-import {StatusKeyType} from '@/common/utils';
-import {textEllipsis} from '@/common/utils/string-util';
-import {useNetwork} from '@/common/hooks/use-network';
+import React from "react";
+import styled from "styled-components";
+import IconSuccess from "@/assets/svgs/icon-status-success.svg";
+import IconFail from "@/assets/svgs/icon-status-fail.svg";
+import { RPC_URI } from "@/common/values/constant-value";
+import { StatusKeyType } from "@/common/utils";
+import { textEllipsis } from "@/common/utils/string-util";
+import { useNetwork } from "@/common/hooks/use-network";
 
 interface Props {
   txHash: string;
@@ -14,8 +14,8 @@ interface Props {
   height?: number;
 }
 
-export const TxHash = ({txHash, status, development, height}: Props) => {
-  const {getUrlWithNetwork} = useNetwork();
+export const TxHash = ({ txHash, status, development, height }: Props) => {
+  const { getUrlWithNetwork } = useNetwork();
   const onClickIcon = () => {
     if (!development || !height) {
       return;
@@ -26,10 +26,10 @@ export const TxHash = ({txHash, status, development, height}: Props) => {
   return (
     <TxHashWrapper>
       <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
-        {textEllipsis(txHash ?? '', 8)}
+        {textEllipsis(txHash ?? "", 8)}
       </a>
       <span className="status" onClick={onClickIcon}>
-        {status === 'failure' ? <IconFail /> : <IconSuccess />}
+        {status === "failure" ? <IconFail /> : <IconSuccess />}
       </span>
     </TxHashWrapper>
   );

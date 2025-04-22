@@ -1,47 +1,45 @@
-'use client';
+"use client";
 
-import React from 'react';
-import styled from 'styled-components';
-import {eachMedia} from '@/common/hooks/use-media';
-import BackgroundSearchNotFound from '@/assets/svgs/bg-search-not-found.svg';
-import BackgroundSearchNotFoundLight from '@/assets/svgs/bg-search-not-found-light.svg';
-import {Button} from '@/components/ui/button';
-import theme from '@/styles/theme';
-import {useThemeMode} from '@/common/hooks/use-theme-mode';
-import {useRouter} from '@/common/hooks/common/use-router';
+import React from "react";
+import styled from "styled-components";
+import { eachMedia } from "@/common/hooks/use-media";
+import BackgroundSearchNotFound from "@/assets/svgs/bg-search-not-found.svg";
+import BackgroundSearchNotFoundLight from "@/assets/svgs/bg-search-not-found-light.svg";
+import { Button } from "@/components/ui/button";
+import theme from "@/styles/theme";
+import { useThemeMode } from "@/common/hooks/use-theme-mode";
+import { useRouter } from "@/common/hooks/common/use-router";
 
 interface Props {
   keyword?: string;
 }
 
-const NotFound = ({keyword}: Props) => {
-  const {isDark} = useThemeMode();
+const NotFound = ({ keyword }: Props) => {
+  const { isDark } = useThemeMode();
   const media = eachMedia();
-  const {replace} = useRouter();
+  const { replace } = useRouter();
 
   const replaceHome = () => {
-    replace('/' + location.search);
+    replace("/" + location.search);
   };
 
   return (
     <Wrapper className={media}>
       <div className="info-area">
-        <p className="title">{'Search not found'}</p>
+        <p className="title">{"Search not found"}</p>
         <div className="description">
-          <span>{'There are no results found for'}</span>
+          <span>{"There are no results found for"}</span>
           <span>
             <b>{`"${keyword}"`}</b>
           </span>
-          <span>{'Please make sure your input is valid and try again. '}</span>
+          <span>{"Please make sure your input is valid and try again. "}</span>
         </div>
         <Button className="home-button" onClick={replaceHome}>
-          {'Back to Home'}
+          {"Back to Home"}
         </Button>
       </div>
-      {media === 'desktop' && (
-        <div className="asset-area">
-          {isDark ? <BackgroundSearchNotFound /> : <BackgroundSearchNotFoundLight />}
-        </div>
+      {media === "desktop" && (
+        <div className="asset-area">{isDark ? <BackgroundSearchNotFound /> : <BackgroundSearchNotFoundLight />}</div>
       )}
     </Wrapper>
   );
@@ -64,7 +62,7 @@ const Wrapper = styled.div`
       justify-content: center;
       align-items: center;
       text-align: center;
-      color: ${({theme}) => theme.colors.reverse};
+      color: ${({ theme }) => theme.colors.reverse};
 
       .title {
         ${theme.fonts.h3};
@@ -87,8 +85,8 @@ const Wrapper = styled.div`
       }
 
       .home-button {
-        color: ${({theme}) => theme.colors.white};
-        background-color: ${({theme}) => theme.colors.blue};
+        color: ${({ theme }) => theme.colors.white};
+        background-color: ${({ theme }) => theme.colors.blue};
         padding: 10px 24px;
         border-radius: 4px;
         ${theme.fonts.p3};

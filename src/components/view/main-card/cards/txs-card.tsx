@@ -1,10 +1,10 @@
-import React from 'react';
-import Text from '@/components/ui/text';
-import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-import {useTransactionSummaryInfo} from '@/common/hooks/main/use-transaction-summary-info';
+import React from "react";
+import Text from "@/components/ui/text";
+import { BundleDl, DataBoxContainer, FetchedComp } from "../main-card";
+import { useTransactionSummaryInfo } from "@/common/hooks/main/use-transaction-summary-info";
 
 export const TxsCard = () => {
-  const {isFetched, transactionSummaryInfo} = useTransactionSummaryInfo();
+  const { isFetched, transactionSummaryInfo } = useTransactionSummaryInfo();
 
   return (
     <>

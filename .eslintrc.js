@@ -9,7 +9,7 @@ module.exports = {
   extends: ['next', 'plugin:@typescript-eslint/recommended'],
   rules: {
     'linebreak-style': ['error', 'unix'],
-    quotes: ['error', 'single'],
+    quotes: ['error', 'double'],
     semi: ['error', 'always'],
     'array-element-newline': [
       'warn',
@@ -18,6 +18,7 @@ module.exports = {
         ArrayPattern: {multiline: true},
       },
     ],
+    "@typescript-eslint/no-explicit-any": "error",
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/no-empty-function': 'warn',

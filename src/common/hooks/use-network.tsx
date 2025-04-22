@@ -1,9 +1,10 @@
-import {NetworkState} from '@/states';
-import {useMemo} from 'react';
-import {useRecoilState} from 'recoil';
-import ChainData from 'public/resource/chains.json';
-import {useRouter} from 'next/router';
-import {makeQueryString} from '../utils/string-util';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NetworkState } from "@/states";
+import { useMemo } from "react";
+import { useRecoilState } from "recoil";
+import ChainData from "public/resource/chains.json";
+import { useRouter } from "next/router";
+import { makeQueryString } from "../utils/string-util";
 
 function parseSearchString(search: string) {
   if (!search || search.length === 1) {
@@ -11,10 +12,10 @@ function parseSearchString(search: string) {
   }
 
   return search
-    .replace('?', '')
-    .split('&')
-    .reduce<{[key in string]: string}>((accum, current) => {
-      const separatorIndex = current.indexOf('=');
+    .replace("?", "")
+    .split("&")
+    .reduce<{ [key in string]: string }>((accum, current) => {
+      const separatorIndex = current.indexOf("=");
       if (separatorIndex < 0 || separatorIndex + 1 >= current.length) {
         return accum;
       }
@@ -27,17 +28,17 @@ function parseSearchString(search: string) {
         return accum;
       }
 
-      if (['type', 'rpcUrl', 'indexerUrl', 'chainId'].includes(values[0])) {
+      if (["type", "rpcUrl", "indexerUrl", "chainId"].includes(values[0])) {
         return accum;
       }
 
-      accum[values[0]] = values.length > 1 ? values[1] : '';
+      accum[values[0]] = values.length > 1 ? values[1] : "";
       return accum;
     }, {});
 }
 
 export const useNetwork = () => {
-  const {replace} = useRouter();
+  const { replace } = useRouter();
   const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
 
   const networkParams = useMemo(() => {
@@ -47,14 +48,14 @@ export const useNetwork = () => {
 
     if (currentNetwork.isCustom) {
       return {
-        type: 'custom',
+        type: "custom",
         rpcUrl: currentNetwork.rpcUrl,
         indexerUrl: currentNetwork.indexerUrl,
       };
     }
 
     return {
-      chainId: currentNetwork?.chainId || '',
+      chainId: currentNetwork?.chainId || "",
     };
   }, [currentNetwork]);
 
@@ -66,7 +67,7 @@ export const useNetwork = () => {
     try {
       const origin = window.location.origin;
       const urlData = new URL(origin + uri);
-      const params = {...networkParamData, ...parseSearchString(urlData.search)};
+      const params = { ...networkParamData, ...parseSearchString(urlData.search) };
       const queryString = makeQueryString(params);
 
       if (!queryString) {
@@ -100,8 +101,8 @@ export const useNetwork = () => {
   const changeCustomNetwork = (rpcUrl: string, indexerUrl: string) => {
     setCurrentNetwork({
       isCustom: true,
-      chainId: '',
-      apiUrl: '',
+      chainId: "",
+      apiUrl: "",
       rpcUrl,
       indexerUrl,
     });
@@ -109,7 +110,7 @@ export const useNetwork = () => {
     const uri = window.location.pathname + window.location.search;
     replace(
       getUrlWithNetworkData(uri, {
-        type: 'custom',
+        type: "custom",
         rpcUrl,
         indexerUrl,
       }),

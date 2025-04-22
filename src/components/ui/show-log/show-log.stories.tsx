@@ -1,9 +1,9 @@
-import type {Meta, StoryObj} from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 
-import ShowLog from './show-log';
+import ShowLog from "./show-log";
 
 const meta: Meta<typeof ShowLog> = {
-  title: 'common/ShowLog',
+  title: "common/ShowLog",
   component: ShowLog,
 };
 
@@ -13,6 +13,6 @@ type Story = StoryObj<typeof ShowLog>;
 export const Basic: Story = {
   args: {
     isTabLog: false,
-    logData: 'ShowLog Content',
+    logData: "ShowLog Content",
   },
 };

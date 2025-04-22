@@ -1,9 +1,9 @@
-import Text from '@/components/ui/text';
-import UnknownToken from '@/assets/svgs/icon-unknown-token.svg';
-import React, {useMemo} from 'react';
-import styled from 'styled-components';
-import {useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {useNetwork} from '@/common/hooks/use-network';
+import Text from "@/components/ui/text";
+import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
+import React, { useMemo } from "react";
+import styled from "styled-components";
+import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useNetwork } from "@/common/hooks/use-network";
 
 interface Props {
   token: string | undefined;
@@ -13,9 +13,9 @@ interface Props {
   pkgPath: string;
 }
 
-export const TokenTitle = ({name, symbol, pkgPath, imagePath}: Props) => {
-  const {isFetchedGRC20Tokens, getTokenImage} = useTokenMeta();
-  const {getUrlWithNetwork} = useNetwork();
+export const TokenTitle = ({ name, symbol, pkgPath, imagePath }: Props) => {
+  const { isFetchedGRC20Tokens, getTokenImage } = useTokenMeta();
+  const { getUrlWithNetwork } = useNetwork();
 
   const imageUrl = useMemo(() => {
     if (!imagePath || !isFetchedGRC20Tokens) {
@@ -48,7 +48,7 @@ const TokenTitleWrapper = styled.div`
     height: auto;
     justify-content: center;
     align-items: center;
-    color: ${({theme}) => theme.colors.blue};
+    color: ${({ theme }) => theme.colors.blue};
     cursor: pointer;
 
     .token,

@@ -1,13 +1,13 @@
-import {useQuery} from 'react-query';
-import {useServiceProvider} from '../provider/use-service-provider';
-import {useNetwork} from '../use-network';
+import { useQuery } from "react-query";
+import { useServiceProvider } from "../provider/use-service-provider";
+import { useNetwork } from "../use-network";
 
 export const useGetUsername = () => {
-  const {currentNetwork} = useNetwork();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetwork();
+  const { realmRepository } = useServiceProvider();
 
-  return useQuery<{[key in string]: string}>({
-    queryKey: ['useGetUsername', currentNetwork?.chainId],
+  return useQuery<{ [key in string]: string }>({
+    queryKey: ["useGetUsername", currentNetwork?.chainId],
     queryFn: () => {
       if (!realmRepository) {
         return {};

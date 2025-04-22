@@ -1,13 +1,13 @@
-import React from 'react';
-import Text from '@/components/ui/text';
-import IconInfo from '@/assets/svgs/icon-info.svg';
-import {Button} from '@/components/ui/button';
-import Tooltip from '@/components/ui/tooltip';
-import {useGNOTSupply} from '@/common/hooks/main/use-gnot-supply-info';
-import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
+import React from "react";
+import Text from "@/components/ui/text";
+import IconInfo from "@/assets/svgs/icon-info.svg";
+import { Button } from "@/components/ui/button";
+import Tooltip from "@/components/ui/tooltip";
+import { useGNOTSupply } from "@/common/hooks/main/use-gnot-supply-info";
+import { BundleDl, DataBoxContainer, FetchedComp } from "../main-card";
 
 export const SupplyCard = () => {
-  const {isFetched, supplyInfo} = useGNOTSupply();
+  const { isFetched, supplyInfo } = useGNOTSupply();
 
   return (
     <>
@@ -33,7 +33,8 @@ export const SupplyCard = () => {
             </Text>
             <Tooltip
               width={215}
-              content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change.">
+              content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change."
+            >
               <Button width="16px" height="16px" radius="50%" bgColor="surface">
                 <IconInfo className="svg-info" />
               </Button>

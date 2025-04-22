@@ -1,15 +1,13 @@
-import {BlockMeta, BlockResults, NodeRPCClient} from '@/common/clients/node-client';
-import {IBlockRepository} from './types';
-import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
-import {makeBlockTimeQuery} from './query';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { BlockMeta, BlockResults, NodeRPCClient } from "@/common/clients/node-client";
+import { IBlockRepository } from "./types";
+import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
+import { makeBlockTimeQuery } from "./query";
 
 export class OnblocBlockRepository implements IBlockRepository {
-  private blockTimeMap: {[key in number]: string} = {};
+  private blockTimeMap: { [key in number]: string } = {};
 
-  constructor(
-    private nodeRPCClient: NodeRPCClient | null,
-    private indexerClient: IndexerClient | null,
-  ) {}
+  constructor(private nodeRPCClient: NodeRPCClient | null, private indexerClient: IndexerClient | null) {}
 
   async getLatestBlockHeight(): Promise<number | null> {
     if (!this.nodeRPCClient) {
@@ -46,9 +44,7 @@ export class OnblocBlockRepository implements IBlockRepository {
       return [];
     }
 
-    return this.nodeRPCClient
-      .blockchain(minHeight, maxHeight)
-      .then(response => response.block_metas);
+    return this.nodeRPCClient.blockchain(minHeight, maxHeight).then(response => response.block_metas);
   }
 
   async getBlockTime(height: number): Promise<string | null> {

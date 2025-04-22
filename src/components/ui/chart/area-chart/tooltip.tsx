@@ -1,25 +1,19 @@
-import React from 'react';
-import {ActiveElement} from 'chart.js';
-import styled from 'styled-components';
-import theme from '@/styles/theme';
-import BigNumber from 'bignumber.js';
-import {makeAreaGraphDisplayLabel} from './area-chart';
+import React from "react";
+import { ActiveElement } from "chart.js";
+import styled from "styled-components";
+import theme from "@/styles/theme";
+import BigNumber from "bignumber.js";
+import { makeAreaGraphDisplayLabel } from "./area-chart";
 
 interface TooltipProps {
   activeElements: Array<ActiveElement>;
   title: string;
-  datas: {[key in string]: Array<{value: number; rate: number}>};
+  datas: { [key in string]: Array<{ value: number; rate: number }> };
   chartColors: Array<string>;
   themeMode: string;
 }
 
-export const AreaChartTooltip = ({
-  title,
-  activeElements,
-  datas,
-  themeMode,
-  chartColors,
-}: TooltipProps) => {
+export const AreaChartTooltip = ({ title, activeElements, datas, themeMode, chartColors }: TooltipProps) => {
   const getTotalValue = () => {
     if (activeElements.length === 0) {
       return 0;
@@ -29,11 +23,11 @@ export const AreaChartTooltip = ({
         (d1, d2) => d1.plus(BigNumber(datas[d2][activeElements[0].index].value)),
         BigNumber(0),
       );
-      const {integer, decimal} = parseValue(totalValue.toNumber());
+      const { integer, decimal } = parseValue(totalValue.toNumber());
       return (
         <>
           <strong>{integer}</strong>
-          {decimal ? `.${decimal}` : ''}
+          {decimal ? `.${decimal}` : ""}
         </>
       );
     } catch (e) {}
@@ -49,26 +43,23 @@ export const AreaChartTooltip = ({
       return 0;
     }
     try {
-      const totalRate = Object.keys(datas).reduce(
-        (d1, d2) => d1 + datas[d2][activeElements[0].index].rate,
-        0,
-      );
+      const totalRate = Object.keys(datas).reduce((d1, d2) => d1 + datas[d2][activeElements[0].index].rate, 0);
       return `${Math.round(totalRate)}%`;
     } catch (e) {}
-    return '0%';
+    return "0%";
   };
 
   const parseValue = (value: number) => {
-    const integer = '0';
-    const decimal = '0';
+    const integer = "0";
+    const decimal = "0";
     const valueStr = `${value}`;
 
     try {
-      const dotIndex = valueStr.indexOf('.');
+      const dotIndex = valueStr.indexOf(".");
       if (dotIndex < 0) {
         return {
           integer: valueStr,
-          decimal: '',
+          decimal: "",
         };
       }
 
@@ -89,16 +80,14 @@ export const AreaChartTooltip = ({
       return <></>;
     }
     const data = datas[packagePath][activeElements[0].index];
-    const {integer, decimal} = parseValue(data?.value || 0);
+    const { integer, decimal } = parseValue(data?.value || 0);
     return (
       <div key={cIndex} className="tooltip-row">
-        <span
-          className="dot"
-          style={{backgroundColor: `${chartColors[cIndex] ?? '#000000'}`}}></span>
+        <span className="dot" style={{ backgroundColor: `${chartColors[cIndex] ?? "#000000"}` }}></span>
         <span className="title">{makeAreaGraphDisplayLabel(packagePath)}</span>
         <span className="value">
           <strong>{integer}</strong>
-          {decimal ? `.${decimal}` : ''}
+          {decimal ? `.${decimal}` : ""}
         </span>
         <span className="rate">{`${Math.round(data?.rate || 0)}%`}</span>
       </div>
@@ -106,10 +95,10 @@ export const AreaChartTooltip = ({
   };
 
   return activeElements.length > 0 ? (
-    <TooltipContainer light={themeMode === 'light'}>
+    <TooltipContainer light={themeMode === "light"}>
       <p className="tooltip-title">{title}</p>
       <div className="tooltip-header">
-        <span className="title">{'Total:'}</span>
+        <span className="title">{"Total:"}</span>
         <span className="value">{getTotalValue()}</span>
         <span className="rate">{getTotalRate()}</span>
       </div>
@@ -120,12 +109,12 @@ export const AreaChartTooltip = ({
   );
 };
 
-const TooltipContainer = styled.div<{light: boolean}>`
+const TooltipContainer = styled.div<{ light: boolean }>`
   & {
     display: flex;
     flex-direction: column;
     min-width: 260px;
-    background-color: ${({light}) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
+    background-color: ${({ light }) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
     padding: 16px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 8px;
@@ -133,7 +122,7 @@ const TooltipContainer = styled.div<{light: boolean}>`
     span {
       display: inline-flex;
       ${theme.fonts.body1};
-      color: ${({light}) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
+      color: ${({ light }) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
       vertical-align: bottom;
     }
 
@@ -168,7 +157,7 @@ const TooltipContainer = styled.div<{light: boolean}>`
   & .tooltip-title {
     display: flex;
     width: 100%;
-    color: ${({light}) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};
+    color: ${({ light }) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};
     padding-bottom: 4px;
     ${theme.fonts.body1};
   }
@@ -177,8 +166,7 @@ const TooltipContainer = styled.div<{light: boolean}>`
     display: flex;
     width: 100%;
     padding: 4px 0;
-    border-bottom: 1px solid
-      ${({light}) => (light ? theme.lightTheme.dimmed100 : theme.darkTheme.dimmed100)};
+    border-bottom: 1px solid ${({ light }) => (light ? theme.lightTheme.dimmed100 : theme.darkTheme.dimmed100)};
     line-height: 20px;
 
     span {

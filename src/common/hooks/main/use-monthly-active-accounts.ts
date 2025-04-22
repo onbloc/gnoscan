@@ -1,11 +1,11 @@
-import {useMemo} from 'react';
-import {useGetBefore30DBlock} from '../common/use-get-before-30d-block';
-import {useGetSimpleTransactions} from '../common/use-get-simple-transactions';
-import {MonthlyAccountTransaction} from '@/types/data-type';
+import { useMemo } from "react";
+import { useGetBefore30DBlock } from "../common/use-get-before-30d-block";
+import { useGetSimpleTransactions } from "../common/use-get-simple-transactions";
+import { MonthlyAccountTransaction } from "@/types/data-type";
 
 export const useMonthlyActiveAccounts = () => {
-  const {data: blockHeightOfBefor30d} = useGetBefore30DBlock();
-  const {data, isFetched} = useGetSimpleTransactions(blockHeightOfBefor30d);
+  const { data: blockHeightOfBefor30d } = useGetBefore30DBlock();
+  const { data, isFetched } = useGetSimpleTransactions(blockHeightOfBefor30d);
 
   const activeUsers: MonthlyAccountTransaction[] = useMemo(() => {
     if (!data) {
@@ -20,23 +20,18 @@ export const useMonthlyActiveAccounts = () => {
 
     data?.forEach(tx => {
       const matchedMessage = tx.messages.find(message => {
-        const account =
-          message.value.caller || message.value.creator || message.value.from_address || null;
+        const account = message.value.caller || message.value.creator || message.value.from_address || null;
         return !!account;
       });
 
       if (matchedMessage) {
         const account =
-          matchedMessage.value.caller ||
-          matchedMessage.value.creator ||
-          matchedMessage.value.from_address ||
-          '';
+          matchedMessage.value.caller || matchedMessage.value.creator || matchedMessage.value.from_address || "";
         const isTransfer = !!matchedMessage.value.from_address;
 
         accountTransactionMap[account] = {
           totalTxs: (accountTransactionMap?.[account]?.totalTxs || 0) + 1,
-          nonTransferTxs:
-            (accountTransactionMap?.[account]?.nonTransferTxs || 0) + (isTransfer ? 0 : 1),
+          nonTransferTxs: (accountTransactionMap?.[account]?.nonTransferTxs || 0) + (isTransfer ? 0 : 1),
         };
       }
     });

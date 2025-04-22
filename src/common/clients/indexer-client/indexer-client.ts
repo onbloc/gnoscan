@@ -1,7 +1,8 @@
-import {ApolloClient, DocumentNode, InMemoryCache} from '@apollo/client';
-import {PageOption, PageQueryResponse, QueryResponse} from './types';
-import axios, {AxiosInstance} from 'axios';
-import {GraphQLFormattedError} from 'graphql';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ApolloClient, DocumentNode, InMemoryCache } from "@apollo/client";
+import { PageOption, PageQueryResponse, QueryResponse } from "./types";
+import axios, { AxiosInstance } from "axios";
+import { GraphQLFormattedError } from "graphql";
 
 export class IndexerClient {
   public apolloClient: ApolloClient<unknown>;
@@ -21,42 +22,42 @@ export class IndexerClient {
     if (pageOption) {
       return this.apolloClient.query<QueryResponse<T>>({
         query: qry,
-        fetchPolicy: 'no-cache',
+        fetchPolicy: "no-cache",
         context: {
           headers: {
-            'X-PAGE': pageOption.page,
-            'X-PAGE-SIZE': pageOption.pageSize,
+            "X-PAGE": pageOption.page,
+            "X-PAGE-SIZE": pageOption.pageSize,
           },
         },
       });
     }
 
     return this.axiosClient
-      .post('', {
+      .post("", {
         query: qry.loc?.source.body,
       })
-      .then<{data?: QueryResponse<T>; errors?: GraphQLFormattedError[]}>(result => result?.data);
+      .then<{ data?: QueryResponse<T>; errors?: GraphQLFormattedError[] }>(result => result?.data);
   }
 
   public pageQuery<T = any>(qry: DocumentNode) {
     return this.apolloClient.query<PageQueryResponse<T>>({
       query: qry,
-      fetchPolicy: 'no-cache',
+      fetchPolicy: "no-cache",
     });
   }
 
   public queryWithOptions(qry: DocumentNode, pageOption: PageOption) {
     return this.apolloClient.query({
       query: qry,
-      fetchPolicy: 'no-cache',
+      fetchPolicy: "no-cache",
       variables: {
-        'X-PAGE': pageOption.page,
-        'X-PAGE-SIZE': pageOption.pageSize,
+        "X-PAGE": pageOption.page,
+        "X-PAGE-SIZE": pageOption.pageSize,
       },
       context: {
         headers: {
-          'X-PAGE': pageOption.page,
-          'X-PAGE-SIZE': pageOption.pageSize,
+          "X-PAGE": pageOption.page,
+          "X-PAGE-SIZE": pageOption.pageSize,
         },
       },
     });

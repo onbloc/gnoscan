@@ -1,30 +1,26 @@
-import React, {useMemo} from 'react';
-import dynamic from 'next/dynamic';
-import {Spinner} from '@/components/ui/loading';
-import {useTotalDailyInfo} from '@/common/hooks/main/use-total-daily-info';
-import BigNumber from 'bignumber.js';
-import {GNOTToken} from '@/common/hooks/common/use-token-meta';
-import {DAY_TIME} from '@/common/values/constant-value';
-import {dateToStr} from '@/common/utils/date-util';
+import React, { useMemo } from "react";
+import dynamic from "next/dynamic";
+import { Spinner } from "@/components/ui/loading";
+import { useTotalDailyInfo } from "@/common/hooks/main/use-total-daily-info";
+import BigNumber from "bignumber.js";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { DAY_TIME } from "@/common/values/constant-value";
+import { dateToStr } from "@/common/utils/date-util";
 
-const BarChart = dynamic(() => import('@/components/ui/chart').then(mod => mod.BarChart), {
+const BarChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.BarChart), {
   ssr: false,
 });
 
 export const MainTotalDailyFee = () => {
-  const {isFetched, transactionInfo} = useTotalDailyInfo();
+  const { isFetched, transactionInfo } = useTotalDailyInfo();
 
   const labels = useMemo(() => {
     const now = new Date();
     const todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const beforeMonthTime = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      now.getDate(),
-    ).getTime();
+    const beforeMonthTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime();
     const barCount = Math.round((now.getTime() - beforeMonthTime) / DAY_TIME);
 
-    return Array.from({length: barCount})
+    return Array.from({ length: barCount })
       .map((_, index) => new Date(todayTime - DAY_TIME * index))
       .sort((d1, d2) => d1.getTime() - d2.getTime())
       .map(dateToStr);
@@ -50,11 +46,7 @@ export const MainTotalDailyFee = () => {
 
   return (
     <React.Fragment>
-      {isFetched ? (
-        <BarChart isDenom labels={labels} datas={chartData} />
-      ) : (
-        <Spinner position="center" />
-      )}
+      {isFetched ? <BarChart isDenom labels={labels} datas={chartData} /> : <Spinner position="center" />}
     </React.Fragment>
   );
 };

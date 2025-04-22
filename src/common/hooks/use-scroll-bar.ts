@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {css} from 'styled-components';
+import { useState } from "react";
+import { css } from "styled-components";
 
 export const scrollbarStyle = css`
   &::-webkit-scrollbar {
@@ -26,7 +26,7 @@ export const scrollbarStyle = css`
     position: absolute;
     display: block;
     border-radius: 8px;
-    background-color: ${({theme}) => theme.colors.dimmed50};
+    background-color: ${({ theme }) => theme.colors.dimmed50};
   }
 `;
 

@@ -1,33 +1,29 @@
-import {useMemo} from 'react';
-import {useGetBefore30DBlock} from '../common/use-get-before-30d-block';
-import {useGetSimpleTransactions} from '../common/use-get-simple-transactions';
-import {useGetSimpleTransactionWithTimes} from '../common/use-get-block-times';
+import { useMemo } from "react";
+import { useGetBefore30DBlock } from "../common/use-get-before-30d-block";
+import { useGetSimpleTransactions } from "../common/use-get-simple-transactions";
+import { useGetSimpleTransactionWithTimes } from "../common/use-get-block-times";
 
 export const useTotalGasInfo = () => {
-  const {data: blockHeightOfBefore30d} = useGetBefore30DBlock();
-  const {data: simpleTransactions} = useGetSimpleTransactions(blockHeightOfBefore30d);
-  const {data, isFetched} = useGetSimpleTransactionWithTimes(simpleTransactions);
+  const { data: blockHeightOfBefore30d } = useGetBefore30DBlock();
+  const { data: simpleTransactions } = useGetSimpleTransactions(blockHeightOfBefore30d);
+  const { data, isFetched } = useGetSimpleTransactionWithTimes(simpleTransactions);
 
   const transactionRealmGasInfo = useMemo(() => {
     if (!data) {
       return null;
     }
 
-    const transactionInfo: {[key in string]: {[key in string]: number}} = {};
-    const dateTotalGas: {[key in string]: number} = {};
-    const realmTotalGas: {[key in string]: number} = {};
+    const transactionInfo: { [key in string]: { [key in string]: number } } = {};
+    const dateTotalGas: { [key in string]: number } = {};
+    const realmTotalGas: { [key in string]: number } = {};
 
     data?.forEach(tx => {
-      const blockTime = new Date(tx.time || '');
+      const blockTime = new Date(tx.time || "");
       const pkgPath = tx.messages?.[0].value.pkg_path;
       if (!pkgPath) {
         return;
       }
-      const date = [
-        blockTime.getUTCFullYear(),
-        blockTime.getUTCMonth() + 1,
-        blockTime.getUTCDate(),
-      ].join('-');
+      const date = [blockTime.getUTCFullYear(), blockTime.getUTCMonth() + 1, blockTime.getUTCDate()].join("-");
 
       if (!transactionInfo[date]) {
         transactionInfo[date] = {};

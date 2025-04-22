@@ -1,22 +1,19 @@
-import BigNumber from 'bignumber.js';
-import {useMemo} from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import BigNumber from "bignumber.js";
+import { useMemo } from "react";
 
-import {useGetTransactionBlockHeightQuery} from '@/common/react-query/transaction';
-import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
-import {makeDisplayNumber} from '@/common/utils/string-util';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {
-  decodeTransaction,
-  makeSafeBase64Hash,
-  makeTransactionMessageInfo,
-} from '@/common/utils/transaction.utility';
-import {Transaction} from '@/types/data-type';
-import {GNOTToken, useTokenMeta} from '../common/use-token-meta';
+import { useGetTransactionBlockHeightQuery } from "@/common/react-query/transaction";
+import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
+import { makeDisplayNumber } from "@/common/utils/string-util";
+import { parseTokenAmount } from "@/common/utils/token.utility";
+import { decodeTransaction, makeSafeBase64Hash, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
+import { Transaction } from "@/types/data-type";
+import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
 
 export const useTransaction = (hash: string) => {
   const safetyHash = makeSafeBase64Hash(hash);
-  const {getTokenAmount} = useTokenMeta();
-  const {data, isFetched, isError: isErrorTxHash} = useGetTransactionBlockHeightQuery(safetyHash);
+  const { getTokenAmount } = useTokenMeta();
+  const { data, isFetched, isError: isErrorTxHash } = useGetTransactionBlockHeightQuery(safetyHash);
 
   const block = useMemo(() => {
     return data?.block || null;
@@ -29,8 +26,8 @@ export const useTransaction = (hash: string) => {
   const timeStamp = useMemo(() => {
     if (!block) {
       return {
-        time: '-',
-        passedTime: '',
+        time: "-",
+        passedTime: "",
       };
     }
 
@@ -42,7 +39,7 @@ export const useTransaction = (hash: string) => {
 
   const network = useMemo(() => {
     if (!block) {
-      return '-';
+      return "-";
     }
     return block.block.header.chain_id;
   }, [block]);
@@ -77,26 +74,26 @@ export const useTransaction = (hash: string) => {
     }
 
     const firstMessage = makeTransactionMessageInfo(transaction.messages[0]);
-    const feeAmount = parseTokenAmount(transaction.fee?.gasFee || '0ugnot');
+    const feeAmount = parseTokenAmount(transaction.fee?.gasFee || "0ugnot");
 
     return {
       hash: transaction.hash,
       messages: transaction?.messages,
       success: !txResult?.Error && !txResult?.ResponseBase?.Error,
       numOfMessage: transaction.messages.length,
-      type: firstMessage?.type || '',
-      packagePath: firstMessage?.packagePath || '',
-      functionName: firstMessage?.functionName || '',
+      type: firstMessage?.type || "",
+      packagePath: firstMessage?.packagePath || "",
+      functionName: firstMessage?.functionName || "",
       blockHeight: blockHeight || 0,
-      from: firstMessage?.from || '',
-      to: firstMessage?.to || '',
+      from: firstMessage?.from || "",
+      to: firstMessage?.to || "",
       amount: firstMessage?.amount || {
-        value: '0',
-        denom: 'ugnot',
+        value: "0",
+        denom: "ugnot",
       },
-      time: block?.block_meta.header.time || '',
+      time: block?.block_meta.header.time || "",
       fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
-      memo: transaction.memo || '-',
+      memo: transaction.memo || "-",
       events: ((txResult?.ResponseBase?.Events as any[]) || [])?.map((event, index) => ({
         id: `${transaction.hash}_${index}`,
         blockHeight: blockHeight || 0,
@@ -106,14 +103,14 @@ export const useTransaction = (hash: string) => {
         functionName: event.func,
         attrs: event.attrs,
         time: block.block.header.time,
-        caller: firstMessage?.from || '',
+        caller: firstMessage?.from || "",
       })),
       rawContent: JSON.stringify(
         {
-          messages: transaction?.messages || '',
-          fee: transaction?.fee || '',
-          signatures: transaction?.signatures || '',
-          memo: transaction?.memo || '',
+          messages: transaction?.messages || "",
+          fee: transaction?.fee || "",
+          signatures: transaction?.signatures || "",
+          memo: transaction?.memo || "",
         },
         null,
         2,
@@ -140,10 +137,7 @@ export const useTransaction = (hash: string) => {
     const rate =
       transactionGasInfo.gasWanted === 0
         ? 0
-        : BigNumber(transactionGasInfo.gasUsed)
-            .dividedBy(transactionGasInfo.gasWanted)
-            .shiftedBy(2)
-            .toFixed(2);
+        : BigNumber(transactionGasInfo.gasUsed).dividedBy(transactionGasInfo.gasWanted).shiftedBy(2).toFixed(2);
     return `${gasUsed}/${gasWanted} (${rate}%)`;
   }, [transactionGasInfo]);
 

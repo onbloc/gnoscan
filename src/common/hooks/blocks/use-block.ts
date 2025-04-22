@@ -1,29 +1,25 @@
-import {useMemo} from 'react';
-import {
-  useGetBlockQuery,
-  useGetBlockResultQuery,
-  useGetLatestBlockHeightQuery,
-} from '@/common/react-query/block';
-import {getDateDiff, getLocalDateString} from '@/common/utils/date-util';
-import {makeDisplayNumber, makeDisplayNumberWithDefault} from '@/common/utils/string-util';
-import {decodeTransaction, makeTransactionMessageInfo} from '@/common/utils/transaction.utility';
-import BigNumber from 'bignumber.js';
-import {GnoEvent, Transaction} from '@/types/data-type';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {GNOTToken} from '../common/use-token-meta';
-import {toBech32Address} from '@/common/utils/bech32.utility';
-import {getDefaultMessageByBlockTransaction} from '@/repositories/utility';
+import { useMemo } from "react";
+import { useGetBlockQuery, useGetBlockResultQuery, useGetLatestBlockHeightQuery } from "@/common/react-query/block";
+import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
+import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
+import { decodeTransaction, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
+import BigNumber from "bignumber.js";
+import { GnoEvent, Transaction } from "@/types/data-type";
+import { parseTokenAmount } from "@/common/utils/token.utility";
+import { GNOTToken } from "../common/use-token-meta";
+import { toBech32Address } from "@/common/utils/bech32.utility";
+import { getDefaultMessageByBlockTransaction } from "@/repositories/utility";
 
 export const useBlock = (height: number) => {
-  const {data: latestBlockHeight} = useGetLatestBlockHeightQuery();
-  const {data: block, isFetched} = useGetBlockQuery(height);
-  const {data: blockResult, isFetched: isFetchedBlockResult} = useGetBlockResultQuery(height);
+  const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
+  const { data: block, isFetched } = useGetBlockQuery(height);
+  const { data: blockResult, isFetched: isFetchedBlockResult } = useGetBlockResultQuery(height);
 
   const timeStamp = useMemo(() => {
     if (!block) {
       return {
-        time: '-',
-        passedTime: '',
+        time: "-",
+        passedTime: "",
       };
     }
 
@@ -35,7 +31,7 @@ export const useBlock = (height: number) => {
 
   const network = useMemo(() => {
     if (!block) {
-      return '-';
+      return "-";
     }
     return block.block.header.chain_id;
   }, [block]);
@@ -62,26 +58,24 @@ export const useBlock = (height: number) => {
     }
     return transactions?.map((transaction, index) => {
       const result = blockResult.deliver_tx.find((_, resultIndex) => index === resultIndex);
-      const defaultMessage = makeTransactionMessageInfo(
-        getDefaultMessageByBlockTransaction(transaction.messages),
-      );
-      const feeAmount = parseTokenAmount(transaction.fee?.gasFee || '0ugnot');
+      const defaultMessage = makeTransactionMessageInfo(getDefaultMessageByBlockTransaction(transaction.messages));
+      const feeAmount = parseTokenAmount(transaction.fee?.gasFee || "0ugnot");
 
       return {
         hash: transaction.hash,
         success: !result?.ResponseBase?.Error,
         numOfMessage: transaction.messages.length,
-        type: defaultMessage?.type || '',
-        packagePath: defaultMessage?.packagePath || '',
-        functionName: defaultMessage?.functionName || '',
+        type: defaultMessage?.type || "",
+        packagePath: defaultMessage?.packagePath || "",
+        functionName: defaultMessage?.functionName || "",
         blockHeight: blockHeight || 0,
-        from: defaultMessage?.from || '',
-        to: defaultMessage?.to || '',
+        from: defaultMessage?.from || "",
+        to: defaultMessage?.to || "",
         amount: defaultMessage?.amount || {
-          value: '0',
+          value: "0",
           denom: GNOTToken.denom,
         },
-        time: block?.block_meta.header.time || '',
+        time: block?.block_meta.header.time || "",
         fee: {
           value: feeAmount.toString(),
           denom: GNOTToken.denom,
@@ -90,10 +84,7 @@ export const useBlock = (height: number) => {
     });
   }, [transactions, blockResult]);
 
-  const numberOfTransactions = useMemo(
-    () => makeDisplayNumberWithDefault(block?.block.header.num_txs),
-    [block],
-  );
+  const numberOfTransactions = useMemo(() => makeDisplayNumberWithDefault(block?.block.header.num_txs), [block]);
 
   const transactionGasInfo = useMemo(() => {
     if (!blockResult?.deliver_tx) {
@@ -125,20 +116,17 @@ export const useBlock = (height: number) => {
     const rate =
       transactionGasInfo.gasWanted === 0
         ? 0
-        : BigNumber(transactionGasInfo.gasUsed)
-            .dividedBy(transactionGasInfo.gasWanted)
-            .shiftedBy(2)
-            .toFixed(2);
+        : BigNumber(transactionGasInfo.gasUsed).dividedBy(transactionGasInfo.gasWanted).shiftedBy(2).toFixed(2);
     return `${gasUsed}/${gasWanted} (${rate}%)`;
   }, [transactionGasInfo]);
 
   const proposerAddress = useMemo(() => {
     if (!block) {
-      return '-';
+      return "-";
     }
 
     return Array.isArray(block.block.header.proposer_address)
-      ? toBech32Address('g', block.block.header.proposer_address)
+      ? toBech32Address("g", block.block.header.proposer_address)
       : block.block.header.proposer_address;
   }, [block]);
 
@@ -157,8 +145,8 @@ export const useBlock = (height: number) => {
               }
 
               const transaction = decodeTransaction(block?.block.data.txs?.[index]);
-              const eventId = transaction.hash + '_' + index + '_' + eventIndex;
-              const caller = transaction?.messages?.[0]?.caller || '';
+              const eventId = transaction.hash + "_" + index + "_" + eventIndex;
+              const caller = transaction?.messages?.[0]?.caller || "";
               return {
                 id: eventId,
                 transactionHash: transaction.hash,

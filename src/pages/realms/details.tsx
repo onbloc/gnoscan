@@ -1,33 +1,31 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import {isDesktop, NonMobile} from '@/common/hooks/use-media';
-import {DetailsPageLayout} from '@/components/core/layout';
-import Badge from '@/components/ui/badge';
-import {DLWrap, FitContentA, LinkWrapper} from '@/components/ui/detail-page-common-styles';
-import DataSection from '@/components/view/details-data-section';
-import Text from '@/components/ui/text';
-import Link from 'next/link';
-import {AmountText} from '@/components/ui/text/amount-text';
-import ShowLog from '@/components/ui/show-log';
-import {RealmDetailDatatable} from '@/components/view/datatable';
-import Tooltip from '@/components/ui/tooltip';
-import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
-import IconCopy from '@/assets/svgs/icon-copy.svg';
-import {useNetwork} from '@/common/hooks/use-network';
-import {
-  GNOSTUDIO_REALM_FUNCTION_TEMPLATE,
-  GNOSTUDIO_REALM_TEMPLATE,
-} from '@/common/values/url.constant';
-import {makeTemplate} from '@/common/utils/template.utils';
-import IconLink from '@/assets/svgs/icon-link.svg';
-import {useRealm} from '@/common/hooks/realms/use-realm';
-import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {EventDatatable} from '@/components/view/datatable/event';
-import DataListSection from '@/components/view/details-data-section/data-list-section';
-import {useUsername} from '@/common/hooks/account/use-username';
-import {useGetRealmTransactionsQuery} from '@/common/react-query/realm';
-import {SkeletonBar} from '@/components/ui/loading/skeleton-bar';
-import BigNumber from 'bignumber.js';
-import {formatDisplayPackagePath} from '@/common/utils/string-util';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useCallback, useMemo, useState } from "react";
+import { isDesktop, NonMobile } from "@/common/hooks/use-media";
+import { DetailsPageLayout } from "@/components/core/layout";
+import Badge from "@/components/ui/badge";
+import { DLWrap, FitContentA, LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import DataSection from "@/components/view/details-data-section";
+import Text from "@/components/ui/text";
+import Link from "next/link";
+import { AmountText } from "@/components/ui/text/amount-text";
+import ShowLog from "@/components/ui/show-log";
+import { RealmDetailDatatable } from "@/components/view/datatable";
+import Tooltip from "@/components/ui/tooltip";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { useNetwork } from "@/common/hooks/use-network";
+import { GNOSTUDIO_REALM_FUNCTION_TEMPLATE, GNOSTUDIO_REALM_TEMPLATE } from "@/common/values/url.constant";
+import { makeTemplate } from "@/common/utils/template.utils";
+import IconLink from "@/assets/svgs/icon-link.svg";
+import { useRealm } from "@/common/hooks/realms/use-realm";
+import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { EventDatatable } from "@/components/view/datatable/event";
+import DataListSection from "@/components/view/details-data-section/data-list-section";
+import { useUsername } from "@/common/hooks/account/use-username";
+import { useGetRealmTransactionsQuery } from "@/common/react-query/realm";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import BigNumber from "bignumber.js";
+import { formatDisplayPackagePath } from "@/common/utils/string-util";
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -49,13 +47,13 @@ interface RealmsDetailsPageProps {
   redirectUrl: string | null;
 }
 
-const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
+const RealmsDetails = ({ path }: RealmsDetailsPageProps) => {
   const desktop = isDesktop();
-  const {isFetched: isFetchedUsername, getName} = useUsername();
-  const {currentNetwork, getUrlWithNetwork} = useNetwork();
-  const {summary, transactionEvents, isFetched: isFetchedRealm} = useRealm(path);
-  const {getTokenAmount} = useTokenMeta();
-  const [currentTab, setCurrentTab] = useState('Transactions');
+  const { isFetched: isFetchedUsername, getName } = useUsername();
+  const { currentNetwork, getUrlWithNetwork } = useNetwork();
+  const { summary, transactionEvents, isFetched: isFetchedRealm } = useRealm(path);
+  const { getTokenAmount } = useTokenMeta();
+  const [currentTab, setCurrentTab] = useState("Transactions");
 
   const isFetched = useMemo(() => {
     return isFetchedRealm && isFetchedUsername;
@@ -64,10 +62,10 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   const detailTabs = useMemo(() => {
     return [
       {
-        tabName: 'Transactions',
+        tabName: "Transactions",
       },
       {
-        tabName: 'Events',
+        tabName: "Events",
         size: transactionEvents.length,
       },
     ];
@@ -75,7 +73,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
 
   const balanceStr = useMemo(() => {
     if (!summary?.balance) {
-      return '-';
+      return "-";
     }
     const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
     return `${amount.value} ${amount.denom}`;
@@ -88,9 +86,9 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
 
     const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
       PACKAGE_PATH: path,
-      NETWORK: currentNetwork?.chainId || '',
+      NETWORK: currentNetwork?.chainId || "",
     });
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   }, [path, currentNetwork]);
 
   const moveGnoStudioViewRealmFunction = useCallback(
@@ -101,20 +99,16 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
 
       const url = makeTemplate(GNOSTUDIO_REALM_FUNCTION_TEMPLATE, {
         PACKAGE_PATH: path,
-        NETWORK: currentNetwork?.chainId || '',
+        NETWORK: currentNetwork?.chainId || "",
         FUNCTION_NAME: functionName,
       });
-      window.open(url, '_blank');
+      window.open(url, "_blank");
     },
     [path, currentNetwork],
   );
 
   return (
-    <DetailsPageLayout
-      title={'Realm Details'}
-      visible={!isFetched}
-      keyword={`${path}`}
-      error={!isFetched}>
+    <DetailsPageLayout title={"Realm Details"} visible={!isFetched} keyword={`${path}`} error={!isFetched}>
       {isFetched && (
         <>
           <DataSection title="Summary">
@@ -144,7 +138,8 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                     content="Copied!"
                     trigger="click"
                     copyText={summary?.path}
-                    width={85}>
+                    width={85}
+                  >
                     <IconCopy className="svg-icon" />
                   </Tooltip>
                 </Badge>
@@ -164,15 +159,16 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dd>
                 <Badge>
                   <Text type="p4" color="reverse" className="ellipsis">
-                    {summary?.realmAddress || ''}
+                    {summary?.realmAddress || ""}
                   </Text>
 
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
                     trigger="click"
-                    copyText={summary?.realmAddress || ''}
-                    width={85}>
+                    copyText={summary?.realmAddress || ""}
+                    width={85}
+                  >
                     <IconCopy className="svg-icon" />
                   </Tooltip>
                 </Badge>
@@ -182,11 +178,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Function Type(s)</dt>
               <dd className="function-wrapper">
                 {summary?.funcs?.map((v: string, index: number) => (
-                  <Badge
-                    className="link"
-                    key={index}
-                    type="blue"
-                    onClick={() => moveGnoStudioViewRealmFunction(v)}>
+                  <Badge className="link" key={index} type="blue" onClick={() => moveGnoStudioViewRealmFunction(v)}>
                     <Tooltip className="tooltip" content="Click to try in GnoStudio">
                       <Text type="p4" color="white">
                         {v}
@@ -200,7 +192,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
               <dt>Publisher</dt>
               <dd>
                 <Badge>
-                  {summary?.publisherAddress === 'genesis' ? (
+                  {summary?.publisherAddress === "genesis" ? (
                     <FitContentA>
                       <Text type="p4" color="blue" className="ellipsis">
                         {summary?.publisherAddress}
@@ -208,11 +200,9 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                     </FitContentA>
                   ) : (
                     <FitContentA>
-                      <Link
-                        href={getUrlWithNetwork(`/accounts/${summary?.publisherAddress}`)}
-                        passHref>
+                      <Link href={getUrlWithNetwork(`/accounts/${summary?.publisherAddress}`)} passHref>
                         <Text type="p4" color="blue" className="ellipsis">
-                          {getName(summary?.publisherAddress || '') || summary?.publisherAddress}
+                          {getName(summary?.publisherAddress || "") || summary?.publisherAddress}
                         </Text>
                       </Link>
                     </FitContentA>
@@ -227,7 +217,7 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                   {summary?.blockPublished === 0 ? (
                     <FitContentA>
                       <Text type="p4" color="blue" className="ellipsis">
-                        {'-'}
+                        {"-"}
                       </Text>
                     </FitContentA>
                   ) : (
@@ -267,16 +257,12 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
                 <LazyTotalUsedFeeAmount packagePath={path} />
               </dd>
             </DLWrap>
-            {summary?.files && (
-              <ShowLog isTabLog={true} files={summary?.files} btnTextType="Contract" />
-            )}
+            {summary?.files && <ShowLog isTabLog={true} files={summary?.files} btnTextType="Contract" />}
           </DataSection>
 
           <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-            {currentTab === 'Transactions' && <RealmDetailDatatable pkgPath={`${path}`} />}
-            {currentTab === 'Events' && (
-              <EventDatatable isFetched={isFetched} events={transactionEvents} />
-            )}
+            {currentTab === "Transactions" && <RealmDetailDatatable pkgPath={`${path}`} />}
+            {currentTab === "Events" && <EventDatatable isFetched={isFetched} events={transactionEvents} />}
           </DataListSection>
         </>
       )}
@@ -284,9 +270,8 @@ const RealmsDetails = ({path}: RealmsDetailsPageProps) => {
   );
 };
 
-const LazyTotalContractCalls: React.FC<{packagePath: string}> = ({packagePath}) => {
-  const {data: realmTransactions, isFetched: isFetchedRealmTransactions} =
-    useGetRealmTransactionsQuery(packagePath);
+const LazyTotalContractCalls: React.FC<{ packagePath: string }> = ({ packagePath }) => {
+  const { data: realmTransactions, isFetched: isFetchedRealmTransactions } = useGetRealmTransactionsQuery(packagePath);
 
   const totalContractCalls = useMemo(() => {
     if (!realmTransactions || !isFetchedRealmTransactions) {
@@ -294,10 +279,10 @@ const LazyTotalContractCalls: React.FC<{packagePath: string}> = ({packagePath}) 
     }
 
     if (!realmTransactions) {
-      return '0';
+      return "0";
     }
 
-    const totalCount = realmTransactions.filter(tx => tx.type === '/vm.m_call').length;
+    const totalCount = realmTransactions.filter(tx => tx.type === "/vm.m_call").length;
 
     return BigNumber(totalCount).toFormat();
   }, [realmTransactions]);
@@ -309,10 +294,9 @@ const LazyTotalContractCalls: React.FC<{packagePath: string}> = ({packagePath}) 
   return <Badge>{totalContractCalls}</Badge>;
 };
 
-const LazyTotalUsedFeeAmount: React.FC<{packagePath: string}> = ({packagePath}) => {
-  const {data: realmTransactions, isFetched: isFetchedRealmTransactions} =
-    useGetRealmTransactionsQuery(packagePath);
-  const {getTokenAmount} = useTokenMeta();
+const LazyTotalUsedFeeAmount: React.FC<{ packagePath: string }> = ({ packagePath }) => {
+  const { data: realmTransactions, isFetched: isFetchedRealmTransactions } = useGetRealmTransactionsQuery(packagePath);
+  const { getTokenAmount } = useTokenMeta();
 
   const totalUsedFee = useMemo(() => {
     if (!isFetchedRealmTransactions) {
@@ -327,7 +311,7 @@ const LazyTotalUsedFeeAmount: React.FC<{packagePath: string}> = ({packagePath}) 
     }
 
     const totalUsedFeeAmount = realmTransactions
-      .filter(tx => tx.type === '/vm.m_call')
+      .filter(tx => tx.type === "/vm.m_call")
       .map(tx => Number(tx.fee?.value || 0))
       .reduce((accum, current) => accum + current, 0);
 
@@ -343,16 +327,12 @@ const LazyTotalUsedFeeAmount: React.FC<{packagePath: string}> = ({packagePath}) 
 
   return (
     <Badge>
-      <AmountText
-        minSize="body1"
-        maxSize="p4"
-        {...getTokenAmount(totalUsedFee.denom, totalUsedFee.value)}
-      />
+      <AmountText minSize="body1" maxSize="p4" {...getTokenAmount(totalUsedFee.denom, totalUsedFee.value)} />
     </Badge>
   );
 };
 
-export async function getServerSideProps({query}: any) {
+export async function getServerSideProps({ query }: any) {
   const keyword = query?.path;
   return {
     props: {

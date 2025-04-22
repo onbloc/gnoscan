@@ -1,4 +1,4 @@
-import {gql} from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const TRANSACTIONS_QUERY = gql`
   {
@@ -51,7 +51,7 @@ export const makeTransactionsQuery = (cursor: string | null) => gql`
     transactions(
       filter: {}
       size: 20
-      after: ${cursor ? `"${cursor}"` : 'null'}
+      after: ${cursor ? `"${cursor}"` : "null"}
       ascending: false
     ) {
       pageInfo {

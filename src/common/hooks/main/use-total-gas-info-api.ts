@@ -1,8 +1,8 @@
-import {useMemo} from 'react';
-import {useGetMonthlyTransactionStatInfo} from '../common/use-get-monthly-transaction-stat-info';
+import { useMemo } from "react";
+import { useGetMonthlyTransactionStatInfo } from "../common/use-get-monthly-transaction-stat-info";
 
 export const useTotalGasInfoApi = (period?: number) => {
-  const {data, isFetched} = useGetMonthlyTransactionStatInfo();
+  const { data, isFetched } = useGetMonthlyTransactionStatInfo();
 
   const realmGasSharedInfo = useMemo(() => {
     if (!data) {
@@ -31,15 +31,15 @@ export const useTotalGasInfoApi = (period?: number) => {
       return null;
     }
 
-    const dateTotalGas: {[key in string]: number} = {};
-    const realmTotalGas: {[key in string]: number} = {};
+    const dateTotalGas: { [key in string]: number } = {};
+    const realmTotalGas: { [key in string]: number } = {};
     const gasSharedInfo = realmGasSharedInfo;
-    const bestRealmPaths = [...bestRealms.map(d => d.packagePath), 'rest'];
+    const bestRealmPaths = [...bestRealms.map(d => d.packagePath), "rest"];
 
     const transactionInfo = Object.keys(gasSharedInfo).reduce<{
-      [key in string]: {[key in string]: number};
+      [key in string]: { [key in string]: number };
     }>((accum, currentDate) => {
-      const currentInfo: {[key in string]: number} = {};
+      const currentInfo: { [key in string]: number } = {};
       for (const realmPath of bestRealmPaths) {
         const gasShared = gasSharedInfo[currentDate]?.[realmPath]?.gasShared || 0;
         currentInfo[realmPath] = gasShared;

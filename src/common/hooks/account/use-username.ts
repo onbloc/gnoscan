@@ -1,17 +1,17 @@
-import {useCallback, useMemo} from 'react';
-import {useGetUsername} from '../common/use-get-username';
-import {useGetValidatorNames} from '../common/use-get-validator-names';
+import { useCallback, useMemo } from "react";
+import { useGetUsername } from "../common/use-get-username";
+import { useGetValidatorNames } from "../common/use-get-validator-names";
 
 export const useUsername = () => {
-  const {data = {}, isFetched} = useGetUsername();
-  const {validatorInfos, isFetched: isFetchedValidatorInfos} = useGetValidatorNames();
+  const { data = {}, isFetched } = useGetUsername();
+  const { validatorInfos, isFetched: isFetchedValidatorInfos } = useGetValidatorNames();
 
   const validatorNames = useMemo(() => {
     if (!validatorInfos) {
       return {};
     }
 
-    return validatorInfos.reduce<{[key in string]: string}>((acc, current) => {
+    return validatorInfos.reduce<{ [key in string]: string }>((acc, current) => {
       acc[current.address] = current.name;
       return acc;
     }, {});

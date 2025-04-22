@@ -1,48 +1,49 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Line} from 'react-chartjs-2';
-import {Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
-import {AreaChartTooltip} from './tooltip';
-import theme from '@/styles/theme';
-import {useRecoilValue} from 'recoil';
-import {themeState} from '@/states';
-import {zindex} from '@/common/values/z-index';
-import styled from 'styled-components';
-import BigNumber from 'bignumber.js';
-import {formatAddress} from '@/common/utils';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Line } from "react-chartjs-2";
+import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
+import { AreaChartTooltip } from "./tooltip";
+import theme from "@/styles/theme";
+import { useRecoilValue } from "recoil";
+import { themeState } from "@/states";
+import { zindex } from "@/common/values/z-index";
+import styled from "styled-components";
+import BigNumber from "bignumber.js";
+import { formatAddress } from "@/common/utils";
 interface AreaChartProps {
   labels: Array<string>;
-  datas: {[key in string]: Array<{value: number; rate: number}>};
+  datas: { [key in string]: Array<{ value: number; rate: number }> };
   colors?: Array<string>;
 }
 
 export function makeAreaGraphDisplayLabel(label: string) {
-  const values = label.split('/');
+  const values = label.split("/");
   if (values.length > 3) {
     const [blank, packageType, namespace, ...rest] = values;
     if (namespace.length > 10) {
-      return [blank, packageType, formatAddress(namespace), ...rest].join('/');
+      return [blank, packageType, formatAddress(namespace), ...rest].join("/");
     }
   }
   return label;
 }
 
-export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
+export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<Chart<'line'>>(null);
+  const chartRef = useRef<Chart<"line">>(null);
   const [excludedDatasets, setExcludedDatasets] = useState<ChartDataset[]>([]);
-  const [chartData, setChartData] = useState<ChartData<'line'>>({labels: [], datasets: []});
+  const [chartData, setChartData] = useState<ChartData<"line">>({ labels: [], datasets: [] });
   const themeMode = useRecoilValue(themeState);
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({
-    title: '',
+    title: "",
     value: [] as any,
   });
 
   useEffect(() => {
-    window.addEventListener('scroll', handleTooltipVisible);
+    window.addEventListener("scroll", handleTooltipVisible);
     return () => {
-      window.removeEventListener('scroll', handleTooltipVisible);
+      window.removeEventListener("scroll", handleTooltipVisible);
     };
   }, [tooltipRef]);
 
@@ -55,9 +56,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   const onClickLegend = useCallback(
     (dataset: ChartDataset) => {
-      const index = excludedDatasets.findIndex(
-        excludedDataset => excludedDataset.label === dataset.label,
-      );
+      const index = excludedDatasets.findIndex(excludedDataset => excludedDataset.label === dataset.label);
       if (index > -1) {
         const changedDatasets = [...excludedDatasets];
         changedDatasets.splice(index, 1);
@@ -71,19 +70,16 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   const handleTooltipVisible = () => {
     if (tooltipRef.current) {
-      tooltipRef.current.style.opacity = '0';
+      tooltipRef.current.style.opacity = "0";
     }
   };
 
   const getThemePallet = () => {
-    return themeMode === 'light' ? theme.lightTheme : theme.darkTheme;
+    return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
   };
 
-  const renderExternalTooltip = (context: {
-    chart: Chart<'line'>;
-    tooltip: TooltipModel<'line'>;
-  }) => {
-    const {chart, tooltip} = context;
+  const renderExternalTooltip = (context: { chart: Chart<"line">; tooltip: TooltipModel<"line"> }) => {
+    const { chart, tooltip } = context;
 
     if (!tooltipRef.current) {
       return;
@@ -93,7 +89,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
     const tooltipModel = tooltip;
     if (tooltipModel.opacity === 0) {
-      currentTooltip.style.opacity = '0';
+      currentTooltip.style.opacity = "0";
       return;
     }
 
@@ -104,22 +100,22 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       });
     }
 
-    currentTooltip.style.opacity = '1';
+    currentTooltip.style.opacity = "1";
 
     const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
-    currentTooltip.style.position = 'fixed';
-    currentTooltip.style.top = position.bottom - position.height - tooltip.height + 'px';
+    currentTooltip.style.position = "fixed";
+    currentTooltip.style.top = position.bottom - position.height - tooltip.height + "px";
 
     const left = tooltipModel.caretX - position.width / 2;
     if (left + tooltipRect.width > position.width) {
-      currentTooltip.style.marginRight = '0';
+      currentTooltip.style.marginRight = "0";
     } else {
-      currentTooltip.style.marginLeft = left + 'px';
+      currentTooltip.style.marginLeft = left + "px";
     }
   };
 
-  const createChartOption = (): ChartOptions<'line'> => {
+  const createChartOption = (): ChartOptions<"line"> => {
     const themePallet = getThemePallet();
     return {
       responsive: true,
@@ -131,7 +127,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
             color: themePallet.tertiary,
             count: 5,
             callback: (tickValue, index) => {
-              if (index === 0) return '';
+              if (index === 0) return "";
               return BigNumber(tickValue).shiftedBy(-6).toString();
             },
           },
@@ -150,9 +146,9 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
             maxRotation: 0,
             callback: (_, index) => {
               try {
-                const formatter = new Intl.DateTimeFormat('en-us', {
-                  month: 'short',
-                  day: 'numeric',
+                const formatter = new Intl.DateTimeFormat("en-us", {
+                  month: "short",
+                  day: "numeric",
                 });
                 return formatter.format(new Date(labels[index]));
               } catch (e) {}
@@ -160,12 +156,12 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
             },
           },
           grid: {
-            color: '#00000000',
+            color: "#00000000",
           },
         },
       },
       interaction: {
-        mode: 'index',
+        mode: "index",
         intersect: false,
       },
       plugins: {
@@ -174,7 +170,7 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
         },
         tooltip: {
           enabled: false,
-          position: 'average',
+          position: "average",
           displayColors: false,
           external: renderExternalTooltip,
         },
@@ -187,32 +183,29 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   const createChartData = (
     labels: Array<string>,
-    datasets: {[key in string]: Array<{value: number; rate: number}>},
-  ): ChartData<'line'> => {
+    datasets: { [key in string]: Array<{ value: number; rate: number }> },
+  ): ChartData<"line"> => {
     const themePallet = getThemePallet();
     if (!chartRef.current || !labels || !datasets) {
-      return {labels: [], datasets: []};
+      return { labels: [], datasets: [] };
     }
 
-    const defaultChartData: ChartDataset<'line'> = {
-      yAxisID: 'yAxis',
-      xAxisID: 'xAxis',
+    const defaultChartData: ChartDataset<"line"> = {
+      yAxisID: "yAxis",
+      xAxisID: "xAxis",
       fill: true,
       borderWidth: 1,
       pointBorderWidth: 0,
       pointHitRadius: 0,
       pointHoverRadius: 2,
       pointHoverBorderWidth: 1,
-      pointHoverBackgroundColor: '#FFFFFF',
+      pointHoverBackgroundColor: "#FFFFFF",
       pointRadius: 0,
       data: [],
       tension: 0.4,
     };
 
-    const chartColors = [
-      ...colors,
-      ...new Array(Object.keys(datasets).length).fill(themePallet.blue),
-    ];
+    const chartColors = [...colors, ...new Array(Object.keys(datasets).length).fill(themePallet.blue)];
     const mappedDatasets = Object.keys(datasets).map((datasetName, index) => {
       const currentDataset = datasets[datasetName].map(dataset => dataset.value);
       return {
@@ -249,12 +242,12 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
-      <div className="tooltip-container" ref={tooltipRef} style={{opacity: 0}}>
+      <div className="tooltip-container" ref={tooltipRef} style={{ opacity: 0 }}>
         <AreaChartTooltip
           themeMode={`${themeMode}`}
           title={currentValue.title}
           activeElements={currentValue.value}
-          chartColors={[...colors, ...new Array(Object.keys(datas).length).fill('#2090F3')]}
+          chartColors={[...colors, ...new Array(Object.keys(datas).length).fill("#2090F3")]}
           datas={datas}
         />
       </div>
@@ -262,8 +255,8 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
       <Line
         ref={chartRef}
         className="area-chart"
-        width={'100%'}
-        height={'100%'}
+        width={"100%"}
+        height={"100%"}
         options={createChartOption()}
         data={chartData}
       />
@@ -274,9 +267,10 @@ export const AreaChart = ({labels, datas, colors = []}: AreaChartProps) => {
             key={index}
             fill={`${dataset?.borderColor}`}
             disabled={excludedDatasets.findIndex(item => item.label === dataset.label) > -1}
-            onClick={() => onClickLegend(dataset)}>
+            onClick={() => onClickLegend(dataset)}
+          >
             <span className="legend-mark"></span>
-            <span className="legend-name">{makeAreaGraphDisplayLabel(dataset.label || '')}</span>
+            <span className="legend-name">{makeAreaGraphDisplayLabel(dataset.label || "")}</span>
           </LegendWrapper>
         ))}
       </div>
@@ -307,8 +301,8 @@ const Wrapper = styled.div`
     flex-direction: row;
     width: 100%;
     height: 40px;
-    color: ${({theme}) => theme.colors.white};
-    ${({theme}) => theme.fonts.body1};
+    color: ${({ theme }) => theme.colors.white};
+    ${({ theme }) => theme.fonts.body1};
     align-items: flex-start;
     justify-content: center;
   }
@@ -323,7 +317,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const LegendWrapper = styled.div<{fill: string; disabled: boolean}>`
+const LegendWrapper = styled.div<{ fill: string; disabled: boolean }>`
   display: flex;
   height: 20px;
   flex-direction: row;
@@ -332,17 +326,17 @@ const LegendWrapper = styled.div<{fill: string; disabled: boolean}>`
   cursor: pointer;
   user-select: none;
 
-  ${({disabled}) => disabled && 'text-decoration: line-through;'}
+  ${({ disabled }) => disabled && "text-decoration: line-through;"}
 
   .legend-mark {
     display: inline-block;
     width: 5px;
     height: 5px;
     border-radius: 5px;
-    background-color: ${({fill}) => fill};
+    background-color: ${({ fill }) => fill};
     margin-right: 5px;
   }
   .legend-name {
-    color: ${({theme}) => theme.colors.primary};
+    color: ${({ theme }) => theme.colors.primary};
   }
 `;

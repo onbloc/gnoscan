@@ -1,8 +1,8 @@
-import {useQuery} from 'react-query';
-import {useServiceProvider} from '../provider/use-service-provider';
-import {useGetLatestBlock} from './use-get-latest-block';
-import {useGetFirstBlock} from './use-get-first-block';
-import {useNetwork} from '../use-network';
+import { useQuery } from "react-query";
+import { useServiceProvider } from "../provider/use-service-provider";
+import { useGetLatestBlock } from "./use-get-latest-block";
+import { useGetFirstBlock } from "./use-get-first-block";
+import { useNetwork } from "../use-network";
 
 const DAY_TIME = 86_400_000 as const; // Day time: 24 * 60 * 60 * 1000
 
@@ -26,20 +26,19 @@ function getBeforeMonthTime(month: number) {
  * with indexer lookup performance.
  */
 export const useGetBefore30DBlock = () => {
-  const {currentNetwork} = useNetwork();
-  const {latestBlock} = useGetLatestBlock();
-  const {firstBlock} = useGetFirstBlock();
-  const {blockRepository} = useServiceProvider();
+  const { currentNetwork } = useNetwork();
+  const { latestBlock } = useGetLatestBlock();
+  const { firstBlock } = useGetFirstBlock();
+  const { blockRepository } = useServiceProvider();
 
   return useQuery<number | null>({
-    queryKey: ['useGetBefore30DBlock', currentNetwork?.chainId],
+    queryKey: ["useGetBefore30DBlock", currentNetwork?.chainId],
     queryFn: () => {
       if (!firstBlock || !latestBlock) {
         return null;
       }
       const diffTime =
-        new Date(latestBlock.block.header.time).getTime() -
-        new Date(firstBlock.block.header.time).getTime();
+        new Date(latestBlock.block.header.time).getTime() - new Date(firstBlock.block.header.time).getTime();
       const blockAvgTime = diffTime / Number(latestBlock.block.header.height);
       const expectedBlockHeightBefore30d = Math.round(
         Number(latestBlock.block.header.height) - getBeforeMonthTime(1) / blockAvgTime,

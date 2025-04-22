@@ -1,8 +1,8 @@
-import {useMemo} from 'react';
-import {useGetMonthlyTransactionStatInfo} from '../common/use-get-monthly-transaction-stat-info';
+import { useMemo } from "react";
+import { useGetMonthlyTransactionStatInfo } from "../common/use-get-monthly-transaction-stat-info";
 
 export const useTotalDailyInfoApi = () => {
-  const {data: statInfo, isFetched} = useGetMonthlyTransactionStatInfo();
+  const { data: statInfo, isFetched } = useGetMonthlyTransactionStatInfo();
 
   const transactionInfo: {
     date: string;
@@ -20,7 +20,7 @@ export const useTotalDailyInfoApi = () => {
       date: entry[0],
       totalGasFee: {
         value: entry[1].totalGasFee,
-        denom: 'ugnot',
+        denom: "ugnot",
       },
       txCount: entry[1].txCount,
     }));

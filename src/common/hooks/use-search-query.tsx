@@ -1,8 +1,9 @@
-import {useQuery, UseQueryResult} from 'react-query';
-import {useGetGRC20Tokens, useGetRealmsQuery} from '../react-query/realm';
-import {useUsername} from './account/use-username';
-import {useGetUsingAccountTransactionCount} from '../react-query/transaction';
-import {SEARCH_TITLE} from '@/components/ui/search-result/search-result';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useQuery, UseQueryResult } from "react-query";
+import { useGetGRC20Tokens, useGetRealmsQuery } from "../react-query/realm";
+import { useUsername } from "./account/use-username";
+import { useGetUsingAccountTransactionCount } from "../react-query/transaction";
+import { SEARCH_TITLE } from "@/components/ui/search-result/search-result";
 export interface keyOfSearch {
   [key: string]: {
     address?: string;
@@ -13,18 +14,12 @@ export interface keyOfSearch {
 }
 
 const useSearchQuery = (keyword: string) => {
-  const {data: tokens} = useGetGRC20Tokens();
-  const {data: realms} = useGetRealmsQuery();
-  const {usernames} = useUsername();
+  const { data: tokens } = useGetGRC20Tokens();
+  const { data: realms } = useGetRealmsQuery();
+  const { usernames } = useUsername();
 
-  const {data}: UseQueryResult<keyOfSearch> = useQuery(
-    [
-      'info/search/keyword',
-      keyword,
-      tokens?.length,
-      realms?.length,
-      Object.values(usernames || {}).length,
-    ],
+  const { data }: UseQueryResult<keyOfSearch> = useQuery(
+    ["info/search/keyword", keyword, tokens?.length, realms?.length, Object.values(usernames || {}).length],
     async () => {
       const users = Object.entries(usernames || {})
         .filter(entry => entry[0].includes(keyword) || entry[1].includes(keyword))
@@ -43,7 +38,7 @@ const useSearchQuery = (keyword: string) => {
           .filter((_, index) => index < 5) || [];
 
       const filteredRealms =
-        (realms as {packagePath: string; packageName: string}[])
+        (realms as { packagePath: string; packageName: string }[])
           ?.filter(realm => {
             if (filteredTokens.findIndex(token => token.packagePath === realm.packagePath) > -1) {
               return false;

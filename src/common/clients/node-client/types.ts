@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface NodeClient {
   health(): Promise<boolean>;
 
@@ -25,11 +26,7 @@ export interface NodeClient {
 
   abciQueryVMQueryRender(packagePath: string, data: string[]): Promise<NodeResponseABCIQuery>;
 
-  abciQueryVMQueryEvaluation(
-    packagePath: string,
-    funcName: string,
-    args: string[],
-  ): Promise<NodeResponseABCIQuery>;
+  abciQueryVMQueryEvaluation(packagePath: string, funcName: string, args: string[]): Promise<NodeResponseABCIQuery>;
 }
 
 export interface NodeResponseStatus {
@@ -167,7 +164,7 @@ interface ResponseBase {
 }
 
 interface Event {
-  '@type': string;
+  "@type": string;
   type: string;
   pkg_path: string;
   func: string;
@@ -186,7 +183,7 @@ interface ValidatorInfo {
 }
 
 interface Pubkey {
-  '@type': string;
+  "@type": string;
   value: string;
 }
 
@@ -229,7 +226,7 @@ interface Genesis {
   app_state: AppState;
 }
 interface AppState {
-  '@type': string;
+  "@type": string;
   balances: string[];
   txs: Tx[];
 }
@@ -252,7 +249,7 @@ interface Fee {
 }
 
 interface Msg {
-  '@type': string;
+  "@type": string;
   creator?: string;
   package?: Package;
   deposit?: string;
@@ -285,7 +282,7 @@ interface Validator {
   name: string;
 }
 interface Pubkey {
-  '@type': string;
+  "@type": string;
   value: string;
 }
 interface ConsensusParams {

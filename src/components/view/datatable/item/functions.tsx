@@ -1,13 +1,13 @@
-import Badge from '@/components/ui/badge';
-import Text from '@/components/ui/text';
-import React from 'react';
-import styled from 'styled-components';
+import Badge from "@/components/ui/badge";
+import Text from "@/components/ui/text";
+import React from "react";
+import styled from "styled-components";
 
 interface Props {
   functions: string[];
 }
 
-export const Functions = ({functions}: Props) => {
+export const Functions = ({ functions }: Props) => {
   return (
     <FunctionsWrapper className="ellipsis">
       {functions.map((func, index) => (

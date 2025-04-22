@@ -1,1 +1,1 @@
-export * from './total-daily-fee';
+export * from "./total-daily-fee";

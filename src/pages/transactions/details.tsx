@@ -1,30 +1,31 @@
-import IconCopy from '@/assets/svgs/icon-copy.svg';
-import IconTooltip from '@/assets/svgs/icon-tooltip.svg';
-import {useUsername} from '@/common/hooks/account/use-username';
-import {useRouter} from '@/common/hooks/common/use-router';
-import {GNOTToken, useTokenMeta} from '@/common/hooks/common/use-token-meta';
-import {useTransaction} from '@/common/hooks/transactions/use-transaction';
-import {isDesktop} from '@/common/hooks/use-media';
-import {useNetwork} from '@/common/hooks/use-network';
-import {formatDisplayPackagePath} from '@/common/utils/string-util';
-import {parseTokenAmount} from '@/common/utils/token.utility';
-import {makeSafeBase64Hash} from '@/common/utils/transaction.utility';
-import {DetailsPageLayout} from '@/components/core/layout';
-import Badge from '@/components/ui/badge';
-import {DateDiffText, DLWrap, FitContentA} from '@/components/ui/detail-page-common-styles';
-import ShowLog from '@/components/ui/show-log';
-import Text from '@/components/ui/text';
-import {AmountText} from '@/components/ui/text/amount-text';
-import Tooltip from '@/components/ui/tooltip';
-import {EventDatatable} from '@/components/view/datatable/event';
-import DataSection from '@/components/view/details-data-section';
-import DataListSection from '@/components/view/details-data-section/data-list-section';
-import mixins from '@/styles/mixins';
-import {Transaction} from '@/types/data-type';
-import Link from 'next/link';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import styled from 'styled-components';
-import {v1} from 'uuid';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import IconCopy from "@/assets/svgs/icon-copy.svg";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import { useUsername } from "@/common/hooks/account/use-username";
+import { useRouter } from "@/common/hooks/common/use-router";
+import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useTransaction } from "@/common/hooks/transactions/use-transaction";
+import { isDesktop } from "@/common/hooks/use-media";
+import { useNetwork } from "@/common/hooks/use-network";
+import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { parseTokenAmount } from "@/common/utils/token.utility";
+import { makeSafeBase64Hash } from "@/common/utils/transaction.utility";
+import { DetailsPageLayout } from "@/components/core/layout";
+import Badge from "@/components/ui/badge";
+import { DateDiffText, DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import ShowLog from "@/components/ui/show-log";
+import Text from "@/components/ui/text";
+import { AmountText } from "@/components/ui/text/amount-text";
+import Tooltip from "@/components/ui/tooltip";
+import { EventDatatable } from "@/components/view/datatable/event";
+import DataSection from "@/components/view/details-data-section";
+import DataListSection from "@/components/view/details-data-section/data-list-section";
+import mixins from "@/styles/mixins";
+import { Transaction } from "@/types/data-type";
+import Link from "next/link";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
+import { v1 } from "uuid";
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -33,44 +34,36 @@ const TOOLTIP_PACKAGE_PATH = (
   </>
 );
 
-const ellipsisTextKey = ['Caller'];
+const ellipsisTextKey = ["Caller"];
 
 function parseTxHash(url: string) {
-  if (!url.includes('txhash=')) {
-    return '';
+  if (!url.includes("txhash=")) {
+    return "";
   }
-  const params = url.split('txhash=');
-  if (params.length < 2) return '';
+  const params = url.split("txhash=");
+  if (params.length < 2) return "";
 
-  const txHash = params[1].split('&')[0];
-  const decodedTxHash = decodeURIComponent(txHash).replaceAll(' ', '+');
+  const txHash = params[1].split("&")[0];
+  const decodedTxHash = decodeURIComponent(txHash).replaceAll(" ", "+");
   return makeSafeBase64Hash(decodedTxHash);
 }
 
 const TransactionDetails = () => {
   const desktop = isDesktop();
-  const {asPath, push} = useRouter();
-  const {getUrlWithNetwork} = useNetwork();
+  const { asPath, push } = useRouter();
+  const { getUrlWithNetwork } = useNetwork();
   const hash = parseTxHash(asPath);
-  const {
-    gas,
-    network,
-    timeStamp,
-    transactionItem,
-    blockResult,
-    transactionEvents,
-    isFetched,
-    isError,
-  } = useTransaction(hash);
-  const [currentTab, setCurrentTab] = useState('Contract');
+  const { gas, network, timeStamp, transactionItem, blockResult, transactionEvents, isFetched, isError } =
+    useTransaction(hash);
+  const [currentTab, setCurrentTab] = useState("Contract");
 
   const detailTabs = useMemo(() => {
     return [
       {
-        tabName: 'Contract',
+        tabName: "Contract",
       },
       {
-        tabName: 'Events',
+        tabName: "Events",
         size: transactionEvents.length,
       },
     ];
@@ -89,26 +82,22 @@ const TransactionDetails = () => {
   }, [transactionItem, blockResult]);
 
   useEffect(() => {
-    if (hash === '') {
-      push('/transactions');
+    if (hash === "") {
+      push("/transactions");
     }
   }, [hash]);
 
   return (
-    <DetailsPageLayout
-      title={'Transaction Details'}
-      visible={!isFetched}
-      keyword={`${hash}`}
-      error={isError}>
+    <DetailsPageLayout title={"Transaction Details"} visible={!isFetched} keyword={`${hash}`} error={isError}>
       {!isError && transactionItem && (
         <React.Fragment>
           <DataSection title="Summary">
             <DLWrap desktop={desktop}>
               <dt>Success</dt>
               <dd>
-                <Badge type={transactionItem.success ? 'green' : 'failed'}>
+                <Badge type={transactionItem.success ? "green" : "failed"}>
                   <Text type="p4" color="white">
-                    {transactionItem.success ? 'Success' : 'Failure'}
+                    {transactionItem.success ? "Success" : "Failure"}
                   </Text>
                 </Badge>
               </dd>
@@ -183,17 +172,13 @@ const TransactionDetails = () => {
               </dd>
             </DLWrap>
             {!transactionItem.success && (
-              <ShowLog isTabLog={false} logData={blockResultLog || ''} btnTextType="Error Logs" />
+              <ShowLog isTabLog={false} logData={blockResultLog || ""} btnTextType="Error Logs" />
             )}
           </DataSection>
 
           <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-            {currentTab === 'Contract' && (
-              <ContractDetails transactionItem={transactionItem} desktop={desktop} />
-            )}
-            {currentTab === 'Events' && (
-              <EventDatatable events={transactionEvents} isFetched={isFetched} />
-            )}
+            {currentTab === "Contract" && <ContractDetails transactionItem={transactionItem} desktop={desktop} />}
+            {currentTab === "Events" && <EventDatatable events={transactionEvents} isFetched={isFetched} />}
           </DataListSection>
         </React.Fragment>
       )}
@@ -204,9 +189,9 @@ const TransactionDetails = () => {
 const ContractDetails: React.FC<{
   transactionItem: Transaction | null;
   desktop: boolean;
-}> = ({transactionItem, desktop}) => {
-  const {tokenMap} = useTokenMeta();
-  const {getUrlWithNetwork} = useNetwork();
+}> = ({ transactionItem, desktop }) => {
+  const { tokenMap } = useTokenMeta();
+  const { getUrlWithNetwork } = useNetwork();
 
   const messages = useMemo(() => {
     if (!transactionItem?.messages) {
@@ -216,11 +201,11 @@ const ContractDetails: React.FC<{
   }, [transactionItem?.messages]);
 
   const hasCaller = useCallback((message: any): boolean => {
-    if (['/bank.MsgSend', '/vm.m_addpkg'].includes(message['@type'])) {
+    if (["/bank.MsgSend", "/vm.m_addpkg"].includes(message["@type"])) {
       return false;
     }
 
-    if (message['@type'] === '/vm.m_call' && message?.func === 'Transfer') {
+    if (message["@type"] === "/vm.m_call" && message?.func === "Transfer") {
       return false;
     }
 
@@ -228,15 +213,15 @@ const ContractDetails: React.FC<{
   }, []);
 
   const getContractType = useCallback((message: any) => {
-    switch (message['@type']) {
-      case '/bank.MsgSend':
-        return 'Transfer';
-      case '/vm.m_addpkg':
-        return 'AddPackage';
-      case '/vm.m_call':
-        return message['func'] || message['@type'];
-      case '/vm.m_run':
-        return 'MsgRun';
+    switch (message["@type"]) {
+      case "/bank.MsgSend":
+        return "Transfer";
+      case "/vm.m_addpkg":
+        return "AddPackage";
+      case "/vm.m_call":
+        return message["func"] || message["@type"];
+      case "/vm.m_run":
+        return "MsgRun";
     }
   }, []);
 
@@ -251,17 +236,14 @@ const ContractDetails: React.FC<{
           {transactionItem.numOfMessage > 1 && (
             <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
           )}
-          {message['@type'] !== '/bank.MsgSend' && (
+          {message["@type"] !== "/bank.MsgSend" && (
             <>
               <DLWrap desktop={desktop}>
                 <dt>Name</dt>
                 <dd>
                   <Badge>
                     <Text type="p4" color="secondary">
-                      {message?.package?.name ||
-                        tokenMap?.[message?.pkg_path]?.name ||
-                        message.func ||
-                        '-'}
+                      {message?.package?.name || tokenMap?.[message?.pkg_path]?.name || message.func || "-"}
                     </Text>
                   </Badge>
                 </dd>
@@ -280,23 +262,21 @@ const ContractDetails: React.FC<{
                     <Text type="p4" color="blue" className="ellipsis">
                       <Link
                         href={getUrlWithNetwork(
-                          `/realms/details?path=${
-                            message?.package?.path || message?.pkg_path || '-'
-                          }`,
+                          `/realms/details?path=${message?.package?.path || message?.pkg_path || "-"}`,
                         )}
-                        passHref>
+                        passHref
+                      >
                         <FitContentA>
-                          {formatDisplayPackagePath(
-                            message?.package?.path || message?.pkg_path || '-',
-                          )}
+                          {formatDisplayPackagePath(message?.package?.path || message?.pkg_path || "-")}
                         </FitContentA>
                       </Link>
                     </Text>
                     <Tooltip
                       content="Copied!"
                       trigger="click"
-                      copyText={message?.package?.path || message?.pkg_path || '-'}
-                      className="address-tooltip">
+                      copyText={message?.package?.path || message?.pkg_path || "-"}
+                      className="address-tooltip"
+                    >
                       <StyledIconCopy />
                     </Tooltip>
                   </Badge>
@@ -314,15 +294,11 @@ const ContractDetails: React.FC<{
               </Badge>
             </dd>
           </DLWrap>
-          {message['@type'] === '/vm.m_call' && message?.func === 'Transfer' && (
+          {message["@type"] === "/vm.m_call" && message?.func === "Transfer" && (
             <TransferContract message={message} desktop={desktop} />
           )}
-          {message['@type'] === '/bank.MsgSend' && (
-            <TransferContract message={message} desktop={desktop} />
-          )}
-          {message['@type'] === '/vm.m_addpkg' && (
-            <AddPkgContract message={message} desktop={desktop} />
-          )}
+          {message["@type"] === "/bank.MsgSend" && <TransferContract message={message} desktop={desktop} />}
+          {message["@type"] === "/vm.m_addpkg" && <AddPkgContract message={message} desktop={desktop} />}
           {hasCaller(message) && <CallerContract message={message} desktop={desktop} />}
         </ContractListBox>
       ))}
@@ -333,8 +309,8 @@ const ContractDetails: React.FC<{
   );
 };
 
-const CallerContract = ({message, desktop}: any) => {
-  const {getUrlWithNetwork} = useNetwork();
+const CallerContract = ({ message, desktop }: any) => {
+  const { getUrlWithNetwork } = useNetwork();
   const caller = useMemo(() => {
     return message?.caller || message?.creator;
   }, [message]);
@@ -345,13 +321,10 @@ const CallerContract = ({message, desktop}: any) => {
       <dt>Caller</dt>
       <dd>
         <Badge>
-          <Link href={getUrlWithNetwork(`/accounts/${caller || '-'}`)} passHref>
+          <Link href={getUrlWithNetwork(`/accounts/${caller || "-"}`)} passHref>
             <FitContentA>
-              <Text
-                type="p4"
-                color="blue"
-                className={ellipsisTextKey.includes('Caller') ? 'ellipsis' : 'multi-line'}>
-                {caller ? <Tooltip content={caller}>{caller}</Tooltip> : '-'}
+              <Text type="p4" color="blue" className={ellipsisTextKey.includes("Caller") ? "ellipsis" : "multi-line"}>
+                {caller ? <Tooltip content={caller}>{caller}</Tooltip> : "-"}
               </Text>
             </FitContentA>
           </Link>
@@ -361,16 +334,16 @@ const CallerContract = ({message, desktop}: any) => {
   );
 };
 
-const AddPkgContract = ({message, desktop}: any) => {
-  const {getUrlWithNetwork} = useNetwork();
-  const {getName} = useUsername();
+const AddPkgContract = ({ message, desktop }: any) => {
+  const { getUrlWithNetwork } = useNetwork();
+  const { getName } = useUsername();
 
   const creatorAddress = useMemo(() => {
-    return message?.creator || '';
+    return message?.creator || "";
   }, [message?.creator]);
 
   const creatorName = useMemo(() => {
-    return getName(creatorAddress) || creatorAddress || '';
+    return getName(creatorAddress) || creatorAddress || "";
   }, [getName, creatorAddress]);
 
   return (
@@ -380,8 +353,8 @@ const AddPkgContract = ({message, desktop}: any) => {
         <Badge>
           <Link href={getUrlWithNetwork(`/accounts/${creatorAddress}`)} passHref>
             <FitContentA>
-              <Text type="p4" color="blue" className={'ellipsis'}>
-                {creatorAddress ? <Tooltip content={creatorAddress}>{creatorName}</Tooltip> : '-'}
+              <Text type="p4" color="blue" className={"ellipsis"}>
+                {creatorAddress ? <Tooltip content={creatorAddress}>{creatorName}</Tooltip> : "-"}
               </Text>
             </FitContentA>
           </Link>
@@ -391,16 +364,16 @@ const AddPkgContract = ({message, desktop}: any) => {
   );
 };
 
-const TransferContract = ({message, desktop}: any) => {
-  const {getUrlWithNetwork} = useNetwork();
-  const {getTokenAmount} = useTokenMeta();
+const TransferContract = ({ message, desktop }: any) => {
+  const { getUrlWithNetwork } = useNetwork();
+  const { getTokenAmount } = useTokenMeta();
 
   const fromAddress = useMemo(() => {
-    return message?.from_address || message?.caller || '-';
+    return message?.from_address || message?.caller || "-";
   }, [message]);
 
   const toAddress = useMemo(() => {
-    return message?.to_address || message?.args?.[0] || '-';
+    return message?.to_address || message?.args?.[0] || "-";
   }, [message]);
 
   return (
@@ -412,13 +385,13 @@ const TransferContract = ({message, desktop}: any) => {
             <AmountText
               minSize="body2"
               maxSize="p4"
-              {...getTokenAmount(GNOTToken.denom, parseTokenAmount(message?.amount || '0ugnot'))}
+              {...getTokenAmount(GNOTToken.denom, parseTokenAmount(message?.amount || "0ugnot"))}
             />
           </Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={desktop} key={v1()}>
-        <dt>{'From'}</dt>
+        <dt>{"From"}</dt>
         <dd>
           <Badge>
             <AddressTextBox>
@@ -427,11 +400,7 @@ const TransferContract = ({message, desktop}: any) => {
                   <FitContentA>{fromAddress}</FitContentA>
                 </Link>
               </Text>
-              <Tooltip
-                content="Copied!"
-                trigger="click"
-                copyText={fromAddress}
-                className="address-tooltip">
+              <Tooltip content="Copied!" trigger="click" copyText={fromAddress} className="address-tooltip">
                 <StyledIconCopy />
               </Tooltip>
             </AddressTextBox>
@@ -439,7 +408,7 @@ const TransferContract = ({message, desktop}: any) => {
         </dd>
       </DLWrap>
       <DLWrap desktop={desktop} key={v1()}>
-        <dt>{'To'}</dt>
+        <dt>{"To"}</dt>
         <dd>
           <Badge>
             <AddressTextBox>
@@ -448,11 +417,7 @@ const TransferContract = ({message, desktop}: any) => {
                   <FitContentA>{toAddress}</FitContentA>
                 </Link>
               </Text>
-              <Tooltip
-                content="Copied!"
-                trigger="click"
-                copyText={toAddress}
-                className="address-tooltip">
+              <Tooltip content="Copied!" trigger="click" copyText={toAddress} className="address-tooltip">
                 <StyledIconCopy />
               </Tooltip>
             </AddressTextBox>
@@ -472,7 +437,7 @@ const ContractListBox = styled.div`
 `;
 
 const AddressTextBox = styled.div`
-  ${mixins.flexbox('row', 'center', 'center')}
+  ${mixins.flexbox("row", "center", "center")}
   width: 100%;
   .address-tooltip {
     vertical-align: text-bottom;
@@ -480,7 +445,7 @@ const AddressTextBox = styled.div`
 `;
 
 const StyledIconCopy = styled(IconCopy)`
-  stroke: ${({theme}) => theme.colors.primary};
+  stroke: ${({ theme }) => theme.colors.primary};
   margin-left: 5px;
 `;
 

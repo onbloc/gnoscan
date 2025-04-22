@@ -1,21 +1,22 @@
-import {IndexerClient} from '@/common/clients/indexer-client/indexer-client';
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {parseABCIQueryNumberResponse} from '@/common/clients/node-client/utility';
-import {Transaction} from '@/types/data-type';
-import {parseABCI} from '@gnolang/tm2-js-client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
+import { NodeRPCClient } from "@/common/clients/node-client";
+import { parseABCIQueryNumberResponse } from "@/common/clients/node-client/utility";
+import { Transaction } from "@/types/data-type";
+import { parseABCI } from "@gnolang/tm2-js-client";
 
-import {PageQueryResponse} from '@/common/clients/indexer-client/types';
-import {ZERO_NUMBER} from '@/common/values/number.constant';
-import {MAX_QUERY_SIZE} from '@/common/values/query.constant';
-import {ApolloQueryResult} from '@apollo/client';
-import {isBankSendMessageValue, isMsgCallMessageValue} from '../realm-repository.ts/mapper';
+import { PageQueryResponse } from "@/common/clients/indexer-client/types";
+import { ZERO_NUMBER } from "@/common/values/number.constant";
+import { MAX_QUERY_SIZE } from "@/common/values/query.constant";
+import { ApolloQueryResult } from "@apollo/client";
+import { isBankSendMessageValue, isMsgCallMessageValue } from "../realm-repository.ts/mapper";
 import {
   mapReceivedTransactionByBankMsgSend,
   mapReceivedTransactionByMsgCall,
   mapSendTransactionByBankMsgSend,
   mapVMTransaction,
-} from '../response/transaction.mapper';
-import {getDefaultMessage} from '../utility';
+} from "../response/transaction.mapper";
+import { getDefaultMessage } from "../utility";
 import {
   makeAccountTransactionsQuery,
   makeGRC20ReceivedEvents,
@@ -23,14 +24,11 @@ import {
   makeNativeTokenReceivedTransactionsByAddressQuery,
   makeNativeTokenSendTransactionsByAddressQuery,
   makeVMTransactionsByAddressQuery,
-} from './onbloc-query';
-import {AccountTransactionResponse, IAccountRepository} from './types';
+} from "./onbloc-query";
+import { AccountTransactionResponse, IAccountRepository } from "./types";
 
 export class OnblocAccountRepository implements IAccountRepository {
-  constructor(
-    private nodeRPCClient: NodeRPCClient | null,
-    private indexerClient: IndexerClient | null,
-  ) {}
+  constructor(private nodeRPCClient: NodeRPCClient | null, private indexerClient: IndexerClient | null) {}
 
   async getNativeTokensBalances(address: string): Promise<any> {
     if (!this.nodeRPCClient) {
@@ -39,9 +37,7 @@ export class OnblocAccountRepository implements IAccountRepository {
 
     return this.nodeRPCClient
       .abciQueryBankBalances(address)
-      .then(response =>
-        response.response.ResponseBase.Data ? parseABCI(response.response.ResponseBase.Data) : null,
-      );
+      .then(response => (response.response.ResponseBase.Data ? parseABCI(response.response.ResponseBase.Data) : null));
   }
 
   async getGRC20TokensBalances(address: string, tokenPaths: string[]): Promise<any> {
@@ -50,7 +46,7 @@ export class OnblocAccountRepository implements IAccountRepository {
     }
 
     const fetchers = tokenPaths.map(path =>
-      this.nodeRPCClient?.abciQueryVMQueryEvaluation(path, 'BalanceOf', [address]).then(response =>
+      this.nodeRPCClient?.abciQueryVMQueryEvaluation(path, "BalanceOf", [address]).then(response =>
         response?.response?.ResponseBase?.Data
           ? {
               denom: path,
@@ -59,15 +55,10 @@ export class OnblocAccountRepository implements IAccountRepository {
           : null,
       ),
     );
-    return Promise.all(fetchers).then(results =>
-      results.filter(result => !!result && result.value !== '0'),
-    );
+    return Promise.all(fetchers).then(results => results.filter(result => !!result && result.value !== "0"));
   }
 
-  async getAccountTransactions(
-    address: string,
-    cursor: string | null,
-  ): Promise<AccountTransactionResponse> {
+  async getAccountTransactions(address: string, cursor: string | null): Promise<AccountTransactionResponse> {
     const transactions: Transaction[] = [];
     const pageInfo = {
       last: null,
@@ -104,11 +95,7 @@ export class OnblocAccountRepository implements IAccountRepository {
             return true;
           }
 
-          if (
-            functionName !== 'Transfer' ||
-            messageArguments === null ||
-            messageArguments[ZERO_NUMBER] !== address
-          ) {
+          if (functionName !== "Transfer" || messageArguments === null || messageArguments[ZERO_NUMBER] !== address) {
             return true;
           }
 
@@ -129,7 +116,7 @@ export class OnblocAccountRepository implements IAccountRepository {
           }
 
           if (isMsgCallMessageValue(defaultMessage.value)) {
-            if (functionName === 'Transfer') {
+            if (functionName === "Transfer") {
               if (messageArguments && messageArguments[ZERO_NUMBER] === address) {
                 return mapReceivedTransactionByMsgCall(tx);
               }
@@ -163,19 +150,20 @@ export class OnblocAccountRepository implements IAccountRepository {
     let hasNext = true;
     let cursor: string | null = null;
     while (hasNext) {
-      const response: ApolloQueryResult<PageQueryResponse<any>> =
-        await this.indexerClient.pageQuery(makeGRC20ReceivedEvents(address, cursor));
+      const response: ApolloQueryResult<PageQueryResponse<any>> = await this.indexerClient.pageQuery(
+        makeGRC20ReceivedEvents(address, cursor),
+      );
 
       const pageInfo = response.data.transactions.pageInfo;
       const edges = response.data.transactions.edges;
 
       const paths: string[] = edges
         .flatMap(edge => edge.transaction?.response?.events || [])
-        .filter(event => event?.type === 'Transfer')
-        .map(event => event.pkg_path || '');
+        .filter(event => event?.type === "Transfer")
+        .map(event => event.pkg_path || "");
 
       const uniquePaths: string[] = [...new Set(paths)];
-      packagePaths.push(...uniquePaths.filter(path => !packagePaths.includes(path) && path !== ''));
+      packagePaths.push(...uniquePaths.filter(path => !packagePaths.includes(path) && path !== ""));
 
       hasNext = pageInfo.hasNext;
       cursor = pageInfo.last;
@@ -193,9 +181,7 @@ export class OnblocAccountRepository implements IAccountRepository {
       ?.pageQuery(makeGRC20ReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions.edges.map(edge => edge.transaction) || [])
       .then(transactions =>
-        transactions
-          .map(mapReceivedTransactionByMsgCall)
-          .filter((tx: Transaction) => tx.to === address),
+        transactions.map(mapReceivedTransactionByMsgCall).filter((tx: Transaction) => tx.to === address),
       );
   }
 
@@ -210,9 +196,7 @@ export class OnblocAccountRepository implements IAccountRepository {
       .then(transactions => transactions.map(mapSendTransactionByBankMsgSend));
   }
 
-  async getNativeTokenReceivedTransactionsByAddress(
-    address: string,
-  ): Promise<Transaction[] | null> {
+  async getNativeTokenReceivedTransactionsByAddress(address: string): Promise<Transaction[] | null> {
     if (!this.indexerClient) {
       return null;
     }

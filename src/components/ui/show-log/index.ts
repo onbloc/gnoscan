@@ -1,2 +1,2 @@
-import ShowLog from './show-log';
+import ShowLog from "./show-log";
 export default ShowLog;

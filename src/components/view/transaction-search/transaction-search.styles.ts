@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const TransactionSearchWrapper = styled.div`
   display: flex;
@@ -6,7 +6,7 @@ export const TransactionSearchWrapper = styled.div`
   width: 100%;
   height: auto;
   align-items: center;
-  background-color: ${({theme}) => theme.colors.base};
+  background-color: ${({ theme }) => theme.colors.base};
   padding: 24px;
   border-radius: 10px;
 `;

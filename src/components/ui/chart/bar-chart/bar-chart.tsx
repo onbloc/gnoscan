@@ -1,34 +1,34 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Bar} from 'react-chartjs-2';
-import {Chart, ChartData, ChartDataset, ChartOptions, TooltipModel} from 'chart.js';
-import {BarChartTooltip} from './tooltip';
-import {styled} from '@/styles';
-import theme from '@/styles/theme';
-import {useRecoilState} from 'recoil';
-import {themeState} from '@/states';
-import {zindex} from '@/common/values/z-index';
+import React, { useEffect, useRef, useState } from "react";
+import { Bar } from "react-chartjs-2";
+import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
+import { BarChartTooltip } from "./tooltip";
+import { styled } from "@/styles";
+import theme from "@/styles/theme";
+import { useRecoilState } from "recoil";
+import { themeState } from "@/states";
+import { zindex } from "@/common/values/z-index";
 interface BarChartProps {
   labels: Array<string>;
-  datas: Array<{date: string; value: number}>;
+  datas: Array<{ date: string; value: number }>;
   isDenom?: boolean;
 }
 
-export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
+export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<Chart<'bar'>>(null);
-  const [chartData, setChartData] = useState<ChartData<'bar'>>({labels: [], datasets: []});
+  const chartRef = useRef<Chart<"bar">>(null);
+  const [chartData, setChartData] = useState<ChartData<"bar">>({ labels: [], datasets: [] });
   const [themeMode, setThemeMode] = useRecoilState(themeState);
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({
-    title: '',
-    value: '',
+    title: "",
+    value: "",
   });
 
   useEffect(() => {
-    window.addEventListener('scroll', handleTooltipVisible);
+    window.addEventListener("scroll", handleTooltipVisible);
     return () => {
-      window.removeEventListener('scroll', handleTooltipVisible);
+      window.removeEventListener("scroll", handleTooltipVisible);
     };
   }, [tooltipRef]);
 
@@ -41,16 +41,16 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
 
   const handleTooltipVisible = () => {
     if (tooltipRef.current) {
-      tooltipRef.current.style.opacity = '0';
+      tooltipRef.current.style.opacity = "0";
     }
   };
 
   const getThemePallet = () => {
-    return themeMode === 'light' ? theme.lightTheme : theme.darkTheme;
+    return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
   };
 
-  const renderExternalTooltip = (context: {chart: Chart<'bar'>; tooltip: TooltipModel<'bar'>}) => {
-    const {chart, tooltip} = context;
+  const renderExternalTooltip = (context: { chart: Chart<"bar">; tooltip: TooltipModel<"bar"> }) => {
+    const { chart, tooltip } = context;
 
     if (!tooltipRef.current) {
       return;
@@ -60,37 +60,34 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
 
     const tooltipModel = tooltip;
     if (tooltipModel.opacity === 0) {
-      currentTooltip.style.opacity = '0';
+      currentTooltip.style.opacity = "0";
       return;
     }
 
-    if (
-      tooltip.title[0] !== currentValue.title ||
-      tooltip.dataPoints[0].formattedValue !== currentValue.value
-    ) {
+    if (tooltip.title[0] !== currentValue.title || tooltip.dataPoints[0].formattedValue !== currentValue.value) {
       setCurrentValue({
         title: tooltip.title[0],
         value: `${tooltip.dataPoints[0].formattedValue}`,
       });
     }
 
-    currentTooltip.style.opacity = '1';
+    currentTooltip.style.opacity = "1";
 
     const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
-    currentTooltip.style.position = 'absolute';
-    currentTooltip.style.marginTop = -position.height + 'px';
+    currentTooltip.style.position = "absolute";
+    currentTooltip.style.marginTop = -position.height + "px";
 
     const left = tooltipModel.caretX - tooltipModel.width / 2;
     const leftLimit = position.width - tooltipRect.width + 20;
     if (left + tooltipRect.width > position.width) {
-      currentTooltip.style.left = leftLimit + 'px';
+      currentTooltip.style.left = leftLimit + "px";
     } else {
-      currentTooltip.style.left = left + 'px';
+      currentTooltip.style.left = left + "px";
     }
   };
 
-  const createChartOption = (): ChartOptions<'bar'> => {
+  const createChartOption = (): ChartOptions<"bar"> => {
     const themePallet = getThemePallet();
     return {
       responsive: true,
@@ -118,12 +115,12 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
             display: false,
           },
           grid: {
-            color: '#00000000',
+            color: "#00000000",
           },
         },
       },
       interaction: {
-        mode: 'index',
+        mode: "index",
         intersect: false,
       },
       plugins: {
@@ -135,7 +132,7 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
         },
         tooltip: {
           enabled: false,
-          position: 'average',
+          position: "average",
           displayColors: false,
           external: renderExternalTooltip,
         },
@@ -145,16 +142,16 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
 
   const createChartData = (
     labels: Array<string>,
-    datasets: Array<{date: string; value: number}>,
-  ): ChartData<'bar'> => {
+    datasets: Array<{ date: string; value: number }>,
+  ): ChartData<"bar"> => {
     const themePallet = getThemePallet();
     if (!chartRef.current || !labels || !datasets) {
-      return {labels: [], datasets: []};
+      return { labels: [], datasets: [] };
     }
 
-    const defaultChartData: ChartDataset<'bar'> = {
-      yAxisID: 'yAxis',
-      xAxisID: 'xAxis',
+    const defaultChartData: ChartDataset<"bar"> = {
+      yAxisID: "yAxis",
+      xAxisID: "xAxis",
       borderWidth: 0,
       data: [],
     };
@@ -177,7 +174,7 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
-      <div className="tooltip-container" ref={tooltipRef} style={{opacity: 0}}>
+      <div className="tooltip-container" ref={tooltipRef} style={{ opacity: 0 }}>
         <BarChartTooltip
           isDenom={isDenom}
           themeMode={`${themeMode}`}
@@ -185,13 +182,7 @@ export const BarChart = ({labels, datas, isDenom}: BarChartProps) => {
           value={currentValue.value}
         />
       </div>
-      <Bar
-        ref={chartRef}
-        width={'100%'}
-        height={'100%'}
-        options={createChartOption()}
-        data={chartData}
-      />
+      <Bar ref={chartRef} width={"100%"} height={"100%"} options={createChartOption()} data={chartData} />
     </Wrapper>
   );
 };

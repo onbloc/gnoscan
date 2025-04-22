@@ -1,9 +1,9 @@
-import {NodeRPCClient} from '@/common/clients/node-client';
-import {IChainRepository, TokenSupplyInfo, ValidatorInfo} from './types';
+import { NodeRPCClient } from "@/common/clients/node-client";
+import { IChainRepository, TokenSupplyInfo, ValidatorInfo } from "./types";
 
-import {ChainType} from '@/common/values/constant-value';
-import ValidatorPortalLoopData from '../../assets/meta/portal-loop/validators.json';
-import ValidatorTest6Data from '../../assets/meta/test6/validators.json';
+import { ChainType } from "@/common/values/constant-value";
+import ValidatorPortalLoopData from "../../assets/meta/portal-loop/validators.json";
+import ValidatorTest6Data from "../../assets/meta/test6/validators.json";
 
 export class ChainRepository implements IChainRepository {
   constructor(private nodeRPCClient: NodeRPCClient | null) {}
@@ -21,9 +21,7 @@ export class ChainRepository implements IChainRepository {
       return [];
     }
 
-    return this.nodeRPCClient
-      .validators(height)
-      .then(response => response.validators.map(v => v.address));
+    return this.nodeRPCClient.validators(height).then(response => response.validators.map(v => v.address));
   }
 
   async getValidatorInfos(chainId: string): Promise<ValidatorInfo[]> {

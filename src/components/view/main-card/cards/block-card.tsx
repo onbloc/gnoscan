@@ -1,10 +1,10 @@
-import React from 'react';
-import Text from '@/components/ui/text';
-import {BundleDl, DataBoxContainer, FetchedComp} from '../main-card';
-import {useBlockSummaryInfo} from '@/common/hooks/main/use-block-summary-info';
+import React from "react";
+import Text from "@/components/ui/text";
+import { BundleDl, DataBoxContainer, FetchedComp } from "../main-card";
+import { useBlockSummaryInfo } from "@/common/hooks/main/use-block-summary-info";
 
 export const BlockCard = () => {
-  const {isFetched, summaryInfo} = useBlockSummaryInfo();
+  const { isFetched, summaryInfo } = useBlockSummaryInfo();
 
   return (
     <>

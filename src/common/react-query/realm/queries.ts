@@ -1,25 +1,26 @@
-import {PageInfo} from '@/common/clients/indexer-client/types';
-import {useNetworkProvider} from '@/common/hooks/provider/use-network-provider';
-import {useServiceProvider} from '@/common/hooks/provider/use-service-provider';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { PageInfo } from "@/common/clients/indexer-client/types";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import {
   AddPackageValue,
   GRC20Info,
   RealmFunction,
   RealmTransaction,
   RealmTransactionInfo,
-} from '@/repositories/realm-repository.ts';
-import {mapTransactionByRealm} from '@/repositories/realm-repository.ts/mapper';
-import {mapVMTransaction} from '@/repositories/response/transaction.mapper';
-import {Transaction} from '@/types/data-type';
-import {UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery} from 'react-query';
-import {QUERY_KEY} from './types';
+} from "@/repositories/realm-repository.ts";
+import { mapTransactionByRealm } from "@/repositories/realm-repository.ts/mapper";
+import { mapVMTransaction } from "@/repositories/response/transaction.mapper";
+import { Transaction } from "@/types/data-type";
+import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
+import { QUERY_KEY } from "./types";
 
 export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<any, Error>({
-    queryKey: [QUERY_KEY.getRealms, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getRealms, currentNetwork?.chainId || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return [];
@@ -42,8 +43,8 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
           functionCount: 0,
           totalCalls: 0,
           totalGasUsed: {
-            value: '0',
-            denom: 'GNOT',
+            value: "0",
+            denom: "GNOT",
           },
         }));
       });
@@ -58,11 +59,11 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
 };
 
 export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<any, Error>({
-    queryKey: [QUERY_KEY.getLatestRealms, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getLatestRealms, currentNetwork?.chainId || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return [];
@@ -86,8 +87,8 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
             functionCount: 0,
             totalCalls: 0,
             totalGasUsed: {
-              value: '0',
-              denom: 'GNOT',
+              value: "0",
+              denom: "GNOT",
             },
           }));
         }) || []
@@ -106,11 +107,11 @@ export const useGetRealmQuery = (
   packagePath: string | null,
   options?: UseQueryOptions<RealmTransaction<AddPackageValue> | null, Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<RealmTransaction<AddPackageValue> | null, Error>({
-    queryKey: [QUERY_KEY.getRealm, currentNetwork?.chainId || '', packagePath],
+    queryKey: [QUERY_KEY.getRealm, currentNetwork?.chainId || "", packagePath],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;
@@ -122,7 +123,7 @@ export const useGetRealmQuery = (
       }
 
       const balance = await realmRepository.getRealmBalance(packagePath);
-      return {...result, balance} as RealmTransaction<AddPackageValue>;
+      return { ...result, balance } as RealmTransaction<AddPackageValue>;
     },
     enabled: !!realmRepository,
     ...options,
@@ -133,11 +134,11 @@ export const useGetRealmFunctionsQuery = (
   packagePath: string | null,
   options?: UseQueryOptions<RealmFunction[] | null, Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<RealmFunction[] | null, Error>({
-    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || '', packagePath],
+    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || "", packagePath],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;
@@ -150,14 +151,12 @@ export const useGetRealmFunctionsQuery = (
   });
 };
 
-export const useGetRealmPackagesInfinity = (
-  options?: UseInfiniteQueryOptions<any | null, Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+export const useGetRealmPackagesInfinity = (options?: UseInfiniteQueryOptions<any | null, Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useInfiniteQuery<any | null, Error>({
-    queryKey: [QUERY_KEY.getRealmPackages, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getRealmPackages, currentNetwork?.chainId || ""],
     getNextPageParam: lastPage => {
       if (!lastPage) {
         return null;
@@ -177,14 +176,14 @@ export const useGetRealmPackagesInfinity = (
           index: tx.index,
           success: tx.success,
           blockHeight: tx.block_height,
-          packageName: message.value.package?.name || '',
-          packagePath: message.value.package?.path || '',
+          packageName: message.value.package?.name || "",
+          packagePath: message.value.package?.path || "",
           creator: message.value.creator,
           functionCount: 0,
           totalCalls: 0,
           totalGasUsed: {
-            value: '0',
-            denom: 'GNOT',
+            value: "0",
+            denom: "GNOT",
           },
         })),
       );
@@ -204,11 +203,11 @@ export const useGetRealmTransactionInfoQuery = (
   packagePath: string,
   options?: UseQueryOptions<RealmTransactionInfo | null, Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<RealmTransactionInfo | null, Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionInfo, currentNetwork?.chainId || '', packagePath],
+    queryKey: [QUERY_KEY.getRealmTransactionInfo, currentNetwork?.chainId || "", packagePath],
     queryFn: async () => {
       if (!realmRepository) {
         return null;
@@ -226,17 +225,13 @@ export const useGetRealmTransactionInfoQuery = (
 
 export const useGetRealmTransactionInfosByFromHeightQuery = (
   fromHeight: number | null | undefined,
-  options?: UseQueryOptions<{[key in string]: RealmTransactionInfo} | null, Error>,
+  options?: UseQueryOptions<{ [key in string]: RealmTransactionInfo } | null, Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
-  return useQuery<{[key in string]: RealmTransactionInfo} | null, Error>({
-    queryKey: [
-      QUERY_KEY.getRealmTransactionInfosByFromHeight,
-      currentNetwork?.chainId || '',
-      fromHeight,
-    ],
+  return useQuery<{ [key in string]: RealmTransactionInfo } | null, Error>({
+    queryKey: [QUERY_KEY.getRealmTransactionInfosByFromHeight, currentNetwork?.chainId || "", fromHeight],
     queryFn: async () => {
       if (!realmRepository || !fromHeight) {
         return null;
@@ -250,13 +245,13 @@ export const useGetRealmTransactionInfosByFromHeightQuery = (
 };
 
 export const useGetRealmTransactionInfosQuery = (
-  options?: UseQueryOptions<{[key in string]: RealmTransactionInfo} | null, Error>,
+  options?: UseQueryOptions<{ [key in string]: RealmTransactionInfo } | null, Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
-  return useQuery<{[key in string]: RealmTransactionInfo} | null, Error>({
-    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || ''],
+  return useQuery<{ [key in string]: RealmTransactionInfo } | null, Error>({
+    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return null;
@@ -272,11 +267,11 @@ export const useGetRealmTransactionsQuery = (
   realmPath: string | null,
   options?: UseQueryOptions<Transaction[], Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactions, currentNetwork?.chainId || '', realmPath],
+    queryKey: [QUERY_KEY.getRealmTransactions, currentNetwork?.chainId || "", realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -294,15 +289,12 @@ export const useGetRealmTransactionsQuery = (
   });
 };
 
-export const useGetHoldersQuery = (
-  realmPath: string | null,
-  options?: UseQueryOptions<number, Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+export const useGetHoldersQuery = (realmPath: string | null, options?: UseQueryOptions<number, Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<number, Error>({
-    queryKey: [QUERY_KEY.getHoldersQuery, currentNetwork?.chainId || '', realmPath],
+    queryKey: [QUERY_KEY.getHoldersQuery, currentNetwork?.chainId || "", realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return 0;
@@ -315,15 +307,12 @@ export const useGetHoldersQuery = (
   });
 };
 
-export const useGetRealmTotalSupplyQuery = (
-  realmPath: string | null,
-  options?: UseQueryOptions<number, Error>,
-) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+export const useGetRealmTotalSupplyQuery = (realmPath: string | null, options?: UseQueryOptions<number, Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<number, Error>({
-    queryKey: [QUERY_KEY.getRealmTotalSupply, currentNetwork?.chainId || '', realmPath],
+    queryKey: [QUERY_KEY.getRealmTotalSupply, currentNetwork?.chainId || "", realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return 0;
@@ -344,11 +333,11 @@ export const useGetRealmTransactionsWithArgsQuery = (
   realmPath: string | null,
   options?: UseQueryOptions<Transaction[], Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionsWithArgs, currentNetwork?.chainId || '', realmPath],
+    queryKey: [QUERY_KEY.getRealmTransactionsWithArgs, currentNetwork?.chainId || "", realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -370,11 +359,11 @@ export const useGetRealmTransactionsByEventQuery = (
   realmPath: string | null,
   options?: UseQueryOptions<Transaction[], Error>,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || '', realmPath],
+    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || "", realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -402,8 +391,8 @@ export const useGetRealmTransactionsByEventInfinityQuery = (
     Error
   >,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useInfiniteQuery<
     {
@@ -412,7 +401,7 @@ export const useGetRealmTransactionsByEventInfinityQuery = (
     },
     Error
   >({
-    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || '', realmPath],
+    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || "", realmPath],
     getNextPageParam: lastPage => {
       if (!lastPage?.pageInfo?.hasNext) {
         return false;
@@ -457,11 +446,11 @@ export const useGetRealmTransactionsByEventInfinityQuery = (
 };
 
 export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<GRC20Info[], Error>({
-    queryKey: [QUERY_KEY.getGRC20Tokens, currentNetwork?.chainId || ''],
+    queryKey: [QUERY_KEY.getGRC20Tokens, currentNetwork?.chainId || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return [];
@@ -487,8 +476,8 @@ export const useGetGRC20Token = (
     Error
   >,
 ) => {
-  const {currentNetwork} = useNetworkProvider();
-  const {realmRepository} = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+  const { realmRepository } = useServiceProvider();
 
   return useQuery<
     {
@@ -497,7 +486,7 @@ export const useGetGRC20Token = (
     } | null,
     Error
   >({
-    queryKey: [QUERY_KEY.getGRC20Token, currentNetwork?.chainId || '', packagePath],
+    queryKey: [QUERY_KEY.getGRC20Token, currentNetwork?.chainId || "", packagePath],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;

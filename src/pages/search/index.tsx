@@ -1,11 +1,12 @@
-import React from 'react';
-import BigNumber from 'bignumber.js';
-import styled from 'styled-components';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from "react";
+import BigNumber from "bignumber.js";
+import styled from "styled-components";
 
-import {isBech32Address} from '@/common/utils/bech32.utility';
-import {isHash} from '@/common/utils/transaction.utility';
-import NotFound from '@/components/view/not-found/not-found';
-import {makeQueryString} from '@/common/utils/string-util';
+import { isBech32Address } from "@/common/utils/bech32.utility";
+import { isHash } from "@/common/utils/transaction.utility";
+import NotFound from "@/components/view/not-found/not-found";
+import { makeQueryString } from "@/common/utils/string-util";
 
 interface Props {
   keyword: string;
@@ -18,36 +19,31 @@ function parseSearchString(search: string) {
   }
 
   return search
-    .replace('?', '')
-    .split('&')
-    .reduce<{[key in string]: string}>((accum, value) => {
-      const keySeparatorIndex = value.lastIndexOf('.json');
+    .replace("?", "")
+    .split("&")
+    .reduce<{ [key in string]: string }>((accum, value) => {
+      const keySeparatorIndex = value.lastIndexOf(".json");
       const current =
-        keySeparatorIndex > -1
-          ? value.substring(keySeparatorIndex + '.json'.length, value.length)
-          : value;
-      const separatorIndex = current.indexOf('=');
+        keySeparatorIndex > -1 ? value.substring(keySeparatorIndex + ".json".length, value.length) : value;
+      const separatorIndex = current.indexOf("=");
       if (separatorIndex < 0 || separatorIndex + 1 >= current.length) {
         return accum;
       }
 
       const values = [
         current.substring(0, separatorIndex),
-        decodeURIComponent(current.substring(separatorIndex + 1, current.length)).replaceAll(
-          ' ',
-          '+',
-        ),
+        decodeURIComponent(current.substring(separatorIndex + 1, current.length)).replaceAll(" ", "+"),
       ];
       if (values.length === 0) {
         return accum;
       }
 
-      accum[values[0]] = values.length > 0 ? values[1] : '';
+      accum[values[0]] = values.length > 0 ? values[1] : "";
       return accum;
     }, {});
 }
 
-const Search = ({keyword}: Props) => {
+const Search = ({ keyword }: Props) => {
   return (
     <Container>
       <NotFound keyword={`${keyword}`} />
@@ -55,10 +51,10 @@ const Search = ({keyword}: Props) => {
   );
 };
 
-export async function getServerSideProps({req}: any) {
+export async function getServerSideProps({ req }: any) {
   const params = parseSearchString(req.url);
-  const networkParams = Object.entries(params).reduce<{[key in string]: string}>((acc, current) => {
-    if (['type', 'rpcUrl', 'indexerUrl', 'chainId'].includes(current[0])) {
+  const networkParams = Object.entries(params).reduce<{ [key in string]: string }>((acc, current) => {
+    if (["type", "rpcUrl", "indexerUrl", "chainId"].includes(current[0])) {
       acc[current[0]] = current[1];
     }
     return acc;
@@ -68,7 +64,7 @@ export async function getServerSideProps({req}: any) {
   if (!keyword) {
     return {
       props: {
-        keyword: '',
+        keyword: "",
         redirectUrl: null,
       },
     };
@@ -87,7 +83,7 @@ export async function getServerSideProps({req}: any) {
       };
     }
 
-    const isRealm = keyword.startsWith('gno.land');
+    const isRealm = keyword.startsWith("gno.land");
     if (isRealm) {
       const queryString = makeQueryString({
         ...networkParams,
@@ -129,7 +125,7 @@ export async function getServerSideProps({req}: any) {
       };
     }
 
-    const isCommon = keyword.length > 2 && !keyword.includes(' ');
+    const isCommon = keyword.length > 2 && !keyword.includes(" ");
     if (isCommon) {
       const queryString = makeQueryString(networkParams);
       return {
