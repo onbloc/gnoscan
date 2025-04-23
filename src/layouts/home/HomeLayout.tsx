@@ -1,12 +1,10 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
+import { useWindowSize } from "@/common/hooks/use-window-size";
 
 import * as S from "./HomeLayout.styles";
 import IndexerClientConnectionFailureNotice from "./components/indexer-client-connection-failure-notice/IndexerClientConnectionFailureNotice";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 
 interface HomeLayoutProps {
   mainCard: React.ReactNode;
