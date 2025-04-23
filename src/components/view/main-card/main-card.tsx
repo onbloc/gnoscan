@@ -1,7 +1,6 @@
 "use client";
 
 import IconInfo from "@/assets/svgs/icon-info.svg";
-import { eachMedia } from "@/common/hooks/use-media";
 import { Button } from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
@@ -11,12 +10,15 @@ import mixins from "@/styles/mixins";
 import React from "react";
 import styled from "styled-components";
 import { AccountCard, BlockCard, SupplyCard, TxsCard } from "./cards";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
-const MainCard = () => {
-  const media = eachMedia();
+interface MainCardProps {
+  breakpoint: DEVICE_TYPE;
+}
 
+const MainCard = ({ breakpoint }: MainCardProps) => {
   return (
-    <Wrapper className={media}>
+    <Wrapper className={breakpoint}>
       <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply

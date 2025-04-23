@@ -3,18 +3,21 @@
 import React from "react";
 import styled from "styled-components";
 import Card from "@/components/ui/card";
-import { eachMedia } from "@/common/hooks/use-media";
 import { MainRealmTotalGasShare } from ".";
 import ActiveNewest from "../main-active-list/active-newest";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { MainRealmTotalGasShareApi } from "./total-gas-share/total-gas-share-api";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
-const MainRealm = () => {
-  const media = eachMedia();
+interface MainRealmProps {
+  breakpoint: DEVICE_TYPE;
+}
+
+const MainRealm = ({ breakpoint }: MainRealmProps) => {
   const { isCustomNetwork } = useNetworkProvider();
 
   return (
-    <Wrapper className={media}>
+    <Wrapper className={breakpoint}>
       <Card height="368px" className="card-1">
         {isCustomNetwork ? <MainRealmTotalGasShare /> : <MainRealmTotalGasShareApi />}
       </Card>
@@ -29,11 +32,9 @@ const Wrapper = styled.div`
   grid-template-columns: 1fr;
   grid-template-rows: auto;
   grid-gap: 16px;
-  margin: 16px 0px;
   &.desktop {
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 32px;
-    margin: 32px 0px;
   }
 
   & .title {
