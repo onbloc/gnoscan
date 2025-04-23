@@ -6,16 +6,17 @@ import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 
 import * as S from "./HomeLayout.styles";
 import IndexerClientConnectionFailureNotice from "./components/indexer-client-connection-failure-notice/IndexerClientConnectionFailureNotice";
+import { useWindowSize } from "@/common/hooks/use-window-size";
 
 interface HomeLayoutProps {
-  breakpoint: DEVICE_TYPE;
   mainCard: React.ReactNode;
   mainActiveList: React.ReactNode;
   mainRealm: React.ReactNode;
   mainTransactionNews: React.ReactNode;
 }
 
-const HomeLayout = ({ breakpoint, mainCard, mainActiveList, mainRealm, mainTransactionNews }: HomeLayoutProps) => {
+const HomeLayout = ({ mainCard, mainActiveList, mainRealm, mainTransactionNews }: HomeLayoutProps) => {
+  const { breakpoint } = useWindowSize();
   const { indexerQueryClient } = useNetworkProvider();
   const hasIndexerClient = Boolean(indexerQueryClient);
 
