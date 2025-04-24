@@ -12,7 +12,7 @@ const BlocksLayout = ({ blockList }: BlocksLayoutProps) => {
     <S.Container>
       <S.InnerLayout>
         <S.Wrapper>
-          <PageTitle title="Blocks" />
+          <PageTitle title="Blocks" type="h2" />
           {blockList}
         </S.Wrapper>
       </S.InnerLayout>
