@@ -9,5 +9,5 @@ interface Props {
 
 export const BlockHash = ({ hash, height }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  return height ? <a href={getUrlWithNetwork(`/blocks/${height}`)}>{textEllipsis(hash ?? "", 8)}</a> : <span>-</span>;
+  return height ? <a href={getUrlWithNetwork(`/block/${height}`)}>{textEllipsis(hash ?? "", 8)}</a> : <span>-</span>;
 };

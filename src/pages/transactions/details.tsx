@@ -136,7 +136,7 @@ const TransactionDetails = () => {
               <dt>Block</dt>
               <dd>
                 <Badge>
-                  <Link href={getUrlWithNetwork(`/blocks/${transactionItem.blockHeight}`)} passHref>
+                  <Link href={getUrlWithNetwork(`/block/${transactionItem.blockHeight}`)} passHref>
                     <FitContentA>
                       <Text type="p4" color="blue">
                         {transactionItem.blockHeight}
