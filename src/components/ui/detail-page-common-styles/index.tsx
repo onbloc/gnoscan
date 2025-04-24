@@ -13,9 +13,6 @@ export const DetailsContainer = styled.div<StyleProps>`
   padding: ${({ desktop }) => (desktop ? "24px" : "16px")};
   border-radius: 10px;
   width: 100%;
-  &:not(:first-of-type) {
-    margin-top: ${({ desktop }) => (desktop ? "24px" : "16px")};
-  }
 
   .tab-area {
     display: flex;
