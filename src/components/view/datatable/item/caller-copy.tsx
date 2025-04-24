@@ -14,7 +14,7 @@ export const CallerCopy = ({ caller, username }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   return (
     <CallerWrapper>
-      <a className="ellipsis" href={getUrlWithNetwork(`/accounts/${caller}`)}>
+      <a className="ellipsis" href={getUrlWithNetwork(`/account/${caller}`)}>
         {username || textEllipsis(caller ?? "", 6)}
         <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={caller} width={85}>
           <IconCopy className="svg-icon" />

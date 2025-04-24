@@ -102,7 +102,7 @@ const AccountsList = ({ item, isMain, searchTitle, onClick }: SearchResultProps)
   const { getUrlWithNetwork } = useNetwork();
 
   return (
-    <Link href={getUrlWithNetwork(`/accounts/${item.address}`)} passHref>
+    <Link href={getUrlWithNetwork(`/account/${item.address}`)} passHref>
       <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.address}

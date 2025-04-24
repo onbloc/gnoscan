@@ -59,7 +59,7 @@ const ActiveNewest = () => {
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">
                 <FitContentA>
-                  <Link href={getUrlWithNetwork(`/accounts/${realm.creator}`)} passHref>
+                  <Link href={getUrlWithNetwork(`/account/${realm.creator}`)} passHref>
                     <Tooltip content={realm.creator}>{getName(realm.creator) || textEllipsis(realm.creator)}</Tooltip>
                   </Link>
                 </FitContentA>
