@@ -31,7 +31,7 @@ export const Owner = ({ publisher, publisherUsername }: Props) => {
     <Container>
       {publisher && publisher !== "genesis" ? (
         <Tooltip content={renderTooltip()}>
-          <OwnerLink href={getUrlWithNetwork(`/accounts/${publisher}`)}>
+          <OwnerLink href={getUrlWithNetwork(`/account/${publisher}`)}>
             <OwnerText>{displayName}</OwnerText>
           </OwnerLink>
         </Tooltip>

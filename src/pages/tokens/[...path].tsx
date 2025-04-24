@@ -136,7 +136,7 @@ const TokenDetails = () => {
                     </Text>
                   ) : (
                     <FitContentA>
-                      <Link href={getUrlWithNetwork(`/accounts/${summary.owner}`)} passHref>
+                      <Link href={getUrlWithNetwork(`/account/${summary.owner}`)} passHref>
                         <Text type="p4" color="blue" className="ellipsis">
                           {getName(summary.owner) || summary.owner}
                         </Text>

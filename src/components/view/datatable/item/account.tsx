@@ -26,7 +26,7 @@ export const Account = ({ address }: Props) => {
 
   return (
     <Tooltip content={renderTooltip()}>
-      <a className="ellipsis" href={getUrlWithNetwork(`/accounts/${address}`)}>
+      <a className="ellipsis" href={getUrlWithNetwork(`/account/${address}`)}>
         {displayName}
       </a>
     </Tooltip>
