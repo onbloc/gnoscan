@@ -1,27 +1,34 @@
 "use client";
 
 import React from "react";
+import { useRecoilValue } from "recoil";
+import styled from "styled-components";
+
+import { numberWithCommas } from "@/common/utils";
+import { themeState } from "@/states";
+import { useUsername } from "@/common/hooks/account/use-username";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import theme from "@/styles/theme";
+
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "..";
-import { numberWithCommas } from "@/common/utils";
-import useLoading from "@/common/hooks/use-loading";
-import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
 import { Block } from "@/types/data-type";
 import { Button } from "@/components/ui/button";
-import { eachMedia } from "@/common/hooks/use-media";
-import styled from "styled-components";
-import theme from "@/styles/theme";
-import { useBlocks } from "@/common/hooks/blocks/use-blocks";
-import { useUsername } from "@/common/hooks/account/use-username";
 
-export const BlockDatatable = () => {
-  const media = eachMedia();
+interface BlockDatatableProps {
+  breakpoint: DEVICE_TYPE;
+  data: Block[];
+  isFetched: boolean;
+  isError: boolean;
+  isLoading: boolean;
+  hasNextPage: boolean | undefined;
+
+  fetchNextPage: () => void;
+}
+
+export const BlockDatatable = ({ breakpoint, data, isError, hasNextPage, fetchNextPage }: BlockDatatableProps) => {
   const themeMode = useRecoilValue(themeState);
-  const { data: blocks, isFetched, fetchNextPage, hasNextPage, isError } = useBlocks();
   const { getNameWithMoniker } = useUsername();
-
-  useLoading({ finished: isFetched || isError });
 
   const createHeaders = () => {
     return [
@@ -108,12 +115,12 @@ export const BlockDatatable = () => {
             themeMode: themeMode,
           };
         })}
-        datas={blocks}
+        datas={data}
       />
 
       {hasNextPage ? (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={"4px"} onClick={() => fetchNextPage()}>
+          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
             {"View More Blocks"}
           </Button>
         </div>
