@@ -56,7 +56,7 @@ const ActiveAccountApi = () => {
                 {index + 1}
               </StyledText>
               <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
-                <Link href={getUrlWithNetwork(`/accounts/${account.account}`)} passHref>
+                <Link href={getUrlWithNetwork(`/account/${account.account}`)} passHref>
                   <span>
                     <Tooltip content={account.account}>{getDisplayUsername(account.account)}</Tooltip>
                   </span>

@@ -200,7 +200,7 @@ const RealmsDetails = ({ path }: RealmsDetailsPageProps) => {
                     </FitContentA>
                   ) : (
                     <FitContentA>
-                      <Link href={getUrlWithNetwork(`/accounts/${summary?.publisherAddress}`)} passHref>
+                      <Link href={getUrlWithNetwork(`/account/${summary?.publisherAddress}`)} passHref>
                         <Text type="p4" color="blue" className="ellipsis">
                           {getName(summary?.publisherAddress || "") || summary?.publisherAddress}
                         </Text>

@@ -10,8 +10,16 @@ import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
 export const useAccount = (address: string) => {
   const { isFetchedGRC20Tokens, isFetchedTokenMeta } = useTokenMeta();
   const { data: nativeBalance, isFetched: isFetchedNativeTokenBalance } = useGetNativeTokenBalance(address);
-  const { data: grc20Balances, isFetched: isFetchedGRC20TokenBalance } = useGetGRC20TokenBalances(address);
-  const { data: transactions, isFetched: isFetchedTransactions } = useGetAccountTransactions(address);
+  const {
+    data: grc20Balances,
+    isFetched: isFetchedGRC20TokenBalance,
+    isLoading: isLoadingGRC20TokenBalance,
+  } = useGetGRC20TokenBalances(address);
+  const {
+    data: transactions,
+    isFetched: isFetchedTransactions,
+    isLoading: isLoadingTransactions,
+  } = useGetAccountTransactions(address);
   const [currentPage, setCurrentPage] = useState(0);
 
   const tokenBalances = useMemo(() => {
@@ -75,9 +83,11 @@ export const useAccount = (address: string) => {
   }
 
   return {
-    isFetched: isFetchedTokenMeta,
+    isFetchedTokenMeta: isFetchedTokenMeta,
     isFetchedAssets:
       isFetchedNativeTokenBalance && isFetchedGRC20TokenBalance && isFetchedGRC20Tokens && isFetchedTokenMeta,
+    isLoadingAssets: isLoadingGRC20TokenBalance,
+    isLoadingTransactions: isLoadingTransactions,
     accountTransactions: transactionWithTimes,
     transactionEvents,
     isFetchedAccountTransactions,

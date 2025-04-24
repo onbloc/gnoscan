@@ -105,7 +105,7 @@ export async function getServerSideProps({ req }: any) {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/accounts/${keyword}?${queryString}`,
+          destination: `/account/${keyword}?${queryString}`,
         },
       };
     }
@@ -132,7 +132,7 @@ export async function getServerSideProps({ req }: any) {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/accounts/${keyword}?${queryString}`,
+          destination: `/account/${keyword}?${queryString}`,
         },
       };
     }

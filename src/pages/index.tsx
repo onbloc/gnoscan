@@ -10,7 +10,7 @@ const MainTransactionNewsContainer = React.lazy(
   () => import("@/containers/home/main-transaction-news-container/MainTransactionNewsContainer"),
 );
 
-const Home = () => {
+export default function Page() {
   return (
     <>
       <HomeLayout
@@ -21,6 +21,4 @@ const Home = () => {
       />
     </>
   );
-};
-
-export default Home;
+}

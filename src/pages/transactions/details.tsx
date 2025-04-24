@@ -321,7 +321,7 @@ const CallerContract = ({ message, desktop }: any) => {
       <dt>Caller</dt>
       <dd>
         <Badge>
-          <Link href={getUrlWithNetwork(`/accounts/${caller || "-"}`)} passHref>
+          <Link href={getUrlWithNetwork(`/account/${caller || "-"}`)} passHref>
             <FitContentA>
               <Text type="p4" color="blue" className={ellipsisTextKey.includes("Caller") ? "ellipsis" : "multi-line"}>
                 {caller ? <Tooltip content={caller}>{caller}</Tooltip> : "-"}
@@ -351,7 +351,7 @@ const AddPkgContract = ({ message, desktop }: any) => {
       <dt>Creator</dt>
       <dd>
         <Badge>
-          <Link href={getUrlWithNetwork(`/accounts/${creatorAddress}`)} passHref>
+          <Link href={getUrlWithNetwork(`/account/${creatorAddress}`)} passHref>
             <FitContentA>
               <Text type="p4" color="blue" className={"ellipsis"}>
                 {creatorAddress ? <Tooltip content={creatorAddress}>{creatorName}</Tooltip> : "-"}
@@ -396,7 +396,7 @@ const TransferContract = ({ message, desktop }: any) => {
           <Badge>
             <AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
-                <Link href={getUrlWithNetwork(`/accounts/${fromAddress}`)} passHref>
+                <Link href={getUrlWithNetwork(`/account/${fromAddress}`)} passHref>
                   <FitContentA>{fromAddress}</FitContentA>
                 </Link>
               </Text>
@@ -413,7 +413,7 @@ const TransferContract = ({ message, desktop }: any) => {
           <Badge>
             <AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
-                <Link href={getUrlWithNetwork(`/accounts/${toAddress}`)} passHref>
+                <Link href={getUrlWithNetwork(`/account/${toAddress}`)} passHref>
                   <FitContentA>{toAddress}</FitContentA>
                 </Link>
               </Text>

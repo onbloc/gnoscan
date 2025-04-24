@@ -30,7 +30,7 @@ export const Publisher = ({ address, username }: Props) => {
 
   return address && address !== "genesis" ? (
     <Tooltip content={renderTooltip()}>
-      <PublisherLink className="ellipsis" href={getUrlWithNetwork(`/accounts/${address}`)}>
+      <PublisherLink className="ellipsis" href={getUrlWithNetwork(`/account/${address}`)}>
         {displayName}
       </PublisherLink>
     </Tooltip>

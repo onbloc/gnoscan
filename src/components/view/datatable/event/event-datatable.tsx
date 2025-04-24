@@ -245,7 +245,7 @@ const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible,
               <Text type="p4" color={"primary"}>
                 OriginCaller:{" "}
                 <Text type="p4" color={"blue"}>
-                  <Link href={getUrlWithNetwork(`/accounts/${event.caller}`)} passHref>
+                  <Link href={getUrlWithNetwork(`/account/${event.caller}`)} passHref>
                     {getName(event.caller) || event.caller}
                   </Link>
                   <Tooltip

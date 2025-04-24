@@ -144,7 +144,7 @@ const BlockDetails = () => {
           <dd>
             <Badge>
               <FitContentA>
-                <Link href={getUrlWithNetwork(`/accounts/${block?.proposerAddress}`)} passHref>
+                <Link href={getUrlWithNetwork(`/account/${block?.proposerAddress}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
                     {proposerDisplayName}
                   </Text>
