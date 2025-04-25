@@ -1,19 +1,18 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import { DatatableItem } from "..";
-import styled from "styled-components";
 import { useRecoilValue } from "recoil";
+
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
 import { Transaction } from "@/types/data-type";
-import theme from "@/styles/theme";
-import { Button } from "@/components/ui/button";
-import { eachMedia } from "@/common/hooks/use-media";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useUsername } from "@/common/hooks/account/use-username";
-import useLoading from "@/common/hooks/use-loading";
-import { useAllTransactions } from "@/common/hooks/transactions/use-all-transactions";
+
+import * as S from "./TransactionListTable.styles";
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
+import { DatatableItem } from "@/components/view/datatable";
+import { Button } from "@/components/ui/button";
+import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 interface TransactionWithTime extends Transaction {
   time: string;
@@ -38,17 +37,28 @@ function mapDisplayFunctionName(type: string, functionName: string) {
   }
 }
 
-export const TransactionDatatable = () => {
-  const media = eachMedia();
+interface TransactionListTableProps {
+  breakpoint: DEVICE_TYPE;
+  transactions: Transaction[];
+  hasNextPage: boolean;
+  isFetched: boolean;
+  isLoading: boolean;
+  nextPage: () => void;
+}
+
+export const TransactionListTable = ({
+  breakpoint,
+  transactions,
+  hasNextPage,
+  nextPage,
+  isFetched,
+  isLoading,
+}: TransactionListTableProps) => {
   const themeMode = useRecoilValue(themeState);
 
   const { getTokenAmount } = useTokenMeta();
-  const { transactions, hasNextPage, isError, isFetched, nextPage } = useAllTransactions({});
-
   const { isFetched: isFetchedUsername, getName } = useUsername();
   const [development, setDevelopment] = useState(false);
-
-  useLoading({ finished: (isFetched && isFetchedUsername) || isError });
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydownEvent);
@@ -108,7 +118,7 @@ export const TransactionDatatable = () => {
       .name("Type")
       .width(190)
       .colorName("blue")
-      .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
+      .tooltip(<S.TooltipContainer>{TOOLTIP_TYPE}</S.TooltipContainer>)
       .renderOption((_, data) => {
         const displayFunctionName = mapDisplayFunctionName(data.type, data.functionName);
         return (
@@ -178,8 +188,10 @@ export const TransactionDatatable = () => {
       .build();
   };
 
+  if (isLoading || !isFetched || !isFetchedUsername) return <TableSkeleton />;
+
   return (
-    <Container>
+    <S.Container>
       <Datatable
         headers={createHeaders().map(item => {
           return {
@@ -191,52 +203,13 @@ export const TransactionDatatable = () => {
       />
       {hasNextPage ? (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>
+          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
             {"View More Transactions"}
           </Button>
         </div>
       ) : (
         <></>
       )}
-    </Container>
+    </S.Container>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-    background-color: ${({ theme }) => theme.colors.base};
-    padding-bottom: 24px;
-    border-radius: 10px;
-
-    .button-wrapper {
-      display: flex;
-      width: 100%;
-      height: auto;
-      margin-top: 4px;
-      padding: 0 20px;
-      justify-content: center;
-
-      .more-button {
-        width: 100%;
-        padding: 16px;
-        color: ${({ theme }) => theme.colors.primary};
-        background-color: ${({ theme }) => theme.colors.surface};
-        ${theme.fonts.p4}
-        font-weight: 600;
-
-        &.desktop {
-          width: 344px;
-        }
-      }
-    }
-  }
-`;
-
-const TooltipContainer = styled.div`
-  min-width: 132px;
-`;

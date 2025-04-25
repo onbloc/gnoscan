@@ -1,14 +1,20 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useWindowSize } from "@/common/hooks/use-window-size";
 
-import { TransactionDatatable } from "@/components/view/datatable";
-import { TransactionApiDatatable } from "@/components/view/datatable/transaction/transaction-api";
+import StandardNetworkTransactionData from "@/components/view/transactions/transaction-data/StandardNetworkTransactionData";
+import CustomNetworkTransactionData from "@/components/view/transactions/transaction-data/CustomNetworkTransactionData";
 
 const TransactionListContainer = () => {
+  const { breakpoint } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
-  return isCustomNetwork ? <TransactionDatatable /> : <TransactionApiDatatable />;
+  return isCustomNetwork ? (
+    <CustomNetworkTransactionData breakpoint={breakpoint} />
+  ) : (
+    <StandardNetworkTransactionData breakpoint={breakpoint} />
+  );
 };
 
 export default TransactionListContainer;
