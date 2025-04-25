@@ -3,7 +3,7 @@ import React from "react";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 
 import * as S from "./AccountLayout.styles";
-import Text from "@/components/ui/text";
+import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 
 interface AccountLayoutProps {
   accountAddress: React.ReactNode;
@@ -18,9 +18,7 @@ const AccountLayout = ({ accountAddress, accountAssets, accountTransactions }: A
     <S.Container breakpoint={breakpoint}>
       <S.InnerLayout>
         <S.Wrapper breakpoint={breakpoint}>
-          <Text type={isDesktop ? "h2" : "p2"} color="primary">
-            Account Details
-          </Text>
+          <PageTitle type={isDesktop ? "h2" : "p2"} title="Account Details" />
           {accountAddress}
           {accountAssets}
           {accountTransactions}

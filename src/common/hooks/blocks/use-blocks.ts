@@ -6,7 +6,7 @@ export const useBlocks = () => {
   const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number>();
 
-  const { data, fetchNextPage, hasNextPage, isFetched, isError } = useGetBlocksQuery(currentBlockHeight);
+  const { data, fetchNextPage, hasNextPage, isFetched, isError, isLoading } = useGetBlocksQuery(currentBlockHeight);
 
   const blocks = useMemo(() => {
     if (!data?.pages) {
@@ -27,6 +27,7 @@ export const useBlocks = () => {
   return {
     data: blocks,
     isFetched: isFetched && latestBlockHeight !== undefined,
+    isLoading,
     isError: latestBlockHeight === null || isError,
     fetchNextPage,
     hasNextPage,

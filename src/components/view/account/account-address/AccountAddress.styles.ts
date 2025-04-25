@@ -1,7 +1,8 @@
 import styled, { css } from "styled-components";
 
 import mixins from "@/styles/mixins";
-import { DEVICE_TYPE, media } from "@/common/values/ui.constant";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { SkeletonBoxStyle } from "@/components/ui/loading";
 
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -88,4 +89,17 @@ export const Username = styled(Text)<{ breakpoint: DEVICE_TYPE }>`
     ${mixins.posTopCenterLeft(0)};
     margin-left: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.MOBILE ? "7px" : "20px")};
   }
+`;
+
+export const SkeletonBox = styled(SkeletonBoxStyle)<{
+  width?: string;
+  marginTop?: number;
+  marginBottom?: number;
+  height?: number;
+}>`
+  ${mixins.flexbox("column", "flex-start", "flex-start")};
+  width: ${({ width }) => width ?? "100%"};
+  margin-top: ${({ marginTop }) => (marginTop ? `${marginTop}px` : "0")};
+  margin-bottom: ${({ marginBottom }) => (marginBottom ? `${marginBottom}px` : "0")};
+  height: ${({ height }) => (height ? `${height}px` : "28px")};
 `;

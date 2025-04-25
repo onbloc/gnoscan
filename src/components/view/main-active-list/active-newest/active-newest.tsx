@@ -68,7 +68,7 @@ const ActiveNewest = () => {
               <LazyRealmCalls path={realm.packagePath} />
               <StyledText type="p4" width={colWidth.newest[5]} color="blue">
                 <FitContentA>
-                  <Link href={getUrlWithNetwork(`/blocks/${realm.blockHeight}`)} passHref>
+                  <Link href={getUrlWithNetwork(`/block/${realm.blockHeight}`)} passHref>
                     {realm.blockHeight}
                   </Link>
                 </FitContentA>
