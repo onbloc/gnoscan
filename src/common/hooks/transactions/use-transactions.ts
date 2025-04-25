@@ -11,6 +11,7 @@ export const useTransactions = ({ enabled = true }) => {
     data = null,
     hasNextPage,
     fetchNextPage,
+    isLoading: isLoadingTransactions,
     isFetched: isFetchedTransactions,
   } = useGetTransactionsInfinityQuery(latestBlock?.block_meta.header.total_txs || null, { enabled });
 
@@ -46,6 +47,7 @@ export const useTransactions = ({ enabled = true }) => {
   return {
     transactions: transactionWithTimes || [],
     isFetched: isFetched,
+    isLoading: isLoadingTransactions,
     isError,
     nextPage: fetchNextPage,
     hasNextPage: !!hasNextPage,
