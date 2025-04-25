@@ -1,19 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import React, { useState } from "react";
-import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import { DatatableItem } from "..";
-import { Button } from "@/components/ui/button";
-import styled from "styled-components";
-import theme from "@/styles/theme";
-import { eachMedia } from "@/common/hooks/use-media";
-import useLoading from "@/common/hooks/use-loading";
+import React from "react";
 import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
-import { useRealms } from "@/common/hooks/realms/use-realms";
-import { useUsername } from "@/common/hooks/account/use-username";
+
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { themeState } from "@/states";
+
+import * as S from "./RealmListTable.styles";
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
+import { DatatableItem } from "../../datatable";
+import { Button } from "@/components/ui/button";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 const TOOLTIP_PATH = (
   <>
@@ -22,24 +20,33 @@ const TOOLTIP_PATH = (
   </>
 );
 
-export const RealmDatatable = () => {
-  const media = eachMedia();
+interface RealmListTableProps {
+  breakpoint: DEVICE_TYPE;
+  sortOption: { field: string; order: string };
+  realms: any;
+  isFetched: boolean;
+  hasNextPage?: boolean;
+  isDefault: boolean;
+  defaultFromHeight: number | null;
+  fetchNextPage: () => void;
+  setSortOption: (sortOption: { field: string; order: string }) => void;
+  getName: (address: string) => string;
+}
+
+export const RealmListTable = ({
+  breakpoint,
+  sortOption,
+  setSortOption,
+  realms,
+  isFetched,
+  hasNextPage,
+  fetchNextPage,
+  isDefault,
+  defaultFromHeight,
+  getName,
+}: RealmListTableProps) => {
   const themeMode = useRecoilValue(themeState);
   const { indexerQueryClient } = useNetworkProvider();
-  const [sortOption, setSortOption] = useState<{ field: string; order: string }>({
-    field: "none",
-    order: "none",
-  });
-  const {
-    realms,
-    isFetched,
-    hasNextPage,
-    nextPage: fetchNextPage,
-    isDefault,
-    defaultFromHeight,
-  } = useRealms(true, sortOption);
-  const { isFetched: isFetchedUsername, getName } = useUsername();
-  useLoading({ finished: isFetched && isFetchedUsername });
 
   const createHeaders = () => {
     return [
@@ -128,8 +135,10 @@ export const RealmDatatable = () => {
       .build();
   };
 
+  if (!isFetched) return <TableSkeleton />;
+
   return (
-    <Container>
+    <S.Container>
       <Datatable
         headers={createHeaders().map(item => {
           return {
@@ -145,48 +154,13 @@ export const RealmDatatable = () => {
 
       {hasNextPage ? (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={"4px"} onClick={() => fetchNextPage()}>
+          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
             {"View More Realms"}
           </Button>
         </div>
       ) : (
         <></>
       )}
-    </Container>
+    </S.Container>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-    background-color: ${({ theme }) => theme.colors.base};
-    padding-bottom: 24px;
-    border-radius: 10px;
-
-    .button-wrapper {
-      display: flex;
-      width: 100%;
-      height: auto;
-      margin-top: 4px;
-      padding: 0 20px;
-      justify-content: center;
-
-      .more-button {
-        width: 100%;
-        padding: 16px;
-        color: ${({ theme }) => theme.colors.primary};
-        background-color: ${({ theme }) => theme.colors.surface};
-        ${theme.fonts.p4}
-        font-weight: 600;
-
-        &.desktop {
-          width: 344px;
-        }
-      }
-    }
-  }
-`;
