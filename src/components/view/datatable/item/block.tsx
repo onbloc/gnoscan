@@ -8,5 +8,5 @@ interface Props {
 
 export const Block = ({ height }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  return height ? <a href={getUrlWithNetwork(`/blocks/${height}`)}>{height}</a> : <span>-</span>;
+  return height ? <a href={getUrlWithNetwork(`/block/${height}`)}>{height}</a> : <span>-</span>;
 };

@@ -221,7 +221,7 @@ const RealmsDetails = ({ path }: RealmsDetailsPageProps) => {
                       </Text>
                     </FitContentA>
                   ) : (
-                    <Link href={getUrlWithNetwork(`/blocks/${summary?.blockPublished}`)} passHref>
+                    <Link href={getUrlWithNetwork(`/block/${summary?.blockPublished}`)} passHref>
                       <FitContentA>
                         <Text type="p4" color="blue">
                           {summary?.blockPublished}

@@ -78,7 +78,7 @@ export async function getServerSideProps({ req }: any) {
         redirect: {
           keyword,
           permanent: false,
-          destination: `/blocks/${keyword}?${queryString}`,
+          destination: `/block/${keyword}?${queryString}`,
         },
       };
     }

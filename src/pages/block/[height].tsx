@@ -89,11 +89,11 @@ const BlockDetails = () => {
           <TitleOption
             prevProps={{
               disabled: !block?.hasPreviousBlock,
-              path: `/blocks/${Number(block.blockHeight) - 1}`,
+              path: `/block/${Number(block.blockHeight) - 1}`,
             }}
             nextProps={{
               disabled: !block?.hasNextBlock,
-              path: `/blocks/${Number(block.blockHeight) + 1}`,
+              path: `/block/${Number(block.blockHeight) + 1}`,
             }}
           />
         )
