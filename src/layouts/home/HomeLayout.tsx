@@ -50,6 +50,6 @@ const IndexerDependentComponents = React.memo(
   ),
 );
 
-IndexerDependentComponents.displayName = "IndexerDependentComponents";
+IndexerDependentComponents.displayName = "IndexerDependentHomeLayoutComponents";
 
 export default HomeLayout;
