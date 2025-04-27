@@ -124,3 +124,15 @@ export function makeTransactionMessageInfo(message: any) {
       return null;
   }
 }
+
+export function parseTxHash(url: string) {
+  if (!url.includes("txhash=")) {
+    return "";
+  }
+  const params = url.split("txhash=");
+  if (params.length < 2) return "";
+
+  const txHash = params[1].split("&")[0];
+  const decodedTxHash = decodeURIComponent(txHash).replaceAll(" ", "+");
+  return makeSafeBase64Hash(decodedTxHash);
+}
