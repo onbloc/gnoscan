@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import React from "react";
-import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import { DatatableItem } from "..";
-import useLoading from "@/common/hooks/use-loading";
 import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
-import theme from "@/styles/theme";
-import styled from "styled-components";
-import { eachMedia } from "@/common/hooks/use-media";
-import { Button } from "@/components/ui/button";
-import { useTokens } from "@/common/hooks/tokens/use-tokens";
+
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { themeState } from "@/states";
+
+import * as S from "./TokenListTable.styles";
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
+import { DatatableItem } from "../../datatable";
+import { Button } from "@/components/ui/button";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import { GRC20Info } from "@/repositories/realm-repository.ts";
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -21,14 +21,17 @@ const TOOLTIP_PACAKGE_PATH = (
   </>
 );
 
-export const TokenDatatable = () => {
-  const media = eachMedia();
+interface TokenListTableProps {
+  breakpoint: DEVICE_TYPE;
+  tokens: GRC20Info[];
+  hasNextPage: boolean;
+  isFetched: boolean;
+  nextPage: () => void;
+}
+
+export const TokenListTable = ({ breakpoint, tokens, hasNextPage, isFetched, nextPage }: TokenListTableProps) => {
   const themeMode = useRecoilValue(themeState);
-
   const { indexerQueryClient } = useNetworkProvider();
-  const { tokens, hasNextPage, isFetched, nextPage } = useTokens();
-
-  useLoading({ finished: isFetched || !indexerQueryClient });
 
   const createHeaders = () => {
     return [
@@ -101,8 +104,10 @@ export const TokenDatatable = () => {
       .build();
   };
 
+  if (!isFetched) return <TableSkeleton />;
+
   return (
-    <Container>
+    <S.Container>
       <Datatable
         headers={createHeaders().map(item => {
           return {
@@ -115,48 +120,13 @@ export const TokenDatatable = () => {
       />
       {hasNextPage ? (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>
+          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
             {"View More Tokens"}
           </Button>
         </div>
       ) : (
         <></>
       )}
-    </Container>
+    </S.Container>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-    background-color: ${({ theme }) => theme.colors.base};
-    padding-bottom: 24px;
-    border-radius: 10px;
-
-    .button-wrapper {
-      display: flex;
-      width: 100%;
-      height: auto;
-      margin-top: 4px;
-      padding: 0 20px;
-      justify-content: center;
-
-      .more-button {
-        width: 100%;
-        padding: 16px;
-        color: ${({ theme }) => theme.colors.primary};
-        background-color: ${({ theme }) => theme.colors.surface};
-        ${theme.fonts.p4}
-        font-weight: 600;
-
-        &.desktop {
-          width: 344px;
-        }
-      }
-    }
-  }
-`;
