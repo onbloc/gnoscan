@@ -16,7 +16,7 @@ export const useTokens = () => {
     return data.length > (currentPage + 1) * 20;
   }, [currentPage, data?.length]);
 
-  const tokens = useMemo(() => {
+  const tokens: GRC20Info[] = useMemo(() => {
     if (!data) {
       return [];
     }
