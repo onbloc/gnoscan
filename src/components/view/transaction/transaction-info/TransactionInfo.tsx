@@ -5,6 +5,7 @@ import { Amount, GnoEvent, Transaction } from "@/types/data-type";
 import DataListSection from "../../details-data-section/data-list-section";
 import { TransactionContractDetails } from "../transaction-contract-details/TransactionContractDetails";
 import { EventDatatable } from "../../datatable/event";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 interface TransactionInfoProps {
   transactionEvents: GnoEvent[];
@@ -40,6 +41,8 @@ const TransactionInfo = ({
       },
     ];
   }, [transactionEvents]);
+
+  if (!isFetched) return <TableSkeleton />;
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>

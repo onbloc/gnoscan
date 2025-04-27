@@ -12,6 +12,7 @@ import Tooltip from "@/components/ui/tooltip";
 import { AmountText } from "@/components/ui/text/amount-text";
 import ShowLog from "@/components/ui/show-log";
 import { StyledIconCopy } from "./Transaction.styles";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
@@ -54,6 +55,8 @@ const TransactionSummary = ({
       return null;
     }
   }, [transactionItem, blockResult]);
+
+  if (!isFetched) return <TableSkeleton />;
 
   return (
     transactionItem && (
