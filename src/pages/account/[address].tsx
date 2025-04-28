@@ -31,6 +31,7 @@ export default function Page({ address }: AccountDetailsPageProps) {
   return (
     <>
       <AccountLayout
+        address={address}
         accountAddress={<AccountAddressContainer address={address} />}
         accountAssets={<AccountAssetsContainer address={address} />}
         accountTransactions={<AccountTransactionsContainer address={address} />}
