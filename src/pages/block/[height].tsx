@@ -10,7 +10,7 @@ const BlockSummaryContainer = React.lazy(
 );
 const BlockInfoContainer = React.lazy(() => import("@/containers/block/block-info-container/BlockInfoContainer"));
 
-const BlockDetails = () => {
+export default function Page() {
   const router = useRouter();
   const { height } = router.query;
   const blockHeight = Number(height);
@@ -24,6 +24,4 @@ const BlockDetails = () => {
       />
     </>
   );
-};
-
-export default BlockDetails;
+}

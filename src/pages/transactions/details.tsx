@@ -11,7 +11,7 @@ const TransactionInfoContainer = React.lazy(
   () => import("@/containers/transaction/transaction-info-container/TransactionInfoContainer"),
 );
 
-const TransactionDetails = () => {
+export default function Page() {
   const { asPath, push } = useRouter();
   const hash = parseTxHash(asPath);
 
@@ -29,6 +29,4 @@ const TransactionDetails = () => {
       />
     </>
   );
-};
-
-export default TransactionDetails;
+}
