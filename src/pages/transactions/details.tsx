@@ -24,6 +24,7 @@ export default function Page() {
   return (
     <>
       <TransactionLayout
+        txHash={hash}
         transactionSummary={<TransactionSummaryContainer txHash={hash} />}
         transactionInfo={<TransactionInfoContainer txHash={hash} />}
       />
