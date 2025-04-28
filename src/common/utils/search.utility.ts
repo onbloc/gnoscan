@@ -11,33 +11,25 @@ import { makeQueryString } from "./string-util";
  * @returns An object containing the parsed key-value pairs from the search string
  */
 export function parseSearchString(search: string) {
-  if (!search || search.length === 1) {
+  if (!search || search.length <= 1) {
     return {};
   }
 
-  return search
-    .replace("?", "")
-    .split("&")
-    .reduce<{ [key in string]: string }>((accum, value) => {
-      const keySeparatorIndex = value.lastIndexOf(".json");
-      const current =
-        keySeparatorIndex > -1 ? value.substring(keySeparatorIndex + ".json".length, value.length) : value;
-      const separatorIndex = current.indexOf("=");
-      if (separatorIndex < 0 || separatorIndex + 1 >= current.length) {
-        return accum;
-      }
+  const jsonIndex = search.lastIndexOf(".json");
+  if (jsonIndex > -1) {
+    search = search.substring(jsonIndex + ".json".length);
+  }
 
-      const values = [
-        current.substring(0, separatorIndex),
-        decodeURIComponent(current.substring(separatorIndex + 1, current.length)).replaceAll(" ", "+"),
-      ];
-      if (values.length === 0) {
-        return accum;
-      }
+  const searchParams = new URLSearchParams(search.startsWith("?") ? search.substring(1) : search);
+  const result: { [key: string]: string } = {};
 
-      accum[values[0]] = values.length > 0 ? values[1] : "";
-      return accum;
-    }, {});
+  for (const [key, value] of searchParams.entries()) {
+    // The URLSearchParams API already handles URL encoding, so no separate whitespace conversion is required.
+    // result[key] = value.replaceAll(" ", "+")
+    result[key] = value;
+  }
+
+  return result;
 }
 
 /**
