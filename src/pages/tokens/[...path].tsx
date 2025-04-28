@@ -18,6 +18,7 @@ export default function Page() {
   return (
     <>
       <TokenLayout
+        tokenPath={tokenPath || ""}
         tokenSummary={<TokenSummaryContainer tokenPath={tokenPath || ""} />}
         tokenTransactionInfo={<TokenTransactionInfoContainer tokenPath={tokenPath || ""} />}
       />
