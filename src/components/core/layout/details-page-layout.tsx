@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import mixins from "@/styles/mixins";
 import LoadingPage from "@/components/view/loading/page";
-import NotFound from "@/components/view/not-found/not-found";
+import NotFound from "@/components/view/search/not-found/NotFound";
 interface StyleProps {
   desktop?: boolean;
   titleAlign?: "center" | "flex-start" | "flex-end" | "space-between";

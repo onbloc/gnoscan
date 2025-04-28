@@ -1,24 +1,14 @@
 import React from "react";
-import styled from "styled-components";
-import { useRouter } from "next/router";
 
-import NotFound from "@/components/view/not-found/not-found";
+import Error404Layout from "@/layouts/error/error-404/Error404Layout";
+const NotFoundContainer = React.lazy(() => import("@/containers/error/not-found-container/NotFoundContainer"));
 
 const NotFoundPage = () => {
-  const { asPath } = useRouter();
-
   return (
-    <Wrapper>
-      <div className="inner-layout">
-        <NotFound keyword={asPath} />
-      </div>
-    </Wrapper>
+    <>
+      <Error404Layout notFound={<NotFoundContainer />} />
+    </>
   );
 };
-
-const Wrapper = styled.main`
-  width: 100%;
-  flex: 1;
-`;
 
 export default NotFoundPage;
