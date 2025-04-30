@@ -20,7 +20,7 @@ interface ServiceContextProps {
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
 
 const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { indexerQueryClient, nodeRPCClient, onblocRPCClient, mainNodeRPCClient, isCustomNetwork } =
+  const { indexerQueryClient, nodeRPCClient, onblocRPCClient, onblocAPIClient, mainNodeRPCClient, isCustomNetwork } =
     useNetworkProvider();
 
   const chainRepository = useMemo(() => (nodeRPCClient ? new ChainRepository(nodeRPCClient) : null), [nodeRPCClient]);
