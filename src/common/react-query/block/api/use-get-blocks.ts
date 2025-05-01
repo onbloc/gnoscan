@@ -2,8 +2,8 @@ import { useInfiniteQuery, UseInfiniteQueryOptions, UseInfiniteQueryResult } fro
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { GetBlocksRequestParameters } from "@/repositories/block/request";
-import { GetBlocksResponse } from "@/repositories/block/response";
+import { GetBlocksRequestParameters } from "@/repositories/api/block/request";
+import { GetBlocksResponse } from "@/repositories/api/block/response";
 import { CommonError } from "@/common/errors";
 
 /**

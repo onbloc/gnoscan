@@ -1,7 +1,7 @@
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { AccountRepository, IAccountRepository } from "@/repositories/account-repository";
 import { OnblocAccountRepository } from "@/repositories/account-repository/onbloc-account-repository";
-import { ApiBlockRepositoryImpl, ApiBlockRepository } from "@/repositories/block";
+import { ApiBlockRepositoryImpl, ApiBlockRepository } from "@/repositories/api/block";
 import { BlockRepository, IBlockRepository, OnblocBlockRepository } from "@/repositories/block-repository";
 import { ChainRepository, IChainRepository } from "@/repositories/chain-repository";
 import { IRealmRepository, RealmRepository } from "@/repositories/realm-repository.ts";

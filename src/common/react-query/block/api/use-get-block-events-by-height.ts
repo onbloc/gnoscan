@@ -2,7 +2,7 @@ import { useQuery, UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { GetBlockEventsResponse } from "@/repositories/block/response";
+import { GetBlockEventsResponse } from "@/repositories/api/block/response";
 import { CommonError } from "@/common/errors";
 
 /**

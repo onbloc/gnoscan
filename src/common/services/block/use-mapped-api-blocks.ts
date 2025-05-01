@@ -2,7 +2,7 @@ import React from "react";
 
 import { useGetBlocks } from "@/common/react-query/block/api";
 
-import { GetBlocksRequestParameters } from "@/repositories/block/request";
+import { GetBlocksRequestParameters } from "@/repositories/api/block/request";
 import { Block } from "@/types/data-type";
 import { BlockMapper } from "@/common/mapper/block/block-mapper";
 
