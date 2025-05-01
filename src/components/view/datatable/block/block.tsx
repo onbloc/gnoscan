@@ -9,6 +9,7 @@ import { themeState } from "@/states";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import theme from "@/styles/theme";
+import { formatDate } from "@/common/utils/date-util";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "..";
@@ -66,7 +67,7 @@ export const BlockDatatable = ({ breakpoint, data, isError, hasNextPage, fetchNe
       .key("time")
       .name("Time")
       .width(226)
-      .renderOption(date => <DatatableItem.Date date={new Date(date).toISOString()} />)
+      .renderOption(date => <DatatableItem.Date date={formatDate(date)} />)
       .build();
   };
 

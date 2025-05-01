@@ -47,3 +47,15 @@ export const dateToStr = (date: Date): string => {
   const dateStr = `00${date.getDate()}`.slice(-2);
   return [date.getFullYear(), monthStr, dateStr].join("-");
 };
+
+type DateInput = string | Date | null | undefined;
+
+export const formatDate = (date: DateInput): string => {
+  if (!date) return "-";
+
+  const dateObject = new Date(date);
+
+  const isValid = dateObject instanceof Date && !isNaN(dateObject.getTime());
+
+  return isValid ? dateObject.toISOString() : "-";
+};
