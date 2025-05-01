@@ -1,20 +1,20 @@
 export interface BlockEventModel {
   blockHeight: number;
-  caller: "string";
+  caller: string;
   emit: {
-    name: "string";
+    name: string;
     params: [
       {
-        key: "string";
-        value: "string";
+        key: string;
+        value: string;
       },
     ];
   };
-  eventName: "string";
-  function: "string";
-  identifier: "string";
-  originCaller: "string";
-  realmPath: "string";
-  timestamp: "string";
-  txHash: "string";
+  eventName: string;
+  function: string;
+  identifier: string;
+  originCaller: string;
+  realmPath: string;
+  timestamp: string;
+  txHash: string;
 }
