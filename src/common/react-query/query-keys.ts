@@ -16,4 +16,9 @@ export enum QUERY_KEY {
   getRealmByPath = "api_get_realm_by_path",
   getRealmEventsByPath = "api_get_realm_events_by_path",
   getRealmTransactionsByPath = "api_get_realm_transactions_by_path",
+
+  // token
+  getTokens = "api_get_tokens",
+  getTokenById = "api_get_token_by_id",
+  getTokenTransactionsById = "api_get_token_transactions_by_id",
 }
