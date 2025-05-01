@@ -2,7 +2,7 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { ApiTransactionRepository } from "./api-transaction-repository";
 
 import { GetTransactionsRequestParameters } from "./request";
-import { GetTransactionsResponse, GetTransactionResponse } from "./response";
+import { GetTransactionsResponse, GetTransactionResponse, GetTransactionContractsResponse } from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
 
@@ -16,7 +16,7 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
     this.networkClient = networkClient;
   }
 
-  getTransactions(params: GetTransactionsRequestParameters) {
+  getTransactions(params: GetTransactionsRequestParameters): Promise<GetTransactionsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -32,7 +32,7 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
       });
   }
 
-  getTransaction(hash: string) {
+  getTransaction(hash: string): Promise<GetTransactionResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -40,6 +40,20 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
     return this.networkClient
       .get<APIResponse<GetTransactionResponse>>({
         url: `transactions/${hash}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTransactionContracts(hash: string): Promise<GetTransactionContractsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetTransactionContractsResponse>>({
+        url: `transactions/${hash}/contracts`,
       })
       .then(result => {
         return result.data?.data;
