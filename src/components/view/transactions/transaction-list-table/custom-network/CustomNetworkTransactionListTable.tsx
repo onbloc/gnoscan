@@ -8,7 +8,7 @@ import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useUsername } from "@/common/hooks/account/use-username";
 
-import * as S from "./TransactionListTable.styles";
+import * as S from "./CustomNetworkTransactionListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ function mapDisplayFunctionName(type: string, functionName: string) {
   }
 }
 
-interface TransactionListTableProps {
+interface CustomNetworkTransactionListTableProps {
   breakpoint: DEVICE_TYPE;
   transactions: Transaction[];
   hasNextPage: boolean;
@@ -46,14 +46,14 @@ interface TransactionListTableProps {
   nextPage: () => void;
 }
 
-export const TransactionListTable = ({
+export const CustomNetworkTransactionListTable = ({
   breakpoint,
   transactions,
   hasNextPage,
   nextPage,
   isFetched,
   isLoading,
-}: TransactionListTableProps) => {
+}: CustomNetworkTransactionListTableProps) => {
   const themeMode = useRecoilValue(themeState);
 
   const { getTokenAmount } = useTokenMeta();

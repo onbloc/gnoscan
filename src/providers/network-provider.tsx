@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "@/common/hooks/common/use-router";
-import { createContext, useEffect, useMemo } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 
 import { RPCClient } from "@/common/clients/rpc-client";
@@ -17,6 +17,8 @@ interface NetworkContextProps {
   chains: ChainModel[];
 
   currentNetwork: ChainModel | null;
+
+  isNetworkInitialized: boolean;
 
   isCustomNetwork: boolean;
 
@@ -41,6 +43,7 @@ interface NetworkProviderPros {
 const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = ({ chains, children }) => {
   const router = useRouter();
   const { currentNetwork, setCurrentNetwork } = useNetwork();
+  const [isNetworkInitialized, setIsNetworkInitialized] = useState(false);
 
   useEffect(() => {
     // If the query fails to load.
@@ -98,6 +101,12 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     }
 
     return false;
+  }, [currentNetworkModel]);
+
+  useEffect(() => {
+    if (currentNetworkModel !== null) {
+      setIsNetworkInitialized(true);
+    }
   }, [currentNetworkModel]);
 
   const nodeRPCClient = useMemo(() => {
@@ -176,6 +185,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
       value={{
         chains,
         isCustomNetwork,
+        isNetworkInitialized,
         currentNetwork: currentNetworkModel,
         nodeRPCClient,
         indexerQueryClient,

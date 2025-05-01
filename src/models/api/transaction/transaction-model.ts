@@ -1,9 +1,11 @@
+import { Amount } from "@/types/data-type";
+
 export interface TransactionModel {
-  amount: string;
+  amount: Amount;
 
   blockHeight: number;
 
-  fee: string;
+  fee: Amount;
 
   from: string;
 
