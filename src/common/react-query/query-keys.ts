@@ -10,4 +10,10 @@ export enum QUERY_KEY {
   getTransactionByHash = "api_get_transaction_by_hash",
   getTransactionEventsByHash = "api_get_transaction_events_by_hash",
   getTransactionContractsByHash = "api_get_transaction_contracts_by_hash",
+
+  // realm
+  getRealms = "api_get_realms",
+  getRealmByPath = "api_get_realm_by_path",
+  getRealmEventsByPath = "api_get_realm_events_by_path",
+  getRealmTranasctionsByPath = "api_get_realm_transactions_by_path",
 }
