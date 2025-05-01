@@ -67,19 +67,17 @@ export const AmountText = ({
   return (
     <Wrapper className={className}>
       <div className="amount-wrapper">
-        {value && (
-          <>
-            <Text className="text-wrapper" type={maxSize} color={color} display="contents">
-              {formattedInteger}
-            </Text>
-            <Text type={minSize} color={color} display="contents" className="decimals">
-              {formattedDecimals}
-            </Text>
-            <Text type={maxSize} color={color} display="contents">
-              {denom}
-            </Text>
-          </>
-        )}
+        <>
+          <Text className="text-wrapper" type={maxSize} color={color} display="contents">
+            {formattedInteger}
+          </Text>
+          <Text type={minSize} color={color} display="contents" className="decimals">
+            {formattedDecimals}
+          </Text>
+          <Text type={maxSize} color={color} display="contents">
+            {denom}
+          </Text>
+        </>
       </div>
     </Wrapper>
   );

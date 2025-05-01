@@ -100,7 +100,7 @@ export const BlockDatatable = ({ breakpoint, data, isError, hasNextPage, fetchNe
         if (data.numTxs === 0) {
           return <DatatableItem.Amount value={"0"} denom={"GNOT"} />;
         }
-        return <DatatableItem.LazyBlockTotalFee blockHeight={data.height} />;
+        return <DatatableItem.LazyBlockTotalFee blockHeight={data.height} defaultDenom={"GNOT"} />;
       })
       .build();
   };

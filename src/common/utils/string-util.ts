@@ -80,3 +80,19 @@ export function formatDisplayPackagePath(packagePath: string | null | undefined)
   const elements = packagePath.split("/");
   return elements.map(element => (isBech32Address(element) ? textEllipsis(element, 4) : element)).join("/");
 }
+
+export function makeQueryParameter(data: {
+  [key in string]: string | number | bigint | boolean | null | undefined;
+}) {
+  const params = Object.entries(data)
+    .filter(([, value]) => value !== null && value !== undefined)
+    .map(([key, value]) => {
+      return `${key}=${value?.toString()}`;
+    });
+
+  if (params.length === 0) {
+    return "";
+  }
+
+  return "?" + params.join("&");
+}

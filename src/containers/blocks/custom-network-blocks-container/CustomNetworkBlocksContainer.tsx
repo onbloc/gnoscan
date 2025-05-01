@@ -6,7 +6,7 @@ import { useWindowSize } from "@/common/hooks/use-window-size";
 import { BlockDatatable } from "@/components/view/datatable";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
-const BlockListContainer = () => {
+const CustomNetworkBlocksContainer = () => {
   const { breakpoint } = useWindowSize();
   const { data: blocks, isFetched, fetchNextPage, hasNextPage, isError, isLoading } = useBlocks();
 
@@ -25,4 +25,4 @@ const BlockListContainer = () => {
   );
 };
 
-export default BlockListContainer;
+export default CustomNetworkBlocksContainer;
