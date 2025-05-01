@@ -2,6 +2,7 @@ import { useQuery, UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetBlockResponse } from "@/repositories/block/response";
 import { CommonError } from "@/common/errors";
 
 /**
@@ -16,11 +17,11 @@ import { CommonError } from "@/common/errors";
  * @param optoins - @tanstack/react-query options
  * @returns The block data for the specified height.
  */
-export const useGetBlockByHeight = (height: string, optoins?: UseQueryOptions) => {
+export const useGetBlockByHeight = (height: string, optoins?: UseQueryOptions<GetBlockResponse, Error>) => {
   const { apiBlockRepository } = useServiceProvider();
 
   return useQuery({
-    queryKey: [QUERY_KEY.getBlockByHeight],
+    queryKey: [QUERY_KEY.getBlockByHeight, height],
     queryFn: () => {
       if (!apiBlockRepository) {
         throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiBlockRepository");
