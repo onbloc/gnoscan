@@ -1,0 +1,33 @@
+import { useQuery, UseQueryOptions } from "react-query";
+
+import { QUERY_KEY } from "@/common/react-query/query-keys";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { CommonError } from "@/common/errors";
+
+/**
+ * Basic hooks to get specific block data by height from the API
+ *
+ * This hook fetches block data for a specific height directly from the API and returns the data in its original format.
+ * It uses a single query to retrieve the block information for the given height.
+ *
+ * Notes: This hook provides raw block data from the API without any transformation.
+ *
+ * @param height - The height of the block to fetch.
+ * @param optoins - @tanstack/react-query options
+ * @returns The block data for the specified height.
+ */
+export const useGetBlockByHeight = (height: string, optoins?: UseQueryOptions) => {
+  const { apiBlockRepository } = useServiceProvider();
+
+  return useQuery({
+    queryKey: [QUERY_KEY.getBlockByHeight],
+    queryFn: () => {
+      if (!apiBlockRepository) {
+        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiBlockRepository");
+      }
+
+      return apiBlockRepository.getBlock(height);
+    },
+    ...optoins,
+  });
+};
