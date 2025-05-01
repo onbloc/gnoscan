@@ -114,6 +114,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         accountRepository,
         apiBlockRepository,
         apiTransactionRepository,
+        apiRealmRepository,
       }}
     >
       {children}
