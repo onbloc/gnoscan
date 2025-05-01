@@ -2,7 +2,12 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { ApiTransactionRepository } from "./api-transaction-repository";
 
 import { GetTransactionsRequestParameters } from "./request";
-import { GetTransactionsResponse, GetTransactionResponse, GetTransactionContractsResponse } from "./response";
+import {
+  GetTransactionsResponse,
+  GetTransactionResponse,
+  GetTransactionContractsResponse,
+  GetTransactionEventsResponse,
+} from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
 
@@ -54,6 +59,20 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
     return this.networkClient
       .get<APIResponse<GetTransactionContractsResponse>>({
         url: `transactions/${hash}/contracts`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTransactionEvents(hash: string): Promise<GetTransactionEventsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetTransactionEventsResponse>>({
+        url: `transactions/${hash}/events`,
       })
       .then(result => {
         return result.data?.data;

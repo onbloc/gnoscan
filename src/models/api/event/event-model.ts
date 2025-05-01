@@ -1,5 +1,4 @@
-// @deprecated: Use EventModel
-export interface BlockEventModel {
+export interface EventModel {
   blockHeight: number;
   caller: string;
   emit: {

@@ -2,6 +2,7 @@ import { useQuery, UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetTransactionContractsResponse } from "@/repositories/api/transaction/response";
 import { CommonError } from "@/common/errors";
 
 /**
@@ -18,7 +19,10 @@ import { CommonError } from "@/common/errors";
  * @param options - @tanstack/react-query options
  * @returns Original contract data associated with the specified transaction hash and the status of the query
  */
-export const useGetTransactionContractsByHeight = (hash: string, options?: UseQueryOptions) => {
+export const useGetTransactionContractsByHeight = (
+  hash: string,
+  options?: UseQueryOptions<GetTransactionContractsResponse, Error>,
+) => {
   const { apiTransactionRepository } = useServiceProvider();
 
   return useQuery({
