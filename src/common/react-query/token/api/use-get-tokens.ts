@@ -32,16 +32,10 @@ export const useGetTokens = (
         throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiTokenRepository");
       }
 
-      return apiTokenRepository
-        .getTokens({
-          ...params,
-          cursor: pageParam,
-        })
-        .then(response => {
-          return {
-            ...response,
-          };
-        });
+      return apiTokenRepository.getTokens({
+        ...params,
+        cursor: pageParam,
+      });
     },
     getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
     ...options,

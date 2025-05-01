@@ -18,7 +18,10 @@ import { CommonError } from "@/common/errors";
  * @param optoins - @tanstack/react-query options
  * @returns The block events data for the specified height.
  */
-export const useGetBlockEventsByHeight = (height: string, options?: UseQueryOptions<GetBlockEventsResponse, Error>) => {
+export const useGetBlockEventsByHeight = (
+  height: string,
+  options?: UseQueryOptions<GetBlockEventsResponse, Error, GetBlockEventsResponse>,
+) => {
   const { apiBlockRepository } = useServiceProvider();
 
   return useQuery({

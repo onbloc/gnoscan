@@ -21,7 +21,7 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetTransactionEventsByHeight = (
   hash: string,
-  options?: UseQueryOptions<GetTransactionEventsResponse, Error>,
+  options?: UseQueryOptions<GetTransactionEventsResponse, Error, GetTransactionEventsResponse>,
 ) => {
   const { apiTransactionRepository } = useServiceProvider();
 

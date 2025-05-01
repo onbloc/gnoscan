@@ -32,16 +32,10 @@ export const useGetBlocks = (
         throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiBlockRepository");
       }
 
-      return apiBlockRepository
-        .getBlocks({
-          ...params,
-          cursor: pageParam,
-        })
-        .then(response => {
-          return {
-            ...response,
-          };
-        });
+      return apiBlockRepository.getBlocks({
+        ...params,
+        cursor: pageParam,
+      });
     },
     getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
     ...options,

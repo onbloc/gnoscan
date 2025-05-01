@@ -21,7 +21,7 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetRealms = (
   params: GetRealmsRequestParameters = {},
-  options?: UseInfiniteQueryOptions<GetRealmsResponse, Error>,
+  options?: UseInfiniteQueryOptions<GetRealmsResponse, Error, GetRealmsResponse>,
 ): UseInfiniteQueryResult<GetRealmsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();
 

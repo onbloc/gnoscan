@@ -21,7 +21,7 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetTransactions = (
   params: GetTransactionsRequestParameters = {},
-  options?: UseInfiniteQueryOptions<GetTransactionsResponse, Error>,
+  options?: UseInfiniteQueryOptions<GetTransactionsResponse, Error, GetTransactionsResponse>,
 ): UseInfiniteQueryResult<GetTransactionsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
@@ -32,14 +32,10 @@ export const useGetTransactions = (
         throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiTransactionRepository");
       }
 
-      return apiTransactionRepository
-        .getTransactions({
-          ...params,
-          cursor: pageParam,
-        })
-        .then(response => {
-          return { ...response };
-        });
+      return apiTransactionRepository.getTransactions({
+        ...params,
+        cursor: pageParam,
+      });
     },
     getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
     ...options,

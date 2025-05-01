@@ -20,7 +20,7 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetTokenTransactionsByid = (
   tokenId: string,
-  optoins?: UseQueryOptions<GetTokenTransactionsResponse, Error>,
+  optoins?: UseQueryOptions<GetTokenTransactionsResponse, Error, GetTokenTransactionsResponse>,
 ) => {
   const { apiTokenRepository } = useServiceProvider();
 

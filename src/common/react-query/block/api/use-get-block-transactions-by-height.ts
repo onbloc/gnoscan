@@ -20,7 +20,7 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetBlockTransactionsByHeight = (
   height: string,
-  options?: UseQueryOptions<GetBlockTransactionsResponse, Error>,
+  options?: UseQueryOptions<GetBlockTransactionsResponse, Error, GetBlockTransactionsResponse>,
 ) => {
   const { apiBlockRepository } = useServiceProvider();
 

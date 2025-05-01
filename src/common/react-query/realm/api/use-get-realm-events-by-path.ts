@@ -18,7 +18,10 @@ import { CommonError } from "@/common/errors";
  * @param options - @tanstack/react-query options
  * @returns Original realm events data fetched from the API and the status of the query
  */
-export const useGetRealmEventsByPath = (path: string, options?: UseQueryOptions<GetRealmEventsResponse, Error>) => {
+export const useGetRealmEventsByPath = (
+  path: string,
+  options?: UseQueryOptions<GetRealmEventsResponse, Error, GetRealmEventsResponse>,
+) => {
   const { apiRealmRepository } = useServiceProvider();
 
   return useQuery({

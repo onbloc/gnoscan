@@ -19,7 +19,10 @@ import { GetTransactionResponse } from "@/repositories/api/transaction/response"
  * @param options - @tanstack/react-query options
  * @returns Original transaction data for the specified hash and the status of the query
  */
-export const useGetTransactionByHash = (hash: string, options?: UseQueryOptions<GetTransactionResponse, Error>) => {
+export const useGetTransactionByHash = (
+  hash: string,
+  options?: UseQueryOptions<GetTransactionResponse, Error, GetTransactionResponse>,
+) => {
   const { apiTransactionRepository } = useServiceProvider();
 
   return useQuery({

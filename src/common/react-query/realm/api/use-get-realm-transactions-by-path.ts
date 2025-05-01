@@ -20,7 +20,7 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetRealmTransactionsByPath = (
   path: string,
-  options?: UseQueryOptions<GetRealmTransactionsResponse, Error>,
+  options?: UseQueryOptions<GetRealmTransactionsResponse, Error, GetRealmTransactionsResponse>,
 ) => {
   const { apiRealmRepository } = useServiceProvider();
 

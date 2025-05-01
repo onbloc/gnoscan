@@ -17,7 +17,10 @@ import { CommonError } from "@/common/errors";
  * @param optoins - @tanstack/react-query options
  * @returns The block data for the specified height.
  */
-export const useGetBlockByHeight = (height: string, optoins?: UseQueryOptions<GetBlockResponse, Error>) => {
+export const useGetBlockByHeight = (
+  height: string,
+  optoins?: UseQueryOptions<GetBlockResponse, Error, GetBlockResponse>,
+) => {
   const { apiBlockRepository } = useServiceProvider();
 
   return useQuery({
