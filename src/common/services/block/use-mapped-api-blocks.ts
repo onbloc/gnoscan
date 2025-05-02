@@ -38,7 +38,7 @@ export const useMappedApiBlocks = (params?: GetBlocksRequestParameters) => {
       setIsDataReady(false);
 
       const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = BlockMapper.fromApiResponses(allItems);
+      const mappedBlocksData = BlockMapper.blockListFromApiResponses(allItems);
 
       setBlocks(mappedBlocksData);
       setIsDataReady(true);

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { TxFee, TxSignature } from "@gnolang/tm2-js-client";
+
 export interface Board {
   index: number;
   path: string;
@@ -27,6 +29,30 @@ export interface Block {
   proposer: string;
   proposerRaw: string;
   totalFees: Amount | null;
+}
+
+export interface BlockSummaryInfo {
+  timeStamp: {
+    time: string;
+    passedTime: string | undefined;
+  };
+  network: string;
+  blockHeight: number | null;
+  blockHeightStr: string | undefined;
+  transactions:
+    | {
+        hash: string;
+        messages: any[];
+        fee?: TxFee;
+        signatures: TxSignature[];
+        memo: string;
+      }[]
+    | undefined;
+  numberOfTransactions: string;
+  gas: string;
+  proposerAddress: string;
+  hasPreviousBlock?: boolean;
+  hasNextBlock?: boolean;
 }
 
 export interface Amount {

@@ -1,8 +1,19 @@
+import BigNumber from "bignumber.js";
+
 import { BlockModel } from "@/models/api/block/block-model";
-import { Block } from "@/types/data-type";
+import { GetBlockResponse } from "@/repositories/api/block/response";
+import { Block, BlockSummaryInfo } from "@/types/data-type";
+
+import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
+import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
+import { safeString } from "@/common/utils/format/format-utils";
 
 export class BlockMapper {
-  public static fromApiResponse(response: BlockModel): Block {
+  public static blockListFromApiResponses(responses: BlockModel[]): Block[] {
+    return responses.map(response => this.blockListFromApiResponse(response));
+  }
+
+  public static blockListFromApiResponse(response: BlockModel): Block {
     return {
       hash: response.blockHash,
       height: response.blockHeight,
@@ -20,7 +31,35 @@ export class BlockMapper {
     };
   }
 
-  public static fromApiResponses(responses: BlockModel[]): Block[] {
-    return responses.map(response => this.fromApiResponse(response));
+  public static blockFromApiResponse(response: GetBlockResponse): BlockSummaryInfo {
+    // timeStamp
+    const timeStamp = response.timestamp
+      ? { time: getLocalDateString(response.timestamp), passedTime: getDateDiff(response.timestamp) }
+      : { time: "-", passedTime: "-" };
+
+    // gas
+    const gasWanted = makeDisplayNumber(response.gasWanted || 0);
+    const gasUsed = makeDisplayNumber(response.gasUsed || 0);
+    const rate =
+      !response.gasWanted || response.gasWanted === 0
+        ? 0
+        : BigNumber(response.gasUsed || 0)
+            .dividedBy(response.gasWanted)
+            .shiftedBy(2)
+            .toFixed(2);
+    const gas = `${gasUsed}/${gasWanted} (${rate}%)`;
+
+    // Todo: transactions
+
+    return {
+      timeStamp,
+      network: safeString(response.network),
+      blockHeight: response.blockHeight,
+      blockHeightStr: safeString(response.blockHeight),
+      numberOfTransactions: makeDisplayNumberWithDefault(response.totalTransactionCount),
+      gas,
+      proposerAddress: safeString(response.proposerAddress),
+      transactions: [],
+    };
   }
 }

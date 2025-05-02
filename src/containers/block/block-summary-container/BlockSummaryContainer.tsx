@@ -1,11 +1,10 @@
 import React from "react";
 
-import { useBlock } from "@/common/hooks/blocks/use-block";
-import { useNetwork } from "@/common/hooks/use-network";
-
-import BlockSummary from "@/components/view/block/block-summary/BlockSummary";
-import { useGetValidatorNames } from "@/common/hooks/common/use-get-validator-names";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useWindowSize } from "@/common/hooks/use-window-size";
+
+import CustomNetworkBlockSummary from "@/components/view/block/block-summary/CustomNetworkBlockSummary";
+import StandardNetworkBlockSummary from "@/components/view/block/block-summary/StandardNetworkBlockSummary";
 
 interface BlockSummaryContainerProps {
   blockHeight: number;
@@ -13,19 +12,15 @@ interface BlockSummaryContainerProps {
 
 const BlockSummaryContainer = ({ blockHeight }: BlockSummaryContainerProps) => {
   const { isDesktop } = useWindowSize();
-  const { block, isFetched } = useBlock(blockHeight);
-  const { getUrlWithNetwork } = useNetwork();
-  const { validatorInfos } = useGetValidatorNames();
+  const { isCustomNetwork } = useNetworkProvider();
 
   return (
     <>
-      <BlockSummary
-        block={block}
-        isDesktop={isDesktop}
-        isFetched={isFetched}
-        validatorInfos={validatorInfos}
-        getUrlWithNetwork={getUrlWithNetwork}
-      />
+      {isCustomNetwork ? (
+        <CustomNetworkBlockSummary isDesktop={isDesktop} blockHeight={blockHeight} />
+      ) : (
+        <StandardNetworkBlockSummary isDesktop={isDesktop} blockHeight={blockHeight} />
+      )}
     </>
   );
 };

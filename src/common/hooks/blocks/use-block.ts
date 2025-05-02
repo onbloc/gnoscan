@@ -9,6 +9,7 @@ import { parseTokenAmount } from "@/common/utils/token.utility";
 import { GNOTToken } from "../common/use-token-meta";
 import { toBech32Address } from "@/common/utils/bech32.utility";
 import { getDefaultMessageByBlockTransaction } from "@/repositories/utility";
+import { BlockSummaryInfo } from "@/types/data-type";
 
 export const useBlock = (height: number) => {
   const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
@@ -178,10 +179,8 @@ export const useBlock = (height: number) => {
     return Number(block.block.header.height) < latestBlockHeight;
   }, [block?.block_meta.header.height, latestBlockHeight]);
 
-  return {
-    isFetched,
-    isFetchedBlockResult,
-    block: {
+  const blockSummaryInfo: BlockSummaryInfo = useMemo(() => {
+    return {
       timeStamp,
       network,
       blockHeight,
@@ -192,7 +191,24 @@ export const useBlock = (height: number) => {
       proposerAddress,
       hasPreviousBlock,
       hasNextBlock,
-    },
+    };
+  }, [
+    timeStamp,
+    network,
+    blockHeight,
+    blockHeightStr,
+    transactions,
+    numberOfTransactions,
+    gas,
+    proposerAddress,
+    hasPreviousBlock,
+    hasNextBlock,
+  ]);
+
+  return {
+    isFetched,
+    isFetchedBlockResult,
+    block: blockSummaryInfo,
     events,
     transactionItems,
   };

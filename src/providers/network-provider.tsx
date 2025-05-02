@@ -18,8 +18,6 @@ interface NetworkContextProps {
 
   currentNetwork: ChainModel | null;
 
-  isNetworkInitialized: boolean;
-
   isCustomNetwork: boolean;
 
   nodeRPCClient: NodeRPCClient | null;
@@ -43,7 +41,6 @@ interface NetworkProviderPros {
 const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = ({ chains, children }) => {
   const router = useRouter();
   const { currentNetwork, setCurrentNetwork } = useNetwork();
-  const [isNetworkInitialized, setIsNetworkInitialized] = useState(false);
 
   useEffect(() => {
     // If the query fails to load.
@@ -101,12 +98,6 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     }
 
     return false;
-  }, [currentNetworkModel]);
-
-  useEffect(() => {
-    if (currentNetworkModel !== null) {
-      setIsNetworkInitialized(true);
-    }
   }, [currentNetworkModel]);
 
   const nodeRPCClient = useMemo(() => {
@@ -185,7 +176,6 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
       value={{
         chains,
         isCustomNetwork,
-        isNetworkInitialized,
         currentNetwork: currentNetworkModel,
         nodeRPCClient,
         indexerQueryClient,
