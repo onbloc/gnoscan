@@ -1,6 +1,6 @@
 import React from "react";
 
-import { GnoEvent } from "@/types/data-type";
+import { useBlock } from "@/common/hooks/blocks/use-block";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import { BlockDetailDatatable } from "../../datatable";
@@ -10,12 +10,12 @@ import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 interface BlockInfoProps {
   blockHeight: number;
   currentTab: string;
-  events: GnoEvent[];
-  isFetched: boolean;
   setCurrentTab: (tab: string) => void;
 }
 
-const BlockInfo = ({ blockHeight, currentTab, setCurrentTab, events, isFetched }: BlockInfoProps) => {
+const CustomNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
+  const { events, isFetched } = useBlock(blockHeight);
+
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -26,7 +26,7 @@ const BlockInfo = ({ blockHeight, currentTab, setCurrentTab, events, isFetched }
         size: events.length,
       },
     ];
-  }, [events]);
+  }, []);
 
   if (!isFetched) return <TableSkeleton />;
 
@@ -38,4 +38,4 @@ const BlockInfo = ({ blockHeight, currentTab, setCurrentTab, events, isFetched }
   );
 };
 
-export default BlockInfo;
+export default CustomNetworkBlockInfo;

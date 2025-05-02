@@ -1,8 +1,9 @@
 import React from "react";
 
-import { useBlock } from "@/common/hooks/blocks/use-block";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
-import BlockInfo from "@/components/view/block/block-info/BlockInfo";
+import CustomNetworkBlockInfo from "@/components/view/block/block-info/CustomNetworkBlockInfo";
+import StandardNetworkBlockInfo from "@/components/view/block/block-info/StandardNetworkBlockInfo";
 
 interface BlockInfoContainerProps {
   blockHeight: number;
@@ -10,17 +11,12 @@ interface BlockInfoContainerProps {
 
 const BlockInfoContainer = ({ blockHeight }: BlockInfoContainerProps) => {
   const [currentTab, setCurrentTab] = React.useState("Transactions");
+  const { isCustomNetwork } = useNetworkProvider();
 
-  const { events, isFetched } = useBlock(blockHeight);
-
-  return (
-    <BlockInfo
-      blockHeight={blockHeight}
-      currentTab={currentTab}
-      setCurrentTab={setCurrentTab}
-      events={events}
-      isFetched={isFetched}
-    />
+  return isCustomNetwork ? (
+    <CustomNetworkBlockInfo blockHeight={blockHeight} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+  ) : (
+    <StandardNetworkBlockInfo blockHeight={blockHeight} currentTab={currentTab} setCurrentTab={setCurrentTab} />
   );
 };
 

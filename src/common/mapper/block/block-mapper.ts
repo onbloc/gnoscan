@@ -2,7 +2,8 @@ import BigNumber from "bignumber.js";
 
 import { BlockModel } from "@/models/api/block/block-model";
 import { GetBlockResponse } from "@/repositories/api/block/response";
-import { Block, BlockSummaryInfo } from "@/types/data-type";
+import { EventModel } from "@/models/api/event/event-model";
+import { Block, BlockSummaryInfo, GnoEvent } from "@/types/data-type";
 
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
 import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
@@ -60,6 +61,24 @@ export class BlockMapper {
       gas,
       proposerAddress: safeString(response.proposerAddress),
       transactions: [],
+    };
+  }
+
+  public static blockEventsFromApiResponses(responses: EventModel[]): GnoEvent[] {
+    return responses.map(response => this.blockEventsFromApiResopnse(response));
+  }
+
+  public static blockEventsFromApiResopnse(resopnse: EventModel): GnoEvent {
+    return {
+      id: "",
+      blockHeight: 0,
+      transactionHash: "",
+      caller: "",
+      type: "",
+      packagePath: "",
+      functionName: "",
+      time: "",
+      attrs: [],
     };
   }
 }
