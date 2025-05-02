@@ -1,16 +1,20 @@
 import React from "react";
 
 import { useWindowSize } from "@/common/hooks/use-window-size";
-import { useTokens } from "@/common/hooks/tokens/use-tokens";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
-import { TokenListTable } from "@/components/view/tokens/token-list-table/TokenListTable";
+import CustomNetworkTokensData from "@/components/view/tokens/token-data/CustomNetworkTokensData";
+import StandardNetworkTokensData from "@/components/view/tokens/token-data/StandardNetworkTokensData";
 
 const TokenListContainer = () => {
   const { breakpoint } = useWindowSize();
+  const { isCustomNetwork } = useNetworkProvider();
 
-  const tokensData = useTokens();
-
-  return <TokenListTable breakpoint={breakpoint} {...tokensData} />;
+  return isCustomNetwork ? (
+    <CustomNetworkTokensData breakpoint={breakpoint} />
+  ) : (
+    <StandardNetworkTokensData breakpoint={breakpoint} />
+  );
 };
 
 export default TokenListContainer;

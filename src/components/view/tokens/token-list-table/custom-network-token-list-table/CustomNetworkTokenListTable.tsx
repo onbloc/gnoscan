@@ -7,12 +7,13 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
 
-import * as S from "./TokenListTable.styles";
+import * as S from "./CustomNetworkTokenListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import { DatatableItem } from "../../datatable";
+import { DatatableItem } from "../../../datatable";
 import { Button } from "@/components/ui/button";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20Info } from "@/repositories/realm-repository.ts";
+import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -23,13 +24,19 @@ const TOOLTIP_PACAKGE_PATH = (
 
 interface TokenListTableProps {
   breakpoint: DEVICE_TYPE;
-  tokens: GRC20Info[];
+  tokens: GRC20Info[] | GRC20InfoWithLogo[];
   hasNextPage: boolean;
   isFetched: boolean;
   nextPage: () => void;
 }
 
-export const TokenListTable = ({ breakpoint, tokens, hasNextPage, isFetched, nextPage }: TokenListTableProps) => {
+export const CustomNetworkTokenListTable = ({
+  breakpoint,
+  tokens,
+  hasNextPage,
+  isFetched,
+  nextPage,
+}: TokenListTableProps) => {
   const themeMode = useRecoilValue(themeState);
   const { indexerQueryClient } = useNetworkProvider();
 
