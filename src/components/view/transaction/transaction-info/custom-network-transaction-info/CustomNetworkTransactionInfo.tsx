@@ -1,35 +1,33 @@
 import React from "react";
 
 import { Amount, GnoEvent, Transaction } from "@/types/data-type";
+import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 
-import DataListSection from "../../details-data-section/data-list-section";
-import { TransactionContractDetails } from "../transaction-contract-details/TransactionContractDetails";
-import { EventDatatable } from "../../datatable/event";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import DataListSection from "@/components/view/details-data-section/data-list-section";
+import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
+import { EventDatatable } from "@/components/view/datatable/event";
+import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 interface TransactionInfoProps {
-  transactionEvents: GnoEvent[];
-  transactionItem: Transaction | null;
+  txHash: string;
   currentTab: string;
   isDesktop: boolean;
-  isFetched: boolean;
   setCurrentTab: (tab: string) => void;
   getUrlWithNetwork: (uri: string) => string;
   getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
-  getName: (address: string) => string;
 }
 
-const TransactionInfo = ({
-  transactionEvents,
-  transactionItem,
+const CustomNetworkTransactionInfo = ({
+  txHash,
   isDesktop,
-  isFetched,
   currentTab,
   setCurrentTab,
   getUrlWithNetwork,
   getTokenAmount,
-  getName,
 }: TransactionInfoProps) => {
+  const { transaction, isFetched } = useTransaction(txHash);
+  const { transactionEvents, transactionItem } = transaction;
+
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -37,7 +35,7 @@ const TransactionInfo = ({
       },
       {
         tabName: "Events",
-        size: transactionEvents.length,
+        size: 0,
       },
     ];
   }, [transactionEvents]);
@@ -52,7 +50,7 @@ const TransactionInfo = ({
           isDesktop={isDesktop}
           getUrlWithNetwork={getUrlWithNetwork}
           getTokenAmount={getTokenAmount}
-          getName={getName}
+          // getName={getName}
         />
       )}
       {currentTab === "Events" && <EventDatatable events={transactionEvents} isFetched={isFetched} />}
@@ -60,4 +58,4 @@ const TransactionInfo = ({
   );
 };
 
-export default TransactionInfo;
+export default CustomNetworkTransactionInfo;

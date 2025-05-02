@@ -12,22 +12,20 @@ interface TransactionAddPackageContractProps {
   message: any;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
-  getName: (address: string) => string;
 }
 
 export const TransactionAddPackageContract = ({
   message,
   isDesktop,
   getUrlWithNetwork,
-  getName,
 }: TransactionAddPackageContractProps) => {
   const creatorAddress = React.useMemo(() => {
     return message?.creator || "";
   }, [message?.creator]);
 
   const creatorName = React.useMemo(() => {
-    return getName(creatorAddress) || creatorAddress || "";
-  }, [getName, creatorAddress]);
+    return creatorAddress || "";
+  }, [creatorAddress]);
 
   return (
     <DLWrap desktop={isDesktop} key={v1()}>

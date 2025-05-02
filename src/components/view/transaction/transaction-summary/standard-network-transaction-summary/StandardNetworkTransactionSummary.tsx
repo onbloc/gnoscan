@@ -2,71 +2,49 @@
 import React from "react";
 import Link from "next/link";
 
-import { GnoEvent, Transaction } from "@/types/data-type";
-
-import DataSection from "../../details-data-section";
+import DataSection from "@/components/view/details-data-section";
 import { DateDiffText, DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
 import { AmountText } from "@/components/ui/text/amount-text";
 import ShowLog from "@/components/ui/show-log";
-import { StyledIconCopy } from "./Transaction.styles";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import { StyledIconCopy } from "../Transaction.styles";
+import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
+import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
   txHash: string;
-  network: any;
-  timeStamp: {
-    time: string;
-    passedTime: string | undefined;
-  };
-  blockResult: any;
-  gas: string;
-  transactionItem: Transaction | null;
-  transactionEvents: GnoEvent[];
-  isFetched: boolean;
-  isError: boolean;
   getUrlWithNetwork: (uri: string) => string;
 }
 
-const TransactionSummary = ({
-  isDesktop,
-  txHash,
-  gas,
-  network,
-  timeStamp,
-  transactionItem,
-  blockResult,
-  transactionEvents,
-  isFetched,
-  isError,
-  getUrlWithNetwork,
-}: TransactionSummaryProps) => {
+const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwork }: TransactionSummaryProps) => {
+  const { data, isFetched } = useMappedApiTransaction(txHash);
+
   const blockResultLog = React.useMemo(() => {
-    if (transactionItem?.success !== false) {
+    if (data.transactionItem?.success !== false) {
       return null;
     }
 
     try {
-      return JSON.stringify(blockResult, null, 2);
+      return JSON.stringify(data.blockResult, null, 2);
     } catch {
       return null;
     }
-  }, [transactionItem, blockResult]);
+  }, [data.transactionItem, data.blockResult]);
 
   if (!isFetched) return <TableSkeleton />;
 
   return (
-    transactionItem && (
+    data?.transactionItem && (
       <DataSection title="Summary">
         <DLWrap desktop={isDesktop}>
           <dt>Success</dt>
           <dd>
-            <Badge type={transactionItem.success ? "green" : "failed"}>
+            <Badge type={data.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">
-                {transactionItem.success ? "Success" : "Failure"}
+                {data.transactionItem.success ? "Success" : "Failure"}
               </Text>
             </Badge>
           </dd>
@@ -76,9 +54,9 @@ const TransactionSummary = ({
           <dd>
             <Badge>
               <Text type="p4" color="inherit" className="ellipsis">
-                {timeStamp.time}
+                {data.timeStamp.time}
               </Text>
-              <DateDiffText>{timeStamp.passedTime}</DateDiffText>
+              <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
             </Badge>
           </dd>
         </DLWrap>
@@ -98,17 +76,17 @@ const TransactionSummary = ({
         <DLWrap desktop={isDesktop}>
           <dt>Network</dt>
           <dd>
-            <Badge>{network}</Badge>
+            <Badge>{data.network}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={isDesktop}>
           <dt>Block</dt>
           <dd>
             <Badge>
-              <Link href={getUrlWithNetwork(`/block/${transactionItem.blockHeight}`)} passHref>
+              <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue">
-                    {transactionItem.blockHeight}
+                    {data.transactionItem.blockHeight}
                   </Text>
                 </FitContentA>
               </Link>
@@ -122,8 +100,8 @@ const TransactionSummary = ({
               <AmountText
                 minSize="body2"
                 maxSize="p4"
-                value={transactionItem.fee.value}
-                denom={transactionItem.fee.denom}
+                value={data.transactionItem.fee.value}
+                denom={data.transactionItem.fee.denom}
               />
             </Badge>
           </dd>
@@ -131,16 +109,16 @@ const TransactionSummary = ({
         <DLWrap desktop={isDesktop}>
           <dt>Gas (Used/Wanted)</dt>
           <dd>
-            <Badge>{gas}</Badge>
+            <Badge>{data.gas}</Badge>
           </dd>
         </DLWrap>
         <DLWrap desktop={isDesktop}>
           <dt>Memo</dt>
           <dd>
-            <Badge>{transactionItem.memo}</Badge>
+            <Badge>{data.transactionItem.memo}</Badge>
           </dd>
         </DLWrap>
-        {!transactionItem.success && (
+        {!data.transactionItem.success && (
           <ShowLog isTabLog={false} logData={blockResultLog || ""} btnTextType="Error Logs" />
         )}
       </DataSection>
@@ -148,4 +126,4 @@ const TransactionSummary = ({
   );
 };
 
-export default TransactionSummary;
+export default StandardNetworkTransactionSummary;

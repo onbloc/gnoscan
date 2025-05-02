@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { TimeStamp } from "@/common/utils/date-util";
 import { TxFee, TxSignature } from "@gnolang/tm2-js-client";
 
 export interface Board {
@@ -32,10 +33,7 @@ export interface Block {
 }
 
 export interface BlockSummaryInfo {
-  timeStamp: {
-    time: string;
-    passedTime: string | undefined;
-  };
+  timeStamp: TimeStamp;
   network: string;
   blockHeight: number | null;
   blockHeightStr: string | undefined;
@@ -122,9 +120,24 @@ export interface Transaction {
   events?: GnoEvent[];
 }
 
+export interface TransactionContractInfo {
+  messages: any[];
+  numOfMessage: number;
+  rawContent: string;
+}
+
 export interface TransactionEvent {
   summary: GnoEvent;
   events: GnoEvent[];
+}
+
+export interface TransactionSummaryInfo {
+  network: any;
+  timeStamp: TimeStamp;
+  blockResult: any;
+  gas: string;
+  transactionItem: Transaction | null;
+  transactionEvents: GnoEvent[];
 }
 
 export interface GnoEvent {

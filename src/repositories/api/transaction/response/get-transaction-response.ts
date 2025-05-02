@@ -1,4 +1,4 @@
-export interface GetTransactionResponse {
+export interface TransactionSummary {
   blockHeight: number;
   contractType: string;
   gas: {
@@ -12,4 +12,9 @@ export interface GetTransactionResponse {
   timestamp: string;
   transactionFee: string;
   txHash: string;
+}
+
+export interface GetTransactionResponse {
+  // ToDo: Delete data layer
+  data: TransactionSummary;
 }

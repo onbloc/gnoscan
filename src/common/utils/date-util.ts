@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
 
+export interface TimeStamp {
+  time: string;
+  passedTime?: string;
+}
+
 const getDateUtcToLocal = (d: any) => {
   const hasTimezone = `${d}`.includes("Z");
   const timezoneOffset = new Date().getTimezoneOffset();
@@ -58,4 +63,12 @@ export const formatDate = (date: DateInput): string => {
   const isValid = dateObject instanceof Date && !isNaN(dateObject.getTime());
 
   return isValid ? dateObject.toISOString() : "-";
+};
+
+export const getTimeStamp = (date: string): TimeStamp => {
+  if (!date) return { time: "-", passedTime: "-" };
+  return {
+    time: getLocalDateString(date),
+    passedTime: getDateDiff(date),
+  };
 };

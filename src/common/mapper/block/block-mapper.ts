@@ -6,8 +6,8 @@ import { EventModel } from "@/models/api/event/event-model";
 import { Block, BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-type";
 
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
-import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
-import { safeString } from "@/common/utils/format/format-utils";
+import { getDateDiff, getLocalDateString, getTimeStamp } from "@/common/utils/date-util";
+import { formatGasString, safeString } from "@/common/utils/format/format-utils";
 import { BlockTransactionModel } from "@/models/api/block/block-transaction-model";
 
 export class BlockMapper {
@@ -35,21 +35,12 @@ export class BlockMapper {
 
   public static blockFromApiResponse(response: GetBlockResponse): BlockSummaryInfo {
     // timeStamp
-    const timeStamp = response.timestamp
-      ? { time: getLocalDateString(response.timestamp), passedTime: getDateDiff(response.timestamp) }
-      : { time: "-", passedTime: "-" };
+    const timeStamp = getTimeStamp(response.timestamp);
 
     // gas
-    const gasWanted = makeDisplayNumber(response.gasWanted || 0);
-    const gasUsed = makeDisplayNumber(response.gasUsed || 0);
-    const rate =
-      !response.gasWanted || response.gasWanted === 0
-        ? 0
-        : BigNumber(response.gasUsed || 0)
-            .dividedBy(response.gasWanted)
-            .shiftedBy(2)
-            .toFixed(2);
-    const gas = `${gasUsed}/${gasWanted} (${rate}%)`;
+    const gasWanted = response.gasWanted || 0;
+    const gasUsed = response.gasUsed || 0;
+    const gas = formatGasString(gasWanted, gasUsed);
 
     // Todo: transactions
 

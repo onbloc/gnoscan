@@ -1,11 +1,11 @@
+export interface TransactionContractModel {
+  fields: {
+    key: string;
+    value: string;
+  }[];
+  type: string;
+}
+
 export interface GetTransactionContractsResponse {
-  data: {
-    fields: [
-      {
-        key: "string";
-        value: "string";
-      },
-    ];
-    type: "string";
-  };
+  items: TransactionContractModel[];
 }
