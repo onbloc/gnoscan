@@ -1,26 +1,26 @@
 import React from "react";
 
-import { useGetRealms } from "@/common/react-query/realm/api";
+import { useGetTokens } from "@/common/react-query/token/api";
 
-import { GetRealmsRequestParameters } from "@/repositories/api/realm/request";
-import { Realm } from "@/types/data-type";
-import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { GetTokensRequestParameters } from "@/repositories/api/token/request";
+import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
+import { TokenMapper } from "@/common/mapper/token/token-mapper";
 
 /**
- * Hooks to map realm data fetched from the API to the format used by the application
+ * Hooks to map token data fetched from the API to the format used by the application
  *
  * This hook has the following data flow:
- * 1. useGetRealms to get the original realm data from the API.
- * 2. mapping the fetched data into application format using RealmMapper whenever it changes
+ * 1. useGetTokens to get the original token data from the API.
+ * 2. mapping the fetched data into application format using TokenMapper whenever it changes
  * 3. return the mapped data and the correct loading status
  *
  * This hook allows you to use the mapping logic directly in your component without having to handle it yourself
  * you can use data that is already mapped out of the box.
  *
  * @param params - API request parameters
- * @returns Mapped realms data and query status
+ * @returns Mapped tokens data and query status
  */
-export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
+export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
   const {
     data: apiData,
     isFetched: isApiFetched,
@@ -28,9 +28,9 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
     isError: isApiError,
     fetchNextPage,
     hasNextPage,
-  } = useGetRealms(params);
+  } = useGetTokens(params);
 
-  const [realms, setRealms] = React.useState<Realm[]>([]);
+  const [tokens, setTokens] = React.useState<GRC20InfoWithLogo[]>([]);
   const [isDataReady, setIsDataReady] = React.useState(false);
 
   React.useEffect(() => {
@@ -38,12 +38,12 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
       setIsDataReady(false);
 
       const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = RealmMapper.fromApiResponses(allItems);
+      const mappedBlocksData = TokenMapper.fromApiResponses(allItems);
 
-      setRealms(mappedBlocksData);
+      setTokens(mappedBlocksData);
       setIsDataReady(true);
     } else {
-      setRealms([]);
+      setTokens([]);
       setIsDataReady(true);
     }
   }, [apiData?.pages]);
@@ -52,7 +52,7 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
   const isFetched = isApiFetched && isDataReady;
 
   return {
-    data: realms,
+    data: tokens,
     isFetched,
     isLoading,
     isError: isApiError,

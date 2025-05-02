@@ -1,11 +1,10 @@
 import React from "react";
-import dynamic from "next/dynamic";
 
 import BlocksLayout from "@/layouts/blocks/BlocksLayout";
-const StandardNetworkBlocksContainer = dynamic(
+const StandardNetworkBlocksContainer = React.lazy(
   () => import("@/containers/blocks/standard-network-blocks-container/StandardNetworkBlocksContainer"),
 );
-const CustomNetworkBlocksContainer = dynamic(
+const CustomNetworkBlocksContainer = React.lazy(
   () => import("@/containers/blocks/custom-network-blocks-container/CustomNetworkBlocksContainer"),
 );
 
