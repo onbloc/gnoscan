@@ -1,7 +1,8 @@
+import { Amount } from "@/types/data-type";
 export interface BlockTransactionModel {
-  amount: string;
+  amount: Amount;
   blockHeight: number;
-  fee: string;
+  fee: Amount;
   from: string;
   func: [
     {

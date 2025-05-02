@@ -14,7 +14,7 @@ interface BlockInfoProps {
 }
 
 const CustomNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
-  const { events, isFetched } = useBlock(blockHeight);
+  const { events, transactionItems, isFetched, isFetchedBlockResult } = useBlock(blockHeight);
 
   const detailTabs = React.useMemo(() => {
     return [
@@ -32,7 +32,9 @@ const CustomNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bloc
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Transactions" && <BlockDetailDatatable height={`${blockHeight}`} />}
+      {currentTab === "Transactions" && (
+        <BlockDetailDatatable transactions={transactionItems} isFetched={isFetched && isFetchedBlockResult} />
+      )}
       {currentTab === "Events" && <EventDatatable isFetched={isFetched} events={events} />}
     </DataListSection>
   );
