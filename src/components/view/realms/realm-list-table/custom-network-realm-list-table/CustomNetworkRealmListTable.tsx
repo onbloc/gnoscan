@@ -6,12 +6,14 @@ import { useRecoilValue } from "recoil";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
+import { RealmListSortOption } from "@/common/types/realm";
+import { Realm } from "@/types/data-type";
 
-import * as S from "./RealmListTable.styles";
+import * as S from "./CustomNetworkRealmListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import { DatatableItem } from "../../datatable";
+import { DatatableItem } from "../../../datatable";
 import { Button } from "@/components/ui/button";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 
 const TOOLTIP_PATH = (
   <>
@@ -22,18 +24,18 @@ const TOOLTIP_PATH = (
 
 interface RealmListTableProps {
   breakpoint: DEVICE_TYPE;
-  sortOption: { field: string; order: string };
-  realms: any;
+  sortOption: RealmListSortOption;
+  realms: Realm[];
   isFetched: boolean;
   hasNextPage?: boolean;
   isDefault: boolean;
   defaultFromHeight: number | null;
   fetchNextPage: () => void;
-  setSortOption: (sortOption: { field: string; order: string }) => void;
+  setSortOption: (sortOption: RealmListSortOption) => void;
   getName: (address: string) => string;
 }
 
-export const RealmListTable = ({
+export const CustomNetworkRealmListTable = ({
   breakpoint,
   sortOption,
   setSortOption,

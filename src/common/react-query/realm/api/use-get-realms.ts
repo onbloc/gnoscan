@@ -32,16 +32,10 @@ export const useGetRealms = (
         throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiRealmRepository");
       }
 
-      return apiRealmRepository
-        .getRealms({
-          ...params,
-          cursor: pageParam,
-        })
-        .then(response => {
-          return {
-            ...response,
-          };
-        });
+      return apiRealmRepository.getRealms({
+        ...params,
+        cursor: pageParam,
+      });
     },
     getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
     ...options,

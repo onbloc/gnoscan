@@ -25,7 +25,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
 
     return this.networkClient
       .get<APIResponse<GetRealmsResponse>>({
-        url: `/blocks${requestParams}`,
+        url: `/realms${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

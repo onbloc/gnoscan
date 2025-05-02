@@ -1,42 +1,25 @@
 import React from "react";
 
 import { useWindowSize } from "@/common/hooks/use-window-size";
-import { useRealms } from "@/common/hooks/realms/use-realms";
-import { useUsername } from "@/common/hooks/account/use-username";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { RealmListSortOption } from "@/common/types/realm";
 
-import { RealmListTable } from "@/components/view/realms/realm-list-table/RealmListTable";
+import CustomNetworkRealmsData from "@/components/view/realms/realm-data/CustomNetworkRealmsData";
+import StandardNetworkRealmsData from "@/components/view/realms/realm-data/StandardNetworkRealmsData";
 
 const RealmListContainer = () => {
   const { breakpoint } = useWindowSize();
+  const { isCustomNetwork } = useNetworkProvider();
 
-  const [sortOption, setSortOption] = React.useState<{ field: string; order: string }>({
+  const [sortOption, setSortOption] = React.useState<RealmListSortOption>({
     field: "none",
     order: "none",
   });
 
-  const { isFetched: isFetchedUsername, getName } = useUsername();
-  const {
-    realms,
-    isFetched: isFetchedRealms,
-    hasNextPage,
-    nextPage: fetchNextPage,
-    isDefault,
-    defaultFromHeight,
-  } = useRealms(true, sortOption);
-
-  return (
-    <RealmListTable
-      breakpoint={breakpoint}
-      sortOption={sortOption}
-      setSortOption={setSortOption}
-      realms={realms}
-      isFetched={isFetchedUsername && isFetchedRealms}
-      hasNextPage={hasNextPage}
-      fetchNextPage={fetchNextPage}
-      isDefault={isDefault}
-      defaultFromHeight={defaultFromHeight}
-      getName={getName}
-    />
+  return isCustomNetwork ? (
+    <CustomNetworkRealmsData breakpoint={breakpoint} sortOption={sortOption} setSortOption={setSortOption} />
+  ) : (
+    <StandardNetworkRealmsData breakpoint={breakpoint} sortOption={sortOption} setSortOption={setSortOption} />
   );
 };
 

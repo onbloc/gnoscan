@@ -47,6 +47,22 @@ export interface TokenMeta {
   image: string;
 }
 
+export interface Realm {
+  hash: string;
+  index: number;
+  success: true;
+  blockHeight: number;
+  packageName: string;
+  packagePath: string;
+  creator: string;
+  functionCount: number;
+  totalCalls: number;
+  totalGasUsed: {
+    value: string;
+    denom: string;
+  };
+}
+
 export interface TokenInfo {
   name: string;
   denom: string;
