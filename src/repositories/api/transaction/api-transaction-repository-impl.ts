@@ -44,7 +44,7 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
 
     return this.networkClient
       .get<APIResponse<GetTransactionResponse>>({
-        url: `transactions/${hash}`,
+        url: `transactions/${encodeURIComponent(hash)}`,
       })
       .then(result => {
         return result.data?.data;
@@ -58,7 +58,7 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
 
     return this.networkClient
       .get<APIResponse<GetTransactionContractsResponse>>({
-        url: `transactions/${hash}/contracts`,
+        url: `transactions/${encodeURIComponent(hash)}/contracts`,
       })
       .then(result => {
         return result.data?.data;

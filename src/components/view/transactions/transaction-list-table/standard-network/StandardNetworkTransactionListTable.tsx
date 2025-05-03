@@ -93,7 +93,7 @@ export const StandardNetworkTransactionListTable = ({
 
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<TransactionModel>()
-      .key("hash")
+      .key("txHash")
       .name("Tx Hash")
       .width(215)
       .colorName("blue")
@@ -167,7 +167,7 @@ export const StandardNetworkTransactionListTable = ({
 
   const createHeaderTime = () => {
     return DatatableOption.Builder.builder<TransactionModel>()
-      .key("time")
+      .key("timestamp")
       .name("Time")
       .width(160)
       .className("time")

@@ -1,12 +1,10 @@
-import BigNumber from "bignumber.js";
-
 import { BlockModel } from "@/models/api/block/block-model";
 import { GetBlockResponse } from "@/repositories/api/block/response";
 import { EventModel } from "@/models/api/event/event-model";
 import { Block, BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-type";
 
-import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
-import { getDateDiff, getLocalDateString, getTimeStamp } from "@/common/utils/date-util";
+import { makeDisplayNumberWithDefault } from "@/common/utils/string-util";
+import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString, safeString } from "@/common/utils/format/format-utils";
 import { BlockTransactionModel } from "@/models/api/block/block-transaction-model";
 
@@ -20,7 +18,7 @@ export class BlockMapper {
       hash: response.blockHash,
       height: response.blockHeight,
       time: new Date(response.timestamp).toString(),
-      numTxs: response.totalTransactionCount,
+      numTxs: response.totalTransactionCount || 0,
       proposer: response.blockProposer,
       proposerRaw: response.blockProposer,
       totalFees:
