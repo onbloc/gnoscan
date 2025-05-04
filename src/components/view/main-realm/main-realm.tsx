@@ -4,10 +4,11 @@ import React from "react";
 import styled from "styled-components";
 import Card from "@/components/ui/card";
 import { MainRealmTotalGasShare } from ".";
-import ActiveNewest from "../main-active-list/active-newest";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { MainRealmTotalGasShareApi } from "./total-gas-share/total-gas-share-api";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import CustomNetworkActiveNewest from "../main-active-list/active-newest/CustomNetworkActiveNewest";
+import StandardNetworkActiveNewest from "../main-active-list/active-newest/StandardNetworkActiveNewest";
 
 interface MainRealmProps {
   breakpoint: DEVICE_TYPE;
@@ -21,7 +22,7 @@ const MainRealm = ({ breakpoint }: MainRealmProps) => {
       <Card height="368px" className="card-1">
         {isCustomNetwork ? <MainRealmTotalGasShare /> : <MainRealmTotalGasShareApi />}
       </Card>
-      <ActiveNewest />
+      {isCustomNetwork ? <CustomNetworkActiveNewest /> : <StandardNetworkActiveNewest />}
     </Wrapper>
   );
 };

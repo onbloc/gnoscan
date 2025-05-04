@@ -158,6 +158,19 @@ export interface TransactionSummaryInfo {
   transactionEvents: GnoEvent[];
 }
 
+export interface NewestRealm {
+  hash: string;
+  index: number;
+  success: boolean;
+  blockHeight: number;
+  packageName: string;
+  packagePath: string;
+  creator: string;
+  functionCount: number;
+  totalCalls: number;
+  totalGasUsed: Amount;
+}
+
 export interface GnoEvent {
   id: string;
   blockHeight: number;

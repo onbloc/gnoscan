@@ -24,7 +24,7 @@ function makeDisplayRealmPath(path: string, length = 11) {
   return displayPath.length > length ? displayPath.substring(0, length) + "..." : displayPath;
 }
 
-const ActiveNewest = () => {
+const CustomNetworkActiveNewest = () => {
   const media = eachMedia();
   const { isFetched: isFetchedUsername, getName } = useUsername();
   const { isFetched: isFetchedUpdatedAt, updatedAt } = useUpdateTime();
@@ -123,4 +123,4 @@ const LazyRealmCalls: React.FC<{ path: string }> = ({ path }) => {
   );
 };
 
-export default ActiveNewest;
+export default CustomNetworkActiveNewest;

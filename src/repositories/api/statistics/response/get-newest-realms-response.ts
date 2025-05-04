@@ -1,10 +1,12 @@
+export interface NewestRealmModel {
+  block: number;
+  calls: number;
+  functions: number;
+  path: string;
+  publisher: string;
+}
+
 export interface GetNewestRealmsResponse {
-  items: {
-    block: number;
-    calls: number;
-    functions: number;
-    path: string;
-    publisher: string;
-  }[];
+  items: NewestRealmModel[];
   lastUpdated: string;
 }
