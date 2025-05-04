@@ -15,6 +15,10 @@ import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 
 interface Props {
   address: string;
+  data: Transaction[];
+  isFetched: boolean;
+  hasNextPage?: boolean;
+  nextPage: () => void;
 }
 
 const TOOLTIP_TYPE = (
@@ -25,12 +29,12 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const AccountDetailDatatable = ({ address }: Props) => {
+export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, nextPage }: Props) => {
   const themeMode = useRecoilValue(themeState);
   const media = eachMedia();
 
   const { getTokenAmount } = useTokenMeta();
-  const { isFetchedAccountTransactions, accountTransactions, hasNextPage, nextPage } = useAccount(address);
+  // const { isFetchedAccountTransactions, accountTransactions, hasNextPage, nextPage } = useAccount(address);
   const [development, setDevelopment] = useState(false);
 
   useEffect(() => {
@@ -168,14 +172,14 @@ export const AccountDetailDatatable = ({ address }: Props) => {
   return (
     <Container>
       <Datatable
-        loading={!isFetchedAccountTransactions}
+        loading={!isFetched}
         headers={createHeaders().map(item => {
           return {
             ...item,
             themeMode: themeMode,
           };
         })}
-        datas={accountTransactions || []}
+        datas={data || []}
       />
       {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>

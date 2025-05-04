@@ -1,6 +1,6 @@
 import React from "react";
 
-import { GnoEvent } from "@/types/data-type";
+import { GnoEvent, Transaction } from "@/types/data-type";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import { AccountDetailDatatable } from "../../datatable";
@@ -11,26 +11,38 @@ import { useGetAccountEvents } from "@/common/react-query/account/api/use-get-ac
 
 interface AccountTransactionsProps {
   address: string;
-  transactionEvents: GnoEvent[];
   isDesktop: boolean;
-  isFetched: boolean;
-  isLoading: boolean;
 }
 
-const StandardNetworkAccountTransactions = ({
-  address,
-  transactionEvents,
-  isDesktop,
-  isFetched,
-  isLoading,
-}: AccountTransactionsProps) => {
-  const { data: transactionData } = useGetAccountTransactions({ address });
+const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTransactionsProps) => {
+  const {
+    data: transactionData,
+    isFetched: isFetchedTransactionData,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetAccountTransactions({ address });
   const { data: eventData } = useGetAccountEvents({ address });
 
-  const accountTransactions = React.useMemo(() => {
+  const accountTransactions: Transaction[] = React.useMemo(() => {
     if (!transactionData?.pages) return [];
 
-    return transactionData.pages.flatMap(page => page.items);
+    const allItems = transactionData.pages.flatMap(page => page.items);
+    return allItems.map((item): Transaction => {
+      return {
+        amount: { denom: "", value: "" },
+        blockHeight: item.blockHeight,
+        fee: item.fee,
+        from: "",
+        to: "",
+        hash: item.txHash,
+        numOfMessage: 0,
+        functionName: item.func[0].funcType,
+        packagePath: item.func[0].pkgPath,
+        type: item.func[0].messageType,
+        success: item.successYn,
+        time: item.timestamp,
+      };
+    });
   }, [transactionData]);
 
   const accountEvents: GnoEvent[] = React.useMemo(() => {
@@ -61,19 +73,27 @@ const StandardNetworkAccountTransactions = ({
       },
       {
         tabName: "Events",
-        size: transactionEvents.length,
+        size: accountEvents.length,
       },
     ];
-  }, [transactionEvents]);
+  }, [accountEvents]);
 
-  if (isLoading || !isFetched) {
+  if (!isFetchedTransactionData) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
   }
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Transactions" && <AccountDetailDatatable address={address} />}
-      {currentTab === "Events" && <EventDatatable events={transactionEvents} isFetched={isFetched} />}
+      {currentTab === "Transactions" && (
+        <AccountDetailDatatable
+          address={address}
+          data={accountTransactions}
+          isFetched={isFetchedTransactionData}
+          hasNextPage={hasNextPage}
+          nextPage={fetchNextPage}
+        />
+      )}
+      {currentTab === "Events" && <EventDatatable events={accountEvents} isFetched={isFetchedTransactionData} />}
     </DataListSection>
   );
 };
