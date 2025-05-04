@@ -26,4 +26,16 @@ export enum QUERY_KEY {
   getTokens = "api_get_tokens",
   getTokenById = "api_get_token_by_id",
   getTokenTransactionsById = "api_get_token_transactions_by_id",
+
+  // statistics
+  getLatestBlogs = "api_get_latest_blogs",
+  getMonthlyActiveAccounts = "api_get_monthly_active_accounts",
+  getNewestRealms = "api_get_newest_realms",
+  getSummaryAccounts = "api_get_summary_accounts",
+  getSummaryBlocks = "api_get_summary_blocks",
+  getSummarySupply = "api_get_summary_supply",
+  getSummaryTransactions = "api_get_summary_transactions",
+  getTotalDailyFees = "api_get_total_daily_fees",
+  getTotalDailyTransactions = "api_get_total_daily_transactions",
+  getTotalGasShare = "api_get_total_gas_share",
 }
