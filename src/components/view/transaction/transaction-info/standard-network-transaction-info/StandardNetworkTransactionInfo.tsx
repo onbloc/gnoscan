@@ -8,6 +8,7 @@ import { EventDatatable } from "@/components/view/datatable/event";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
 import { TransactionMapper } from "@/common/mapper/transaction/transaction-mapper";
+import { useGetTransactionEventsByHeight } from "@/common/react-query/transaction/api/use-get-transaction-events-by-hash";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -26,7 +27,9 @@ const StandardNetworkTransactionInfo = ({
   getUrlWithNetwork,
   getTokenAmount,
 }: TransactionInfoProps) => {
-  const { data, isFetched } = useGetTransactionContractsByHeight(txHash);
+  const { data: transactionsData, isFetched: isFetchedTransactionsData } = useGetTransactionContractsByHeight(txHash);
+  const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight(txHash);
+
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -41,16 +44,22 @@ const StandardNetworkTransactionInfo = ({
 
   // const txContracts = TransactionMapper.transactionContractsFromApiResponses(data?.items || []);
   const txContracts: TransactionContractInfo = React.useMemo(() => {
-    if (!data) return { messages: [], numOfMessage: 0, rawContent: "" };
+    if (!transactionsData) return { messages: [], numOfMessage: 0, rawContent: "" };
 
     return {
-      messages: data.items,
-      numOfMessage: data.items.length,
+      messages: transactionsData.items,
+      numOfMessage: transactionsData.items.length,
       rawContent: "",
     };
-  }, [data]);
+  }, [transactionsData]);
 
-  if (!isFetched) return <TableSkeleton />;
+  const txEvents: GnoEvent[] = React.useMemo(() => {
+    if (!eventsData) return [];
+
+    return TransactionMapper.transactionEventsFromApiResponses(eventsData.items || []);
+  }, [eventsData]);
+
+  if (!isFetchedTransactionsData || !isFetchedEventsData) return <TableSkeleton />;
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
@@ -60,16 +69,7 @@ const StandardNetworkTransactionInfo = ({
         getUrlWithNetwork={getUrlWithNetwork}
         getTokenAmount={getTokenAmount}
       />
-      {/* {currentTab === "Contract" && (
-        <TransactionContractDetails
-          transactionItem={transactionItem}
-          isDesktop={isDesktop}
-          getUrlWithNetwork={getUrlWithNetwork}
-          getTokenAmount={getTokenAmount}
-          getName={getName}
-        />
-      )} */}
-      {/* {currentTab === "Events" && <EventDatatable events={transactionEvents} isFetched={isFetched} />} */}
+      {currentTab === "Events" && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
     </DataListSection>
   );
 };

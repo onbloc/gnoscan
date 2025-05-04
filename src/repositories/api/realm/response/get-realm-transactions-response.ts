@@ -1,21 +1,8 @@
+import { RealmTransactionModel } from "@/models/api/realm/realm-model";
+
 export interface GetRealmTransactionsResponse {
-  data: [
-    {
-      amount: string;
-      block: number;
-      fee: string;
-      from: string;
-      func: [
-        {
-          funcType: string;
-          messageType: string;
-          pkgPath: string;
-        },
-      ];
-      timestamp: string;
-      txHash: string;
-    },
-  ];
+  items: RealmTransactionModel[];
+
   page: {
     cursor: string;
     hasNext: boolean;
