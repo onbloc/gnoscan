@@ -47,7 +47,7 @@ export const useMappedApiBlock = (height: string) => {
 
   React.useEffect(() => {
     if (isApiFetched && apiData) {
-      const mappedBlock = BlockMapper.blockFromApiResponse(apiData);
+      const mappedBlock = BlockMapper.blockFromApiResponse(apiData.data);
 
       const blockHeight = mappedBlock.blockHeight || 0;
       const hasPreviousBlock = blockHeight > 1;

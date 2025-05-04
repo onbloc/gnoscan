@@ -1,4 +1,4 @@
-import { BlockModel } from "@/models/api/block/block-model";
+import { BlockModel, BlockSummaryModel } from "@/models/api/block/block-model";
 import { GetBlockResponse } from "@/repositories/api/block/response";
 import { EventModel } from "@/models/api/event/event-model";
 import { Block, BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-type";
@@ -31,7 +31,7 @@ export class BlockMapper {
     };
   }
 
-  public static blockFromApiResponse(response: GetBlockResponse): BlockSummaryInfo {
+  public static blockFromApiResponse(response: BlockSummaryModel): BlockSummaryInfo {
     // timeStamp
     const timeStamp = getTimeStamp(response.timestamp);
 
