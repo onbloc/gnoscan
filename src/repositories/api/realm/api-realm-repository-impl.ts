@@ -39,7 +39,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
 
     return this.networkClient
       .get<APIResponse<GetRealmResponse>>({
-        url: `/realms/${path}`,
+        url: `/realms/${encodeURIComponent(path)}`,
       })
       .then(result => {
         return result.data?.data;
@@ -53,7 +53,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
 
     return this.networkClient
       .get<APIResponse<GetRealmEventsResponse>>({
-        url: `/realms/${path}/events`,
+        url: `/realms/${encodeURIComponent(path)}/events`,
       })
       .then(result => {
         return result.data?.data;
@@ -67,7 +67,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
 
     return this.networkClient
       .get<APIResponse<GetRealmTransactionsResponse>>({
-        url: `/realms/${path}/transactions`,
+        url: `/realms/${encodeURIComponent(path)}/transactions`,
       })
       .then(result => {
         return result.data?.data;

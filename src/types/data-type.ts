@@ -87,6 +87,24 @@ export interface Realm {
   };
 }
 
+export interface RealmSummary {
+  name: string;
+  path: string;
+  realmAddress: string;
+  publisherAddress: string;
+  funcs: string[] | undefined;
+  blockPublished: number;
+  files:
+    | {
+        name: string;
+        body: string;
+      }[]
+    | undefined;
+  balance: Amount | null;
+  contractCalls: null;
+  totalUsedFees: null;
+}
+
 export interface TokenInfo {
   name: string;
   denom: string;

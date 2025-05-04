@@ -38,7 +38,7 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
       setIsDataReady(false);
 
       const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = RealmMapper.fromApiResponses(allItems);
+      const mappedBlocksData = RealmMapper.realmListFromApiResponses(allItems);
 
       setRealms(mappedBlocksData);
       setIsDataReady(true);

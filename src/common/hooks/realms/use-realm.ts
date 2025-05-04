@@ -5,6 +5,7 @@ import { toNumber, toString } from "@/common/utils/string-util";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useServiceProvider } from "../provider/use-service-provider";
+import { RealmSummary, Transaction } from "@/types/data-type";
 
 const GNO_ADDRESS_PREFIX = "g";
 
@@ -15,7 +16,7 @@ export const useRealm = (packagePath: string) => {
   const { data: realmTransactions, isFetched: isFetchedRealmTransactions } = useGetRealmTransactionsQuery(packagePath);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const summary = useMemo(() => {
+  const summary: RealmSummary | null = useMemo(() => {
     if (!realm) {
       return null;
     }
@@ -43,7 +44,7 @@ export const useRealm = (packagePath: string) => {
     return realmTransactions.length > (currentPage + 1) * 20;
   }, [currentPage, realmTransactions?.length]);
 
-  const transactions = useMemo(() => {
+  const transactions: Transaction[] = useMemo(() => {
     if (!realmTransactions) {
       return [];
     }
@@ -65,18 +66,24 @@ export const useRealm = (packagePath: string) => {
       }));
   }, [realmTransactions?.length, currentPage]);
 
-  const { data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes } = useQuery({
+  const { data: transactionWithTimes = null, isFetched: isFetchedTransactionWithTimes } = useQuery<
+    Transaction[] | null,
+    Error
+  >({
     queryKey: ["realm/transactionWithTimes", packagePath, `${transactions?.length}`],
-    queryFn: () =>
-      Promise.all(
-        transactions?.map(async transaction => {
-          const time = await blockRepository?.getBlockTime(transaction.blockHeight);
+    queryFn: async (): Promise<Transaction[] | null> => {
+      if (!transactions) return [];
+
+      return Promise.all(
+        transactions.map(async (transaction): Promise<Transaction> => {
+          const time = (await blockRepository?.getBlockTime(transaction.blockHeight)) || "";
           return {
             ...transaction,
             time,
           };
-        }) || [],
-      ),
+        }),
+      );
+    },
     enabled: !!transactions,
     keepPreviousData: true,
   });

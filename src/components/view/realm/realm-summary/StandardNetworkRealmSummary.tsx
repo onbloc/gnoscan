@@ -3,10 +3,13 @@ import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { NonMobile } from "@/common/hooks/use-media";
-import { Amount, Transaction } from "@/types/data-type";
+import { Amount, RealmSummary, Transaction } from "@/types/data-type";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { GNOSTUDIO_REALM_FUNCTION_TEMPLATE, GNOSTUDIO_REALM_TEMPLATE } from "@/common/values/url.constant";
-import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useNetwork } from "@/common/hooks/use-network";
+import { useGetRealmByPath, useGetRealmTransactionsByPath } from "@/common/react-query/realm/api";
+import { useUsername } from "@/common/hooks/account/use-username";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -20,40 +23,11 @@ import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { RealmTotalContractCalls } from "../realm-total-contract-calls/RealmTotalContractCalls";
 import { RealmTotalUsedFeeAmount } from "../realm-total-used-fee-amount/RealmTotalUsedFeeAmount";
+import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 
 interface RealmSummaryProps {
   path: string;
   isDesktop: boolean;
-  isFetched: boolean;
-  isFetchedRealmTransactions: boolean;
-  summary: {
-    name: string;
-    path: string;
-    realmAddress: string;
-    publisherAddress: string;
-    funcs: string[] | undefined;
-    blockPublished: number;
-    files:
-      | {
-          name: string;
-          body: string;
-        }[]
-      | undefined;
-    balance: Amount | null;
-    contractCalls: null;
-    totalUsedFees: null;
-  } | null;
-  currentNetwork: {
-    isCustom: boolean;
-    chainId: string;
-    apiUrl: string;
-    rpcUrl: string;
-    indexerUrl: string;
-  } | null;
-  realmTransactions: Transaction[] | undefined;
-  getUrlWithNetwork: (uri: string) => string;
-  getName: (address: string) => string;
-  getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
 }
 
 const TOOLTIP_PACKAGE_PATH = (
@@ -71,18 +45,27 @@ const TOOLTIP_BALANCE = (
   </>
 );
 
-const RealmSummary = ({
-  path,
-  isDesktop,
-  isFetched,
-  isFetchedRealmTransactions,
-  summary,
-  realmTransactions,
-  currentNetwork,
-  getUrlWithNetwork,
-  getName,
-  getTokenAmount,
-}: RealmSummaryProps) => {
+const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
+  const { currentNetwork, getUrlWithNetwork } = useNetwork();
+  const { getTokenAmount } = useTokenMeta();
+  const { getName } = useUsername();
+
+  const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
+  const { data: realmTransactionsData, isFetched: isFetchedRealmTransactionsData } =
+    useGetRealmTransactionsByPath(path);
+
+  const realmSummary: RealmSummary | null = React.useMemo(() => {
+    if (!realmData?.data) return null;
+
+    return RealmMapper.realmSummaryFromApiResponse(realmData.data);
+  }, [realmData?.data]);
+
+  const realmTransactions: Transaction[] = React.useMemo(() => {
+    if (!realmTransactionsData?.items) return [];
+
+    return RealmMapper.realmTransactionFromApiResponses(realmTransactionsData.items);
+  }, [realmTransactionsData?.items]);
+
   const moveGnoStudioViewRealm = React.useCallback(() => {
     if (!currentNetwork) {
       return;
@@ -112,21 +95,22 @@ const RealmSummary = ({
   );
 
   const balanceStr = React.useMemo(() => {
-    if (!summary?.balance) {
+    if (!realmSummary?.balance) {
       return "-";
     }
-    const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
-    return `${amount.value} ${amount.denom}`;
-  }, [getTokenAmount, summary?.balance]);
+    return "-";
+    // const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
+    // return `${amount.value} ${amount.denom}`;
+  }, [getTokenAmount, realmSummary?.balance]);
 
-  if (!isFetched) return <TableSkeleton />;
+  if (!isFetchedRealmData) return <TableSkeleton />;
 
   return (
     <DataSection title="Summary">
       <DLWrap desktop={isDesktop}>
         <dt>Name</dt>
         <dd>
-          <Badge>{summary?.name}</Badge>
+          <Badge>{realmSummary?.name}</Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
@@ -141,14 +125,14 @@ const RealmSummary = ({
         <dd className="path-wrapper">
           <Badge>
             <Text type="p4" color="reverse" className="ellipsis">
-              {formatDisplayPackagePath(summary?.path)}
+              {formatDisplayPackagePath(realmSummary?.path)}
             </Text>
 
             <Tooltip
               className="path-copy-tooltip"
               content="Copied!"
               trigger="click"
-              copyText={summary?.path}
+              copyText={realmSummary?.path}
               width={85}
             >
               <IconCopy className="svg-icon" />
@@ -170,14 +154,14 @@ const RealmSummary = ({
         <dd>
           <Badge>
             <Text type="p4" color="reverse" className="ellipsis">
-              {summary?.realmAddress || ""}
+              {realmSummary?.realmAddress || ""}
             </Text>
 
             <Tooltip
               className="path-copy-tooltip"
               content="Copied!"
               trigger="click"
-              copyText={summary?.realmAddress || ""}
+              copyText={realmSummary?.realmAddress || ""}
               width={85}
             >
               <IconCopy className="svg-icon" />
@@ -188,7 +172,7 @@ const RealmSummary = ({
       <DLWrap desktop={isDesktop}>
         <dt>Function Type(s)</dt>
         <dd className="function-wrapper">
-          {summary?.funcs?.map((v: string, index: number) => (
+          {realmSummary?.funcs?.map((v: string, index: number) => (
             <Badge className="link" key={index} type="blue" onClick={() => moveGnoStudioViewRealmFunction(v)}>
               <Tooltip className="tooltip" content="Click to try in GnoStudio">
                 <Text type="p4" color="white">
@@ -203,17 +187,17 @@ const RealmSummary = ({
         <dt>Publisher</dt>
         <dd>
           <Badge>
-            {summary?.publisherAddress === "genesis" ? (
+            {realmSummary?.publisherAddress === "genesis" ? (
               <FitContentA>
                 <Text type="p4" color="blue" className="ellipsis">
-                  {summary?.publisherAddress}
+                  {realmSummary?.publisherAddress}
                 </Text>
               </FitContentA>
             ) : (
               <FitContentA>
-                <Link href={getUrlWithNetwork(`/account/${summary?.publisherAddress}`)} passHref>
+                <Link href={getUrlWithNetwork(`/account/${realmSummary?.publisherAddress}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
-                    {getName(summary?.publisherAddress || "") || summary?.publisherAddress}
+                    {getName(realmSummary?.publisherAddress || "") || realmSummary?.publisherAddress}
                   </Text>
                 </Link>
               </FitContentA>
@@ -225,17 +209,17 @@ const RealmSummary = ({
         <dt>Block Published</dt>
         <dd>
           <Badge>
-            {summary?.blockPublished === 0 ? (
+            {realmSummary?.blockPublished === 0 ? (
               <FitContentA>
                 <Text type="p4" color="blue" className="ellipsis">
                   {"-"}
                 </Text>
               </FitContentA>
             ) : (
-              <Link href={getUrlWithNetwork(`/block/${summary?.blockPublished}`)} passHref>
+              <Link href={getUrlWithNetwork(`/block/${realmSummary?.blockPublished}`)} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue">
-                    {summary?.blockPublished}
+                    {realmSummary?.blockPublished}
                   </Text>
                 </FitContentA>
               </Link>
@@ -259,7 +243,7 @@ const RealmSummary = ({
       <DLWrap desktop={isDesktop}>
         <dt>Contract Calls</dt>
         <dd>
-          <RealmTotalContractCalls realmTransactions={realmTransactions} isFetched={isFetchedRealmTransactions} />
+          <RealmTotalContractCalls realmTransactions={realmTransactions} isFetched={isFetchedRealmTransactionsData} />
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
@@ -267,14 +251,14 @@ const RealmSummary = ({
         <dd>
           <RealmTotalUsedFeeAmount
             realmTransactions={realmTransactions}
-            isFetched={isFetchedRealmTransactions}
+            isFetched={isFetchedRealmTransactionsData}
             getTokenAmount={getTokenAmount}
           />
         </dd>
       </DLWrap>
-      {summary?.files && <ShowLog isTabLog={true} files={summary?.files} btnTextType="Contract" />}
+      {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} btnTextType="Contract" />}
     </DataSection>
   );
 };
 
-export default RealmSummary;
+export default StandardNetworkRealmSummary;
