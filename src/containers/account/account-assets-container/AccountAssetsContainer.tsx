@@ -6,6 +6,9 @@ import { useAccount } from "@/common/hooks/account/use-account";
 import { isBech32Address } from "@/common/utils/bech32.utility";
 
 import AccountAssets from "@/components/view/account/account-assets/AccountAssets";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import CustomNetworkAccountAssets from "@/components/view/account/account-assets/CustomNetworkAccountAssets";
+import StandardNetworkAccountAssets from "@/components/view/account/account-assets/StandardNetworkAccountAssets";
 
 interface AccountAssetsContainerProps {
   address: string;
@@ -13,6 +16,7 @@ interface AccountAssetsContainerProps {
 
 const AccountAssetsContainer = ({ address }: AccountAssetsContainerProps) => {
   const { breakpoint, isDesktop } = useWindowSize();
+  const { isCustomNetwork } = useNetworkProvider();
   const { isFetched: isFetchedUsername, isLoading: isLoadingUsername, getAddress } = useUsername();
 
   const bech32Address = React.useMemo(() => {
@@ -23,8 +27,8 @@ const AccountAssetsContainer = ({ address }: AccountAssetsContainerProps) => {
 
   const { isFetchedAssets, isLoadingAssets, tokenBalances } = useAccount(bech32Address || "");
 
-  return (
-    <AccountAssets
+  return isCustomNetwork ? (
+    <CustomNetworkAccountAssets
       breakpoint={breakpoint}
       isDesktop={isDesktop}
       isFetched={isFetchedUsername && isFetchedAssets}
@@ -32,6 +36,8 @@ const AccountAssetsContainer = ({ address }: AccountAssetsContainerProps) => {
       tokenBalances={tokenBalances}
       isFetchedAssets={isFetchedAssets}
     />
+  ) : (
+    <StandardNetworkAccountAssets address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
   );
 };
 

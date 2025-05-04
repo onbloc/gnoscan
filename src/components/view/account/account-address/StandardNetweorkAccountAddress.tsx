@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
 
+import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
+import { useNetwork } from "@/common/hooks/use-network";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
 import * as S from "./AccountAddress.styles";
@@ -8,27 +10,17 @@ import Text from "@/components/ui/text";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
+import { useUsername } from "@/common/hooks/account/use-username";
 
 interface AccountAddressProps {
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
-  isFetched: boolean;
-  isLoading: boolean;
   address: string;
-  userName: string | null;
-  userUrl: string | null;
 }
 
-const AccountAddress = ({
-  breakpoint,
-  isDesktop,
-  isFetched,
-  isLoading,
-  address,
-  userName,
-  userUrl,
-}: AccountAddressProps) => {
-  const hasUsername = React.useMemo(() => Boolean(userName), [userName]);
+const StandardNetworkAccountAddress = ({ breakpoint, isDesktop, address }: AccountAddressProps) => {
+  const { isLoading, isFetched } = useGetAccountByAddress(address);
+  // const hasUsername = React.useMemo(() => Boolean(userName), [userName]);
 
   if (isLoading || !isFetched) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
@@ -47,9 +39,7 @@ const AccountAddress = ({
               <S.CopyTooltip content="Copied!" trigger="click" copyText={address || ""}>
                 <IconCopy />
               </S.CopyTooltip>
-              {hasUsername && (
-                <UsernameDependentComponent breakpoint={breakpoint} userName={userName} userUrl={userUrl} />
-              )}
+              {false && <UsernameDependentComponent breakpoint={breakpoint} userName={""} userUrl={""} />}
             </S.Content>
           </S.ContentWrapper>
         </S.AccountWrapper>
@@ -58,23 +48,27 @@ const AccountAddress = ({
   );
 };
 
-const UsernameDependentComponent = React.memo(
-  ({ breakpoint, userName, userUrl }: Pick<AccountAddressProps, "breakpoint" | "userName" | "userUrl">) => {
-    return (
-      <>
-        <S.ContentWrapper>
-          <Link href={userUrl || ""} target="_blank" rel="noreferrer">
-            <S.Username type="p4" color="blue" breakpoint={breakpoint}>
-              {userName}
-              <IconLink />
-            </S.Username>
-          </Link>
-        </S.ContentWrapper>
-      </>
-    );
-  },
-);
+interface UsernameDependentComponentProps {
+  breakpoint: DEVICE_TYPE;
+  userName: string | null;
+  userUrl: string | null;
+}
+
+const UsernameDependentComponent = React.memo(({ breakpoint, userName, userUrl }: UsernameDependentComponentProps) => {
+  return (
+    <>
+      <S.ContentWrapper>
+        <Link href={userUrl || ""} target="_blank" rel="noreferrer">
+          <S.Username type="p4" color="blue" breakpoint={breakpoint}>
+            {userName}
+            <IconLink />
+          </S.Username>
+        </Link>
+      </S.ContentWrapper>
+    </>
+  );
+});
 
 UsernameDependentComponent.displayName = "UsernameDependentComponent";
 
-export default AccountAddress;
+export default StandardNetworkAccountAddress;

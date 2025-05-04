@@ -1,4 +1,9 @@
 export enum QUERY_KEY {
+  // account
+  getAccount = "api_get_account",
+  getAccountEvents = "api_get_account_events",
+  getAccountTransactions = "api_get_account_transactions",
+
   // block
   getBlocks = "api_get_blocks",
   getBlockByHeight = "api_get_block_by_height",
