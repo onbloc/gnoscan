@@ -1,10 +1,21 @@
 import React from "react";
 import Text from "@/components/ui/text";
-import { BundleDl, DataBoxContainer, FetchedComp } from "../main-card";
-import { useBlockSummaryInfo } from "@/common/hooks/main/use-block-summary-info";
+import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
+import { useTransactionSummaryInfo } from "@/common/hooks/main/use-transaction-summary-info";
+import { useGetSummaryTransactions } from "@/common/react-query/statistics";
+import { SummaryTransactionsInfo } from "@/types/data-type";
 
-export const BlockCard = () => {
-  const { isFetched, summaryInfo } = useBlockSummaryInfo();
+export const StandardNetworkTxsCard = () => {
+  const { data, isFetched } = useGetSummaryTransactions();
+
+  const transactionSummaryInfo: SummaryTransactionsInfo = React.useMemo(() => {
+    if (!data?.data) return { totalTransactions: "", transactionFeeAverage: "", transactionTotalFee: "" };
+    return {
+      totalTransactions: String(data.data.total),
+      transactionFeeAverage: data.data.avgFee24h,
+      transactionTotalFee: data.data.totalFees,
+    };
+  }, [data?.data]);
 
   return (
     <>
@@ -15,7 +26,7 @@ export const BlockCard = () => {
         isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {summaryInfo.blockHeight}
+            {transactionSummaryInfo.totalTransactions}
           </Text>
         }
       />
@@ -23,7 +34,7 @@ export const BlockCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Avg.&nbsp;Block Time
+              24h&nbsp;Avg.&nbsp;Fee
             </Text>
           </dt>
           <dd>
@@ -32,7 +43,7 @@ export const BlockCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {`${summaryInfo.blockTimeAverage} seconds`}
+                  {transactionSummaryInfo.transactionFeeAverage}
                 </Text>
               }
             />
@@ -42,7 +53,7 @@ export const BlockCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Avg.&nbsp;Tx per Block
+              Total&nbsp;Fees
             </Text>
           </dt>
           <dd>
@@ -51,7 +62,7 @@ export const BlockCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {summaryInfo.txPerBlockAverage}
+                  {transactionSummaryInfo.transactionTotalFee}
                 </Text>
               }
             />

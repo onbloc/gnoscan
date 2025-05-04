@@ -173,6 +173,30 @@ export interface GnoEvent {
   }[];
 }
 
+export interface SummaryGnotSupplyInfo {
+  totalSupplyAmount: string;
+  airdropSupplyAmount: string;
+  airdropHolder: string;
+}
+
+export interface SummaryBlockInfo {
+  blockHeight: string;
+  blockTimeAverage: string;
+  txPerBlockAverage: string;
+}
+
+export interface SummaryTransactionsInfo {
+  totalTransactions: string;
+  transactionFeeAverage: string;
+  transactionTotalFee: string;
+}
+
+export interface SummaryAccountsInfo {
+  totalAccounts: number;
+  totalUsers: number;
+  numOfValidators: string;
+}
+
 export interface TotalTransactionStatInfo {
   accounts: number;
   gasFee: number;

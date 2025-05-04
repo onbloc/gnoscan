@@ -3,6 +3,7 @@ import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetValidators } from "../common/use-get-validators";
 import { useUsername } from "../account/use-username";
 import { useGetUsingAccountTransactionCount } from "@/common/react-query/transaction";
+import { SummaryAccountsInfo } from "@/types/data-type";
 
 export const useAccountSummaryInfo = () => {
   const { isFetched: isFetchedValidators, validators } = useGetValidators();
@@ -25,12 +26,12 @@ export const useAccountSummaryInfo = () => {
     return totalAccounts || 0;
   }, [totalAccounts]);
 
+  const accountSummaryInfo: SummaryAccountsInfo = useMemo(() => {
+    return { totalAccounts: numOfTotalAccounts || 0, totalUsers, numOfValidators };
+  }, [totalAccounts, totalUsers, numOfValidators]);
+
   return {
     isFetched,
-    accountSummaryInfo: {
-      totalAccounts: numOfTotalAccounts || 0,
-      totalUsers,
-      numOfValidators,
-    },
+    accountSummaryInfo,
   };
 };

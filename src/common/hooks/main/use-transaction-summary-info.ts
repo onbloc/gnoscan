@@ -8,6 +8,7 @@ import { useGetLatestBlock } from "../common/use-get-latest-block";
 import { useGetSimpleTransactions } from "../common/use-get-simple-transactions";
 import { GNOTToken } from "../common/use-token-meta";
 import { useNetworkProvider } from "../provider/use-network-provider";
+import { SummaryTransactionsInfo } from "@/types/data-type";
 
 export const useTransactionSummaryInfo = () => {
   const { isCustomNetwork } = useNetworkProvider();
@@ -97,12 +98,12 @@ export const useTransactionSummaryInfo = () => {
       .toLocaleString();
   }, [simpleTransactions]);
 
+  const transactionSummaryInfo: SummaryTransactionsInfo = useMemo(() => {
+    return { totalTransactions, transactionFeeAverage, transactionTotalFee };
+  }, [totalTransactions, transactionFeeAverage, transactionTotalFee]);
+
   return {
     isFetched,
-    transactionSummaryInfo: {
-      totalTransactions,
-      transactionFeeAverage,
-      transactionTotalFee,
-    },
+    transactionSummaryInfo,
   };
 };

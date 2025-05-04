@@ -3,11 +3,12 @@ import Text from "@/components/ui/text";
 import IconInfo from "@/assets/svgs/icon-info.svg";
 import { Button } from "@/components/ui/button";
 import Tooltip from "@/components/ui/tooltip";
-import { useGNOTSupply } from "@/common/hooks/main/use-gnot-supply-info";
-import { BundleDl, DataBoxContainer, FetchedComp } from "../main-card";
+import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
+import { useAccountSummaryInfo } from "@/common/hooks/main/use-account-summary-info";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 
-export const SupplyCard = () => {
-  const { isFetched, supplyInfo } = useGNOTSupply();
+export const CustomNetworkAccountCard = () => {
+  const { isFetched, accountSummaryInfo } = useAccountSummaryInfo();
 
   return (
     <>
@@ -18,10 +19,7 @@ export const SupplyCard = () => {
         isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {supplyInfo.totalSupplyAmount}
-            <Text type="p4" display="inline-block" color="primary">
-              &nbsp;GNOT
-            </Text>
+            {makeDisplayNumber(accountSummaryInfo.totalAccounts || 0)}
           </Text>
         }
       />
@@ -29,16 +27,8 @@ export const SupplyCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Airdrop Supply
+              Validators
             </Text>
-            <Tooltip
-              width={215}
-              content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change."
-            >
-              <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                <IconInfo className="svg-info" />
-              </Button>
-            </Tooltip>
           </dt>
           <dd>
             <FetchedComp
@@ -46,7 +36,7 @@ export const SupplyCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {supplyInfo.airdropSupplyAmount}
+                  {accountSummaryInfo.numOfValidators}
                 </Text>
               }
             />
@@ -56,9 +46,9 @@ export const SupplyCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Airdrop&nbsp;Holders
+              Total&nbsp;Users
             </Text>
-            <Tooltip content="Total number of holders eligible for the GNOT airdrop. This number is not final and is subject to change.">
+            <Tooltip content="Number of accounts registered as a user on /r/demo/users.">
               <Button width="16px" height="16px" radius="50%" bgColor="surface">
                 <IconInfo className="svg-info" />
               </Button>
@@ -70,7 +60,7 @@ export const SupplyCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {supplyInfo.airdropHolder}
+                  {accountSummaryInfo.totalUsers}
                 </Text>
               }
             />

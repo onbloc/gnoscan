@@ -1,10 +1,20 @@
 import React from "react";
 import Text from "@/components/ui/text";
-import { BundleDl, DataBoxContainer, FetchedComp } from "../main-card";
-import { useTransactionSummaryInfo } from "@/common/hooks/main/use-transaction-summary-info";
+import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
+import { useGetSummaryBlocks } from "@/common/react-query/statistics";
+import { SummaryBlockInfo } from "@/types/data-type";
 
-export const TxsCard = () => {
-  const { isFetched, transactionSummaryInfo } = useTransactionSummaryInfo();
+export const StandardNetworkBlockCard = () => {
+  const { data, isFetched } = useGetSummaryBlocks();
+
+  const summaryInfo: SummaryBlockInfo = React.useMemo(() => {
+    if (!data?.data) return { blockHeight: "", blockTimeAverage: "", txPerBlockAverage: "" };
+    return {
+      blockHeight: String(data.data.height),
+      blockTimeAverage: data.data.avgBlockTime,
+      txPerBlockAverage: data.data.avgTxPerBlock,
+    };
+  }, [data?.data]);
 
   return (
     <>
@@ -15,7 +25,7 @@ export const TxsCard = () => {
         isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {transactionSummaryInfo.totalTransactions}
+            {summaryInfo.blockHeight}
           </Text>
         }
       />
@@ -23,7 +33,7 @@ export const TxsCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              24h&nbsp;Avg.&nbsp;Fee
+              Avg.&nbsp;Block Time
             </Text>
           </dt>
           <dd>
@@ -32,7 +42,7 @@ export const TxsCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {transactionSummaryInfo.transactionFeeAverage}
+                  {`${summaryInfo.blockTimeAverage} seconds`}
                 </Text>
               }
             />
@@ -42,7 +52,7 @@ export const TxsCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Total&nbsp;Fees
+              Avg.&nbsp;Tx per Block
             </Text>
           </dt>
           <dd>
@@ -51,7 +61,7 @@ export const TxsCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {transactionSummaryInfo.transactionTotalFee}
+                  {summaryInfo.txPerBlockAverage}
                 </Text>
               }
             />
