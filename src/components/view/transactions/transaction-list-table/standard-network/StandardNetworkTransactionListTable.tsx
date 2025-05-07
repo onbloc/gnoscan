@@ -115,10 +115,10 @@ export const StandardNetworkTransactionListTable = ({
       .tooltip(<S.TooltipContainer>{TOOLTIP_TYPE}</S.TooltipContainer>)
       .renderOption((_, data) => {
         const func = data.func[0];
-        const displayFunctionName = mapDisplayFunctionName(func.funcType, func.pkgPath);
+        const displayFunctionName = mapDisplayFunctionName(func.pkgPath, func.funcType);
         return (
           <DatatableItem.Type
-            type={func.funcType}
+            type={func.messageType}
             func={displayFunctionName}
             packagePath={func.pkgPath}
             msgNum={data.numOfMessage}
