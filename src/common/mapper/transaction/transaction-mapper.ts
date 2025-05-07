@@ -22,10 +22,10 @@ export class TransactionMapper {
         success: response.success,
         blockHeight: response.blockHeight,
         fee: {
-          denom: "",
-          value: "",
+          denom: response.transactionFee.denom || "GNOT",
+          value: response.transactionFee.value || "0",
         },
-        memo: "",
+        memo: response.memo,
         amount: {
           denom: "",
           value: "",
@@ -37,6 +37,7 @@ export class TransactionMapper {
         packagePath: "",
         time: "",
         type: "",
+        rawContent: response.errorLog,
       },
       transactionEvents: [],
     };

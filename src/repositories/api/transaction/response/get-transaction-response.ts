@@ -1,3 +1,5 @@
+import { Amount } from "@/types/data-type";
+
 export interface TransactionSummary {
   blockHeight: number;
   contractType: string;
@@ -10,8 +12,9 @@ export interface TransactionSummary {
   network: string;
   success: true;
   timestamp: string;
-  transactionFee: string;
+  transactionFee: Amount;
   txHash: string;
+  errorLog: string;
 }
 
 export interface GetTransactionResponse {
