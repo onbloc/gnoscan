@@ -5,7 +5,6 @@ import { useRecoilValue } from "recoil";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { useUsername } from "@/common/hooks/account/use-username";
 
 import * as S from "./StandardNetworkTransactionListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -53,7 +52,6 @@ export const StandardNetworkTransactionListTable = ({
   const themeMode = useRecoilValue(themeState);
 
   const { getTokenAmount } = useTokenMeta();
-  const { isFetched: isFetchedUsername, getName } = useUsername();
   const [development, setDevelopment] = useState(false);
 
   useEffect(() => {
@@ -146,7 +144,7 @@ export const StandardNetworkTransactionListTable = ({
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption((address, data) => <DatatableItem.Publisher address={address} username={getName(address)} />)
+      .renderOption((address, data) => <DatatableItem.Publisher address={address} username={address} />)
       .build();
   };
 

@@ -14,7 +14,6 @@ import Link from "next/link";
 import { useNetwork } from "@/common/hooks/use-network";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import { useUsername } from "@/common/hooks/account/use-username";
 import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
 import { eachMedia } from "@/common/hooks/use-media";
 import { Button } from "@/components/ui/button";
@@ -214,7 +213,6 @@ const Container = styled.div<{ maxWidth?: number }>`
 
 const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible, event }) => {
   const { getUrlWithNetwork } = useNetwork();
-  const { getName } = useUsername();
 
   return (
     <EventDetailWrapper className={visible ? "active" : "hidden"}>

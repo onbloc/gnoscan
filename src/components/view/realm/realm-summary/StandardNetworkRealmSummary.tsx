@@ -3,13 +3,12 @@ import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { NonMobile } from "@/common/hooks/use-media";
-import { Amount, RealmSummary, Transaction } from "@/types/data-type";
+import { RealmSummary, Transaction } from "@/types/data-type";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { GNOSTUDIO_REALM_FUNCTION_TEMPLATE, GNOSTUDIO_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetRealmByPath, useGetRealmTransactionsByPath } from "@/common/react-query/realm/api";
-import { useUsername } from "@/common/hooks/account/use-username";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -48,7 +47,6 @@ const TOOLTIP_BALANCE = (
 const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
   const { currentNetwork, getUrlWithNetwork } = useNetwork();
   const { getTokenAmount } = useTokenMeta();
-  const { getName } = useUsername();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
   const { data: realmTransactionsData, isFetched: isFetchedRealmTransactionsData } =
@@ -197,7 +195,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               <FitContentA>
                 <Link href={getUrlWithNetwork(`/account/${realmSummary?.publisherAddress}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
-                    {getName(realmSummary?.publisherAddress || "") || realmSummary?.publisherAddress}
+                    {realmSummary?.publisherAddress || ""}
                   </Text>
                 </Link>
               </FitContentA>

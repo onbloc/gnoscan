@@ -10,7 +10,6 @@ import Text from "@/components/ui/text";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
-import { useUsername } from "@/common/hooks/account/use-username";
 
 interface AccountAddressProps {
   breakpoint: DEVICE_TYPE;

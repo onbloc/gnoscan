@@ -9,12 +9,10 @@ import Tooltip from "@/components/ui/tooltip";
 import FetchedSkeleton from "../fetched-skeleton";
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
-import { useUsername } from "@/common/hooks/account/use-username";
 import { getLocalDateString } from "@/common/utils/date-util";
 import { useGetRealmFunctionsQuery, useGetRealmTransactionsQuery } from "@/common/react-query/realm";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { useUpdateTime } from "@/common/hooks/main/use-update-time";
-import { useLatestRealms } from "@/common/hooks/realms/use-latest-realms";
 import { useGetNewestRealms } from "@/common/react-query/statistics";
 import { NewestRealm } from "@/types/data-type";
 
