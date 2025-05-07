@@ -85,7 +85,7 @@ export interface TokenSummary {
 export interface Realm {
   hash: string;
   index: number;
-  success: true;
+  success: boolean;
   blockHeight: number;
   packageName: string;
   packagePath: string;

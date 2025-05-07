@@ -1,16 +1,18 @@
 import { Amount } from "@/types/data-type";
 
 export interface RealmModel {
-  blockHeight: number;
-  funcCount: number;
+  txHash: string;
   index: number;
+  success: boolean;
   name: string;
   path: string;
+  funcCount: number;
+  blockHeight: number;
   publisher: string;
-  success: true;
+  totalCallCountSuccess: number;
+  totalCallCountFailed: number;
   totalCallCount: number;
-  totalGasUsed: string;
-  txHash: string;
+  totalGasUsed: Amount;
 }
 
 export interface RealmSummaryModel {

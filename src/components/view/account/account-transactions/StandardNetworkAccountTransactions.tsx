@@ -26,7 +26,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
   const accountTransactions: Transaction[] = React.useMemo(() => {
     if (!transactionData?.pages) return [];
 
-    const allItems = transactionData.pages.flatMap(page => page.items);
+    const allItems = transactionData.pages.flatMap(page => page.items ?? []);
     return allItems.map((item): Transaction => {
       return {
         amount: { denom: "", value: "" },
@@ -48,7 +48,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
   const accountEvents: GnoEvent[] = React.useMemo(() => {
     if (!eventData?.pages) return [];
 
-    const allItems = eventData.pages.flatMap(page => page.items);
+    const allItems = eventData.pages.flatMap(page => page.items ?? []);
     return allItems.map((item): GnoEvent => {
       return {
         id: item.identifier,

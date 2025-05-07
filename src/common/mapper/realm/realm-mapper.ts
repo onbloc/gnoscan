@@ -3,6 +3,8 @@ import { GnoEvent, Realm, RealmSummary, Transaction } from "@/types/data-type";
 
 export class RealmMapper {
   public static realmListFromApiResponse(response: RealmModel): Realm {
+    const totalCallCount = (response.totalCallCountSuccess || 0) + (response.totalCallCountFailed || 0);
+
     return {
       hash: response.txHash,
       index: response.index,
@@ -12,11 +14,8 @@ export class RealmMapper {
       packagePath: response.path,
       creator: response.publisher,
       functionCount: response.funcCount,
-      totalCalls: response.totalCallCount,
-      totalGasUsed: {
-        value: response.totalGasUsed,
-        denom: "GNOT",
-      },
+      totalCalls: totalCallCount,
+      totalGasUsed: response.totalGasUsed,
     };
   }
 
