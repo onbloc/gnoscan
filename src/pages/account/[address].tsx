@@ -1,15 +1,9 @@
 import React from "react";
 
 import AccountLayout from "@/layouts/account/AccountLayout";
-const AccountAddressContainer = React.lazy(
-  () => import("@/containers/account/account-address-container/AccountAddressContainer"),
-);
-const AccountAssetsContainer = React.lazy(
-  () => import("@/containers/account/account-assets-container/AccountAssetsContainer"),
-);
-const AccountTransactionsContainer = React.lazy(
-  () => import("@/containers/account/account-transactions-container/AccountTransactionsContainer"),
-);
+import AccountAddressContainer from "@/containers/account/account-address-container/AccountAddressContainer";
+import AccountAssetsContainer from "@/containers/account/account-assets-container/AccountAssetsContainer";
+import AccountTransactionsContainer from "@/containers/account/account-transactions-container/AccountTransactionsContainer";
 
 interface AccountDetailsPageProps {
   address: string;
