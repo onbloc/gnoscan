@@ -63,12 +63,14 @@ const StandardNetworkTransactionInfo = ({
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      <TransactionContractDetails
-        transactionItem={txContracts}
-        isDesktop={isDesktop}
-        getUrlWithNetwork={getUrlWithNetwork}
-        getTokenAmount={getTokenAmount}
-      />
+      {currentTab === "Contract" && (
+        <TransactionContractDetails
+          transactionItem={txContracts}
+          isDesktop={isDesktop}
+          getUrlWithNetwork={getUrlWithNetwork}
+          getTokenAmount={getTokenAmount}
+        />
+      )}
       {currentTab === "Events" && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
     </DataListSection>
   );
