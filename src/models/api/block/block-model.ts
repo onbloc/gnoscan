@@ -37,5 +37,7 @@ export interface BlockSummaryModel {
 
   timestamp: string;
 
-  totalTransactionCount: number;
+  totalFees: number;
+
+  transactionCount: number;
 }

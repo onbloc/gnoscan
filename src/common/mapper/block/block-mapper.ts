@@ -1,9 +1,8 @@
 import { BlockModel, BlockSummaryModel } from "@/models/api/block/block-model";
-import { GetBlockResponse } from "@/repositories/api/block/response";
 import { EventModel } from "@/models/api/event/event-model";
 import { Block, BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-type";
 
-import { makeDisplayNumberWithDefault } from "@/common/utils/string-util";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString, safeString } from "@/common/utils/format/format-utils";
 import { BlockTransactionModel } from "@/models/api/block/block-transaction-model";
@@ -41,13 +40,12 @@ export class BlockMapper {
     const gas = formatGasString(gasWanted, gasUsed);
 
     // Todo: transactions
-
     return {
       timeStamp,
       network: safeString(response.network),
       blockHeight: response.blockHeight,
       blockHeightStr: safeString(response.blockHeight),
-      numberOfTransactions: makeDisplayNumberWithDefault(response.totalTransactionCount),
+      numberOfTransactions: makeDisplayNumber(response.transactionCount),
       gas,
       proposerAddress: safeString(response.proposerAddress),
       transactions: [],

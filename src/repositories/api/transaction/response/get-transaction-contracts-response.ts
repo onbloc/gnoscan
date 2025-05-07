@@ -4,8 +4,13 @@ export interface TransactionContractModel {
     value: string;
   }[];
   type: string;
+  log: string;
 }
 
 export interface GetTransactionContractsResponse {
   items: TransactionContractModel[];
+
+  page: {
+    hasNext: boolean;
+  };
 }
