@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlockEventsResponse } from "@/repositories/api/block/response";
 import { CommonError } from "@/common/errors";
-
+import { isValidBlockHeight } from "@/common/utils/string-util";
 /**
  * Basic hooks to get block events data for a specific height from the API
  * 
@@ -34,5 +34,6 @@ export const useGetBlockEventsByHeight = (
       return apiBlockRepository.getBlockEvents(height);
     },
     ...options,
+    enabled: isValidBlockHeight(height) && options?.enabled !== false,
   });
 };

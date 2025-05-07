@@ -146,7 +146,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
       return null;
     }
     const chainSupportType = getChainSupportType(currentNetworkModel);
-    if (!["ALL"].includes(chainSupportType)) {
+    if (!["RPC"].includes(chainSupportType)) {
       return null;
     }
 

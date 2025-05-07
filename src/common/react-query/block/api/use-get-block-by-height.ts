@@ -4,6 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlockResponse } from "@/repositories/api/block/response";
 import { CommonError } from "@/common/errors";
+import { isValidBlockHeight } from "@/common/utils/string-util";
 
 /**
  * Basic hooks to get specific block data by height from the API
@@ -19,7 +20,7 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetBlockByHeight = (
   height: string,
-  optoins?: UseQueryOptions<GetBlockResponse, Error, GetBlockResponse>,
+  options?: UseQueryOptions<GetBlockResponse, Error, GetBlockResponse>,
 ) => {
   const { apiBlockRepository } = useServiceProvider();
 
@@ -32,6 +33,7 @@ export const useGetBlockByHeight = (
 
       return apiBlockRepository.getBlock(height);
     },
-    ...optoins,
+    ...options,
+    enabled: isValidBlockHeight(height) && options?.enabled !== false,
   });
 };

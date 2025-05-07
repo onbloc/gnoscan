@@ -96,3 +96,8 @@ export function makeQueryParameter(data: {
 
   return "?" + params.join("&");
 }
+
+export function isValidBlockHeight(value: string | string[] | undefined): boolean {
+  const num = Number(value);
+  return !Number.isNaN(num) && Number.isFinite(num) && num >= 0;
+}
