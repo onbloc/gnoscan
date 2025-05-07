@@ -35,5 +35,6 @@ export const useGetTransactionEventsByHeight = (
       return apiTransactionRepository.getTransactionEvents(hash);
     },
     ...options,
+    enabled: !!apiTransactionRepository && !!hash,
   });
 };

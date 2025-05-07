@@ -72,7 +72,7 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
 
     return this.networkClient
       .get<APIResponse<GetTransactionEventsResponse>>({
-        url: `transactions/${hash}/events`,
+        url: `transactions/${encodeURIComponent(hash)}/events`,
       })
       .then(result => {
         return result.data?.data;

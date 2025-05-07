@@ -39,5 +39,6 @@ export const useGetTransactions = (
     },
     getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
     ...options,
+    enabled: !!apiTransactionRepository,
   });
 };

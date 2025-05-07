@@ -35,5 +35,6 @@ export const useGetTransactionContractsByHeight = (
       return apiTransactionRepository.getTransactionContracts(hash);
     },
     ...options,
+    enabled: !!apiTransactionRepository && !!hash,
   });
 };

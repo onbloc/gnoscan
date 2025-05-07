@@ -35,5 +35,6 @@ export const useGetTransactionByHash = (
       return apiTransactionRepository.getTransaction(hash);
     },
     ...options,
+    enabled: !!apiTransactionRepository && !!hash,
   });
 };
