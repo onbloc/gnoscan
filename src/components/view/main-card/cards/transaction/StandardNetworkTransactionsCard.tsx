@@ -1,9 +1,9 @@
 import React from "react";
 import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
-import { useTransactionSummaryInfo } from "@/common/hooks/main/use-transaction-summary-info";
 import { useGetSummaryTransactions } from "@/common/react-query/statistics";
 import { SummaryTransactionsInfo } from "@/types/data-type";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 
 export const StandardNetworkTxsCard = () => {
   const { data, isFetched } = useGetSummaryTransactions();
@@ -26,7 +26,7 @@ export const StandardNetworkTxsCard = () => {
         isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {transactionSummaryInfo.totalTransactions}
+            {makeDisplayNumber(transactionSummaryInfo.totalTransactions)}
           </Text>
         }
       />

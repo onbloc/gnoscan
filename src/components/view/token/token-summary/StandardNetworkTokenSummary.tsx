@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 
 import { TokenSummary } from "@/types/data-type";
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetTokenById } from "@/common/react-query/token/api";
 
 import * as S from "./TokenSummary.styles";
@@ -81,7 +81,7 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
       <DLWrap desktop={isDesktop}>
         <dt>Total Supply</dt>
         <dd>
-          <Badge>{tokenSummary?.totalSupply}</Badge>
+          <Badge>{makeDisplayNumber(tokenSummary?.totalSupply || 0)}</Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
@@ -153,7 +153,7 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
       <DLWrap desktop={isDesktop}>
         <dt>Holders</dt>
         <dd>
-          <Badge>{tokenSummary?.holders}</Badge>
+          <Badge>{makeDisplayNumber(tokenSummary?.holders || 0)}</Badge>
         </dd>
       </DLWrap>
       {files && files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Logs" />}

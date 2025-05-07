@@ -6,6 +6,7 @@ import Tooltip from "@/components/ui/tooltip";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetSummarySupply } from "@/common/react-query/statistics";
 import { SummaryGnotSupplyInfo } from "@/types/data-type";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 
 export const StandardNetworkSupplyCard = () => {
   const { data, isFetched } = useGetSummarySupply();
@@ -28,7 +29,7 @@ export const StandardNetworkSupplyCard = () => {
         isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {supplyInfo.totalSupplyAmount}
+            {makeDisplayNumber(supplyInfo.totalSupplyAmount)}
             <Text type="p4" display="inline-block" color="primary">
               &nbsp;GNOT
             </Text>
@@ -56,7 +57,7 @@ export const StandardNetworkSupplyCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {supplyInfo.airdropSupplyAmount}
+                  {makeDisplayNumber(supplyInfo.airdropSupplyAmount)}
                 </Text>
               }
             />
@@ -80,7 +81,7 @@ export const StandardNetworkSupplyCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {supplyInfo.airdropHolder}
+                  {makeDisplayNumber(supplyInfo.airdropHolder)}
                 </Text>
               }
             />

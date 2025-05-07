@@ -9,7 +9,6 @@ import Tooltip from "@/components/ui/tooltip";
 import mixins from "@/styles/mixins";
 import React from "react";
 import styled from "styled-components";
-import { AccountCard } from "./cards";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { CustomNetworkSupplyCard } from "./cards/supply/CustomNetworkSupplyCard";
 import { StandardNetworkSupplyCard } from "./cards/supply/StandardNetworkSupplyCard";

@@ -3,6 +3,7 @@ import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetSummaryBlocks } from "@/common/react-query/statistics";
 import { SummaryBlockInfo } from "@/types/data-type";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 
 export const StandardNetworkBlockCard = () => {
   const { data, isFetched } = useGetSummaryBlocks();
@@ -25,7 +26,7 @@ export const StandardNetworkBlockCard = () => {
         isFetched={isFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {summaryInfo.blockHeight}
+            {makeDisplayNumber(summaryInfo.blockHeight)}
           </Text>
         }
       />

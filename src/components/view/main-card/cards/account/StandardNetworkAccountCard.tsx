@@ -4,7 +4,6 @@ import IconInfo from "@/assets/svgs/icon-info.svg";
 import { Button } from "@/components/ui/button";
 import Tooltip from "@/components/ui/tooltip";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
-import { useAccountSummaryInfo } from "@/common/hooks/main/use-account-summary-info";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetSummaryAccounts } from "@/common/react-query/statistics";
 import { SummaryAccountsInfo } from "@/types/data-type";
@@ -47,7 +46,7 @@ export const StandardNetworkAccountCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {accountSummaryInfo.numOfValidators}
+                  {makeDisplayNumber(accountSummaryInfo.numOfValidators)}
                 </Text>
               }
             />
@@ -71,7 +70,7 @@ export const StandardNetworkAccountCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {accountSummaryInfo.totalUsers}
+                  {makeDisplayNumber(accountSummaryInfo.totalUsers)}
                 </Text>
               }
             />

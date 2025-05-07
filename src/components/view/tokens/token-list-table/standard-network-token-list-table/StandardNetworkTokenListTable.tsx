@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 
 import * as S from "./StandardNetworkTokenListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -92,7 +93,7 @@ export const StandardNetworkTokenListTable = ({
       .key("totalSupply")
       .name("Total Supply")
       .width(180)
-      .renderOption(totalSupply => <>{totalSupply.toLocaleString()}</>)
+      .renderOption(totalSupply => <>{makeDisplayNumber(totalSupply)}</>)
       .build();
   };
 
