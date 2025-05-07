@@ -70,12 +70,7 @@ export const StandardNetworkTokenListTable = ({
   };
 
   const createHeaderHolder = () => {
-    return DatatableOption.Builder.builder()
-      .key("packagePath")
-      .name("Holders")
-      .width(110)
-      .renderOption(packagePath => <DatatableItem.LazyHolders realmPath={packagePath} maxSize="p4" minSize="body3" />)
-      .build();
+    return DatatableOption.Builder.builder().key("holders").name("Holders").width(110).build();
   };
 
   const createHeaderFunction = () => {
@@ -94,10 +89,10 @@ export const StandardNetworkTokenListTable = ({
 
   const createHeaderTotalSupply = () => {
     return DatatableOption.Builder.builder()
-      .key("packagePath")
+      .key("totalSupply")
       .name("Total Supply")
       .width(180)
-      .renderOption(packagePath => <DatatableItem.LazyTotalSupply realmPath={packagePath} maxSize="p4" minSize="p4" />)
+      .renderOption(totalSupply => <>{totalSupply.toLocaleString()}</>)
       .build();
   };
 

@@ -3,12 +3,8 @@ import React from "react";
 import useLoading from "@/common/hooks/use-loading";
 
 import TransactionsLayout from "@/layouts/transactions/TransactionsLayout";
-const TransactionListContainer = React.lazy(
-  () => import("@/containers/transactions/transaction-list-container/TransactionListContainer"),
-);
-const TransactionSearchContainer = React.lazy(
-  () => import("@/containers/transactions/transaction-search-container/TransactionSearchContainer"),
-);
+import TransactionListContainer from "@/containers/transactions/transaction-list-container/TransactionListContainer";
+import TransactionSearchContainer from "@/containers/transactions/transaction-search-container/TransactionSearchContainer";
 
 export default function Page() {
   const { loading } = useLoading();
