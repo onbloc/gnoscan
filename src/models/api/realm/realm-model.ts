@@ -39,10 +39,7 @@ export interface RealmSummaryModel {
 }
 
 export interface RealmTransactionModel {
-  amount: Amount;
-  block: number;
-  fee: Amount;
-  from: string;
+  txHash: string;
   func: [
     {
       funcType: string;
@@ -50,8 +47,13 @@ export interface RealmTransactionModel {
       pkgPath: string;
     },
   ];
+  success: boolean;
+  block: number;
+  from: string;
+  to: string;
+  amount: Amount;
+  fee: Amount;
   timestamp: string;
-  txHash: string;
 }
 
 export interface RealmEventModel {

@@ -1,6 +1,5 @@
 import React from "react";
 
-import { useRealm } from "@/common/hooks/realms/use-realm";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
 import CustomNetworkRealmInfo from "@/components/view/realm/realm-info/CustomNetworkRealmInfo";
@@ -15,17 +14,10 @@ const RealmInfoContainer = ({ path }: RealmInfoContainerProps) => {
 
   const [currentTab, setCurrentTab] = React.useState("Transactions");
 
-  const { transactionEvents, isFetched } = useRealm(path);
-
   return isCustomNetwork ? (
     <CustomNetworkRealmInfo path={path} currentTab={currentTab} setCurrentTab={setCurrentTab} />
   ) : (
-    <StandardNetworkRealmInfo
-      path={path}
-      currentTab={currentTab}
-      setCurrentTab={setCurrentTab}
-      transactionEvents={transactionEvents}
-    />
+    <StandardNetworkRealmInfo path={path} currentTab={currentTab} setCurrentTab={setCurrentTab} />
   );
 };
 

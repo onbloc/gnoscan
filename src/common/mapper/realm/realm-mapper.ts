@@ -55,7 +55,7 @@ export class RealmMapper {
       hash: response.txHash,
       numOfMessage: response.func.length,
       packagePath: "",
-      success: false,
+      success: response.success,
       time: response.timestamp,
       type: response.func[0].funcType,
     };

@@ -1,7 +1,5 @@
 import React from "react";
 
-import { GnoEvent } from "@/types/data-type";
-
 import DataListSection from "../../details-data-section/data-list-section";
 import { RealmDetailDatatable } from "../../datatable";
 import { EventDatatable } from "../../datatable/event";
@@ -12,11 +10,10 @@ import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 interface RealmInfoProps {
   path: string;
   currentTab: string;
-  transactionEvents: GnoEvent[];
   setCurrentTab: (tab: string) => void;
 }
 
-const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab, transactionEvents }: RealmInfoProps) => {
+const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoProps) => {
   const { data: transactionData, isFetched: isFetchedTransactionData } = useGetRealmTransactionsByPath(path);
   const { data: eventData, isFetched: isFetchedEventData } = useGetRealmEventsByPath(path);
 
@@ -39,10 +36,10 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab, transaction
       },
       {
         tabName: "Events",
-        size: transactionEvents.length,
+        size: realmEvents.length,
       },
     ];
-  }, [transactionEvents]);
+  }, [realmEvents]);
 
   if (!isFetchedTransactionData) return <TableSkeleton />;
 
