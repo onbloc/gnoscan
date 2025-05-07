@@ -101,8 +101,8 @@ export interface RealmSummary {
       }[]
     | undefined;
   balance: Amount | null;
-  contractCalls: null;
-  totalUsedFees: null;
+  contractCalls: number | null;
+  totalUsedFees: Amount | null;
 }
 
 export interface TokenInfo {

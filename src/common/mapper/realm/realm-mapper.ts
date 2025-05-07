@@ -36,8 +36,8 @@ export class RealmMapper {
         return { name: file.filename, body: file.content };
       }),
       balance: { denom: "", value: "" },
-      contractCalls: null,
-      totalUsedFees: null,
+      contractCalls: response.contractCallCount || 0,
+      totalUsedFees: response.totalUsedFees,
     };
   }
 
@@ -47,9 +47,9 @@ export class RealmMapper {
 
   public static realmTransactionFromApiResponse(response: RealmTransactionModel): Transaction {
     return {
-      amount: { denom: "", value: "" },
+      amount: response.amount,
       blockHeight: response.block,
-      fee: { denom: "", value: "" },
+      fee: response.fee,
       from: response.from,
       to: "",
       functionName: response.func[0].pkgPath,
@@ -68,14 +68,14 @@ export class RealmMapper {
 
   public static realmEventFromApiResponse(response: RealmEventModel): GnoEvent {
     return {
-      attrs: [],
-      blockHeight: 0,
-      caller: response.publisher,
-      functionName: response.func[0].typesList,
-      id: response.publisher,
-      packagePath: response.path,
-      time: "",
-      transactionHash: "",
+      attrs: response.emit.params,
+      blockHeight: response.blockHeight,
+      caller: response.caller,
+      functionName: response.function,
+      id: response.identifier,
+      packagePath: response.realmPath,
+      time: response.timestamp,
+      transactionHash: response.txHash,
       type: "",
     };
   }
