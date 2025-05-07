@@ -1,19 +1,19 @@
 export interface GetTokenResponse {
   data: {
-    decimals: number;
-    funcTypesList: string[];
-    holders: number;
     name: string;
-    owner: string;
+    symbol: string;
+    totalSupply: string;
+    decimals: number;
     path: string;
+    funcTypesList: string[];
+    owner: string;
+    holders: number;
     sourceFiles: [
       {
         content: string;
         filename: string;
       },
     ];
-    symbol: string;
-    totalSupply: string;
   };
   page: string;
 }

@@ -39,7 +39,7 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
 
     return this.networkClient
       .get<APIResponse<GetTokenResponse>>({
-        url: `tokens/${tokenId}`,
+        url: `tokens/${encodeURIComponent(tokenId)}`,
       })
       .then(result => {
         return result.data?.data;
@@ -53,7 +53,7 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
 
     return this.networkClient
       .get<APIResponse<GetTokenTransactionsResponse>>({
-        url: `tokens/${tokenId}/transactions`,
+        url: `tokens/${encodeURIComponent(tokenId)}/transactions`,
       })
       .then(result => {
         return result.data?.data;

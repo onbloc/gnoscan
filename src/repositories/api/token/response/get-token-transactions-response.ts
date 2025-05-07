@@ -1,19 +1,7 @@
+import { TokenTransactionModel } from "@/models/api/token/token-model";
+
 export interface GetTokenTransactionsResponse {
-  data: {
-    amount: string;
-    block: number;
-    fee: string;
-    from: string;
-    func: [
-      {
-        funcType: string;
-        messageType: string;
-        pkgPath: string;
-      },
-    ];
-    timestamp: string;
-    txHash: string;
-  }[];
+  items: TokenTransactionModel[];
   page: {
     cursor: string;
     hasNext: boolean;

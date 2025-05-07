@@ -1,3 +1,5 @@
+import { Amount } from "@/types/data-type";
+
 export interface TokenModel {
   path: string;
   owner: string;
@@ -8,4 +10,18 @@ export interface TokenModel {
   totalSupply: string;
   holders: number;
   logUrl: string;
+}
+
+export interface TokenTransactionModel {
+  amount: Amount;
+  block: number;
+  fee: Amount;
+  from: string;
+  func: {
+    funcType: string;
+    messageType: string;
+    pkgPath: string;
+  }[];
+  timestamp: string;
+  txHash: string;
 }

@@ -4,15 +4,16 @@
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import styled from "styled-components";
-import { Button } from "@/components/ui/button";
 import theme from "@/styles/theme";
 import { DatatableItem } from "..";
-import { eachMedia } from "@/common/hooks/use-media";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
-import { useToken } from "@/common/hooks/tokens/use-token";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { useTokenTransactionsInfinity } from "@/common/hooks/tokens/use-token-transactions-onbloc";
+import { useGetTokenTransactionsByid } from "@/common/react-query/token/api";
+
+import { Transaction } from "@/types/data-type";
+import { TokenTransactionModel } from "@/models/api/token/token-model";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 interface Props {
   path: string[] | any;
@@ -27,11 +28,36 @@ const TOOLTIP_TYPE = (
 );
 
 export const TokenDetailDatatablePage = ({ path }: Props) => {
-  const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
   const { getTokenAmount } = useTokenMeta();
-  const { isFetchedTransactions, transactions, hasNextPage, nextPage } = useTokenTransactionsInfinity(path);
+
+  const { data, isFetched: isFetchedTransactions } = useGetTokenTransactionsByid(path);
+
+  const tokenTransactions: Transaction[] = React.useMemo(() => {
+    const response = data?.items;
+
+    if (!response) return [];
+
+    return response.map((item: TokenTransactionModel): Transaction => {
+      return {
+        hash: item.txHash,
+        success: true,
+        numOfMessage: 0,
+        type: "",
+        packagePath: "",
+        functionName: "",
+        blockHeight: 0,
+        from: item.from,
+        to: "",
+        amount: item.amount,
+        time: item.timestamp,
+        fee: item.fee,
+      };
+    });
+  }, [data?.items]);
+
+  if (!isFetchedTransactions) return <TableSkeleton />;
 
   const createHeaders = () => {
     return [
@@ -140,16 +166,16 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
             themeMode: themeMode,
           };
         })}
-        datas={transactions as any[]}
+        datas={tokenTransactions as any[]}
       />
-
+      {/* 
       {hasNextPage ? (
         <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>
           {"View More Transactions"}
         </Button>
       ) : (
         <></>
-      )}
+      )} */}
     </Container>
   );
 };

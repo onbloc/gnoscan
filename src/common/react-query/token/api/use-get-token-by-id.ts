@@ -18,7 +18,7 @@ import { CommonError } from "@/common/errors";
  * @param options - @tanstack/react-query options
  * @returns Original token data fetched from the API and the status of the query
  */
-export const useGetTokenByid = (
+export const useGetTokenById = (
   tokenId: string,
   optoins?: UseQueryOptions<GetTokenResponse, Error, GetTokenResponse>,
 ) => {

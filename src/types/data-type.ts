@@ -71,6 +71,17 @@ export interface TokenMeta {
   image: string;
 }
 
+export interface TokenSummary {
+  name: string;
+  symbol: string;
+  decimals: string | number;
+  packagePath: string;
+  owner: string;
+  functions: string[];
+  totalSupply: number;
+  holders: number;
+}
+
 export interface Realm {
   hash: string;
   index: number;
