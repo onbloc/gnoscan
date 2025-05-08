@@ -121,7 +121,7 @@ export const StandardNetworkTransactionListTable = ({
             type={func.messageType}
             func={displayFunctionName}
             packagePath={func.pkgPath}
-            msgNum={data.numOfMessage}
+            msgNum={data.numOfMessage - 1}
           />
         );
       })
