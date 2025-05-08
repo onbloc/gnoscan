@@ -13,15 +13,25 @@ export interface TokenModel {
 }
 
 export interface TokenTransactionModel {
-  amount: Amount;
-  block: number;
-  fee: Amount;
-  from: string;
+  txHash: string;
+
   func: {
-    funcType: string;
     messageType: string;
+    funcType: string;
     pkgPath: string;
   }[];
+
+  success: boolean;
+
+  block: number;
+
+  from: string;
+
+  to: string;
+
+  amount: Amount;
+
+  fee: Amount;
+
   timestamp: string;
-  txHash: string;
 }

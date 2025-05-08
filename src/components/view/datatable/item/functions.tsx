@@ -11,7 +11,7 @@ export const Functions = ({ functions }: Props) => {
   return (
     <FunctionsWrapper className="ellipsis">
       {functions.map((func, index) => (
-        <Badge className="function" type="blue" key={index}>
+        <Badge className="function" type="blue" margin={"0px"} key={index}>
           <Text type="p4" color="white">
             {func}
           </Text>
