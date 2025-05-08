@@ -2,6 +2,9 @@ import React from "react";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { Amount } from "@/types/data-type";
+import { useUsername } from "@/common/hooks/account/use-username";
+import { isBech32Address } from "@/common/utils/bech32.utility";
+import { useAccount } from "@/common/hooks/account/use-account";
 
 import * as S from "./AccountAssets.styles";
 import Text from "@/components/ui/text";
@@ -9,22 +12,25 @@ import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 
 interface AccountAssetsProps {
+  address: string;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
-  isFetched: boolean;
-  isLoading: boolean;
-  isFetchedAssets: boolean;
-  tokenBalances: { value: string; denom: string }[];
 }
 
-const CustomNetworkAccountAssets = ({
-  breakpoint,
-  isDesktop,
-  isFetched,
-  isLoading,
-  isFetchedAssets,
-  tokenBalances,
-}: AccountAssetsProps) => {
+const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
+  const { isFetched: isFetchedUsername, isLoading: isLoadingUsername, getAddress } = useUsername();
+
+  const bech32Address = React.useMemo(() => {
+    if (!isFetchedUsername) return "";
+    if (isBech32Address(address)) return address;
+    return getAddress(address) || "";
+  }, [address, isFetchedUsername, getAddress]);
+
+  const { isFetchedAssets, isLoadingAssets, tokenBalances } = useAccount(bech32Address || "");
+
+  const isLoading = isLoadingUsername || isLoadingAssets;
+  const isFetched = isFetchedUsername && isFetchedAssets;
+
   if (isLoading || !isFetched) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
   }
