@@ -62,8 +62,8 @@ export const SubMenu: React.FC<SubMenuProps> = ({
           </TopHeader>
           <Nav>
             {navItems.map((v, i) => (
-              <Link href={getUrlWithNetwork(v.path)} passHref key={v1()}>
-                <StyledA current={currentPath === v.path} onClick={close}>
+              <Link href={getUrlWithNetwork(v.path)} passHref key={v1()} onClick={close}>
+                <StyledA current={currentPath === v.path}>
                   <Text type="h4" color="primary">
                     {v.name}
                   </Text>
