@@ -100,7 +100,7 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
           type={data.type}
           func={data.functionName}
           packagePath={data.packagePath}
-          msgNum={data.numOfMessage}
+          msgNum={data.numOfMessage - 1}
         />
       ))
       .build();
