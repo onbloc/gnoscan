@@ -2,9 +2,11 @@ import React from "react";
 
 import { useWindowSize } from "@/common/hooks/use-window-size";
 
-import TransactionSummary from "@/components/view/transaction/transaction-summary/TransactionSummary";
-import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 import { useNetwork } from "@/common/hooks/use-network";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+
+import CustomNetworkTransactionSummary from "@/components/view/transaction/transaction-summary/custom-network-transaction-summary/CustomNetworkTransactionSummary";
+import StandardNetworkTransactionSummary from "@/components/view/transaction/transaction-summary/standard-network-transaction-summary/StandardNetworkTransactionSummary";
 
 interface TransactionSummaryContainerProps {
   txHash: string;
@@ -13,15 +15,12 @@ interface TransactionSummaryContainerProps {
 const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProps) => {
   const { isDesktop } = useWindowSize();
   const { getUrlWithNetwork } = useNetwork();
+  const { isCustomNetwork } = useNetworkProvider();
 
-  const transactionData = useTransaction(txHash);
-  return (
-    <TransactionSummary
-      isDesktop={isDesktop}
-      getUrlWithNetwork={getUrlWithNetwork}
-      txHash={txHash}
-      {...transactionData}
-    />
+  return isCustomNetwork ? (
+    <CustomNetworkTransactionSummary txHash={txHash} isDesktop={isDesktop} getUrlWithNetwork={getUrlWithNetwork} />
+  ) : (
+    <StandardNetworkTransactionSummary txHash={txHash} isDesktop={isDesktop} getUrlWithNetwork={getUrlWithNetwork} />
   );
 };
 

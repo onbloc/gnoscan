@@ -10,11 +10,15 @@ import { DatatableItem } from "..";
 import { eachMedia } from "@/common/hooks/use-media";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
-import { useRealm } from "@/common/hooks/realms/use-realm";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { Transaction } from "@/types/data-type";
 
 interface Props {
   pkgPath: string;
+  data: Transaction[];
+  isFetched: boolean;
+  hasNextPage: boolean;
+  nextPage: () => void;
 }
 
 const TOOLTIP_TYPE = (
@@ -25,12 +29,10 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const RealmDetailDatatable = ({ pkgPath }: Props) => {
+export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, nextPage }: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const { getTokenAmount } = useTokenMeta();
-
-  const { isFetchedTransactions, realmTransactions, hasNextPage, nextPage } = useRealm(pkgPath);
 
   const createHeaders = () => {
     return [
@@ -64,7 +66,7 @@ export const RealmDetailDatatable = ({ pkgPath }: Props) => {
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.functionName} packagePath={data.packagePath} />
+        <DatatableItem.Type type={data.type} func={data.type} packagePath={data.functionName} />
       ))
       .build();
   };
@@ -127,14 +129,14 @@ export const RealmDetailDatatable = ({ pkgPath }: Props) => {
   return (
     <Container>
       <Datatable
-        loading={!isFetchedTransactions}
+        loading={!isFetched}
         headers={createHeaders().map(item => {
           return {
             ...item,
             themeMode: themeMode,
           };
         })}
-        datas={realmTransactions}
+        datas={data}
       />
 
       {hasNextPage ? (

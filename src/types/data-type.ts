@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { TimeStamp } from "@/common/utils/date-util";
+import { TxFee, TxSignature } from "@gnolang/tm2-js-client";
+
 export interface Board {
   index: number;
   path: string;
@@ -29,6 +32,28 @@ export interface Block {
   totalFees: Amount | null;
 }
 
+export interface BlockSummaryInfo {
+  timeStamp: TimeStamp;
+  network: string;
+  blockHeight: number | null;
+  blockHeightStr: string | undefined;
+  transactions:
+    | {
+        hash: string;
+        messages: any[];
+        fee?: TxFee;
+        signatures: TxSignature[];
+        memo: string;
+      }[]
+    | undefined;
+  numberOfTransactions: string;
+  gas: string;
+  proposerAddress: string;
+  proposerRaw?: string;
+  hasPreviousBlock?: boolean;
+  hasNextBlock?: boolean;
+}
+
 export interface Amount {
   value: string;
   denom: string;
@@ -45,6 +70,51 @@ export interface TokenMeta {
   description: string;
   website_url: string;
   image: string;
+}
+
+export interface TokenSummary {
+  name: string;
+  symbol: string;
+  decimals: string | number;
+  packagePath: string;
+  owner: string;
+  functions: string[];
+  totalSupply: number;
+  holders: number;
+}
+
+export interface Realm {
+  hash: string;
+  index: number;
+  success: boolean;
+  blockHeight: number;
+  packageName: string;
+  packagePath: string;
+  creator: string;
+  functionCount: number;
+  totalCalls: number;
+  totalGasUsed: {
+    value: string;
+    denom: string;
+  };
+}
+
+export interface RealmSummary {
+  name: string;
+  path: string;
+  realmAddress: string;
+  publisherAddress: string;
+  funcs: string[] | undefined;
+  blockPublished: number;
+  files:
+    | {
+        name: string;
+        body: string;
+      }[]
+    | undefined;
+  balance: Amount | null;
+  contractCalls: number | null;
+  totalUsedFees: Amount | null;
 }
 
 export interface TokenInfo {
@@ -80,9 +150,37 @@ export interface Transaction {
   events?: GnoEvent[];
 }
 
+export interface TransactionContractInfo {
+  messages: any[];
+  numOfMessage: number;
+  rawContent: string;
+}
+
 export interface TransactionEvent {
   summary: GnoEvent;
   events: GnoEvent[];
+}
+
+export interface TransactionSummaryInfo {
+  network: any;
+  timeStamp: TimeStamp;
+  blockResult: any;
+  gas: string;
+  transactionItem: Transaction | null;
+  transactionEvents: GnoEvent[];
+}
+
+export interface NewestRealm {
+  hash: string;
+  index: number;
+  success: boolean;
+  blockHeight: number;
+  packageName: string;
+  packagePath: string;
+  creator: string;
+  functionCount: number;
+  totalCalls: number;
+  totalGasUsed: Amount;
 }
 
 export interface GnoEvent {
@@ -98,6 +196,30 @@ export interface GnoEvent {
     key: string;
     value: string;
   }[];
+}
+
+export interface SummaryGnotSupplyInfo {
+  totalSupplyAmount: string;
+  airdropSupplyAmount: string;
+  airdropHolder: string;
+}
+
+export interface SummaryBlockInfo {
+  blockHeight: string;
+  blockTimeAverage: string;
+  txPerBlockAverage: string;
+}
+
+export interface SummaryTransactionsInfo {
+  totalTransactions: string;
+  transactionFeeAverage: string;
+  transactionTotalFee: string;
+}
+
+export interface SummaryAccountsInfo {
+  totalAccounts: number;
+  totalUsers: number;
+  numOfValidators: string;
 }
 
 export interface TotalTransactionStatInfo {

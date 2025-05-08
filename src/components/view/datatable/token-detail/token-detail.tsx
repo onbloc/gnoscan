@@ -13,6 +13,8 @@ import { themeState } from "@/states";
 import { useToken } from "@/common/hooks/tokens/use-token";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenTransactions } from "@/common/hooks/tokens/use-token-transactions";
+import { useUsername } from "@/common/hooks/account/use-username";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 interface Props {
   path: string[] | any;
@@ -30,8 +32,17 @@ export const TokenDetailDatatable = ({ path }: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 
-  const { getTokenAmount } = useTokenMeta();
+  const { isFetched: isFetchedToken } = useToken(path);
+  const { isFetchedGRC20Tokens, getTokenAmount } = useTokenMeta();
+  const { isFetched: isFetchedUsername } = useUsername();
   const { isFetchedTransactions, transactions, hasNextPage, nextPage } = useTokenTransactions(path);
+
+  const isFetched = React.useMemo(
+    () => isFetchedToken && isFetchedGRC20Tokens && isFetchedUsername,
+    [isFetchedToken, isFetchedGRC20Tokens, isFetchedUsername],
+  );
+
+  if (!isFetched) return <TableSkeleton />;
 
   const createHeaders = () => {
     return [

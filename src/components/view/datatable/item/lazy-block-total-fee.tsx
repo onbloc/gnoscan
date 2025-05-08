@@ -12,11 +12,12 @@ import BigNumber from "bignumber.js";
 
 interface Props {
   blockHeight: number;
+  defaultDenom: string;
   maxSize?: FontsType;
   minSize?: FontsType;
 }
 
-export const LazyBlockTotalFee = ({ blockHeight, maxSize = "p4", minSize = "body1" }: Props) => {
+export const LazyBlockTotalFee = ({ blockHeight, maxSize = "p4", minSize = "body1", defaultDenom = "GNOT" }: Props) => {
   const { data: block, isFetched } = useGetBlockQuery(blockHeight);
 
   const totalFee = useMemo(() => {
@@ -44,8 +45,12 @@ export const LazyBlockTotalFee = ({ blockHeight, maxSize = "p4", minSize = "body
     };
   }, [totalFee]);
 
-  if (!isFetched || !amount) {
+  if (!isFetched) {
     return <SkeletonBar height={"20px"} />;
+  }
+
+  if (!amount) {
+    return <AmountText value={0} denom={defaultDenom} maxSize={maxSize} minSize={minSize} />;
   }
 
   return <AmountText value={amount.value} denom={amount.denom} maxSize={maxSize} minSize={minSize} />;

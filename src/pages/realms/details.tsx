@@ -2,10 +2,8 @@
 import React from "react";
 
 import RealmLayout from "@/layouts/realm/RealmLayout";
-const RealmSummaryContainer = React.lazy(
-  () => import("@/containers/realm/realm-summary-container/RealmSummaryContainer"),
-);
-const RealmInfoContainer = React.lazy(() => import("@/containers/realm/realm-info-container/RealmInfoContainer"));
+import RealmSummaryContainer from "@/containers/realm/realm-summary-container/RealmSummaryContainer";
+import RealmInfoContainer from "@/containers/realm/realm-info-container/RealmInfoContainer";
 
 interface RealmsDetailsPageProps {
   path: string;

@@ -9,14 +9,22 @@ import Tooltip from "@/components/ui/tooltip";
 import mixins from "@/styles/mixins";
 import React from "react";
 import styled from "styled-components";
-import { AccountCard, BlockCard, SupplyCard, TxsCard } from "./cards";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { CustomNetworkSupplyCard } from "./cards/supply/CustomNetworkSupplyCard";
+import { StandardNetworkSupplyCard } from "./cards/supply/StandardNetworkSupplyCard";
+import { CustomNetworkBlockCard } from "./cards/block/CustomNetworkBlockCard";
+import { StandardNetworkBlockCard } from "./cards/block/StandardNetworkBlockCard";
+import { CustomNetworkTxsCard } from "./cards/transaction/CustomNetworkTransactionsCard";
+import { StandardNetworkTxsCard } from "./cards/transaction/StandardNetworkTransactionsCard";
+import { CustomNetworkAccountCard } from "./cards/account/CustomNetworkAccountCard";
+import { StandardNetworkAccountCard } from "./cards/account/StandardNetworkAccountCard";
 
 interface MainCardProps {
   breakpoint: DEVICE_TYPE;
+  isCustomNetwork: boolean;
 }
 
-const MainCard = ({ breakpoint }: MainCardProps) => {
+const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
   return (
     <Wrapper className={breakpoint}>
       <StyledCard>
@@ -31,21 +39,21 @@ const MainCard = ({ breakpoint }: MainCardProps) => {
             </Button>
           </Tooltip>
         </Text>
-        <SupplyCard />
+        {isCustomNetwork ? <CustomNetworkSupplyCard /> : <StandardNetworkSupplyCard />}
       </StyledCard>
 
       <StyledCard>
         <Text type="h5" color="primary">
           Block&nbsp;Height
         </Text>
-        <BlockCard />
+        {isCustomNetwork ? <CustomNetworkBlockCard /> : <StandardNetworkBlockCard />}
       </StyledCard>
 
       <StyledCard>
         <Text type="h5" color="primary">
           Total&nbsp;Transactions
         </Text>
-        <TxsCard />
+        {isCustomNetwork ? <CustomNetworkTxsCard /> : <StandardNetworkTxsCard />}
       </StyledCard>
       <StyledCard>
         <Text type="h5" color="primary" className="title-info">
@@ -56,7 +64,7 @@ const MainCard = ({ breakpoint }: MainCardProps) => {
             </Button>
           </Tooltip>
         </Text>
-        <AccountCard />
+        {isCustomNetwork ? <CustomNetworkAccountCard /> : <StandardNetworkAccountCard />}
       </StyledCard>
     </Wrapper>
   );

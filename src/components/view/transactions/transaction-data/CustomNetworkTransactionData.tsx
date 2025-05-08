@@ -3,7 +3,7 @@ import React from "react";
 import { useAllTransactions } from "@/common/hooks/transactions/use-all-transactions";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
-import { TransactionListTable } from "../transaction-list-table/TransactionListTable";
+import { CustomNetworkTransactionListTable } from "../transaction-list-table/custom-network/CustomNetworkTransactionListTable";
 
 interface CustomNetworkTransactionDataProps {
   breakpoint: DEVICE_TYPE;
@@ -12,7 +12,7 @@ interface CustomNetworkTransactionDataProps {
 const CustomNetworkTransactionData = ({ breakpoint }: CustomNetworkTransactionDataProps) => {
   const transactionData = useAllTransactions({});
 
-  return <TransactionListTable breakpoint={breakpoint} {...transactionData} />;
+  return <CustomNetworkTransactionListTable breakpoint={breakpoint} {...transactionData} />;
 };
 
 export default CustomNetworkTransactionData;

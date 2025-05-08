@@ -5,6 +5,7 @@ import {
   useGetRealmFunctionsQuery,
   useGetRealmTotalSupplyQuery,
 } from "@/common/react-query/realm";
+import { TokenSummary } from "@/types/data-type";
 
 export const useToken = (path: string[] | string | undefined) => {
   const packagePath = useMemo(() => {
@@ -23,9 +24,8 @@ export const useToken = (path: string[] | string | undefined) => {
   const { data: holders = 0 } = useGetHoldersQuery(packagePath);
   const { data: realmFunctions, isFetched: isFetchedRealmFunctions } = useGetRealmFunctionsQuery(packagePath);
 
-  return {
-    isFetched: isFetched && isFetchedRealmFunctions,
-    summary: {
+  const tokenSummary: TokenSummary = useMemo(() => {
+    return {
       name: data?.tokenInfo.name || "",
       symbol: data?.tokenInfo.symbol || "",
       decimals: data?.tokenInfo.decimals || "",
@@ -34,7 +34,12 @@ export const useToken = (path: string[] | string | undefined) => {
       functions: realmFunctions?.map(func => func.functionName) || [],
       totalSupply,
       holders,
-    },
+    };
+  }, [data, realmFunctions, totalSupply, holders]);
+
+  return {
+    isFetched: isFetched && isFetchedRealmFunctions,
+    summary: tokenSummary,
     files: data?.realmTransaction.messages.flatMap(m => m.value.package?.files || []),
   };
 };

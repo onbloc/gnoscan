@@ -1,14 +1,9 @@
-"use client";
-
 import React from "react";
-
-import { useRouter } from "@/common/hooks/common/use-router";
+import { useRouter } from "next/router";
 
 import BlockLayout from "@/layouts/block/BlockLayout";
-const BlockSummaryContainer = React.lazy(
-  () => import("@/containers/block/block-summary-container/BlockSummaryContainer"),
-);
-const BlockInfoContainer = React.lazy(() => import("@/containers/block/block-info-container/BlockInfoContainer"));
+import BlockSummaryContainer from "@/containers/block/block-summary-container/BlockSummaryContainer";
+import BlockInfoContainer from "@/containers/block/block-info-container/BlockInfoContainer";
 
 export default function Page() {
   const router = useRouter();

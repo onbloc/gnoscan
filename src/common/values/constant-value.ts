@@ -1,4 +1,4 @@
-export const GNO_TOKEN_RESOURCE_BASE_URI = "https://raw.githubusercontent.com/onbloc/gno-token-resource/main";
+export const GNO_TOKEN_RESOURCE_BASE_URI = "";
 export const RPC_URI = process.env.NEXT_PUBLIC_RPC_URI ?? "";
 export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "";
 

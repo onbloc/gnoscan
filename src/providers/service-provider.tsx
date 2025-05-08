@@ -1,3 +1,4 @@
+import { createContext, useMemo } from "react";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { AccountRepository, IAccountRepository } from "@/repositories/account-repository";
 import { OnblocAccountRepository } from "@/repositories/account-repository/onbloc-account-repository";
@@ -7,7 +8,13 @@ import { IRealmRepository, RealmRepository } from "@/repositories/realm-reposito
 import { OnblocRealmRepository } from "@/repositories/realm-repository.ts/onbloc-realm-repository";
 import { ITransactionRepository, TransactionRepository } from "@/repositories/transaction-repository";
 import { OnblocTransactionRepository } from "@/repositories/transaction-repository/onbloc-transaction-repository";
-import { createContext, useMemo } from "react";
+
+import { ApiAccountRepository, ApiAccountRepositoryImpl } from "@/repositories/api/account";
+import { ApiBlockRepository, ApiBlockRepositoryImpl } from "@/repositories/api/block";
+import { ApiTransactionRepository, ApiTransactionRepositoryImpl } from "@/repositories/api/transaction";
+import { ApiRealmRepository, ApiRealmRepositoryImpl } from "@/repositories/api/realm";
+import { ApiTokenRepository, ApiTokenRepositoryImpl } from "@/repositories/api/token";
+import { ApiStatisticsRepository, ApiStatisticsRepositoryImpl } from "@/repositories/api/statistics";
 
 interface ServiceContextProps {
   chainRepository: IChainRepository | null;
@@ -15,12 +22,18 @@ interface ServiceContextProps {
   transactionRepository: ITransactionRepository | null;
   realmRepository: IRealmRepository | null;
   accountRepository: IAccountRepository | null;
+  apiAccountRepository: ApiAccountRepository | null;
+  apiBlockRepository: ApiBlockRepository | null;
+  apiTransactionRepository: ApiTransactionRepository | null;
+  apiRealmRepository: ApiRealmRepository | null;
+  apiTokenRepository: ApiTokenRepository | null;
+  apiStatisticsRepository: ApiStatisticsRepository | null;
 }
 
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
 
 const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { indexerQueryClient, nodeRPCClient, onblocRPCClient, mainNodeRPCClient, isCustomNetwork } =
+  const { indexerQueryClient, nodeRPCClient, onblocRPCClient, onblocAPIClient, mainNodeRPCClient, isCustomNetwork } =
     useNetworkProvider();
 
   const chainRepository = useMemo(() => (nodeRPCClient ? new ChainRepository(nodeRPCClient) : null), [nodeRPCClient]);
@@ -36,6 +49,54 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
     return new BlockRepository(nodeRPCClient, indexerQueryClient);
   }, [nodeRPCClient, isCustomNetwork, indexerQueryClient]);
+
+  const apiAccountRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+
+    return new ApiAccountRepositoryImpl(onblocAPIClient);
+  }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
+
+  const apiBlockRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+
+    return new ApiBlockRepositoryImpl(onblocAPIClient);
+  }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
+
+  const apiTransactionRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+
+    return new ApiTransactionRepositoryImpl(onblocAPIClient);
+  }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
+
+  const apiRealmRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+
+    return new ApiRealmRepositoryImpl(onblocAPIClient);
+  }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
+
+  const apiTokenRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+
+    return new ApiTokenRepositoryImpl(onblocAPIClient);
+  }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
+
+  const apiStatisticsRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+
+    return new ApiStatisticsRepositoryImpl(onblocAPIClient);
+  }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
 
   const transactionRepository = useMemo(() => {
     if (!nodeRPCClient) {
@@ -81,6 +142,12 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         transactionRepository,
         realmRepository,
         accountRepository,
+        apiAccountRepository,
+        apiBlockRepository,
+        apiTransactionRepository,
+        apiRealmRepository,
+        apiTokenRepository,
+        apiStatisticsRepository,
       }}
     >
       {children}

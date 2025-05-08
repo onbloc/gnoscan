@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetFirstBlock } from "../common/use-get-first-block";
 import { useGetLatestBlock } from "../common/use-get-latest-block";
+import { SummaryBlockInfo } from "@/types/data-type";
 
 export const useBlockSummaryInfo = () => {
   const { firstBlock, isFetched: isFetchedFirstBlock } = useGetFirstBlock();
@@ -43,12 +44,12 @@ export const useBlockSummaryInfo = () => {
     return BigNumber(latestBlock.block.header.total_txs).dividedBy(latestBlock.block.header.height).toFormat(2);
   }, [latestBlock]);
 
+  const summaryInfo: SummaryBlockInfo = useMemo(() => {
+    return { blockHeight, blockTimeAverage, txPerBlockAverage };
+  }, [blockHeight, blockTimeAverage, txPerBlockAverage]);
+
   return {
     isFetched,
-    summaryInfo: {
-      blockHeight,
-      blockTimeAverage,
-      txPerBlockAverage,
-    },
+    summaryInfo,
   };
 };

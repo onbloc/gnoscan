@@ -14,7 +14,6 @@ import Link from "next/link";
 import { useNetwork } from "@/common/hooks/use-network";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import { useUsername } from "@/common/hooks/account/use-username";
 import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
 import { eachMedia } from "@/common/hooks/use-media";
 import { Button } from "@/components/ui/button";
@@ -35,13 +34,12 @@ const TOOLTIP_TYPE = (
 export const EventDatatable = ({ isFetched, events }: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const { isFetched: isFetchedUsername, getName } = useUsername();
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   const [page, setPage] = useState(0);
 
   const loaded = useMemo(() => {
-    return isFetched && isFetchedUsername;
-  }, [isFetched, isFetchedUsername]);
+    return isFetched;
+  }, [isFetched]);
 
   const hasNextPage = useMemo(() => {
     if (!loaded) {
@@ -126,7 +124,7 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
       .name("Caller")
       .width(180)
       .colorName("blue")
-      .renderOption(caller => <DatatableItem.CallerCopy caller={caller} username={getName(caller)} />)
+      .renderOption(caller => <DatatableItem.CallerCopy caller={caller} username={""} />)
       .build();
   };
 
@@ -215,7 +213,6 @@ const Container = styled.div<{ maxWidth?: number }>`
 
 const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible, event }) => {
   const { getUrlWithNetwork } = useNetwork();
-  const { getName } = useUsername();
 
   return (
     <EventDetailWrapper className={visible ? "active" : "hidden"}>
@@ -246,7 +243,7 @@ const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible,
                 OriginCaller:{" "}
                 <Text type="p4" color={"blue"}>
                   <Link href={getUrlWithNetwork(`/account/${event.caller}`)} passHref>
-                    {getName(event.caller) || event.caller}
+                    {event.caller}
                   </Link>
                   <Tooltip
                     className="path-copy-tooltip"

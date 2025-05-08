@@ -1,5 +1,6 @@
 import { useGetTokenSupplyQuery } from "@/common/react-query/chain";
 import { makeDisplayNumber, makeDisplayTokenAmount } from "@/common/utils/string-util";
+import { SummaryGnotSupplyInfo } from "@/types/data-type";
 import { useMemo } from "react";
 
 export const useGNOTSupply = () => {
@@ -26,12 +27,12 @@ export const useGNOTSupply = () => {
     return makeDisplayNumber(supplyInfo.airdropHolder);
   }, [supplyInfo]);
 
+  const gnotSupplyInfo: SummaryGnotSupplyInfo = useMemo(() => {
+    return { totalSupplyAmount, airdropSupplyAmount, airdropHolder };
+  }, [totalSupplyAmount, airdropSupplyAmount, airdropHolder]);
+
   return {
     isFetched,
-    supplyInfo: {
-      totalSupplyAmount,
-      airdropSupplyAmount,
-      airdropHolder,
-    },
+    supplyInfo: gnotSupplyInfo,
   };
 };

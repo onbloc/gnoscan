@@ -3,32 +3,32 @@ import dynamic from "next/dynamic";
 import { Spinner } from "@/components/ui/loading";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { DAY_TIME } from "@/common/values/constant-value";
-import { useTotalDailyInfoApi } from "@/common/hooks/main/use-total-daily-info-api";
-import { dateToStr } from "@/common/utils/date-util";
+import { useGetTotalDailyFees } from "@/common/react-query/statistics";
 
 const BarChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.BarChart), {
   ssr: false,
 });
 
 export const MainTotalDailyFeeApi = () => {
-  const { isFetched, transactionInfo } = useTotalDailyInfoApi();
+  const { data: transactionInfo, isFetched } = useGetTotalDailyFees();
 
   const labels = useMemo(() => {
-    const now = new Date();
-    const todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const beforeMonthTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime();
-    const barCount = Math.round((now.getTime() - beforeMonthTime) / DAY_TIME);
+    if (!transactionInfo?.items || transactionInfo.items.length === 0) return [];
 
-    return Array.from({ length: barCount })
-      .map((_, index) => new Date(todayTime - DAY_TIME * index))
-      .sort((d1, d2) => d1.getTime() - d2.getTime())
-      .map(dateToStr);
-  }, []);
+    return [...transactionInfo.items]
+      .map(item => item.date)
+      .sort((a, b) => {
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return dateA.getTime() - dateB.getTime();
+      });
+  }, [transactionInfo?.items]);
 
   const chartData = useMemo(() => {
+    if (!transactionInfo?.items) return [];
     return labels.map(label => {
-      const info = transactionInfo.find(info => info.date === label);
+      const info = transactionInfo.items.find(info => info.date === label);
+
       if (!info) {
         return {
           date: label,
@@ -37,7 +37,7 @@ export const MainTotalDailyFeeApi = () => {
       }
       return {
         date: label,
-        value: BigNumber(info.totalGasFee.value)
+        value: BigNumber(info.totalFeeGnot)
           .shiftedBy(GNOTToken.decimals * -1)
           .toNumber(),
       };
