@@ -29,7 +29,8 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
     const allItems = transactionData.pages.flatMap(page => page.items ?? []);
     return allItems.map((item): Transaction => {
       return {
-        amount: { denom: "", value: "" },
+        amount: item.amountIn,
+        amountOut: item.amountOut,
         blockHeight: item.blockHeight,
         fee: item.fee,
         from: "",
@@ -55,11 +56,11 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         blockHeight: item.blockHeight,
         transactionHash: item.txHash,
         caller: item.caller,
-        type: "",
-        packagePath: "",
+        type: item.eventName,
+        packagePath: item.realmPath,
         functionName: item.function,
         time: item.timestamp,
-        attrs: [],
+        attrs: item.emit.params,
       };
     });
   }, [eventData]);
