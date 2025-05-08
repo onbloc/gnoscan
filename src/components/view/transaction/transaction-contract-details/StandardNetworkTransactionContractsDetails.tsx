@@ -126,11 +126,10 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             </dd>
           </DLWrap>
           {message["messageType"] === "MsgCall" && message?.funcType === "Transfer" && (
-            <TransactionTransferContract
+            <StandardNetworkTransactionTransferContract
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
-              getTokenAmount={getTokenAmount}
             />
           )}
           {message["messageType"] === "BankMsgSend" && (
