@@ -8,14 +8,9 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
 import { useNetworkProvider } from "../provider/use-network-provider";
+import { RealmListSortOption } from "@/common/types/realm";
 
-export const useRealms = (
-  paging = true,
-  sortOptions?: {
-    field: string;
-    order: string;
-  },
-) => {
+export const useRealms = (paging = true, sortOptions?: RealmListSortOption) => {
   const { isCustomNetwork } = useNetworkProvider();
   const { getTokenAmount } = useTokenMeta();
   const {

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { useGetRealmTransactionsByEventInfinityQuery } from "@/common/react-query/realm";
 import { useServiceProvider } from "../provider/use-service-provider";
+import { Transaction } from "@/types/data-type";
 
 export const useTokenTransactionsInfinity = (path: string[] | string | undefined) => {
   const { blockRepository } = useServiceProvider();
@@ -35,11 +36,11 @@ export const useTokenTransactionsInfinity = (path: string[] | string | undefined
     queryKey: ["token/transactions", `${path}`, `${transactions?.length}`],
     queryFn: () =>
       Promise.all(
-        transactions?.map(async transaction => {
+        transactions?.map(async (transaction: Transaction): Promise<Transaction> => {
           const time = await blockRepository?.getBlockTime(transaction.blockHeight);
           return {
             ...transaction,
-            time,
+            time: time ?? "",
           };
         }) || [],
       ),

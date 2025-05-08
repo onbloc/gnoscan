@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
 
+export interface TimeStamp {
+  time: string;
+  passedTime?: string;
+}
+
 const getDateUtcToLocal = (d: any) => {
   const hasTimezone = `${d}`.includes("Z");
   const timezoneOffset = new Date().getTimezoneOffset();
@@ -46,4 +51,24 @@ export const dateToStr = (date: Date): string => {
   const monthStr = `00${date.getMonth() + 1}`.slice(-2);
   const dateStr = `00${date.getDate()}`.slice(-2);
   return [date.getFullYear(), monthStr, dateStr].join("-");
+};
+
+type DateInput = string | Date | null | undefined;
+
+export const formatDate = (date: DateInput): string => {
+  if (!date) return "-";
+
+  const dateObject = new Date(date);
+
+  const isValid = dateObject instanceof Date && !isNaN(dateObject.getTime());
+
+  return isValid ? dateObject.toISOString() : "-";
+};
+
+export const getTimeStamp = (date: string): TimeStamp => {
+  if (!date) return { time: "-", passedTime: "-" };
+  return {
+    time: getLocalDateString(date),
+    passedTime: getDateDiff(date),
+  };
 };

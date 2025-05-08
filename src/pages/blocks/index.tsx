@@ -1,8 +1,14 @@
 import React from "react";
 
 import BlocksLayout from "@/layouts/blocks/BlocksLayout";
-const BlockListContainer = React.lazy(() => import("@/containers/blocks/block-list-container/BlockListContainer"));
+import StandardNetworkBlocksContainer from "@/containers/blocks/standard-network-blocks-container/StandardNetworkBlocksContainer";
+import CustomNetworkBlocksContainer from "@/containers/blocks/custom-network-blocks-container/CustomNetworkBlocksContainer";
 
 export default function Page() {
-  return <BlocksLayout blockList={<BlockListContainer />} />;
+  return (
+    <BlocksLayout
+      standardNetworkBlocks={<StandardNetworkBlocksContainer />}
+      customNetworkBlocks={<CustomNetworkBlocksContainer />}
+    />
+  );
 }

@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { Amount, Transaction } from "@/types/data-type";
+import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 
 import * as S from "./TransactionContractDetails.styles";
@@ -25,12 +25,12 @@ const TOOLTIP_PACKAGE_PATH = (
 );
 
 export const TransactionContractDetails: React.FC<{
-  transactionItem: Transaction | null;
+  transactionItem: TransactionContractInfo | Transaction | null;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
   getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
-  getName: (address: string) => string;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, getTokenAmount, getName }) => {
+  getName?: (address: string) => string;
+}> = ({ transactionItem, isDesktop, getUrlWithNetwork, getTokenAmount }) => {
   const { tokenMap } = useTokenMeta();
 
   const messages = React.useMemo(() => {
@@ -154,7 +154,6 @@ export const TransactionContractDetails: React.FC<{
             <TransactionAddPackageContract
               message={message}
               isDesktop={isDesktop}
-              getName={getName}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}

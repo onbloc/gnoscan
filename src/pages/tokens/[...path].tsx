@@ -3,12 +3,8 @@ import React from "react";
 import { useRouter } from "@/common/hooks/common/use-router";
 
 import TokenLayout from "@/layouts/token/TokenLayout";
-const TokenSummaryContainer = React.lazy(
-  () => import("@/containers/token/token-summary-container/TokenSummaryContainer"),
-);
-const TokenTransactionInfoContainer = React.lazy(
-  () => import("@/containers/token/token-transaction-info-container/TokenTransactionInfoContainer"),
-);
+import TokenSummaryContainer from "@/containers/token/token-summary-container/TokenSummaryContainer";
+import TokenTransactionInfoContainer from "@/containers/token/token-transaction-info-container/TokenTransactionInfoContainer";
 
 export default function Page() {
   const router = useRouter();

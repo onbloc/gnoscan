@@ -9,16 +9,40 @@ import FetchedSkeleton from "../fetched-skeleton";
 import { getLocalDateString } from "@/common/utils/date-util";
 import styled from "styled-components";
 import { useUpdateTime } from "@/common/hooks/main/use-update-time";
-import { useLatestBlogs } from "@/common/hooks/main/use-latest-blogs";
 import { Publisher } from "../../datatable/item";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { useGetBlogPublisher } from "@/common/hooks/common/use-get-board";
+import { useGetLatestBlogs } from "@/common/react-query/statistics";
+import { Blog } from "@/types/data-type";
 
 const ActiveLatestBlogs = () => {
   const media = eachMedia();
-  const { isFetched, updatedAt } = useUpdateTime();
-  const { data: blogs, isFetched: blogsFetched } = useLatestBlogs();
+  const { isFetched } = useUpdateTime();
+
+  const { data, isFetched: blogsFetched } = useGetLatestBlogs();
+
+  const { blogs, updatedAt }: { blogs: Blog[]; updatedAt: string | null } = React.useMemo(() => {
+    if (!data?.items)
+      return {
+        blogs: [],
+        updatedAt: "",
+      };
+
+    const blogs = data.items.map(item => {
+      return {
+        index: item.id,
+        title: item.title,
+        path: item.url,
+        date: "",
+      };
+    });
+
+    return {
+      blogs,
+      updatedAt: data.lastUpdated,
+    };
+  }, [data, blogsFetched]);
 
   const getBlogUrl = useCallback((path: string) => {
     return "https://gno.land" + path;

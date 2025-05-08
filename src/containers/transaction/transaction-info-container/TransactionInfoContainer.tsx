@@ -1,12 +1,12 @@
 import React from "react";
 
-import { useTransaction } from "@/common/hooks/transactions/use-transaction";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { useUsername } from "@/common/hooks/account/use-username";
 
-import TransactionInfo from "@/components/view/transaction/transaction-info/TransactionInfo";
+import CustomNetworkTransactionInfo from "@/components/view/transaction/transaction-info/custom-network-transaction-info/CustomNetworkTransactionInfo";
+import StandardNetworkTransactionInfo from "@/components/view/transaction/transaction-info/standard-network-transaction-info/StandardNetworkTransactionInfo";
 
 interface TransactionInfoContainerProps {
   txHash: string;
@@ -14,25 +14,30 @@ interface TransactionInfoContainerProps {
 
 const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => {
   const { isDesktop } = useWindowSize();
+  const { isCustomNetwork } = useNetworkProvider();
 
   const [currentTab, setCurrentTab] = React.useState("Contract");
 
-  const { transactionEvents, transactionItem, isFetched } = useTransaction(txHash);
   const { getUrlWithNetwork } = useNetwork();
   const { getTokenAmount } = useTokenMeta();
-  const { getName } = useUsername();
 
-  return (
-    <TransactionInfo
-      transactionEvents={transactionEvents}
-      transactionItem={transactionItem}
+  return isCustomNetwork ? (
+    <CustomNetworkTransactionInfo
+      txHash={txHash}
       currentTab={currentTab}
       setCurrentTab={setCurrentTab}
       isDesktop={isDesktop}
-      isFetched={isFetched}
       getUrlWithNetwork={getUrlWithNetwork}
       getTokenAmount={getTokenAmount}
-      getName={getName}
+    />
+  ) : (
+    <StandardNetworkTransactionInfo
+      txHash={txHash}
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+      isDesktop={isDesktop}
+      getUrlWithNetwork={getUrlWithNetwork}
+      getTokenAmount={getTokenAmount}
     />
   );
 };

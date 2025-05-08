@@ -11,7 +11,7 @@ import {
 } from "@/repositories/realm-repository.ts";
 import { mapTransactionByRealm } from "@/repositories/realm-repository.ts/mapper";
 import { mapVMTransaction } from "@/repositories/response/transaction.mapper";
-import { Transaction } from "@/types/data-type";
+import { NewestRealm, Transaction } from "@/types/data-type";
 import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
 import { QUERY_KEY } from "./types";
 
@@ -76,21 +76,23 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
       return (
         result?.flatMap((transaction: any) => {
           const tx = transaction;
-          return tx.messages.map((message: any) => ({
-            hash: tx.hash,
-            index: tx.index,
-            success: tx.success,
-            blockHeight: tx.block_height,
-            packageName: message.value.package.name,
-            packagePath: message.value.package.path,
-            creator: message.value.creator,
-            functionCount: 0,
-            totalCalls: 0,
-            totalGasUsed: {
-              value: "0",
-              denom: "GNOT",
-            },
-          }));
+          return tx.messages.map(
+            (message: any): NewestRealm => ({
+              hash: tx.hash,
+              index: tx.index,
+              success: tx.success,
+              blockHeight: tx.block_height,
+              packageName: message.value.package.name,
+              packagePath: message.value.package.path,
+              creator: message.value.creator,
+              functionCount: 0,
+              totalCalls: 0,
+              totalGasUsed: {
+                value: "0",
+                denom: "GNOT",
+              },
+            }),
+          );
         }) || []
       );
     },

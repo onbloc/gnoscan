@@ -7,36 +7,36 @@ import Link from "next/link";
 import { getLocalDateString } from "@/common/utils/date-util";
 import Tooltip from "@/components/ui/tooltip";
 import FetchedSkeleton from "../fetched-skeleton";
-import { useMonthlyActiveAccounts } from "@/common/hooks/main/use-monthly-active-accounts";
+import { useGetMonthlyActiveAccounts } from "@/common/react-query/statistics";
 import { textEllipsis } from "@/common/utils/string-util";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useUsername } from "@/common/hooks/account/use-username";
-import { useGetNativeTokenBalance } from "@/common/react-query/account";
-import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { useUpdateTime } from "@/common/hooks/main/use-update-time";
-import { MonthlyAccountTransaction } from "@/types/data-type";
-import { useMonthlyActiveAccountsApi } from "@/common/hooks/main/use-monthly-active-accounts-api";
+import { ActiveAccountModel } from "@/repositories/api/statistics/response";
 
 const ActiveAccountApi = () => {
   const media = eachMedia();
   const { getUrlWithNetwork } = useNetwork();
-  const { updatedAt } = useUpdateTime();
-  const useMonthlyActiveAccountsHook = useMonthlyActiveAccountsApi;
-  const { isFetched, data: accounts } = useMonthlyActiveAccountsHook();
-  const { isFetched: isFetchedUsername, getName } = useUsername();
+
+  const { data, isFetched } = useGetMonthlyActiveAccounts();
 
   const loaded = useMemo(() => {
-    return isFetched && isFetchedUsername;
-  }, [isFetched, isFetchedUsername]);
+    return isFetched;
+  }, [isFetched]);
 
-  const getDisplayUsername = useCallback(
-    (address: string) => {
-      return getName(address) || textEllipsis(address);
-    },
-    [getName],
-  );
+  const accountsData: ActiveAccountModel[] = useMemo(() => {
+    if (!data?.items) return [];
+    return data.items.map(account => account ?? []);
+  }, [data?.items]);
+
+  const updatedAt = useMemo(() => {
+    if (!data?.lastUpdated) return "";
+    return data.lastUpdated;
+  }, [data?.lastUpdated]);
+
+  const getDisplayUsername = useCallback((address: string) => {
+    return textEllipsis(address);
+  }, []);
 
   return (
     <StyledCard>
@@ -50,7 +50,7 @@ const ActiveAccountApi = () => {
       </Text>
       {loaded ? (
         <ActiveList title={listTitle.accounts} colWidth={colWidth.accounts}>
-          {accounts.map((account: MonthlyAccountTransaction, index: number) => (
+          {accountsData.map((account: ActiveAccountModel, index: number) => (
             <List key={index}>
               <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
                 {index + 1}
@@ -63,12 +63,18 @@ const ActiveAccountApi = () => {
                 </Link>
               </StyledText>
               <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
-                {account.totalTransaction}
+                {account.totalTxs}
               </StyledText>
               <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
-                {account.nonTransferTransaction}
+                {account.nonTransferTxs}
               </StyledText>
-              <LazyAccountBalance address={account.account} />
+              <StyledAmountText
+                minSize="body2"
+                maxSize="p4"
+                color="reverse"
+                value={BigNumber(account.balance || 0).shiftedBy(GNOTToken.decimals * -1)}
+                width={colWidth.accounts[4]}
+              />
             </List>
           ))}
         </ActiveList>
@@ -81,24 +87,6 @@ const ActiveAccountApi = () => {
         </Text>
       )}
     </StyledCard>
-  );
-};
-
-const LazyAccountBalance: React.FC<{ address: string }> = ({ address }) => {
-  const { data, isFetched } = useGetNativeTokenBalance(address);
-
-  if (!isFetched) {
-    return <SkeletonBar />;
-  }
-
-  return (
-    <StyledAmountText
-      minSize="body2"
-      maxSize="p4"
-      color="reverse"
-      value={BigNumber(data?.value || 0).shiftedBy(GNOTToken.decimals * -1)}
-      width={colWidth.accounts[4]}
-    />
   );
 };
 

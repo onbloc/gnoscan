@@ -25,9 +25,10 @@ const TokenLayout = ({ tokenPath, tokenSummary, tokenTransactionInfo }: TokenLay
   const isDataLoaded = isFetchedToken && isFetchedUsername && isFetchedGRC20Tokens;
   const hasError = isDataLoaded && (!summary || summary.packagePath === "");
 
-  if (isDataLoaded && hasError) {
-    return <NotFound keyword={tokenPath} breakpoint={breakpoint} />;
-  }
+  // Todo: NotFound Logic
+  // if (isDataLoaded && hasError) {
+  //   return <NotFound keyword={tokenPath} breakpoint={breakpoint} />;
+  // }
 
   return (
     <S.Container breakpoint={breakpoint}>

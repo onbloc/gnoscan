@@ -1,14 +1,17 @@
 "use client";
 import { useRouter } from "@/common/hooks/common/use-router";
-import { createContext, useEffect, useMemo } from "react";
-
-import { ChainModel, getChainSupportType } from "@/models/chain-model";
-import { HttpRPCClient } from "@/common/clients/rpc-client/http-rpc-client";
-import { NodeRPCClient } from "@/common/clients/node-client";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+
 import { RPCClient } from "@/common/clients/rpc-client";
 import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
+import { AxiosClient } from "@/common/clients/network-client/axios-client";
+import { NetworkClient } from "@/common/clients/network-client";
+import { HttpRPCClient } from "@/common/clients/rpc-client/http-rpc-client";
+import { NodeRPCClient } from "@/common/clients/node-client";
+
 import { useNetwork } from "@/common/hooks/use-network";
+import { ChainModel, getChainSupportType } from "@/models/chain-model";
 
 interface NetworkContextProps {
   chains: ChainModel[];
@@ -25,6 +28,8 @@ interface NetworkContextProps {
   indexerQueryClient: IndexerClient | null;
 
   onblocRPCClient: RPCClient | null;
+
+  onblocAPIClient: NetworkClient | null;
 }
 
 export const NetworkContext = createContext<NetworkContextProps | null>(null);
@@ -34,27 +39,27 @@ interface NetworkProviderPros {
 }
 
 const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = ({ chains, children }) => {
-  const { query } = useRouter();
+  const router = useRouter();
   const { currentNetwork, setCurrentNetwork } = useNetwork();
 
   useEffect(() => {
     // If the query fails to load.
-    if (!!window?.location?.href.split("?")?.[1] && Object.keys(query).length === 0) {
+    if (!!window?.location?.href.split("?")?.[1] && Object.keys(router.query).length === 0) {
       return;
     }
 
     if (!currentNetwork) {
-      if (query?.type === "custom") {
+      if (router.query?.type === "custom") {
         setCurrentNetwork({
           isCustom: true,
           chainId: "",
           apiUrl: "",
-          rpcUrl: query?.rpcUrl?.toString() || "",
-          indexerUrl: query?.indexerUrl?.toString() || "",
+          rpcUrl: router.query?.rpcUrl?.toString() || "",
+          indexerUrl: router.query?.indexerUrl?.toString() || "",
         });
         return;
       }
-      const chain = chains.find(chain => chain.chainId === query?.chainId?.toString()) || chains[0];
+      const chain = chains.find(chain => chain.chainId === router.query?.chainId?.toString()) || chains[0];
       setCurrentNetwork({
         isCustom: false,
         chainId: chain.chainId,
@@ -63,7 +68,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
         indexerUrl: chain.indexerUrl || "",
       });
     }
-  }, [query, currentNetwork]);
+  }, [router.query, currentNetwork]);
 
   const currentNetworkModel: ChainModel | null = useMemo(() => {
     if (!currentNetwork) {
@@ -121,12 +126,27 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     return new IndexerClient(indexerQueryUrl);
   }, [currentNetworkModel]);
 
-  const onblocRPCClient = useMemo(() => {
+  const onblocAPIClient = useMemo(() => {
     if (!currentNetworkModel) {
       return null;
     }
     const chainSupportType = getChainSupportType(currentNetworkModel);
     if (!["ALL"].includes(chainSupportType)) {
+      return null;
+    }
+
+    const apiUrl = currentNetworkModel.apiUrl || "";
+    return new AxiosClient(apiUrl, () => {
+      router.push("/500");
+    });
+  }, [currentNetworkModel]);
+
+  const onblocRPCClient = useMemo(() => {
+    if (!currentNetworkModel) {
+      return null;
+    }
+    const chainSupportType = getChainSupportType(currentNetworkModel);
+    if (!["RPC"].includes(chainSupportType)) {
       return null;
     }
 
@@ -159,6 +179,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
         currentNetwork: currentNetworkModel,
         nodeRPCClient,
         indexerQueryClient,
+        onblocAPIClient,
         onblocRPCClient,
         mainNodeRPCClient,
       }}

@@ -1,19 +1,18 @@
 "use client";
-
 import React, { useMemo } from "react";
-import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import styled from "styled-components";
+import { useRecoilValue } from "recoil";
+
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import theme from "@/styles/theme";
 import { DatatableItem } from "..";
-import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
-import { useBlock } from "@/common/hooks/blocks/use-block";
 import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { useUsername } from "@/common/hooks/account/use-username";
 
 interface Props {
-  height: string | number;
+  transactions: Transaction[];
+  isFetched: boolean;
 }
 
 const TOOLTIP_TYPE = (
@@ -24,16 +23,13 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const BlockDetailDatatable = ({ height }: Props) => {
+export const BlockDetailDatatable = ({ transactions, isFetched }: Props) => {
   const themeMode = useRecoilValue(themeState);
   const { getTokenAmount } = useTokenMeta();
-  const { isFetched: isFetchedUsername, getName } = useUsername();
-
-  const { isFetched, isFetchedBlockResult, transactionItems } = useBlock(Number(height));
 
   const loaded = useMemo(() => {
-    return isFetched && isFetchedBlockResult && isFetchedUsername;
-  }, [isFetched, isFetchedBlockResult, isFetchedUsername]);
+    return isFetched;
+  }, [isFetched]);
 
   const createHeaders = () => {
     return [
@@ -94,7 +90,7 @@ export const BlockDetailDatatable = ({ height }: Props) => {
       .width(170)
       .colorName("blue")
       .renderOption(fromAddress => {
-        return <DatatableItem.Publisher address={fromAddress} username={getName(fromAddress)} />;
+        return <DatatableItem.Publisher address={fromAddress} username={""} />;
       })
       .build();
   };
@@ -146,7 +142,7 @@ export const BlockDetailDatatable = ({ height }: Props) => {
             themeMode: themeMode,
           };
         })}
-        datas={transactionItems}
+        datas={transactions}
       />
     </Container>
   );
