@@ -21,10 +21,10 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
 
   const proposerDisplayName = React.useMemo(() => {
     if (!data.proposerAddress) return "-";
-    // const validatorInfo = validatorInfos?.find(info => info.address === block.proposerAddress);
-    // if (!validatorInfo) {
-    //   return data.proposerAddress;
-    // }
+
+    if (data.proposerRaw) {
+      return `${data.proposerAddress} (${data.proposerRaw})`;
+    }
 
     return `${data.proposerAddress}`;
   }, [data.proposerAddress]);

@@ -28,7 +28,7 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
         size: events.length,
       },
     ];
-  }, []);
+  }, [events]);
 
   if (!isFetchedEvents || !isFetchedTransactions) return <TableSkeleton />;
 

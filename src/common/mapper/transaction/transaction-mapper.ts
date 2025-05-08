@@ -64,7 +64,7 @@ export class TransactionMapper {
       caller: response.caller,
       functionName: response.function,
       type: response.eventName,
-      attrs: [],
+      attrs: response.emit.params,
       blockHeight: response.blockHeight,
       transactionHash: response.txHash,
       time: timeStamp.time,

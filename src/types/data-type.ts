@@ -49,6 +49,7 @@ export interface BlockSummaryInfo {
   numberOfTransactions: string;
   gas: string;
   proposerAddress: string;
+  proposerRaw?: string;
   hasPreviousBlock?: boolean;
   hasNextBlock?: boolean;
 }

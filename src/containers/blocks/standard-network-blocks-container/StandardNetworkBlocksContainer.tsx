@@ -3,7 +3,7 @@ import React from "react";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useMappedApiBlocks } from "@/common/services/block/use-mapped-api-blocks";
 
-import { BlockDatatable } from "@/components/view/datatable";
+import { StandardNetworkBlockDatatable } from "@/components/view/datatable/block/StandardNetworkBlockDatatable";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 const StandardNetworkBlocksContainer = () => {
@@ -14,7 +14,7 @@ const StandardNetworkBlocksContainer = () => {
   if (isLoading || !isFetched) return <TableSkeleton />;
 
   return (
-    <BlockDatatable
+    <StandardNetworkBlockDatatable
       breakpoint={breakpoint}
       data={data}
       isFetched={isFetched}

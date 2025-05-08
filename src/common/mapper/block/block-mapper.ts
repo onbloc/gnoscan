@@ -19,7 +19,7 @@ export class BlockMapper {
       time: new Date(response.timestamp).toString(),
       numTxs: response.totalTransactionCount || 0,
       proposer: response.blockProposer,
-      proposerRaw: response.blockProposer,
+      proposerRaw: response.blockProposerLabel,
       totalFees:
         response.totalFees > 0
           ? {
@@ -48,6 +48,7 @@ export class BlockMapper {
       numberOfTransactions: makeDisplayNumber(response.transactionCount),
       gas,
       proposerAddress: safeString(response.proposerAddress),
+      proposerRaw: safeString(response.proposerLabel),
       transactions: [],
     };
   }
@@ -62,11 +63,11 @@ export class BlockMapper {
       blockHeight: response.blockHeight,
       transactionHash: response.txHash,
       caller: response.caller,
-      type: "",
+      type: response.eventName,
       packagePath: response.realmPath,
-      functionName: response.eventName,
+      functionName: response.function,
       time: response.timestamp,
-      attrs: [],
+      attrs: response.emit.params,
     };
   }
 
@@ -81,7 +82,7 @@ export class BlockMapper {
       numOfMessage: response.numOfMessage,
       type: response.func[0].messageType,
       packagePath: response.func[0].pkgPath,
-      functionName: response.func[0].pkgPath,
+      functionName: response.func[0].funcType,
       blockHeight: response.blockHeight,
       from: response.from,
       to: response.to,
