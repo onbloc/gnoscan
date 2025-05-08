@@ -57,23 +57,23 @@ export interface RealmTransactionModel {
 }
 
 export interface RealmEventModel {
+  identifier: string;
+
+  txHash: string;
+
   blockHeight: number;
-
-  caller: string;
-
-  emit: { name: string; params: { key: string; value: string }[] };
 
   eventName: string;
 
-  function: string;
-
-  identifier: string;
+  caller: string;
 
   originCaller: string;
 
   realmPath: string;
 
-  timestamp: string;
+  function: string;
 
-  txHash: string;
+  emit: { name: string; params: { key: string; value: string }[] };
+
+  timestamp: string;
 }

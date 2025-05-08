@@ -75,7 +75,7 @@ export class RealmMapper {
       packagePath: response.realmPath,
       time: response.timestamp,
       transactionHash: response.txHash,
-      type: "",
+      type: response.eventName,
     };
   }
 }
