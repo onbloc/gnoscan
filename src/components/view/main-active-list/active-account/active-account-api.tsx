@@ -10,8 +10,6 @@ import FetchedSkeleton from "../fetched-skeleton";
 import { useGetMonthlyActiveAccounts } from "@/common/react-query/statistics";
 import { textEllipsis } from "@/common/utils/string-util";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useGetNativeTokenBalance } from "@/common/react-query/account";
-import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ActiveAccountModel } from "@/repositories/api/statistics/response";
@@ -70,7 +68,13 @@ const ActiveAccountApi = () => {
               <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
                 {account.nonTransferTxs}
               </StyledText>
-              <LazyAccountBalance address={account.account} />
+              <StyledAmountText
+                minSize="body2"
+                maxSize="p4"
+                color="reverse"
+                value={BigNumber(account.balance || 0).shiftedBy(GNOTToken.decimals * -1)}
+                width={colWidth.accounts[4]}
+              />
             </List>
           ))}
         </ActiveList>
@@ -83,24 +87,6 @@ const ActiveAccountApi = () => {
         </Text>
       )}
     </StyledCard>
-  );
-};
-
-const LazyAccountBalance: React.FC<{ address: string }> = ({ address }) => {
-  const { data, isFetched } = useGetNativeTokenBalance(address);
-
-  if (!isFetched) {
-    return <SkeletonBar />;
-  }
-
-  return (
-    <StyledAmountText
-      minSize="body2"
-      maxSize="p4"
-      color="reverse"
-      value={BigNumber(data?.value || 0).shiftedBy(GNOTToken.decimals * -1)}
-      width={colWidth.accounts[4]}
-    />
   );
 };
 
