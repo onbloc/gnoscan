@@ -115,7 +115,7 @@ const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwor
         <DLWrap desktop={isDesktop}>
           <dt>Memo</dt>
           <dd>
-            <Badge>{data.transactionItem.memo}</Badge>
+            <Badge>{data.transactionItem.memo || "-"}</Badge>
           </dd>
         </DLWrap>
         {!data.transactionItem.success && (

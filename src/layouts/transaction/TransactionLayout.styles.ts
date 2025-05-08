@@ -23,6 +23,11 @@ export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
 
   background-color: ${({ theme }) => theme.colors.surface};
 
+  .svg-icon {
+    stroke: ${({ theme }) => theme.colors.primary};
+    margin-left: 5px;
+  }
+
   .badge {
     display: inline-flex;
     line-height: 1em;

@@ -153,7 +153,6 @@ export interface TransactionContractInfo {
   messages: any[];
   numOfMessage: number;
   rawContent: string;
-  type: string;
 }
 
 export interface TransactionEvent {

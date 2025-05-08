@@ -20,7 +20,7 @@ export const TransactionAddPackageContract = ({
   getUrlWithNetwork,
 }: TransactionAddPackageContractProps) => {
   const creatorAddress = React.useMemo(() => {
-    return message?.creator || "";
+    return message?.creator || message?.caller || "";
   }, [message?.creator]);
 
   const creatorName = React.useMemo(() => {

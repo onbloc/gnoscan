@@ -49,7 +49,6 @@ export class TransactionMapper {
 
   public static transactionContractsFromApiResponse(response: TransactionContractModel): TransactionContractInfo {
     return {
-      type: response.type,
       messages: response.fields || [],
       numOfMessage: response.fields.length || 0,
       rawContent: "",
