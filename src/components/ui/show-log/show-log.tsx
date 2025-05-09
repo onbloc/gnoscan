@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isDesktop } from "@/common/hooks/use-media";
-import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
-import { ViewMoreButton } from "@/components/ui/button";
-import Text from "@/components/ui/text";
-import Textarea from "@/components/ui/textarea";
-import mixins from "@/styles/mixins";
 import React, { useCallback, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { v1 } from "uuid";
+
+import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
+import { isDesktop } from "@/common/hooks/use-media";
+import mixins from "@/styles/mixins";
+
+import { ViewMoreButton } from "@/components/ui/button";
+import Textarea from "@/components/ui/textarea";
+import { CopyButton } from "../copy-button/CopyButton";
+
 interface StyleProps {
   desktop?: boolean;
   showLog?: boolean;
@@ -103,52 +106,73 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
                 ))}
               </ul>
               {files && (
-                <ReadonlyTextarea
-                  type="p4"
-                  color="primary"
-                  className={scrollVisible ? "scroll-visible" : ""}
-                  value={files[index].body}
-                  showLog={showLog}
-                  desktop={desktop}
-                  onFocus={onFocusIn}
-                  onBlur={onFocusOut}
-                  fullRadius={false}
-                  readOnly
-                  spellCheck={false}
-                />
+                <TextareaContainer>
+                  <CopyButton
+                    width={85}
+                    copyText={files[index].body}
+                    tooltipText="Copied!"
+                    svgClassname="svg-icon"
+                    trigger="click"
+                  />
+                  <ReadonlyTextarea
+                    type="p4"
+                    color="primary"
+                    className={scrollVisible ? "scroll-visible" : ""}
+                    value={files[index].body}
+                    showLog={showLog}
+                    desktop={desktop}
+                    onFocus={onFocusIn}
+                    onBlur={onFocusOut}
+                    fullRadius={false}
+                    readOnly
+                    spellCheck={false}
+                  />
+                </TextareaContainer>
               )}
               {logData && (
-                <ReadonlyTextarea
-                  type="p4"
-                  color="primary"
-                  className={scrollVisible ? "scroll-visible" : ""}
-                  value={logData}
-                  showLog={showLog}
-                  desktop={desktop}
-                  onFocus={onFocusIn}
-                  onBlur={onFocusOut}
-                  fullRadius={false}
-                  readOnly
-                  spellCheck={false}
-                />
+                <TextareaContainer>
+                  <CopyButton
+                    width={85}
+                    copyText={logData}
+                    tooltipText="Copied!"
+                    svgClassname="svg-icon"
+                    trigger="click"
+                  />
+                  <ReadonlyTextarea
+                    type="p4"
+                    color="primary"
+                    className={scrollVisible ? "scroll-visible" : ""}
+                    value={logData}
+                    showLog={showLog}
+                    desktop={desktop}
+                    onFocus={onFocusIn}
+                    onBlur={onFocusOut}
+                    fullRadius={false}
+                    readOnly
+                    spellCheck={false}
+                  />
+                </TextareaContainer>
               )}
             </div>
           </TabLogWrap>
         ) : (
           <LogWrap desktop={desktop} showLog={showLog}>
-            <ReadonlyTextarea
-              type="p4"
-              color="primary"
-              className="scroll-visible"
-              value={logData}
-              showLog={showLog}
-              desktop={desktop}
-              onFocus={onFocusIn}
-              onBlur={onFocusOut}
-              fullRadius={true}
-              readOnly
-              spellCheck={false}
-            />
+            <TextareaContainer>
+              <CopyButton width={85} copyText={logData} tooltipText="Copied!" svgClassname="svg-icon" trigger="click" />
+              <ReadonlyTextarea
+                type="p4"
+                color="primary"
+                className="scroll-visible"
+                value={logData}
+                showLog={showLog}
+                desktop={desktop}
+                onFocus={onFocusIn}
+                onBlur={onFocusOut}
+                fullRadius={true}
+                readOnly
+                spellCheck={false}
+              />
+            </TextareaContainer>
           </LogWrap>
         )}
       </ShowLogsWrap>
@@ -156,6 +180,18 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
     </>
   );
 };
+
+const TextareaContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .svg-icon {
+    path {
+      stroke: ${({ theme }) => theme.colors.primary};
+    }
+  }
+`;
 
 const ShowLogsWrap = styled.div<StyleProps>`
   ${mixins.flexbox("column", "center", "center")}
