@@ -1,8 +1,10 @@
+import React, { useMemo } from "react";
+import Link from "next/link";
+import styled from "styled-components";
+
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
 import Tooltip from "@/components/ui/tooltip";
-import React, { useMemo } from "react";
-import styled from "styled-components";
 
 interface Props {
   username: string | undefined;
@@ -52,6 +54,6 @@ const TooltipWrapper = styled.span`
   }
 `;
 
-const PublisherLink = styled.a`
+const PublisherLink = styled(Link)`
   max-width: 128px;
 `;

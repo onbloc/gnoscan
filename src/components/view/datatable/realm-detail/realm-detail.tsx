@@ -66,7 +66,12 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.type} packagePath={data.functionName} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.type}
+          packagePath={data.functionName}
+          msgNum={data.numOfMessage - 1}
+        />
       ))
       .build();
   };

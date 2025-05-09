@@ -1,7 +1,6 @@
 import React from "react";
 
 import { useWindowSize } from "@/common/hooks/use-window-size";
-import { useAccount } from "@/common/hooks/account/use-account";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
 
@@ -18,27 +17,23 @@ interface AccountLayoutProps {
 
 const AccountLayout = ({ address, accountAddress, accountAssets, accountTransactions }: AccountLayoutProps) => {
   const { breakpoint, isDesktop } = useWindowSize();
-
-  const { isFetchedTokenMeta } = useAccount(address);
-  const { isFetched: isFetchedUsername, getAddress } = useUsername();
+  const { getAddress } = useUsername();
 
   const bech32Address = React.useMemo(() => {
     if (isBech32Address(address)) {
       return address;
     }
-    if (!isFetchedUsername) {
-      return "";
-    }
     return getAddress(address) || null;
-  }, [address, isFetchedUsername]);
+  }, [address]);
 
-  const isDataLoaded = React.useMemo(
-    () => isFetchedTokenMeta && isFetchedUsername,
-    [isFetchedTokenMeta, isFetchedUsername],
-  );
-  const hasError = React.useMemo(() => bech32Address === null, [bech32Address]);
+  const hasError = React.useMemo(() => !bech32Address, [bech32Address]);
 
-  if (isDataLoaded && hasError) return <NotFound keyword={address} breakpoint={breakpoint} />;
+  if (hasError)
+    return (
+      <S.InnerLayout>
+        <NotFound keyword={address} breakpoint={breakpoint} />
+      </S.InnerLayout>
+    );
 
   return (
     <S.Container breakpoint={breakpoint}>

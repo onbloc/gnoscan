@@ -1,8 +1,10 @@
+import React, { useMemo } from "react";
+import Link from "next/link";
+import styled from "styled-components";
+
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
 import Tooltip from "@/components/ui/tooltip";
-import React, { useMemo } from "react";
-import styled from "styled-components";
 
 interface Props {
   publisher: string | undefined;
@@ -49,7 +51,7 @@ const Container = styled.div`
   }
 `;
 
-const OwnerLink = styled.a`
+const OwnerLink = styled(Link)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

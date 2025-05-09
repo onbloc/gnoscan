@@ -1,9 +1,13 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
+
+import { useRouter } from "@/common/hooks/common/use-router";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+
 import Search from "@/assets/svgs/icon-search.svg";
 import mixins from "@/styles/mixins";
 import SearchResult from "../search-result";
-import { useRouter } from "@/common/hooks/common/use-router";
+import StandardNetworkSearchResult from "../search-result/StandardNetworkSearchResult";
 
 interface SubInputProps {
   className?: string;
@@ -14,6 +18,7 @@ interface SubInputProps {
 
 export const SubInput = ({ className = "", value, onChange, clearValue }: SubInputProps) => {
   const router = useRouter();
+  const { isCustomNetwork } = useNetworkProvider();
 
   useEffect(() => {
     clearValue && clearValue();
@@ -46,7 +51,7 @@ export const SubInput = ({ className = "", value, onChange, clearValue }: SubInp
       <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />
       </Button>
-      <SearchResult />
+      {isCustomNetwork ? <SearchResult /> : <StandardNetworkSearchResult />}
     </Wrapper>
   );
 };

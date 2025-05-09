@@ -1,7 +1,9 @@
+import React from "react";
+import Link from "next/link";
+import styled from "styled-components";
+
 import { useNetwork } from "@/common/hooks/use-network";
 import Tooltip from "@/components/ui/tooltip";
-import React from "react";
-import styled from "styled-components";
 
 interface Props {
   packagePath: string;
@@ -25,7 +27,7 @@ export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
   );
 };
 
-const PackagePathLink = styled.a<{ maxWidth: number }>`
+const PackagePathLink = styled(Link)<{ maxWidth: number }>`
   max-width: ${({ maxWidth }) => `${maxWidth}px`};
 `;
 

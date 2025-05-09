@@ -1,6 +1,6 @@
 import React from "react";
+import { useRouter } from "next/router";
 
-import { useRouter } from "@/common/hooks/common/use-router";
 import { parseTxHash } from "@/common/utils/transaction.utility";
 
 import TransactionLayout from "@/layouts/transaction/TransactionLayout";

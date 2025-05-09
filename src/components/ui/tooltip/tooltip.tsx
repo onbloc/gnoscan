@@ -8,7 +8,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
 
-type TriggerType = "click" | "hover";
+export type TriggerType = "click" | "hover";
 interface TooltipProps {
   className?: string;
   children: React.ReactNode;
