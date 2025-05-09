@@ -3,7 +3,7 @@ export interface BlockModel {
 
   blockHeight: number;
 
-  totalTransactionCount: number;
+  transactionCount: number;
 
   blockProposer: string;
 
@@ -14,8 +14,6 @@ export interface BlockModel {
   timestamp: string;
 
   totalFees: number;
-
-  createdAt: string;
 }
 
 export interface BlockSummaryModel {
