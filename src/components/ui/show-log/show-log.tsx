@@ -110,6 +110,8 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
                   value={files[index].body}
                   showLog={showLog}
                   desktop={desktop}
+                  onFocus={onFocusIn}
+                  onBlur={onFocusOut}
                   fullRadius={false}
                   readOnly
                   spellCheck={false}
@@ -123,6 +125,8 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
                   value={logData}
                   showLog={showLog}
                   desktop={desktop}
+                  onFocus={onFocusIn}
+                  onBlur={onFocusOut}
                   fullRadius={false}
                   readOnly
                   spellCheck={false}
@@ -139,6 +143,8 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
               value={logData}
               showLog={showLog}
               desktop={desktop}
+              onFocus={onFocusIn}
+              onBlur={onFocusOut}
               fullRadius={true}
               readOnly
               spellCheck={false}
