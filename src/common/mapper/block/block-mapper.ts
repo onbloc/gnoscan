@@ -17,7 +17,7 @@ export class BlockMapper {
       hash: response.blockHash,
       height: response.blockHeight,
       time: new Date(response.timestamp).toString(),
-      numTxs: response.totalTransactionCount || 0,
+      numTxs: response.transactionCount || 0,
       proposer: response.blockProposer,
       proposerRaw: response.blockProposerLabel,
       totalFees:
