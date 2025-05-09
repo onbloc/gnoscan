@@ -31,7 +31,7 @@ const CustomNetworkTransactionInfo = ({
   const detailTabs = React.useMemo(() => {
     return [
       {
-        tabName: "Contract",
+        tabName: "Messages",
       },
       {
         tabName: "Events",
@@ -44,7 +44,7 @@ const CustomNetworkTransactionInfo = ({
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Contract" && (
+      {currentTab === "Messages" && (
         <TransactionContractDetails
           transactionItem={transactionItem}
           isDesktop={isDesktop}

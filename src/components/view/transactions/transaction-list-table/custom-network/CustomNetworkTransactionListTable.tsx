@@ -98,7 +98,7 @@ export const CustomNetworkTransactionListTable = ({
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<TransactionWithTime>()
       .key("hash")
-      .name("Tx Hash")
+      .name("Tx hash")
       .width(215)
       .colorName("blue")
       .renderOption((value, data) => (
@@ -115,7 +115,7 @@ export const CustomNetworkTransactionListTable = ({
   const createHeaderType = () => {
     return DatatableOption.Builder.builder<TransactionWithTime>()
       .key("type")
-      .name("Type")
+      .name("Function")
       .width(190)
       .colorName("blue")
       .tooltip(<S.TooltipContainer>{TOOLTIP_TYPE}</S.TooltipContainer>)

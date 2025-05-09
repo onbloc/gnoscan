@@ -41,7 +41,7 @@ const Definition = ({ isDesktop }: ModProps) => {
         <GnoscanSymbolLight className="svg-icon" width="18" height="18" />
       )}
       <Text type={isDesktop ? "p4" : "body1"} color="tertiary">
-        Powered by gno.land Blockchain
+        Powered by Gno.land Blockchain
       </Text>
     </DefinitionWrapper>
   );

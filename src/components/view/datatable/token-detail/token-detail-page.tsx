@@ -74,7 +74,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<any>()
       .key("hash")
-      .name("Tx Hash")
+      .name("Tx hash")
       .width(210)
       .colorName("blue")
       .renderOption((value, data) => (
@@ -86,7 +86,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   const createHeaderType = () => {
     return DatatableOption.Builder.builder<any>()
       .key("type")
-      .name("Type")
+      .name("Function")
       .width(190)
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)

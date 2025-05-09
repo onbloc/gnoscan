@@ -33,7 +33,7 @@ interface RealmSummaryProps {
 const TOOLTIP_PACKAGE_PATH = (
   <>
     A unique identifier that serves as
-    <br />a contract address on gno.land.
+    <br />a contract address on Gno.land.
   </>
 );
 
@@ -155,7 +155,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
-        <dt>Function Type(s)</dt>
+        <dt>Functions</dt>
         <dd className="function-wrapper">
           {summary?.funcs?.map((v: string, index: number) => (
             <Badge className="link" key={index} type="blue" onClick={() => moveGnoStudioViewRealmFunction(v)}>
@@ -226,13 +226,13 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
-        <dt>Contract Calls</dt>
+        <dt>Total Calls</dt>
         <dd>
           <RealmTotalContractCalls realmTransactions={realmTransactions} isFetched={isFetchedRealmTransactions} />
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
-        <dt>Total Used Fees</dt>
+        <dt>Total Fees Used</dt>
         <dd>
           <RealmTotalUsedFeeAmount
             realmTransactions={realmTransactions}
@@ -241,7 +241,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
           />
         </dd>
       </DLWrap>
-      {summary?.files && <ShowLog isTabLog={true} files={summary?.files} btnTextType="Contract" />}
+      {summary?.files && <ShowLog isTabLog={true} files={summary?.files} btnTextType="Realms" />}
     </DataSection>
   );
 };

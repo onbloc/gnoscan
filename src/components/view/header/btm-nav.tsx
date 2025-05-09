@@ -40,12 +40,12 @@ export const BtmNav = () => {
         <Wrapper isMain={entry}>
           <Desktop>
             <Text type="h1" color="white" textAlign="center">
-              The gno.land Blockchain Explorer
+              The Gno.land Blockchain Explorer
             </Text>
           </Desktop>
           <NotDesktop>
             <Text type="h2" color="white" textAlign="center">
-              The gno.land Blockchain Explorer
+              The Gno.land Blockchain Explorer
             </Text>
           </NotDesktop>
           <MainInput

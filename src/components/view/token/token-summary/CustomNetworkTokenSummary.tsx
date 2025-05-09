@@ -27,7 +27,7 @@ interface TokenSummaryProps {
 const TOOLTIP_PACKAGE_PATH = (
   <>
     A unique identifier that serves as
-    <br />a contract address on gno.land.
+    <br />a contract address on Gno.land.
   </>
 );
 
@@ -103,7 +103,7 @@ const CustomNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps) 
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
-        <dt>Function Type(s)</dt>
+        <dt>Functions</dt>
         <dd className="function-wrapper">
           {summaryData.functions.map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>

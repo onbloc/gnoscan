@@ -19,7 +19,7 @@ import { AmountText } from "@/components/ui/text/amount-text";
 const TOOLTIP_PATH = (
   <>
     A unique identifier that serves as
-    <br />a contract address on gno.land.
+    <br />a contract address on Gno.land.
   </>
 );
 
