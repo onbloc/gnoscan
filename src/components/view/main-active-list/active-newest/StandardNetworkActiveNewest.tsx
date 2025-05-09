@@ -39,7 +39,7 @@ const StandardNetworkActiveNewest = () => {
         hash: "",
         index: 0,
         success: false,
-        blockHeight: 0,
+        blockHeight: item.block,
         packageName: "",
         packagePath: item.path,
         creator: item.publisher,

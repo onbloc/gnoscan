@@ -16,7 +16,7 @@ export interface RealmModel {
 }
 
 export interface RealmSummaryModel {
-  balance: string;
+  balance: Amount;
   blockPublished: number;
   contractCallCount: number;
   func: [
