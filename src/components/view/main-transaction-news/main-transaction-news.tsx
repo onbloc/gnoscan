@@ -22,14 +22,14 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
     <Wrapper className={breakpoint}>
       <Card height="274px" className="card-1">
         <Text className="title" type="h6" color="primary">
-          {"Total Daily Transactions"}
+          {"Daily Total Transactions"}
         </Text>
         {isCustomNetwork ? <MainTotalTransaction /> : <MainTotalTransactionApi />}
       </Card>
 
       <Card height="274px" className="card-2">
         <Text className="title" type="h6" color="primary">
-          {"Total Daily Fees (in GNOTs)"}
+          {"Daily Total Fees in GNOT"}
         </Text>
         {isCustomNetwork ? <MainTotalDailyFee /> : <MainTotalDailyFeeApi />}
       </Card>

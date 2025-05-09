@@ -18,7 +18,7 @@ import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 const TOOLTIP_PATH = (
   <>
     A unique identifier that serves as
-    <br />a contract address on gno.land.
+    <br />a contract address on Gno.land.
   </>
 );
 

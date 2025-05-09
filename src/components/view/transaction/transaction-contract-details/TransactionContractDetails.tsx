@@ -20,7 +20,7 @@ import { TransactionCallerContract } from "../transaction-caller-contract/Transa
 const TOOLTIP_PACKAGE_PATH = (
   <>
     A unique identifier that serves as
-    <br />a contract address on gno.land.
+    <br />a contract address on Gno.land.
   </>
 );
 
@@ -125,7 +125,7 @@ export const TransactionContractDetails: React.FC<{
             </>
           )}
           <DLWrap desktop={isDesktop}>
-            <dt>Type</dt>
+            <dt>Function</dt>
             <dd>
               <Badge type="blue">
                 <Text type="p4" color="white">
