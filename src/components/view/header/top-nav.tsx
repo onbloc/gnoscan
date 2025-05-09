@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
+import Link from "next/link";
 import styled from "styled-components";
 import { useRouter } from "@/common/hooks/common/use-router";
 import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
@@ -68,11 +69,7 @@ export const TopNav = () => {
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
 
   const { chains } = useNetworkProvider();
-  const { changeNetwork } = useNetwork();
-
-  const movePage = (url: string) => {
-    router.push(url);
-  };
+  const { changeNetwork, getUrlWithNetwork } = useNetwork();
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,11 +96,11 @@ export const TopNav = () => {
         )}
         <Nav>
           {navItems.map((v, index) => (
-            <div className="navigation-item" onClick={() => movePage(v.path)} key={index}>
+            <Link className="navigation-item" href={getUrlWithNetwork(v.path)} key={index}>
               <Text type="p4" color={entry ? "white" : "primary"}>
                 {v.name}
               </Text>
-            </div>
+            </Link>
           ))}
         </Nav>
       </Desktop>

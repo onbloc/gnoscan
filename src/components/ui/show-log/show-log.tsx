@@ -1,17 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isDesktop } from "@/common/hooks/use-media";
-import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
-import { ViewMoreButton } from "@/components/ui/button";
-import Text from "@/components/ui/text";
-import mixins from "@/styles/mixins";
 import React, { useCallback, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { v1 } from "uuid";
+
+import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
+import { isDesktop } from "@/common/hooks/use-media";
+import mixins from "@/styles/mixins";
+
+import { ViewMoreButton } from "@/components/ui/button";
+import Textarea from "@/components/ui/textarea";
+import { CopyButton } from "../copy-button/CopyButton";
+
 interface StyleProps {
   desktop?: boolean;
   showLog?: boolean;
   isTabLog?: boolean;
   hasRadius?: boolean;
+  fullRadius?: boolean;
   active?: boolean;
 }
 
@@ -101,44 +106,73 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
                 ))}
               </ul>
               {files && (
-                <TabLog
-                  onMouseEnter={onFocusIn}
-                  onMouseLeave={onFocusOut}
-                  hasRadius={index === 0}
-                  desktop={desktop}
-                  showLog={showLog}
-                  className={scrollVisible ? "scroll-visible" : ""}
-                >
-                  <Text type="p4" color="primary" className="inner-content">
-                    {files[index].body}
-                  </Text>
-                </TabLog>
+                <TextareaContainer>
+                  <CopyButton
+                    width={85}
+                    copyText={files[index].body}
+                    tooltipText="Copied!"
+                    svgClassname="svg-icon"
+                    trigger="click"
+                  />
+                  <ReadonlyTextarea
+                    type="p4"
+                    color="primary"
+                    className={scrollVisible ? "scroll-visible" : ""}
+                    value={files[index].body}
+                    showLog={showLog}
+                    desktop={desktop}
+                    onFocus={onFocusIn}
+                    onBlur={onFocusOut}
+                    fullRadius={false}
+                    readOnly
+                    spellCheck={false}
+                  />
+                </TextareaContainer>
               )}
               {logData && (
-                <TabLog
-                  onMouseEnter={onFocusIn}
-                  onMouseLeave={onFocusOut}
-                  hasRadius={index === 0}
-                  desktop={desktop}
-                  showLog={showLog}
-                  className={scrollVisible ? "scroll-visible" : ""}
-                >
-                  <Text type="p4" color="primary" className="inner-content">
-                    {logData}
-                  </Text>
-                </TabLog>
+                <TextareaContainer>
+                  <CopyButton
+                    width={85}
+                    copyText={logData}
+                    tooltipText="Copied!"
+                    svgClassname="svg-icon"
+                    trigger="click"
+                  />
+                  <ReadonlyTextarea
+                    type="p4"
+                    color="primary"
+                    className={scrollVisible ? "scroll-visible" : ""}
+                    value={logData}
+                    showLog={showLog}
+                    desktop={desktop}
+                    onFocus={onFocusIn}
+                    onBlur={onFocusOut}
+                    fullRadius={false}
+                    readOnly
+                    spellCheck={false}
+                  />
+                </TextareaContainer>
               )}
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap desktop={desktop} showLog={showLog} className={"scroll-visible"}>
-            <Log onMouseEnter={onFocusIn} onMouseLeave={onFocusOut} desktop={desktop} showLog={showLog}>
-              <pre>
-                <Text type="p4" color="primary">
-                  {logData}
-                </Text>
-              </pre>
-            </Log>
+          <LogWrap desktop={desktop} showLog={showLog}>
+            <TextareaContainer>
+              <CopyButton width={85} copyText={logData} tooltipText="Copied!" svgClassname="svg-icon" trigger="click" />
+              <ReadonlyTextarea
+                type="p4"
+                color="primary"
+                className="scroll-visible"
+                value={logData}
+                showLog={showLog}
+                desktop={desktop}
+                onFocus={onFocusIn}
+                onBlur={onFocusOut}
+                fullRadius={true}
+                readOnly
+                spellCheck={false}
+              />
+            </TextareaContainer>
           </LogWrap>
         )}
       </ShowLogsWrap>
@@ -146,6 +180,18 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
     </>
   );
 };
+
+const TextareaContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .svg-icon {
+    path {
+      stroke: ${({ theme }) => theme.colors.primary};
+    }
+  }
+`;
 
 const ShowLogsWrap = styled.div<StyleProps>`
   ${mixins.flexbox("column", "center", "center")}
@@ -231,6 +277,36 @@ const List = styled.li<StyleProps>`
     css`
       background-color: ${theme.colors.surface};
     `}
+`;
+
+const ReadonlyTextarea = styled(Textarea)<StyleProps>`
+  border: 1px solid transparent;
+  transition: border 0.2s ease-in-out;
+  width: 100%;
+  resize: none;
+
+  ${scrollbarStyle};
+
+  height: ${({ showLog, desktop }) => {
+    if (showLog) {
+      return desktop ? "528px" : "292px";
+    } else {
+      return "0px";
+    }
+  }};
+  overflow: auto;
+  background-color: ${({ theme }) => theme.colors.surface};
+
+  border-radius: ${({ fullRadius }) => (fullRadius ? "10px" : "0 0 10px 10px")};
+
+  padding: ${({ showLog }) => (showLog ? "24px" : "0")};
+  word-break: keep-all;
+  word-wrap: break-word;
+
+  &:focus {
+    outline: none;
+    border: ${({ theme }) => `1px solid ${theme.colors.primary}`};
+  }
 `;
 
 export default ShowLog;

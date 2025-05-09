@@ -1,27 +1,17 @@
 import React from "react";
+import { useRouter } from "next/router";
 
 import AccountLayout from "@/layouts/account/AccountLayout";
 import AccountAddressContainer from "@/containers/account/account-address-container/AccountAddressContainer";
 import AccountAssetsContainer from "@/containers/account/account-assets-container/AccountAssetsContainer";
 import AccountTransactionsContainer from "@/containers/account/account-transactions-container/AccountTransactionsContainer";
 
-interface AccountDetailsPageProps {
-  address: string;
-  redirectUrl: string | null;
-}
+export default function Page() {
+  const router = useRouter();
+  const { address: accountAddress } = router.query;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export async function getServerSideProps({ params }: any) {
-  const keyword = params.address;
-  return {
-    props: {
-      address: keyword,
-      redirectUrl: null,
-    },
-  };
-}
+  const address = accountAddress as string;
 
-export default function Page({ address }: AccountDetailsPageProps) {
   return (
     <>
       <AccountLayout

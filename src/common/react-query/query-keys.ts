@@ -38,4 +38,8 @@ export enum QUERY_KEY {
   getTotalDailyFees = "api_get_total_daily_fees",
   getTotalDailyTransactions = "api_get_total_daily_transactions",
   getTotalGasShare = "api_get_total_gas_share",
+
+  // search
+  getSearch = "api_get_search",
+  getSearchAutocomplete = "api_get_search_autocomplete",
 }

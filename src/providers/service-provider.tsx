@@ -15,6 +15,7 @@ import { ApiTransactionRepository, ApiTransactionRepositoryImpl } from "@/reposi
 import { ApiRealmRepository, ApiRealmRepositoryImpl } from "@/repositories/api/realm";
 import { ApiTokenRepository, ApiTokenRepositoryImpl } from "@/repositories/api/token";
 import { ApiStatisticsRepository, ApiStatisticsRepositoryImpl } from "@/repositories/api/statistics";
+import { ApiSearchRepository, ApiSearchRepositoryImpl } from "@/repositories/api/search";
 
 interface ServiceContextProps {
   chainRepository: IChainRepository | null;
@@ -28,6 +29,7 @@ interface ServiceContextProps {
   apiRealmRepository: ApiRealmRepository | null;
   apiTokenRepository: ApiTokenRepository | null;
   apiStatisticsRepository: ApiStatisticsRepository | null;
+  apiSearchRepository: ApiSearchRepository | null;
 }
 
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
@@ -98,6 +100,14 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     return new ApiStatisticsRepositoryImpl(onblocAPIClient);
   }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
 
+  const apiSearchRepository = useMemo(() => {
+    if (!nodeRPCClient) {
+      return null;
+    }
+
+    return new ApiSearchRepositoryImpl(onblocAPIClient);
+  }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
+
   const transactionRepository = useMemo(() => {
     if (!nodeRPCClient) {
       return null;
@@ -148,6 +158,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         apiRealmRepository,
         apiTokenRepository,
         apiStatisticsRepository,
+        apiSearchRepository,
       }}
     >
       {children}

@@ -9,6 +9,8 @@ import { isDesktop } from "@/common/hooks/use-media";
 import SearchResult from "../search-result";
 import { useRouter } from "@/common/hooks/common/use-router";
 import { useNetwork } from "@/common/hooks/use-network";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import StandardNetworkSearchResult from "../search-result/StandardNetworkSearchResult";
 
 interface SubInputProps {
   className?: string;
@@ -27,6 +29,7 @@ export const MainInput = ({
   onChange,
   clearValue,
 }: SubInputProps) => {
+  const { isCustomNetwork } = useNetworkProvider();
   const { getUrlWithNetwork } = useNetwork();
   const desktop = isDesktop();
   const router = useRouter();
@@ -57,7 +60,7 @@ export const MainInput = ({
       <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />
       </Button>
-      <SearchResult />
+      {isCustomNetwork ? <SearchResult /> : <StandardNetworkSearchResult />}
     </Wrapper>
   );
 };

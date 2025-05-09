@@ -36,7 +36,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         from: "",
         to: "",
         hash: item.txHash,
-        numOfMessage: 0,
+        numOfMessage: item.func.length,
         functionName: item.func[0].funcType,
         packagePath: item.func[0].pkgPath,
         type: item.func[0].messageType,

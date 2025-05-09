@@ -43,7 +43,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
       return false;
     }
 
-    if (message["messageType"] === "MsgCall" && message?.func === "Transfer") {
+    if (message["messageType"] === "MsgCall" && message?.funcType === "Transfer") {
       return false;
     }
 
