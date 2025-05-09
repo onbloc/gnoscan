@@ -1,6 +1,7 @@
-import { useNetwork } from "@/common/hooks/use-network";
-import { numberWithCommas } from "@/common/utils";
 import React from "react";
+import Link from "next/link";
+
+import { useNetwork } from "@/common/hooks/use-network";
 
 interface Props {
   height: string | number | undefined;
@@ -8,5 +9,5 @@ interface Props {
 
 export const Block = ({ height }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  return height ? <a href={getUrlWithNetwork(`/block/${height}`)}>{height}</a> : <span>-</span>;
+  return height ? <Link href={getUrlWithNetwork(`/block/${height}`)}>{height}</Link> : <span>-</span>;
 };

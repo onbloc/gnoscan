@@ -1,5 +1,7 @@
 import React from "react";
+import Link from "next/link";
 import styled from "styled-components";
+
 import { textEllipsis } from "@/common/utils/string-util";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -14,12 +16,12 @@ export const CallerCopy = ({ caller, username }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   return (
     <CallerWrapper>
-      <a className="ellipsis" href={getUrlWithNetwork(`/account/${caller}`)}>
+      <Link className="ellipsis" href={getUrlWithNetwork(`/account/${caller}`)}>
         {username || textEllipsis(caller ?? "", 6)}
         <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={caller} width={85}>
           <IconCopy className="svg-icon" />
         </Tooltip>
-      </a>
+      </Link>
     </CallerWrapper>
   );
 };

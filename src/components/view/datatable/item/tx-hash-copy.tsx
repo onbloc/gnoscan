@@ -1,5 +1,7 @@
 import React from "react";
+import Link from "next/link";
 import styled from "styled-components";
+
 import { textEllipsis } from "@/common/utils/string-util";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -13,12 +15,12 @@ export const TxHashCopy = ({ txHash }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   return (
     <TxHashWrapper>
-      <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
+      <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
         {textEllipsis(txHash ?? "", 8)}
         <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={txHash} width={85}>
           <IconCopy className="svg-icon" />
         </Tooltip>
-      </a>
+      </Link>
     </TxHashWrapper>
   );
 };
