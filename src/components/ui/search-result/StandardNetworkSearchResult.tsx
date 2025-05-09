@@ -89,10 +89,10 @@ const StandardNetworkSearchResult = () => {
               <ListContainer>
                 {data.path?.map(path => (
                   <List key={v1()}>
-                    {data.type === "Realms" && <RealmsListItem path={path} isMain={isMain} onClick={handleClick} />}
                     {data.type === "Accounts" && (
                       <AccountsListItem address={path} isMain={isMain} onClick={handleClick} />
                     )}
+                    {data.type === "Realms" && <RealmsListItem path={path} isMain={isMain} onClick={handleClick} />}
                     {data.type === "Tokens" && <TokensListItem path={path} isMain={isMain} onClick={handleClick} />}
                   </List>
                 ))}
