@@ -1,20 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo } from "react";
-import Text from "@/components/ui/text";
-import { eachMedia } from "@/common/hooks/use-media";
-import ActiveList from "@/components/ui/active-list";
-import { colWidth, FitContentA, List, listTitle, StyledCard, StyledText } from "../main-active-list";
 import Link from "next/link";
-import Tooltip from "@/components/ui/tooltip";
-import FetchedSkeleton from "../fetched-skeleton";
+
 import { useNetwork } from "@/common/hooks/use-network";
-import { textEllipsis } from "@/common/utils/string-util";
-import { getLocalDateString } from "@/common/utils/date-util";
-import { useGetRealmFunctionsQuery, useGetRealmTransactionsQuery } from "@/common/react-query/realm";
-import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { useUpdateTime } from "@/common/hooks/main/use-update-time";
 import { useGetNewestRealms } from "@/common/react-query/statistics";
+import { useWindowSize } from "@/common/hooks/use-window-size";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { textEllipsis } from "@/common/utils/string-util";
+import { getLocalDateString } from "@/common/utils/date-util";
 import { NewestRealm } from "@/types/data-type";
+
+import Text from "@/components/ui/text";
+import ActiveList from "@/components/ui/active-list";
+import { colWidth, FitContentA, List, listTitle, StyledCard, StyledText } from "../main-active-list";
+import Tooltip from "@/components/ui/tooltip";
+import FetchedSkeleton from "../fetched-skeleton";
 
 function makeDisplayRealmPath(path: string, length = 11) {
   if (!path) {
@@ -25,7 +25,7 @@ function makeDisplayRealmPath(path: string, length = 11) {
 }
 
 const StandardNetworkActiveNewest = () => {
-  const media = eachMedia();
+  const { breakpoint } = useWindowSize();
   const { isFetched: isFetchedUpdatedAt } = useUpdateTime();
   const { getUrlWithNetwork } = useNetwork();
 
@@ -66,7 +66,7 @@ const StandardNetworkActiveNewest = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Newest Realms
-        {media !== "mobile" && isFetched && isFetchedUpdatedAt && (
+        {breakpoint !== DEVICE_TYPE.MOBILE && isFetched && isFetchedUpdatedAt && (
           <Text type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
@@ -74,7 +74,7 @@ const StandardNetworkActiveNewest = () => {
       </Text>
       {isFetched ? (
         <ActiveList title={listTitle.newest} colWidth={colWidth.newest}>
-          {displayRealms.map((realm: any, index: number) => (
+          {displayRealms.map((realm: NewestRealm, index: number) => (
             <List key={index}>
               <StyledText type="p4" width={colWidth.newest[0]} color="tertiary">
                 {index + 1}
@@ -91,8 +91,12 @@ const StandardNetworkActiveNewest = () => {
                   </Link>
                 </FitContentA>
               </StyledText>
-              <LazyFunctions path={realm.packagePath} />
-              <LazyRealmCalls path={realm.packagePath} />
+              <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
+                {realm.functionCount || 0}
+              </StyledText>
+              <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
+                {realm.totalCalls || 0}
+              </StyledText>
               <StyledText type="p4" width={colWidth.newest[5]} color="blue">
                 <FitContentA>
                   <Link href={getUrlWithNetwork(`/block/${realm.blockHeight}`)} passHref>
@@ -106,47 +110,12 @@ const StandardNetworkActiveNewest = () => {
       ) : (
         <FetchedSkeleton />
       )}
-      {media === "mobile" && isFetched && (
+      {breakpoint === DEVICE_TYPE.MOBILE && isFetched && (
         <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}
     </StyledCard>
-  );
-};
-
-const LazyFunctions: React.FC<{ path: string }> = ({ path }) => {
-  const { data, isFetched } = useGetRealmFunctionsQuery(path);
-
-  if (!isFetched) {
-    return <SkeletonBar />;
-  }
-
-  return (
-    <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
-      {data?.length || 0}
-    </StyledText>
-  );
-};
-
-const LazyRealmCalls: React.FC<{ path: string }> = ({ path }) => {
-  const { data, isFetched } = useGetRealmTransactionsQuery(path);
-
-  const totalCount = useMemo(() => {
-    if (!data) {
-      return 0;
-    }
-    return data.filter(tx => tx.type === "/vm.m_call").length;
-  }, [data]);
-
-  if (!isFetched) {
-    return <SkeletonBar />;
-  }
-
-  return (
-    <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
-      {totalCount}
-    </StyledText>
   );
 };
 
