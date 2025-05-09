@@ -103,3 +103,14 @@ export function parseBankerGRC20InfoByFile(file: string): {
     return null;
   }
 }
+
+export function parseRealmPath(url: string) {
+  if (!url.includes("path=")) {
+    return "";
+  }
+  const params = url.split("path=");
+  if (params.length < 2) return "";
+
+  const realmPath = params[1].split("&")[0];
+  return realmPath;
+}
