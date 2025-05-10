@@ -49,7 +49,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<any>()
       .key("hash")
-      .name("Tx hash")
+      .name("Tx Hash")
       .width(210)
       .colorName("blue")
       .renderOption((value, data) => (

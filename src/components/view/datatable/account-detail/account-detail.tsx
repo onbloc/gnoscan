@@ -74,7 +74,7 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<Transaction>()
       .key("hash")
-      .name("Tx hash")
+      .name("Tx Hash")
       .width(215)
       .colorName("blue")
       .renderOption((value, data) => (

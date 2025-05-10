@@ -92,7 +92,7 @@ export const StandardNetworkTransactionListTable = ({
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<TransactionModel>()
       .key("txHash")
-      .name("Tx hash")
+      .name("Tx Hash")
       .width(215)
       .colorName("blue")
       .renderOption((value, data) => (

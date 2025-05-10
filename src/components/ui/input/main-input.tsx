@@ -24,7 +24,7 @@ interface SubInputProps {
 export const MainInput = ({
   className = "",
   value,
-  placeholder = "Search by Account / Block / Realm / Tokens",
+  placeholder = "Search by Tx / Account / Realm / Token",
   setValue,
   onChange,
   clearValue,

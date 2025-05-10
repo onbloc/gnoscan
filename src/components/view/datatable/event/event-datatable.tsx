@@ -88,7 +88,7 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("transactionHash")
-      .name("Tx hash")
+      .name("Tx Hash")
       .width(200)
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
@@ -221,7 +221,7 @@ const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible,
           <div className="event-details-header">
             <div className="path-wrapper">
               <Text type="p4" color={"primary"}>
-                Current Realm Path:{" "}
+                Realm Path:{" "}
                 <Text type="p4" color={"blue"}>
                   <Link href={getUrlWithNetwork(`/realms/details?path=${event.packagePath}`)} passHref>
                     {event.packagePath}
