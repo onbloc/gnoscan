@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 
-import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type";
+import { Transaction, TransactionContractInfo } from "@/types/data-type";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 
 import * as S from "./TransactionContractDetails.styles";
@@ -11,7 +11,6 @@ import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Tooltip from "@/components/ui/tooltip";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
-import TransactionTransferContract from "../transaction-transfer-contract/TransactionTransferContract";
 import ShowLog from "@/components/ui/show-log";
 import { TransactionAddPackageContract } from "../transaction-add-package-contract/TransactionAddPackageContract";
 import { TransactionCallerContract } from "../transaction-caller-contract/TransactionCallerContract";
@@ -28,9 +27,10 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
-  getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
-  getName?: (address: string) => string;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, getTokenAmount }) => {
+
+  // TODO: [temporary] to be removed after API development is complete - rawContent prop
+  showLog?: string;
+}> = ({ transactionItem, isDesktop, getUrlWithNetwork, showLog }) => {
   const messages = React.useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
@@ -149,9 +149,9 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           {hasCaller(message) && (
             <TransactionCallerContract message={message} isDesktop={isDesktop} getUrlWithNetwork={getUrlWithNetwork} />
           )}
-          {message["log"] && <ShowLog isTabLog={false} logData={message.log} btnTextType="Logs" />}
         </S.ContractListBox>
       ))}
+      {showLog && <ShowLog isTabLog={false} logData={showLog} btnTextType="Logs" />}
     </React.Fragment>
   );
 };

@@ -16,7 +16,7 @@ const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => 
   const { isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
-  const [currentTab, setCurrentTab] = React.useState("Contract");
+  const [currentTab, setCurrentTab] = React.useState("Messages");
 
   const { getUrlWithNetwork } = useNetwork();
   const { getTokenAmount } = useTokenMeta();
@@ -37,7 +37,6 @@ const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => 
       setCurrentTab={setCurrentTab}
       isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
-      getTokenAmount={getTokenAmount}
     />
   );
 };

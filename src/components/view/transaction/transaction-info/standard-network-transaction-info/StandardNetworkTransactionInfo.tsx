@@ -1,9 +1,10 @@
 import React from "react";
 
-import { Amount, GnoEvent, Transaction, TransactionContractInfo } from "@/types/data-type";
+import { GnoEvent, TransactionContractInfo } from "@/types/data-type";
 import { useGetTransactionEventsByHeight } from "@/common/react-query/transaction/api/use-get-transaction-events-by-hash";
 import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
 import { TransactionMapper } from "@/common/mapper/transaction/transaction-mapper";
+import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 
 import DataListSection from "@/components/view/details-data-section/data-list-section";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
@@ -16,7 +17,6 @@ interface TransactionInfoProps {
   isDesktop: boolean;
   setCurrentTab: (tab: string) => void;
   getUrlWithNetwork: (uri: string) => string;
-  getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
 }
 
 const StandardNetworkTransactionInfo = ({
@@ -25,8 +25,11 @@ const StandardNetworkTransactionInfo = ({
   currentTab,
   setCurrentTab,
   getUrlWithNetwork,
-  getTokenAmount,
 }: TransactionInfoProps) => {
+  // TODO: transactionItem.rawContent is temporary data. Needs to be removed after API development is complete
+  const { transaction } = useTransaction(txHash);
+  const { transactionItem } = transaction;
+
   const { data: contractsData, isFetched: isFetchedContractsData } = useGetTransactionContractsByHeight(txHash);
   const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight(txHash);
 
@@ -67,7 +70,8 @@ const StandardNetworkTransactionInfo = ({
           transactionItem={txContracts}
           isDesktop={isDesktop}
           getUrlWithNetwork={getUrlWithNetwork}
-          getTokenAmount={getTokenAmount}
+          // TODO: [temporary] to be removed after API development is complete - rawContent prop
+          showLog={transactionItem?.rawContent}
         />
       )}
       {currentTab === "Events" && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
