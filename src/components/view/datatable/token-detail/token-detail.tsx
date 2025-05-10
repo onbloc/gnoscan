@@ -59,7 +59,7 @@ export const TokenDetailDatatable = ({ path }: Props) => {
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<any>()
       .key("hash")
-      .name("Tx hash")
+      .name("Tx Hash")
       .width(210)
       .colorName("blue")
       .renderOption((value, data) => (

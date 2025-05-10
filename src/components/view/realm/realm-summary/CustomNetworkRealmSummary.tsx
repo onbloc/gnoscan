@@ -155,7 +155,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
-        <dt>Functions</dt>
+        <dt>Public Functions</dt>
         <dd className="function-wrapper">
           {summary?.funcs?.map((v: string, index: number) => (
             <Badge className="link" key={index} type="blue" onClick={() => moveGnoStudioViewRealmFunction(v)}>

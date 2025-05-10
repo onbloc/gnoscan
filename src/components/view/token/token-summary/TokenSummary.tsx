@@ -119,7 +119,7 @@ const TokenSummary = ({
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
-        <dt>Functions</dt>
+        <dt>Public Functions</dt>
         <dd className="function-wrapper">
           {summaryData.functions.map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>

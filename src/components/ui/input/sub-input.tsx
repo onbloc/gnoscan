@@ -46,7 +46,7 @@ export const SubInput = ({ className = "", value, onChange, clearValue }: SubInp
         onChange={onChange}
         onKeyDown={onKeyDownInput}
         type="text"
-        placeholder="Search by Account / Block / Realm / Tokens"
+        placeholder="Search by Tx / Account / Realm / Token"
       />
       <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />

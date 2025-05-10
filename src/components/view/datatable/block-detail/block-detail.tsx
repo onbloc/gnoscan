@@ -46,7 +46,7 @@ export const BlockDetailDatatable = ({ transactions, isFetched }: Props) => {
   const createHeaderTxHash = () => {
     return DatatableOption.Builder.builder<Transaction>()
       .key("hash")
-      .name("Tx hash")
+      .name("Tx Hash")
       .width(210)
       .colorName("blue")
       .renderOption((value, data) => (

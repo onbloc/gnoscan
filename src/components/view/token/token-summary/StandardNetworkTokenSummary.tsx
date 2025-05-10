@@ -119,7 +119,7 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
-        <dt>Functions</dt>
+        <dt>Public Functions</dt>
         <dd className="function-wrapper">
           {tokenSummary?.functions.map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>
