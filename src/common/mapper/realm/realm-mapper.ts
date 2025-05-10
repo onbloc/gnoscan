@@ -34,7 +34,7 @@ export class RealmMapper {
       files: response.sourceFiles.map(file => {
         return { name: file.filename, body: file.content };
       }),
-      balance: { denom: "", value: "" },
+      balance: response.balance,
       contractCalls: response.contractCallCount || 0,
       totalUsedFees: response.totalUsedFees,
     };

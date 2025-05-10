@@ -3,12 +3,13 @@ import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { NonMobile } from "@/common/hooks/use-media";
-import { RealmSummary, Transaction } from "@/types/data-type";
+import { RealmSummary } from "@/types/data-type";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { GNOSTUDIO_REALM_FUNCTION_TEMPLATE, GNOSTUDIO_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useGetRealmByPath, useGetRealmTransactionsByPath } from "@/common/react-query/realm/api";
+import { useGetRealmByPath } from "@/common/react-query/realm/api";
+import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -20,9 +21,7 @@ import Tooltip from "@/components/ui/tooltip";
 import Text from "@/components/ui/text";
 import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { RealmTotalContractCalls } from "../realm-total-contract-calls/RealmTotalContractCalls";
-import { RealmTotalUsedFeeAmount } from "../realm-total-used-fee-amount/RealmTotalUsedFeeAmount";
-import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { AmountText } from "@/components/ui/text/amount-text";
 
 interface RealmSummaryProps {
   path: string;
@@ -49,20 +48,12 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
   const { getTokenAmount } = useTokenMeta();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
-  const { data: realmTransactionsData, isFetched: isFetchedRealmTransactionsData } =
-    useGetRealmTransactionsByPath(path);
 
   const realmSummary: RealmSummary | null = React.useMemo(() => {
     if (!realmData?.data) return null;
 
     return RealmMapper.realmSummaryFromApiResponse(realmData.data);
   }, [realmData?.data]);
-
-  const realmTransactions: Transaction[] = React.useMemo(() => {
-    if (!realmTransactionsData?.items) return [];
-
-    return RealmMapper.realmTransactionFromApiResponses(realmTransactionsData.items);
-  }, [realmTransactionsData?.items]);
 
   const moveGnoStudioViewRealm = React.useCallback(() => {
     if (!currentNetwork) {
@@ -91,15 +82,6 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     },
     [path, currentNetwork],
   );
-
-  const balanceStr = React.useMemo(() => {
-    if (!realmSummary?.balance) {
-      return "-";
-    }
-    return "-";
-    // const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
-    // return `${amount.value} ${amount.denom}`;
-  }, [getTokenAmount, realmSummary?.balance]);
 
   if (!isFetchedRealmData) return <TableSkeleton />;
 
@@ -235,23 +217,33 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           </div>
         </dt>
         <dd>
-          <Badge>{balanceStr}</Badge>
+          <Badge>
+            <AmountText
+              minSize="body1"
+              maxSize="p4"
+              value={realmSummary?.balance?.value || "0"}
+              denom={realmSummary?.balance?.denom || "0"}
+            />
+          </Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Total Calls</dt>
         <dd>
-          <RealmTotalContractCalls realmTransactions={realmTransactions} isFetched={isFetchedRealmTransactionsData} />
+          <Badge>{realmSummary?.contractCalls || 0}</Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Total Fees Used</dt>
         <dd>
-          <RealmTotalUsedFeeAmount
-            realmTransactions={realmTransactions}
-            isFetched={isFetchedRealmTransactionsData}
-            getTokenAmount={getTokenAmount}
-          />
+          <Badge>
+            <AmountText
+              minSize="body1"
+              maxSize="p4"
+              value={realmSummary?.totalUsedFees?.value || "0"}
+              denom={realmSummary?.totalUsedFees?.denom || "0"}
+            />
+          </Badge>
         </dd>
       </DLWrap>
       {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} btnTextType="Realms" />}
