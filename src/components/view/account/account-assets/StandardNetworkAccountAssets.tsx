@@ -1,13 +1,16 @@
 import React from "react";
+import BigNumber from "bignumber.js";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { Amount } from "@/types/data-type";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 import * as S from "./AccountAssets.styles";
 import Text from "@/components/ui/text";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
+import { useGetNativeTokenBalance } from "@/common/react-query/account";
 
 interface AccountAssetsProps {
   address: string;
@@ -20,12 +23,14 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
 
   const assetList = React.useMemo(() => {
     if (!data?.data) return [];
-    return data.data.assets.map(asset => {
-      return {
-        denom: "ugnot",
-        value: asset.amount,
-      };
-    });
+    return data.data.assets
+      .filter(asset => asset.name && asset.symbol)
+      .map(asset => {
+        return {
+          denom: asset.symbol,
+          value: asset.amount,
+        };
+      });
   }, [data?.data]);
 
   if (isLoading || !isFetched) {
@@ -38,6 +43,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
         Assets
       </Text>
       <S.GridLayout breakpoint={breakpoint}>
+        <NativeTokenAsset address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
         {isFetched &&
           assetList.map((amount: Amount) => {
             return (
@@ -46,11 +52,31 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
                 amount={amount}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
+                isFetched={isFetched}
               />
             );
           })}
       </S.GridLayout>
     </S.Card>
+  );
+};
+
+const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
+  const { data, isFetched } = useGetNativeTokenBalance(address);
+
+  const amount: Amount = {
+    denom: GNOTToken.denom,
+    value: BigNumber(data?.value || 0).toString(),
+  };
+
+  return (
+    <AccountAssetItem
+      key={`asset-token-${amount.denom}`}
+      amount={amount}
+      breakpoint={breakpoint}
+      isDesktop={isDesktop}
+      isFetched={isFetched}
+    />
   );
 };
 

@@ -43,6 +43,7 @@ const AccountAssets = ({
                 amount={amount}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
+                isFetched={isFetchedAssets}
               />
             );
           })}
