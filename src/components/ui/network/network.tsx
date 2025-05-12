@@ -13,6 +13,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { useNetwork } from "@/common/hooks/use-network";
 import { useRouter } from "next/router";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
+import LoadingSpinner from "../loading-spinner/LoadingSpinner";
 
 export interface NetworkData {
   all: string[];
@@ -34,7 +35,7 @@ interface NetworkProps extends StyleProps {
 
 const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
   const { currentNetwork } = useNetworkProvider();
-  const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
+  const { currentNetwork: currentNetworkInfo, changeCustomNetwork, isNetworkSwitching } = useNetwork();
   const ref = useOutSideClick(() => setToggle(false));
   const [customRpcUrl, setCustomRpcUrl] = useState("");
   const [indexerUrl, setIndexerUrl] = useState("");
@@ -139,7 +140,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                 }}
               >
                 <Text type="body1" color="primary">
-                  Connect
+                  {isNetworkSwitching ? <LoadingSpinner size={16} /> : "Connect"}
                 </Text>
               </div>
             </div>

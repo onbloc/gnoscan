@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NetworkState } from "@/states";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useRecoilState } from "recoil";
 import ChainData from "public/resource/chains.json";
 import { useRouter } from "next/router";
 import { makeQueryString } from "../utils/string-util";
+
+const MIN_LOADING_DURATION = 1000;
+
+type NetworkTransitionState = {
+  isPending: boolean;
+  startTime: number | null;
+  timerId: NodeJS.Timeout | null;
+};
 
 function parseSearchString(search: string) {
   if (!search || search.length === 1) {
@@ -40,6 +48,13 @@ function parseSearchString(search: string) {
 export const useNetwork = () => {
   const { replace } = useRouter();
   const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
+  const [isNetworkSwitching, setIsNetworkSwitching] = React.useState(false);
+
+  const networkTransitionRef = React.useRef<NetworkTransitionState>({
+    isPending: false,
+    startTime: null,
+    timerId: null,
+  });
 
   const networkParams = useMemo(() => {
     if (!currentNetwork || currentNetwork.chainId === ChainData[0].chainId) {
@@ -58,6 +73,42 @@ export const useNetwork = () => {
       chainId: currentNetwork?.chainId || "",
     };
   }, [currentNetwork]);
+
+  const startLoading = React.useCallback(() => {
+    const transitionState = networkTransitionRef.current;
+
+    if (transitionState.timerId) {
+      clearTimeout(transitionState.timerId);
+      transitionState.timerId = null;
+    }
+
+    setIsNetworkSwitching(true);
+    transitionState.isPending = true;
+    transitionState.startTime = Date.now();
+  }, []);
+
+  const finishLoading = React.useCallback(() => {
+    const transitionState = networkTransitionRef.current;
+
+    if (!transitionState.isPending) return;
+
+    const elapsedTime = transitionState.startTime ? Date.now() - transitionState.startTime : 0;
+    const remainingTime = Math.max(0, MIN_LOADING_DURATION - elapsedTime);
+
+    transitionState.timerId = setTimeout(() => {
+      setIsNetworkSwitching(false);
+      transitionState.isPending = false;
+      transitionState.startTime = null;
+      transitionState.timerId = null;
+    }, remainingTime);
+  }, []);
+
+  React.useEffect(() => {
+    return () => {
+      const { timerId } = networkTransitionRef.current;
+      if (timerId) clearTimeout(timerId);
+    };
+  }, []);
 
   const getUrlWithNetwork = (uri: string) => {
     return getUrlWithNetworkData(uri, networkParams);
@@ -98,7 +149,9 @@ export const useNetwork = () => {
     );
   };
 
-  const changeCustomNetwork = (rpcUrl: string, indexerUrl: string) => {
+  const changeCustomNetwork = async (rpcUrl: string, indexerUrl: string) => {
+    startLoading();
+
     setCurrentNetwork({
       isCustom: true,
       chainId: "",
@@ -108,16 +161,21 @@ export const useNetwork = () => {
     });
 
     const uri = window.location.pathname + window.location.search;
-    replace(
-      getUrlWithNetworkData(uri, {
-        type: "custom",
-        rpcUrl,
-        indexerUrl,
-      }),
-    );
+    try {
+      await replace(
+        getUrlWithNetworkData(uri, {
+          type: "custom",
+          rpcUrl,
+          indexerUrl,
+        }),
+      );
+    } finally {
+      finishLoading();
+    }
   };
 
   return {
+    isNetworkSwitching,
     currentNetwork,
     getUrlWithNetwork,
     setCurrentNetwork,
