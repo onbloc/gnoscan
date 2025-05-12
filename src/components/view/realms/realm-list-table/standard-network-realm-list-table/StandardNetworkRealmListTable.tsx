@@ -8,6 +8,7 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
 import { RealmListSortOption } from "@/common/types/realm";
 import { Realm } from "@/types/data-type";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 import * as S from "./StandardNetworkRealmListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -108,7 +109,7 @@ export const StandardNetworkRealmListTable = ({
       .name("Total Gas Used")
       .width(163)
       .renderOption(gasUsed => {
-        return <AmountText value={gasUsed.value} denom={gasUsed.denom?.toUpperCase()} maxSize="p4" minSize="body1" />;
+        return <AmountText {...toGNOTAmount(gasUsed.value, gasUsed.denom)} maxSize="p4" minSize="body1" />;
       })
       .build();
   };
