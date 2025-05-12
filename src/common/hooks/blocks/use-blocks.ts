@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 export const useBlocks = () => {
   const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
-  const [currentBlockHeight, setCurrentBlockHeight] = useState<number>();
+  const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetched, isError, isLoading } = useGetBlocksQuery(currentBlockHeight);
 
@@ -19,10 +19,10 @@ export const useBlocks = () => {
   }, [data?.pages]);
 
   useEffect(() => {
-    if (!currentBlockHeight && !!latestBlockHeight) {
+    if (latestBlockHeight !== undefined && latestBlockHeight !== null) {
       setCurrentBlockHeight(latestBlockHeight);
     }
-  }, [currentBlockHeight, latestBlockHeight]);
+  }, [latestBlockHeight]);
 
   return {
     data: blocks,

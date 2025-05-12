@@ -9,6 +9,7 @@ export class HttpRPCClient implements RPCClient {
   constructor(baseURL: string) {
     this.client = axios.create({
       baseURL,
+      timeout: 5_000,
       headers: {
         "Content-Type": "application/json",
       },

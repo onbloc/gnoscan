@@ -11,7 +11,7 @@ export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | 
   const { blockRepository } = useServiceProvider();
 
   return useQuery<number | null, Error>({
-    queryKey: [QUERY_KEY.latestBlockHeight, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.latestBlockHeight, currentNetwork?.chainId || "", currentNetwork?.rpcUrl || ""],
     queryFn: () => {
       if (!blockRepository) {
         return null;
@@ -72,7 +72,7 @@ export const useGetBlocksQuery = (
   const { blockRepository } = useServiceProvider();
 
   return useInfiniteQuery<Block[] | null, Error>({
-    queryKey: [QUERY_KEY.getBlocks, currentNetwork?.chainId || "", latestHeight],
+    queryKey: [QUERY_KEY.getBlocks, currentNetwork?.rpcUrl || "", latestHeight],
     getNextPageParam: (lastPage, pages) => {
       if (!lastPage) {
         return false;
