@@ -49,6 +49,7 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
                 amount={amount}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
+                isFetched={isFetchedAssets}
               />
             );
           })}
