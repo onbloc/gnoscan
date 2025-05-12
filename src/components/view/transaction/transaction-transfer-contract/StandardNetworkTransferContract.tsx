@@ -4,7 +4,7 @@ import Link from "next/link";
 import { v1 } from "uuid";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { parseTokenAmount } from "@/common/utils/token.utility";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 import * as S from "./TransactionTransferContract.styles";
 import Text from "@/components/ui/text";
@@ -33,13 +33,24 @@ const StandardNetworkTransactionTransferContract = ({
     return message?.to || "-";
   }, [message]);
 
+  const amount: Amount | null = React.useMemo(() => {
+    if (!message?.amount) return null;
+
+    return toGNOTAmount(message.amount.value, message.amount.denom);
+  }, [message?.amount]);
+
   return (
     <>
       <DLWrap desktop={isDesktop}>
         <dt>Amount</dt>
         <dd>
           <Badge>
-            <AmountText minSize="body2" maxSize="p4" {...message.amount} />
+            <AmountText
+              minSize="body2"
+              maxSize="p4"
+              value={amount?.value || "0"}
+              denom={amount?.denom || GNOTToken.symbol}
+            />
           </Badge>
         </dd>
       </DLWrap>

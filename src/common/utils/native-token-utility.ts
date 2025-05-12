@@ -11,7 +11,7 @@ type TokenDenom = string;
  * @param denom Denom to convert
  * @returns Interface: Amount
  */
-export const toGNOT = (value: TokenValue, denom: TokenDenom): Amount => {
+export const toGNOTAmount = (value: TokenValue, denom: TokenDenom): Amount => {
   return {
     value: convertAmountValue(value, denom),
     denom: convertAmountDenom(denom),
