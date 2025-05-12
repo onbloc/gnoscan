@@ -4,7 +4,7 @@ import { useRecoilValue } from "recoil";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
-import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 import * as S from "./StandardNetworkTransactionListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -51,7 +51,6 @@ export const StandardNetworkTransactionListTable = ({
 }: StandardNetworkTransactionListTableProps) => {
   const themeMode = useRecoilValue(themeState);
 
-  const { getTokenAmount } = useTokenMeta();
   const [development, setDevelopment] = useState(false);
 
   useEffect(() => {
@@ -157,7 +156,7 @@ export const StandardNetworkTransactionListTable = ({
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.txHash}`} />
         ) : (
-          <DatatableItem.Amount {...getTokenAmount(data.amount.denom, data.amount.value)} />
+          <DatatableItem.Amount {...toGNOTAmount(data.amount.value, data.amount.denom)} />
         ),
       )
       .build();
@@ -179,7 +178,7 @@ export const StandardNetworkTransactionListTable = ({
       .name("Fee")
       .width(113)
       .className("fee")
-      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
+      .renderOption(fee => <DatatableItem.Amount {...toGNOTAmount(fee.value, fee.denom)} />)
       .build();
   };
 

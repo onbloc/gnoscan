@@ -12,6 +12,7 @@ import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { Transaction } from "@/types/data-type";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 interface Props {
   pkgPath: string;
@@ -127,7 +128,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
       .name("Fee")
       .width(113)
       .className("fee")
-      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
+      .renderOption(fee => <DatatableItem.Amount {...toGNOTAmount(fee.value, fee.denom)} />)
       .build();
   };
 
