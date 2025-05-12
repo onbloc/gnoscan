@@ -1,21 +1,26 @@
 import React, { useCallback, useMemo } from "react";
-import Text from "@/components/ui/text";
-import { eachMedia } from "@/common/hooks/use-media";
-import ActiveList from "@/components/ui/active-list";
-import { colWidth, List, listTitle, StyledAmountText, StyledCard, StyledText } from "../main-active-list";
 import Link from "next/link";
-import { getLocalDateString } from "@/common/utils/date-util";
-import Tooltip from "@/components/ui/tooltip";
-import FetchedSkeleton from "../fetched-skeleton";
-import { useGetMonthlyActiveAccounts } from "@/common/react-query/statistics";
-import { textEllipsis } from "@/common/utils/string-util";
-import { useNetwork } from "@/common/hooks/use-network";
 import BigNumber from "bignumber.js";
+
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { getLocalDateString } from "@/common/utils/date-util";
+import { useGetMonthlyActiveAccounts } from "@/common/react-query/statistics";
+import { useNetwork } from "@/common/hooks/use-network";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ActiveAccountModel } from "@/repositories/api/statistics/response";
+import { textEllipsis } from "@/common/utils/string-util";
+import { useGetNativeTokenBalance } from "@/common/react-query/account";
+import { useWindowSize } from "@/common/hooks/use-window-size";
+
+import Text from "@/components/ui/text";
+import ActiveList from "@/components/ui/active-list";
+import { colWidth, List, listTitle, StyledAmountText, StyledCard, StyledText } from "../main-active-list";
+import Tooltip from "@/components/ui/tooltip";
+import FetchedSkeleton from "../fetched-skeleton";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 const ActiveAccountApi = () => {
-  const media = eachMedia();
+  const { breakpoint } = useWindowSize();
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetMonthlyActiveAccounts();
@@ -42,7 +47,7 @@ const ActiveAccountApi = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Monthly Active Accounts
-        {media !== "mobile" && loaded && (
+        {breakpoint !== DEVICE_TYPE.MOBILE && loaded && (
           <Text type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
@@ -68,25 +73,37 @@ const ActiveAccountApi = () => {
               <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
                 {account.nonTransferTxs}
               </StyledText>
-              <StyledAmountText
-                minSize="body2"
-                maxSize="p4"
-                color="reverse"
-                value={BigNumber(account.balance || 0).shiftedBy(GNOTToken.decimals * -1)}
-                width={colWidth.accounts[4]}
-              />
+              <LazyAccountBalance address={account.account} />
             </List>
           ))}
         </ActiveList>
       ) : (
         <FetchedSkeleton />
       )}
-      {media === "mobile" && loaded && (
+      {breakpoint === DEVICE_TYPE.MOBILE && loaded && (
         <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}
     </StyledCard>
+  );
+};
+
+const LazyAccountBalance = ({ address }: { address: string }) => {
+  const { data, isFetched } = useGetNativeTokenBalance(address);
+
+  if (!isFetched) {
+    return <SkeletonBar width={colWidth.accounts[4]} />;
+  }
+
+  return (
+    <StyledAmountText
+      minSize="body2"
+      maxSize="p4"
+      color="reverse"
+      value={BigNumber(data?.value || 0).shiftedBy(GNOTToken.decimals * -1)}
+      width={colWidth.accounts[4]}
+    />
   );
 };
 
