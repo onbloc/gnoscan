@@ -7,14 +7,16 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import * as S from "./AccountAssetItem.styles";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 interface AccountAssetItemProps {
   amount: Amount;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
+  isFetched: boolean;
 }
 
-const AccountAssetItem = ({ amount, breakpoint, isDesktop }: AccountAssetItemProps) => {
+const AccountAssetItem = ({ amount, breakpoint, isDesktop, isFetched }: AccountAssetItemProps) => {
   const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
 
   const tokenImage = React.useMemo(() => {
@@ -24,6 +26,24 @@ const AccountAssetItem = ({ amount, breakpoint, isDesktop }: AccountAssetItemPro
       <UnknownToken aria-label="Unknown token image" width="40" height="40" />
     );
   }, [getTokenImage, amount.denom]);
+
+  if (!isFetched) {
+    return (
+      <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
+        <S.TokenInfo>
+          <S.LogoWrapper>
+            <UnknownToken aria-label="Loading TokenImage" width="40" height="40" />
+          </S.LogoWrapper>
+
+          <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
+            <SkeletonBar width="100%" height={20} />
+          </S.TokenName>
+        </S.TokenInfo>
+
+        <SkeletonBar width="50%" height={20} />
+      </S.Box>
+    );
+  }
 
   return (
     <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
