@@ -3,13 +3,14 @@ import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { NonMobile } from "@/common/hooks/use-media";
-import { RealmSummary } from "@/types/data-type";
+import { Amount, RealmSummary } from "@/types/data-type";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { GNOSTUDIO_REALM_FUNCTION_TEMPLATE, GNOSTUDIO_REALM_TEMPLATE } from "@/common/values/url.constant";
-import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -45,7 +46,6 @@ const TOOLTIP_BALANCE = (
 
 const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
   const { currentNetwork, getUrlWithNetwork } = useNetwork();
-  const { getTokenAmount } = useTokenMeta();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
 
@@ -54,6 +54,20 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
 
     return RealmMapper.realmSummaryFromApiResponse(realmData.data);
   }, [realmData?.data]);
+
+  const realmBalance: Amount | null = React.useMemo(() => {
+    if (!realmSummary?.balance) return null;
+
+    const data = realmSummary.balance;
+    return toGNOTAmount(data.value, data.denom);
+  }, [realmSummary?.balance]);
+
+  const realmTotalUsedFees: Amount | null = React.useMemo(() => {
+    if (!realmSummary?.totalUsedFees) return null;
+
+    const data = realmSummary.totalUsedFees;
+    return toGNOTAmount(data?.value, data?.denom);
+  }, [realmSummary?.totalUsedFees]);
 
   const moveGnoStudioViewRealm = React.useCallback(() => {
     if (!currentNetwork) {
@@ -221,8 +235,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             <AmountText
               minSize="body1"
               maxSize="p4"
-              value={realmSummary?.balance?.value || "0"}
-              denom={realmSummary?.balance?.denom || "0"}
+              value={realmBalance?.value || "0"}
+              denom={realmBalance?.denom || GNOTToken.symbol}
             />
           </Badge>
         </dd>
@@ -240,8 +254,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             <AmountText
               minSize="body1"
               maxSize="p4"
-              value={realmSummary?.totalUsedFees?.value || "0"}
-              denom={realmSummary?.totalUsedFees?.denom || "0"}
+              value={realmTotalUsedFees?.value || "0"}
+              denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
             />
           </Badge>
         </dd>

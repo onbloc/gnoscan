@@ -12,6 +12,9 @@ import ShowLog from "@/components/ui/show-log";
 import { StyledIconCopy } from "../Transaction.styles";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
+import { Amount } from "@/types/data-type";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
@@ -33,6 +36,13 @@ const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwor
       return null;
     }
   }, [data.transactionItem, data.blockResult]);
+
+  const transactionFee: Amount | null = React.useMemo(() => {
+    if (!data?.transactionItem?.fee) return null;
+
+    const fee = data.transactionItem.fee;
+    return toGNOTAmount(fee.value, fee.denom);
+  }, [data?.transactionItem?.fee]);
 
   if (!isFetched) return <TableSkeleton />;
 
@@ -100,8 +110,8 @@ const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwor
               <AmountText
                 minSize="body2"
                 maxSize="p4"
-                value={data.transactionItem.fee.value}
-                denom={data.transactionItem.fee.denom}
+                value={transactionFee?.value || "0"}
+                denom={transactionFee?.denom || GNOTToken.symbol}
               />
             </Badge>
           </dd>

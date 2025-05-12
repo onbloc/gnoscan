@@ -10,6 +10,7 @@ import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useGetTokenTransactionsByid } from "@/common/react-query/token/api";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 import { Transaction } from "@/types/data-type";
 import { TokenTransactionModel } from "@/models/api/token/token-model";
@@ -130,7 +131,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount {...getTokenAmount(amount.denom, amount.value)} />
+          <DatatableItem.Amount {...toGNOTAmount(amount.value, amount.denom)} />
         ),
       )
       .build();
@@ -152,7 +153,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
       .name("Fee")
       .width(113)
       .className("fee")
-      .renderOption(fee => <DatatableItem.Amount {...getTokenAmount(fee.denom, fee.value)} />)
+      .renderOption(fee => <DatatableItem.Amount {...toGNOTAmount(fee.value, fee.denom)} />)
       .build();
   };
 
