@@ -9,7 +9,7 @@ export const useGetTokenSupplyQuery = (options?: UseQueryOptions<TokenSupplyInfo
   const { chainRepository } = useServiceProvider();
 
   return useQuery<TokenSupplyInfo | null, Error>({
-    queryKey: [QUERY_KEY.getTokenSupply, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getTokenSupply, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     queryFn: () => {
       if (!chainRepository) {
         return null;
@@ -26,7 +26,7 @@ export const useGetValidatorsQuery = (height: number, options?: UseQueryOptions<
   const { chainRepository } = useServiceProvider();
 
   return useQuery<string[] | null, Error>({
-    queryKey: [QUERY_KEY.getValidators, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getValidators, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     queryFn: () => {
       if (!chainRepository) {
         return null;
@@ -43,7 +43,7 @@ export const useGetValidatorInfosQuery = (options?: UseQueryOptions<ValidatorInf
   const { chainRepository } = useServiceProvider();
 
   return useQuery<ValidatorInfo[] | null, Error>({
-    queryKey: [QUERY_KEY.getValidatorInfos, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getValidatorInfos, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     queryFn: () => {
       if (!chainRepository) {
         return [];

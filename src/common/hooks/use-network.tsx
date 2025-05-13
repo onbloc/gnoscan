@@ -1,10 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NetworkState } from "@/states";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useRecoilState } from "recoil";
 import ChainData from "public/resource/chains.json";
 import { useRouter } from "next/router";
 import { makeQueryString } from "../utils/string-util";
+
+type NetworkTransitionState = {
+  isPending: boolean;
+  startTime: number | null;
+  timerId: NodeJS.Timeout | null;
+};
 
 function parseSearchString(search: string) {
   if (!search || search.length === 1) {
@@ -41,6 +47,12 @@ export const useNetwork = () => {
   const { replace } = useRouter();
   const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
 
+  const networkTransitionRef = React.useRef<NetworkTransitionState>({
+    isPending: false,
+    startTime: null,
+    timerId: null,
+  });
+
   const networkParams = useMemo(() => {
     if (!currentNetwork || currentNetwork.chainId === ChainData[0].chainId) {
       return null;
@@ -58,6 +70,13 @@ export const useNetwork = () => {
       chainId: currentNetwork?.chainId || "",
     };
   }, [currentNetwork]);
+
+  React.useEffect(() => {
+    return () => {
+      const { timerId } = networkTransitionRef.current;
+      if (timerId) clearTimeout(timerId);
+    };
+  }, []);
 
   const getUrlWithNetwork = (uri: string) => {
     return getUrlWithNetworkData(uri, networkParams);
@@ -98,7 +117,7 @@ export const useNetwork = () => {
     );
   };
 
-  const changeCustomNetwork = (rpcUrl: string, indexerUrl: string) => {
+  const changeCustomNetwork = async (rpcUrl: string, indexerUrl: string) => {
     setCurrentNetwork({
       isCustom: true,
       chainId: "",
@@ -108,13 +127,16 @@ export const useNetwork = () => {
     });
 
     const uri = window.location.pathname + window.location.search;
-    replace(
-      getUrlWithNetworkData(uri, {
-        type: "custom",
-        rpcUrl,
-        indexerUrl,
-      }),
-    );
+    try {
+      await replace(
+        getUrlWithNetworkData(uri, {
+          type: "custom",
+          rpcUrl,
+          indexerUrl,
+        }),
+      );
+    } finally {
+    }
   };
 
   return {

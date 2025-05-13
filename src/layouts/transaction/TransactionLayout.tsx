@@ -18,7 +18,12 @@ const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: Tran
 
   const { isFetched, isError } = useTransaction(txHash);
 
-  if (isFetched && isError) return <NotFound keyword={txHash} breakpoint={breakpoint} />;
+  if (isFetched && isError)
+    return (
+      <S.InnerLayout>
+        <NotFound keyword={txHash} breakpoint={breakpoint} />
+      </S.InnerLayout>
+    );
 
   return (
     <S.Container breakpoint={breakpoint}>
