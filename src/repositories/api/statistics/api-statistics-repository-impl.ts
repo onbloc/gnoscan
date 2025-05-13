@@ -2,6 +2,7 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { ApiStatisticsRepository } from "./api-statistics-repository";
 
 import { CommonError } from "@/common/errors";
+import { GetTotalFeeShareRequest } from "./request";
 import {
   GetLatestBlogsResponse,
   GetMonthlyActiveAccountsResponse,
@@ -13,8 +14,8 @@ import {
   GetTotalDailyFeesResponse,
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
-  GetTotalGasShareResponse,
 } from "./response";
+import { makeQueryParameter } from "@/common/utils/string-util";
 
 interface APIResponse<T> {
   data: T;
@@ -152,14 +153,16 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
       });
   }
 
-  getTotalGasShare(): Promise<GetTotalFeeShareResponse> {
+  getTotalGasShare(params: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
 
+    const requestParams = makeQueryParameter({ ...params });
+
     return this.networkClient
       .get<APIResponse<GetTotalFeeShareResponse>>({
-        url: "/stats/total-gas-share",
+        url: `/stats/total-gas-share${requestParams}`,
       })
       .then(result => {
         return totalGasShareMockData;

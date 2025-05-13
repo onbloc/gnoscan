@@ -1,16 +1,3 @@
-export interface GetTotalGasShareResponse {
-  data: {
-    range: string;
-    series: {
-      data: {
-        date: string;
-        gasUsed: string;
-      }[];
-      realm: string;
-    }[];
-  };
-}
-
 export interface PackageInfo {
   packagePath: string;
   gasShared: number;

@@ -10,17 +10,17 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { useTotalGasInfoApi } from "@/common/hooks/main/use-total-gas-info-api";
 import { dateToStr } from "@/common/utils/date-util";
 import { useGetTotalGasShare } from "@/common/react-query/statistics";
-import { DailyPackages, GetTotalFeeShareResponse, PackageInfo } from "@/repositories/api/statistics/response";
+import { DailyPackages, PackageInfo } from "@/repositories/api/statistics/response";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
 });
 
 export const MainRealmTotalGasShareApi = () => {
-  const [period, setPeriod] = useState(7);
+  const [period, setPeriod] = useState<7 | 30>(7);
   const { isFetched, transactionRealmGasInfo } = useTotalGasInfoApi(period);
 
-  const { data } = useGetTotalGasShare();
+  const { data } = useGetTotalGasShare({ range: period });
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -114,7 +114,7 @@ export const MainRealmTotalGasShareApi = () => {
     }, {});
   }, [labels, transactionRealmGasInfo]);
 
-  const onClickPeriod = (currentPeriod: number) => {
+  const onClickPeriod = (currentPeriod: 7 | 30) => {
     if (period !== currentPeriod) {
       setPeriod(currentPeriod);
     }
