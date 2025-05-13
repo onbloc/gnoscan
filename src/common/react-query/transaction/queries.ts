@@ -14,7 +14,7 @@ export const useGetTransactionBlockHeightQuery = (
   const { blockRepository, transactionRepository } = useServiceProvider();
 
   return useQuery<{ block: any; blockResult: any } | null, Error>({
-    queryKey: [QUERY_KEY.getTransactionBlockHeight, currentNetwork?.chainId || "", hash],
+    queryKey: [QUERY_KEY.getTransactionBlockHeight, currentNetwork?.rpcUrl || "", hash],
     queryFn: async () => {
       if (!transactionRepository || !blockRepository) {
         return null;
@@ -36,6 +36,7 @@ export const useGetTransactionBlockHeightQuery = (
         block: null,
         blockResult: null,
       },
+    retry: 1,
     enabled: !!transactionRepository && !!blockRepository,
     ...options,
   });
@@ -49,7 +50,7 @@ export const useGetTransactionStatInfoQuery = (
   const { transactionRepository } = useServiceProvider();
 
   return useQuery<TotalTransactionStatInfo | null, Error>({
-    queryKey: [QUERY_KEY.getTransactionStatInfo, currentNetwork?.chainId || "", totalTx],
+    queryKey: [QUERY_KEY.getTransactionStatInfo, currentNetwork?.rpcUrl || "", totalTx],
     queryFn: async () => {
       if (!transactionRepository) {
         return null;
@@ -58,6 +59,7 @@ export const useGetTransactionStatInfoQuery = (
       return transactionRepository.getTransactionStatInfo().catch(() => null);
     },
     ...options,
+    retry: 1,
     keepPreviousData: true,
     enabled: !!transactionRepository && options?.enabled,
   });
@@ -70,7 +72,7 @@ export const useGetTransactionsQuery = (
   const { transactionRepository } = useServiceProvider();
 
   return useQuery<Transaction[] | null, Error>({
-    queryKey: [QUERY_KEY.getTransactions, currentNetwork?.chainId || "", totalTx],
+    queryKey: [QUERY_KEY.getTransactions, currentNetwork?.rpcUrl || "", totalTx],
     queryFn: async () => {
       if (!transactionRepository) {
         return null;
@@ -81,6 +83,7 @@ export const useGetTransactionsQuery = (
       return result;
     },
     ...options,
+    retry: 1,
     keepPreviousData: true,
     enabled: !!transactionRepository && options?.enabled,
   });
@@ -106,7 +109,12 @@ export const useGetTransactionsInfinityQuery = (
     } | null,
     Error
   >({
-    queryKey: [QUERY_KEY.getTransactionInfinity, currentNetwork?.chainId || "", totalTx || "0"],
+    queryKey: [
+      QUERY_KEY.getTransactionInfinity,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      totalTx || "0",
+    ],
     getNextPageParam: lastPage => {
       if (!lastPage) {
         return null;
@@ -132,7 +140,11 @@ export const useGetUsingAccountTransactionCount = (options?: UseQueryOptions<num
   const { transactionRepository } = useServiceProvider();
 
   return useQuery<number, Error>({
-    queryKey: [QUERY_KEY.useGetUsingAccountTransactionCount, currentNetwork?.chainId || ""],
+    queryKey: [
+      QUERY_KEY.useGetUsingAccountTransactionCount,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+    ],
     queryFn: async () => {
       if (!transactionRepository) {
         return 0;

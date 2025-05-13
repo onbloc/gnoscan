@@ -20,7 +20,7 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
   const { realmRepository } = useServiceProvider();
 
   return useQuery<any, Error>({
-    queryKey: [QUERY_KEY.getRealms, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getRealms, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return [];
@@ -52,6 +52,7 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
     select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository,
     ...options,
+    retry: 1,
     keepPreviousData: true,
     cacheTime: 10 * 60 * 1000,
     staleTime: 10 * 60 * 1000,
@@ -63,7 +64,7 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
   const { realmRepository } = useServiceProvider();
 
   return useQuery<any, Error>({
-    queryKey: [QUERY_KEY.getLatestRealms, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getLatestRealms, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return [];
@@ -97,6 +98,7 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
       );
     },
     select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
+    retry: 1,
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
@@ -113,7 +115,7 @@ export const useGetRealmQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<RealmTransaction<AddPackageValue> | null, Error>({
-    queryKey: [QUERY_KEY.getRealm, currentNetwork?.chainId || "", packagePath],
+    queryKey: [QUERY_KEY.getRealm, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || "", packagePath],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;
@@ -127,6 +129,7 @@ export const useGetRealmQuery = (
       const balance = await realmRepository.getRealmBalance(packagePath);
       return { ...result, balance } as RealmTransaction<AddPackageValue>;
     },
+    retry: 1,
     enabled: !!realmRepository,
     ...options,
   });
@@ -140,7 +143,12 @@ export const useGetRealmFunctionsQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<RealmFunction[] | null, Error>({
-    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || "", packagePath],
+    queryKey: [
+      QUERY_KEY.getRealmFunctions,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      packagePath,
+    ],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;
@@ -148,6 +156,7 @@ export const useGetRealmFunctionsQuery = (
       const result = await realmRepository.getRealmFunctions(decodeURIComponent(packagePath));
       return result;
     },
+    retry: 1,
     enabled: !!realmRepository && !!packagePath,
     ...options,
   });
@@ -158,7 +167,7 @@ export const useGetRealmPackagesInfinity = (options?: UseInfiniteQueryOptions<an
   const { realmRepository } = useServiceProvider();
 
   return useInfiniteQuery<any | null, Error>({
-    queryKey: [QUERY_KEY.getRealmPackages, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getRealmPackages, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     getNextPageParam: lastPage => {
       if (!lastPage) {
         return null;
@@ -195,6 +204,7 @@ export const useGetRealmPackagesInfinity = (options?: UseInfiniteQueryOptions<an
         transactions: transactions || [],
       };
     },
+    retry: 1,
     enabled: !!realmRepository,
     keepPreviousData: true,
     ...options,
@@ -209,7 +219,12 @@ export const useGetRealmTransactionInfoQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<RealmTransactionInfo | null, Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionInfo, currentNetwork?.chainId || "", packagePath],
+    queryKey: [
+      QUERY_KEY.getRealmTransactionInfo,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      packagePath,
+    ],
     queryFn: async () => {
       if (!realmRepository) {
         return null;
@@ -220,6 +235,7 @@ export const useGetRealmTransactionInfoQuery = (
       }));
       return result;
     },
+    retry: 1,
     enabled: !!realmRepository,
     ...options,
   });
@@ -233,7 +249,12 @@ export const useGetRealmTransactionInfosByFromHeightQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<{ [key in string]: RealmTransactionInfo } | null, Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionInfosByFromHeight, currentNetwork?.chainId || "", fromHeight],
+    queryKey: [
+      QUERY_KEY.getRealmTransactionInfosByFromHeight,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      fromHeight,
+    ],
     queryFn: async () => {
       if (!realmRepository || !fromHeight) {
         return null;
@@ -241,6 +262,7 @@ export const useGetRealmTransactionInfosByFromHeightQuery = (
       const result = await realmRepository.getRealmTransactionInfos(fromHeight);
       return result;
     },
+    retry: 1,
     enabled: !!realmRepository,
     ...options,
   });
@@ -253,13 +275,14 @@ export const useGetRealmTransactionInfosQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<{ [key in string]: RealmTransactionInfo } | null, Error>({
-    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getRealmFunctions, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return null;
       }
       return await realmRepository.getRealmTransactionInfos();
     },
+    retry: 1,
     enabled: !!realmRepository,
     ...options,
   });
@@ -273,7 +296,12 @@ export const useGetRealmTransactionsQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactions, currentNetwork?.chainId || "", realmPath],
+    queryKey: [
+      QUERY_KEY.getRealmTransactions,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      realmPath,
+    ],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -285,6 +313,7 @@ export const useGetRealmTransactionsQuery = (
 
       return transactions.map(mapVMTransaction);
     },
+    retry: 1,
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository && !!realmPath,
     ...options,
@@ -296,7 +325,7 @@ export const useGetHoldersQuery = (realmPath: string | null, options?: UseQueryO
   const { realmRepository } = useServiceProvider();
 
   return useQuery<number, Error>({
-    queryKey: [QUERY_KEY.getHoldersQuery, currentNetwork?.chainId || "", realmPath],
+    queryKey: [QUERY_KEY.getHoldersQuery, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || "", realmPath],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return 0;
@@ -304,6 +333,7 @@ export const useGetHoldersQuery = (realmPath: string | null, options?: UseQueryO
 
       return realmRepository.getTokenHolders(realmPath);
     },
+    retry: 1,
     enabled: !!realmRepository && !!realmPath,
     ...options,
   });
@@ -314,7 +344,12 @@ export const useGetRealmTotalSupplyQuery = (realmPath: string | null, options?: 
   const { realmRepository } = useServiceProvider();
 
   return useQuery<number, Error>({
-    queryKey: [QUERY_KEY.getRealmTotalSupply, currentNetwork?.chainId || "", realmPath],
+    queryKey: [
+      QUERY_KEY.getRealmTotalSupply,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      realmPath,
+    ],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return 0;
@@ -326,6 +361,7 @@ export const useGetRealmTotalSupplyQuery = (realmPath: string | null, options?: 
 
       return totalSupply;
     },
+    retry: 1,
     enabled: !!realmRepository && !!realmPath,
     ...options,
   });
@@ -339,7 +375,12 @@ export const useGetRealmTransactionsWithArgsQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionsWithArgs, currentNetwork?.chainId || "", realmPath],
+    queryKey: [
+      QUERY_KEY.getRealmTransactionsWithArgs,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      realmPath,
+    ],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -351,6 +392,7 @@ export const useGetRealmTransactionsWithArgsQuery = (
 
       return transactions.map(mapTransactionByRealm);
     },
+    retry: 1,
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository && !!realmPath,
     ...options,
@@ -365,7 +407,12 @@ export const useGetRealmTransactionsByEventQuery = (
   const { realmRepository } = useServiceProvider();
 
   return useQuery<Transaction[], Error>({
-    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || "", realmPath],
+    queryKey: [
+      QUERY_KEY.getRealmTransactionsByEvent,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      realmPath,
+    ],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
         return [];
@@ -377,6 +424,7 @@ export const useGetRealmTransactionsByEventQuery = (
 
       return result.transactions.map((tx: any) => mapTransactionByRealm(tx));
     },
+    retry: 1,
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
     enabled: !!realmRepository && !!realmPath,
     ...options,
@@ -403,7 +451,12 @@ export const useGetRealmTransactionsByEventInfinityQuery = (
     },
     Error
   >({
-    queryKey: [QUERY_KEY.getRealmTransactionsByEvent, currentNetwork?.chainId || "", realmPath],
+    queryKey: [
+      QUERY_KEY.getRealmTransactionsByEvent,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      realmPath,
+    ],
     getNextPageParam: lastPage => {
       if (!lastPage?.pageInfo?.hasNext) {
         return false;
@@ -442,6 +495,7 @@ export const useGetRealmTransactionsByEventInfinityQuery = (
         transactions: result.transactions.map((tx: any) => mapTransactionByRealm(tx)),
       };
     },
+    retry: 1,
     enabled: !!realmRepository && !!realmPath,
     ...options,
   });
@@ -452,7 +506,7 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
   const { realmRepository } = useServiceProvider();
 
   return useQuery<GRC20Info[], Error>({
-    queryKey: [QUERY_KEY.getGRC20Tokens, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.getGRC20Tokens, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || ""],
     queryFn: async () => {
       if (!realmRepository) {
         return [];
@@ -460,6 +514,7 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
       const tokens = await realmRepository.getTokens();
       return tokens || [];
     },
+    retry: 1,
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
@@ -488,7 +543,7 @@ export const useGetGRC20Token = (
     } | null,
     Error
   >({
-    queryKey: [QUERY_KEY.getGRC20Token, currentNetwork?.chainId || "", packagePath],
+    queryKey: [QUERY_KEY.getGRC20Token, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || "", packagePath],
     queryFn: async () => {
       if (!realmRepository || !packagePath) {
         return null;
@@ -501,6 +556,7 @@ export const useGetGRC20Token = (
 
       return result;
     },
+    retry: 1,
     enabled: !!realmRepository && !!packagePath,
     ...options,
   });

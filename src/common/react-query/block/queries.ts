@@ -11,7 +11,7 @@ export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | 
   const { blockRepository } = useServiceProvider();
 
   return useQuery<number | null, Error>({
-    queryKey: [QUERY_KEY.latestBlockHeight, currentNetwork?.chainId || ""],
+    queryKey: [QUERY_KEY.latestBlockHeight, currentNetwork?.chainId || "", currentNetwork?.rpcUrl || ""],
     queryFn: () => {
       if (!blockRepository) {
         return null;
@@ -35,13 +35,14 @@ export const useGetBlockQuery = (
   const { blockRepository } = useServiceProvider();
 
   return useQuery<NodeResponseBlock | null, Error>({
-    queryKey: [QUERY_KEY.getBlock, currentNetwork?.chainId || "", blockHeight],
+    queryKey: [QUERY_KEY.getBlock, currentNetwork?.rpcUrl || "", blockHeight],
     queryFn: () => {
       if (!blockRepository || !blockHeight) {
         return null;
       }
       return blockRepository.getBlock(blockHeight);
     },
+    retry: 1,
     enabled: !!blockRepository && !!blockHeight,
     keepPreviousData: true,
     ...options,
@@ -53,7 +54,7 @@ export const useGetBlockTimeQuery = (blockHeight: number, options?: UseQueryOpti
   const { blockRepository } = useServiceProvider();
 
   return useQuery<string | null, Error>({
-    queryKey: [QUERY_KEY.getBlockTime, currentNetwork?.chainId || "", blockHeight],
+    queryKey: [QUERY_KEY.getBlockTime, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || "", blockHeight],
     queryFn: async () => {
       if (!blockRepository) {
         return null;
@@ -72,7 +73,7 @@ export const useGetBlocksQuery = (
   const { blockRepository } = useServiceProvider();
 
   return useInfiniteQuery<Block[] | null, Error>({
-    queryKey: [QUERY_KEY.getBlocks, currentNetwork?.chainId || "", latestHeight],
+    queryKey: [QUERY_KEY.getBlocks, currentNetwork?.rpcUrl || "", latestHeight],
     getNextPageParam: (lastPage, pages) => {
       if (!lastPage) {
         return false;
@@ -112,6 +113,7 @@ export const useGetBlocksQuery = (
         }),
       );
     },
+    retry: 1,
     keepPreviousData: true,
     enabled: !!blockRepository || !!latestHeight,
     ...options,
@@ -123,13 +125,14 @@ export const useGetBlockResultQuery = (height: number, options?: UseQueryOptions
   const { blockRepository } = useServiceProvider();
 
   return useQuery<BlockResults | null, Error>({
-    queryKey: [QUERY_KEY.getBlockResult, currentNetwork?.chainId || "", height],
+    queryKey: [QUERY_KEY.getBlockResult, currentNetwork?.rpcUrl || "", height],
     queryFn: () => {
       if (!blockRepository) {
         return null;
       }
       return blockRepository.getBlockResult(height);
     },
+    retry: 1,
     enabled: !!blockRepository && height > 0,
     keepPreviousData: true,
     ...options,

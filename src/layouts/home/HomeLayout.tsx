@@ -22,14 +22,12 @@ const HomeLayout = ({ mainCard, mainActiveList, mainRealm, mainTransactionNews }
     <S.Container breakpoint={breakpoint}>
       <S.Wrapper breakpoint={breakpoint}>
         {mainCard}
-        {hasIndexerClient ? (
+        {hasIndexerClient && (
           <IndexerDependentComponents
             mainActiveList={mainActiveList}
             mainRealm={mainRealm}
             mainTransactionNews={mainTransactionNews}
           />
-        ) : (
-          <IndexerClientConnectionFailureNotice />
         )}
       </S.Wrapper>
     </S.Container>
