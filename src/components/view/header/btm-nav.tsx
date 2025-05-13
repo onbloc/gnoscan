@@ -13,6 +13,7 @@ import { debounce } from "@/common/utils/string-util";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { RiseIn, StretchOut } from "@/components/ui/animation/Animation";
 import { FontsType } from "@/styles";
+import { zindex } from "@/common/values/z-index";
 
 interface TextStyleProps {
   type: FontsType;
@@ -50,7 +51,7 @@ export const BtmNav = () => {
           <RiseIn>
             <Text {...textStyleProps}>The gno.land Blockchain Explorer</Text>
           </RiseIn>
-          <StretchOut delay={0.5}>
+          <StretchOut delay={0.5} style={{ zIndex: zindex.searchResult }}>
             <MainInput
               className="main-search"
               value={value}
