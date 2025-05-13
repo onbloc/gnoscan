@@ -35,13 +35,14 @@ export const useGetBlockQuery = (
   const { blockRepository } = useServiceProvider();
 
   return useQuery<NodeResponseBlock | null, Error>({
-    queryKey: [QUERY_KEY.getBlock, currentNetwork?.chainId || "", blockHeight],
+    queryKey: [QUERY_KEY.getBlock, currentNetwork?.rpcUrl || "", blockHeight],
     queryFn: () => {
       if (!blockRepository || !blockHeight) {
         return null;
       }
       return blockRepository.getBlock(blockHeight);
     },
+    retry: 1,
     enabled: !!blockRepository && !!blockHeight,
     keepPreviousData: true,
     ...options,
