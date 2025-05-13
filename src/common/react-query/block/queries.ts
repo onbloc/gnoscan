@@ -124,13 +124,14 @@ export const useGetBlockResultQuery = (height: number, options?: UseQueryOptions
   const { blockRepository } = useServiceProvider();
 
   return useQuery<BlockResults | null, Error>({
-    queryKey: [QUERY_KEY.getBlockResult, currentNetwork?.chainId || "", height],
+    queryKey: [QUERY_KEY.getBlockResult, currentNetwork?.rpcUrl || "", height],
     queryFn: () => {
       if (!blockRepository) {
         return null;
       }
       return blockRepository.getBlockResult(height);
     },
+    retry: 1,
     enabled: !!blockRepository && height > 0,
     keepPreviousData: true,
     ...options,

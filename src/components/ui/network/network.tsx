@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
 import LoadingSpinner from "../loading-spinner/LoadingSpinner";
 import { NodeRPCClient } from "@/common/clients/node-client";
+import { sleep } from "@/common/utils/common.utility";
 
 export interface NetworkData {
   all: string[];
@@ -69,7 +70,10 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     await changeCustomNetwork(customRpcUrl, indexerUrl);
 
     const tempRpcClient = new NodeRPCClient(customRpcUrl, "");
-    await tempRpcClient.health().finally(() => setIsNetworkSwitching(false));
+    await tempRpcClient
+      .health()
+      .catch(() => sleep(1000))
+      .finally(() => setIsNetworkSwitching(false));
   }, [nodeRPCClient, customRpcUrl, indexerUrl]);
 
   useEffect(() => {
