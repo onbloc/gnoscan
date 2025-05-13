@@ -2,11 +2,11 @@ import { useQuery, UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { GetTotalGasShareResponse } from "@/repositories/api/statistics/response";
+import { GetTotalFeeShareResponse } from "@/repositories/api/statistics/response";
 import { CommonError } from "@/common/errors";
 
 export const useGetTotalGasShare = (
-  options?: UseQueryOptions<GetTotalGasShareResponse, Error, GetTotalGasShareResponse>,
+  options?: UseQueryOptions<GetTotalFeeShareResponse, Error, GetTotalFeeShareResponse>,
 ) => {
   const { apiStatisticsRepository } = useServiceProvider();
 

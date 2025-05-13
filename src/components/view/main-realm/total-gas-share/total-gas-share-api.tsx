@@ -9,6 +9,8 @@ import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { useTotalGasInfoApi } from "@/common/hooks/main/use-total-gas-info-api";
 import { dateToStr } from "@/common/utils/date-util";
+import { useGetTotalGasShare } from "@/common/react-query/statistics";
+import { DailyPackages, GetTotalFeeShareResponse, PackageInfo } from "@/repositories/api/statistics/response";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
@@ -17,6 +19,8 @@ const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.
 export const MainRealmTotalGasShareApi = () => {
   const [period, setPeriod] = useState(7);
   const { isFetched, transactionRealmGasInfo } = useTotalGasInfoApi(period);
+
+  const { data } = useGetTotalGasShare();
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -28,6 +32,51 @@ export const MainRealmTotalGasShareApi = () => {
   }, [period]);
 
   const transactionGasData = useMemo(() => {
+    if (!data?.items[0]) {
+      return {};
+    }
+
+    // 1. 전체 패키지 목록 수집
+    const allPackages = new Set<string>();
+    Object.values(data.items[0]).forEach((dateData: DailyPackages) => {
+      Object.keys(dateData).forEach(pkg => {
+        allPackages.add(pkg);
+      });
+    });
+
+    // 2. 패키지별 데이터 구성
+    return Array.from(allPackages).reduce<Record<string, Array<{ value: number; rate: number }>>>(
+      (accum, packagePath) => {
+        const currentLabel = packagePath.replace("gno.land", "");
+
+        accum[currentLabel] = labels.map(date => {
+          const dateData = data.items[0][date];
+          if (!dateData || !dateData[packagePath]) {
+            return {
+              value: 0,
+              rate: 0,
+            };
+          }
+
+          const totalGas = Object.values(dateData).reduce((sum, pkg: PackageInfo) => sum + pkg.gasShared, 0);
+
+          const currentGas = dateData[packagePath].gasShared;
+
+          return {
+            value: BigNumber(currentGas)
+              .shiftedBy(GNOTToken.decimals * -1)
+              .toNumber(),
+            rate: (currentGas / totalGas) * 100,
+          };
+        });
+
+        return accum;
+      },
+      {},
+    );
+  }, [labels, data]);
+
+  const transactionGasData2 = useMemo(() => {
     if (!transactionRealmGasInfo) {
       return {};
     }

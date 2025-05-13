@@ -9,6 +9,7 @@ import {
   GetTotalDailyFeesResponse,
   GetTotalDailyTransactionsResponse,
   GetTotalGasShareResponse,
+  GetTotalFeeShareResponse,
 } from "./response";
 
 export interface ApiStatisticsRepository {
@@ -30,5 +31,5 @@ export interface ApiStatisticsRepository {
 
   getTotalDailyTransactions(): Promise<GetTotalDailyTransactionsResponse>;
 
-  getTotalGasShare(): Promise<GetTotalGasShareResponse>;
+  getTotalGasShare(): Promise<GetTotalFeeShareResponse>;
 }
