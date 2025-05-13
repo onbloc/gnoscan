@@ -13,7 +13,7 @@ import { BlockSummaryInfo } from "@/types/data-type";
 
 export const useBlock = (height: number) => {
   const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
-  const { data: block, isFetched } = useGetBlockQuery(height);
+  const { data: block, isFetched, isError: isErrorBlockData } = useGetBlockQuery(height);
   const { data: blockResult, isFetched: isFetchedBlockResult } = useGetBlockResultQuery(height);
 
   const timeStamp = useMemo(() => {
@@ -165,6 +165,11 @@ export const useBlock = (height: number) => {
     );
   }, [block?.block.data.txs, blockResult]);
 
+  const isErrorBlock = useMemo(() => {
+    if (!isFetched) return false;
+    return block == null || isErrorBlockData;
+  }, [block, isFetched, isErrorBlockData]);
+
   const hasPreviousBlock = useMemo(() => {
     if (!block) {
       return false;
@@ -209,6 +214,7 @@ export const useBlock = (height: number) => {
     isFetched,
     isFetchedBlockResult,
     block: blockSummaryInfo,
+    isErrorBlock,
     events,
     transactionItems,
   };

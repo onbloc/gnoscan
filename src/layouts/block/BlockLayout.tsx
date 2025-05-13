@@ -6,6 +6,7 @@ import TitleOption from "@/components/view/common/title-option/TitleOption";
 
 import * as S from "./BlockLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
+import NotFound from "@/components/view/search/not-found/NotFound";
 
 interface BlockLayoutProps {
   blockHeight: number;
@@ -16,7 +17,14 @@ interface BlockLayoutProps {
 const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps) => {
   const { breakpoint, isDesktop } = useWindowSize();
 
-  const { block } = useBlock(blockHeight);
+  const { block, isFetched, isErrorBlock } = useBlock(blockHeight);
+
+  if (isFetched && isErrorBlock)
+    return (
+      <S.InnerLayout>
+        <NotFound keyword={`${blockHeight}`} breakpoint={breakpoint} />
+      </S.InnerLayout>
+    );
 
   return (
     <S.Container breakpoint={breakpoint}>
