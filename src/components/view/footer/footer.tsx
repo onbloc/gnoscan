@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 import dynamic from "next/dynamic";
 import { DarkModeToggle } from "@/components/ui/button";
 import Discord from "@/assets/svgs/icon-discord.svg";
-import Twitter from "@/assets/svgs/icon-twitter.svg";
+import Twitter from "@/assets/svgs/icon-x.svg";
 import GnoscanSymbol from "@/assets/svgs/icon-gnoscan-symbol.svg";
 import GnoscanSymbolLight from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import Text from "@/components/ui/text";
@@ -133,6 +133,9 @@ const Wrapper = styled.footer<ModProps>`
         `}
   .svg-icon {
     fill: ${({ theme }) => theme.colors.primary};
+    path {
+      fill: ${({ theme }) => theme.colors.primary};
+    }
   }
 `;
 
