@@ -35,6 +35,7 @@ class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap"
             rel="stylesheet"
           />
+          <link rel="preload" href="/bg-header.svg" as="image" type="image/svg+xml" />
         </Head>
         <body className="scroll-visible">
           <Main />
