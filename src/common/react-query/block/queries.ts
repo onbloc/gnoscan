@@ -54,7 +54,7 @@ export const useGetBlockTimeQuery = (blockHeight: number, options?: UseQueryOpti
   const { blockRepository } = useServiceProvider();
 
   return useQuery<string | null, Error>({
-    queryKey: [QUERY_KEY.getBlockTime, currentNetwork?.chainId || "", blockHeight],
+    queryKey: [QUERY_KEY.getBlockTime, currentNetwork?.rpcUrl || "", currentNetwork?.indexerUrl || "", blockHeight],
     queryFn: async () => {
       if (!blockRepository) {
         return null;

@@ -109,7 +109,12 @@ export const useGetTransactionsInfinityQuery = (
     } | null,
     Error
   >({
-    queryKey: [QUERY_KEY.getTransactionInfinity, currentNetwork?.chainId || "", totalTx || "0"],
+    queryKey: [
+      QUERY_KEY.getTransactionInfinity,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+      totalTx || "0",
+    ],
     getNextPageParam: lastPage => {
       if (!lastPage) {
         return null;
@@ -135,7 +140,11 @@ export const useGetUsingAccountTransactionCount = (options?: UseQueryOptions<num
   const { transactionRepository } = useServiceProvider();
 
   return useQuery<number, Error>({
-    queryKey: [QUERY_KEY.useGetUsingAccountTransactionCount, currentNetwork?.chainId || ""],
+    queryKey: [
+      QUERY_KEY.useGetUsingAccountTransactionCount,
+      currentNetwork?.rpcUrl || "",
+      currentNetwork?.indexerUrl || "",
+    ],
     queryFn: async () => {
       if (!transactionRepository) {
         return 0;
