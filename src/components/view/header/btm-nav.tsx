@@ -1,24 +1,27 @@
 "use client";
 import React, { useCallback } from "react";
-import styled from "styled-components";
-import dynamic from "next/dynamic";
+import styled, { CSSProperties } from "styled-components";
+import { useRecoilState } from "recoil";
+
+import { useRouter } from "@/common/hooks/common/use-router";
+import { searchState } from "@/states";
 
 import mixins from "@/styles/mixins";
-import { useRouter } from "@/common/hooks/common/use-router";
 import Text from "@/components/ui/text";
 import { MainInput, SubInput } from "@/components/ui/input";
-import { searchState } from "@/states";
-import { useRecoilState } from "recoil";
 import { debounce } from "@/common/utils/string-util";
+import { useWindowSize } from "@/common/hooks/use-window-size";
+import { RiseIn, StretchOut } from "@/components/ui/animation/Animation";
+import { FontsType } from "@/styles";
 
-const Desktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.Desktop), {
-  ssr: false,
-});
-const NotDesktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NotDesktop), {
-  ssr: false,
-});
+interface TextStyleProps {
+  type: FontsType;
+  color: string;
+  textAlign: CSSProperties["textAlign"];
+}
 
 export const BtmNav = () => {
+  const { isDesktop } = useWindowSize();
   const router = useRouter();
   const entry = router.route === "/";
   const [value, setValue] = useRecoilState(searchState);
@@ -34,34 +37,35 @@ export const BtmNav = () => {
     setValue("");
   };
 
+  const textStyleProps: TextStyleProps = {
+    type: isDesktop ? "h1" : "h2",
+    color: "white",
+    textAlign: "center",
+  };
+
   return (
     <>
       {entry ? (
         <Wrapper isMain={entry}>
-          <Desktop>
-            <Text type="h1" color="white" textAlign="center">
-              The Gno.land Blockchain Explorer
-            </Text>
-          </Desktop>
-          <NotDesktop>
-            <Text type="h2" color="white" textAlign="center">
-              The Gno.land Blockchain Explorer
-            </Text>
-          </NotDesktop>
-          <MainInput
-            className="main-search"
-            value={value}
-            setValue={setValue}
-            onChange={onChange}
-            clearValue={clearValue}
-          />
+          <RiseIn>
+            <Text {...textStyleProps}>The gno.land Blockchain Explorer</Text>
+          </RiseIn>
+          <StretchOut delay={0.5}>
+            <MainInput
+              className="main-search"
+              value={value}
+              setValue={setValue}
+              onChange={onChange}
+              clearValue={clearValue}
+            />
+          </StretchOut>
         </Wrapper>
       ) : (
-        <NotDesktop>
+        !isDesktop && (
           <Wrapper isMain={entry}>
             <SubInput value={value} onChange={onChange} clearValue={clearValue} />
           </Wrapper>
-        </NotDesktop>
+        )
       )}
     </>
   );
