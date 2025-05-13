@@ -112,6 +112,7 @@ export const useGetBlocksQuery = (
         }),
       );
     },
+    retry: 1,
     keepPreviousData: true,
     enabled: !!blockRepository || !!latestHeight,
     ...options,

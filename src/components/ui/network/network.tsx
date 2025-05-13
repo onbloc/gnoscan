@@ -14,6 +14,7 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useRouter } from "next/router";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
 import LoadingSpinner from "../loading-spinner/LoadingSpinner";
+import { NodeRPCClient } from "@/common/clients/node-client";
 
 export interface NetworkData {
   all: string[];
@@ -34,8 +35,9 @@ interface NetworkProps extends StyleProps {
 }
 
 const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
-  const { currentNetwork } = useNetworkProvider();
-  const { currentNetwork: currentNetworkInfo, changeCustomNetwork, isNetworkSwitching } = useNetwork();
+  const { currentNetwork, nodeRPCClient } = useNetworkProvider();
+  const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
+  const [isNetworkSwitching, setIsNetworkSwitching] = useState(false);
   const ref = useOutSideClick(() => setToggle(false));
   const [customRpcUrl, setCustomRpcUrl] = useState("");
   const [indexerUrl, setIndexerUrl] = useState("");
@@ -56,13 +58,19 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     return true;
   }, [isErrorRpcUrl, isErrorIndexerUrl]);
 
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (!customRpcUrl) {
       setIsErrorRpcUrl(true);
       return;
     }
-    changeCustomNetwork(customRpcUrl, indexerUrl);
-  }, [customRpcUrl, indexerUrl]);
+
+    setIsNetworkSwitching(true);
+
+    await changeCustomNetwork(customRpcUrl, indexerUrl);
+
+    const tempRpcClient = new NodeRPCClient(customRpcUrl, "");
+    await tempRpcClient.health().finally(() => setIsNetworkSwitching(false));
+  }, [nodeRPCClient, customRpcUrl, indexerUrl]);
 
   useEffect(() => {
     if (toggle && currentNetworkInfo?.isCustom) {

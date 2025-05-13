@@ -6,8 +6,6 @@ import ChainData from "public/resource/chains.json";
 import { useRouter } from "next/router";
 import { makeQueryString } from "../utils/string-util";
 
-const MIN_LOADING_DURATION = 1000;
-
 type NetworkTransitionState = {
   isPending: boolean;
   startTime: number | null;
@@ -48,7 +46,6 @@ function parseSearchString(search: string) {
 export const useNetwork = () => {
   const { replace } = useRouter();
   const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
-  const [isNetworkSwitching, setIsNetworkSwitching] = React.useState(false);
 
   const networkTransitionRef = React.useRef<NetworkTransitionState>({
     isPending: false,
@@ -73,35 +70,6 @@ export const useNetwork = () => {
       chainId: currentNetwork?.chainId || "",
     };
   }, [currentNetwork]);
-
-  const startLoading = React.useCallback(() => {
-    const transitionState = networkTransitionRef.current;
-
-    if (transitionState.timerId) {
-      clearTimeout(transitionState.timerId);
-      transitionState.timerId = null;
-    }
-
-    setIsNetworkSwitching(true);
-    transitionState.isPending = true;
-    transitionState.startTime = Date.now();
-  }, []);
-
-  const finishLoading = React.useCallback(() => {
-    const transitionState = networkTransitionRef.current;
-
-    if (!transitionState.isPending) return;
-
-    const elapsedTime = transitionState.startTime ? Date.now() - transitionState.startTime : 0;
-    const remainingTime = Math.max(0, MIN_LOADING_DURATION - elapsedTime);
-
-    transitionState.timerId = setTimeout(() => {
-      setIsNetworkSwitching(false);
-      transitionState.isPending = false;
-      transitionState.startTime = null;
-      transitionState.timerId = null;
-    }, remainingTime);
-  }, []);
 
   React.useEffect(() => {
     return () => {
@@ -150,8 +118,6 @@ export const useNetwork = () => {
   };
 
   const changeCustomNetwork = async (rpcUrl: string, indexerUrl: string) => {
-    startLoading();
-
     setCurrentNetwork({
       isCustom: true,
       chainId: "",
@@ -170,12 +136,10 @@ export const useNetwork = () => {
         }),
       );
     } finally {
-      finishLoading();
     }
   };
 
   return {
-    isNetworkSwitching,
     currentNetwork,
     getUrlWithNetwork,
     setCurrentNetwork,
