@@ -1,3 +1,4 @@
+import { GetTotalFeeShareRequest } from "./request";
 import {
   GetLatestBlogsResponse,
   GetMonthlyActiveAccountsResponse,
@@ -8,7 +9,7 @@ import {
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
   GetTotalDailyTransactionsResponse,
-  GetTotalGasShareResponse,
+  GetTotalFeeShareResponse,
 } from "./response";
 
 export interface ApiStatisticsRepository {
@@ -30,5 +31,5 @@ export interface ApiStatisticsRepository {
 
   getTotalDailyTransactions(): Promise<GetTotalDailyTransactionsResponse>;
 
-  getTotalGasShare(): Promise<GetTotalGasShareResponse>;
+  getTotalGasShare(request: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse>;
 }
