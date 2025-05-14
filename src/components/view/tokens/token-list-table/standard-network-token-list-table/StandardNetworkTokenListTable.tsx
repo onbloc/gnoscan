@@ -14,6 +14,7 @@ import { DatatableItem } from "../../../datatable";
 import { Button } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
+import { formatTokenDecimal } from "@/common/utils/token.utility";
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -54,11 +55,11 @@ export const StandardNetworkTokenListTable = ({
   };
 
   const createHeaderToken = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("token")
       .name("Token")
       .width(220)
-      .renderOption((_, data: any) => (
+      .renderOption((_, data) => (
         <DatatableItem.TokenTitle
           token={data.symbol}
           imagePath={data.packagePath}
@@ -89,11 +90,11 @@ export const StandardNetworkTokenListTable = ({
   };
 
   const createHeaderTotalSupply = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("totalSupply")
       .name("Total Supply")
       .width(180)
-      .renderOption(totalSupply => <>{makeDisplayNumber(totalSupply)}</>)
+      .renderOption((_, data) => <>{makeDisplayNumber(formatTokenDecimal(data.totalSupply, data.decimals))}</>)
       .build();
   };
 
