@@ -18,6 +18,10 @@ export class IndexerClient {
     });
   }
 
+  public async health(): Promise<boolean> {
+    return this.axiosClient.get("/health", { timeout: 5000 }).then(response => response.data != undefined);
+  }
+
   public query<T = any>(qry: DocumentNode, pageOption?: PageOption) {
     if (pageOption) {
       return this.apolloClient.query<QueryResponse<T>>({
