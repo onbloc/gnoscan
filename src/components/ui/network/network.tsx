@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
 import LoadingSpinner from "../loading-spinner/LoadingSpinner";
 import { NodeRPCClient } from "@/common/clients/node-client";
+import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { sleep } from "@/common/utils/common.utility";
 
 export interface NetworkData {
@@ -35,15 +36,25 @@ interface NetworkProps extends StyleProps {
   setToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+interface ConnectionErrorState {
+  customRpcUrl: boolean;
+  customIndexerUrl: boolean;
+}
+
 const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
   const { currentNetwork, nodeRPCClient } = useNetworkProvider();
   const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
+
   const [isNetworkSwitching, setIsNetworkSwitching] = useState(false);
-  const ref = useOutSideClick(() => setToggle(false));
   const [customRpcUrl, setCustomRpcUrl] = useState("");
   const [indexerUrl, setIndexerUrl] = useState("");
-  const [isErrorRpcUrl, setIsErrorRpcUrl] = useState(false);
-  const [isErrorIndexerUrl, setIsErrorIndexerUrl] = useState(false);
+  const [connectionErrors, setConnectionErrors] = useState<ConnectionErrorState>({
+    customRpcUrl: false,
+    customIndexerUrl: false,
+  });
+
+  const ref = useOutSideClick(() => setToggle(false));
+
   const { pathname } = useRouter();
   const { isDark, isLight } = useThemeMode();
 
@@ -53,35 +64,67 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
   }, [pathname, isLight]);
 
   const availCustomConnect = useMemo(() => {
-    if (isErrorRpcUrl || isErrorIndexerUrl || !customRpcUrl) {
+    if (connectionErrors.customRpcUrl || connectionErrors.customIndexerUrl || !customRpcUrl) {
       return false;
     }
     return true;
-  }, [isErrorRpcUrl, isErrorIndexerUrl]);
+  }, [connectionErrors, customRpcUrl]);
+
+  const setConnectionError = useCallback((field: keyof ConnectionErrorState, value: boolean) => {
+    setConnectionErrors(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const resetConnectionErrors = useCallback(() => {
+    setConnectionErrors({ customRpcUrl: false, customIndexerUrl: false });
+  }, []);
 
   const connect = useCallback(async () => {
     if (!customRpcUrl) {
-      setIsErrorRpcUrl(true);
+      setConnectionError("customRpcUrl", true);
       return;
     }
 
     setIsNetworkSwitching(true);
+    resetConnectionErrors();
 
-    await changeCustomNetwork(customRpcUrl, indexerUrl);
+    try {
+      const tempRpcClient = new NodeRPCClient(customRpcUrl, "");
 
-    const tempRpcClient = new NodeRPCClient(customRpcUrl, "");
-    await tempRpcClient
-      .health()
-      .catch(() => sleep(1000))
-      .finally(() => setIsNetworkSwitching(false));
-  }, [nodeRPCClient, customRpcUrl, indexerUrl]);
+      try {
+        await tempRpcClient.health();
+      } catch (error) {
+        await sleep(500);
+        setConnectionError("customRpcUrl", true);
+        setIsNetworkSwitching(false);
+        return;
+      }
+
+      if (indexerUrl) {
+        const tempIndexerClient = new IndexerClient(indexerUrl);
+
+        try {
+          await tempIndexerClient.health();
+        } catch (error) {
+          await sleep(500);
+          setConnectionError("customIndexerUrl", true);
+          setIsNetworkSwitching(false);
+          return;
+        }
+      }
+
+      await changeCustomNetwork(customRpcUrl, indexerUrl);
+    } finally {
+      setIsNetworkSwitching(false);
+    }
+  }, [customRpcUrl, indexerUrl, changeCustomNetwork, setConnectionError, resetConnectionErrors]);
 
   useEffect(() => {
     if (toggle && currentNetworkInfo?.isCustom) {
       setCustomRpcUrl(currentNetworkInfo.rpcUrl || "");
       setIndexerUrl(currentNetworkInfo.indexerUrl || "");
+      resetConnectionErrors();
     }
-  }, [toggle]);
+  }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
   return (
     <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
@@ -125,22 +168,26 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                 Custom Network
               </Text>
               <input
-                className="custom-input"
+                className={`custom-input ${connectionErrors.customRpcUrl ? "error" : ""}`}
                 value={customRpcUrl}
                 onClick={e => e.stopPropagation()}
                 onChange={e => {
                   setCustomRpcUrl(e.target.value);
-                  setIsErrorRpcUrl(false);
+                  if (connectionErrors.customRpcUrl) {
+                    setConnectionError("customRpcUrl", false);
+                  }
                 }}
                 placeholder="RPC URL"
               />
               <input
-                className="custom-input"
+                className={`custom-input ${connectionErrors.customIndexerUrl ? "error" : ""}`}
                 value={indexerUrl}
                 onClick={e => e.stopPropagation()}
                 onChange={e => {
                   setIndexerUrl(e.target.value);
-                  setIsErrorIndexerUrl(false);
+                  if (connectionErrors.customIndexerUrl) {
+                    setConnectionError("customIndexerUrl", false);
+                  }
                 }}
                 placeholder="Tx Indexer URL (Optional)"
               />
@@ -260,6 +307,10 @@ const NetworkList = styled.ul<StyleProps>`
         background: ${({ theme }) => theme.colors.base};
         color: ${({ theme }) => theme.colors.primary};
         font-size: 12px;
+
+        &.error {
+          border: ${({ theme }) => `1px solid ${theme.colors.failed}`};
+        }
 
         &::placeholder {
           color: ${({ theme }) => theme.colors.tertiary};
