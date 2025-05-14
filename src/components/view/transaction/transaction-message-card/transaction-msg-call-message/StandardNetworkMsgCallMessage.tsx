@@ -6,17 +6,12 @@ import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
 import { Amount } from "@/types/data-type";
+import { getTransactionMessageType } from "@/common/utils/message.utility";
+import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import { Field, FieldWithTooltip, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
 import { AmountText } from "@/components/ui/text/amount-text";
 import Badge from "@/components/ui/badge";
-
-const TOOLTIP_PACKAGE_PATH = (
-  <>
-    A unique identifier that serves as
-    <br />a contract address on Gno.land.
-  </>
-);
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
@@ -35,19 +30,6 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
     return toGNOTAmount(message.amount.value, message.amount.denom);
   }, [message?.amount]);
 
-  const getContractType = React.useCallback((message: any) => {
-    switch (message.messageType) {
-      case "BankMsgSend":
-        return "Transfer";
-      case "AddPackage":
-        return "AddPackage";
-      case "MsgCall":
-        return message["funcType"] || message["messageType"];
-      case "MsgRun":
-        return "MsgRun";
-    }
-  }, []);
-
   const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
 
   const commonFields = (
@@ -58,7 +40,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
 
       <Field label="Function" isDesktop={isDesktop}>
         <BadgeText type="blue" color="white">
-          {getContractType(message)}
+          {getTransactionMessageType(message)}
         </BadgeText>
       </Field>
 

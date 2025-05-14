@@ -30,19 +30,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
     return transactionItem?.messages;
   }, [transactionItem?.messages]);
 
-  const getContractType = React.useCallback((message: any) => {
-    switch (message["messageType"]) {
-      case "BankMsgSend":
-        return "Transfer";
-      case "AddPackage":
-        return "AddPackage";
-      case "MsgCall":
-        return message["funcType"] || message["messageType"];
-      case "MsgRun":
-        return "MsgRun";
-    }
-  }, []);
-
   if (!transactionItem) {
     return <React.Fragment />;
   }

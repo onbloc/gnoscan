@@ -5,18 +5,12 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
+import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import { Amount } from "@/types/data-type";
 import { AmountText } from "@/components/ui/text/amount-text";
 import Badge from "@/components/ui/badge";
 import { Field, FieldWithTooltip, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
-
-const TOOLTIP_PACKAGE_PATH = (
-  <>
-    A unique identifier that serves as
-    <br />a contract address on Gno.land.
-  </>
-);
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;

@@ -6,6 +6,7 @@ import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { Amount } from "@/types/data-type";
+import { getTransactionMessageType } from "@/common/utils/message.utility";
 
 import { Field, BadgeText, AddressLink } from "@/components/view/transaction/common";
 import { AmountText } from "@/components/ui/text/amount-text";
@@ -31,19 +32,6 @@ const StandardNetworkBankMsgSendMessage = ({
     return toGNOTAmount(message.amount.value, message.amount.denom);
   }, [message?.amount]);
 
-  const getContractType = React.useCallback((message: any) => {
-    switch (message.messageType) {
-      case "BankMsgSend":
-        return "Transfer";
-      case "AddPackage":
-        return "AddPackage";
-      case "MsgCall":
-        return message["funcType"] || message["messageType"];
-      case "MsgRun":
-        return "MsgRun";
-    }
-  }, []);
-
   return (
     <>
       <Field label="Type" isDesktop={isDesktop}>
@@ -51,7 +39,7 @@ const StandardNetworkBankMsgSendMessage = ({
       </Field>
 
       <Field label="Function" isDesktop={isDesktop}>
-        <BadgeText type="blue">{getContractType(message) || "-"}</BadgeText>
+        <BadgeText type="blue">{getTransactionMessageType(message) || "-"}</BadgeText>
       </Field>
 
       <Field label="Amount" isDesktop={isDesktop}>

@@ -28,19 +28,6 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
     return toGNOTAmount(message.amount.value, message.amount.denom);
   }, [message?.amount]);
 
-  const getContractType = React.useCallback((message: any) => {
-    switch (message.messageType) {
-      case "BankMsgSend":
-        return "Transfer";
-      case "AddPackage":
-        return "AddPackage";
-      case "MsgCall":
-        return message["funcType"] || message["messageType"];
-      case "MsgRun":
-        return "MsgRun";
-    }
-  }, []);
-
   return (
     <>
       <Field label="Type" isDesktop={isDesktop}>
