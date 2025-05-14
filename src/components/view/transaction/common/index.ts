@@ -1,1 +1,1 @@
-export { Field, BadgeText, AddressLink, PkgPathLink } from "./TransactionMessageFields";
+export { Field, FieldWithTooltip, BadgeText, AddressLink, PkgPathLink } from "./TransactionMessageFields";

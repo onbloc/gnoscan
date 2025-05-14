@@ -7,20 +7,21 @@ import { TransactionContractModel } from "@/repositories/api/transaction/respons
 import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
 import { Amount } from "@/types/data-type";
 
-import { Field, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
+import { Field, FieldWithTooltip, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
 import { AmountText } from "@/components/ui/text/amount-text";
 import Badge from "@/components/ui/badge";
+
+const TOOLTIP_PACKAGE_PATH = (
+  <>
+    A unique identifier that serves as
+    <br />a contract address on Gno.land.
+  </>
+);
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
-}
-
-interface FieldProps {
-  label: string;
-  children: React.ReactNode;
-  isDesktop: boolean;
 }
 
 const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionTransferContractProps) => {
@@ -65,9 +66,9 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
         <BadgeText>{message.name || "-"}</BadgeText>
       </Field>
 
-      <Field label="Pkg Path" isDesktop={isDesktop}>
+      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
         <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} />
-      </Field>
+      </FieldWithTooltip>
     </>
   );
 

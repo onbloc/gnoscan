@@ -2,8 +2,8 @@
 import React from "react";
 
 import { Transaction, TransactionContractInfo } from "@/types/data-type";
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
+import { API_MESSAGE_TYPES } from "@/common/values/message-types.constant";
 
 import * as S from "./TransactionContractDetails.styles";
 import Text from "@/components/ui/text";
@@ -14,14 +14,6 @@ import {
   StandardNetworkMsgCallMessage,
   StandardNetworkMsgRunMessage,
 } from "../transaction-message-card";
-import { API_MESSAGE_TYPES } from "@/common/values/message-types.constant";
-
-const TOOLTIP_PACKAGE_PATH = (
-  <>
-    A unique identifier that serves as
-    <br />a contract address on Gno.land.
-  </>
-);
 
 export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;

@@ -9,8 +9,14 @@ import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { Amount } from "@/types/data-type";
 import { AmountText } from "@/components/ui/text/amount-text";
 import Badge from "@/components/ui/badge";
+import { Field, FieldWithTooltip, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
 
-import { Field, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
+const TOOLTIP_PACKAGE_PATH = (
+  <>
+    A unique identifier that serves as
+    <br />a contract address on Gno.land.
+  </>
+);
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
@@ -43,9 +49,9 @@ const StandardNetworkAddPackageMessage = ({
         <BadgeText>{message.name}</BadgeText>
       </Field>
 
-      <Field label="Pkg Path" isDesktop={isDesktop}>
+      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
         <PkgPathLink path={creator} getUrlWithNetwork={getUrlWithNetwork} />
-      </Field>
+      </FieldWithTooltip>
 
       <Field label="Creator" isDesktop={isDesktop}>
         <AddressLink to={creator} copyText={creator} getUrlWithNetwork={getUrlWithNetwork} />
