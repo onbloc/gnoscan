@@ -1,13 +1,6 @@
 import { Amount } from "@/types/data-type";
 
 export interface TransactionContractModel {
-  fields: {
-    key: string;
-    value: string;
-  }[];
-  type: string;
-  log: string;
-
   messageType: string;
   name: string;
   pkgPath: string;
@@ -16,6 +9,13 @@ export interface TransactionContractModel {
   amount: Amount;
   from: string;
   to: string;
+  log: string;
+
+  // Todo
+  // pkgName
+  // files
+  // deposit
+  // send
 }
 
 export interface GetTransactionContractsResponse {
