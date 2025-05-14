@@ -56,6 +56,56 @@ export const BadgeText: React.FC<BadgeTextProps> = ({ type, color = "secondary",
   </Badge>
 );
 
+interface HoverBadgeTextProps {
+  type?: PaletteKeyType;
+  color?: string;
+  tooltipContent?: React.ReactNode | string;
+  extraCount?: number;
+  children: React.ReactNode;
+}
+
+export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
+  type,
+  color = "secondary",
+  tooltipContent,
+  extraCount = 0,
+  children,
+}) => {
+  const renderTooltipContent = () => {
+    if (!tooltipContent) return null;
+
+    return (
+      <S.TooltipContentWrapper>
+        {typeof tooltipContent === "string" ? <span className="info">{tooltipContent}</span> : tooltipContent}
+      </S.TooltipContentWrapper>
+    );
+  };
+
+  return (
+    <BadgeText type={type}>
+      <S.BadgeContentWrapper>
+        {tooltipContent ? (
+          <Tooltip content={renderTooltipContent()}>
+            <Text type="p4" color={color || "secondary"} className="ellipsis">
+              {children}
+            </Text>
+          </Tooltip>
+        ) : (
+          <Text type="p4" color={color || "secondary"}>
+            {children}
+          </Text>
+        )}
+
+        {extraCount > 0 && (
+          <Text type="p4" color={color || "secondary"} margin="0px 0px 0px 8px">
+            {`+${extraCount}`}
+          </Text>
+        )}
+      </S.BadgeContentWrapper>
+    </BadgeText>
+  );
+};
+
 interface AddressLinkProps {
   to: string;
   copyText: string;

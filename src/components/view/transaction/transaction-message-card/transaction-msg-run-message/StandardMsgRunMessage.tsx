@@ -7,7 +7,7 @@ import { TransactionContractModel } from "@/repositories/api/transaction/respons
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { Amount } from "@/types/data-type";
 
-import { Field, BadgeText, AddressLink } from "@/components/view/transaction/common";
+import { Field, BadgeText, HoverBadgeText, AddressLink } from "@/components/view/transaction/common";
 import Badge from "@/components/ui/badge";
 import { AmountText } from "@/components/ui/text/amount-text";
 
@@ -52,12 +52,12 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
       </Field>
 
       <Field label="Called Functions" isDesktop={isDesktop}>
-        <BadgeText type="blue" color="white">
+        <HoverBadgeText type="blue" color="white" tooltipContent="gno.land/r/gnoland/valoper">
           {MESSAGE_TYPES.VM_RUN}
-        </BadgeText>
-        <BadgeText type="blue" color="white">
+        </HoverBadgeText>
+        <HoverBadgeText type="blue" color="white" tooltipContent="gno.land/r/gnoland/valoper">
           {MESSAGE_TYPES.VM_RUN}
-        </BadgeText>
+        </HoverBadgeText>
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

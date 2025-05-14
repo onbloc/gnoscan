@@ -15,3 +15,32 @@ export const StyledIconCopy = styled(IconCopy)`
   stroke: ${({ theme }) => theme.colors.primary};
   margin-left: 5px;
 `;
+
+export const BadgeContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  .ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
+
+export const TooltipContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+
+  .info {
+    width: 100%;
+    height: fit-content;
+    padding: 6px 10px;
+    ${({ theme }) => theme.fonts.p4};
+    color: ${({ theme }) => theme.colors.blue};
+    background-color: ${({ theme }) => theme.colors.pantone};
+    border-radius: 4px;
+  }
+`;
