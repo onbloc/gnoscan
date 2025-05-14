@@ -12,6 +12,7 @@ import {
   StandardNetworkBankMsgSendMessage,
   StandardNetworkAddPackageMessage,
   StandardNetworkMsgCallMessage,
+  StandardNetworkMsgRunMessage,
 } from "../transaction-message-card";
 import { API_MESSAGE_TYPES } from "@/common/values/message-types.constant";
 
@@ -98,7 +99,13 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             />
           )}
 
-          {message.messageType === API_MESSAGE_TYPES.MSG_RUN && <></>}
+          {message.messageType === API_MESSAGE_TYPES.MSG_RUN && (
+            <StandardNetworkMsgRunMessage
+              message={message}
+              isDesktop={isDesktop}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
+          )}
 
           {/* {message["messageType"] !== "BankMsgSend" && (
             <>
