@@ -49,7 +49,7 @@ export const BtmNav = () => {
       {entry ? (
         <Wrapper isMain={entry}>
           <RiseIn>
-            <Text {...textStyleProps}>The gno.land Blockchain Explorer</Text>
+            <Text {...textStyleProps}>The Gno.land Blockchain Explorer</Text>
           </RiseIn>
           <StretchOut delay={0.5} style={{ zIndex: zindex.searchResult }}>
             <MainInput
