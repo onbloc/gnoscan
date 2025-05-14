@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import Link from "next/link";
 
 import { Transaction, TransactionContractInfo } from "@/types/data-type";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
@@ -8,15 +7,12 @@ import { TransactionContractModel } from "@/repositories/api/transaction/respons
 
 import * as S from "./TransactionContractDetails.styles";
 import Text from "@/components/ui/text";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
-import Badge from "@/components/ui/badge";
-import Tooltip from "@/components/ui/tooltip";
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import ShowLog from "@/components/ui/show-log";
-import { TransactionAddPackageContract } from "../transaction-add-package-contract/TransactionAddPackageContract";
-import { TransactionCallerContract } from "../transaction-caller-contract/TransactionCallerContract";
-import StandardNetworkTransactionTransferContract from "../transaction-transfer-contract/StandardNetworkTransferContract";
-import { StandardNetworkBankMsgSendMessage, StandardNetworkAddPackageMessage } from "../transaction-message-card";
+import {
+  StandardNetworkBankMsgSendMessage,
+  StandardNetworkAddPackageMessage,
+  StandardNetworkMsgCallMessage,
+} from "../transaction-message-card";
 import { API_MESSAGE_TYPES } from "@/common/values/message-types.constant";
 
 const TOOLTIP_PACKAGE_PATH = (
@@ -86,7 +82,13 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             />
           )}
 
-          {message.messageType === API_MESSAGE_TYPES.MSG_CALL}
+          {message.messageType === API_MESSAGE_TYPES.MSG_CALL && (
+            <StandardNetworkMsgCallMessage
+              message={message}
+              isDesktop={isDesktop}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
+          )}
 
           {message.messageType === API_MESSAGE_TYPES.ADD_PACKAGE && (
             <StandardNetworkAddPackageMessage

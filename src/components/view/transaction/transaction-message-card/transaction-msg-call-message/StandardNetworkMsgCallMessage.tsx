@@ -1,0 +1,132 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from "react";
+import Link from "next/link";
+import { v1 } from "uuid";
+
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { TransactionContractModel } from "@/repositories/api/transaction/response";
+import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
+
+import * as S from "../TransactionMessageCard.styles";
+import Text from "@/components/ui/text";
+import { Amount } from "@/types/data-type";
+import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import Badge from "@/components/ui/badge";
+import { AmountText } from "@/components/ui/text/amount-text";
+import Tooltip from "@/components/ui/tooltip";
+
+import { Field, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
+
+interface TransactionTransferContractProps {
+  message: TransactionContractModel;
+  isDesktop: boolean;
+  getUrlWithNetwork: (uri: string) => string;
+}
+
+interface FieldProps {
+  label: string;
+  children: React.ReactNode;
+  isDesktop: boolean;
+}
+
+const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionTransferContractProps) => {
+  const creator = React.useMemo(() => {
+    return message?.caller || "-";
+  }, [message]);
+
+  const amount: Amount | null = React.useMemo(() => {
+    if (!message?.amount) return null;
+
+    return toGNOTAmount(message.amount.value, message.amount.denom);
+  }, [message?.amount]);
+
+  const getContractType = React.useCallback((message: any) => {
+    switch (message.messageType) {
+      case "BankMsgSend":
+        return "Transfer";
+      case "AddPackage":
+        return "AddPackage";
+      case "MsgCall":
+        return message["funcType"] || message["messageType"];
+      case "MsgRun":
+        return "MsgRun";
+    }
+  }, []);
+
+  const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
+
+  const commonFields = (
+    <>
+      <Field label="Type" isDesktop={isDesktop}>
+        <BadgeText>{MESSAGE_TYPES.VM_CALL}</BadgeText>
+      </Field>
+
+      <Field label="Function" isDesktop={isDesktop}>
+        <BadgeText type="blue" color="white">
+          {getContractType(message)}
+        </BadgeText>
+      </Field>
+
+      <Field label="Pkg Name" isDesktop={isDesktop}>
+        <BadgeText>{message.name || "-"}</BadgeText>
+      </Field>
+
+      <Field label="Pkg Path" isDesktop={isDesktop}>
+        <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} />
+      </Field>
+    </>
+  );
+
+  const transferFields = (
+    <>
+      <Field label="Amount" isDesktop={isDesktop}>
+        <Badge>
+          <AmountText
+            minSize="body2"
+            maxSize="p4"
+            value={amount?.value || "0"}
+            denom={amount?.denom || GNOTToken.symbol}
+          />
+        </Badge>
+      </Field>
+
+      <Field label="Caller (From)" isDesktop={isDesktop}>
+        <AddressLink
+          to={message.from || creator}
+          copyText={message.from || creator}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
+      </Field>
+
+      <Field label="To" isDesktop={isDesktop}>
+        <AddressLink to={message.to || "-"} copyText={message.to || ""} getUrlWithNetwork={getUrlWithNetwork} />
+      </Field>
+    </>
+  );
+
+  const msgCallFields = (
+    <>
+      <Field label="Caller" isDesktop={isDesktop}>
+        <AddressLink to={creator} copyText={creator} getUrlWithNetwork={getUrlWithNetwork} />
+      </Field>
+
+      <Field label="Arguments" isDesktop={isDesktop}>
+        <BadgeText>-</BadgeText>
+      </Field>
+
+      <Field label="Send" isDesktop={isDesktop}>
+        <BadgeText>-</BadgeText>
+      </Field>
+    </>
+  );
+
+  return (
+    <>
+      {commonFields}
+      {isTransferType ? transferFields : msgCallFields}
+    </>
+  );
+};
+
+export default StandardNetworkMsgCallMessage;
