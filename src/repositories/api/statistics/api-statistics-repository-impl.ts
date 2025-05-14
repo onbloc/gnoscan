@@ -244,6 +244,16 @@ const totalGasShareMockData: GetTotalFeeShareResponse = {
           gasShared: 75000,
         },
       },
+      "2025-05-14": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 500000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 75000,
+        },
+      },
     },
   ],
 

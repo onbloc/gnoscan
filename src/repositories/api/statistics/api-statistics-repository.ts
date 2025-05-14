@@ -9,7 +9,6 @@ import {
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
   GetTotalDailyTransactionsResponse,
-  GetTotalGasShareResponse,
   GetTotalFeeShareResponse,
 } from "./response";
 
