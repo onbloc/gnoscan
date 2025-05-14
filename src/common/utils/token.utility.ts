@@ -7,12 +7,15 @@ export function parseTokenAmount(tokenAmount: string, denomination = "ugnot"): n
   return match ? parseInt(match[1], 10) : 0;
 }
 
-export function formatTokenDecimal(amount: string | number, decimals = 6): string {
+export function formatTokenDecimal(amount: string | number, decimals: number): string {
   const amountToBigNumber = new BigNumber(amount);
+  const decimalNumber = Number(decimals);
+
+  const normalizedDecimals = !isNaN(decimalNumber) && decimalNumber > 0 ? Math.floor(decimalNumber) : 0;
 
   if (amountToBigNumber.isNaN() || !amountToBigNumber.isFinite()) {
     return "0";
   }
 
-  return amountToBigNumber.shiftedBy(-decimals).toString(10);
+  return amountToBigNumber.shiftedBy(-normalizedDecimals).toString(10);
 }

@@ -33,7 +33,25 @@ describe("formatTokenDecimal", () => {
       expect(formatTokenDecimal(null)).toBe("0");
       // @ts-expect-error undefined is not assignable to string | number
       expect(formatTokenDecimal(undefined)).toBe("0");
+      // @ts-expect-error "" is not assignable to string | number
       expect(formatTokenDecimal("")).toBe("0");
+    });
+
+    test("should handle edge cases for decimals parameter", () => {
+      // @ts-expect-error undefined is not assignable to string | number
+      expect(formatTokenDecimal("1000000", undefined)).toBe("1000000");
+
+      // @ts-expect-error null is not assignable to number
+      expect(formatTokenDecimal("1000000", null)).toBe("1000000");
+
+      // @ts-expect-error empty string is not assignable to number
+      expect(formatTokenDecimal("1000000", "")).toBe("1000000");
+
+      // @ts-expect-error invalid string is not assignable to number
+      expect(formatTokenDecimal("1000000", "invalid")).toBe("1000000");
+
+      // @ts-expect-error string is not assignable to number
+      expect(formatTokenDecimal("1000000", "6")).toBe("1");
     });
 
     test("should handle zero values", () => {
