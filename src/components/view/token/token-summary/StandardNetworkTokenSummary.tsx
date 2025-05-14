@@ -16,6 +16,7 @@ import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { useNetwork } from "@/common/hooks/use-network";
+import { formatTokenDecimal } from "@/common/utils/token.utility";
 
 interface TokenSummaryProps {
   tokenPath: string;
@@ -46,7 +47,7 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
       packagePath: summaryData.path,
       owner: summaryData.owner,
       functions: summaryData.funcTypesList,
-      totalSupply: Number(summaryData.totalSupply),
+      totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, summaryData.decimals)),
       holders: summaryData.holders,
     };
   }, [data?.data]);
