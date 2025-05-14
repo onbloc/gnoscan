@@ -38,18 +38,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
     return transactionItem?.messages;
   }, [transactionItem?.messages]);
 
-  const hasCaller = React.useCallback((message: any): boolean => {
-    if (["BankMsgSend", "AddPackage"].includes(message["messageType"])) {
-      return false;
-    }
-
-    if (message["messageType"] === "MsgCall" && message?.funcType === "Transfer") {
-      return false;
-    }
-
-    return true;
-  }, []);
-
   const getContractType = React.useCallback((message: any) => {
     switch (message["messageType"]) {
       case "BankMsgSend":
@@ -106,82 +94,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
-
-          {/* {message["messageType"] !== "BankMsgSend" && (
-            <>
-              <DLWrap desktop={isDesktop}>
-                <dt>Name</dt>
-                <dd>
-                  <Badge>
-                    <Text type="p4" color="secondary">
-                      {message.name || "-"}
-                    </Text>
-                  </Badge>
-                </dd>
-              </DLWrap>
-              <DLWrap desktop={isDesktop}>
-                <dt>
-                  Path
-                  <div className="tooltip-wrapper">
-                    <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-                      <IconTooltip />
-                    </Tooltip>
-                  </div>
-                </dt>
-                <dd>
-                  <Badge>
-                    <Text type="p4" color="blue" className="ellipsis">
-                      <Link href={getUrlWithNetwork(`/realms/details?path=${message.pkgPath || "-"}`)} passHref>
-                        <FitContentA>{formatDisplayPackagePath(message.pkgPath || "-")}</FitContentA>
-                      </Link>
-                    </Text>
-                    <Tooltip
-                      content="Copied!"
-                      trigger="click"
-                      copyText={message.pkgPath || ""}
-                      className="address-tooltip"
-                    >
-                      <S.StyledIconCopy />
-                    </Tooltip>
-                  </Badge>
-                </dd>
-              </DLWrap>
-            </>
-          )}
-          <DLWrap desktop={isDesktop}>
-            <dt>Function</dt>
-            <dd>
-              <Badge type="blue">
-                <Text type="p4" color="white">
-                  {getContractType(message)}
-                </Text>
-              </Badge>
-            </dd>
-          </DLWrap>
-          {message["messageType"] === "MsgCall" && message?.funcType === "Transfer" && (
-            <StandardNetworkTransactionTransferContract
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
-          )}
-          {message["messageType"] === "BankMsgSend" && (
-            <StandardNetworkTransactionTransferContract
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
-          )}
-          {message["messageType"] === "AddPackage" && (
-            <TransactionAddPackageContract
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
-          )}
-          {hasCaller(message) && (
-            <TransactionCallerContract message={message} isDesktop={isDesktop} getUrlWithNetwork={getUrlWithNetwork} />
-          )} */}
         </S.ContractListBox>
       ))}
       {showLog && <ShowLog isTabLog={false} logData={showLog} btnTextType="Logs" />}

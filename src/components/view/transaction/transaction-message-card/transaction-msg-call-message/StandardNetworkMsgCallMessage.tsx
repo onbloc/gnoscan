@@ -1,22 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import Link from "next/link";
-import { v1 } from "uuid";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
-
-import * as S from "../TransactionMessageCard.styles";
-import Text from "@/components/ui/text";
 import { Amount } from "@/types/data-type";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
-import Badge from "@/components/ui/badge";
-import { AmountText } from "@/components/ui/text/amount-text";
-import Tooltip from "@/components/ui/tooltip";
 
 import { Field, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
+import { AmountText } from "@/components/ui/text/amount-text";
+import Badge from "@/components/ui/badge";
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;

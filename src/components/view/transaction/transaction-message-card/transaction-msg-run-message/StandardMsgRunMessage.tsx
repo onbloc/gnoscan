@@ -5,12 +5,11 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
-
 import { Amount } from "@/types/data-type";
-import Badge from "@/components/ui/badge";
-import { AmountText } from "@/components/ui/text/amount-text";
 
 import { Field, BadgeText, AddressLink } from "@/components/view/transaction/common";
+import Badge from "@/components/ui/badge";
+import { AmountText } from "@/components/ui/text/amount-text";
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
