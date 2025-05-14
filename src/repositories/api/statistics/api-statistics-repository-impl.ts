@@ -2,6 +2,7 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { ApiStatisticsRepository } from "./api-statistics-repository";
 
 import { CommonError } from "@/common/errors";
+import { GetTotalFeeShareRequest } from "./request";
 import {
   GetLatestBlogsResponse,
   GetMonthlyActiveAccountsResponse,
@@ -12,8 +13,9 @@ import {
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
   GetTotalDailyTransactionsResponse,
-  GetTotalGasShareResponse,
+  GetTotalFeeShareResponse,
 } from "./response";
+import { makeQueryParameter } from "@/common/utils/string-util";
 
 interface APIResponse<T> {
   data: T;
@@ -151,17 +153,109 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
       });
   }
 
-  getTotalGasShare(): Promise<GetTotalGasShareResponse> {
+  getTotalGasShare(params: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
 
+    const requestParams = makeQueryParameter({ ...params });
+
     return this.networkClient
-      .get<APIResponse<GetTotalGasShareResponse>>({
-        url: "/stats/total-gas-share",
+      .get<APIResponse<GetTotalFeeShareResponse>>({
+        url: `/stats/total-gas-share${requestParams}`,
       })
       .then(result => {
-        return result.data?.data;
+        return totalGasShareMockData;
+        // return result.data?.data;
       });
   }
 }
+
+const totalGasShareMockData: GetTotalFeeShareResponse = {
+  items: [
+    {
+      "2025-05-07": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 49000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 70000,
+        },
+      },
+      "2025-05-08": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 47000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 72000,
+        },
+      },
+      "2025-05-09": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 51000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 69000,
+        },
+      },
+      "2025-05-10": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 48000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 73000,
+        },
+      },
+      "2025-05-11": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 52000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 71000,
+        },
+      },
+      "2025-05-12": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 45000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 68000,
+        },
+      },
+      "2025-05-13": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 500000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 75000,
+        },
+      },
+      "2025-05-14": {
+        "gno.land/r/demo/wugnot": {
+          packagePath: "gno.land/r/demo/wugnot",
+          gasShared: 500000,
+        },
+        "gno.land/r/demo/gns": {
+          packagePath: "gno.land/r/demo/gns",
+          gasShared: 75000,
+        },
+      },
+    },
+  ],
+
+  lastUpdated: "2025-05-13T15:35:00Z",
+};
