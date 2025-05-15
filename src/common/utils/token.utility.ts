@@ -19,3 +19,23 @@ export function formatTokenDecimal(amount: string | number, decimals: number): s
 
   return amountToBigNumber.shiftedBy(-normalizedDecimals).toString(10);
 }
+
+export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
+  if (!path || typeof path !== "string") return path;
+
+  const prefix = "/r/";
+  if (!path.startsWith(prefix)) return path;
+
+  try {
+    const [address, tokenName] = path.substring(prefix.length).split("/");
+
+    if (!address || !tokenName) return path;
+
+    if (visibleLength <= 0 || address.length <= visibleLength * 2) return path;
+
+    const ellipsisAddress = `${address.slice(0, visibleLength)}...${address.slice(-visibleLength)}`;
+    return `${prefix}${ellipsisAddress}/${tokenName}`;
+  } catch {
+    return path;
+  }
+}
