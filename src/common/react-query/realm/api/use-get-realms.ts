@@ -1,10 +1,11 @@
-import { useInfiniteQuery, UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetRealmsRequestParameters } from "@/repositories/api/realm/request";
 import { GetRealmsResponse } from "@/repositories/api/realm/response";
-import { CommonError } from "@/common/errors";
+import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get realms data from the API
@@ -25,19 +26,18 @@ export const useGetRealms = (
 ): UseInfiniteQueryResult<GetRealmsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();
 
-  return useInfiniteQuery({
-    queryKey: [QUERY_KEY.getRealms, params],
-    queryFn: ({ pageParam }) => {
-      if (!apiRealmRepository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiRealmRepository");
-      }
-
-      return apiRealmRepository.getRealms({
+  return useApiRepositoryInfiniteQuery<GetRealmsResponse, Error, typeof apiRealmRepository>(
+    [QUERY_KEY.getRealms, params],
+    apiRealmRepository,
+    API_REPOSITORY_KEY.REALM_REPOSITORY,
+    (repository, pageParam) =>
+      repository!.getRealms({
         ...params,
-        cursor: pageParam,
-      });
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+      ...options,
     },
-    getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
-    ...options,
-  });
+  );
 };
