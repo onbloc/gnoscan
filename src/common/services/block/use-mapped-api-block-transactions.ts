@@ -28,7 +28,6 @@ export const useMappedApiBlockTransactions = (params: GetBlockTransactionsReques
     fetchNextPage,
     hasNextPage,
   } = useGetBlockTransactionsByHeight(params);
-  console.log(apiData, "apiData?");
 
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [isDataReady, setIsDataReady] = React.useState(false);

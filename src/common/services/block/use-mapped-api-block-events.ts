@@ -3,6 +3,7 @@ import React from "react";
 import { useGetBlockEventsByHeight } from "@/common/react-query/block/api";
 import { GnoEvent } from "@/types/data-type";
 import { BlockMapper } from "@/common/mapper/block/block-mapper";
+import { GetBlockEventsRequest } from "@/repositories/api/block/request";
 
 /**
  * Hooks to map block-events data fetched from the API to the format used by the application
@@ -18,22 +19,24 @@ import { BlockMapper } from "@/common/mapper/block/block-mapper";
  * @param params - API request parameters
  * @returns Mapped block data and query status
  */
-export const useMappedApiBlockEvents = (height: string) => {
+export const useMappedApiBlockEvents = (params: GetBlockEventsRequest) => {
   const {
     data: apiData,
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-  } = useGetBlockEventsByHeight(height);
+    fetchNextPage,
+    hasNextPage,
+  } = useGetBlockEventsByHeight(params);
 
   const [events, setEvents] = React.useState<GnoEvent[]>([]);
   const [isDataReady, setIsDataReady] = React.useState(false);
 
   React.useEffect(() => {
-    if (apiData?.items) {
+    if (apiData?.pages) {
       setIsDataReady(false);
 
-      const allItems = apiData.items;
+      const allItems = apiData.pages.flatMap(page => page.items);
       const mappedBlocksData = BlockMapper.blockEventsFromApiResponses(allItems);
 
       setEvents(mappedBlocksData);
@@ -42,7 +45,7 @@ export const useMappedApiBlockEvents = (height: string) => {
       setEvents([]);
       setIsDataReady(true);
     }
-  }, [apiData?.items]);
+  }, [apiData?.pages]);
 
   const isLoading = isApiLoading || !isDataReady;
   const isFetched = isApiFetched && isDataReady;
@@ -52,5 +55,7 @@ export const useMappedApiBlockEvents = (height: string) => {
     isFetched,
     isLoading,
     isError: isApiError,
+    fetchNextPage,
+    hasNextPage,
   };
 };
