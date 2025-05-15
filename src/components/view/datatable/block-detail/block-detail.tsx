@@ -3,16 +3,20 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useRecoilValue } from "recoil";
 
+import { Button } from "@/components/ui/button";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import theme from "@/styles/theme";
 import { DatatableItem } from "..";
 import { themeState } from "@/states";
 import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useWindowSize } from "@/common/hooks/use-window-size";
 
 interface Props {
   transactions: Transaction[];
   isFetched: boolean;
+  hasNextPage?: boolean;
+  nextPage: () => void;
 }
 
 const TOOLTIP_TYPE = (
@@ -23,7 +27,8 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const BlockDetailDatatable = ({ transactions, isFetched }: Props) => {
+export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nextPage }: Props) => {
+  const { breakpoint } = useWindowSize();
   const themeMode = useRecoilValue(themeState);
   const { getTokenAmount } = useTokenMeta();
 
@@ -144,6 +149,13 @@ export const BlockDetailDatatable = ({ transactions, isFetched }: Props) => {
         })}
         datas={transactions}
       />
+      {hasNextPage ? (
+        <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
+          {"View More Transactions"}
+        </Button>
+      ) : (
+        <React.Fragment />
+      )}
     </Container>
   );
 };

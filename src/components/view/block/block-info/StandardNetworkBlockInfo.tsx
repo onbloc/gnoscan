@@ -15,7 +15,15 @@ interface BlockInfoProps {
 }
 
 const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
-  const { data: transactions, isFetched: isFetchedTransactions } = useMappedApiBlockTransactions(String(blockHeight));
+  const {
+    data: transactions,
+    isFetched: isFetchedTransactions,
+    hasNextPage,
+    fetchNextPage,
+  } = useMappedApiBlockTransactions({
+    blockHeight: String(blockHeight),
+  });
+
   const { data: events, isFetched: isFetchedEvents } = useMappedApiBlockEvents(String(blockHeight));
 
   const detailTabs = React.useMemo(() => {
@@ -35,7 +43,12 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Transactions" && (
-        <BlockDetailDatatable transactions={transactions} isFetched={isFetchedTransactions} />
+        <BlockDetailDatatable
+          transactions={transactions}
+          isFetched={isFetchedTransactions}
+          hasNextPage={hasNextPage}
+          nextPage={fetchNextPage}
+        />
       )}
       {currentTab === "Events" && <EventDatatable isFetched={isFetchedEvents} events={events} />}
     </DataListSection>
