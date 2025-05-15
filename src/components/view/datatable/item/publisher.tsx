@@ -9,9 +9,10 @@ import Tooltip from "@/components/ui/tooltip";
 interface Props {
   username: string | undefined;
   address: string | undefined;
+  ellipsisNumber?: number;
 }
 
-export const Publisher = ({ address, username }: Props) => {
+export const Publisher = ({ address, username, ellipsisNumber = 8 }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
 
   const renderTooltip = () => {
@@ -27,7 +28,7 @@ export const Publisher = ({ address, username }: Props) => {
       return "-";
     }
 
-    return textEllipsis(address ?? "", 8);
+    return textEllipsis(address ?? "", ellipsisNumber);
   }, [address, username]);
 
   return address && address !== "genesis" ? (

@@ -7,6 +7,7 @@ import { BlockDetailDatatable } from "../../datatable";
 import { EventDatatable } from "../../datatable/event";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { useMappedApiBlockTransactions } from "@/common/services/block/use-mapped-api-block-transactions";
+import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 
 interface BlockInfoProps {
   blockHeight: number;
@@ -15,8 +16,21 @@ interface BlockInfoProps {
 }
 
 const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
-  const { data: transactions, isFetched: isFetchedTransactions } = useMappedApiBlockTransactions(String(blockHeight));
-  const { data: events, isFetched: isFetchedEvents } = useMappedApiBlockEvents(String(blockHeight));
+  const {
+    data: transactions,
+    isFetched: isFetchedTransactions,
+    hasNextPage: transactionsHasNextPage,
+    fetchNextPage: transactionsFetchNextPage,
+  } = useMappedApiBlockTransactions({
+    blockHeight: String(blockHeight),
+  });
+
+  const {
+    data: events,
+    isFetched: isFetchedEvents,
+    hasNextPage: eventsHasNextpage,
+    fetchNextPage: eventsFetchNextPage,
+  } = useMappedApiBlockEvents({ blockHeight: String(blockHeight) });
 
   const detailTabs = React.useMemo(() => {
     return [
@@ -35,9 +49,21 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Transactions" && (
-        <BlockDetailDatatable transactions={transactions} isFetched={isFetchedTransactions} />
+        <BlockDetailDatatable
+          transactions={transactions}
+          isFetched={isFetchedTransactions}
+          hasNextPage={transactionsHasNextPage}
+          nextPage={transactionsFetchNextPage}
+        />
       )}
-      {currentTab === "Events" && <EventDatatable isFetched={isFetchedEvents} events={events} />}
+      {currentTab === "Events" && (
+        <StandardNetworkEventDatatable
+          isFetched={isFetchedEvents}
+          events={events}
+          hasNextPage={eventsHasNextpage}
+          nextPage={eventsFetchNextPage}
+        />
+      )}
     </DataListSection>
   );
 };

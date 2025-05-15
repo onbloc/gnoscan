@@ -9,6 +9,7 @@ import Text from "@/components/ui/text";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { useMappedApiBlock } from "@/common/services/block/use-mapped-api-block";
 import { useNetwork } from "@/common/hooks/use-network";
+import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 
 interface BlockSummaryProps {
   isDesktop: boolean;
@@ -28,6 +29,10 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
 
     return `${data.proposerAddress}`;
   }, [data.proposerAddress]);
+
+  const displayBlockHeight = React.useMemo(() => {
+    return formatDisplayBlockHeight(data.blockHeightStr);
+  }, [data.blockHeightStr]);
 
   if (!isFetched) return <TableSkeleton />;
 
@@ -53,7 +58,7 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
       <DLWrap desktop={isDesktop}>
         <dt>Height</dt>
         <dd>
-          <Badge>{data.blockHeightStr || "-"}</Badge>
+          <Badge>{displayBlockHeight}</Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
