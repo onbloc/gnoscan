@@ -9,7 +9,7 @@
   {
     "name": "Portal Loop",
     "chainId": "portal-loop",
-    "apiUrl": "https://dev.api.onbloc.xyz/v1",
+    "apiUrl": "https://staging.api.onbloc.xyz/v1",
     "rpcUrl": "https://rpc.gno.land:443",
     "indexerUrl": "https://indexer.onbloc.xyz"
   }
