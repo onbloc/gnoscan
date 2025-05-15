@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { isBech32Address } from "./bech32.utility";
+import { GNO_NETWORK_PREFIXES } from "../values/gno.constant";
 
 export function parseTokenAmount(tokenAmount: string, denomination = "ugnot"): number {
   const pattern = new RegExp(`^(\\d+)${denomination}$`);
@@ -24,7 +25,7 @@ export function formatTokenDecimal(amount: string | number, decimals: number): s
 export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
   if (!path || typeof path !== "string") return path;
 
-  const prefix = "/r/";
+  const prefix = GNO_NETWORK_PREFIXES.TOKEN_PATH;
   if (!path.startsWith(prefix)) return path;
 
   try {
