@@ -31,9 +31,9 @@ const ActiveLatestBlogs = () => {
         updatedAt: "",
       };
 
-    const blogs = data.items.map(item => {
+    const blogs = data.items.map((item, i) => {
       return {
-        index: item.id,
+        index: i + 1,
         title: item.title,
         path: item.url,
         publisher: item.publisher,
@@ -66,7 +66,7 @@ const ActiveLatestBlogs = () => {
           {blogs?.map(blog => (
             <List key={blog.index}>
               <StyledText type="p4" width={colWidth.blogs[0]} color="tertiary">
-                {blog.index + 1}
+                {blog.index}
               </StyledText>
               <StyledTitleWrapper width={colWidth.blogs[1]}>
                 <Link href={getBlogUrl(blog.path)} target="_blank" rel="noreferrer">
@@ -79,7 +79,7 @@ const ActiveLatestBlogs = () => {
                 </Link>
               </StyledTitleWrapper>
               <StyledText type="p4" width={colWidth.blogs[2]} color="blue">
-                <Publisher address={blog.publisher} username={""}></Publisher>
+                <Publisher address={blog.publisher} username={""} ellipsisNumber={4}></Publisher>
               </StyledText>
             </List>
           ))}
