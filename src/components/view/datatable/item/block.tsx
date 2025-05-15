@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
+import { GNO_BLOCK_CONSTANTS } from "@/common/values/gno.constant";
 
 interface Props {
   height: string | number | undefined;
@@ -9,5 +10,18 @@ interface Props {
 
 export const Block = ({ height }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  return height ? <Link href={getUrlWithNetwork(`/block/${height}`)}>{height}</Link> : <span>-</span>;
+
+  if (height == null) {
+    return <span>-</span>;
+  }
+
+  const numHeight = Number(height);
+
+  if (isNaN(numHeight)) {
+    return <span>Invalid height</span>;
+  }
+
+  const displayHeight = numHeight === 0 ? GNO_BLOCK_CONSTANTS.GENESIS : height;
+
+  return <Link href={getUrlWithNetwork(`/block/${height}`)}>{displayHeight}</Link>;
 };

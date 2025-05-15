@@ -15,6 +15,7 @@ import { useMappedApiTransaction } from "@/common/services/transaction/use-mappe
 import { Amount } from "@/types/data-type";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
@@ -43,6 +44,11 @@ const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwor
     const fee = data.transactionItem.fee;
     return toGNOTAmount(fee.value, fee.denom);
   }, [data?.transactionItem?.fee]);
+
+  const displayBlockHeight = React.useMemo(() => {
+    if (!data?.transactionItem) return "-";
+    return formatDisplayBlockHeight(data.transactionItem?.blockHeight);
+  }, [data.transactionItem?.blockHeight]);
 
   if (!isFetched) return <TableSkeleton />;
 
@@ -96,7 +102,7 @@ const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwor
               <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue">
-                    {data.transactionItem.blockHeight}
+                    {displayBlockHeight}
                   </Text>
                 </FitContentA>
               </Link>
