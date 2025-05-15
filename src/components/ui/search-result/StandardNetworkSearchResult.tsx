@@ -4,13 +4,11 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import styled, { css } from "styled-components";
 import { useRecoilState } from "recoil";
-import { v1 } from "uuid";
 
 import { searchState } from "@/states";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useGetSearchAutocomplete } from "@/common/react-query/search/api/use-get-search-autocomplete";
 import { useDebounce } from "@/common/hooks/use-debounce";
 import { ValuesType } from "utility-types";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
@@ -44,15 +42,6 @@ const SEARCH_TYPE_TITLES = {
   [SEARCH_RESULT_TYPE.TRANSACTION]: "Transactions",
 } as const;
 
-const SEARCH_TYPE_ROUTES = {
-  [SEARCH_RESULT_TYPE.ACCOUNT]: (path: string) => `/account/${path}`,
-  [SEARCH_RESULT_TYPE.BLOCK]: (path: string) => `/blocks/${path}`,
-  [SEARCH_RESULT_TYPE.TOKEN]: (path: string) => `/tokens/${path}`,
-  [SEARCH_RESULT_TYPE.PROPOSAL]: (path: string) => `/proposals/${path}`,
-  [SEARCH_RESULT_TYPE.REALM]: (path: string) => `/realms/details?path=${path}`,
-  [SEARCH_RESULT_TYPE.TRANSACTION]: (path: string) => `/tx/${path}`,
-};
-
 interface SearchResult {
   title: string;
   description: string;
@@ -63,7 +52,6 @@ interface SearchResult {
 const StandardNetworkSearchResult = () => {
   const { route } = useRouter();
   const { isDesktop } = useWindowSize();
-  const { getUrlWithNetwork } = useNetwork();
 
   const [open, setOpen] = useState(false);
   const [keyword, setKeyword] = useRecoilState(searchState);
@@ -128,25 +116,7 @@ const StandardNetworkSearchResult = () => {
                 </Text>
                 <ListContainer>
                   {group.items.map(item => (
-                    <Link
-                      key={item.title}
-                      style={{ width: "100%" }}
-                      href={getUrlWithNetwork(SEARCH_TYPE_ROUTES[item.type as SEARCH_RESULT_TYPE](item.link))}
-                      passHref
-                    >
-                      <List>
-                        <FitContentAStyle onClick={handleClick}>
-                          <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                            {item.title}
-                            {item.description && (
-                              <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                                {` (${item.description})`}
-                              </Text>
-                            )}
-                          </Text>
-                        </FitContentAStyle>
-                      </List>
-                    </Link>
+                    <SearchResultItem key={item.title} item={item} isMain={isMain} onClick={handleClick} />
                   ))}
                 </ListContainer>
               </Section>
@@ -154,108 +124,128 @@ const StandardNetworkSearchResult = () => {
           )}
         </Wrapper>
       )}
-
-      {/* {open && (
-        <Wrapper desktop={isDesktop} isMain={isMain} ref={ref}>
-          {isLoading ? (
-            <Text type={isMain ? "p4" : "body1"} color="tertiary">
-              Loading...
-            </Text>
-          ) : noResults ? (
-            <Text type={isMain ? "p4" : "body1"} color="tertiary">
-              No match found
-            </Text>
-          ) : (
-            <Section key={v1()}>
-              <Text type={isMain ? "p4" : "body1"} color="tertiary">
-                {data.type === "Realms"
-                  ? "Realms"
-                  : data.type === "Accounts"
-                  ? "Accounts"
-                  : data.type === "Tokens"
-                  ? "Tokens"
-                  : "Results"}
-              </Text>
-              <ListContainer>
-                {data.path?.map(path => (
-                  <List key={v1()}>
-                    {data.type === "Accounts" && (
-                      <AccountsListItem address={path} isMain={isMain} onClick={handleClick} />
-                    )}
-                    {data.type === "Realms" && <RealmsListItem path={path} isMain={isMain} onClick={handleClick} />}
-                    {data.type === "Tokens" && <TokensListItem path={path} isMain={isMain} onClick={handleClick} />}
-                  </List>
-                ))}
-              </ListContainer>
-            </Section>
-          )}
-        </Wrapper>
-      )} */}
     </>
   );
 };
 
-interface ListItemProps {
-  isMain: boolean;
-  onClick: () => void;
-}
-
-interface AccountsListItemProps extends ListItemProps {
-  address: string;
-}
-
-const AccountsListItem = ({ address, isMain, onClick }: AccountsListItemProps) => {
+const SearchResultItem = ({ item, isMain, onClick }: { item: SearchResult; isMain?: boolean; onClick: () => void }) => {
   const { getUrlWithNetwork } = useNetwork();
 
-  return (
-    <Link href={getUrlWithNetwork(`/account/${address}`)} passHref>
-      <FitContentAStyle onClick={onClick}>
-        <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-          {address}
-        </Text>
-      </FitContentAStyle>
-    </Link>
-  );
-};
+  switch (item.type as SEARCH_RESULT_TYPE) {
+    case SEARCH_RESULT_TYPE.ACCOUNT:
+      return (
+        <Link href={getUrlWithNetwork(`/account/${item.link}`)} passHref style={{ width: "100%" }}>
+          <List>
+            <FitContentAStyle onClick={onClick}>
+              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+                {item.title}
+                {item.description && (
+                  <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                    {` (${item.description})`}
+                  </Text>
+                )}
+              </Text>
+            </FitContentAStyle>
+          </List>
+        </Link>
+      );
 
-interface RealmsListItemProps extends ListItemProps {
-  path: string;
-}
+    case SEARCH_RESULT_TYPE.BLOCK:
+      return (
+        <Link href={getUrlWithNetwork(`/block/${item.title}`)} passHref style={{ width: "100%" }}>
+          <List>
+            <FitContentAStyle onClick={onClick}>
+              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+                {item.title}
+                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  {` (${item.description || item.link})`}
+                </Text>
+              </Text>
+            </FitContentAStyle>
+          </List>
+        </Link>
+      );
 
-const RealmsListItem = ({ path, isMain, onClick }: RealmsListItemProps) => {
-  const { getUrlWithNetwork } = useNetwork();
+    case SEARCH_RESULT_TYPE.TOKEN:
+      return (
+        <Link href={getUrlWithNetwork(`/tokens/${item.title}`)} passHref style={{ width: "100%" }}>
+          <List>
+            <FitContentAStyle onClick={onClick}>
+              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+                {item.title}
+                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  {` (${item.description || item.link})`}
+                </Text>
+              </Text>
+            </FitContentAStyle>
+          </List>
+        </Link>
+      );
 
-  return (
-    <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
-      <FitContentA onClick={onClick}>
-        <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-          {path}
-        </Text>
-      </FitContentA>
-    </Link>
-  );
-};
+    case SEARCH_RESULT_TYPE.PROPOSAL:
+      return (
+        <Link href={item.link} target="_blank" passHref style={{ width: "100%" }}>
+          <List>
+            <FitContentAStyle onClick={onClick}>
+              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+                {item.title}
+                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  {` (${item.description || item.link})`}
+                </Text>
+              </Text>
+            </FitContentAStyle>
+          </List>
+        </Link>
+      );
 
-interface TokensListItemProps extends ListItemProps {
-  path: string;
-}
+    case SEARCH_RESULT_TYPE.REALM:
+      return (
+        <Link href={getUrlWithNetwork(`/realms/details?path=${item.title}`)} passHref style={{ width: "100%" }}>
+          <List>
+            <FitContentAStyle onClick={onClick}>
+              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+                {item.title}
+                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  {` (${item.description || item.link})`}
+                </Text>
+              </Text>
+            </FitContentAStyle>
+          </List>
+        </Link>
+      );
 
-const TokensListItem = ({ path, isMain, onClick }: TokensListItemProps) => {
-  const { getUrlWithNetwork } = useNetwork();
-  const name = path.split("/").pop() || path;
+    case SEARCH_RESULT_TYPE.TRANSACTION:
+      return (
+        <Link href={getUrlWithNetwork(`/transactions/details?txhash=${item.title}`)} passHref style={{ width: "100%" }}>
+          <List>
+            <FitContentAStyle onClick={onClick}>
+              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+                {item.title}
+                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  {` (${item.description || item.link})`}
+                </Text>
+              </Text>
+            </FitContentAStyle>
+          </List>
+        </Link>
+      );
 
-  return (
-    <Link href={getUrlWithNetwork(`/tokens/${path}`)} passHref>
-      <FitContentAStyle onClick={onClick}>
-        <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-          {name}
-          <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-            {` (${path})`}
-          </Text>
-        </Text>
-      </FitContentAStyle>
-    </Link>
-  );
+    default:
+      return (
+        <List>
+          <FitContentAStyle onClick={onClick}>
+            <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+              {item.title}
+              {item.description && (
+                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  {` (${item.description})`}
+                </Text>
+              )}
+            </Text>
+          </FitContentAStyle>
+        </List>
+      );
+  }
 };
 
 const commonContentStyle = css`
