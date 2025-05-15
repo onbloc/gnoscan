@@ -42,6 +42,7 @@ export class ApiBlockRepositoryImpl implements ApiBlockRepository {
         url: `blocks/${height}`,
       })
       .then(result => {
+        console.log(result, "result/");
         return result.data?.data;
       });
   }
