@@ -32,11 +32,10 @@ export const MainRealmTotalGasShareApi = () => {
   }, [period]);
 
   const transactionGasData = useMemo(() => {
-    if (!data?.items[0]) {
-      return {};
-    }
+    if (!data?.items) return {};
 
-    // 1. 전체 패키지 목록 수집
+    if (!data.items[0]) return {};
+
     const allPackages = new Set<string>();
     Object.values(data.items[0]).forEach((dateData: DailyPackages) => {
       Object.keys(dateData).forEach(pkg => {
@@ -44,7 +43,6 @@ export const MainRealmTotalGasShareApi = () => {
       });
     });
 
-    // 2. 패키지별 데이터 구성
     return Array.from(allPackages).reduce<Record<string, Array<{ value: number; rate: number }>>>(
       (accum, packagePath) => {
         const currentLabel = packagePath.replace("gno.land", "");
@@ -75,44 +73,6 @@ export const MainRealmTotalGasShareApi = () => {
       {},
     );
   }, [labels, data]);
-
-  const transactionGasData2 = useMemo(() => {
-    if (!transactionRealmGasInfo) {
-      return {};
-    }
-    const dateTotalGas = transactionRealmGasInfo.dateTotalGas;
-
-    /**
-     * Generate data by date with key as realmPath.
-     */
-    return [...transactionRealmGasInfo.displayRealms].reduce<{
-      [key in string]: { value: number; rate: number }[];
-    }>((accum, current) => {
-      const currentLabel = transactionRealmGasInfo.displayRealms.includes(current)
-        ? current.replace("gno.land", "")
-        : "rest";
-      accum[currentLabel] = labels.map(date => {
-        const totalGas = dateTotalGas[date];
-        const dateResult = transactionRealmGasInfo.results.find(result => date === result.date);
-        const gasFee = dateResult?.packages.find(pkg => {
-          return pkg.path === current;
-        })?.gasFee;
-        if (!totalGas || gasFee === undefined) {
-          return {
-            value: 0,
-            rate: 0,
-          };
-        }
-        return {
-          value: BigNumber(gasFee)
-            .shiftedBy(GNOTToken.decimals * -1)
-            .toNumber(),
-          rate: (gasFee / totalGas) * 100,
-        };
-      });
-      return accum;
-    }, {});
-  }, [labels, transactionRealmGasInfo]);
 
   const onClickPeriod = (currentPeriod: 7 | 30) => {
     if (period !== currentPeriod) {
