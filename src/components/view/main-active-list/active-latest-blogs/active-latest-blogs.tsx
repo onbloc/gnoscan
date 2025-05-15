@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import Link from "next/link";
 import Text from "@/components/ui/text";
 import { eachMedia } from "@/common/hooks/use-media";
 import ActiveList from "@/components/ui/active-list";
@@ -10,11 +11,12 @@ import { getLocalDateString } from "@/common/utils/date-util";
 import styled from "styled-components";
 import { useUpdateTime } from "@/common/hooks/main/use-update-time";
 import { Publisher } from "../../datatable/item";
-import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
-import { useUsername } from "@/common/hooks/account/use-username";
-import { useGetBlogPublisher } from "@/common/hooks/common/use-get-board";
 import { useGetLatestBlogs } from "@/common/react-query/statistics";
 import { Blog } from "@/types/data-type";
+
+interface BlogWithPublisher extends Blog {
+  publisher: string;
+}
 
 const ActiveLatestBlogs = () => {
   const media = eachMedia();
@@ -22,7 +24,7 @@ const ActiveLatestBlogs = () => {
 
   const { data, isFetched: blogsFetched } = useGetLatestBlogs();
 
-  const { blogs, updatedAt }: { blogs: Blog[]; updatedAt: string | null } = React.useMemo(() => {
+  const { blogs, updatedAt }: { blogs: BlogWithPublisher[]; updatedAt: string | null } = React.useMemo(() => {
     if (!data?.items)
       return {
         blogs: [],
@@ -34,6 +36,7 @@ const ActiveLatestBlogs = () => {
         index: item.id,
         title: item.title,
         path: item.url,
+        publisher: item.publisher,
         date: "",
       };
     });
@@ -66,16 +69,18 @@ const ActiveLatestBlogs = () => {
                 {blog.index + 1}
               </StyledText>
               <StyledTitleWrapper width={colWidth.blogs[1]}>
-                <a href={getBlogUrl(blog.path)} target="_blank" rel="noreferrer">
+                <Link href={getBlogUrl(blog.path)} target="_blank" rel="noreferrer">
                   <StyledText width={colWidth.blogs[1]} type="p4" color="blue" className="with-link">
                     <Tooltip content={blog.title}>
                       <span className="ellipsis-text">{blog.title}</span>
                     </Tooltip>
                     <IconLink className="icon-link" />
                   </StyledText>
-                </a>
+                </Link>
               </StyledTitleWrapper>
-              <LazyBlogPublisher path={blog.path} />
+              <StyledText type="p4" width={colWidth.blogs[2]} color="blue">
+                <Publisher address={blog.publisher} username={""}></Publisher>
+              </StyledText>
             </List>
           ))}
           {blogs && blogs.length === 0 && (
@@ -100,21 +105,6 @@ const ActiveLatestBlogs = () => {
 };
 
 export default ActiveLatestBlogs;
-
-const LazyBlogPublisher: React.FC<{ path: string }> = ({ path }) => {
-  const { data: address, isFetched } = useGetBlogPublisher(path);
-  const { isFetched: isFetchedUsername, getName } = useUsername();
-
-  if (!isFetched || !isFetchedUsername) {
-    return <SkeletonBar />;
-  }
-
-  return (
-    <StyledText type="p4" width={colWidth.blogs[2]} color="blue">
-      <Publisher address={address || undefined} username={address ? getName(address) : undefined}></Publisher>
-    </StyledText>
-  );
-};
 
 const StyledContentWrapper = styled.div`
   display: flex;
