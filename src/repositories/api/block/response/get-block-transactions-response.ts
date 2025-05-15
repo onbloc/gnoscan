@@ -3,5 +3,8 @@ import { BlockTransactionModel } from "@/models/api/block/block-transaction-mode
 export interface GetBlockTransactionsResponse {
   items: BlockTransactionModel[];
 
-  page: string;
+  page: {
+    cursor: string;
+    hasNext: boolean;
+  };
 }

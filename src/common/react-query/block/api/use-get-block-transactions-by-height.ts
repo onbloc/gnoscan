@@ -1,9 +1,10 @@
-import { UseQueryOptions } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetBlockTransactionsRequest } from "@/repositories/api/block/request";
 import { GetBlockTransactionsResponse } from "@/repositories/api/block/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { isValidBlockHeight } from "@/common/utils/string-util";
 
@@ -21,16 +22,24 @@ import { isValidBlockHeight } from "@/common/utils/string-util";
  * @returns The block transactions data for the specified height.
  */
 export const useGetBlockTransactionsByHeight = (
-  height: string,
-  options?: UseQueryOptions<GetBlockTransactionsResponse, Error, GetBlockTransactionsResponse>,
-) => {
+  params: GetBlockTransactionsRequest,
+  options?: UseInfiniteQueryOptions<GetBlockTransactionsResponse, Error, GetBlockTransactionsResponse>,
+): UseInfiniteQueryResult<GetBlockTransactionsResponse, Error> => {
   const { apiBlockRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getBlockTransactionsByHeight, height],
+  return useApiRepositoryInfiniteQuery<GetBlockTransactionsResponse, Error, typeof apiBlockRepository>(
+    [QUERY_KEY.getBlockTransactionsByHeight, params],
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    repository => repository.getBlockTransactions(height),
-    { enabled: isValidBlockHeight(height) && options?.enabled !== false },
+    (repository, pageParam) =>
+      repository!.getBlockTransactions({
+        ...params,
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      ...options,
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+      enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false,
+    },
   );
 };

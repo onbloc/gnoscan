@@ -1,9 +1,10 @@
-import { UseQueryOptions } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetBlockEventsRequest } from "@/repositories/api/block/request";
 import { GetBlockEventsResponse } from "@/repositories/api/block/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryQuery, useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { isValidBlockHeight } from "@/common/utils/string-util";
 /**
@@ -20,16 +21,24 @@ import { isValidBlockHeight } from "@/common/utils/string-util";
  * @returns The block events data for the specified height.
  */
 export const useGetBlockEventsByHeight = (
-  height: string,
-  options?: UseQueryOptions<GetBlockEventsResponse, Error, GetBlockEventsResponse>,
+  params: GetBlockEventsRequest,
+  options?: UseInfiniteQueryOptions<GetBlockEventsResponse, Error, GetBlockEventsResponse>,
 ) => {
   const { apiBlockRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getBlockEventsByHeight, height],
+  return useApiRepositoryInfiniteQuery<GetBlockEventsResponse, Error, typeof apiBlockRepository>(
+    [QUERY_KEY.getBlockEventsByHeight, params],
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    repository => repository.getBlockEvents(height),
-    { enabled: isValidBlockHeight(height) && options?.enabled !== false },
+    (repository, pageParam) =>
+      repository!.getBlockEvents({
+        ...params,
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      ...options,
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+      enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false,
+    },
   );
 };

@@ -3,6 +3,7 @@ import React from "react";
 import { useGetBlockTransactionsByHeight } from "@/common/react-query/block/api";
 import { Transaction } from "@/types/data-type";
 import { BlockMapper } from "@/common/mapper/block/block-mapper";
+import { GetBlockTransactionsRequest } from "@/repositories/api/block/request";
 
 /**
  * Hooks to map block-transactions data fetched from the API to the format used by the application
@@ -18,22 +19,24 @@ import { BlockMapper } from "@/common/mapper/block/block-mapper";
  * @param params - API request parameters
  * @returns Mapped block data and query status
  */
-export const useMappedApiBlockTransactions = (height: string) => {
+export const useMappedApiBlockTransactions = (params: GetBlockTransactionsRequest) => {
   const {
     data: apiData,
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-  } = useGetBlockTransactionsByHeight(height);
+    fetchNextPage,
+    hasNextPage,
+  } = useGetBlockTransactionsByHeight(params);
 
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [isDataReady, setIsDataReady] = React.useState(false);
 
   React.useEffect(() => {
-    if (apiData?.items) {
+    if (apiData?.pages) {
       setIsDataReady(false);
 
-      const allItems = apiData.items;
+      const allItems = apiData.pages.flatMap(page => page.items);
       const mappedBlocksData = BlockMapper.blockTransactionsFromApiResponses(allItems);
 
       setTransactions(mappedBlocksData);
@@ -42,7 +45,7 @@ export const useMappedApiBlockTransactions = (height: string) => {
       setTransactions([]);
       setIsDataReady(true);
     }
-  }, [apiData?.items]);
+  }, [apiData?.pages]);
 
   const isLoading = isApiLoading || !isDataReady;
   const isFetched = isApiFetched && isDataReady;
@@ -52,5 +55,7 @@ export const useMappedApiBlockTransactions = (height: string) => {
     isFetched,
     isLoading,
     isError: isApiError,
+    fetchNextPage,
+    hasNextPage,
   };
 };

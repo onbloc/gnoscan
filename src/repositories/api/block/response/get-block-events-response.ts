@@ -4,6 +4,7 @@ export interface GetBlockEventsResponse {
   items: EventModel[];
 
   page: {
+    cursor: string;
     hasNext: boolean;
   };
 }

@@ -8,6 +8,7 @@ import { EventDatatable } from "../../datatable/event";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import { useGetAccountTransactions } from "@/common/react-query/account/api/use-get-account-transactions";
 import { useGetAccountEvents } from "@/common/react-query/account/api/use-get-account-events";
+import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 
 interface AccountTransactionsProps {
   address: string;
@@ -21,7 +22,14 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
     hasNextPage,
     fetchNextPage,
   } = useGetAccountTransactions({ address });
-  const { data: eventData } = useGetAccountEvents({ address });
+  const {
+    data: eventData,
+    isFetched: isFetchedEventData,
+    hasNextPage: eventHasNextPage,
+    fetchNextPage: eventFetchNextPage,
+  } = useGetAccountEvents({ address });
+
+  console.log(eventData, "eventData");
 
   const accountTransactions: Transaction[] = React.useMemo(() => {
     if (!transactionData?.pages) return [];
@@ -94,7 +102,14 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
           nextPage={fetchNextPage}
         />
       )}
-      {currentTab === "Events" && <EventDatatable events={accountEvents} isFetched={isFetchedTransactionData} />}
+      {currentTab === "Events" && (
+        <StandardNetworkEventDatatable
+          events={accountEvents}
+          isFetched={isFetchedEventData}
+          hasNextPage={eventHasNextPage}
+          nextPage={eventFetchNextPage}
+        />
+      )}
     </DataListSection>
   );
 };

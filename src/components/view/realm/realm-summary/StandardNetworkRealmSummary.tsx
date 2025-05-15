@@ -23,6 +23,7 @@ import Text from "@/components/ui/text";
 import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 
 interface RealmSummaryProps {
   path: string;
@@ -96,6 +97,10 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     },
     [path, currentNetwork],
   );
+
+  const displayBlockPublished = React.useMemo(() => {
+    return formatDisplayBlockHeight(realmSummary?.blockPublished);
+  }, [realmSummary?.blockPublished]);
 
   if (!isFetchedRealmData) return <TableSkeleton />;
 
@@ -203,7 +208,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
         <dt>Block Published</dt>
         <dd>
           <Badge>
-            {realmSummary?.blockPublished === 0 ? (
+            {realmSummary?.blockPublished == null ? (
               <FitContentA>
                 <Text type="p4" color="blue" className="ellipsis">
                   {"-"}
@@ -213,7 +218,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               <Link href={getUrlWithNetwork(`/block/${realmSummary?.blockPublished}`)} passHref>
                 <FitContentA>
                   <Text type="p4" color="blue">
-                    {realmSummary?.blockPublished}
+                    {displayBlockPublished}
                   </Text>
                 </FitContentA>
               </Link>
