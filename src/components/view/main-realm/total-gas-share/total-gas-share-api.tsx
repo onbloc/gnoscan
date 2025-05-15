@@ -18,9 +18,7 @@ const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.
 
 export const MainRealmTotalGasShareApi = () => {
   const [period, setPeriod] = useState<7 | 30>(7);
-  const { isFetched, transactionRealmGasInfo } = useTotalGasInfoApi(period);
-
-  const { data } = useGetTotalGasShare({ range: period });
+  const { data, isFetched } = useGetTotalGasShare({ range: period });
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -32,46 +30,48 @@ export const MainRealmTotalGasShareApi = () => {
   }, [period]);
 
   const transactionGasData = useMemo(() => {
-    if (!data?.items) return {};
-
-    if (!data.items[0]) return {};
+    if (!data) return {};
 
     const allPackages = new Set<string>();
-    Object.values(data.items[0]).forEach((dateData: DailyPackages) => {
+    Object.keys(data).forEach(date => {
+      const dateData = data[date];
       Object.keys(dateData).forEach(pkg => {
         allPackages.add(pkg);
       });
     });
 
-    return Array.from(allPackages).reduce<Record<string, Array<{ value: number; rate: number }>>>(
-      (accum, packagePath) => {
-        const currentLabel = packagePath.replace("gno.land", "");
+    const sortedPackages = Array.from(allPackages).sort((a, b) => {
+      if (a === "rest") return 1;
+      if (b === "rest") return -1;
+      return a.localeCompare(b);
+    });
 
-        accum[currentLabel] = labels.map(date => {
-          const dateData = data.items[0][date];
-          if (!dateData || !dateData[packagePath]) {
-            return {
-              value: 0,
-              rate: 0,
-            };
-          }
+    return sortedPackages.reduce<Record<string, Array<{ value: number; rate: number }>>>((accum, packagePath) => {
+      const currentLabel = packagePath === "rest" ? "rest" : packagePath.replace("gno.land", "");
 
-          const totalGas = Object.values(dateData).reduce((sum, pkg: PackageInfo) => sum + pkg.gasShared, 0);
-
-          const currentGas = dateData[packagePath].gasShared;
-
+      accum[currentLabel] = labels.map(date => {
+        const dateData = data[date];
+        if (!dateData || !dateData[packagePath]) {
           return {
-            value: BigNumber(currentGas)
-              .shiftedBy(GNOTToken.decimals * -1)
-              .toNumber(),
-            rate: (currentGas / totalGas) * 100,
+            value: 0,
+            rate: 0,
           };
-        });
+        }
 
-        return accum;
-      },
-      {},
-    );
+        const totalGas = Object.values(dateData).reduce((sum, pkg: PackageInfo) => sum + pkg.gasShared, 0);
+
+        const currentGas = dateData[packagePath].gasShared;
+
+        return {
+          value: BigNumber(currentGas)
+            .shiftedBy(GNOTToken.decimals * -1)
+            .toNumber(),
+          rate: totalGas > 0 ? (currentGas / totalGas) * 100 : 0,
+        };
+      });
+
+      return accum;
+    }, {});
   }, [labels, data]);
 
   const onClickPeriod = (currentPeriod: 7 | 30) => {

@@ -10,8 +10,5 @@ export interface DailyPackages {
 export interface TotalFeeShareData {
   [date: string]: DailyPackages;
 }
-export interface GetTotalFeeShareResponse {
-  items: TotalFeeShareData[];
 
-  lastUpdated: string;
-}
+export type GetTotalFeeShareResponse = TotalFeeShareData;

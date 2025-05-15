@@ -14,7 +14,7 @@ export const useGetTotalGasShare = (
   const { apiStatisticsRepository } = useServiceProvider();
 
   return useApiRepositoryQuery(
-    [QUERY_KEY.getTotalGasShare],
+    [QUERY_KEY.getTotalGasShare, request.range],
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getTotalGasShare(request),
