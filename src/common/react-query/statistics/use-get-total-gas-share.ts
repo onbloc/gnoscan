@@ -1,10 +1,11 @@
-import { useQuery, UseQueryOptions } from "react-query";
+import { UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTotalFeeShareRequest } from "@/repositories/api/statistics/request";
 import { GetTotalFeeShareResponse } from "@/repositories/api/statistics/response";
-import { CommonError } from "@/common/errors";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 export const useGetTotalGasShare = (
   request: GetTotalFeeShareRequest,
@@ -12,15 +13,11 @@ export const useGetTotalGasShare = (
 ) => {
   const { apiStatisticsRepository } = useServiceProvider();
 
-  return useQuery({
-    queryKey: [QUERY_KEY.getTotalGasShare, request.range],
-    queryFn: () => {
-      if (!apiStatisticsRepository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiStatisticsRepository");
-      }
-
-      return apiStatisticsRepository.getTotalGasShare(request);
-    },
-    ...options,
-  });
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getTotalGasShare],
+    apiStatisticsRepository,
+    API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
+    repository => repository.getTotalGasShare(request),
+    options,
+  );
 };
