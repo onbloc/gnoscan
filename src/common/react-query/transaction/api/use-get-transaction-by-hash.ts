@@ -1,9 +1,10 @@
-import { useQuery, UseQueryOptions } from "react-query";
+import { UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { CommonError } from "@/common/errors";
 import { GetTransactionResponse } from "@/repositories/api/transaction/response";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get transaction data for a specific hash from the API
@@ -25,16 +26,11 @@ export const useGetTransactionByHash = (
 ) => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useQuery({
-    queryKey: [QUERY_KEY.getTransactionByHash, hash],
-    queryFn: () => {
-      if (!apiTransactionRepository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiTransactionRepository");
-      }
-
-      return apiTransactionRepository.getTransaction(hash);
-    },
-    ...options,
-    enabled: !!apiTransactionRepository && !!hash,
-  });
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getTransactionByHash, hash],
+    apiTransactionRepository,
+    API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
+    repository => repository.getTransaction(hash),
+    { enabled: !!hash, ...options },
+  );
 };
