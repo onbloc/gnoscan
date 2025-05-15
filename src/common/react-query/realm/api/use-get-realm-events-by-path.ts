@@ -1,9 +1,10 @@
-import { useQuery, UseQueryOptions } from "react-query";
+import { UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetRealmEventsResponse } from "@/repositories/api/realm/response";
-import { CommonError } from "@/common/errors";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get realm events data from the API
@@ -24,15 +25,11 @@ export const useGetRealmEventsByPath = (
 ) => {
   const { apiRealmRepository } = useServiceProvider();
 
-  return useQuery({
-    queryKey: [QUERY_KEY.getRealmEventsByPath, path],
-    queryFn: () => {
-      if (!apiRealmRepository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiRealmRepository");
-      }
-
-      return apiRealmRepository.getRealmEvents(path);
-    },
-    ...options,
-  });
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getRealmEventsByPath, path],
+    apiRealmRepository,
+    API_REPOSITORY_KEY.REALM_REPOSITORY,
+    repository => repository.getRealmEvents(path),
+    options,
+  );
 };
