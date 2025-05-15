@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { isBech32Address } from "./bech32.utility";
 
 export function parseTokenAmount(tokenAmount: string, denomination = "ugnot"): number {
   const pattern = new RegExp(`^(\\d+)${denomination}$`);
@@ -31,7 +32,7 @@ export function formatDisplayTokenPath(path: string, visibleLength = 8): string 
 
     if (!address || !tokenName) return path;
 
-    if (visibleLength <= 0 || address.length <= visibleLength * 2) return path;
+    if (!isBech32Address(address)) return path;
 
     const ellipsisAddress = `${address.slice(0, visibleLength)}...${address.slice(-visibleLength)}`;
     return `${prefix}${ellipsisAddress}/${tokenName}`;

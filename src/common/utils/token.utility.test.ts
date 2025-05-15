@@ -101,14 +101,14 @@ describe("formatTokenDecimal", () => {
 describe("formatDisplayTokenPath", () => {
   describe("Normal Cases", () => {
     it("should format path with default visibleLength (8)", () => {
-      const input = "/r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1/USDC";
-      const expected = "/r/g1jg2mtu...fja1azs1/USDC";
+      const input = "/r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
+      const expected = "/r/g1edq4du...cgleuc8p/USDC";
       expect(formatDisplayTokenPath(input)).toBe(expected);
     });
 
     it("should format path with custom visibleLength", () => {
-      const input = "/r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1/USDC";
-      const expected = "/r/g1jg...azs1/USDC";
+      const input = "/r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
+      const expected = "/r/g1ed...uc8p/USDC";
       expect(formatDisplayTokenPath(input, 4)).toBe(expected);
     });
   });
