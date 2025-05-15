@@ -15,7 +15,7 @@ export const useGetAccountByAddress = (
   return useApiRepositoryQuery(
     [QUERY_KEY.getAccount, address],
     apiAccountRepository,
-    API_REPOSITORY_KEY.REALM_REPOSITORY,
+    API_REPOSITORY_KEY.ACCOUNT_REPOSITORY,
     repository => repository.getAccount(address),
     options,
   );

@@ -1,9 +1,10 @@
-import { useQuery, UseQueryOptions } from "react-query";
+import { UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlockEventsResponse } from "@/repositories/api/block/response";
-import { CommonError } from "@/common/errors";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { isValidBlockHeight } from "@/common/utils/string-util";
 /**
  * Basic hooks to get block events data for a specific height from the API
@@ -24,16 +25,11 @@ export const useGetBlockEventsByHeight = (
 ) => {
   const { apiBlockRepository } = useServiceProvider();
 
-  return useQuery({
-    queryKey: [QUERY_KEY.getBlockEventsByHeight, height],
-    queryFn: () => {
-      if (!apiBlockRepository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiBlockRepository");
-      }
-
-      return apiBlockRepository.getBlockEvents(height);
-    },
-    ...options,
-    enabled: isValidBlockHeight(height) && options?.enabled !== false,
-  });
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getBlockEventsByHeight, height],
+    apiBlockRepository,
+    API_REPOSITORY_KEY.BLOCK_REPOSITORY,
+    repository => repository.getBlockEvents(height),
+    { enabled: isValidBlockHeight(height) && options?.enabled !== false },
+  );
 };
