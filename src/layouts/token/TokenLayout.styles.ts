@@ -27,6 +27,11 @@ export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
     display: flex;
   }
 
+  .svg-icon {
+    stroke: ${({ theme }) => theme.colors.primary};
+    margin-left: 5px;
+  }
+
   .badge {
     display: inline-flex;
     line-height: 1em;
