@@ -9,10 +9,9 @@ export interface GetTokensResponse {
     path: string;
     symbol: string;
     totalSupply: string;
-  };
+  }[];
   page: {
     cursor: string;
     hasNext: boolean;
-    nextCursor: string;
   };
 }
