@@ -33,7 +33,11 @@ const CustomNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bloc
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Transactions" && (
-        <BlockDetailDatatable transactions={transactionItems} isFetched={isFetched && isFetchedBlockResult} />
+        <BlockDetailDatatable
+          transactions={transactionItems}
+          isFetched={isFetched && isFetchedBlockResult}
+          nextPage={() => {}}
+        />
       )}
       {currentTab === "Events" && <EventDatatable isFetched={isFetched} events={events} />}
     </DataListSection>
