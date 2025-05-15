@@ -53,14 +53,20 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
   }, [data?.data]);
 
   const files = React.useMemo(() => {
-    if (!data?.data) return [];
+    const sourceFiles = data?.data?.sourceFiles;
 
-    return data.data.sourceFiles.map(file => {
-      return {
-        name: file.filename,
-        body: file.content,
-      };
-    });
+    if (!Array.isArray(sourceFiles)) {
+      return [];
+    }
+
+    return (
+      data?.data?.sourceFiles?.map(file => {
+        return {
+          name: file.filename ?? "",
+          body: file.content ?? "",
+        };
+      }) ?? []
+    );
   }, [data?.data]);
 
   if (!isFetched) return <TableSkeleton />;
@@ -122,7 +128,7 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
         <dd className="function-wrapper">
-          {tokenSummary?.functions.map((functionName: string, index: number) => (
+          {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>
               <Text type="p4" color="white">
                 {functionName}

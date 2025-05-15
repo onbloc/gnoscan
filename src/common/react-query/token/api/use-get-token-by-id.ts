@@ -1,9 +1,10 @@
-import { useQuery, UseQueryOptions } from "react-query";
+import { UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTokenResponse } from "@/repositories/api/token/response";
-import { CommonError } from "@/common/errors";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get token data from the API
@@ -20,19 +21,15 @@ import { CommonError } from "@/common/errors";
  */
 export const useGetTokenById = (
   tokenId: string,
-  optoins?: UseQueryOptions<GetTokenResponse, Error, GetTokenResponse>,
+  options?: UseQueryOptions<GetTokenResponse, Error, GetTokenResponse>,
 ) => {
   const { apiTokenRepository } = useServiceProvider();
 
-  return useQuery({
-    queryKey: [QUERY_KEY.getTokenById, tokenId],
-    queryFn: () => {
-      if (!apiTokenRepository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiTokenRepository");
-      }
-
-      return apiTokenRepository.getToken(tokenId);
-    },
-    ...optoins,
-  });
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getTokenById, tokenId],
+    apiTokenRepository,
+    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
+    repository => repository.getToken(tokenId),
+    options,
+  );
 };

@@ -1,9 +1,10 @@
-import { useQuery, UseQueryOptions } from "react-query";
+import { UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetSearchAutocompleteResponse } from "@/repositories/api/search/response";
-import { CommonError } from "@/common/errors";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 export const useGetSearchAutocomplete = (
   keyword: string,
@@ -11,16 +12,11 @@ export const useGetSearchAutocomplete = (
 ) => {
   const { apiSearchRepository } = useServiceProvider();
 
-  return useQuery({
-    queryKey: [QUERY_KEY.getSearchAutocomplete, keyword],
-    queryFn: () => {
-      if (!apiSearchRepository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", "ApiTokenRepository");
-      }
-
-      return apiSearchRepository.getSearchAutocomplete(keyword);
-    },
-    ...options,
-    enabled: keyword.length > 1 && options?.enabled,
-  });
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getSearchAutocomplete, keyword],
+    apiSearchRepository,
+    API_REPOSITORY_KEY.SEARCH_REPOSITORY,
+    repository => repository.getSearchAutocomplete(keyword),
+    { enabled: keyword.length > 1 && options?.enabled !== false },
+  );
 };
