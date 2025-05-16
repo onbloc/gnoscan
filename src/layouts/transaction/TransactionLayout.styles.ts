@@ -31,7 +31,6 @@ export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
   .badge {
     display: inline-flex;
     line-height: 1em;
-    height: 28px;
     justify-content: center;
     align-items: center;
   }

@@ -43,18 +43,6 @@ export class TransactionMapper {
     };
   }
 
-  public static transactionContractsFromApiResponses(responses: TransactionContractModel[]): TransactionContractInfo[] {
-    return responses.map(response => this.transactionContractsFromApiResponse(response));
-  }
-
-  public static transactionContractsFromApiResponse(response: TransactionContractModel): TransactionContractInfo {
-    return {
-      messages: response.fields || [],
-      numOfMessage: response.fields.length || 0,
-      rawContent: "",
-    };
-  }
-
   public static transactionEventsFromApiResponse(response: EventModel): GnoEvent {
     const timeStamp = getTimeStamp(response.timestamp);
 

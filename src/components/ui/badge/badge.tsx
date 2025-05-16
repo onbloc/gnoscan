@@ -32,7 +32,7 @@ const BadgeWrapper = styled.div<BadgeProps>`
   ${mixins.flexbox("row", "center", "center", false)};
   width: 100%;
   max-width: fit-content;
-  height: 28px;
+  min-height: 28px;
   background-color: ${({ type, theme }) => (type ? theme.colors[type] : theme.colors.surface)};
   padding: ${({ padding }) => (padding ? padding : "4px 16px")};
   margin-right: ${({ desktop, margin }) => (desktop && !margin ? "15px" : "10px")};
