@@ -2,7 +2,7 @@
   {
     "name": "Testnet 6",
     "chainId": "test6",
-    "apiUrl": "https://test6.api.gnoscan/v1",
+    "apiUrl": "https://test6.api.gnoscan.io/v1",
     "rpcUrl": "https://test6.onbloc.xyz:443",
     "indexerUrl": "https://test6.indexer.onbloc.xyz",
     "gnoWebUrl": "https://test6.testnets.gno.land"
