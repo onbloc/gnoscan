@@ -10,11 +10,13 @@ export interface TransactionSummary {
   };
   memo: string;
   network: string;
-  success: true;
+  success: boolean;
   timestamp: string;
   transactionFee: Amount;
   txHash: string;
   errorLog: string;
+  hasApplicationError: boolean;
+  txIndex: number;
 }
 
 export interface GetTransactionResponse {
