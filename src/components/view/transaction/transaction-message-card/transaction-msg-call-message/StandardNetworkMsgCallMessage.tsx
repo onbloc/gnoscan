@@ -52,10 +52,6 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
         </BadgeText>
       </Field>
 
-      <Field label="Pkg Name" isDesktop={isDesktop}>
-        <BadgeText>{message.name || "-"}</BadgeText>
-      </Field>
-
       <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
         <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} />
       </FieldWithTooltip>
@@ -96,7 +92,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
       </Field>
 
       <Field label="Arguments" isDesktop={isDesktop}>
-        <BadgeList items={message?.args} />
+        <BadgeList items={message?.args} isDesktop={isDesktop} />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

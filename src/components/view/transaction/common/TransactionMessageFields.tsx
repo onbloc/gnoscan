@@ -52,7 +52,7 @@ interface BadgeTextProps {
 
 export const BadgeText: React.FC<BadgeTextProps> = ({ type, color = "secondary", children }) => (
   <Badge type={type}>
-    <Text type="p4" color={color || "secondary"}>
+    <Text type="p4" color={color || "secondary"} style={{ whiteSpace: "normal" }}>
       {children}
     </Text>
   </Badge>
@@ -159,14 +159,14 @@ export const PkgPathLink: React.FC<PkgPathLinkProps> = ({ path, getUrlWithNetwor
   );
 };
 
-export const BadgeList = ({ items }: { items: string[] | null }) => {
+export const BadgeList = ({ items, isDesktop }: { items: string[] | null; isDesktop: boolean }) => {
   if (!items || items.length === 0) return <BadgeText>-</BadgeText>;
   return (
-    <>
+    <S.BadgeListWrapper isDesktop={isDesktop}>
       {items.map(item => (
         <BadgeText key={item}>{item}</BadgeText>
       ))}
-    </>
+    </S.BadgeListWrapper>
   );
 };
 

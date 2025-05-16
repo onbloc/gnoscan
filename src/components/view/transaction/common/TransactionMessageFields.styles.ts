@@ -28,6 +28,12 @@ export const BadgeContentWrapper = styled.div`
   }
 `;
 
+export const BadgeListWrapper = styled.div<{ isDesktop: boolean }>`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ isDesktop }) => (isDesktop ? "12px" : "0px")};
+`;
+
 export const TooltipContentWrapper = styled.div`
   display: flex;
   flex-direction: column;

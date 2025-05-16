@@ -33,7 +33,9 @@ const StandardNetworkBankMsgSendMessage = ({
       </Field>
 
       <Field label="Function" isDesktop={isDesktop}>
-        <BadgeText type="blue">{getTransactionMessageType(message) || "-"}</BadgeText>
+        <BadgeText type="blue" color="white">
+          {getTransactionMessageType(message) || "-"}
+        </BadgeText>
       </Field>
 
       <Field label="Amount" isDesktop={isDesktop}>
