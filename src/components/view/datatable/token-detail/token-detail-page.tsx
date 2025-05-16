@@ -8,7 +8,6 @@ import theme from "@/styles/theme";
 import { DatatableItem } from "..";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
-import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useGetTokenTransactionsByid } from "@/common/react-query/token/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
@@ -30,8 +29,6 @@ const TOOLTIP_TYPE = (
 
 export const TokenDetailDatatablePage = ({ path }: Props) => {
   const themeMode = useRecoilValue(themeState);
-
-  const { getTokenAmount } = useTokenMeta();
 
   const { data, isFetched: isFetchedTransactions } = useGetTokenTransactionsByid(path);
 
