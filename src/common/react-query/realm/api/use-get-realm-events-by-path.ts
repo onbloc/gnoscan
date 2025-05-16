@@ -1,9 +1,10 @@
-import { UseQueryOptions } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetRealmEventsRequest } from "@/repositories/api/realm/request";
 import { GetRealmEventsResponse } from "@/repositories/api/realm/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
@@ -20,16 +21,23 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  * @returns Original realm events data fetched from the API and the status of the query
  */
 export const useGetRealmEventsByPath = (
-  path: string,
-  options?: UseQueryOptions<GetRealmEventsResponse, Error, GetRealmEventsResponse>,
-) => {
+  params: GetRealmEventsRequest,
+  options?: UseInfiniteQueryOptions<GetRealmEventsResponse, Error, GetRealmEventsResponse>,
+): UseInfiniteQueryResult<GetRealmEventsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getRealmEventsByPath, path],
+  return useApiRepositoryInfiniteQuery<GetRealmEventsResponse, Error, typeof apiRealmRepository>(
+    [QUERY_KEY.getRealmEventsByPath, params],
     apiRealmRepository,
     API_REPOSITORY_KEY.REALM_REPOSITORY,
-    repository => repository.getRealmEvents(path),
-    options,
+    (repository, pageParam) =>
+      repository!.getRealmEvents({
+        ...params,
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      ...options,
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+    },
   );
 };

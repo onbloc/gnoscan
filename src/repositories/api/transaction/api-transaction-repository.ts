@@ -1,4 +1,8 @@
-import { GetTransactionsRequestParameters } from "./request";
+import {
+  GetTransactionContractsRequest,
+  GetTransactionEventsRequest,
+  GetTransactionsRequestParameters,
+} from "./request";
 import {
   GetTransactionResponse,
   GetTransactionsResponse,
@@ -11,7 +15,7 @@ export interface ApiTransactionRepository {
 
   getTransaction(hash: string): Promise<GetTransactionResponse>;
 
-  getTransactionContracts(hash: string): Promise<GetTransactionContractsResponse>;
+  getTransactionContracts(params: GetTransactionContractsRequest): Promise<GetTransactionContractsResponse>;
 
-  getTransactionEvents(hash: string): Promise<GetTransactionEventsResponse>;
+  getTransactionEvents(params: GetTransactionEventsRequest): Promise<GetTransactionEventsResponse>;
 }

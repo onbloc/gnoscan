@@ -1,4 +1,4 @@
-import { GetTokensRequestParameters } from "./request";
+import { GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
 import { GetTokenResponse, GetTokensResponse, GetTokenTransactionsResponse } from "./response";
 
 export interface ApiTokenRepository {
@@ -6,5 +6,5 @@ export interface ApiTokenRepository {
 
   getToken(tokenId: string): Promise<GetTokenResponse>;
 
-  getTokenTransactions(tokenId: string): Promise<GetTokenTransactionsResponse>;
+  getTokenTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse>;
 }

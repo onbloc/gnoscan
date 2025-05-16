@@ -1,4 +1,4 @@
-import { GetRealmsRequestParameters } from "./request";
+import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactionsRequest } from "./request";
 import { GetRealmEventsResponse, GetRealmResponse, GetRealmsResponse, GetRealmTransactionsResponse } from "./response";
 
 export interface ApiRealmRepository {
@@ -6,7 +6,7 @@ export interface ApiRealmRepository {
 
   getRealm(path: string): Promise<GetRealmResponse>;
 
-  getRealmEvents(path: string): Promise<GetRealmEventsResponse>;
+  getRealmEvents(params: GetRealmEventsRequest): Promise<GetRealmEventsResponse>;
 
-  getRealmTransactions(path: string): Promise<GetRealmTransactionsResponse>;
+  getRealmTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse>;
 }
