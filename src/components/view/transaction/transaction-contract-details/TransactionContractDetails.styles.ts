@@ -22,7 +22,6 @@ export const ContractListBox = styled.div`
   .badge {
     display: inline-flex;
     line-height: 1em;
-    height: 28px;
     justify-content: center;
     align-items: center;
   }

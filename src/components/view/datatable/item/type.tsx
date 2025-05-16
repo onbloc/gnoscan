@@ -29,7 +29,7 @@ export const Type = ({ type, func, packagePath, msgNum }: Props) => {
       <Tooltip className={"ellipsis"} content={renderTooltip()}>
         <span className="function ellipsis">{func}</span>
       </Tooltip>
-      {(msgNum || 0) > 1 && (
+      {(msgNum || 0) > 0 && (
         <Text type="p4" color="reverse" margin="0px 0px 0px 8px">
           {`+${msgNum || 0 - 1}`}
         </Text>
