@@ -1,7 +1,11 @@
 import { NetworkClient } from "@/common/clients/network-client";
 import { ApiTransactionRepository } from "./api-transaction-repository";
 
-import { GetTransactionsRequestParameters } from "./request";
+import {
+  GetTransactionContractsRequest,
+  GetTransactionEventsRequest,
+  GetTransactionsRequestParameters,
+} from "./request";
 import {
   GetTransactionsResponse,
   GetTransactionResponse,
@@ -51,28 +55,34 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
       });
   }
 
-  getTransactionContracts(hash: string): Promise<GetTransactionContractsResponse> {
+  getTransactionContracts(params: GetTransactionContractsRequest): Promise<GetTransactionContractsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
 
+    const { txHash, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
     return this.networkClient
       .get<APIResponse<GetTransactionContractsResponse>>({
-        url: `transactions/${encodeURIComponent(hash)}/contracts`,
+        url: `transactions/${encodeURIComponent(txHash)}/contracts${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
       });
   }
 
-  getTransactionEvents(hash: string): Promise<GetTransactionEventsResponse> {
+  getTransactionEvents(params: GetTransactionEventsRequest): Promise<GetTransactionEventsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
 
+    const { txHash, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
     return this.networkClient
       .get<APIResponse<GetTransactionEventsResponse>>({
-        url: `transactions/${encodeURIComponent(hash)}/events`,
+        url: `transactions/${encodeURIComponent(txHash)}/events${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

@@ -29,8 +29,6 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
     fetchNextPage: eventFetchNextPage,
   } = useGetAccountEvents({ address });
 
-  console.log(eventData, "eventData");
-
   const accountTransactions: Transaction[] = React.useMemo(() => {
     if (!transactionData?.pages) return [];
 

@@ -24,5 +24,6 @@ export interface GetTransactionContractsResponse {
 
   page: {
     hasNext: boolean;
+    cursor: string;
   };
 }
