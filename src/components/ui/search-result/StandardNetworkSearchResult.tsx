@@ -8,11 +8,11 @@ import { searchState } from "@/states";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { useDebounce } from "@/common/hooks/use-debounce";
-import { ValuesType } from "utility-types";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useGetSearch } from "@/common/react-query/search/api/use-get-search";
 import { SearchResult } from "@/repositories/api/search/response";
+import { SEARCH_TYPE_TITLES } from "@/common/values/search.constant";
 
 import mixins from "@/styles/mixins";
 import { zindex } from "@/common/values/z-index";
@@ -25,22 +25,6 @@ interface StyleProps {
   isMain?: boolean;
   ref?: any;
 }
-
-export const SEARCH_TITLE = {
-  ACCOUNTS: "Accounts",
-  REALMS: "Realms",
-  TOKENS: "Tokens",
-} as const;
-export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
-
-const SEARCH_TYPE_TITLES = {
-  [SEARCH_RESULT_TYPE.ACCOUNT]: "Accounts",
-  [SEARCH_RESULT_TYPE.BLOCK]: "Blocks",
-  [SEARCH_RESULT_TYPE.TOKEN]: "Tokens",
-  [SEARCH_RESULT_TYPE.PROPOSAL]: "Proposals",
-  [SEARCH_RESULT_TYPE.REALM]: "Realms",
-  [SEARCH_RESULT_TYPE.TRANSACTION]: "Transactions",
-} as const;
 
 const StandardNetworkSearchResult = () => {
   const { route } = useRouter();
