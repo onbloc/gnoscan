@@ -1,37 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import styled, { css } from "styled-components";
 import { useRecoilState } from "recoil";
-import { v1 } from "uuid";
 
 import { searchState } from "@/states";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
-import { useNetwork } from "@/common/hooks/use-network";
-import { useGetSearchAutocomplete } from "@/common/react-query/search/api/use-get-search-autocomplete";
 import { useDebounce } from "@/common/hooks/use-debounce";
-import { ValuesType } from "utility-types";
+import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
+import { useWindowSize } from "@/common/hooks/use-window-size";
+import { useGetSearch } from "@/common/react-query/search/api/use-get-search";
+import { SearchResult } from "@/repositories/api/search/response";
+import { SEARCH_TYPE_TITLES } from "@/common/values/search.constant";
 
 import mixins from "@/styles/mixins";
 import { zindex } from "@/common/values/z-index";
 import Text from "@/components/ui/text";
-import { FitContentA } from "../detail-page-common-styles";
-import { useWindowSize } from "@/common/hooks/use-window-size";
+import { SearchResultItem } from "./search-result-item/SearchResultItem";
+import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 
 interface StyleProps {
   desktop?: boolean;
   isMain?: boolean;
   ref?: any;
 }
-
-export const SEARCH_TITLE = {
-  ACCOUNTS: "Accounts",
-  REALMS: "Realms",
-  TOKENS: "Tokens",
-} as const;
-export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
 const StandardNetworkSearchResult = () => {
   const { route } = useRouter();
@@ -40,24 +33,41 @@ const StandardNetworkSearchResult = () => {
   const [open, setOpen] = useState(false);
   const [keyword, setKeyword] = useRecoilState(searchState);
   const debouncedKeyword = useDebounce(keyword, 300);
-  const shouldSearch = debouncedKeyword.length > 1;
+  const shouldSearch = debouncedKeyword.length > 0;
 
   const isMain = route === "/";
   const ref = useOutSideClick(() => setOpen(false));
 
-  const { data, isLoading } = useGetSearchAutocomplete(debouncedKeyword, {
+  const { data: searchResult, isLoading: isLoadingSearch } = useGetSearch(debouncedKeyword, {
     enabled: shouldSearch,
   });
 
+  const groupedSearchResult = React.useMemo(() => {
+    if (!searchResult) return [];
+
+    return Object.values(
+      searchResult.reduce((acc, item) => {
+        if (!acc[item.type]) {
+          acc[item.type] = {
+            type: item.type,
+            items: [],
+          };
+        }
+        acc[item.type].items.push(item);
+        return acc;
+      }, {} as Record<SEARCH_RESULT_TYPE, { type: SEARCH_RESULT_TYPE; items: SearchResult[] }>),
+    );
+  }, [searchResult]);
+
   useEffect(() => {
-    setOpen(() => Boolean(debouncedKeyword.length > 1));
+    setOpen(() => Boolean(debouncedKeyword.length > 0));
   }, [debouncedKeyword]);
 
   useEffect(() => {
     setOpen(false);
   }, [route]);
 
-  const noResults = !data || !data.path || data.path.length === 0;
+  const noResults = !searchResult || searchResult.length === 0;
 
   const handleClick = () => {
     setKeyword("");
@@ -67,7 +77,7 @@ const StandardNetworkSearchResult = () => {
     <>
       {open && (
         <Wrapper desktop={isDesktop} isMain={isMain} ref={ref}>
-          {isLoading ? (
+          {isLoadingSearch ? (
             <Text type={isMain ? "p4" : "body1"} color="tertiary">
               Loading...
             </Text>
@@ -76,95 +86,22 @@ const StandardNetworkSearchResult = () => {
               No match found
             </Text>
           ) : (
-            <Section key={v1()}>
-              <Text type={isMain ? "p4" : "body1"} color="tertiary">
-                {data.type === "Realms"
-                  ? "Realms"
-                  : data.type === "Accounts"
-                  ? "Accounts"
-                  : data.type === "Tokens"
-                  ? "Tokens"
-                  : "Results"}
-              </Text>
-              <ListContainer>
-                {data.path?.map(path => (
-                  <List key={v1()}>
-                    {data.type === "Accounts" && (
-                      <AccountsListItem address={path} isMain={isMain} onClick={handleClick} />
-                    )}
-                    {data.type === "Realms" && <RealmsListItem path={path} isMain={isMain} onClick={handleClick} />}
-                    {data.type === "Tokens" && <TokensListItem path={path} isMain={isMain} onClick={handleClick} />}
-                  </List>
-                ))}
-              </ListContainer>
-            </Section>
+            groupedSearchResult.map(group => (
+              <Section key={group.type}>
+                <Text type={isMain ? "p4" : "body1"} color="tertiary">
+                  {SEARCH_TYPE_TITLES[group.type as SEARCH_RESULT_TYPE]}
+                </Text>
+                <ListContainer>
+                  {group.items.map(item => (
+                    <SearchResultItem key={item.title} item={item} isMain={isMain} onClick={handleClick} />
+                  ))}
+                </ListContainer>
+              </Section>
+            ))
           )}
         </Wrapper>
       )}
     </>
-  );
-};
-
-interface ListItemProps {
-  isMain: boolean;
-  onClick: () => void;
-}
-
-interface AccountsListItemProps extends ListItemProps {
-  address: string;
-}
-
-const AccountsListItem = ({ address, isMain, onClick }: AccountsListItemProps) => {
-  const { getUrlWithNetwork } = useNetwork();
-
-  return (
-    <Link href={getUrlWithNetwork(`/account/${address}`)} passHref>
-      <FitContentAStyle onClick={onClick}>
-        <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-          {address}
-        </Text>
-      </FitContentAStyle>
-    </Link>
-  );
-};
-
-interface RealmsListItemProps extends ListItemProps {
-  path: string;
-}
-
-const RealmsListItem = ({ path, isMain, onClick }: RealmsListItemProps) => {
-  const { getUrlWithNetwork } = useNetwork();
-
-  return (
-    <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
-      <FitContentA onClick={onClick}>
-        <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-          {path}
-        </Text>
-      </FitContentA>
-    </Link>
-  );
-};
-
-interface TokensListItemProps extends ListItemProps {
-  path: string;
-}
-
-const TokensListItem = ({ path, isMain, onClick }: TokensListItemProps) => {
-  const { getUrlWithNetwork } = useNetwork();
-  const name = path.split("/").pop() || path;
-
-  return (
-    <Link href={getUrlWithNetwork(`/tokens/${path}`)} passHref>
-      <FitContentAStyle onClick={onClick}>
-        <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-          {name}
-          <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-            {` (${path})`}
-          </Text>
-        </Text>
-      </FitContentAStyle>
-    </Link>
   );
 };
 
@@ -178,21 +115,12 @@ const ListContainer = styled.ul`
   ${commonContentStyle}
 `;
 
-const List = styled.li`
-  ${mixins.flexbox("row", "center", "flex-start")};
-  width: 100%;
-  border-radius: 4px;
-  padding: 6px 10px;
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.dimmed50};
-  }
-`;
-
 const Section = styled.section`
   ${commonContentStyle};
 `;
 
 const Wrapper = styled.div<StyleProps>`
+  ${scrollbarStyle};
   ${mixins.flexbox("column", "center", "flex-start")};
   width: ${({ isMain }) => (isMain ? "calc(100% - 20px)" : "100%")};
   max-height: 276px;
@@ -205,12 +133,7 @@ const Wrapper = styled.div<StyleProps>`
   transform: translateX(-50%);
   z-index: ${zindex.searchResult};
   padding: 16px;
-  overflow: auto;
+  overflow-y: auto;
   gap: 8px;
 `;
-
-const FitContentAStyle = styled(FitContentA)`
-  ${mixins.flexbox("row", "center", "center")}
-`;
-
 export default StandardNetworkSearchResult;
