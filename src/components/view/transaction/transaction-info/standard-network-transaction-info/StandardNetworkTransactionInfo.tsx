@@ -29,8 +29,26 @@ const StandardNetworkTransactionInfo = ({
   const { transaction } = useTransaction(txHash);
   const { transactionItem } = transaction;
 
-  const { data: contractsData, isFetched: isFetchedContractsData } = useGetTransactionContractsByHeight(txHash);
-  const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight(txHash);
+  const { data: contractsData, isFetched: isFetchedContractsData } = useGetTransactionContractsByHeight({ txHash });
+  const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight({ txHash });
+
+  const txContracts: TransactionContractInfo = React.useMemo(() => {
+    if (!contractsData?.pages) return { messages: [], numOfMessage: 0, rawContent: "" };
+
+    const allItems = contractsData.pages.flatMap(page => page.items);
+    return {
+      messages: allItems,
+      numOfMessage: allItems.length,
+      rawContent: "",
+    };
+  }, [contractsData?.pages]);
+
+  const txEvents: GnoEvent[] = React.useMemo(() => {
+    if (!eventsData?.pages) return [];
+
+    const allItems = eventsData.pages.flatMap(page => page.items);
+    return TransactionMapper.transactionEventsFromApiResponses(allItems || []);
+  }, [eventsData?.pages]);
 
   const detailTabs = React.useMemo(() => {
     return [
@@ -39,26 +57,12 @@ const StandardNetworkTransactionInfo = ({
       },
       {
         tabName: "Events",
-        size: eventsData?.items?.length || 0,
+        size: txEvents.length || 0,
       },
     ];
   }, [eventsData]);
 
-  const txContracts: TransactionContractInfo = React.useMemo(() => {
-    if (!contractsData) return { messages: [], numOfMessage: 0, rawContent: "" };
-
-    return {
-      messages: contractsData.items,
-      numOfMessage: contractsData.items.length,
-      rawContent: "",
-    };
-  }, [contractsData]);
-
-  const txEvents: GnoEvent[] = React.useMemo(() => {
-    if (!eventsData) return [];
-
-    return TransactionMapper.transactionEventsFromApiResponses(eventsData.items || []);
-  }, [eventsData]);
+  console.log(isFetchedContractsData, isFetchedEventsData, "?????");
 
   if (!isFetchedContractsData || !isFetchedEventsData) return <TableSkeleton />;
 

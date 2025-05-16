@@ -1,9 +1,10 @@
-import { UseQueryOptions } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetTransactionEventsRequest } from "@/repositories/api/transaction/request";
 import { GetTransactionEventsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
@@ -21,16 +22,24 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  * @returns Original event data associated with the specified transaction hash and the status of the query
  */
 export const useGetTransactionEventsByHeight = (
-  hash: string,
-  options?: UseQueryOptions<GetTransactionEventsResponse, Error, GetTransactionEventsResponse>,
-) => {
+  params: GetTransactionEventsRequest,
+  options?: UseInfiniteQueryOptions<GetTransactionEventsResponse, Error, GetTransactionEventsResponse>,
+): UseInfiniteQueryResult<GetTransactionEventsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getTransactionEventsByHash, hash],
+  return useApiRepositoryInfiniteQuery<GetTransactionEventsResponse, Error, typeof apiTransactionRepository>(
+    [QUERY_KEY.getTransactionEventsByHash, params],
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    repository => repository.getTransactionEvents(hash),
-    { enabled: !!hash, ...options },
+    (repository, pageParam) =>
+      repository!.getTransactionEvents({
+        ...params,
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      ...options,
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+      enabled: !!params.txHash,
+    },
   );
 };

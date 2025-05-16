@@ -38,7 +38,6 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     if (!eventData?.pages) return [];
 
     const allItems = eventData.pages.flatMap(page => page.items);
-    console.log(allItems, "allItems?");
     return RealmMapper.realmEventFromApiResponses(allItems);
   }, [eventData?.pages]);
 

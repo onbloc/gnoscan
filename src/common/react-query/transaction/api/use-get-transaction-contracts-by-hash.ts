@@ -1,9 +1,10 @@
-import { UseQueryOptions } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetTransactionContractsRequest } from "@/repositories/api/transaction/request";
 import { GetTransactionContractsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
@@ -21,16 +22,24 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  * @returns Original contract data associated with the specified transaction hash and the status of the query
  */
 export const useGetTransactionContractsByHeight = (
-  hash: string,
-  options?: UseQueryOptions<GetTransactionContractsResponse, Error, GetTransactionContractsResponse>,
-) => {
+  params: GetTransactionContractsRequest,
+  options?: UseInfiniteQueryOptions<GetTransactionContractsResponse, Error, GetTransactionContractsResponse>,
+): UseInfiniteQueryResult<GetTransactionContractsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getTransactionContractsByHash, hash],
+  return useApiRepositoryInfiniteQuery<GetTransactionContractsResponse, Error, typeof apiTransactionRepository>(
+    [QUERY_KEY.getTransactionContractsByHash, params],
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    repository => repository.getTransactionContracts(hash),
-    { enabled: !!hash, ...options },
+    (repository, pageParam) =>
+      repository!.getTransactionContracts({
+        ...params,
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      ...options,
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+      enabled: !!params.txHash,
+    },
   );
 };
