@@ -10,10 +10,12 @@ import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { useGetTokenTransactionsByid } from "@/common/react-query/token/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { useWindowSize } from "@/common/hooks/use-window-size";
 
 import { Transaction } from "@/types/data-type";
 import { TokenTransactionModel } from "@/models/api/token/token-model";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   path: string[] | any;
@@ -29,15 +31,16 @@ const TOOLTIP_TYPE = (
 
 export const TokenDetailDatatablePage = ({ path }: Props) => {
   const themeMode = useRecoilValue(themeState);
+  const { breakpoint } = useWindowSize();
 
-  const { data, isFetched: isFetchedTransactions } = useGetTokenTransactionsByid(path);
+  const { data, isFetched: isFetchedTransactions, hasNextPage, fetchNextPage } = useGetTokenTransactionsByid({ path });
 
   const tokenTransactions: Transaction[] = React.useMemo(() => {
-    const response = data?.items;
+    if (!data?.pages) return [];
 
-    if (!response) return [];
+    const allItems = data.pages.flatMap(page => page.items);
 
-    return response.map((item: TokenTransactionModel): Transaction => {
+    return allItems.map((item: TokenTransactionModel): Transaction => {
       return {
         hash: item.txHash,
         success: item.success,
@@ -53,7 +56,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
         fee: item.fee,
       };
     });
-  }, [data?.items]);
+  }, [data?.pages]);
 
   if (!isFetchedTransactions) return <TableSkeleton />;
 
@@ -166,14 +169,13 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
         })}
         datas={tokenTransactions as any[]}
       />
-      {/* 
       {hasNextPage ? (
-        <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>
+        <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
           {"View More Transactions"}
         </Button>
       ) : (
         <></>
-      )} */}
+      )}
     </Container>
   );
 };

@@ -1,10 +1,11 @@
-import { UseQueryOptions } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTokenTransactionsResponse } from "@/repositories/api/token/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { GetTokenTransactionsRequest } from "@/repositories/api/token/request";
 
 /**
  * Basic hooks to get token transactions data from the API
@@ -20,16 +21,31 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  * @returns Original token transactions data fetched from the API and the status of the query
  */
 export const useGetTokenTransactionsByid = (
-  tokenId: string,
-  options?: UseQueryOptions<GetTokenTransactionsResponse, Error, GetTokenTransactionsResponse>,
-) => {
+  params: GetTokenTransactionsRequest,
+  options?: UseInfiniteQueryOptions<GetTokenTransactionsResponse, Error, GetTokenTransactionsResponse>,
+): UseInfiniteQueryResult<GetTokenTransactionsResponse, Error> => {
   const { apiTokenRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getTokenTransactionsById, tokenId],
+  return useApiRepositoryInfiniteQuery<GetTokenTransactionsResponse, Error, typeof apiTokenRepository>(
+    [QUERY_KEY.getTokenTransactionsById, params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    repository => repository.getTokenTransactions(tokenId),
-    options,
+    (repository, pageParam) =>
+      repository!.getTokenTransactions({
+        ...params,
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      ...options,
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+    },
   );
+
+  // return useApiRepositoryQuery(
+  //   [QUERY_KEY.getTokenTransactionsById, tokenId],
+  //   apiTokenRepository,
+  //   API_REPOSITORY_KEY.TOKEN_REPOSITORY,
+  //   repository => repository.getTokenTransactions(tokenId),
+  //   options,
+  // );
 };
