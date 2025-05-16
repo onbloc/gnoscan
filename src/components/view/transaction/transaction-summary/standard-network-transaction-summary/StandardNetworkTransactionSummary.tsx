@@ -20,23 +20,17 @@ import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 interface TransactionSummaryProps {
   isDesktop: boolean;
   txHash: string;
+  blockResultLog: string | null;
   getUrlWithNetwork: (uri: string) => string;
 }
 
-const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwork }: TransactionSummaryProps) => {
+const StandardNetworkTransactionSummary = ({
+  isDesktop,
+  txHash,
+  blockResultLog,
+  getUrlWithNetwork,
+}: TransactionSummaryProps) => {
   const { data, isFetched } = useMappedApiTransaction(txHash);
-
-  const blockResultLog = React.useMemo(() => {
-    if (data.transactionItem?.success !== false) {
-      return null;
-    }
-
-    try {
-      return JSON.stringify(data.blockResult, null, 2);
-    } catch {
-      return null;
-    }
-  }, [data.transactionItem, data.blockResult]);
 
   const transactionFee: Amount | null = React.useMemo(() => {
     if (!data?.transactionItem?.fee) return null;
