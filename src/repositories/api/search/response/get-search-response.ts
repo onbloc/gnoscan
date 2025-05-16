@@ -8,7 +8,3 @@ export interface SearchResult {
 }
 
 export type GetSearchResponse = SearchResult[];
-
-// export interface GetSearchResponse {
-//   data: SearchResult[];
-// }
