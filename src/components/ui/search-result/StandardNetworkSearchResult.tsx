@@ -1,24 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import styled, { css } from "styled-components";
 import { useRecoilState } from "recoil";
 
 import { searchState } from "@/states";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
-import { useNetwork } from "@/common/hooks/use-network";
 import { useDebounce } from "@/common/hooks/use-debounce";
 import { ValuesType } from "utility-types";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useGetSearch } from "@/common/react-query/search/api/use-get-search";
+import { SearchResult } from "@/repositories/api/search/response";
 
 import mixins from "@/styles/mixins";
 import { zindex } from "@/common/values/z-index";
 import Text from "@/components/ui/text";
-import { FitContentA } from "../detail-page-common-styles";
+import { SearchResultItem } from "./search-result-item/SearchResultItem";
 
 interface StyleProps {
   desktop?: boolean;
@@ -41,13 +40,6 @@ const SEARCH_TYPE_TITLES = {
   [SEARCH_RESULT_TYPE.REALM]: "Realms",
   [SEARCH_RESULT_TYPE.TRANSACTION]: "Transactions",
 } as const;
-
-interface SearchResult {
-  title: string;
-  description: string;
-  link: string;
-  type: string;
-}
 
 const StandardNetworkSearchResult = () => {
   const { route } = useRouter();
@@ -128,126 +120,6 @@ const StandardNetworkSearchResult = () => {
   );
 };
 
-const SearchResultItem = ({ item, isMain, onClick }: { item: SearchResult; isMain?: boolean; onClick: () => void }) => {
-  const { getUrlWithNetwork } = useNetwork();
-
-  switch (item.type as SEARCH_RESULT_TYPE) {
-    case SEARCH_RESULT_TYPE.ACCOUNT:
-      return (
-        <Link href={getUrlWithNetwork(`/account/${item.link}`)} passHref style={{ width: "100%" }}>
-          <List>
-            <FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
-                {item.description && (
-                  <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                    {` (${item.description})`}
-                  </Text>
-                )}
-              </Text>
-            </FitContentAStyle>
-          </List>
-        </Link>
-      );
-
-    case SEARCH_RESULT_TYPE.BLOCK:
-      return (
-        <Link href={getUrlWithNetwork(`/block/${item.title}`)} passHref style={{ width: "100%" }}>
-          <List>
-            <FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
-              </Text>
-            </FitContentAStyle>
-          </List>
-        </Link>
-      );
-
-    case SEARCH_RESULT_TYPE.TOKEN:
-      return (
-        <Link href={getUrlWithNetwork(`/tokens/${item.title}`)} passHref style={{ width: "100%" }}>
-          <List>
-            <FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
-              </Text>
-            </FitContentAStyle>
-          </List>
-        </Link>
-      );
-
-    case SEARCH_RESULT_TYPE.PROPOSAL:
-      return (
-        <Link href={item.link} target="_blank" passHref style={{ width: "100%" }}>
-          <List>
-            <FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
-              </Text>
-            </FitContentAStyle>
-          </List>
-        </Link>
-      );
-
-    case SEARCH_RESULT_TYPE.REALM:
-      return (
-        <Link href={getUrlWithNetwork(`/realms/details?path=${item.title}`)} passHref style={{ width: "100%" }}>
-          <List>
-            <FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
-              </Text>
-            </FitContentAStyle>
-          </List>
-        </Link>
-      );
-
-    case SEARCH_RESULT_TYPE.TRANSACTION:
-      return (
-        <Link href={getUrlWithNetwork(`/transactions/details?txhash=${item.title}`)} passHref style={{ width: "100%" }}>
-          <List>
-            <FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
-              </Text>
-            </FitContentAStyle>
-          </List>
-        </Link>
-      );
-
-    default:
-      return (
-        <List>
-          <FitContentAStyle onClick={onClick}>
-            <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-              {item.title}
-              {item.description && (
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description})`}
-                </Text>
-              )}
-            </Text>
-          </FitContentAStyle>
-        </List>
-      );
-  }
-};
-
 const commonContentStyle = css`
   ${mixins.flexbox("column", "flex-start", "center")};
   width: 100%;
@@ -256,16 +128,6 @@ const commonContentStyle = css`
 
 const ListContainer = styled.ul`
   ${commonContentStyle}
-`;
-
-const List = styled.li`
-  ${mixins.flexbox("row", "center", "flex-start")};
-  width: 100%;
-  border-radius: 4px;
-  padding: 6px 10px;
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.dimmed50};
-  }
 `;
 
 const Section = styled.section`
@@ -288,9 +150,4 @@ const Wrapper = styled.div<StyleProps>`
   overflow: auto;
   gap: 8px;
 `;
-
-const FitContentAStyle = styled(FitContentA)`
-  ${mixins.flexbox("row", "center", "center")}
-`;
-
 export default StandardNetworkSearchResult;
