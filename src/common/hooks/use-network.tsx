@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NetworkState } from "@/states";
+import { useRouter } from "next/router";
+import ChainData from "public/resource/chains.json";
 import React, { useMemo } from "react";
 import { useRecoilState } from "recoil";
-import ChainData from "public/resource/chains.json";
-import { useRouter } from "next/router";
 import { makeQueryString } from "../utils/string-util";
 
 type NetworkTransitionState = {
@@ -71,6 +71,14 @@ export const useNetwork = () => {
     };
   }, [currentNetwork]);
 
+  const gnoWebUrl = useMemo(() => {
+    if (!currentNetwork) {
+      return null;
+    }
+
+    return currentNetwork.gnoWebUrl || null;
+  }, [currentNetwork]);
+
   React.useEffect(() => {
     return () => {
       const { timerId } = networkTransitionRef.current;
@@ -107,6 +115,7 @@ export const useNetwork = () => {
       apiUrl: chain.apiUrl,
       rpcUrl: chain.rpcUrl,
       indexerUrl: chain.indexerUrl,
+      gnoWebUrl: chain.gnoWebUrl,
     });
 
     const uri = window.location.pathname + window.location.search;
@@ -124,6 +133,7 @@ export const useNetwork = () => {
       apiUrl: "",
       rpcUrl,
       indexerUrl,
+      gnoWebUrl: null,
     });
 
     const uri = window.location.pathname + window.location.search;
@@ -141,6 +151,7 @@ export const useNetwork = () => {
 
   return {
     currentNetwork,
+    gnoWebUrl,
     getUrlWithNetwork,
     setCurrentNetwork,
     changeNetwork,
