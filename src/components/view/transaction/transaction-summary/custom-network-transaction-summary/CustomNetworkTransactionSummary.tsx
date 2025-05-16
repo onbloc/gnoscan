@@ -19,8 +19,8 @@ interface TransactionSummaryProps {
   isDesktop: boolean;
   txHash: string;
   transactionSummaryInfo: TransactionSummaryInfo;
+  txErrorType: string;
   isFetchedTxRpcData: boolean;
-  blockResultLog: string | null;
   getUrlWithNetwork: (uri: string) => string;
 }
 
@@ -28,10 +28,27 @@ const CustomNetworkTransactionSummary = ({
   isDesktop,
   txHash,
   transactionSummaryInfo,
+  txErrorType,
   isFetchedTxRpcData,
-  blockResultLog,
   getUrlWithNetwork,
 }: TransactionSummaryProps) => {
+  const { blockResult, transactionItem } = transactionSummaryInfo;
+
+  const blockResultLog = React.useMemo(() => {
+    if (transactionItem?.success) return null;
+
+    try {
+      return JSON.stringify(blockResult, null, 2);
+    } catch {
+      return null;
+    }
+  }, [transactionItem, blockResult]);
+
+  const displayTxErrorInfo = React.useMemo(() => {
+    if (!txErrorType) return "Failed";
+    return `Failed: ${txErrorType}`;
+  }, [txErrorType]);
+
   if (!isFetchedTxRpcData) return <TableSkeleton />;
 
   return (
@@ -42,7 +59,7 @@ const CustomNetworkTransactionSummary = ({
           <dd>
             <Badge type={transactionSummaryInfo.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">
-                {transactionSummaryInfo.transactionItem.success ? "Success" : "Failure"}
+                {transactionSummaryInfo.transactionItem.success ? "Success" : displayTxErrorInfo}
               </Text>
             </Badge>
           </dd>

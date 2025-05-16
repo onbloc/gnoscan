@@ -20,6 +20,7 @@ import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 interface TransactionSummaryProps {
   isDesktop: boolean;
   txHash: string;
+  txErrorType: string;
   blockResultLog: string | null;
   getUrlWithNetwork: (uri: string) => string;
 }
@@ -27,6 +28,7 @@ interface TransactionSummaryProps {
 const StandardNetworkTransactionSummary = ({
   isDesktop,
   txHash,
+  txErrorType,
   blockResultLog,
   getUrlWithNetwork,
 }: TransactionSummaryProps) => {
@@ -44,6 +46,11 @@ const StandardNetworkTransactionSummary = ({
     return formatDisplayBlockHeight(data.transactionItem?.blockHeight);
   }, [data.transactionItem?.blockHeight]);
 
+  const displayTxErrorInfo = React.useMemo(() => {
+    if (!txErrorType) return "Failed";
+    return `Failed: ${txErrorType}`;
+  }, [txErrorType]);
+
   if (!isFetched) return <TableSkeleton />;
 
   return (
@@ -54,7 +61,7 @@ const StandardNetworkTransactionSummary = ({
           <dd>
             <Badge type={data.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">
-                {data.transactionItem.success ? "Success" : "Failure"}
+                {data.transactionItem.success ? "Success" : displayTxErrorInfo}
               </Text>
             </Badge>
           </dd>

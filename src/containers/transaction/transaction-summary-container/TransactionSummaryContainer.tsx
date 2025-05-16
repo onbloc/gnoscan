@@ -31,19 +31,28 @@ const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProp
     }
   }, [transactionItem, blockResult]);
 
+  const txErrorType: string = React.useMemo(() => {
+    if (transactionItem?.success) return "";
+
+    if (!blockResult || !blockResult?.deliver_tx) return "";
+
+    return blockResult.deliver_tx[0]?.ResponseBase?.Error?.["@type"] || "";
+  }, [transactionItem?.success, blockResult]);
+
   return isCustomNetwork ? (
     <CustomNetworkTransactionSummary
       txHash={txHash}
       transactionSummaryInfo={transaction}
+      txErrorType={txErrorType}
       isFetchedTxRpcData={isFetchedTxRpcData}
       isDesktop={isDesktop}
-      blockResultLog={blockResultLog}
       getUrlWithNetwork={getUrlWithNetwork}
     />
   ) : (
     <StandardNetworkTransactionSummary
       txHash={txHash}
       blockResultLog={blockResultLog}
+      txErrorType={txErrorType}
       isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
     />
