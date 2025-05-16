@@ -23,13 +23,13 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 export const useGetRealmTransactionsByPath = (
   params: GetRealmTransactionsRequest,
   options?: UseInfiniteQueryOptions<GetRealmTransactionsResponse, Error, GetRealmTransactionsResponse>,
-) => {
+): UseInfiniteQueryResult<GetRealmTransactionsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();
 
   return useApiRepositoryInfiniteQuery<GetRealmTransactionsResponse, Error, typeof apiRealmRepository>(
     [QUERY_KEY.getRealmTransactionsByPath, params],
     apiRealmRepository,
-    API_REPOSITORY_KEY.BLOCK_REPOSITORY,
+    API_REPOSITORY_KEY.REALM_REPOSITORY,
     (repository, pageParam) =>
       repository!.getRealmTransactions({
         ...params,

@@ -2,10 +2,10 @@ import React from "react";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import { RealmDetailDatatable } from "../../datatable";
-import { EventDatatable } from "../../datatable/event";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { useGetRealmEventsByPath, useGetRealmTransactionsByPath } from "@/common/react-query/realm/api";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 
 interface RealmInfoProps {
   path: string;
@@ -17,10 +17,15 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
   const {
     data: transactionData,
     isFetched: isFetchedTransactionData,
-    hasNextPage,
-    fetchNextPage,
+    hasNextPage: hasNextPageTransactionData,
+    fetchNextPage: fetchNextPageTransactionData,
   } = useGetRealmTransactionsByPath({ path });
-  const { data: eventData, isFetched: isFetchedEventData } = useGetRealmEventsByPath(path);
+  const {
+    data: eventData,
+    isFetched: isFetchedEventData,
+    hasNextPage: hasNextPageEventData,
+    fetchNextPage: fetchNextPageEventData,
+  } = useGetRealmEventsByPath({ path });
 
   const realmTransactions = React.useMemo(() => {
     if (!transactionData?.pages) return [];
@@ -30,10 +35,12 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
   }, [transactionData?.pages]);
 
   const realmEvents = React.useMemo(() => {
-    if (!eventData?.items) return [];
+    if (!eventData?.pages) return [];
 
-    return RealmMapper.realmEventFromApiResponses(eventData.items);
-  }, [eventData?.items]);
+    const allItems = eventData.pages.flatMap(page => page.items);
+    console.log(allItems, "allItems?");
+    return RealmMapper.realmEventFromApiResponses(allItems);
+  }, [eventData?.pages]);
 
   const detailTabs = React.useMemo(() => {
     return [
@@ -55,12 +62,19 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
         <RealmDetailDatatable
           data={realmTransactions}
           isFetched={isFetchedTransactionData}
-          hasNextPage={hasNextPage || false}
-          nextPage={fetchNextPage}
+          hasNextPage={hasNextPageTransactionData || false}
+          nextPage={fetchNextPageTransactionData}
           pkgPath={`${path}`}
         />
       )}
-      {currentTab === "Events" && <EventDatatable isFetched={isFetchedEventData} events={realmEvents} />}
+      {currentTab === "Events" && (
+        <StandardNetworkEventDatatable
+          isFetched={isFetchedEventData}
+          events={realmEvents}
+          hasNextPage={hasNextPageEventData}
+          nextPage={fetchNextPageEventData}
+        />
+      )}
     </DataListSection>
   );
 };
