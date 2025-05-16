@@ -1,29 +1,34 @@
-import React from "react";
 import Link from "next/link";
+import React from "react";
 
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
-import { NonMobile } from "@/common/hooks/use-media";
-import { Amount, RealmSummary } from "@/types/data-type";
-import { makeTemplate } from "@/common/utils/template.utils";
-import { GNOSTUDIO_REALM_FUNCTION_TEMPLATE, GNOSTUDIO_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { NonMobile } from "@/common/hooks/use-media";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { makeTemplate } from "@/common/utils/template.utils";
+import {
+  GNOSTUDIO_REALM_FUNCTION_TEMPLATE,
+  GNOSTUDIO_REALM_TEMPLATE,
+  GNOWEB_REALM_TEMPLATE,
+} from "@/common/values/url.constant";
+import { Amount, RealmSummary } from "@/types/data-type";
 
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
-import DataSection from "../../details-data-section";
-import { DLWrap, FitContentA, LinkWrapper } from "@/components/ui/detail-page-common-styles";
-import Badge from "@/components/ui/badge";
-import Tooltip from "@/components/ui/tooltip";
-import Text from "@/components/ui/text";
-import ShowLog from "@/components/ui/show-log";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { AmountText } from "@/components/ui/text/amount-text";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
+import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
+import Badge from "@/components/ui/badge";
+import { DLWrap, FitContentA, LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import ShowLog from "@/components/ui/show-log";
+import Text from "@/components/ui/text";
+import { AmountText } from "@/components/ui/text/amount-text";
+import Tooltip from "@/components/ui/tooltip";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import DataSection from "../../details-data-section";
 
 interface RealmSummaryProps {
   path: string;
@@ -46,7 +51,7 @@ const TOOLTIP_BALANCE = (
 );
 
 const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
-  const { currentNetwork, getUrlWithNetwork } = useNetwork();
+  const { currentNetwork, gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
 
@@ -69,6 +74,26 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     const data = realmSummary.totalUsedFees;
     return toGNOTAmount(data?.value, data?.denom);
   }, [realmSummary?.totalUsedFees]);
+
+  const hasGnoWebUrl = React.useMemo(() => {
+    return gnoWebUrl !== null && gnoWebUrl !== "";
+  }, [gnoWebUrl]);
+
+  const moveGnoWeb = React.useCallback(() => {
+    if (!gnoWebUrl) {
+      return;
+    }
+
+    const packagePostPath = path.startsWith(GNO_NETWORK_PREFIXES.GNO_LAND)
+      ? path.replace(GNO_NETWORK_PREFIXES.GNO_LAND, "")
+      : path;
+
+    const url = makeTemplate(GNOWEB_REALM_TEMPLATE, {
+      GNOWEB_URL: gnoWebUrl,
+      PACKAGE_POST_PATH: packagePostPath,
+    });
+    window.open(url, "_blank");
+  }, [path, gnoWebUrl]);
 
   const moveGnoStudioViewRealm = React.useCallback(() => {
     if (!currentNetwork) {
@@ -139,6 +164,15 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           </Badge>
 
           <NonMobile>
+            {hasGnoWebUrl && (
+              <LinkWrapper onClick={moveGnoWeb}>
+                <Text type="p4" className="ellipsis">
+                  Go to Gnoweb
+                </Text>
+                <IconLink className="icon-link" />
+              </LinkWrapper>
+            )}
+
             <LinkWrapper onClick={moveGnoStudioViewRealm}>
               <Text type="p4" className="ellipsis">
                 Try in GnoStudio

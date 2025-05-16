@@ -8,6 +8,8 @@ export interface ChainModel {
   rpcUrl: string | null;
 
   indexerUrl: string | null;
+
+  gnoWebUrl?: string | null;
 }
 
 export type ChainSupportType = "ALL" | "RPC_WITH_INDEXER" | "RPC" | "NONE";
