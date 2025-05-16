@@ -40,12 +40,4 @@ export const useGetTokenTransactionsByid = (
       getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
     },
   );
-
-  // return useApiRepositoryQuery(
-  //   [QUERY_KEY.getTokenTransactionsById, tokenId],
-  //   apiTokenRepository,
-  //   API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-  //   repository => repository.getTokenTransactions(tokenId),
-  //   options,
-  // );
 };
