@@ -34,6 +34,8 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
     return toGNOTAmount(message.send.value, message.send.denom);
   }, [message?.send]);
 
+  console.log(calledFunctions, "calledFunctions");
+
   return (
     <>
       <Field label="Type" isDesktop={isDesktop}>
@@ -53,7 +55,11 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
       </Field>
 
       <Field label="Called Functions" isDesktop={isDesktop}>
-        <HoverBadgeList items={calledFunctions} />
+        <HoverBadgeList
+          items={calledFunctions}
+          linkUrl={"/realms/details?path="}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

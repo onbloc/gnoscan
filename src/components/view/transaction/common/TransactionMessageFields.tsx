@@ -62,6 +62,8 @@ interface HoverBadgeTextProps {
   type?: PaletteKeyType;
   color?: string;
   tooltipContent?: React.ReactNode | string;
+  hasLink?: boolean;
+  linkUrl?: string;
   extraCount?: number;
   children: React.ReactNode;
 }
@@ -70,11 +72,21 @@ export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
   type,
   color = "secondary",
   tooltipContent,
+  linkUrl,
   extraCount = 0,
   children,
 }) => {
   const renderTooltipContent = () => {
     if (!tooltipContent) return null;
+    if (linkUrl) {
+      return (
+        <Link href={linkUrl} passHref>
+          <S.TooltipContentWrapper>
+            {typeof tooltipContent === "string" ? <span className="info">{tooltipContent}</span> : tooltipContent}
+          </S.TooltipContentWrapper>
+        </Link>
+      );
+    }
 
     return (
       <S.TooltipContentWrapper>
@@ -83,19 +95,23 @@ export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
     );
   };
 
+  const renderTextContent = () => {
+    const textContent = (
+      <Text type="p4" color={color || "secondary"} className={"ellipsis"}>
+        {children}
+      </Text>
+    );
+
+    return textContent;
+  };
+
   return (
     <BadgeText type={type}>
       <S.BadgeContentWrapper>
         {tooltipContent ? (
-          <Tooltip content={renderTooltipContent()}>
-            <Text type="p4" color={color || "secondary"} className="ellipsis">
-              {children}
-            </Text>
-          </Tooltip>
+          <Tooltip content={renderTooltipContent()}>{renderTextContent()}</Tooltip>
         ) : (
-          <Text type="p4" color={color || "secondary"}>
-            {children}
-          </Text>
+          renderTextContent()
         )}
 
         {extraCount > 0 && (
@@ -173,14 +189,31 @@ export const BadgeList = ({ items, isDesktop }: { items: string[] | null; isDesk
 export interface BadgeTooltipProps {
   label: string;
   tooltip: string;
+  linkUrl?: string;
 }
 
-export const HoverBadgeList = ({ items }: { items: BadgeTooltipProps[] | null }) => {
+export const HoverBadgeList = ({
+  items,
+  linkUrl,
+  getUrlWithNetwork,
+}: {
+  items: BadgeTooltipProps[] | null;
+  linkUrl?: string;
+  getUrlWithNetwork?: (uri: string) => string;
+}) => {
+  const hasLinkUrl = !!linkUrl;
   if (!items || items.length === 0) return <BadgeText>-</BadgeText>;
   return (
     <>
       {items.map(item => (
-        <HoverBadgeText key={`${item.label}${item.tooltip}`} type="blue" color="white" tooltipContent={item.tooltip}>
+        <HoverBadgeText
+          key={`${item.label}${item.tooltip}`}
+          type="blue"
+          color="white"
+          tooltipContent={item.tooltip}
+          hasLink={hasLinkUrl}
+          linkUrl={getUrlWithNetwork ? getUrlWithNetwork(`${linkUrl}${item.tooltip}`) : undefined}
+        >
           {item.label}
         </HoverBadgeText>
       ))}
