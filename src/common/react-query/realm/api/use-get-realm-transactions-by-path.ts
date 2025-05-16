@@ -1,9 +1,10 @@
-import { UseQueryOptions } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { GetRealmTransactionsRequest } from "@/repositories/api/realm/request";
 import { GetRealmTransactionsResponse } from "@/repositories/api/realm/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
@@ -20,16 +21,23 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  * @returns Original realm transactions data fetched from the API and the status of the query
  */
 export const useGetRealmTransactionsByPath = (
-  path: string,
-  options?: UseQueryOptions<GetRealmTransactionsResponse, Error, GetRealmTransactionsResponse>,
+  params: GetRealmTransactionsRequest,
+  options?: UseInfiniteQueryOptions<GetRealmTransactionsResponse, Error, GetRealmTransactionsResponse>,
 ) => {
   const { apiRealmRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getRealmTransactionsByPath, path],
+  return useApiRepositoryInfiniteQuery<GetRealmTransactionsResponse, Error, typeof apiRealmRepository>(
+    [QUERY_KEY.getRealmTransactionsByPath, params],
     apiRealmRepository,
-    API_REPOSITORY_KEY.REALM_REPOSITORY,
-    repository => repository.getRealmTransactions(path),
-    options,
+    API_REPOSITORY_KEY.BLOCK_REPOSITORY,
+    (repository, pageParam) =>
+      repository!.getRealmTransactions({
+        ...params,
+        cursor: pageParam as string | undefined,
+      }),
+    {
+      ...options,
+      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+    },
   );
 };

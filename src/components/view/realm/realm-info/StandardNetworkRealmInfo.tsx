@@ -14,14 +14,20 @@ interface RealmInfoProps {
 }
 
 const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoProps) => {
-  const { data: transactionData, isFetched: isFetchedTransactionData } = useGetRealmTransactionsByPath(path);
+  const {
+    data: transactionData,
+    isFetched: isFetchedTransactionData,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetRealmTransactionsByPath({ path });
   const { data: eventData, isFetched: isFetchedEventData } = useGetRealmEventsByPath(path);
 
   const realmTransactions = React.useMemo(() => {
-    if (!transactionData?.items) return [];
+    if (!transactionData?.pages) return [];
 
-    return RealmMapper.realmTransactionFromApiResponses(transactionData.items);
-  }, [transactionData?.items]);
+    const allItems = transactionData.pages.flatMap(page => page.items);
+    return RealmMapper.realmTransactionFromApiResponses(allItems);
+  }, [transactionData?.pages]);
 
   const realmEvents = React.useMemo(() => {
     if (!eventData?.items) return [];
@@ -49,8 +55,8 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
         <RealmDetailDatatable
           data={realmTransactions}
           isFetched={isFetchedTransactionData}
-          hasNextPage={transactionData?.page.hasNext || false}
-          nextPage={() => {}}
+          hasNextPage={hasNextPage || false}
+          nextPage={fetchNextPage}
           pkgPath={`${path}`}
         />
       )}

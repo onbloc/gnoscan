@@ -1,7 +1,7 @@
 import { NetworkClient } from "@/common/clients/network-client";
 import { ApiRealmRepository } from "./api-realm-repository";
 
-import { GetRealmsRequestParameters } from "./request";
+import { GetRealmsRequestParameters, GetRealmTransactionsRequest } from "./request";
 import { GetRealmEventsResponse, GetRealmResponse, GetRealmsResponse, GetRealmTransactionsResponse } from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
@@ -60,14 +60,17 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       });
   }
 
-  getRealmTransactions(path: string): Promise<GetRealmTransactionsResponse> {
+  getRealmTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
 
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
     return this.networkClient
       .get<APIResponse<GetRealmTransactionsResponse>>({
-        url: `/realms/${encodeURIComponent(path)}/transactions`,
+        url: `/realms/${encodeURIComponent(path)}/transactions${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
