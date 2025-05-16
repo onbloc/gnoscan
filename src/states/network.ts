@@ -7,6 +7,7 @@ export const currentNetwork = atom<{
   apiUrl: string;
   rpcUrl: string;
   indexerUrl: string;
+  gnoWebUrl: string | null;
 } | null>({
   key: `network/currentNetwork/${v1()}`,
   default: null,

@@ -1,14 +1,14 @@
 "use client";
 import { useRouter } from "@/common/hooks/common/use-router";
-import { createContext, useEffect, useMemo, useState } from "react";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import { createContext, useEffect, useMemo } from "react";
 
-import { RPCClient } from "@/common/clients/rpc-client";
 import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
-import { AxiosClient } from "@/common/clients/network-client/axios-client";
 import { NetworkClient } from "@/common/clients/network-client";
-import { HttpRPCClient } from "@/common/clients/rpc-client/http-rpc-client";
+import { AxiosClient } from "@/common/clients/network-client/axios-client";
 import { NodeRPCClient } from "@/common/clients/node-client";
+import { RPCClient } from "@/common/clients/rpc-client";
+import { HttpRPCClient } from "@/common/clients/rpc-client/http-rpc-client";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { ChainModel, getChainSupportType } from "@/models/chain-model";
@@ -56,6 +56,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
           apiUrl: "",
           rpcUrl: router.query?.rpcUrl?.toString() || "",
           indexerUrl: router.query?.indexerUrl?.toString() || "",
+          gnoWebUrl: null,
         });
         return;
       }
@@ -66,9 +67,10 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
         apiUrl: chain.apiUrl || "",
         rpcUrl: chain.rpcUrl || "",
         indexerUrl: chain.indexerUrl || "",
+        gnoWebUrl: chain?.gnoWebUrl || null,
       });
     }
-  }, [router.query, currentNetwork]);
+  }, [router.query, currentNetwork, chains]);
 
   const currentNetworkModel: ChainModel | null = useMemo(() => {
     if (!currentNetwork) {
