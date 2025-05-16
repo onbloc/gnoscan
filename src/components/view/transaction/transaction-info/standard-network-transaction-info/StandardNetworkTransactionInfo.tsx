@@ -26,7 +26,6 @@ const StandardNetworkTransactionInfo = ({
   setCurrentTab,
   getUrlWithNetwork,
 }: TransactionInfoProps) => {
-  // TODO: transactionItem.rawContent is temporary data. Needs to be removed after API development is complete
   const { transaction } = useTransaction(txHash);
   const { transactionItem } = transaction;
 
@@ -70,7 +69,6 @@ const StandardNetworkTransactionInfo = ({
           transactionItem={txContracts}
           isDesktop={isDesktop}
           getUrlWithNetwork={getUrlWithNetwork}
-          // TODO: [temporary] to be removed after API development is complete - rawContent prop
           showLog={transactionItem?.rawContent}
         />
       )}

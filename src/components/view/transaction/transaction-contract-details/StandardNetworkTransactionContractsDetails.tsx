@@ -19,8 +19,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
-
-  // TODO: [temporary] to be removed after API development is complete - rawContent prop
   showLog?: string;
 }> = ({ transactionItem, isDesktop, getUrlWithNetwork, showLog }) => {
   const messages: TransactionContractModel[] = React.useMemo(() => {
