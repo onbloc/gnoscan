@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { Amount } from "@/types/data-type";
 import { getTransactionMessageType } from "@/common/utils/message.utility";
 
-import { Field, BadgeText, AddressLink } from "@/components/view/transaction/common";
-import { AmountText } from "@/components/ui/text/amount-text";
+import { Field, BadgeText, AddressLink, AmountBadge } from "@/components/view/transaction/common";
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
@@ -22,10 +20,6 @@ const StandardNetworkBankMsgSendMessage = ({
   message,
   getUrlWithNetwork,
 }: TransactionTransferContractProps) => {
-  const creator = React.useMemo(() => {
-    return message?.caller || "-";
-  }, [message]);
-
   const amount: Amount | null = React.useMemo(() => {
     if (!message?.amount) return null;
 
@@ -43,30 +37,15 @@ const StandardNetworkBankMsgSendMessage = ({
       </Field>
 
       <Field label="Amount" isDesktop={isDesktop}>
-        <BadgeText>
-          <AmountText
-            minSize="body2"
-            maxSize="p4"
-            value={amount?.value || "0"}
-            denom={amount?.denom || GNOTToken.symbol}
-          />
-        </BadgeText>
+        <AmountBadge amount={amount} />
       </Field>
 
       <Field label="From" isDesktop={isDesktop}>
-        <AddressLink
-          to={message.from || creator}
-          copyText={message.from || creator}
-          getUrlWithNetwork={getUrlWithNetwork}
-        />
+        <AddressLink to={message.from || ""} copyText={message.from || ""} getUrlWithNetwork={getUrlWithNetwork} />
       </Field>
 
       <Field label="To" isDesktop={isDesktop}>
-        <AddressLink
-          to={message.from || creator}
-          copyText={message.from || creator}
-          getUrlWithNetwork={getUrlWithNetwork}
-        />
+        <AddressLink to={message.to || ""} copyText={message.to || ""} getUrlWithNetwork={getUrlWithNetwork} />
       </Field>
     </>
   );

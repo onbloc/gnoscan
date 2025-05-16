@@ -1,53 +1,53 @@
 import { getTransactionMessageType } from "./message.utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
-import { API_MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "../values/message-types.constant";
+import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "../values/message-types.constant";
 
 describe("getTransactionMessageType", () => {
   describe("Testing basic mappings", () => {
     test("BankMsgSend -> Transfer", () => {
-      const message = { messageType: API_MESSAGE_TYPES.BANK_MSG_SEND } as TransactionContractModel;
+      const message = { messageType: MESSAGE_TYPES.BANK_MSG_SEND } as TransactionContractModel;
       expect(getTransactionMessageType(message)).toBe(TRANSACTION_FUNCTION_TYPES.TRANSFER);
     });
 
     test("AddPackage -> AddPkg", () => {
-      const message = { messageType: API_MESSAGE_TYPES.ADD_PACKAGE } as TransactionContractModel;
+      const message = { messageType: MESSAGE_TYPES.VM_ADDPKG } as TransactionContractModel;
       expect(getTransactionMessageType(message)).toBe(TRANSACTION_FUNCTION_TYPES.ADD_PKG);
     });
 
     test("MsgRun -> MsgRun", () => {
-      const message = { messageType: API_MESSAGE_TYPES.MSG_RUN } as TransactionContractModel;
+      const message = { messageType: MESSAGE_TYPES.VM_RUN } as TransactionContractModel;
       expect(getTransactionMessageType(message)).toBe(TRANSACTION_FUNCTION_TYPES.MSG_RUN);
     });
   });
 
-  describe("Testing the MSG_CALL special case", () => {
-    test("Must return funcType if present when MSG_CALL type is present", () => {
+  describe("Testing the VM_CALL special case", () => {
+    test("Must return funcType if present when VM_CALL type is present", () => {
       const customFuncType = "CUSTOM_FUNCTION";
       const message = {
-        messageType: API_MESSAGE_TYPES.MSG_CALL,
+        messageType: MESSAGE_TYPES.VM_CALL,
         funcType: customFuncType,
       } as TransactionContractModel;
       expect(getTransactionMessageType(message)).toBe(customFuncType);
     });
 
-    test("Must return messageType if funcType is not present when MSG_CALL type is present", () => {
+    test("Must return messageType if funcType is not present when VM_CALL type is present", () => {
       const message = {
-        messageType: API_MESSAGE_TYPES.MSG_CALL,
+        messageType: MESSAGE_TYPES.VM_CALL,
       } as TransactionContractModel;
-      expect(getTransactionMessageType(message)).toBe(API_MESSAGE_TYPES.MSG_CALL);
+      expect(getTransactionMessageType(message)).toBe(MESSAGE_TYPES.VM_CALL);
     });
   });
 
   describe("Testing the funcType special case", () => {
-    test("In MSG_CALL, messageType must be returned if funcType is an empty string", () => {
+    test("In VM_CALL, messageType must be returned if funcType is an empty string", () => {
       const message = {
-        messageType: API_MESSAGE_TYPES.MSG_CALL,
+        messageType: MESSAGE_TYPES.VM_CALL,
         funcType: "",
       } as TransactionContractModel;
-      expect(getTransactionMessageType(message)).toBe(API_MESSAGE_TYPES.MSG_CALL);
+      expect(getTransactionMessageType(message)).toBe(MESSAGE_TYPES.VM_CALL);
     });
 
-    test("In MSG_CALL, empty string must be returned if funcType is an empty string", () => {
+    test("In VM_CALL, empty string must be returned if funcType is an empty string", () => {
       const message = {
         messageType: "",
         funcType: "",
@@ -55,12 +55,12 @@ describe("getTransactionMessageType", () => {
       expect(getTransactionMessageType(message)).toBe("");
     });
 
-    test("If funcType is null in MSG_CALL, messageType must be returned", () => {
+    test("If funcType is null in VM_CALL, messageType must be returned", () => {
       const message = {
-        messageType: API_MESSAGE_TYPES.MSG_CALL,
+        messageType: MESSAGE_TYPES.VM_CALL,
         funcType: null,
       } as unknown as TransactionContractModel;
-      expect(getTransactionMessageType(message)).toBe(API_MESSAGE_TYPES.MSG_CALL);
+      expect(getTransactionMessageType(message)).toBe(MESSAGE_TYPES.VM_CALL);
     });
   });
 

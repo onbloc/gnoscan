@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { PaletteKeyType } from "@/styles";
+import { Amount } from "@/types/data-type";
 
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import Text from "@/components/ui/text";
 import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import { AmountText } from "@/components/ui/text/amount-text";
 
 interface FieldProps {
   label: string;
@@ -130,17 +132,23 @@ export const AddressLink: React.FC<AddressLinkProps> = ({ to, copyText, getUrlWi
 interface PkgPathLinkProps {
   path: string;
   getUrlWithNetwork: (uri: string) => string;
+  isEllipsis?: boolean;
 }
 
-export const PkgPathLink: React.FC<PkgPathLinkProps> = ({ path, getUrlWithNetwork }) => {
-  const formattedPath = formatDisplayPackagePath(path);
+export const PkgPathLink: React.FC<PkgPathLinkProps> = ({ path, getUrlWithNetwork, isEllipsis }) => {
+  const displayPkgPath = React.useMemo(() => {
+    if (isEllipsis) {
+      return formatDisplayPackagePath(path);
+    }
+    return path;
+  }, [path]);
 
   return (
     <Badge>
       <S.AddressTextBox>
         <Text type="p4" color="blue" className="ellipsis">
           <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
-            <FitContentA>{formattedPath}</FitContentA>
+            <FitContentA>{displayPkgPath}</FitContentA>
           </Link>
         </Text>
         <Tooltip content="Copied!" trigger="click" copyText={path} className="address-tooltip">
@@ -148,5 +156,43 @@ export const PkgPathLink: React.FC<PkgPathLinkProps> = ({ path, getUrlWithNetwor
         </Tooltip>
       </S.AddressTextBox>
     </Badge>
+  );
+};
+
+export const BadgeList = ({ items }: { items: string[] | null }) => {
+  if (!items || items.length === 0) return <BadgeText>-</BadgeText>;
+  return (
+    <>
+      {items.map(item => (
+        <BadgeText key={item}>{item}</BadgeText>
+      ))}
+    </>
+  );
+};
+
+export interface BadgeTooltipProps {
+  label: string;
+  tooltip: string;
+}
+
+export const HoverBadgeList = ({ items }: { items: BadgeTooltipProps[] | null }) => {
+  if (!items || items.length === 0) return <BadgeText>-</BadgeText>;
+  return (
+    <>
+      {items.map(item => (
+        <HoverBadgeText key={`${item.label}${item.tooltip}`} type="blue" color="white" tooltipContent={item.tooltip}>
+          {item.label}
+        </HoverBadgeText>
+      ))}
+    </>
+  );
+};
+
+export const AmountBadge = ({ amount }: { amount: Amount | null }) => {
+  if (!amount) return <BadgeText>-</BadgeText>;
+  return (
+    <BadgeText>
+      <AmountText minSize="body2" maxSize="p4" value={amount.value || "0"} denom={amount.denom || ""} />
+    </BadgeText>
   );
 };

@@ -1,16 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
-import { Amount } from "@/types/data-type";
-import { AmountText } from "@/components/ui/text/amount-text";
-import Badge from "@/components/ui/badge";
-import { Field, FieldWithTooltip, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
+import {
+  Field,
+  FieldWithTooltip,
+  BadgeText,
+  AddressLink,
+  PkgPathLink,
+  BadgeList,
+  AmountBadge,
+} from "@/components/view/transaction/common";
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
@@ -23,15 +27,13 @@ const StandardNetworkAddPackageMessage = ({
   message,
   getUrlWithNetwork,
 }: TransactionTransferContractProps) => {
-  const creator = React.useMemo(() => {
-    return message?.caller || "-";
-  }, [message]);
+  const creator = message?.creator || "-";
 
-  const amount: Amount | null = React.useMemo(() => {
-    if (!message?.amount) return null;
+  const deposit = React.useMemo(() => {
+    if (!message?.deposit) return null;
 
-    return toGNOTAmount(message.amount.value, message.amount.denom);
-  }, [message?.amount]);
+    return toGNOTAmount(message.deposit.value, message.deposit.denom);
+  }, [message?.deposit]);
 
   return (
     <>
@@ -44,7 +46,7 @@ const StandardNetworkAddPackageMessage = ({
       </Field>
 
       <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
-        <PkgPathLink path={creator} getUrlWithNetwork={getUrlWithNetwork} />
+        <PkgPathLink path={message.pkgPath} getUrlWithNetwork={getUrlWithNetwork} isEllipsis={false} />
       </FieldWithTooltip>
 
       <Field label="Creator" isDesktop={isDesktop}>
@@ -52,19 +54,11 @@ const StandardNetworkAddPackageMessage = ({
       </Field>
 
       <Field label="Files" isDesktop={isDesktop}>
-        <BadgeText>{message.name}</BadgeText>
-        <BadgeText>{message.name}</BadgeText>
+        <BadgeList items={message?.files} />
       </Field>
 
       <Field label="Deposit" isDesktop={isDesktop}>
-        <Badge>
-          <AmountText
-            minSize="body2"
-            maxSize="p4"
-            value={amount?.value || "0"}
-            denom={amount?.denom || GNOTToken.symbol}
-          />
-        </Badge>
+        <AmountBadge amount={deposit} />
       </Field>
     </>
   );

@@ -9,7 +9,15 @@ import { Amount } from "@/types/data-type";
 import { getTransactionMessageType } from "@/common/utils/message.utility";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
-import { Field, FieldWithTooltip, BadgeText, AddressLink, PkgPathLink } from "@/components/view/transaction/common";
+import {
+  Field,
+  FieldWithTooltip,
+  BadgeText,
+  AddressLink,
+  PkgPathLink,
+  BadgeList,
+  AmountBadge,
+} from "@/components/view/transaction/common";
 import { AmountText } from "@/components/ui/text/amount-text";
 import Badge from "@/components/ui/badge";
 
@@ -88,11 +96,11 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
       </Field>
 
       <Field label="Arguments" isDesktop={isDesktop}>
-        <BadgeText>-</BadgeText>
+        <BadgeList items={message?.args} />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>
-        <BadgeText>-</BadgeText>
+        <AmountBadge amount={message?.send} />
       </Field>
     </>
   );

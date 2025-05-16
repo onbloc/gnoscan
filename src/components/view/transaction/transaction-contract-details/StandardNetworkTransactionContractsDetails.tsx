@@ -3,7 +3,7 @@ import React from "react";
 
 import { Transaction, TransactionContractInfo } from "@/types/data-type";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
-import { API_MESSAGE_TYPES } from "@/common/values/message-types.constant";
+import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 
 import * as S from "./TransactionContractDetails.styles";
 import Text from "@/components/ui/text";
@@ -42,7 +42,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
           )}
 
-          {message.messageType === API_MESSAGE_TYPES.BANK_MSG_SEND && (
+          {message.messageType === MESSAGE_TYPES.BANK_MSG_SEND && (
             <StandardNetworkBankMsgSendMessage
               message={message}
               isDesktop={isDesktop}
@@ -50,7 +50,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             />
           )}
 
-          {message.messageType === API_MESSAGE_TYPES.MSG_CALL && (
+          {message.messageType === MESSAGE_TYPES.VM_CALL && (
             <StandardNetworkMsgCallMessage
               message={message}
               isDesktop={isDesktop}
@@ -58,7 +58,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             />
           )}
 
-          {message.messageType === API_MESSAGE_TYPES.ADD_PACKAGE && (
+          {message.messageType === MESSAGE_TYPES.VM_ADDPKG && (
             <StandardNetworkAddPackageMessage
               message={message}
               isDesktop={isDesktop}
@@ -66,7 +66,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             />
           )}
 
-          {message.messageType === API_MESSAGE_TYPES.MSG_RUN && (
+          {message.messageType === MESSAGE_TYPES.VM_RUN && (
             <StandardNetworkMsgRunMessage
               message={message}
               isDesktop={isDesktop}
