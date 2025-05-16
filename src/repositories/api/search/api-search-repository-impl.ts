@@ -22,7 +22,7 @@ export class ApiSearchRepositoryImpl implements ApiSearchRepository {
 
     return this.networkClient
       .get<APIResponse<GetSearchResponse>>({
-        url: `/search?param=${keyword}`,
+        url: `/search?param=${encodeURIComponent(keyword)}`,
       })
       .then(result => {
         return result.data?.data;
