@@ -103,7 +103,7 @@ export const DLWrap = styled.dl<StyleProps>`
     &.path-wrapper {
       display: flex;
       flex-direction: row;
-      gap: 8px;
+      gap: 15px;
     }
   }
 

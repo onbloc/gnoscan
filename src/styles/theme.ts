@@ -11,7 +11,6 @@ const lightTheme: Palette = {
   white: "#FFFFFF",
   reverse: "#000000",
   primary: "#333333",
-  secondary: "#666666",
   tertiary: "#999999",
   hover: "#f2f2f2",
   base: "#F7F7F7",
@@ -43,7 +42,6 @@ const darkTheme: Palette = {
   white: "#FFFFFF",
   reverse: "#FFFFFF",
   primary: "#FFFFFF",
-  secondary: "#F6F6F6",
   tertiary: "#A0A0A0",
   hover: "#000000",
   base: "#121212",
@@ -170,7 +168,6 @@ export type PaletteKeyType =
   | "white"
   | "reverse"
   | "primary"
-  | "secondary"
   | "tertiary"
   | "hover"
   | "base"

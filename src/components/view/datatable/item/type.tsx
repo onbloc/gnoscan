@@ -78,7 +78,7 @@ const TooltipWrapper = styled.div`
     }
 
     .title {
-      color: ${({ theme }) => theme.colors.secondary};
+      color: ${({ theme }) => theme.colors.primary};
     }
 
     .info {

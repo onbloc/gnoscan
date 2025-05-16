@@ -50,9 +50,9 @@ interface BadgeTextProps {
   children: React.ReactNode;
 }
 
-export const BadgeText: React.FC<BadgeTextProps> = ({ type, color = "secondary", children }) => (
+export const BadgeText: React.FC<BadgeTextProps> = ({ type, color = "primary", children }) => (
   <Badge type={type}>
-    <Text type="p4" color={color || "secondary"} style={{ whiteSpace: "normal" }}>
+    <Text type="p4" color={color || "primary"} style={{ whiteSpace: "normal" }}>
       {children}
     </Text>
   </Badge>
@@ -70,7 +70,7 @@ interface HoverBadgeTextProps {
 
 export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
   type,
-  color = "secondary",
+  color = "primary",
   tooltipContent,
   linkUrl,
   extraCount = 0,
@@ -97,7 +97,7 @@ export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
 
   const renderTextContent = () => {
     const textContent = (
-      <Text type="p4" color={color || "secondary"} className={"ellipsis"}>
+      <Text type="p4" color={color || "primary"} className={"ellipsis"}>
         {children}
       </Text>
     );
@@ -115,7 +115,7 @@ export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
         )}
 
         {extraCount > 0 && (
-          <Text type="p4" color={color || "secondary"} margin="0px 0px 0px 8px">
+          <Text type="p4" color={color || "primary"} margin="0px 0px 0px 8px">
             {`+${extraCount}`}
           </Text>
         )}

@@ -82,7 +82,7 @@ export const TransactionContractDetails: React.FC<{
                 <dt>Name</dt>
                 <dd>
                   <Badge>
-                    <Text type="p4" color="secondary">
+                    <Text type="p4" color="primary">
                       {message?.package?.name || tokenMap?.[message?.pkg_path]?.name || message.func || "-"}
                     </Text>
                   </Badge>
