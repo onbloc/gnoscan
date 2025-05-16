@@ -3,9 +3,11 @@ import Link from "next/link";
 import { useNetwork } from "@/common/hooks/use-network";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { SearchResult } from "@/repositories/api/search/response";
+import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 
 import * as S from "./SearchResultItem.styles";
 import Text from "@/components/ui/text";
+import { formatDisplayTokenPath } from "@/common/utils/token.utility";
 
 export const SearchResultItem = ({
   item,
@@ -21,7 +23,7 @@ export const SearchResultItem = ({
   switch (item.type as SEARCH_RESULT_TYPE) {
     case SEARCH_RESULT_TYPE.ACCOUNT:
       return (
-        <Link href={getUrlWithNetwork(`/account/${item.link}`)} passHref style={{ width: "100%" }}>
+        <Link href={getUrlWithNetwork(`/account/${item.title}`)} passHref style={{ width: "100%" }}>
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
@@ -45,7 +47,7 @@ export const SearchResultItem = ({
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {item.title}
                 <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
+                  {` (Block #${item.title})`}
                 </Text>
               </Text>
             </S.FitContentAStyle>
@@ -59,7 +61,7 @@ export const SearchResultItem = ({
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
+                {formatDisplayTokenPath(item.title.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""), 4)}
                 <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
                   {` (${item.description || item.link})`}
                 </Text>
@@ -91,10 +93,7 @@ export const SearchResultItem = ({
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
+                {formatDisplayTokenPath(item.title.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""), 4)}
               </Text>
             </S.FitContentAStyle>
           </S.List>
@@ -108,9 +107,6 @@ export const SearchResultItem = ({
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
               </Text>
             </S.FitContentAStyle>
           </S.List>

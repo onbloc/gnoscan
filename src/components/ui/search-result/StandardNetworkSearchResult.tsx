@@ -18,6 +18,7 @@ import mixins from "@/styles/mixins";
 import { zindex } from "@/common/values/z-index";
 import Text from "@/components/ui/text";
 import { SearchResultItem } from "./search-result-item/SearchResultItem";
+import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 
 interface StyleProps {
   desktop?: boolean;
@@ -135,6 +136,7 @@ const Section = styled.section`
 `;
 
 const Wrapper = styled.div<StyleProps>`
+  ${scrollbarStyle};
   ${mixins.flexbox("column", "center", "flex-start")};
   width: ${({ isMain }) => (isMain ? "calc(100% - 20px)" : "100%")};
   max-height: 276px;
@@ -147,7 +149,7 @@ const Wrapper = styled.div<StyleProps>`
   transform: translateX(-50%);
   z-index: ${zindex.searchResult};
   padding: 16px;
-  overflow: auto;
+  overflow-y: auto;
   gap: 8px;
 `;
 export default StandardNetworkSearchResult;
