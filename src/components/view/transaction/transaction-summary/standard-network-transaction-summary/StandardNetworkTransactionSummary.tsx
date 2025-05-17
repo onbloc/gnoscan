@@ -20,23 +20,19 @@ import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 interface TransactionSummaryProps {
   isDesktop: boolean;
   txHash: string;
+  txErrorType: string;
+  blockResultLog: string | null;
   getUrlWithNetwork: (uri: string) => string;
 }
 
-const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwork }: TransactionSummaryProps) => {
+const StandardNetworkTransactionSummary = ({
+  isDesktop,
+  txHash,
+  txErrorType,
+  blockResultLog,
+  getUrlWithNetwork,
+}: TransactionSummaryProps) => {
   const { data, isFetched } = useMappedApiTransaction(txHash);
-
-  const blockResultLog = React.useMemo(() => {
-    if (data.transactionItem?.success !== false) {
-      return null;
-    }
-
-    try {
-      return JSON.stringify(data.blockResult, null, 2);
-    } catch {
-      return null;
-    }
-  }, [data.transactionItem, data.blockResult]);
 
   const transactionFee: Amount | null = React.useMemo(() => {
     if (!data?.transactionItem?.fee) return null;
@@ -50,6 +46,11 @@ const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwor
     return formatDisplayBlockHeight(data.transactionItem?.blockHeight);
   }, [data.transactionItem?.blockHeight]);
 
+  const displayTxErrorInfo = React.useMemo(() => {
+    if (!txErrorType) return "Failed";
+    return `Failed: ${txErrorType}`;
+  }, [txErrorType]);
+
   if (!isFetched) return <TableSkeleton />;
 
   return (
@@ -60,7 +61,7 @@ const StandardNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwor
           <dd>
             <Badge type={data.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">
-                {data.transactionItem.success ? "Success" : "Failure"}
+                {data.transactionItem.success ? "Success" : displayTxErrorInfo}
               </Text>
             </Badge>
           </dd>

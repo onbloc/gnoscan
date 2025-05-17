@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
+import { TransactionSummaryInfo } from "@/types/data-type";
 
 import DataSection from "@/components/view/details-data-section";
 import { DateDiffText, DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
@@ -17,25 +18,38 @@ import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton
 interface TransactionSummaryProps {
   isDesktop: boolean;
   txHash: string;
+  transactionSummaryInfo: TransactionSummaryInfo;
+  txErrorType: string;
+  isFetchedTxRpcData: boolean;
   getUrlWithNetwork: (uri: string) => string;
 }
 
-const CustomNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwork }: TransactionSummaryProps) => {
-  const { transaction: transactionSummaryInfo, isFetched } = useTransaction(txHash);
+const CustomNetworkTransactionSummary = ({
+  isDesktop,
+  txHash,
+  transactionSummaryInfo,
+  txErrorType,
+  isFetchedTxRpcData,
+  getUrlWithNetwork,
+}: TransactionSummaryProps) => {
+  const { blockResult, transactionItem } = transactionSummaryInfo;
 
   const blockResultLog = React.useMemo(() => {
-    if (transactionSummaryInfo.transactionItem?.success !== false) {
-      return null;
-    }
+    if (transactionItem?.success) return null;
 
     try {
-      return JSON.stringify(transactionSummaryInfo.blockResult, null, 2);
+      return JSON.stringify(blockResult, null, 2);
     } catch {
       return null;
     }
-  }, [transactionSummaryInfo.transactionItem, transactionSummaryInfo.blockResult]);
+  }, [transactionItem, blockResult]);
 
-  if (!isFetched) return <TableSkeleton />;
+  const displayTxErrorInfo = React.useMemo(() => {
+    if (!txErrorType) return "Failed";
+    return `Failed: ${txErrorType}`;
+  }, [txErrorType]);
+
+  if (!isFetchedTxRpcData) return <TableSkeleton />;
 
   return (
     transactionSummaryInfo.transactionItem && (
@@ -45,7 +59,7 @@ const CustomNetworkTransactionSummary = ({ isDesktop, txHash, getUrlWithNetwork 
           <dd>
             <Badge type={transactionSummaryInfo.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">
-                {transactionSummaryInfo.transactionItem.success ? "Success" : "Failure"}
+                {transactionSummaryInfo.transactionItem.success ? "Success" : displayTxErrorInfo}
               </Text>
             </Badge>
           </dd>
