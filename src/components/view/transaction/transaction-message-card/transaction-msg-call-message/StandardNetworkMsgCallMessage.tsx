@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
-import { Amount } from "@/types/data-type";
 import { getTransactionMessageType } from "@/common/utils/message.utility";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
@@ -18,8 +15,8 @@ import {
   BadgeList,
   AmountBadge,
 } from "@/components/view/transaction/common";
-import { AmountText } from "@/components/ui/text/amount-text";
-import Badge from "@/components/ui/badge";
+import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
@@ -28,15 +25,9 @@ interface TransactionTransferContractProps {
 }
 
 const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionTransferContractProps) => {
-  const creator = React.useMemo(() => {
-    return message?.caller || "-";
-  }, [message]);
+  const creator = message?.caller || "-";
 
-  const amount: Amount | null = React.useMemo(() => {
-    if (!message?.amount) return null;
-
-    return toGNOTAmount(message.amount.value, message.amount.denom);
-  }, [message?.amount]);
+  const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
 
   const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
 
@@ -61,14 +52,8 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
   const transferFields = (
     <>
       <Field label="Amount" isDesktop={isDesktop}>
-        <Badge>
-          <AmountText
-            minSize="body2"
-            maxSize="p4"
-            value={amount?.value || "0"}
-            denom={amount?.denom || GNOTToken.symbol}
-          />
-        </Badge>
+        {isLoading && <SkeletonBar width={80} />}
+        {!isLoading && isFetched && <AmountBadge amount={amount} />}
       </Field>
 
       <Field label="Caller (From)" isDesktop={isDesktop}>
