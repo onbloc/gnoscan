@@ -9,3 +9,5 @@ export const GNOSTUDIO_REALM_TEMPLATE = `${GNOSTUDIO_BASE_URL}/connect/view/[PAC
 // template variable is [PACKAGE_PATH], [NETWORK] and [FUNCTION_NAME]
 export const GNOSTUDIO_REALM_FUNCTION_TEMPLATE =
   `${GNOSTUDIO_BASE_URL}/connect/view/[PACKAGE_PATH]?network=[NETWORK]#[FUNCTION_NAME]` as const;
+
+export const EFFECTIVE_GNO_EMBRACE_PANIC_DOC_URL = "https://docs.gno.land/resources/effective-gno/#embrace-panic";

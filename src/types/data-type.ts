@@ -168,6 +168,7 @@ export interface TransactionSummaryInfo {
   gas: string;
   transactionItem: Transaction | null;
   transactionEvents: GnoEvent[];
+  hasApplicationError?: boolean;
 }
 
 export interface NewestRealm {

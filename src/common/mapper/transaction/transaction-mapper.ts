@@ -40,6 +40,7 @@ export class TransactionMapper {
         rawContent: response.errorLog,
       },
       transactionEvents: [],
+      hasApplicationError: response.hasApplicationError,
     };
   }
 
