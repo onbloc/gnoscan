@@ -16,6 +16,7 @@ import { Amount } from "@/types/data-type";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
+import TransactionSuccessWarningTooltip from "@/components/ui/tooltip/transaction-success-warning-tooltip/TransactionSuccessWarningTooltip";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
@@ -51,6 +52,8 @@ const StandardNetworkTransactionSummary = ({
     return `Failed: ${txErrorType}`;
   }, [txErrorType]);
 
+  const hasApplicationError = Boolean(data?.hasApplicationError);
+
   if (!isFetched) return <TableSkeleton />;
 
   return (
@@ -58,12 +61,13 @@ const StandardNetworkTransactionSummary = ({
       <DataSection title="Summary">
         <DLWrap desktop={isDesktop}>
           <dt>Success</dt>
-          <dd>
+          <dd style={{ display: "flex" }}>
             <Badge type={data.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">
                 {data.transactionItem.success ? "Success" : displayTxErrorInfo}
               </Text>
             </Badge>
+            {hasApplicationError && <TransactionSuccessWarningTooltip />}
           </dd>
         </DLWrap>
         <DLWrap desktop={isDesktop}>
