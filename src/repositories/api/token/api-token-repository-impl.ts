@@ -2,7 +2,12 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { ApiTokenRepository } from "./api-token-repository";
 
 import { GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
-import { GetTokenResponse, GetTokensResponse, GetTokenTransactionsResponse } from "./response";
+import {
+  GetTokenMetaByPathResponse,
+  GetTokenResponse,
+  GetTokensResponse,
+  GetTokenTransactionsResponse,
+} from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
 
@@ -57,6 +62,20 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
     return this.networkClient
       .get<APIResponse<GetTokenTransactionsResponse>>({
         url: `tokens/${encodeURIComponent(path)}/transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTokenMetaByPath(path: string): Promise<GetTokenMetaByPathResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetTokenMetaByPathResponse>>({
+        url: `token-meta/${encodeURIComponent(path)}`,
       })
       .then(result => {
         return result.data?.data;

@@ -62,8 +62,6 @@ const StandardNetworkTransactionInfo = ({
     ];
   }, [eventsData]);
 
-  console.log(isFetchedContractsData, isFetchedEventsData, "?????");
-
   if (!isFetchedContractsData || !isFetchedEventsData) return <TableSkeleton />;
 
   return (
