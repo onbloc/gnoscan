@@ -5,6 +5,7 @@ import { useRecoilValue } from "recoil";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { mapDisplayFunctionName } from "@/common/utils/format/format-utils";
 
 import * as S from "./StandardNetworkTransactionListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -20,17 +21,6 @@ const TOOLTIP_TYPE = (
     type and package path.
   </>
 );
-
-function mapDisplayFunctionName(type: string, functionName: string) {
-  switch (type) {
-    case "MsgAddPackage":
-      return "AddPkg";
-    case "BankMsgSend":
-      return "Transfer";
-    default:
-      return functionName;
-  }
-}
 
 interface StandardNetworkTransactionListTableProps {
   breakpoint: DEVICE_TYPE;

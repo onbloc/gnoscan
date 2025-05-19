@@ -48,7 +48,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("hash")
       .name("Tx Hash")
       .width(210)
@@ -60,7 +60,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("type")
       .name("Function")
       .width(190)
@@ -69,8 +69,8 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
       .renderOption((_, data) => (
         <DatatableItem.Type
           type={data.type}
-          func={data.type}
-          packagePath={data.functionName}
+          func={data.functionName}
+          packagePath={data.packagePath}
           msgNum={data.numOfMessage - 1}
         />
       ))
@@ -78,7 +78,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("blockHeight")
       .name("Block")
       .width(113)
@@ -88,7 +88,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("from")
       .name("From")
       .width(170)
@@ -98,7 +98,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("amount")
       .name("Amount")
       .width(190)
@@ -113,7 +113,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("time")
       .name("Time")
       .width(160)
@@ -123,7 +123,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("fee")
       .name("Fee")
       .width(113)

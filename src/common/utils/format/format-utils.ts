@@ -14,3 +14,14 @@ export const formatGasString = (gasWanted: number, gasUsed: number): string => {
 
   return `${gasUsedString}/${gasWantedString} (${rate}%)`;
 };
+
+export function mapDisplayFunctionName(type: string, functionName: string) {
+  switch (type) {
+    case "MsgAddPackage":
+      return "AddPkg";
+    case "BankMsgSend":
+      return "Transfer";
+    default:
+      return functionName;
+  }
+}

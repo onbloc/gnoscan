@@ -76,7 +76,12 @@ export const TokenDetailDatatable = ({ path }: Props) => {
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
-        <DatatableItem.Type type={data.type} func={data.functionName} packagePath={data.packagePath} />
+        <DatatableItem.Type
+          type={data.type}
+          func={data.functionName}
+          packagePath={data.packagePath}
+          msgNum={data.numOfMessage - 1}
+        />
       ))
       .build();
   };
