@@ -34,8 +34,6 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
     return toGNOTAmount(message.send.value, message.send.denom);
   }, [message?.send]);
 
-  console.log(calledFunctions, "calledFunctions");
-
   return (
     <>
       <Field label="Type" isDesktop={isDesktop}>

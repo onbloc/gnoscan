@@ -55,7 +55,7 @@ const badgeStyles: CSSProperties = {
   wordBreak: "break-all",
   maxHeight: 300,
   overflow: "auto",
-  margin: 0,
+  marginRight: 0,
 };
 
 const badgeTextStyles: CSSProperties = {
