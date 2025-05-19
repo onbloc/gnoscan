@@ -34,8 +34,6 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
     return toGNOTAmount(message.send.value, message.send.denom);
   }, [message?.send]);
 
-  console.log(calledFunctions, "calledFunctions");
-
   return (
     <>
       <Field label="Type" isDesktop={isDesktop}>
@@ -51,7 +49,7 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
       </Field>
 
       <Field label="Files" isDesktop={isDesktop}>
-        <BadgeList items={message?.files} isDesktop={isDesktop} />
+        <BadgeList items={message?.files} />
       </Field>
 
       <Field label="Called Functions" isDesktop={isDesktop}>

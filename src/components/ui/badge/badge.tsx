@@ -2,7 +2,7 @@ import { isDesktop } from "@/common/hooks/use-media";
 import { PaletteKeyType } from "@/styles";
 import mixins from "@/styles/mixins";
 import React, { CSSProperties } from "react";
-import styled from "styled-components";
+import styled, { css, FlattenSimpleInterpolation } from "styled-components";
 
 type BadgeProps = {
   type?: PaletteKeyType;
@@ -12,23 +12,34 @@ type BadgeProps = {
   className?: string;
   desktop?: boolean;
   onClick?: () => void;
+  style?: CSSProperties;
 };
 
-const Badge = (props: BadgeProps) => {
+interface ExtendedCSSProps {
+  cssExtend?: ReturnType<typeof css>;
+}
+
+const Badge = (props: BadgeProps & ExtendedCSSProps) => {
+  const { cssExtend, ...restProps } = props;
   const desktop = isDesktop();
   return (
     <BadgeWrapper
-      {...props}
+      {...restProps}
       className={props.className ? `badge ${props.className}` : "badge"}
       desktop={desktop}
       onClick={props.onClick}
+      $cssExtend={cssExtend}
     >
       {props.children}
     </BadgeWrapper>
   );
 };
 
-const BadgeWrapper = styled.div<BadgeProps>`
+interface StyledBadgeProps extends Omit<BadgeProps, "style"> {
+  $cssExtend?: ReturnType<typeof css>;
+}
+
+const BadgeWrapper = styled.div<StyledBadgeProps>`
   ${mixins.flexbox("row", "center", "center", false)};
   width: 100%;
   max-width: fit-content;
@@ -39,6 +50,8 @@ const BadgeWrapper = styled.div<BadgeProps>`
   border-radius: 4px;
   margin-top: ${({ desktop, margin }) => !desktop && !margin && "12px"};
   ${({ margin }) => margin && `margin: ${margin};`};
+
+  ${({ $cssExtend }) => $cssExtend};
 `;
 
 export default Badge;

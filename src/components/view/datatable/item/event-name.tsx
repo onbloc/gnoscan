@@ -7,11 +7,16 @@ interface Props {
   eventName: string;
 }
 
+const textEllipsisStyle = {
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+
 export const EventName = ({ eventName }: Props) => {
   return (
     <EventNameWrapper className="ellipsis">
       <Badge className="event-name" type="blue" margin={"0"}>
-        <Text type="p4" color="white">
+        <Text type="p4" color="white" style={textEllipsisStyle}>
           {eventName}
         </Text>
       </Badge>
