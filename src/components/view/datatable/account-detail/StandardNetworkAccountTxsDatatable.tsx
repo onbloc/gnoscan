@@ -1,16 +1,17 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import styled from "styled-components";
-import { Button } from "@/components/ui/button";
-import theme from "@/styles/theme";
-import { DatatableItem } from "..";
-import { eachMedia } from "@/common/hooks/use-media";
 import { useRecoilValue } from "recoil";
+
 import { themeState } from "@/states";
 import { Amount, Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useWindowSize } from "@/common/hooks/use-window-size";
+
+import Datatable, { DatatableOption } from "@/components/ui/datatable";
+import { Button } from "@/components/ui/button";
+import theme from "@/styles/theme";
+import { DatatableItem } from "..";
 
 interface Props {
   address: string;
@@ -30,10 +31,9 @@ const TOOLTIP_TYPE = (
 
 export const StandardNetworkAccountTxsDatatable = ({ address, data, isFetched, hasNextPage, nextPage }: Props) => {
   const themeMode = useRecoilValue(themeState);
-  const media = eachMedia();
+  const { breakpoint } = useWindowSize();
 
   const { getTokenAmount } = useTokenMeta();
-  // const { isFetchedAccountTransactions, accountTransactions, hasNextPage, nextPage } = useAccount(address);
   const [development, setDevelopment] = useState(false);
 
   useEffect(() => {
@@ -181,7 +181,7 @@ export const StandardNetworkAccountTxsDatatable = ({ address, data, isFetched, h
         datas={data || []}
       />
       {hasNextPage ? (
-        <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>
+        <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
           {"View More Transactions"}
         </Button>
       ) : (

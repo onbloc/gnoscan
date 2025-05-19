@@ -1,7 +1,8 @@
-import { FontsType } from "@/styles";
-import { AmountText } from "@/components/ui/text/amount-text";
-import { Amount } from "@/types/data-type";
 import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
+import { FontsType } from "@/styles";
+import { Amount } from "@/types/data-type";
+
+import { AmountText } from "@/components/ui/text/amount-text";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 interface Props {
