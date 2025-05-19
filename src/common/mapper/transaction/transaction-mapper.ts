@@ -54,7 +54,7 @@ export class TransactionMapper {
       attrs: response.emit.params,
       blockHeight: response.blockHeight,
       transactionHash: response.txHash,
-      time: new Date(response.timestamp).toString(),
+      time: new Date(response.timestamp).toISOString(),
     };
   }
 
