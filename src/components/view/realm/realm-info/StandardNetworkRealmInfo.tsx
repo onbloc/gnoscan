@@ -1,11 +1,12 @@
 import React from "react";
 
-import DataListSection from "../../details-data-section/data-list-section";
-import { RealmDetailDatatable } from "../../datatable";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { useGetRealmEventsByPath, useGetRealmTransactionsByPath } from "@/common/react-query/realm/api";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { useGetRealmEventsByPath, useGetRealmTransactionsByPath } from "@/common/react-query/realm/api";
+
+import DataListSection from "../../details-data-section/data-list-section";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
+import { RealmDetailDatatable } from "../../datatable";
 
 interface RealmInfoProps {
   path: string;

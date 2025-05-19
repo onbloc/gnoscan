@@ -51,13 +51,13 @@ export class RealmMapper {
       fee: response.fee,
       from: response.from,
       to: "",
-      functionName: response.func[0].pkgPath,
-      hash: response.txHash,
-      numOfMessage: response.func.length,
-      packagePath: "",
-      success: response.success,
       time: response.timestamp,
-      type: response.func[0].funcType,
+      numOfMessage: response.func.length,
+      functionName: response.func[0].funcType,
+      packagePath: response.func[0].pkgPath,
+      type: response.func[0].messageType,
+      hash: response.txHash,
+      success: response.success,
     };
   }
 
