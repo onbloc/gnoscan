@@ -1,9 +1,10 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { PaletteKeyType } from "@/styles";
 import { Amount } from "@/types/data-type";
+import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
@@ -50,9 +51,21 @@ interface BadgeTextProps {
   children: React.ReactNode;
 }
 
+const badgeStyles: CSSProperties = {
+  wordBreak: "break-all",
+  maxHeight: 300,
+  overflow: "auto",
+  margin: 0,
+};
+
+const badgeTextStyles: CSSProperties = {
+  whiteSpace: "normal",
+  height: "100%",
+};
+
 export const BadgeText: React.FC<BadgeTextProps> = ({ type, color = "primary", children }) => (
-  <Badge type={type}>
-    <Text type="p4" color={color || "primary"} style={{ whiteSpace: "normal" }}>
+  <Badge type={type} style={badgeStyles} cssExtend={scrollbarStyle}>
+    <Text type="p4" color={color || "primary"} style={badgeTextStyles}>
       {children}
     </Text>
   </Badge>
@@ -175,10 +188,10 @@ export const PkgPathLink: React.FC<PkgPathLinkProps> = ({ path, getUrlWithNetwor
   );
 };
 
-export const BadgeList = ({ items, isDesktop }: { items: string[] | null; isDesktop: boolean }) => {
+export const BadgeList = ({ items }: { items: string[] | null }) => {
   if (!items || items.length === 0) return <BadgeText>-</BadgeText>;
   return (
-    <S.BadgeListWrapper isDesktop={isDesktop}>
+    <S.BadgeListWrapper>
       {items.map(item => (
         <BadgeText key={item}>{item}</BadgeText>
       ))}

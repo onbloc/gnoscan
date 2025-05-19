@@ -54,7 +54,7 @@ const StandardNetworkAddPackageMessage = ({
       </Field>
 
       <Field label="Files" isDesktop={isDesktop}>
-        <BadgeList items={message?.files} isDesktop={isDesktop} />
+        <BadgeList items={message?.files} />
       </Field>
 
       <Field label="Deposit" isDesktop={isDesktop}>

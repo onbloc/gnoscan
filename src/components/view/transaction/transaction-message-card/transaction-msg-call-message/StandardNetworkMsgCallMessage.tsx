@@ -77,7 +77,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
       </Field>
 
       <Field label="Arguments" isDesktop={isDesktop}>
-        <BadgeList items={message?.args} isDesktop={isDesktop} />
+        <BadgeList items={message?.args} />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

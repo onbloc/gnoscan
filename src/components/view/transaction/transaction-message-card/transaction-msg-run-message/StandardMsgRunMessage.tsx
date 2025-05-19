@@ -51,7 +51,7 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
       </Field>
 
       <Field label="Files" isDesktop={isDesktop}>
-        <BadgeList items={message?.files} isDesktop={isDesktop} />
+        <BadgeList items={message?.files} />
       </Field>
 
       <Field label="Called Functions" isDesktop={isDesktop}>
