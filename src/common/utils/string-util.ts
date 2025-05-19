@@ -23,10 +23,18 @@ export function makeDisplayNumber(amount: string | number): string {
   return BigNumber(amount).toFormat();
 }
 
-export function makeDisplayTokenAmount(amount: string | number, decimals = 6): string {
-  return BigNumber(amount)
-    .shiftedBy(decimals * -1)
-    .toFormat();
+export function makeDisplayTokenAmount(
+  amount: string | number,
+  decimals = 6,
+  options?: { hideDecimals?: boolean },
+): string {
+  const bigNumber = BigNumber(amount).shiftedBy(decimals * -1);
+
+  if (options?.hideDecimals) {
+    return bigNumber.integerValue(BigNumber.ROUND_DOWN).toFormat();
+  }
+
+  return bigNumber.toFormat();
 }
 
 export function makeDisplayNumberWithDefault(value: string | number | null | undefined, defaultValue = "-") {

@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { Amount } from "@/types/data-type";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { AccountAssetTokenInfo } from "@/repositories/api/account/response";
 
 import * as S from "./AccountAssets.styles";
 import Text from "@/components/ui/text";
@@ -11,6 +12,7 @@ import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
+import StandardNetworkAccountAssetItem from "@/layouts/account/components/account-asset-item/StandardNetworkAccountAssetItem";
 
 interface AccountAssetsProps {
   address: string;
@@ -21,16 +23,9 @@ interface AccountAssetsProps {
 const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
 
-  const assetList = React.useMemo(() => {
-    if (!data?.data) return [];
-    return data.data.assets
-      .filter(asset => asset.name && asset.symbol)
-      .map(asset => {
-        return {
-          denom: asset.symbol,
-          value: asset.amount,
-        };
-      });
+  const assetList: AccountAssetTokenInfo[] = React.useMemo(() => {
+    if (!data?.data || !data?.data?.assets) return [];
+    return data.data.assets.filter(asset => asset.name && asset.symbol);
   }, [data?.data]);
 
   if (isLoading || !isFetched) {
@@ -45,11 +40,11 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
       <S.GridLayout breakpoint={breakpoint}>
         <NativeTokenAsset address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
         {isFetched &&
-          assetList.map((amount: Amount) => {
+          assetList.map(asset => {
             return (
-              <AccountAssetItem
-                key={`asset-token-${amount.denom}`}
-                amount={amount}
+              <StandardNetworkAccountAssetItem
+                key={`asset-token-${asset.symbol}:${asset.packagePath}`}
+                assetToken={asset}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
                 isFetched={isFetched}
