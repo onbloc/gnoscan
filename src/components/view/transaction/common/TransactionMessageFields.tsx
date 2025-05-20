@@ -217,7 +217,7 @@ export const HoverBadgeList = ({
   const hasLinkUrl = !!linkUrl;
   if (!items || items.length === 0) return <BadgeText>-</BadgeText>;
   return (
-    <>
+    <S.BadgeListWrapper>
       {items.map(item => (
         <HoverBadgeText
           key={`${item.label}${item.tooltip}`}
@@ -230,7 +230,7 @@ export const HoverBadgeList = ({
           {item.label}
         </HoverBadgeText>
       ))}
-    </>
+    </S.BadgeListWrapper>
   );
 };
 

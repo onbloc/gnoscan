@@ -45,8 +45,6 @@ export class TransactionMapper {
   }
 
   public static transactionEventsFromApiResponse(response: EventModel): GnoEvent {
-    const timeStamp = getTimeStamp(response.timestamp);
-
     return {
       id: response.identifier,
       packagePath: response.realmPath,
@@ -56,7 +54,7 @@ export class TransactionMapper {
       attrs: response.emit.params,
       blockHeight: response.blockHeight,
       transactionHash: response.txHash,
-      time: timeStamp.time,
+      time: new Date(response.timestamp).toISOString(),
     };
   }
 
