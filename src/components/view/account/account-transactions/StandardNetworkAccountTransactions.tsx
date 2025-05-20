@@ -3,12 +3,11 @@ import React from "react";
 import { GnoEvent, Transaction } from "@/types/data-type";
 
 import DataListSection from "../../details-data-section/data-list-section";
-import { AccountDetailDatatable } from "../../datatable";
-import { EventDatatable } from "../../datatable/event";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import { useGetAccountTransactions } from "@/common/react-query/account/api/use-get-account-transactions";
 import { useGetAccountEvents } from "@/common/react-query/account/api/use-get-account-events";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
+import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
 
 interface AccountTransactionsProps {
   address: string;
@@ -92,7 +91,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Transactions" && (
-        <AccountDetailDatatable
+        <StandardNetworkAccountTxsDatatable
           address={address}
           data={accountTransactions}
           isFetched={isFetchedTransactionData}

@@ -5,6 +5,7 @@ export * from "./tx-hash";
 export * from "./tx-hash-copy";
 export * from "./type";
 export * from "./amount";
+export * from "./StandardNetworkAmount";
 export * from "./account";
 export * from "./token-title";
 export * from "./functions";
