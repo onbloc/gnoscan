@@ -44,7 +44,6 @@ export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
     position: inherit;
     display: inline-flex;
     width: 32px;
-    height: 24px;
     justify-content: center;
     align-items: center;
 
