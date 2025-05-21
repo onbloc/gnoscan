@@ -5,6 +5,7 @@ import { Amount } from "@/types/data-type";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
 import { useAccount } from "@/common/hooks/account/use-account";
+import { AccountAssetViewModel } from "@/types/account";
 
 import * as S from "./AccountAssets.styles";
 import Text from "@/components/ui/text";
@@ -28,6 +29,17 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
 
   const { isFetchedAssets, isLoadingAssets, tokenBalances } = useAccount(bech32Address || "");
 
+  const tokenAssets: AccountAssetViewModel[] = React.useMemo(() => {
+    if (!tokenBalances) return [];
+
+    return tokenBalances.map((asset: Amount) => {
+      return {
+        amount: { value: asset.value, denom: asset.denom },
+        logoUrl: "",
+      };
+    });
+  }, []);
+
   const isLoading = isLoadingUsername || isLoadingAssets;
   const isFetched = isFetchedUsername && isFetchedAssets;
 
@@ -42,11 +54,12 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
       </Text>
       <S.GridLayout breakpoint={breakpoint}>
         {isFetchedAssets &&
-          tokenBalances.map((amount: Amount) => {
+          tokenAssets.map((tokenAsset: AccountAssetViewModel) => {
             return (
               <AccountAssetItem
-                key={`asset-token-${amount.denom}`}
-                amount={amount}
+                key={`asset-token-${tokenAsset.amount.denom}`}
+                amount={tokenAsset.amount}
+                logoUrl={tokenAsset.logoUrl}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
                 isFetched={isFetchedAssets}

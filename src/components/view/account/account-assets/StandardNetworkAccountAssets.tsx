@@ -2,7 +2,7 @@ import React from "react";
 import BigNumber from "bignumber.js";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { Amount } from "@/types/data-type";
+import { AccountAssetViewModel } from "@/types/account";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 import * as S from "./AccountAssets.styles";
@@ -11,6 +11,7 @@ import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
+import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
 
 interface AccountAssetsProps {
   address: string;
@@ -21,14 +22,18 @@ interface AccountAssetsProps {
 const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
 
-  const assetList = React.useMemo(() => {
+  const grc20TokenAssets: AccountAssetViewModel[] = React.useMemo(() => {
     if (!data?.data) return [];
+
     return data.data.assets
       .filter(asset => asset.name && asset.symbol)
       .map(asset => {
         return {
-          denom: asset.symbol,
-          value: asset.amount,
+          amount: {
+            value: asset.amount,
+            denom: asset.symbol,
+          },
+          logoUrl: asset.logoUrl,
         };
       });
   }, [data?.data]);
@@ -45,11 +50,12 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
       <S.GridLayout breakpoint={breakpoint}>
         <NativeTokenAsset address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
         {isFetched &&
-          assetList.map((amount: Amount) => {
+          grc20TokenAssets.map((grc20TokenAsset: AccountAssetViewModel) => {
             return (
               <AccountAssetItem
-                key={`asset-token-${amount.denom}`}
-                amount={amount}
+                key={`asset-token-${grc20TokenAsset.amount.denom}`}
+                amount={grc20TokenAsset.amount}
+                logoUrl={grc20TokenAsset.logoUrl}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
                 isFetched={isFetched}
@@ -64,15 +70,23 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
 const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
   const { data, isFetched } = useGetNativeTokenBalance(address);
 
-  const amount: Amount = {
-    denom: GNOTToken.denom,
-    value: BigNumber(data?.value || 0).toString(),
-  };
+  const { data: GNOTmetadata } = useGetTokenMetaByPath(GNOTToken.denom);
+
+  const nativeTokenAsset: AccountAssetViewModel = React.useMemo(() => {
+    return {
+      amount: {
+        value: BigNumber(data?.value || 0).toString(),
+        denom: GNOTToken.denom,
+      },
+      logoUrl: GNOTmetadata?.data.logoUrl || "",
+    };
+  }, [data?.value, GNOTmetadata?.data.logoUrl]);
 
   return (
     <AccountAssetItem
-      key={`asset-token-${amount.denom}`}
-      amount={amount}
+      key={`asset-token-${nativeTokenAsset.amount.denom}`}
+      amount={nativeTokenAsset.amount}
+      logoUrl={nativeTokenAsset.logoUrl}
       breakpoint={breakpoint}
       isDesktop={isDesktop}
       isFetched={isFetched}

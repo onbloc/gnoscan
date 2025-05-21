@@ -8,6 +8,7 @@ export * from "./amount";
 export * from "./StandardNetworkAmount";
 export * from "./account";
 export * from "./token-title";
+export * from "./StandardNetworkTokenTitle";
 export * from "./functions";
 export * from "./block";
 export * from "./block-hash";

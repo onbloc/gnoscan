@@ -16,7 +16,7 @@ export class TokenMapper {
       functions: response.funcTypesList,
       totalSupply: Number(response.totalSupply),
       holders: response.holders,
-      logoUrl: response.logUrl,
+      logoUrl: response.logoUrl ?? "",
     };
   }
 
