@@ -7,6 +7,7 @@ interface SkeletonBarProps {
   width?: CSSProperties["width"];
   height?: CSSProperties["height"];
   margin?: CSSProperties["margin"];
+  borderRadius?: CSSProperties["borderRadius"];
 }
 
 const SkeletonBarStyle = styled(SkeletonBoxStyle)<SkeletonBarProps>`
@@ -19,8 +20,12 @@ const SkeletonBarStyle = styled(SkeletonBoxStyle)<SkeletonBarProps>`
     return "28px";
   }};
   margin: ${({ margin }) => margin && margin};
+  border-radius: ${({ borderRadius }) => {
+    if (borderRadius) return typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius;
+    return 0;
+  }};
 `;
 
-export const SkeletonBar = ({ width, height, margin }: SkeletonBarProps) => {
-  return <SkeletonBarStyle width={width} height={height} margin={margin} />;
+export const SkeletonBar = ({ width, height, margin, borderRadius }: SkeletonBarProps) => {
+  return <SkeletonBarStyle width={width} height={height} margin={margin} borderRadius={borderRadius} />;
 };
