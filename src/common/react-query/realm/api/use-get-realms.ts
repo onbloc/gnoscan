@@ -5,7 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetRealmsRequestParameters } from "@/repositories/api/realm/request";
 import { GetRealmsResponse } from "@/repositories/api/realm/response";
 import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get realms data from the API
@@ -33,6 +33,7 @@ export const useGetRealms = (
     (repository, pageParam) =>
       repository!.getRealms({
         ...params,
+        limit: DEFAULT_LIST_ITEMS_SIZE,
         cursor: pageParam as string | undefined,
       }),
     {
