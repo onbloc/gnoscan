@@ -11,21 +11,24 @@ import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 interface AccountAssetItemProps {
   amount: Amount;
+  logoUrl?: string | null;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
   isFetched: boolean;
 }
 
-const AccountAssetItem = ({ amount, breakpoint, isDesktop, isFetched }: AccountAssetItemProps) => {
+const AccountAssetItem = ({ amount, logoUrl, breakpoint, isDesktop, isFetched }: AccountAssetItemProps) => {
   const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
 
-  const tokenImage = React.useMemo(() => {
-    return getTokenImage(amount.denom) ? (
-      <img src={getTokenImage(amount.denom)} alt={`${amount.denom}-image`} />
-    ) : (
-      <UnknownToken aria-label="Unknown token image" width="40" height="40" />
-    );
-  }, [getTokenImage, amount.denom]);
+  const tokenLogoUrl = React.useMemo(() => {
+    return logoUrl || getTokenImage(amount.denom) || "";
+  }, [logoUrl, amount.denom]);
+
+  const tokenLogoImage = React.useMemo(() => {
+    if (tokenLogoUrl) return <img src={tokenLogoUrl} alt={`${amount.denom}-token-image`} />;
+
+    return <UnknownToken aria-label="Unknown token image" width="40" height="40" />;
+  }, [tokenLogoUrl, getTokenImage, amount.denom]);
 
   if (!isFetched) {
     return (
@@ -48,7 +51,7 @@ const AccountAssetItem = ({ amount, breakpoint, isDesktop, isFetched }: AccountA
   return (
     <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
       <S.TokenInfo>
-        <S.LogoWrapper>{tokenImage}</S.LogoWrapper>
+        <S.LogoWrapper>{tokenLogoImage}</S.LogoWrapper>
 
         <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
           {getTokenInfo(amount.denom)?.name || ""}

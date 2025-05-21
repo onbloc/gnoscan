@@ -60,9 +60,9 @@ export const StandardNetworkTokenListTable = ({
       .name("Token")
       .width(220)
       .renderOption((_, data) => (
-        <DatatableItem.TokenTitle
+        <DatatableItem.StandardNetworkTokenTitle
           token={data.symbol}
-          imagePath={data.packagePath}
+          imagePath={data.logoUrl}
           name={data.name}
           symbol={data.symbol}
           pkgPath={data.packagePath}
