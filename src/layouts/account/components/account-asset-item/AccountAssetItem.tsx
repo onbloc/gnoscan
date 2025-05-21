@@ -35,7 +35,7 @@ const AccountAssetItem = ({ amount, logoUrl, breakpoint, isDesktop, isFetched }:
       <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
         <S.TokenInfo>
           <S.LogoWrapper>
-            <UnknownToken aria-label="Loading TokenImage" width="40" height="40" />
+            <SkeletonBar aria-label="Loading TokenImage" width={40} height={40} borderRadius={"100%"} />
           </S.LogoWrapper>
 
           <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">

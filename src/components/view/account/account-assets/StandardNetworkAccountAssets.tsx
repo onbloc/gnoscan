@@ -70,7 +70,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
 const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
   const { data, isFetched } = useGetNativeTokenBalance(address);
 
-  const { data: GNOTmetadata } = useGetTokenMetaByPath(GNOTToken.denom);
+  const { data: GNOTmetadata, isFetched: isFetchedGNOTmetadata } = useGetTokenMetaByPath(GNOTToken.denom);
 
   const nativeTokenAsset: AccountAssetViewModel = React.useMemo(() => {
     return {
@@ -82,6 +82,8 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
     };
   }, [data?.value, GNOTmetadata?.data.logoUrl]);
 
+  const isFetchedNativeTokenAsset = isFetched && isFetchedGNOTmetadata;
+
   return (
     <AccountAssetItem
       key={`asset-token-${nativeTokenAsset.amount.denom}`}
@@ -89,7 +91,7 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
       logoUrl={nativeTokenAsset.logoUrl}
       breakpoint={breakpoint}
       isDesktop={isDesktop}
-      isFetched={isFetched}
+      isFetched={isFetchedNativeTokenAsset}
     />
   );
 };

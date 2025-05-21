@@ -19,7 +19,6 @@ interface AccountAddressProps {
 
 const StandardNetworkAccountAddress = ({ breakpoint, isDesktop, address }: AccountAddressProps) => {
   const { isLoading, isFetched } = useGetAccountByAddress(address);
-  // const hasUsername = React.useMemo(() => Boolean(userName), [userName]);
 
   if (isLoading || !isFetched) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
