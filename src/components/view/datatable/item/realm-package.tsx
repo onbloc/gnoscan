@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import styled from "styled-components";
 
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
@@ -31,7 +30,7 @@ export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
   );
 };
 
-const PackagePathLink = styled(Link)<{ maxWidth: number }>`
+const PackagePathLink = styled.a<{ maxWidth: number }>`
   max-width: ${({ maxWidth }) => `${maxWidth}px`};
 `;
 
