@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { GNO_BLOCK_CONSTANTS } from "@/common/values/gno.constant";
@@ -23,5 +22,5 @@ export const Block = ({ height }: Props) => {
 
   const displayHeight = numHeight === 0 ? GNO_BLOCK_CONSTANTS.GENESIS : height;
 
-  return <Link href={getUrlWithNetwork(`/block/${height}`)}>{displayHeight}</Link>;
+  return <a href={getUrlWithNetwork(`/block/${height}`)}>{displayHeight}</a>;
 };
