@@ -2,7 +2,7 @@ import React from "react";
 import BigNumber from "bignumber.js";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { Amount } from "@/types/data-type";
+import { AccountAssetViewModel } from "@/types/account";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 import * as S from "./AccountAssets.styles";
@@ -19,15 +19,10 @@ interface AccountAssetsProps {
   isDesktop: boolean;
 }
 
-interface AssetList {
-  amount: Amount;
-  logoUrl: string;
-}
-
 const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
 
-  const assetList: AssetList[] = React.useMemo(() => {
+  const grc20TokenAssets: AccountAssetViewModel[] = React.useMemo(() => {
     if (!data?.data) return [];
 
     return data.data.assets
@@ -55,12 +50,12 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
       <S.GridLayout breakpoint={breakpoint}>
         <NativeTokenAsset address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
         {isFetched &&
-          assetList.map((asset: AssetList) => {
+          grc20TokenAssets.map((grc20TokenAsset: AccountAssetViewModel) => {
             return (
               <AccountAssetItem
-                key={`asset-token-${asset.amount.denom}`}
-                amount={asset.amount}
-                logoUrl={asset.logoUrl}
+                key={`asset-token-${grc20TokenAsset.amount.denom}`}
+                amount={grc20TokenAsset.amount}
+                logoUrl={grc20TokenAsset.logoUrl}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
                 isFetched={isFetched}
@@ -77,16 +72,21 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
 
   const { data: GNOTmetadata } = useGetTokenMetaByPath(GNOTToken.denom);
 
-  const amount: Amount = {
-    denom: GNOTToken.denom,
-    value: BigNumber(data?.value || 0).toString(),
-  };
+  const nativeTokenAsset: AccountAssetViewModel = React.useMemo(() => {
+    return {
+      amount: {
+        value: BigNumber(data?.value || 0).toString(),
+        denom: GNOTToken.denom,
+      },
+      logoUrl: GNOTmetadata?.data.logoUrl || "",
+    };
+  }, [data?.value, GNOTmetadata?.data.logoUrl]);
 
   return (
     <AccountAssetItem
-      key={`asset-token-${amount.denom}`}
-      amount={amount}
-      logoUrl={GNOTmetadata?.data.logoUrl || ""}
+      key={`asset-token-${nativeTokenAsset.amount.denom}`}
+      amount={nativeTokenAsset.amount}
+      logoUrl={nativeTokenAsset.logoUrl}
       breakpoint={breakpoint}
       isDesktop={isDesktop}
       isFetched={isFetched}
