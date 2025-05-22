@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import Link from "next/link";
 import styled from "styled-components";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
@@ -27,7 +26,7 @@ export const TokenTitle = ({ name, symbol, pkgPath, imagePath }: Props) => {
   }, [imagePath, isFetchedGRC20Tokens, getTokenImage]);
 
   return (
-    <Link href={getUrlWithNetwork(`/tokens/${pkgPath}`)}>
+    <a href={getUrlWithNetwork(`/tokens/${pkgPath}`)}>
       <TokenTitleWrapper>
         {imageUrl ? (
           <img className="token" src={imageUrl} alt="token logo" />
@@ -39,7 +38,7 @@ export const TokenTitle = ({ name, symbol, pkgPath, imagePath }: Props) => {
 
         <Text type="p4">{`${name} (${symbol})`}</Text>
       </TokenTitleWrapper>
-    </Link>
+    </a>
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import Link from "next/link";
 import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
@@ -55,6 +54,6 @@ const TooltipWrapper = styled.span`
   }
 `;
 
-const PublisherLink = styled(Link)`
+const PublisherLink = styled.a`
   max-width: 128px;
 `;

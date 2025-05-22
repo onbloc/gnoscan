@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import styled from "styled-components";
 import IconSuccess from "@/assets/svgs/icon-status-success.svg";
 import IconFail from "@/assets/svgs/icon-status-fail.svg";
@@ -26,9 +25,9 @@ export const TxHash = ({ txHash, status, development, height }: Props) => {
 
   return (
     <TxHashWrapper>
-      <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
+      <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
         {textEllipsis(txHash ?? "", 8)}
-      </Link>
+      </a>
       <span className="status" onClick={onClickIcon}>
         {status === "failure" ? <IconFail /> : <IconSuccess />}
       </span>
