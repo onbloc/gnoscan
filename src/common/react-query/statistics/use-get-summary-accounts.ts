@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetSummaryAccountsResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, DASHBOARD_DATA_REFETCHING_INTERVAL } from "@/common/values/query.constant";
 
 export const useGetSummaryAccounts = (
   options?: UseQueryOptions<GetSummaryAccountsResponse, Error, GetSummaryAccountsResponse>,
@@ -16,6 +16,9 @@ export const useGetSummaryAccounts = (
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getSummaryAccounts(),
-    options,
+    {
+      ...options,
+      refetchInterval: DASHBOARD_DATA_REFETCHING_INTERVAL,
+    },
   );
 };
