@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import IconSuccess from "@/assets/svgs/icon-status-success.svg";
 import IconFail from "@/assets/svgs/icon-status-fail.svg";
-import { RPC_URI } from "@/common/values/constant-value";
 import { StatusKeyType } from "@/common/utils";
 import { textEllipsis } from "@/common/utils/string-util";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -20,7 +19,8 @@ export const TxHash = ({ txHash, status, development, height }: Props) => {
     if (!development || !height) {
       return;
     }
-    window.open(`${RPC_URI}/block_results?height=${height}`);
+    // Todo: Delete this code
+    // window.open(`${RPC_URI}/block_results?height=${height}`);
   };
 
   return (
