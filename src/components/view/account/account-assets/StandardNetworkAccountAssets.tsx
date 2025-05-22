@@ -27,12 +27,13 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
 
     return data.data.assets
       .filter(asset => asset.name && asset.symbol)
-      .map(asset => {
+      .map((asset): AccountAssetViewModel => {
         return {
           amount: {
             value: asset.amount,
             denom: asset.symbol,
           },
+          packagePath: asset.packagePath,
           logoUrl: asset.logoUrl,
         };
       });
@@ -55,6 +56,8 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
               <AccountAssetItem
                 key={`asset-token-${grc20TokenAsset.amount.denom}`}
                 amount={grc20TokenAsset.amount}
+                showTokenPathLink={true}
+                tokenPath={grc20TokenAsset.packagePath}
                 logoUrl={grc20TokenAsset.logoUrl}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
@@ -78,9 +81,10 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
         value: BigNumber(data?.value || 0).toString(),
         denom: GNOTToken.denom,
       },
+      packagePath: GNOTmetadata?.data.path || "",
       logoUrl: GNOTmetadata?.data.logoUrl || "",
     };
-  }, [data?.value, GNOTmetadata?.data.logoUrl]);
+  }, [data?.value, GNOTmetadata?.data]);
 
   const isFetchedNativeTokenAsset = isFetched && isFetchedGNOTmetadata;
 
