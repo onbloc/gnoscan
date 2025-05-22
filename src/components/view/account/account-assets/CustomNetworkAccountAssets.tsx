@@ -32,9 +32,10 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
   const tokenAssets: AccountAssetViewModel[] = React.useMemo(() => {
     if (!tokenBalances) return [];
 
-    return tokenBalances.map((asset: Amount) => {
+    return tokenBalances.map((asset: Amount): AccountAssetViewModel => {
       return {
         amount: { value: asset.value, denom: asset.denom },
+        packagePath: "",
         logoUrl: "",
       };
     });

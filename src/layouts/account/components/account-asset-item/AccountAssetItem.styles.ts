@@ -41,4 +41,9 @@ export const LogoWrapper = styled.div`
   }
 `;
 
-export const TokenName = styled(Text)``;
+export const TokenName = styled(Text)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`;
