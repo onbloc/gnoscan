@@ -8,9 +8,8 @@ import { useNetwork } from "@/common/hooks/use-network";
 import * as S from "./AccountAddress.styles";
 import Text from "@/components/ui/text";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import IconLink from "@/assets/svgs/icon-link.svg";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
-import { Divider } from "@/components/ui/divider/Divider";
+import { Username } from "@/components/ui/username/Username";
 
 interface AccountAddressProps {
   breakpoint: DEVICE_TYPE;
@@ -46,9 +45,9 @@ const StandardNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Accou
               </S.CopyTooltip>
             </S.Content>
             {username && (
-              <UsernameDependentComponent
+              <Username
                 breakpoint={breakpoint}
-                userName={username}
+                username={username}
                 userUrl={getUrlWithNetwork(`/account/${address}`)}
               />
             )}
@@ -58,32 +57,5 @@ const StandardNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Accou
     </S.Card>
   );
 };
-
-interface UsernameDependentComponentProps {
-  breakpoint: DEVICE_TYPE;
-  userName: string | null;
-  userUrl: string | null;
-}
-
-const UsernameDependentComponent = React.memo(({ breakpoint, userName, userUrl }: UsernameDependentComponentProps) => {
-  const isDesktop = breakpoint === DEVICE_TYPE.DESKTOP;
-
-  return (
-    <>
-      <S.ContentWrapper isDesktop={isDesktop}>
-        {/* <div style={{ width: 1, height: 18, border: "none", borderLeft: "1px solid black" }} /> */}
-        <Divider size={1} length={18} orientation="vertical" />
-        <Link href={userUrl || ""} target="_blank" rel="noreferrer">
-          <S.Username type="p4" color="blue" breakpoint={breakpoint}>
-            {userName}
-            <IconLink />
-          </S.Username>
-        </Link>
-      </S.ContentWrapper>
-    </>
-  );
-});
-
-UsernameDependentComponent.displayName = "UsernameDependentComponent";
 
 export default StandardNetworkAccountAddress;

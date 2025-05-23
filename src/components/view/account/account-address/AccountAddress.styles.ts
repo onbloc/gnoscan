@@ -77,12 +77,6 @@ export const CopyTooltip = styled(Tooltip)`
   align-items: center;
 `;
 
-export const Username = styled(Text)<{ breakpoint: DEVICE_TYPE }>`
-  position: relative;
-  display: flex;
-  align-items: center;
-`;
-
 export const SkeletonBox = styled(SkeletonBoxStyle)<{
   width?: string;
   marginTop?: number;
