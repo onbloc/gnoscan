@@ -105,6 +105,7 @@ export interface RealmSummary {
   path: string;
   realmAddress: string;
   publisherAddress: string;
+  publisherName?: string;
   funcs: string[] | undefined;
   blockPublished: number;
   files:

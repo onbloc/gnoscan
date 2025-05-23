@@ -29,6 +29,7 @@ export interface RealmSummaryModel {
   name: string;
   path: string;
   publisher: string;
+  publisherName: string;
   realmAddress: string;
   sourceFiles: [
     {

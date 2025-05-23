@@ -30,6 +30,7 @@ export class RealmMapper {
       path: response.path,
       realmAddress: response.realmAddress,
       publisherAddress: response.publisher,
+      publisherName: response.publisherName,
       funcs: response.func?.map(func => func.typesList) || [],
       blockPublished: response.blockPublished,
       files: response.sourceFiles.map(file => {
