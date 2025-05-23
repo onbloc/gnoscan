@@ -124,7 +124,7 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
       .name("Caller")
       .width(180)
       .colorName("blue")
-      .renderOption(caller => <DatatableItem.CallerCopy caller={caller} username={""} />)
+      .renderOption((_, data) => <DatatableItem.CallerCopy caller={data.caller} username={data.callerName} />)
       .build();
   };
 

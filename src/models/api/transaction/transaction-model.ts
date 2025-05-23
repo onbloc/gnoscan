@@ -9,6 +9,8 @@ export interface TransactionModel {
 
   from: string;
 
+  fromName: string;
+
   func: [
     {
       funcType: string;
@@ -24,6 +26,8 @@ export interface TransactionModel {
   timestamp: string;
 
   to: string;
+
+  toName: string;
 
   txHash: string;
 }

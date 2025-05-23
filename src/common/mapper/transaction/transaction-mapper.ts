@@ -49,6 +49,7 @@ export class TransactionMapper {
       id: response.identifier,
       packagePath: response.realmPath,
       caller: response.caller,
+      callerName: response.callerName,
       functionName: response.function,
       type: response.eventName,
       attrs: response.emit.params,
