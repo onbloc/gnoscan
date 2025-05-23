@@ -112,7 +112,7 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
       .name("Caller")
       .width(180)
       .colorName("blue")
-      .renderOption(caller => <DatatableItem.CallerCopy caller={caller} username={""} />)
+      .renderOption((_, data) => <DatatableItem.CallerCopy caller={data.caller} username={data.callerName} />)
       .build();
   };
 

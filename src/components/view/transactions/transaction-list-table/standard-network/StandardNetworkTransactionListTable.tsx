@@ -133,7 +133,7 @@ export const StandardNetworkTransactionListTable = ({
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption((address, data) => <DatatableItem.Publisher address={address} username={""} />)
+      .renderOption((_, data) => <DatatableItem.Publisher address={data.from} username={data.fromName} />)
       .build();
   };
 

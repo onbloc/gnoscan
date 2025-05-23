@@ -9,9 +9,10 @@ import Tooltip from "@/components/ui/tooltip";
 
 interface Props {
   address: string | undefined;
+  addressName?: string;
 }
 
-export const Account = ({ address }: Props) => {
+export const Account = ({ address, addressName }: Props) => {
   const { getName } = useUsername();
   const { getUrlWithNetwork } = useNetwork();
   const renderTooltip = () => {
@@ -19,18 +20,22 @@ export const Account = ({ address }: Props) => {
   };
 
   const displayName = useMemo(() => {
+    if (addressName) return addressName;
+
     if (!address) {
       return "-";
     }
 
     return getName(address) || textEllipsis(address ?? "", 6);
-  }, [address]);
+  }, [address, addressName]);
 
   return (
     <Tooltip content={renderTooltip()}>
-      <Link className="ellipsis" href={getUrlWithNetwork(`/account/${address}`)}>
-        {displayName}
-      </Link>
+      <TooltipWrapper>
+        <Link className="ellipsis" href={getUrlWithNetwork(`/account/${address}`)}>
+          {displayName}
+        </Link>
+      </TooltipWrapper>
     </Tooltip>
   );
 };

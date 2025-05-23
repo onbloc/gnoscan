@@ -16,6 +16,7 @@ import { Blog } from "@/types/data-type";
 
 interface BlogWithPublisher extends Blog {
   publisher: string;
+  publisherName?: string;
 }
 
 const ActiveLatestBlogs = () => {
@@ -31,12 +32,13 @@ const ActiveLatestBlogs = () => {
         updatedAt: "",
       };
 
-    const blogs = data.items.map((item, i) => {
+    const blogs: BlogWithPublisher[] = data.items.map((item, i) => {
       return {
         index: i + 1,
         title: item.title,
         path: item.url,
         publisher: item.publisher,
+        publisherName: item.publisherName,
         date: "",
       };
     });
@@ -79,7 +81,7 @@ const ActiveLatestBlogs = () => {
                 </Link>
               </StyledTitleWrapper>
               <StyledText type="p4" width={colWidth.blogs[2]} color="blue">
-                <Publisher address={blog.publisher} username={""} ellipsisNumber={4}></Publisher>
+                <Publisher address={blog.publisher} username={blog.publisherName || ""} ellipsisNumber={4}></Publisher>
               </StyledText>
             </List>
           ))}

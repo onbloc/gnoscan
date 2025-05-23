@@ -11,6 +11,7 @@ import { ActiveAccountModel } from "@/repositories/api/statistics/response";
 import { textEllipsis } from "@/common/utils/string-util";
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useWindowSize } from "@/common/hooks/use-window-size";
+import { truncateDashboardUsername } from "@/common/utils/common.utility";
 
 import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
@@ -39,8 +40,8 @@ const ActiveAccountApi = () => {
     return data.lastUpdated;
   }, [data?.lastUpdated]);
 
-  const getDisplayUsername = useCallback((address: string) => {
-    return textEllipsis(address);
+  const getDisplayUsername = useCallback((address: string, addressName?: string | null) => {
+    return addressName ? truncateDashboardUsername(addressName) : textEllipsis(address);
   }, []);
 
   return (
@@ -63,7 +64,9 @@ const ActiveAccountApi = () => {
               <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
                 <Link href={getUrlWithNetwork(`/account/${account.account}`)} passHref>
                   <span>
-                    <Tooltip content={account.account}>{getDisplayUsername(account.account)}</Tooltip>
+                    <Tooltip content={account.account}>
+                      {getDisplayUsername(account.account, account.accountName)}
+                    </Tooltip>
                   </span>
                 </Link>
               </StyledText>

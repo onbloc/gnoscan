@@ -223,14 +223,14 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             {realmSummary?.publisherAddress === "genesis" ? (
               <FitContentA>
                 <Text type="p4" color="blue" className="ellipsis">
-                  {realmSummary?.publisherAddress}
+                  {realmSummary?.publisherName || realmSummary?.publisherAddress || ""}
                 </Text>
               </FitContentA>
             ) : (
               <FitContentA>
                 <Link href={getUrlWithNetwork(`/account/${realmSummary?.publisherAddress}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
-                    {realmSummary?.publisherAddress || ""}
+                    {realmSummary?.publisherName || realmSummary?.publisherAddress || ""}
                   </Text>
                 </Link>
               </FitContentA>

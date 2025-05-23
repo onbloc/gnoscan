@@ -1,16 +1,15 @@
 import React from "react";
-import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useUsername } from "@/common/hooks/account/use-username";
+import { isBech32Address } from "@/common/utils/bech32.utility";
 
 import * as S from "./AccountAddress.styles";
 import Text from "@/components/ui/text";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import IconLink from "@/assets/svgs/icon-link.svg";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
-import { isBech32Address } from "@/common/utils/bech32.utility";
+import { Username } from "@/components/ui/username/Username";
 
 interface AccountAddressProps {
   breakpoint: DEVICE_TYPE;
@@ -52,15 +51,13 @@ const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Account
       </Text>
       <S.Box isDesktop={isDesktop}>
         <S.AccountWrapper>
-          <S.ContentWrapper>
+          <S.ContentWrapper isDesktop={isDesktop}>
             <S.Content type="p4" color="primary">
               {address}
               <S.CopyTooltip content="Copied!" trigger="click" copyText={address || ""}>
                 <IconCopy />
               </S.CopyTooltip>
-              {hasUsername && (
-                <UsernameDependentComponent breakpoint={breakpoint} userName={userName} userUrl={userUrl} />
-              )}
+              {hasUsername && <Username username={userName} userUrl={userUrl} />}
             </S.Content>
           </S.ContentWrapper>
         </S.AccountWrapper>
@@ -74,22 +71,5 @@ interface UsernameDependentComponentProps {
   userName: string | null;
   userUrl: string | null;
 }
-
-const UsernameDependentComponent = React.memo(({ breakpoint, userName, userUrl }: UsernameDependentComponentProps) => {
-  return (
-    <>
-      <S.ContentWrapper>
-        <Link href={userUrl || ""} target="_blank" rel="noreferrer">
-          <S.Username type="p4" color="blue" breakpoint={breakpoint}>
-            {userName}
-            <IconLink />
-          </S.Username>
-        </Link>
-      </S.ContentWrapper>
-    </>
-  );
-});
-
-UsernameDependentComponent.displayName = "UsernameDependentComponent";
 
 export default CustomNetworkAccountAddress;

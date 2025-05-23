@@ -9,6 +9,7 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getLocalDateString } from "@/common/utils/date-util";
 import { NewestRealm } from "@/types/data-type";
+import { truncateDashboardUsername } from "@/common/utils/common.utility";
 
 import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
@@ -43,6 +44,7 @@ const StandardNetworkActiveNewest = () => {
         packageName: "",
         packagePath: item.path,
         creator: item.publisher,
+        creatorName: item.publisherName || "",
         functionCount: item.functions,
         totalCalls: item.calls,
         totalGasUsed: {
@@ -61,6 +63,10 @@ const StandardNetworkActiveNewest = () => {
   const displayRealms = useMemo(() => {
     return realms.filter((_: unknown, index: number) => index < 10);
   }, [realms]);
+
+  const getDisplayName = React.useCallback((address: string, addressName?: string) => {
+    return addressName ? truncateDashboardUsername(addressName) : textEllipsis(address);
+  }, []);
 
   return (
     <StyledCard>
@@ -87,7 +93,7 @@ const StandardNetworkActiveNewest = () => {
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">
                 <FitContentA>
                   <Link href={getUrlWithNetwork(`/account/${realm.creator}`)} passHref>
-                    <Tooltip content={realm.creator}>{textEllipsis(realm.creator)}</Tooltip>
+                    <Tooltip content={realm.creator}>{getDisplayName(realm.creator, realm?.creatorName || "")}</Tooltip>
                   </Link>
                 </FitContentA>
               </StyledText>

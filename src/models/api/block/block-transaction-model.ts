@@ -4,6 +4,7 @@ export interface BlockTransactionModel {
   blockHeight: number;
   fee: Amount;
   from: string;
+  fromName: string;
   func: [
     {
       funcType: string;
@@ -15,5 +16,6 @@ export interface BlockTransactionModel {
   success: boolean;
   timestamp: string;
   to: string;
+  toName: string;
   txHash: string;
 }

@@ -1,4 +1,3 @@
-import mixins from "@/styles/mixins";
 import styled from "styled-components";
 
 interface DividerProps {
@@ -13,7 +12,6 @@ export const Divider = styled.div<DividerProps>`
 
   height: ${({ orientation = "horizontal", size = 1, length }) =>
     orientation === "vertical" ? (length ? `${length}px` : "100%") : `${size}px`};
-  border-width: 0;
   margin: 0;
   background-color: ${({ theme }) => theme.colors.primary};
 `;

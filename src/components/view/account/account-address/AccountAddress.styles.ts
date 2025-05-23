@@ -51,9 +51,9 @@ const flexStyle = css`
   gap: 5px;
 `;
 
-export const ContentWrapper = styled.div`
-  ${flexStyle}
-
+export const ContentWrapper = styled.div<{ isDesktop: boolean }>`
+  ${flexStyle};
+  gap: ${({ isDesktop }) => (isDesktop ? "20px" : "10px")};
   a {
     ${flexStyle}
   }
@@ -75,20 +75,6 @@ export const CopyTooltip = styled(Tooltip)`
   height: 20px;
   justify-content: center;
   align-items: center;
-`;
-
-export const Username = styled(Text)<{ breakpoint: DEVICE_TYPE }>`
-  position: relative;
-  padding-left: ${({ breakpoint }) => (breakpoint ? "14px" : "40px")};
-
-  &:after {
-    content: "";
-    width: 1px;
-    height: 18px;
-    background-color: ${({ theme }) => theme.colors.primary};
-    ${mixins.posTopCenterLeft(0)};
-    margin-left: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.MOBILE ? "7px" : "20px")};
-  }
 `;
 
 export const SkeletonBox = styled(SkeletonBoxStyle)<{

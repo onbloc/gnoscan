@@ -2,6 +2,7 @@ export interface GetAccountEventsResponse {
   items: {
     blockHeight: number;
     caller: string;
+    callerName: string;
     emit: {
       name: string;
       params: [

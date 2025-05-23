@@ -46,6 +46,7 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
       decimals: summaryData.decimals,
       packagePath: summaryData.path,
       owner: summaryData.owner,
+      ownerName: summaryData.ownerName,
       functions: summaryData.funcTypesList,
       totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, summaryData.decimals)),
       holders: summaryData.holders,
@@ -143,13 +144,13 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
           <Badge>
             {tokenSummary?.owner && tokenSummary?.owner === "genesis" ? (
               <Text type="p4" color="blue" className="ellipsis">
-                {tokenSummary?.owner}
+                {tokenSummary?.ownerName || tokenSummary?.owner || ""}
               </Text>
             ) : (
               <FitContentA>
                 <Link href={getUrlWithNetwork(`/account/${tokenSummary?.owner}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
-                    {tokenSummary?.owner}
+                    {tokenSummary?.ownerName || tokenSummary?.owner || ""}
                   </Text>
                 </Link>
               </FitContentA>

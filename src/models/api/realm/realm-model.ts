@@ -9,6 +9,7 @@ export interface RealmModel {
   funcCount: number;
   blockHeight: number;
   publisher: string;
+  publisherName: string;
   totalCallCountSuccess: number;
   totalCallCountFailed: number;
   totalCallCount: number;
@@ -28,6 +29,7 @@ export interface RealmSummaryModel {
   name: string;
   path: string;
   publisher: string;
+  publisherName: string;
   realmAddress: string;
   sourceFiles: [
     {
@@ -50,7 +52,9 @@ export interface RealmTransactionModel {
   success: boolean;
   block: number;
   from: string;
+  fromName: string;
   to: string;
+  toName: string;
   amount: Amount;
   fee: Amount;
   timestamp: string;
@@ -66,6 +70,8 @@ export interface RealmEventModel {
   eventName: string;
 
   caller: string;
+
+  callerName: string;
 
   originCaller: string;
 

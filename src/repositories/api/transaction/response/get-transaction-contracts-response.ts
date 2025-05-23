@@ -7,10 +7,14 @@ export interface TransactionContractModel {
   pkgPath: string;
   funcType: string;
   caller: string;
+  callerName: string;
   creator: string;
+  creatorName: string;
   amount: Amount;
   from: string;
+  fromName: string;
   to: string;
+  toName: string;
   log: string;
   args: string[];
   calledFunctions: { packagePath: string; method: string }[];

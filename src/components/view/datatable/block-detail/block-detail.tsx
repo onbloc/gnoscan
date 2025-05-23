@@ -94,8 +94,8 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption(fromAddress => {
-        return <DatatableItem.Publisher address={fromAddress} username={""} />;
+      .renderOption((_, data) => {
+        return <DatatableItem.Publisher address={data.from} username={data.fromName} />;
       })
       .build();
   };

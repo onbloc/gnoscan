@@ -7,6 +7,7 @@ export interface GetTokenResponse {
     path: string;
     funcTypesList: string[];
     owner: string;
+    ownerName: string;
     holders: number;
     sourceFiles: [
       {

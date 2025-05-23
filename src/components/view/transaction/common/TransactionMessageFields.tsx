@@ -138,25 +138,33 @@ export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
 };
 
 interface AddressLinkProps {
-  to: string;
+  address: string;
+  addressName: string;
   copyText: string;
   getUrlWithNetwork: (uri: string) => string;
 }
 
-export const AddressLink: React.FC<AddressLinkProps> = ({ to, copyText, getUrlWithNetwork }) => (
-  <Badge>
-    <S.AddressTextBox>
-      <Text type="p4" color="blue" className="ellipsis">
-        <Link href={getUrlWithNetwork(`/account/${to}`)} passHref>
-          <FitContentA>{to}</FitContentA>
-        </Link>
-      </Text>
-      <Tooltip content="Copied!" trigger="click" copyText={copyText} className="address-tooltip">
-        <S.StyledIconCopy />
-      </Tooltip>
-    </S.AddressTextBox>
-  </Badge>
-);
+export const AddressLink: React.FC<AddressLinkProps> = ({ address, addressName, copyText, getUrlWithNetwork }) => {
+  const displayAccount = React.useMemo(() => {
+    if (!address) return "-";
+    return addressName || address;
+  }, [address, addressName]);
+
+  return (
+    <Badge>
+      <S.AddressTextBox>
+        <Text type="p4" color="blue" className="ellipsis">
+          <Link href={getUrlWithNetwork(`/account/${address}`)} passHref>
+            <FitContentA>{displayAccount}</FitContentA>
+          </Link>
+        </Text>
+        <Tooltip content="Copied!" trigger="click" copyText={copyText} className="address-tooltip">
+          <S.StyledIconCopy />
+        </Tooltip>
+      </S.AddressTextBox>
+    </Badge>
+  );
+};
 
 interface PkgPathLinkProps {
   path: string;

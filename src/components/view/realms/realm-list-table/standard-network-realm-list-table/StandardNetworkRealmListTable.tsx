@@ -65,7 +65,7 @@ export const StandardNetworkRealmListTable = ({
   };
 
   const createHeaderPath = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<Realm>()
       .key("packagePath")
       .name("Path")
       .width(202) // removed functions column
@@ -76,11 +76,11 @@ export const StandardNetworkRealmListTable = ({
   };
 
   const createHeaderFunctions = () => {
-    return DatatableOption.Builder.builder().key("functionCount").name("Functions").width(121).build();
+    return DatatableOption.Builder.builder<Realm>().key("functionCount").name("Functions").width(121).build();
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<Realm>()
       .key("blockHeight")
       .name("Block")
       .width(121)
@@ -90,21 +90,21 @@ export const StandardNetworkRealmListTable = ({
   };
 
   const createHeaderPublisher = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<Realm>()
       .key("creator")
       .name("Publisher")
       .width(202)
       .colorName("blue")
-      .renderOption(creator => <DatatableItem.Publisher address={creator} username={""} />)
+      .renderOption((_, data) => <DatatableItem.Publisher address={data.creator} username={data.creatorName} />)
       .build();
   };
 
   const createHeaderTotalCalls = () => {
-    return DatatableOption.Builder.builder().key("totalCalls").name("Total Calls").sort().width(163).build();
+    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(163).build();
   };
 
   const createHeaderTotalGasUsed = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<Realm>()
       .key("totalGasUsed")
       .name("Total Gas Used")
       .width(163)

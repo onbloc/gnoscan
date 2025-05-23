@@ -78,6 +78,7 @@ export interface TokenSummary {
   decimals: string | number;
   packagePath: string;
   owner: string;
+  ownerName?: string;
   functions: string[];
   totalSupply: number;
   holders: number;
@@ -91,6 +92,7 @@ export interface Realm {
   packageName: string;
   packagePath: string;
   creator: string;
+  creatorName?: string;
   functionCount: number;
   totalCalls: number;
   totalGasUsed: {
@@ -104,6 +106,7 @@ export interface RealmSummary {
   path: string;
   realmAddress: string;
   publisherAddress: string;
+  publisherName?: string;
   funcs: string[] | undefined;
   blockPublished: number;
   files:
@@ -138,7 +141,9 @@ export interface Transaction {
   functionName: string;
   blockHeight: number;
   from: string;
+  fromName?: string;
   to?: string;
+  toName?: string;
   amount: Amount;
   amountOut?: Amount;
   time: string;
@@ -179,6 +184,7 @@ export interface NewestRealm {
   packageName: string;
   packagePath: string;
   creator: string;
+  creatorName?: string;
   functionCount: number;
   totalCalls: number;
   totalGasUsed: Amount;
@@ -189,6 +195,7 @@ export interface GnoEvent {
   blockHeight: number;
   transactionHash: string;
   caller: string;
+  callerName?: string;
   type: string;
   packagePath: string;
   functionName: string;
