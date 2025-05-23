@@ -64,7 +64,16 @@ const StandardNetworkActiveNewest = () => {
   }, [realms]);
 
   const getDisplayName = React.useCallback((address: string, addressName?: string) => {
-    return addressName ? textEllipsis(addressName) : textEllipsis(address);
+    const MAX_PUBLISHER_STRING_LENGTH = 8;
+
+    const truncateText = (text: string) => {
+      if (text.length > MAX_PUBLISHER_STRING_LENGTH) {
+        return `${text.slice(0, MAX_PUBLISHER_STRING_LENGTH)}...`;
+      }
+      return text;
+    };
+
+    return addressName ? truncateText(addressName) : textEllipsis(address);
   }, []);
 
   return (
