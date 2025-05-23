@@ -43,20 +43,6 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
     return isFetched;
   }, [isFetched]);
 
-  // const hasNextPage = useMemo(() => {
-  //   if (!loaded) {
-  //     return false;
-  //   }
-  //   return events.length > (page + 1) * EVENT_TABLE_PAGE_SIZE;
-  // }, [events.length, loaded, page]);
-
-  // const nextPage = useCallback(() => {
-  //   if (!hasNextPage) {
-  //     return;
-  //   }
-  //   setPage(page => page + 1);
-  // }, [hasNextPage]);
-
   const filteredEvents = useMemo(() => {
     const endIndex = (page + 1) * EVENT_TABLE_PAGE_SIZE;
     return events.slice(0, endIndex);
