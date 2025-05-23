@@ -9,6 +9,7 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getLocalDateString } from "@/common/utils/date-util";
 import { NewestRealm } from "@/types/data-type";
+import { truncateDashboardUsername } from "@/common/utils/common.utility";
 
 import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
@@ -64,16 +65,7 @@ const StandardNetworkActiveNewest = () => {
   }, [realms]);
 
   const getDisplayName = React.useCallback((address: string, addressName?: string) => {
-    const MAX_PUBLISHER_STRING_LENGTH = 8;
-
-    const truncateText = (text: string) => {
-      if (text.length > MAX_PUBLISHER_STRING_LENGTH) {
-        return `${text.slice(0, MAX_PUBLISHER_STRING_LENGTH)}...`;
-      }
-      return text;
-    };
-
-    return addressName ? truncateText(addressName) : textEllipsis(address);
+    return addressName ? truncateDashboardUsername(addressName) : textEllipsis(address);
   }, []);
 
   return (

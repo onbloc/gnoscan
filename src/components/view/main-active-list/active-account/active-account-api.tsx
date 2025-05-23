@@ -11,6 +11,7 @@ import { ActiveAccountModel } from "@/repositories/api/statistics/response";
 import { textEllipsis } from "@/common/utils/string-util";
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useWindowSize } from "@/common/hooks/use-window-size";
+import { truncateDashboardUsername } from "@/common/utils/common.utility";
 
 import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
@@ -40,7 +41,7 @@ const ActiveAccountApi = () => {
   }, [data?.lastUpdated]);
 
   const getDisplayUsername = useCallback((address: string, addressName?: string | null) => {
-    return addressName ? textEllipsis(addressName) : textEllipsis(address);
+    return addressName ? truncateDashboardUsername(addressName) : textEllipsis(address);
   }, []);
 
   return (
