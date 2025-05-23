@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { GlobalStyle } from "../styles";
 import { RecoilRoot } from "recoil";
+import { GlobalStyle } from "../styles";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import { Layout } from "@/components/core/layout";
 import { ErrorBoundary } from "@/components/core/error-boundary";
@@ -11,8 +11,11 @@ import GoogleAnalytics from "@/components/core/layout/google-analytics";
 import ChainData from "public/resource/chains.json";
 import NetworkProvider from "@/providers/network-provider";
 import ServiceProvider from "@/providers/service-provider";
+import { getNetworkConfig } from "@/common/config/network.config";
 
 const App: React.FC = ({ Component, pageProps }: any) => {
+  const networks = getNetworkConfig(ChainData);
+
   return (
     <>
       <Meta />
@@ -32,7 +35,7 @@ const App: React.FC = ({ Component, pageProps }: any) => {
         <Hydrate state={pageProps.dehydratedState}>
           <RecoilRoot>
             <ErrorBoundary fallback={<div>ERROR</div>}>
-              <NetworkProvider chains={ChainData}>
+              <NetworkProvider chains={networks}>
                 <ServiceProvider>
                   <Layout>
                     <GlobalStyle />

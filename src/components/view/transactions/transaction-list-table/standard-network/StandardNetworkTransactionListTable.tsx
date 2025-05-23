@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRecoilValue } from "recoil";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
@@ -41,31 +41,6 @@ export const StandardNetworkTransactionListTable = ({
 }: StandardNetworkTransactionListTableProps) => {
   const themeMode = useRecoilValue(themeState);
 
-  const [development, setDevelopment] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeydownEvent);
-    window.addEventListener("keyup", handleKeyupEvent);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeydownEvent);
-      window.removeEventListener("keyup", handleKeyupEvent);
-    };
-  }, []);
-
-  const handleKeydownEvent = (event: KeyboardEvent) => {
-    if (event.code === "Backquote") {
-      setDevelopment(true);
-      setTimeout(() => setDevelopment(false), 500);
-    }
-  };
-
-  const handleKeyupEvent = (event: KeyboardEvent) => {
-    if (event.code === "Backquote") {
-      setDevelopment(false);
-    }
-  };
-
   const createHeaders = () => {
     return [
       createHeaderTxHash(),
@@ -85,12 +60,7 @@ export const StandardNetworkTransactionListTable = ({
       .width(215)
       .colorName("blue")
       .renderOption((value, data) => (
-        <DatatableItem.TxHash
-          txHash={value}
-          status={data.success ? "success" : "failure"}
-          development={development}
-          height={data.blockHeight}
-        />
+        <DatatableItem.TxHash txHash={value} status={data.success ? "success" : "failure"} />
       ))
       .build();
   };

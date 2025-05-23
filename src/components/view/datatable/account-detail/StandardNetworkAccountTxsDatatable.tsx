@@ -34,30 +34,6 @@ export const StandardNetworkAccountTxsDatatable = ({ address, data, isFetched, h
   const { breakpoint } = useWindowSize();
 
   const { getTokenAmount } = useTokenMeta();
-  const [development, setDevelopment] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeydownEvent);
-    window.addEventListener("keyup", handleKeyupEvent);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeydownEvent);
-      window.removeEventListener("keyup", handleKeyupEvent);
-    };
-  }, []);
-
-  const handleKeydownEvent = (event: KeyboardEvent) => {
-    if (event.code === "Backquote") {
-      setDevelopment(true);
-      setTimeout(() => setDevelopment(false), 500);
-    }
-  };
-
-  const handleKeyupEvent = (event: KeyboardEvent) => {
-    if (event.code === "Backquote") {
-      setDevelopment(false);
-    }
-  };
 
   const createHeaders = () => {
     return [
@@ -78,12 +54,7 @@ export const StandardNetworkAccountTxsDatatable = ({ address, data, isFetched, h
       .width(215)
       .colorName("blue")
       .renderOption((value, data) => (
-        <DatatableItem.TxHash
-          txHash={value}
-          status={data.success ? "success" : "failure"}
-          development={development}
-          height={data.blockHeight}
-        />
+        <DatatableItem.TxHash txHash={value} status={data.success ? "success" : "failure"} />
       ))
       .build();
   };

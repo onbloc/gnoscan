@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import IconSuccess from "@/assets/svgs/icon-status-success.svg";
 import IconFail from "@/assets/svgs/icon-status-fail.svg";
-import { RPC_URI } from "@/common/values/constant-value";
 import { StatusKeyType } from "@/common/utils";
 import { textEllipsis } from "@/common/utils/string-util";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -10,27 +9,17 @@ import { useNetwork } from "@/common/hooks/use-network";
 interface Props {
   txHash: string;
   status: StatusKeyType;
-  development?: boolean;
-  height?: number;
 }
 
-export const TxHash = ({ txHash, status, development, height }: Props) => {
+export const TxHash = ({ txHash, status }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  const onClickIcon = () => {
-    if (!development || !height) {
-      return;
-    }
-    window.open(`${RPC_URI}/block_results?height=${height}`);
-  };
 
   return (
     <TxHashWrapper>
       <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
         {textEllipsis(txHash ?? "", 8)}
       </a>
-      <span className="status" onClick={onClickIcon}>
-        {status === "failure" ? <IconFail /> : <IconSuccess />}
-      </span>
+      <span className="status">{status === "failure" ? <IconFail /> : <IconSuccess />}</span>
     </TxHashWrapper>
   );
 };
