@@ -50,7 +50,9 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
         functionName: item.func[0].funcType,
         blockHeight: item.block,
         from: item.from,
+        fromName: item.fromName,
         to: item.to,
+        toName: item.toName,
         amount: item.amount,
         time: item.timestamp,
         fee: item.fee,
@@ -73,7 +75,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   };
 
   const createHeaderTxHash = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("hash")
       .name("Tx Hash")
       .width(210)
@@ -85,7 +87,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   };
 
   const createHeaderType = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("type")
       .name("Function")
       .width(190)
@@ -103,7 +105,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   };
 
   const createHeaderBlock = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("blockHeight")
       .name("Block")
       .width(113)
@@ -113,17 +115,17 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   };
 
   const createHeaderFrom = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("from")
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption(address => <DatatableItem.Account address={address} />)
+      .renderOption((_, data) => <DatatableItem.Account address={data.from} addressName={data.fromName} />)
       .build();
   };
 
   const createHeaderAmount = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("amount")
       .name("Amount")
       .width(190)
@@ -138,7 +140,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   };
 
   const createHeaderTime = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("time")
       .name("Time")
       .width(160)
@@ -148,7 +150,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
   };
 
   const createHeaderFee = () => {
-    return DatatableOption.Builder.builder<any>()
+    return DatatableOption.Builder.builder<Transaction>()
       .key("fee")
       .name("Fee")
       .width(113)
@@ -167,7 +169,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
             themeMode: themeMode,
           };
         })}
-        datas={tokenTransactions as any[]}
+        datas={tokenTransactions as Transaction[]}
       />
       {hasNextPage ? (
         <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>

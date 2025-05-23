@@ -27,7 +27,11 @@ export interface TokenTransactionModel {
 
   from: string;
 
+  fromName: string;
+
   to: string;
+
+  toName: string;
 
   amount: Amount;
 
