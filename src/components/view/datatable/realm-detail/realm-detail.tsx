@@ -93,7 +93,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption(address => <DatatableItem.Account address={address} />)
+      .renderOption((_, data) => <DatatableItem.Account address={data.from} addressName={data.fromName} />)
       .build();
   };
 
