@@ -16,7 +16,7 @@ export const TxHashCopy = ({ txHash }: Props) => {
   return (
     <TxHashWrapper>
       <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
-        {textEllipsis(txHash ?? "", 8)}
+        {textEllipsis(txHash ?? "", 6)}
         <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={txHash} width={85}>
           <IconCopy className="svg-icon" />
         </Tooltip>
