@@ -52,7 +52,7 @@ const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Account
       </Text>
       <S.Box isDesktop={isDesktop}>
         <S.AccountWrapper>
-          <S.ContentWrapper>
+          <S.ContentWrapper isDesktop={isDesktop}>
             <S.Content type="p4" color="primary">
               {address}
               <S.CopyTooltip content="Copied!" trigger="click" copyText={address || ""}>
@@ -78,7 +78,7 @@ interface UsernameDependentComponentProps {
 const UsernameDependentComponent = React.memo(({ breakpoint, userName, userUrl }: UsernameDependentComponentProps) => {
   return (
     <>
-      <S.ContentWrapper>
+      <S.ContentWrapper isDesktop={breakpoint === DEVICE_TYPE.DESKTOP}>
         <Link href={userUrl || ""} target="_blank" rel="noreferrer">
           <S.Username type="p4" color="blue" breakpoint={breakpoint}>
             {userName}
