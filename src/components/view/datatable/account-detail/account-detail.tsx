@@ -33,31 +33,6 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
   const media = eachMedia();
 
   const { getTokenAmount } = useTokenMeta();
-  // const { isFetchedAccountTransactions, accountTransactions, hasNextPage, nextPage } = useAccount(address);
-  const [development, setDevelopment] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeydownEvent);
-    window.addEventListener("keyup", handleKeyupEvent);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeydownEvent);
-      window.removeEventListener("keyup", handleKeyupEvent);
-    };
-  }, []);
-
-  const handleKeydownEvent = (event: KeyboardEvent) => {
-    if (event.code === "Backquote") {
-      setDevelopment(true);
-      setTimeout(() => setDevelopment(false), 500);
-    }
-  };
-
-  const handleKeyupEvent = (event: KeyboardEvent) => {
-    if (event.code === "Backquote") {
-      setDevelopment(false);
-    }
-  };
 
   const createHeaders = () => {
     return [
@@ -78,12 +53,7 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
       .width(215)
       .colorName("blue")
       .renderOption((value, data) => (
-        <DatatableItem.TxHash
-          txHash={value}
-          status={data.success ? "success" : "failure"}
-          development={development}
-          height={data.blockHeight}
-        />
+        <DatatableItem.TxHash txHash={value} status={data.success ? "success" : "failure"} />
       ))
       .build();
   };
