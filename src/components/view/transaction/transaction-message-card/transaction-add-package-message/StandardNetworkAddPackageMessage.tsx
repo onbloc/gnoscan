@@ -27,8 +27,6 @@ const StandardNetworkAddPackageMessage = ({
   message,
   getUrlWithNetwork,
 }: TransactionTransferContractProps) => {
-  const creator = message?.creator || "-";
-
   const deposit = React.useMemo(() => {
     if (!message?.deposit) return null;
 
@@ -50,7 +48,12 @@ const StandardNetworkAddPackageMessage = ({
       </FieldWithTooltip>
 
       <Field label="Creator" isDesktop={isDesktop}>
-        <AddressLink to={creator} copyText={creator} getUrlWithNetwork={getUrlWithNetwork} />
+        <AddressLink
+          address={message.creator || ""}
+          addressName={message.creatorName}
+          copyText={message.creator || ""}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
       </Field>
 
       <Field label="Files" isDesktop={isDesktop}>

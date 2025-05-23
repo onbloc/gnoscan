@@ -49,7 +49,6 @@ const StandardNetworkTransactionInfo = ({
     const allItems = eventsData.pages.flatMap(page => page.items);
     return TransactionMapper.transactionEventsFromApiResponses(allItems || []);
   }, [eventsData?.pages]);
-  console.log(txEvents, "txEvents");
 
   const detailTabs = React.useMemo(() => {
     return [

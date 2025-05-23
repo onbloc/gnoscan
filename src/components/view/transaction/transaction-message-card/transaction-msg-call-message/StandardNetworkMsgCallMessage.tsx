@@ -25,8 +25,6 @@ interface TransactionTransferContractProps {
 }
 
 const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionTransferContractProps) => {
-  const creator = message?.caller || "-";
-
   const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
 
   const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
@@ -58,14 +56,20 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
 
       <Field label="Caller (From)" isDesktop={isDesktop}>
         <AddressLink
-          to={message.from || creator}
-          copyText={message.from || creator}
+          address={message.from || ""}
+          addressName={message.fromName}
+          copyText={message.from || ""}
           getUrlWithNetwork={getUrlWithNetwork}
         />
       </Field>
 
       <Field label="To" isDesktop={isDesktop}>
-        <AddressLink to={message.to || "-"} copyText={message.to || ""} getUrlWithNetwork={getUrlWithNetwork} />
+        <AddressLink
+          address={message.to || ""}
+          addressName={message.toName}
+          copyText={message.to || ""}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
       </Field>
     </>
   );
@@ -73,7 +77,12 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
   const msgCallFields = (
     <>
       <Field label="Caller" isDesktop={isDesktop}>
-        <AddressLink to={creator} copyText={creator} getUrlWithNetwork={getUrlWithNetwork} />
+        <AddressLink
+          address={message.caller || ""}
+          addressName={message.callerName}
+          copyText={message.caller || ""}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
       </Field>
 
       <Field label="Arguments" isDesktop={isDesktop}>

@@ -43,11 +43,21 @@ const StandardNetworkBankMsgSendMessage = ({
       </Field>
 
       <Field label="From" isDesktop={isDesktop}>
-        <AddressLink to={message.from || ""} copyText={message.from || ""} getUrlWithNetwork={getUrlWithNetwork} />
+        <AddressLink
+          address={message.from || ""}
+          addressName={message.fromName}
+          copyText={message.from || ""}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
       </Field>
 
       <Field label="To" isDesktop={isDesktop}>
-        <AddressLink to={message.to || ""} copyText={message.to || ""} getUrlWithNetwork={getUrlWithNetwork} />
+        <AddressLink
+          address={message.to || ""}
+          addressName={message.toName}
+          copyText={message.to || ""}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
       </Field>
     </>
   );

@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
@@ -17,7 +16,7 @@ interface AccountAddressProps {
   address: string;
 }
 
-const StandardNetworkAccountAddress = ({ breakpoint, isDesktop, address }: AccountAddressProps) => {
+const StandardNetworkAccountAddress = ({ isDesktop, address }: AccountAddressProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
   const { getUrlWithNetwork } = useNetwork();
 
@@ -44,13 +43,7 @@ const StandardNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Accou
                 <IconCopy />
               </S.CopyTooltip>
             </S.Content>
-            {username && (
-              <Username
-                breakpoint={breakpoint}
-                username={username}
-                userUrl={getUrlWithNetwork(`/account/${address}`)}
-              />
-            )}
+            {username && <Username username={username} userUrl={getUrlWithNetwork(`/account/${address}`)} />}
           </S.ContentWrapper>
         </S.AccountWrapper>
       </S.Box>

@@ -15,8 +15,6 @@ interface TransactionTransferContractProps {
 }
 
 const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionTransferContractProps) => {
-  const caller = message?.caller || "-";
-
   const calledFunctions: BadgeTooltipProps[] | null = React.useMemo(() => {
     if (!message?.calledFunctions) return null;
 
@@ -45,7 +43,12 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
       </Field>
 
       <Field label="Caller" isDesktop={isDesktop}>
-        <AddressLink to={caller || ""} copyText={caller || ""} getUrlWithNetwork={getUrlWithNetwork} />
+        <AddressLink
+          address={message.caller || ""}
+          addressName={message.callerName}
+          copyText={message.caller || ""}
+          getUrlWithNetwork={getUrlWithNetwork}
+        />
       </Field>
 
       <Field label="Files" isDesktop={isDesktop}>
