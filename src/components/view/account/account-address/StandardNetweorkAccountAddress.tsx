@@ -2,7 +2,6 @@ import React from "react";
 
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { useNetwork } from "@/common/hooks/use-network";
 
 import * as S from "./AccountAddress.styles";
 import Text from "@/components/ui/text";
@@ -18,7 +17,6 @@ interface AccountAddressProps {
 
 const StandardNetworkAccountAddress = ({ isDesktop, address }: AccountAddressProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
-  const { getUrlWithNetwork } = useNetwork();
 
   const username: string | null = React.useMemo(() => {
     if (!data?.data || !data?.data?.name) return null;
@@ -43,7 +41,7 @@ const StandardNetworkAccountAddress = ({ isDesktop, address }: AccountAddressPro
                 <IconCopy />
               </S.CopyTooltip>
             </S.Content>
-            {username && <Username username={username} userUrl={getUrlWithNetwork(`/account/${address}`)} />}
+            {username && <Username username={username} />}
           </S.ContentWrapper>
         </S.AccountWrapper>
       </S.Box>
