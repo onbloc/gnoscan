@@ -179,6 +179,7 @@ export interface NewestRealm {
   packageName: string;
   packagePath: string;
   creator: string;
+  creatorName?: string;
   functionCount: number;
   totalCalls: number;
   totalGasUsed: Amount;

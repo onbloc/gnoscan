@@ -4,6 +4,7 @@ export interface NewestRealmModel {
   functions: number;
   path: string;
   publisher: string;
+  publisherName: string;
 }
 
 export interface GetNewestRealmsResponse {

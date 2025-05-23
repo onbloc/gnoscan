@@ -39,8 +39,8 @@ const ActiveAccountApi = () => {
     return data.lastUpdated;
   }, [data?.lastUpdated]);
 
-  const getDisplayUsername = useCallback((address: string) => {
-    return textEllipsis(address);
+  const getDisplayUsername = useCallback((address: string, addressName?: string | null) => {
+    return addressName ? textEllipsis(addressName) : textEllipsis(address);
   }, []);
 
   return (
@@ -63,7 +63,9 @@ const ActiveAccountApi = () => {
               <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
                 <Link href={getUrlWithNetwork(`/account/${account.account}`)} passHref>
                   <span>
-                    <Tooltip content={account.account}>{getDisplayUsername(account.account)}</Tooltip>
+                    <Tooltip content={account.account}>
+                      {getDisplayUsername(account.account, account.accountName)}
+                    </Tooltip>
                   </span>
                 </Link>
               </StyledText>
