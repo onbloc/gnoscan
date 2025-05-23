@@ -78,6 +78,7 @@ export interface TokenSummary {
   decimals: string | number;
   packagePath: string;
   owner: string;
+  ownerName?: string;
   functions: string[];
   totalSupply: number;
   holders: number;
