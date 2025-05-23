@@ -61,6 +61,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         blockHeight: item.blockHeight,
         transactionHash: item.txHash,
         caller: item.caller,
+        callerName: item.callerName,
         type: item.eventName,
         packagePath: item.realmPath,
         functionName: item.function,

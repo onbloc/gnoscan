@@ -189,6 +189,7 @@ export interface GnoEvent {
   blockHeight: number;
   transactionHash: string;
   caller: string;
+  callerName?: string;
   type: string;
   packagePath: string;
   functionName: string;
