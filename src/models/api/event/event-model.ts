@@ -1,6 +1,7 @@
 export interface EventModel {
   blockHeight: number;
   caller: string;
+  callerName: string;
   emit: {
     name: string;
     params: [

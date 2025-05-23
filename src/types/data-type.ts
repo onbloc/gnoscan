@@ -138,7 +138,9 @@ export interface Transaction {
   functionName: string;
   blockHeight: number;
   from: string;
+  fromName?: string;
   to?: string;
+  toName?: string;
   amount: Amount;
   amountOut?: Amount;
   time: string;
