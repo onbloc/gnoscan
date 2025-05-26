@@ -1,6 +1,6 @@
 import { Amount } from "@/types/data-type";
 
-export interface TransactionModel {
+export interface BaseTransactionModel {
   txHash: string;
   blockHeight: number;
   timestamp: string;
@@ -9,11 +9,8 @@ export interface TransactionModel {
   messageCount: number;
 
   fromAddress: string;
-  fromName: string;
   toAddress: string;
-  toName: string;
 
-  amount: Amount;
   fee: Amount;
 
   func: {
@@ -21,4 +18,11 @@ export interface TransactionModel {
     funcType: string;
     pkgPath: string;
   }[];
+}
+
+export interface TransactionModel extends BaseTransactionModel {
+  fromName: string;
+  toName: string;
+
+  amount: Amount;
 }
