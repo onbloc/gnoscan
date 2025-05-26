@@ -11,6 +11,11 @@ export interface AccountTransactionInfo {
     pkgPath: string;
   }[];
   successYn: boolean;
+  fromAddress: string;
+  toAddress: string;
+  isGRC20Transfer: boolean;
+  isGRC721Transfer: boolean;
+  messageCount: number;
   timestamp: string;
   token: string;
   txHash: string;
