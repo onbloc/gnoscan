@@ -11,9 +11,9 @@ import { themeState } from "@/states";
 import { useGetTokenTransactionsByid } from "@/common/react-query/token/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useWindowSize } from "@/common/hooks/use-window-size";
+import { TransactionTableModel } from "@/models/api/common";
 
 import { Transaction } from "@/types/data-type";
-import { TokenTransactionModel } from "@/models/api/token/token-model";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { Button } from "@/components/ui/button";
 
@@ -40,7 +40,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
 
     const allItems = data.pages.flatMap(page => page.items);
 
-    return allItems.map((item: TokenTransactionModel): Transaction => {
+    return allItems.map((item: TransactionTableModel): Transaction => {
       return {
         hash: item.txHash,
         success: item.successYn,

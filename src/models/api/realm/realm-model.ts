@@ -40,27 +40,6 @@ export interface RealmSummaryModel {
   totalUsedFees: Amount;
 }
 
-export interface RealmTransactionModel {
-  txHash: string;
-  func: [
-    {
-      funcType: string;
-      messageType: string;
-      pkgPath: string;
-    },
-  ];
-  successYn: boolean;
-  blockHeight: number;
-  fromAddress: string;
-  fromName: string;
-  toAddress: string;
-  toName: string;
-  messageCount: number;
-  amount: Amount;
-  fee: Amount;
-  timestamp: string;
-}
-
 export interface RealmEventModel {
   identifier: string;
 
