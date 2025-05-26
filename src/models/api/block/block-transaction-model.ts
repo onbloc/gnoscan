@@ -3,7 +3,7 @@ export interface BlockTransactionModel {
   amount: Amount;
   blockHeight: number;
   fee: Amount;
-  from: string;
+  fromAddress: string;
   fromName: string;
   func: [
     {
@@ -12,10 +12,10 @@ export interface BlockTransactionModel {
       pkgPath: string;
     },
   ];
-  numOfMessage: number;
-  success: boolean;
+  messageCount: number;
+  successYn: boolean;
   timestamp: string;
-  to: string;
+  toAddress: string;
   toName: string;
   txHash: string;
 }
