@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { AccountAssetViewModel } from "@/types/account";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { formatTokenDecimal } from "@/common/utils/token.utility";
 
 import * as S from "./AccountAssets.styles";
 import Text from "@/components/ui/text";
@@ -28,9 +29,10 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     return data.data.assets
       .filter(asset => asset.name && asset.symbol)
       .map((asset): AccountAssetViewModel => {
+        const amount = formatTokenDecimal(asset.amount, asset.decimals);
         return {
           amount: {
-            value: asset.amount,
+            value: amount,
             denom: asset.symbol,
           },
           packagePath: asset.packagePath,
