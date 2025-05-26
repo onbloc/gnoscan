@@ -4,12 +4,13 @@ import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetSummaryBlocks } from "@/common/react-query/statistics";
 import { SummaryBlockInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
+import { DEFAULT_SUMMARY_BLOCK_INFO } from "@/common/values/default-object/summary";
 
 export const StandardNetworkBlockCard = () => {
   const { data, isFetched } = useGetSummaryBlocks();
 
   const summaryInfo: SummaryBlockInfo = React.useMemo(() => {
-    if (!data?.data) return { blockHeight: "", blockTimeAverage: "", txPerBlockAverage: "" };
+    if (!data?.data) return DEFAULT_SUMMARY_BLOCK_INFO;
     return {
       blockHeight: String(data.data.height),
       blockTimeAverage: data.data.avgBlockTime,

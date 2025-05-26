@@ -1,33 +1,28 @@
 import { Amount } from "@/types/data-type";
 
-export interface TransactionModel {
-  amount: Amount;
-
+export interface BaseTransactionModel {
+  txHash: string;
   blockHeight: number;
+  timestamp: string;
+
+  successYn: boolean;
+  messageCount: number;
+
+  fromAddress: string;
+  toAddress: string;
 
   fee: Amount;
 
-  from: string;
+  func: {
+    messageType: string;
+    funcType: string;
+    pkgPath: string;
+  }[];
+}
 
+export interface TransactionModel extends BaseTransactionModel {
   fromName: string;
-
-  func: [
-    {
-      funcType: string;
-      messageType: string;
-      pkgPath: string;
-    },
-  ];
-
-  numOfMessage: number;
-
-  success: boolean;
-
-  timestamp: string;
-
-  to: string;
-
   toName: string;
 
-  txHash: string;
+  amount: Amount;
 }

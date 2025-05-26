@@ -1,4 +1,5 @@
-import { RealmEventModel, RealmModel, RealmSummaryModel, RealmTransactionModel } from "@/models/api/realm/realm-model";
+import { TransactionTableModel } from "@/models/api/common";
+import { RealmEventModel, RealmModel, RealmSummaryModel } from "@/models/api/realm/realm-model";
 import { GnoEvent, Realm, RealmSummary, Transaction } from "@/types/data-type";
 
 export class RealmMapper {
@@ -42,26 +43,26 @@ export class RealmMapper {
     };
   }
 
-  public static realmTransactionFromApiResponses(responses: RealmTransactionModel[]): Transaction[] {
+  public static realmTransactionFromApiResponses(responses: TransactionTableModel[]): Transaction[] {
     return responses.map(response => this.realmTransactionFromApiResponse(response));
   }
 
-  public static realmTransactionFromApiResponse(response: RealmTransactionModel): Transaction {
+  public static realmTransactionFromApiResponse(response: TransactionTableModel): Transaction {
     return {
       amount: response.amount,
-      blockHeight: response.block,
+      blockHeight: response.blockHeight,
       fee: response.fee,
-      from: response.from,
+      from: response.fromAddress,
       fromName: response.fromName,
-      to: response.to,
+      to: response.toAddress,
       toName: response.toName,
       time: response.timestamp,
-      numOfMessage: response.func.length,
+      numOfMessage: response.messageCount,
       functionName: response.func[0].funcType,
       packagePath: response.func[0].pkgPath,
       type: response.func[0].messageType,
       hash: response.txHash,
-      success: response.success,
+      success: response.successYn,
     };
   }
 

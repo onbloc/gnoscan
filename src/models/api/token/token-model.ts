@@ -11,31 +11,3 @@ export interface TokenModel {
   path: string;
   logoUrl: string | null;
 }
-
-export interface TokenTransactionModel {
-  txHash: string;
-
-  func: {
-    messageType: string;
-    funcType: string;
-    pkgPath: string;
-  }[];
-
-  success: boolean;
-
-  block: number;
-
-  from: string;
-
-  fromName: string;
-
-  to: string;
-
-  toName: string;
-
-  amount: Amount;
-
-  fee: Amount;
-
-  timestamp: string;
-}

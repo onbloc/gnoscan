@@ -11,9 +11,9 @@ import { themeState } from "@/states";
 import { useGetTokenTransactionsByid } from "@/common/react-query/token/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useWindowSize } from "@/common/hooks/use-window-size";
+import { TransactionTableModel } from "@/models/api/common";
 
 import { Transaction } from "@/types/data-type";
-import { TokenTransactionModel } from "@/models/api/token/token-model";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { Button } from "@/components/ui/button";
 
@@ -40,18 +40,18 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
 
     const allItems = data.pages.flatMap(page => page.items);
 
-    return allItems.map((item: TokenTransactionModel): Transaction => {
+    return allItems.map((item: TransactionTableModel): Transaction => {
       return {
         hash: item.txHash,
-        success: item.success,
-        numOfMessage: item.func.length,
+        success: item.successYn,
+        numOfMessage: item.messageCount,
         type: item.func[0].messageType,
         packagePath: item.func[0].pkgPath,
         functionName: item.func[0].funcType,
-        blockHeight: item.block,
-        from: item.from,
+        blockHeight: item.blockHeight,
+        from: item.fromAddress,
         fromName: item.fromName,
-        to: item.to,
+        to: item.toAddress,
         toName: item.toName,
         amount: item.amount,
         time: item.timestamp,
@@ -133,7 +133,7 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount {...toGNOTAmount(amount.value, amount.denom)} />
+          <DatatableItem.StandardNetworkAmount data={data.amount} />
         ),
       )
       .build();

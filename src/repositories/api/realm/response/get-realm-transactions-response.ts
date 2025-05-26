@@ -1,7 +1,7 @@
-import { RealmTransactionModel } from "@/models/api/realm/realm-model";
+import { TransactionTableModel } from "@/models/api/common";
 
 export interface GetRealmTransactionsResponse {
-  items: RealmTransactionModel[];
+  items: TransactionTableModel[];
 
   page: {
     cursor: string;

@@ -7,12 +7,13 @@ import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetSummaryAccounts } from "@/common/react-query/statistics";
 import { SummaryAccountsInfo } from "@/types/data-type";
+import { DEFAULT_SUMMARY_ACCOUNTS_INFO } from "@/common/values/default-object/summary";
 
 export const StandardNetworkAccountCard = () => {
   const { data, isFetched } = useGetSummaryAccounts();
 
   const accountSummaryInfo: SummaryAccountsInfo = React.useMemo(() => {
-    if (!data?.data) return { totalAccounts: 0, totalUsers: 0, numOfValidators: "" };
+    if (!data?.data) return DEFAULT_SUMMARY_ACCOUNTS_INFO;
     return {
       totalAccounts: data.data.total || 0,
       totalUsers: data.data.users || 0,
