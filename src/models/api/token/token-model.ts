@@ -21,21 +21,23 @@ export interface TokenTransactionModel {
     pkgPath: string;
   }[];
 
-  success: boolean;
+  successYn: boolean;
 
-  block: number;
+  blockHeight: number;
 
-  from: string;
+  fromAddress: string;
 
   fromName: string;
 
-  to: string;
+  toAddress: string;
 
   toName: string;
 
   amount: Amount;
 
   fee: Amount;
+
+  messageCount: number;
 
   timestamp: string;
 }
