@@ -9,7 +9,7 @@ export const StandardNetworkBlockCard = () => {
   const { data, isFetched } = useGetSummaryBlocks();
 
   const summaryInfo: SummaryBlockInfo = React.useMemo(() => {
-    if (!data?.data) return { blockHeight: "", blockTimeAverage: "", txPerBlockAverage: "" };
+    if (!data?.data) return { blockHeight: "0", blockTimeAverage: "0", txPerBlockAverage: "0" };
     return {
       blockHeight: String(data.data.height),
       blockTimeAverage: data.data.avgBlockTime,

@@ -12,7 +12,7 @@ export const StandardNetworkSupplyCard = () => {
   const { data, isFetched } = useGetSummarySupply();
 
   const supplyInfo: SummaryGnotSupplyInfo = React.useMemo(() => {
-    if (!data?.data) return { totalSupplyAmount: "", airdropSupplyAmount: "", airdropHolder: "" };
+    if (!data?.data) return { totalSupplyAmount: "0", airdropSupplyAmount: "0", airdropHolder: "0" };
     return {
       airdropHolder: String(data.data.airdropHolders),
       airdropSupplyAmount: data.data.airdropSupply,

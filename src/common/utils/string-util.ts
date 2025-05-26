@@ -20,6 +20,7 @@ export const firstStrUpperCase = (v: string) => {
 };
 
 export function makeDisplayNumber(amount: string | number): string {
+  if (BigNumber(amount).isNaN()) return "0";
   return BigNumber(amount).toFormat();
 }
 

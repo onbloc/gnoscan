@@ -12,7 +12,7 @@ export const StandardNetworkAccountCard = () => {
   const { data, isFetched } = useGetSummaryAccounts();
 
   const accountSummaryInfo: SummaryAccountsInfo = React.useMemo(() => {
-    if (!data?.data) return { totalAccounts: 0, totalUsers: 0, numOfValidators: "" };
+    if (!data?.data) return { totalAccounts: 0, totalUsers: 0, numOfValidators: "0" };
     return {
       totalAccounts: data.data.total || 0,
       totalUsers: data.data.users || 0,

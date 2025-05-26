@@ -9,7 +9,7 @@ export const StandardNetworkTxsCard = () => {
   const { data, isFetched } = useGetSummaryTransactions();
 
   const transactionSummaryInfo: SummaryTransactionsInfo = React.useMemo(() => {
-    if (!data?.data) return { totalTransactions: "", transactionFeeAverage: "", transactionTotalFee: "" };
+    if (!data?.data) return { totalTransactions: "0", transactionFeeAverage: "0", transactionTotalFee: "0" };
     return {
       totalTransactions: String(data.data.total),
       transactionFeeAverage: data.data.avgFee24h,
@@ -43,7 +43,7 @@ export const StandardNetworkTxsCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {transactionSummaryInfo.transactionFeeAverage}
+                  {makeDisplayNumber(transactionSummaryInfo.transactionFeeAverage)}
                 </Text>
               }
             />
@@ -62,7 +62,7 @@ export const StandardNetworkTxsCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {transactionSummaryInfo.transactionTotalFee}
+                  {makeDisplayNumber(transactionSummaryInfo.transactionTotalFee)}
                 </Text>
               }
             />
