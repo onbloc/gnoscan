@@ -116,7 +116,7 @@ export const StandardNetworkTransactionListTable = ({
         data.messageCount > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.txHash}`} />
         ) : (
-          <DatatableItem.Amount {...toGNOTAmount(data.amount.value, data.amount.denom)} />
+          <DatatableItem.StandardNetworkAmount data={data.amount} />
         ),
       )
       .build();
