@@ -1,7 +1,7 @@
-import { BlockTransactionModel } from "@/models/api/block/block-transaction-model";
+import { TransactionTableModel } from "@/models/api/common/transaction-table-model";
 
 export interface GetBlockTransactionsResponse {
-  items: BlockTransactionModel[];
+  items: TransactionTableModel[];
 
   page: {
     cursor: string;

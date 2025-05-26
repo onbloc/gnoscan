@@ -5,7 +5,7 @@ import { Block, BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-typ
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString, safeString } from "@/common/utils/format/format-utils";
-import { BlockTransactionModel } from "@/models/api/block/block-transaction-model";
+import { TransactionTableModel } from "@/models/api/common";
 
 export class BlockMapper {
   public static blockListFromApiResponses(responses: BlockModel[]): Block[] {
@@ -72,11 +72,11 @@ export class BlockMapper {
     };
   }
 
-  public static blockTransactionsFromApiResponses(responses: BlockTransactionModel[]): Transaction[] {
+  public static blockTransactionsFromApiResponses(responses: TransactionTableModel[]): Transaction[] {
     return responses.map(response => this.blockTransactionsFromApiResponse(response));
   }
 
-  public static blockTransactionsFromApiResponse(response: BlockTransactionModel): Transaction {
+  public static blockTransactionsFromApiResponse(response: TransactionTableModel): Transaction {
     return {
       hash: response.txHash,
       success: response.successYn,

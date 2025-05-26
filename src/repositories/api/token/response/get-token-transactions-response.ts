@@ -1,7 +1,7 @@
-import { TokenTransactionModel } from "@/models/api/token/token-model";
+import { TransactionTableModel } from "@/models/api/common";
 
 export interface GetTokenTransactionsResponse {
-  items: TokenTransactionModel[];
+  items: TransactionTableModel[];
   page: {
     cursor: string;
     hasNext: boolean;
