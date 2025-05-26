@@ -60,7 +60,7 @@ export const StandardNetworkTransactionListTable = ({
       .width(215)
       .colorName("blue")
       .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} status={data.success ? "success" : "failure"} />
+        <DatatableItem.TxHash txHash={value} status={data.successYn ? "success" : "failure"} />
       ))
       .build();
   };
@@ -80,7 +80,7 @@ export const StandardNetworkTransactionListTable = ({
             type={func.messageType}
             func={displayFunctionName}
             packagePath={func.pkgPath}
-            msgNum={data.numOfMessage - 1}
+            msgNum={data.messageCount - 1}
           />
         );
       })
@@ -103,7 +103,7 @@ export const StandardNetworkTransactionListTable = ({
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.Publisher address={data.from} username={data.fromName} />)
+      .renderOption((_, data) => <DatatableItem.Publisher address={data.fromAddress} username={data.fromName} />)
       .build();
   };
 
@@ -113,7 +113,7 @@ export const StandardNetworkTransactionListTable = ({
       .name("Amount")
       .width(190)
       .renderOption((_, data) =>
-        data.numOfMessage > 1 ? (
+        data.messageCount > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.txHash}`} />
         ) : (
           <DatatableItem.Amount {...toGNOTAmount(data.amount.value, data.amount.denom)} />

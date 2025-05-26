@@ -7,7 +7,7 @@ export interface TransactionModel {
 
   fee: Amount;
 
-  from: string;
+  fromAddress: string;
 
   fromName: string;
 
@@ -19,13 +19,13 @@ export interface TransactionModel {
     },
   ];
 
-  numOfMessage: number;
+  messageCount: number;
 
-  success: boolean;
+  successYn: boolean;
 
   timestamp: string;
 
-  to: string;
+  toAddress: string;
 
   toName: string;
 
