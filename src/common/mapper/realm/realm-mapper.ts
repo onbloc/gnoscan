@@ -49,19 +49,19 @@ export class RealmMapper {
   public static realmTransactionFromApiResponse(response: RealmTransactionModel): Transaction {
     return {
       amount: response.amount,
-      blockHeight: response.block,
+      blockHeight: response.blockHeight,
       fee: response.fee,
-      from: response.from,
+      from: response.fromAddress,
       fromName: response.fromName,
-      to: response.to,
+      to: response.toAddress,
       toName: response.toName,
       time: response.timestamp,
-      numOfMessage: response.func.length,
+      numOfMessage: response.messageCount,
       functionName: response.func[0].funcType,
       packagePath: response.func[0].pkgPath,
       type: response.func[0].messageType,
       hash: response.txHash,
-      success: response.success,
+      success: response.successYn,
     };
   }
 

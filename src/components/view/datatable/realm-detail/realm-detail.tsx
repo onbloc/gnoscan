@@ -106,7 +106,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
         ) : (
-          <DatatableItem.Amount {...getTokenAmount(amount.denom, amount.value)} />
+          <DatatableItem.StandardNetworkAmount data={amount} />
         ),
       )
       .build();

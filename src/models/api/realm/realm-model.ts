@@ -49,12 +49,13 @@ export interface RealmTransactionModel {
       pkgPath: string;
     },
   ];
-  success: boolean;
-  block: number;
-  from: string;
+  successYn: boolean;
+  blockHeight: number;
+  fromAddress: string;
   fromName: string;
-  to: string;
+  toAddress: string;
   toName: string;
+  messageCount: number;
   amount: Amount;
   fee: Amount;
   timestamp: string;
