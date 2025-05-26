@@ -4,12 +4,13 @@ import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetSummaryTransactions } from "@/common/react-query/statistics";
 import { SummaryTransactionsInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
+import { DEFAULT_SUMMARY_TRANSACTIONS_INFO } from "@/common/values/default-object/summary";
 
 export const StandardNetworkTxsCard = () => {
   const { data, isFetched } = useGetSummaryTransactions();
 
   const transactionSummaryInfo: SummaryTransactionsInfo = React.useMemo(() => {
-    if (!data?.data) return { totalTransactions: "0", transactionFeeAverage: "0", transactionTotalFee: "0" };
+    if (!data?.data) return DEFAULT_SUMMARY_TRANSACTIONS_INFO;
     return {
       totalTransactions: String(data.data.total),
       transactionFeeAverage: data.data.avgFee24h,

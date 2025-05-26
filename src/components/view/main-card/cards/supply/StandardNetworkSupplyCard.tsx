@@ -7,12 +7,13 @@ import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetSummarySupply } from "@/common/react-query/statistics";
 import { SummaryGnotSupplyInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
+import { DEFAULT_SUMMARY_GNOT_SUPPLY_INFO } from "@/common/values/default-object/summary";
 
 export const StandardNetworkSupplyCard = () => {
   const { data, isFetched } = useGetSummarySupply();
 
   const supplyInfo: SummaryGnotSupplyInfo = React.useMemo(() => {
-    if (!data?.data) return { totalSupplyAmount: "0", airdropSupplyAmount: "0", airdropHolder: "0" };
+    if (!data?.data) return DEFAULT_SUMMARY_GNOT_SUPPLY_INFO;
     return {
       airdropHolder: String(data.data.airdropHolders),
       airdropSupplyAmount: data.data.airdropSupply,
