@@ -1,4 +1,4 @@
-"use client";
+import { useRecoilState } from "recoil";
 import { useRouter } from "@/common/hooks/common/use-router";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { createContext, useEffect, useMemo } from "react";
@@ -10,8 +10,8 @@ import { NodeRPCClient } from "@/common/clients/node-client";
 import { RPCClient } from "@/common/clients/rpc-client";
 import { HttpRPCClient } from "@/common/clients/rpc-client/http-rpc-client";
 
-import { useNetwork } from "@/common/hooks/use-network";
 import { ChainModel, getChainSupportType } from "@/models/chain-model";
+import { NetworkState } from "@/states";
 
 interface NetworkContextProps {
   chains: ChainModel[];
@@ -22,7 +22,7 @@ interface NetworkContextProps {
 
   nodeRPCClient: NodeRPCClient | null;
 
-  // current main is portal-loop
+  // current main is staging
   mainNodeRPCClient: NodeRPCClient | null;
 
   indexerQueryClient: IndexerClient | null;
@@ -40,7 +40,12 @@ interface NetworkProviderPros {
 
 const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = ({ chains, children }) => {
   const router = useRouter();
-  const { currentNetwork, setCurrentNetwork } = useNetwork();
+  const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
+  const [, setChainData] = useRecoilState(NetworkState.chainData);
+
+  useEffect(() => {
+    setChainData(chains);
+  }, [chains, setChainData]);
 
   useEffect(() => {
     // If the query fails to load.
@@ -157,7 +162,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   }, [currentNetworkModel]);
 
   const mainNodeRPCClient = useMemo(() => {
-    const mainNetwork = chains.find(chain => chain.chainId === "portal-loop");
+    const mainNetwork = chains.find(chain => chain.chainId === "staging");
     if (!mainNetwork) {
       return null;
     }

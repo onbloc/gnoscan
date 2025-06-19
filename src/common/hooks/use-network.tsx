@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NetworkState } from "@/states";
-import { useRouter } from "next/router";
-import ChainData from "public/resource/chains.json";
 import React, { useMemo } from "react";
+import { useRouter } from "next/router";
 import { useRecoilState } from "recoil";
+
+import { NetworkState } from "@/states";
 import { makeQueryString } from "../utils/string-util";
 
 type NetworkTransitionState = {
@@ -46,6 +46,7 @@ function parseSearchString(search: string) {
 export const useNetwork = () => {
   const { replace } = useRouter();
   const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
+  const [chainData] = useRecoilState(NetworkState.chainData);
 
   const networkTransitionRef = React.useRef<NetworkTransitionState>({
     isPending: false,
@@ -54,7 +55,7 @@ export const useNetwork = () => {
   });
 
   const networkParams = useMemo(() => {
-    if (!currentNetwork || currentNetwork.chainId === ChainData[0].chainId) {
+    if (!currentNetwork || currentNetwork.chainId === chainData[0].chainId) {
       return null;
     }
 
@@ -107,15 +108,15 @@ export const useNetwork = () => {
   };
 
   const changeNetwork = (chainId: string) => {
-    const chain = ChainData.find(chain => chain.chainId === chainId) || ChainData[0];
+    const chain = chainData.find(chain => chain.chainId === chainId) || chainData[0];
 
     setCurrentNetwork({
       isCustom: false,
       chainId: chain.chainId,
-      apiUrl: chain.apiUrl,
-      rpcUrl: chain.rpcUrl,
-      indexerUrl: chain.indexerUrl,
-      gnoWebUrl: chain.gnoWebUrl,
+      apiUrl: chain.apiUrl || "",
+      rpcUrl: chain.rpcUrl || "",
+      indexerUrl: chain.indexerUrl || "",
+      gnoWebUrl: chain.gnoWebUrl || "",
     });
 
     const uri = window.location.pathname + window.location.search;
