@@ -8,8 +8,8 @@
     "gnoWebUrl": "https://test6.testnets.gno.land"
   },
   {
-    "name": "Portal Loop",
-    "chainId": "portal-loop",
+    "name": "Staging",
+    "chainId": "staging",
     "apiUrl": "https://staging.api.onbloc.xyz/v1",
     "rpcUrl": "https://rpc.gno.land:443",
     "indexerUrl": "https://indexer.onbloc.xyz",

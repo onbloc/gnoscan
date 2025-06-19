@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useGetUsername } from "../common/use-get-username";
 import { useGetValidatorNames } from "../common/use-get-validator-names";
-import { PORTAL_LOOP_CHAIN_ID } from "@/common/values/constant-value";
+import { STAGING_CHAIN_ID } from "@/common/values/constant-value";
 
 export const useUsername = () => {
   const { data = {}, isFetched, isLoading } = useGetUsername();
@@ -33,7 +33,7 @@ export const useUsername = () => {
     (networkId: string, userName: string) => {
       if (!networkId || !userName) return null;
 
-      const baseUrl = (networkId = PORTAL_LOOP_CHAIN_ID ? "https://gno.land" : `https://${networkId}.gno.land`);
+      const baseUrl = (networkId = STAGING_CHAIN_ID ? "https://gno.land" : `https://${networkId}.gno.land`);
 
       return `${baseUrl}/r/demo/users:${userName}`;
     },

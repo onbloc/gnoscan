@@ -8,13 +8,13 @@ import { ErrorBoundary } from "@/components/core/error-boundary";
 import "antd/dist/reset.css";
 import Meta from "@/components/core/layout/meta";
 import GoogleAnalytics from "@/components/core/layout/google-analytics";
-import ChainData from "public/resource/chains.json";
+import DefaultChainData from "public/resource/chains.json";
 import NetworkProvider from "@/providers/network-provider";
 import ServiceProvider from "@/providers/service-provider";
 import { getNetworkConfig } from "@/common/config/network.config";
 
 const App: React.FC = ({ Component, pageProps }: any) => {
-  const networks = getNetworkConfig(ChainData);
+  const networks = getNetworkConfig(DefaultChainData);
 
   return (
     <>
