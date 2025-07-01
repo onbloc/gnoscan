@@ -2,6 +2,7 @@ import React from "react";
 
 import { useBlock } from "@/common/hooks/blocks/use-block";
 import { useWindowSize } from "@/common/hooks/use-window-size";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import TitleOption from "@/components/view/common/title-option/TitleOption";
 
 import * as S from "./BlockLayout.styles";
@@ -16,10 +17,11 @@ interface BlockLayoutProps {
 
 const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps) => {
   const { breakpoint, isDesktop } = useWindowSize();
+  const { isCustomNetwork } = useNetworkProvider();
 
-  const { block, isFetched, isErrorBlock } = useBlock(blockHeight);
+  const { block, isFetched: isFetchedRpcData, isErrorBlock: isErrorRpcData } = useBlock(blockHeight);
 
-  if (isFetched && isErrorBlock)
+  if (isCustomNetwork && isFetchedRpcData && isErrorRpcData)
     return (
       <S.InnerLayout>
         <NotFound keyword={`${blockHeight}`} breakpoint={breakpoint} />
