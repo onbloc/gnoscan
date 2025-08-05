@@ -14,6 +14,7 @@ interface AmountTextProps {
   decimals?: number;
   color?: PaletteKeyType;
   className?: string;
+  bold?: boolean;
 }
 
 export const AmountText = ({
@@ -24,6 +25,7 @@ export const AmountText = ({
   color = "primary",
   decimals = 6,
   className,
+  bold = false,
 }: AmountTextProps) => {
   const numberValues = useMemo(() => {
     const valueStr = typeof value === "string" ? value.replace(/,/g, "") : value.toString();
@@ -68,7 +70,13 @@ export const AmountText = ({
     <Wrapper className={className}>
       <div className="amount-wrapper">
         <>
-          <Text className="text-wrapper" type={maxSize} color={color} display="contents">
+          <Text
+            className="text-wrapper"
+            type={maxSize}
+            color={color}
+            display="contents"
+            fontWeight={bold ? 600 : undefined}
+          >
             {formattedInteger}
           </Text>
           <Text type={minSize} color={color} display="contents" className="decimals">

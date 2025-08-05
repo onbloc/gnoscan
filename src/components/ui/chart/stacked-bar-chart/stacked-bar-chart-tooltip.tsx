@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import theme from "@/styles/theme";
 import { AmountText } from "../../text/amount-text";
+import { ColorCircleIndicator } from "../../color-circle-indicator/ColorCircleIndicator";
 
 interface Dataset {
   label: string;
@@ -17,7 +18,7 @@ interface TooltipProps {
   isDenom?: boolean;
 }
 
-export const StackedBarChartTooltip = ({ themeMode, title, datasets, isDenom }: TooltipProps) => {
+export const StackedBarChartTooltip = ({ themeMode, title, datasets, isDenom = true }: TooltipProps) => {
   return (
     <TooltipContainer light={themeMode === "light"} datasetCount={datasets.length}>
       <div className="tooltip-header">
@@ -26,16 +27,19 @@ export const StackedBarChartTooltip = ({ themeMode, title, datasets, isDenom }: 
       <div className="tooltip-body">
         {datasets.map((dataset, index) => (
           <div key={index} className="dataset-item">
-            <div className="color-indicator" style={{ backgroundColor: dataset.color }} />
+            <div className="dataset-key">
+              <ColorCircleIndicator color={dataset.color} />
+              <span className="dataset-label">{dataset.label}</span>
+            </div>
             <div className="dataset-content">
-              <span className="dataset-label">{dataset.label}:</span>
               <div className="dataset-value">
                 {isDenom ? (
-                  <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={dataset.value} />
+                  <AmountText denom="GNOT" maxSize="body1" minSize="body2" value={dataset.value} bold={true} />
                 ) : (
                   <span>{dataset.value}</span>
                 )}
               </div>
+              <div className="dataset-value">(24.152341KB)</div>
             </div>
           </div>
         ))}
@@ -48,8 +52,6 @@ const TooltipContainer = styled.div<{ light: boolean; datasetCount: number }>`
   & {
     display: flex;
     flex-direction: column;
-    width: 200px; // 조금 더 넓게
-    min-height: ${({ datasetCount }) => 60 + datasetCount * 28}px; // 동적 높이
     background-color: ${({ light }) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
     padding: 16px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -69,13 +71,16 @@ const TooltipContainer = styled.div<{ light: boolean; datasetCount: number }>`
       .dataset-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 24px;
 
-        .color-indicator {
-          width: 12px;
-          height: 12px;
-          border-radius: 2px;
-          flex-shrink: 0;
+        .dataset-key {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 4px;
+
+          font-size: 12px;
+          font-weight: 400;
         }
 
         .dataset-content {
@@ -83,16 +88,13 @@ const TooltipContainer = styled.div<{ light: boolean; datasetCount: number }>`
           flex-direction: column;
           flex: 1;
 
-          .dataset-label {
-            color: ${({ light }) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};
-            ${theme.fonts.body2};
-            line-height: 1.2;
-          }
-
           .dataset-value {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
             color: ${({ light }) => (light ? theme.lightTheme.primary : theme.darkTheme.primary)};
-            ${theme.fonts.p4};
-            line-height: 1.4;
+            font-size: 11px;
 
             span {
               line-height: inherit;
