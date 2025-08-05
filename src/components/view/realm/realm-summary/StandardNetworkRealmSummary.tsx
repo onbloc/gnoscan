@@ -29,6 +29,7 @@ import { AmountText } from "@/components/ui/text/amount-text";
 import Tooltip from "@/components/ui/tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
+import { StorageUsageText } from "@/components/ui/text/storage-usage-text";
 
 interface RealmSummaryProps {
   path: string;
@@ -49,6 +50,8 @@ const TOOLTIP_BALANCE = (
     by this realm.
   </>
 );
+
+const TOOLTIP_STORAGE_DEPOSIT = <>Total amount of GNOT deposited for storage in real time.</>;
 
 const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
   const { currentNetwork, gnoWebUrl, getUrlWithNetwork } = useNetwork();
@@ -295,6 +298,27 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               maxSize="p4"
               value={realmTotalUsedFees?.value || "0"}
               denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
+            />
+          </Badge>
+        </dd>
+      </DLWrap>
+      <DLWrap desktop={isDesktop}>
+        <dt>
+          Storage Deposit
+          <div className="tooltip-wrapper">
+            <Tooltip content={TOOLTIP_STORAGE_DEPOSIT}>
+              <IconTooltip />
+            </Tooltip>
+          </div>
+        </dt>
+        <dd>
+          <Badge>
+            <StorageUsageText
+              minSize="body1"
+              maxSize="p4"
+              value={realmTotalUsedFees?.value || "0"}
+              denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
+              sizeInBytes={16302}
             />
           </Badge>
         </dd>
