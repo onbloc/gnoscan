@@ -23,17 +23,21 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
   const chartRef = React.useRef<Chart<"bar">>(null);
   const tooltipRef = React.useRef<HTMLDivElement>(null);
 
+  const getDimmedColor = (color: string, opacity = 0.3) => {
+    return color.replace("rgb(", "rgba(").replace(")", `, ${opacity})`);
+  };
+
   const [chartData, setChartData] = React.useState<ChartData<"bar">>({
-    labels: ["2025-05-01", "2025-05-02", "2025-05-03", "2025-05-04", "2025-05-05"],
+    labels: ["2025-07-30", "2025-07-31", "2025-08-01", "2025-08-02", "2025-08-03", "2025-08-04", "2025-08-05"],
     datasets: [
       {
         label: "Total Deposited",
-        data: [280, 420, 160.123123, 350.95211212, 480.123123],
+        data: [280, 420, 160.123123, 350.95211212, 480.123123, 600, 700],
         backgroundColor: "rgb(53, 162, 235)",
       },
       {
         label: "Daily Deposited",
-        data: [320, 180, 450, 280, 162],
+        data: [320, 180, 450, 280, 162, 70, 100, 50],
         backgroundColor: "rgb(224, 125, 54)",
       },
     ],
@@ -70,6 +74,9 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
       responsive: true,
       maintainAspectRatio: false,
       aspectRatio: 2,
+      animation: {
+        duration: 200,
+      },
       scales: {
         x: {
           stacked: true,
@@ -105,6 +112,7 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
         mode: "index",
         intersect: false,
       },
+
       plugins: {
         legend: {
           display: false,
