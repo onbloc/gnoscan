@@ -10,6 +10,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { MainTotalTransactionApi } from "./total-transaction/total-transaction-api";
 import { MainTotalDailyFeeApi } from "./total-daily-fee/total-daily-fee-api";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { StackedBarChart } from "@/components/ui/chart/stacked-bar-chart/stacked-bar-chart";
 
 interface MainTransactionNewsProps {
   breakpoint: DEVICE_TYPE;
@@ -20,6 +21,13 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
 
   return (
     <Wrapper className={breakpoint}>
+      <Card height="274px" className="card-2">
+        <Text className="title" type="h6" color="primary">
+          {"Total Storage Deposit"}
+        </Text>
+        <StackedBarChart />
+      </Card>
+
       <Card height="274px" className="card-1">
         <Text className="title" type="h6" color="primary">
           {"Daily Total Transactions"}

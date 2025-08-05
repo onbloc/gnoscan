@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
-import { BarChartTooltip } from "./tooltip";
+import { BarChartTooltip } from "./bar-chart-tooltip";
 import { styled } from "@/styles";
 import theme from "@/styles/theme";
 import { useRecoilState } from "recoil";
