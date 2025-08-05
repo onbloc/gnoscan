@@ -39,25 +39,25 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
     ],
   });
 
-  const [currentValue, setCurrentValue] = React.useState({
-    title: "2025-05-05",
-    datasets: [
-      {
-        label: "Total Deposited",
-        value: "480",
-        color: "rgb(53, 162, 235)",
-      },
-      {
-        label: "Daily Deposited",
-        value: "620",
-        color: "rgb(224, 125, 54)",
-      },
-    ] as Array<{ label: string; value: string; color: string }>,
-  });
   // const [currentValue, setCurrentValue] = React.useState({
-  //   title: "",
-  //   datasets: [] as Array<{ label: string; value: string; color: string }>,
+  //   title: "2025-05-05",
+  //   datasets: [
+  //     {
+  //       label: "Total Deposited",
+  //       value: "480",
+  //       color: "rgb(53, 162, 235)",
+  //     },
+  //     {
+  //       label: "Daily Deposited",
+  //       value: "620",
+  //       color: "rgb(224, 125, 54)",
+  //     },
+  //   ] as Array<{ label: string; value: string; color: string }>,
   // });
+  const [currentValue, setCurrentValue] = React.useState({
+    title: "",
+    datasets: [] as Array<{ label: string; value: string; color: string }>,
+  });
 
   const getThemePalette = () => {
     return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
@@ -183,7 +183,7 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
 
   return (
     <Wrapper ref={wrapperRef}>
-      <div className="tooltip-container" ref={tooltipRef} style={{ opacity: 1 }}>
+      <div className="tooltip-container" ref={tooltipRef} style={{ opacity: 0 }}>
         <StackedBarChartTooltip themeMode={themeMode} title={currentValue.title} datasets={currentValue.datasets} />
       </div>
       <Bar ref={chartRef} width={"100%"} height={"100%"} options={createChartOption()} data={chartData} />
