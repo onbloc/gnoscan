@@ -15,6 +15,7 @@ import {
   BadgeList,
   AmountBadge,
 } from "@/components/view/transaction/common";
+import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
@@ -60,7 +61,11 @@ const StandardNetworkAddPackageMessage = ({
         <BadgeList items={message?.files} />
       </Field>
 
-      <Field label="Deposit" isDesktop={isDesktop}>
+      <Field label="Storage Deposit" isDesktop={isDesktop}>
+        <StorageDepositAmountBadge />
+      </Field>
+
+      <Field label="Send" isDesktop={isDesktop}>
         <AmountBadge amount={deposit} />
       </Field>
     </>
