@@ -5,6 +5,9 @@ import { useGetSummaryTransactions } from "@/common/react-query/statistics";
 import { SummaryTransactionsInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { DEFAULT_SUMMARY_TRANSACTIONS_INFO } from "@/common/values/default-object/summary";
+import Tooltip from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import IconInfo from "@/assets/svgs/icon-info.svg";
 
 export const StandardNetworkTxsCard = () => {
   const { data, isFetched } = useGetSummaryTransactions();
@@ -15,6 +18,7 @@ export const StandardNetworkTxsCard = () => {
       totalTransactions: String(data.data.total),
       transactionFeeAverage: data.data.avgFee24h,
       transactionTotalFee: data.data.totalFees,
+      totalAccounts: "0",
     };
   }, [data?.data]);
 
@@ -35,8 +39,13 @@ export const StandardNetworkTxsCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              24h&nbsp;Avg.&nbsp;Fee
+              Total&nbsp;Accounts
             </Text>
+            <Tooltip content="Total number of accounts included in at least 1 transaction.">
+              <Button width="16px" height="16px" radius="50%" bgColor="surface">
+                <IconInfo className="svg-info" />
+              </Button>
+            </Tooltip>
           </dt>
           <dd>
             <FetchedComp
@@ -44,7 +53,7 @@ export const StandardNetworkTxsCard = () => {
               isFetched={isFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber(transactionSummaryInfo.transactionFeeAverage)}
+                  {makeDisplayNumber(transactionSummaryInfo.totalAccounts)}
                 </Text>
               }
             />

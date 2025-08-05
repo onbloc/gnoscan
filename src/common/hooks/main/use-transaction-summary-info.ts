@@ -99,7 +99,7 @@ export const useTransactionSummaryInfo = () => {
   }, [simpleTransactions]);
 
   const transactionSummaryInfo: SummaryTransactionsInfo = useMemo(() => {
-    return { totalTransactions, transactionFeeAverage, transactionTotalFee };
+    return { totalTransactions, transactionFeeAverage, transactionTotalFee, totalAccounts: "0" };
   }, [totalTransactions, transactionFeeAverage, transactionTotalFee]);
 
   return {

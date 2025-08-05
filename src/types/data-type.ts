@@ -222,6 +222,7 @@ export interface SummaryTransactionsInfo {
   totalTransactions: string;
   transactionFeeAverage: string;
   transactionTotalFee: string;
+  totalAccounts: string;
 }
 
 export interface SummaryAccountsInfo {

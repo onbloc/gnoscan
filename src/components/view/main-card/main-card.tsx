@@ -18,6 +18,7 @@ import { CustomNetworkTxsCard } from "./cards/transaction/CustomNetworkTransacti
 import { StandardNetworkTxsCard } from "./cards/transaction/StandardNetworkTransactionsCard";
 import { CustomNetworkAccountCard } from "./cards/account/CustomNetworkAccountCard";
 import { StandardNetworkAccountCard } from "./cards/account/StandardNetworkAccountCard";
+import { StandardNetworkDepositCard } from "./cards/deposit/StandardNetworkDepositCard";
 
 interface MainCardProps {
   breakpoint: DEVICE_TYPE;
@@ -55,7 +56,8 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
         </Text>
         {isCustomNetwork ? <CustomNetworkTxsCard /> : <StandardNetworkTxsCard />}
       </StyledCard>
-      <StyledCard>
+
+      {/* <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           Total&nbsp;Accounts
           <Tooltip content="Total number of accounts included in at least 1 transaction.">
@@ -65,6 +67,18 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
           </Tooltip>
         </Text>
         {isCustomNetwork ? <CustomNetworkAccountCard /> : <StandardNetworkAccountCard />}
+      </StyledCard> */}
+
+      <StyledCard>
+        <Text type="h5" color="primary" className="title-info">
+          Storage&nbsp;Deposit
+          <Tooltip content="Total amount of GNOT deposited for storage in real time.">
+            <Button width="16px" height="16px" radius="50%" bgColor="base">
+              <IconInfo className="svg-info" />
+            </Button>
+          </Tooltip>
+        </Text>
+        <StandardNetworkDepositCard />
       </StyledCard>
     </Wrapper>
   );
