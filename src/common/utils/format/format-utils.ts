@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 
 import { makeDisplayNumber } from "../string-util";
+import { BYTES_PER_KB } from "@/common/values/constant-value";
 
 export const safeString = (value: string | number | null | undefined): string => {
   if (value == null) return "";
@@ -24,4 +25,22 @@ export function mapDisplayFunctionName(type: string, functionName: string) {
     default:
       return functionName;
   }
+}
+
+export function convertBytesToKB(bytes: number | string | BigNumber): BigNumber {
+  if (bytes == null || bytes === undefined || bytes === "") {
+    return BigNumber(0);
+  }
+
+  const bytesBN = BigNumber(bytes.toString());
+
+  if (bytesBN.isNaN()) {
+    return BigNumber(0);
+  }
+
+  if (bytesBN.isNegative()) {
+    return BigNumber(0);
+  }
+
+  return bytesBN.dividedBy(BYTES_PER_KB).integerValue(BigNumber.ROUND_DOWN);
 }

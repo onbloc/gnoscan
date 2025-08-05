@@ -11,3 +11,5 @@ export enum ChainType {
 
 export const TESTNET6_CHAIN_ID = "test6";
 export const STAGING_CHAIN_ID = "staging";
+
+export const BYTES_PER_KB = 1024 as const;

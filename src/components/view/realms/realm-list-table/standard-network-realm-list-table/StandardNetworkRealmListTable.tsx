@@ -16,6 +16,7 @@ import { DatatableItem } from "../../../datatable";
 import { Button } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { StorageUsageText } from "@/components/ui/text/storage-usage-text";
 
 const TOOLTIP_PATH = (
   <>
@@ -52,11 +53,11 @@ export const StandardNetworkRealmListTable = ({
     return [
       createHeaderName(),
       createHeaderPath(),
-      createHeaderFunctions(),
       createHeaderBlock(),
       createHeaderPublisher(),
       createHeaderTotalCalls(),
       createHeaderTotalGasUsed(),
+      createHeaderStorageUsage(),
     ];
   };
 
@@ -73,10 +74,6 @@ export const StandardNetworkRealmListTable = ({
       .tooltip(TOOLTIP_PATH)
       .renderOption(packagePath => <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={186} />)
       .build();
-  };
-
-  const createHeaderFunctions = () => {
-    return DatatableOption.Builder.builder<Realm>().key("functionCount").name("Functions").width(121).build();
   };
 
   const createHeaderBlock = () => {
@@ -109,7 +106,28 @@ export const StandardNetworkRealmListTable = ({
       .name("Total Gas Used")
       .width(163)
       .renderOption(gasUsed => {
+        console.log(gasUsed, "gasUsed?");
         return <AmountText {...toGNOTAmount(gasUsed.value, gasUsed.denom)} maxSize="p4" minSize="body1" />;
+      })
+      .build();
+  };
+
+  const createHeaderStorageUsage = () => {
+    return DatatableOption.Builder.builder<Realm>()
+      .key("storageUsage")
+      .name("Storage Usage")
+      .sort()
+      .width(210)
+      .renderOption(storageUsed => {
+        const dummy = { denom: "ugnot", value: "51212111", sizeInBytes: 16360 };
+        return (
+          <StorageUsageText
+            {...toGNOTAmount(dummy.value, dummy.denom)}
+            sizeInBytes={dummy.sizeInBytes}
+            minSize="body1"
+            maxSize="p4"
+          />
+        );
       })
       .build();
   };
