@@ -11,6 +11,17 @@ import { StackedBarChartTooltip } from "./stacked-bar-chart-tooltip";
 
 Chart.register(...registerables);
 
+interface TooltipDataset {
+  label: string;
+  value: string;
+  color: string;
+}
+
+interface TooltipData {
+  title: string;
+  datasets: TooltipDataset[];
+}
+
 interface StackedBarChartProps {
   labels?: Array<string>;
   data?: Array<{ date: string; value: string }>;
@@ -39,24 +50,9 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
     ],
   });
 
-  // const [currentValue, setCurrentValue] = React.useState({
-  //   title: "2025-05-05",
-  //   datasets: [
-  //     {
-  //       label: "Total Deposited",
-  //       value: "480",
-  //       color: "rgb(53, 162, 235)",
-  //     },
-  //     {
-  //       label: "Daily Deposited",
-  //       value: "620",
-  //       color: "rgb(224, 125, 54)",
-  //     },
-  //   ] as Array<{ label: string; value: string; color: string }>,
-  // });
-  const [currentValue, setCurrentValue] = React.useState({
+  const [currentValue, setCurrentValue] = React.useState<TooltipData>({
     title: "",
-    datasets: [] as Array<{ label: string; value: string; color: string }>,
+    datasets: [],
   });
 
   const getThemePalette = () => {
@@ -129,7 +125,7 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
   const renderCustomTooltip = (context: { chart: Chart<"bar">; tooltip: TooltipModel<"bar"> }) => {
     const { chart, tooltip } = context;
 
-    if (!tooltipRef.current) {
+    if (!tooltipRef.current || !(tooltipRef.current instanceof HTMLElement)) {
       return;
     }
 
@@ -141,9 +137,9 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
       return;
     }
 
-    const tooltipData = {
+    const tooltipData: TooltipData = {
       title: "",
-      datasets: [] as Array<{ label: string; value: string; color: string }>,
+      datasets: [],
     };
 
     if (tooltip.dataPoints && tooltip.dataPoints.length > 0) {
@@ -151,10 +147,13 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
 
       tooltip.dataPoints.forEach(dataPoint => {
         const value = Number(dataPoint.raw);
+        const backgroundColor = dataPoint.dataset.backgroundColor;
+        const colorValue = typeof backgroundColor === "string" ? backgroundColor : "#000";
+
         tooltipData.datasets.push({
           label: dataPoint.dataset.label || "",
           value: value.toLocaleString(),
-          color: (dataPoint.dataset.backgroundColor as string) || "#000",
+          color: colorValue,
         });
       });
     }
@@ -163,15 +162,18 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
       tooltipData.title !== currentValue.title ||
       JSON.stringify(tooltipData.datasets) !== JSON.stringify(currentValue.datasets)
     ) {
-      setCurrentValue({
-        title: tooltipData.title,
-        datasets: tooltipData.datasets,
-      });
+      setCurrentValue(tooltipData);
     }
 
     currentTooltip.style.opacity = "1";
 
     const tooltipRect = currentTooltip.getBoundingClientRect();
+    const canvasElement = chart.canvas;
+
+    if (!canvasElement || !(canvasElement instanceof HTMLCanvasElement)) {
+      return;
+    }
+
     const position = chart.canvas.getBoundingClientRect();
     currentTooltip.style.position = "absolute";
     currentTooltip.style.marginTop = -position.height + "px";
