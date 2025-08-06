@@ -1,26 +1,38 @@
 import React from "react";
 import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
-import { useGetSummaryTransactions } from "@/common/react-query/statistics";
-import { SummaryTransactionsInfo } from "@/types/data-type";
+import { useGetSummaryAccounts, useGetSummaryTransactions } from "@/common/react-query/statistics";
+import { SummaryAccountsInfo, SummaryTransactionsInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
-import { DEFAULT_SUMMARY_TRANSACTIONS_INFO } from "@/common/values/default-object/summary";
+import {
+  DEFAULT_SUMMARY_ACCOUNTS_INFO,
+  DEFAULT_SUMMARY_TRANSACTIONS_INFO,
+} from "@/common/values/default-object/summary";
 import Tooltip from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import IconInfo from "@/assets/svgs/icon-info.svg";
 
 export const StandardNetworkTxsCard = () => {
-  const { data, isFetched } = useGetSummaryTransactions();
+  const { data: txsData, isFetched: isFetchedTxsData } = useGetSummaryTransactions();
+  const { data: accountsData, isFetched: isFetchedAccountsData } = useGetSummaryAccounts();
 
   const transactionSummaryInfo: SummaryTransactionsInfo = React.useMemo(() => {
-    if (!data?.data) return DEFAULT_SUMMARY_TRANSACTIONS_INFO;
+    if (!txsData?.data) return DEFAULT_SUMMARY_TRANSACTIONS_INFO;
     return {
-      totalTransactions: String(data.data.total),
-      transactionFeeAverage: data.data.avgFee24h,
-      transactionTotalFee: data.data.totalFees,
-      totalAccounts: "0",
+      totalTransactions: String(txsData.data.total),
+      transactionFeeAverage: txsData.data.avgFee24h,
+      transactionTotalFee: txsData.data.totalFees,
     };
-  }, [data?.data]);
+  }, [txsData?.data]);
+
+  const accountSummaryInfo: SummaryAccountsInfo = React.useMemo(() => {
+    if (!accountsData) return DEFAULT_SUMMARY_ACCOUNTS_INFO;
+    return {
+      totalAccounts: accountsData.data.total || 0,
+      totalUsers: accountsData.data.users || 0,
+      numOfValidators: String(accountsData.data.validators) || "",
+    };
+  }, [accountsData?.data]);
 
   return (
     <>
@@ -28,7 +40,7 @@ export const StandardNetworkTxsCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={isFetched}
+        isFetched={isFetchedTxsData}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
             {makeDisplayNumber(transactionSummaryInfo.totalTransactions)}
@@ -50,10 +62,10 @@ export const StandardNetworkTxsCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetched}
+              isFetched={isFetchedAccountsData}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber(transactionSummaryInfo.totalAccounts)}
+                  {makeDisplayNumber(accountSummaryInfo.totalAccounts)}
                 </Text>
               }
             />
@@ -69,7 +81,7 @@ export const StandardNetworkTxsCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetched}
+              isFetched={isFetchedTxsData}
               renderComp={
                 <Text type="p4" color="primary">
                   {makeDisplayNumber(transactionSummaryInfo.transactionTotalFee)}
