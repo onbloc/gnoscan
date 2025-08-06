@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import { Chart, ChartData, ChartOptions, registerables, TooltipModel } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { isEqual } from "lodash";
 
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
@@ -158,10 +159,7 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
       });
     }
 
-    if (
-      tooltipData.title !== currentValue.title ||
-      JSON.stringify(tooltipData.datasets) !== JSON.stringify(currentValue.datasets)
-    ) {
+    if (tooltipData.title !== currentValue.title || !isEqual(tooltipData.datasets, currentValue.datasets)) {
       setCurrentValue(tooltipData);
     }
 
