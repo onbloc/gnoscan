@@ -30,25 +30,25 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
   const chartRef = React.useRef<HTMLDivElement>(null);
   const chartInstanceRef = React.useRef<echarts.ECharts | null>(null);
 
+  const themePalette = React.useMemo(() => {
+    return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
+  }, [themeMode]);
+
   const [chartData, setChartData] = React.useState<EChartsData>({
     labels: ["2025-07-30", "2025-07-31", "2025-08-01", "2025-08-02", "2025-08-03", "2025-08-04", "2025-08-05"],
     datasets: [
       {
         label: "Total Deposited",
         data: [280, 420, 160.123123, 350.95211212, 480.123123, 600, 700],
-        backgroundColor: "rgb(53, 162, 235)",
+        backgroundColor: themePalette.blue,
       },
       {
         label: "Daily Deposited",
         data: [320, 180, 450, 280, 162, 100, 100],
-        backgroundColor: "rgb(224, 125, 54)",
+        backgroundColor: themePalette.orange,
       },
     ],
   });
-
-  const themePalette = React.useMemo(() => {
-    return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
-  }, [themeMode]);
 
   const tooltipInlineStyles = React.useMemo(
     () => ({
