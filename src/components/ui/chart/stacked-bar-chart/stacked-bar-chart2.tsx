@@ -150,13 +150,23 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
     [],
   );
 
+  const extractSafeParamValue = React.useCallback((value: unknown): number | string | null => {
+    if (typeof value === "number" || typeof value === "string") {
+      return value;
+    }
+    if (value === null || value === undefined) {
+      return null;
+    }
+    return null;
+  }, []);
+
   const renderTooltipItem = React.useCallback(
     (param: echarts.DefaultLabelFormatterCallbackParams) => {
       const backgroundColor = param.color ? param.color.toString() : themePalette.primary;
       const colorDotStyle = { ...tooltipInlineStyles.colorDot, background: backgroundColor };
 
-      const value = param.value as number | string | null | undefined;
-      const { integer, decimal } = formatAmountText(value);
+      const safeValue = extractSafeParamValue(param.value);
+      const { integer, decimal } = formatAmountText(safeValue);
 
       return `
       <div style="${styleToString(tooltipInlineStyles.itemRow)}">
@@ -174,7 +184,7 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
       </div>
     `;
     },
-    [tooltipInlineStyles, styleToString, formatAmountText],
+    [tooltipInlineStyles, styleToString, formatAmountText, extractSafeParamValue],
   );
 
   const createEChartsOption = (): EChartsOption => {
