@@ -253,7 +253,7 @@ export const AmountBadge = ({ amount }: { amount: Amount | null }) => {
   );
 };
 
-export const StorageDepositAmountBadge = () => {
+export const StorageDepositAmountBadge = ({ viewSize = true }: { viewSize?: boolean }) => {
   const dummy = { value: "5121111", denom: "ugnot", sizeInBytes: 16210 };
   if (!dummy) return <BadgeText>-</BadgeText>;
 
@@ -264,6 +264,7 @@ export const StorageDepositAmountBadge = () => {
         maxSize="p4"
         {...toGNOTAmount(dummy.value, dummy.denom)}
         sizeInBytes={dummy.sizeInBytes}
+        viewSize={viewSize}
       />
     </BadgeText>
   );

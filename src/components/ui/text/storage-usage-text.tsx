@@ -19,6 +19,7 @@ interface StorageUsageText {
   color?: PaletteKeyType;
   className?: string;
   bold?: boolean;
+  viewSize?: boolean;
 }
 
 export const StorageUsageText = ({
@@ -31,6 +32,7 @@ export const StorageUsageText = ({
   decimals = 6,
   className,
   bold = false,
+  viewSize,
 }: StorageUsageText) => {
   const numberValues = useMemo(() => {
     const valueStr = typeof value === "string" ? value.replace(/,/g, "") : value.toString();
@@ -93,8 +95,8 @@ export const StorageUsageText = ({
 
   return (
     <Wrapper className={className}>
-      <div className="amount-wrapper">
-        <Tooltip content={renderTooltip()}>
+      <Tooltip content={renderTooltip()}>
+        <div className="amount-wrapper">
           <Text
             className="text-wrapper"
             type={maxSize}
@@ -110,11 +112,13 @@ export const StorageUsageText = ({
           <Text type={maxSize} color={color} display="contents">
             {denom}
           </Text>
-          <Text type={maxSize} color={color} display="contents">
-            &nbsp;({formattedBytesToKB})
-          </Text>
-        </Tooltip>
-      </div>
+          {viewSize && (
+            <Text type={minSize} color={color} display="contents">
+              &nbsp;({formattedBytesToKB})
+            </Text>
+          )}
+        </div>
+      </Tooltip>
     </Wrapper>
   );
 };
