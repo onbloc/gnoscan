@@ -23,10 +23,6 @@ export const StackedBarChart = ({}: StackedBarChartProps) => {
   const chartRef = React.useRef<Chart<"bar">>(null);
   const tooltipRef = React.useRef<HTMLDivElement>(null);
 
-  const getDimmedColor = (color: string, opacity = 0.3) => {
-    return color.replace("rgb(", "rgba(").replace(")", `, ${opacity})`);
-  };
-
   const [chartData, setChartData] = React.useState<ChartData<"bar">>({
     labels: ["2025-07-30", "2025-07-31", "2025-08-01", "2025-08-02", "2025-08-03", "2025-08-04", "2025-08-05"],
     datasets: [

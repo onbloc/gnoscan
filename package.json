@@ -30,6 +30,7 @@
     "chart.js": "^4.0.1",
     "crypto": "^1.0.1",
     "dayjs": "^1.11.6",
+    "echarts": "^6.0.0",
     "env-cmd": "^10.1.0",
     "eslint-config-next": "13.0.4",
     "graphql": "^16.9.0",
