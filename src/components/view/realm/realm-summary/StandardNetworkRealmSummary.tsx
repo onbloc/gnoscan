@@ -29,7 +29,7 @@ import { AmountText } from "@/components/ui/text/amount-text";
 import Tooltip from "@/components/ui/tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
-import { StorageUsageText } from "@/components/ui/text/storage-usage-text";
+import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 
 interface RealmSummaryProps {
   path: string;
@@ -313,12 +313,13 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
         </dt>
         <dd>
           <Badge>
-            <StorageUsageText
+            <StorageDepositText
               minSize="body1"
               maxSize="p4"
               value={realmTotalUsedFees?.value || "0"}
               denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
               sizeInBytes={16302}
+              viewSize={true}
             />
           </Badge>
         </dd>

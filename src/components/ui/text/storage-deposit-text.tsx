@@ -9,7 +9,7 @@ import mixins from "@/styles/mixins";
 import Tooltip from "@/components/ui/tooltip";
 import { convertBytesToKB } from "@/common/utils/format/format-utils";
 
-interface StorageUsageText {
+interface StorageDepositTextProps {
   minSize: FontsType;
   maxSize: FontsType;
   value: number | string | BigNumber;
@@ -22,7 +22,7 @@ interface StorageUsageText {
   viewSize?: boolean;
 }
 
-export const StorageUsageText = ({
+export const StorageDepositText = ({
   minSize,
   maxSize,
   value,
@@ -33,7 +33,7 @@ export const StorageUsageText = ({
   className,
   bold = false,
   viewSize,
-}: StorageUsageText) => {
+}: StorageDepositTextProps) => {
   const numberValues = useMemo(() => {
     const valueStr = typeof value === "string" ? value.replace(/,/g, "") : value.toString();
     if (BigNumber(valueStr).isNaN() || valueStr.length === 0) {
@@ -78,7 +78,7 @@ export const StorageUsageText = ({
 
     if (kb.isZero()) return "0KB";
 
-    return `${kb.toFormat(0)}KB`;
+    return `${kb.toFormat(2)}KB`;
   }, [sizeInBytes]);
 
   const renderTooltip = () => {

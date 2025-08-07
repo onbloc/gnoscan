@@ -16,7 +16,7 @@ import { DatatableItem } from "../../../datatable";
 import { Button } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { AmountText } from "@/components/ui/text/amount-text";
-import { StorageUsageText } from "@/components/ui/text/storage-usage-text";
+import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 
 const TOOLTIP_PATH = (
   <>
@@ -57,7 +57,7 @@ export const StandardNetworkRealmListTable = ({
       createHeaderPublisher(),
       createHeaderTotalCalls(),
       createHeaderTotalGasUsed(),
-      createHeaderStorageUsage(),
+      createHeaderStorageDeposit(),
     ];
   };
 
@@ -112,16 +112,16 @@ export const StandardNetworkRealmListTable = ({
       .build();
   };
 
-  const createHeaderStorageUsage = () => {
+  const createHeaderStorageDeposit = () => {
     return DatatableOption.Builder.builder<Realm>()
-      .key("storageUsage")
-      .name("Storage Usage")
+      .key("storageDeposit")
+      .name("Storage Deposit")
       .sort()
       .width(210)
       .renderOption(storageUsed => {
         const dummy = { denom: "ugnot", value: "51212111", sizeInBytes: 16360 };
         return (
-          <StorageUsageText
+          <StorageDepositText
             {...toGNOTAmount(dummy.value, dummy.denom)}
             sizeInBytes={dummy.sizeInBytes}
             minSize="body1"

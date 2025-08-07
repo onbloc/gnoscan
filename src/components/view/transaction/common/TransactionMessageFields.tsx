@@ -14,7 +14,7 @@ import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
-import { StorageUsageText } from "@/components/ui/text/storage-usage-text";
+import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 
 interface FieldProps {
   label: string;
@@ -259,7 +259,7 @@ export const StorageDepositAmountBadge = ({ viewSize = true }: { viewSize?: bool
 
   return (
     <BadgeText>
-      <StorageUsageText
+      <StorageDepositText
         minSize="body2"
         maxSize="p4"
         {...toGNOTAmount(dummy.value, dummy.denom)}
