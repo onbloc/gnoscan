@@ -319,7 +319,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               value={realmTotalUsedFees?.value || "0"}
               denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
               sizeInBytes={16302}
-              viewSize={true}
+              visibleStorageSize={true}
+              visibleTooltip={false}
             />
           </Badge>
         </dd>

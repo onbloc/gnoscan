@@ -27,20 +27,20 @@ export function mapDisplayFunctionName(type: string, functionName: string) {
   }
 }
 
-export function convertBytesToKB(bytes: number | string | BigNumber): BigNumber {
+export function convertBytesToKB(bytes: number | string | BigNumber, decimalPlaces = 2): string {
   if (bytes == null || bytes === undefined || bytes === "") {
-    return BigNumber(0);
+    return "0";
   }
 
   const bytesBN = BigNumber(bytes.toString());
 
   if (bytesBN.isNaN()) {
-    return BigNumber(0);
+    return "0";
   }
 
   if (bytesBN.isNegative()) {
-    return BigNumber(0);
+    return "0";
   }
 
-  return bytesBN.dividedBy(BYTES_PER_KB).integerValue(BigNumber.ROUND_DOWN);
+  return bytesBN.dividedBy(BYTES_PER_KB).toFormat(decimalPlaces, BigNumber.ROUND_FLOOR);
 }

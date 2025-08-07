@@ -19,7 +19,8 @@ interface StorageDepositTextProps {
   color?: PaletteKeyType;
   className?: string;
   bold?: boolean;
-  viewSize?: boolean;
+  visibleStorageSize?: boolean;
+  visibleTooltip?: boolean;
 }
 
 export const StorageDepositText = ({
@@ -32,7 +33,8 @@ export const StorageDepositText = ({
   decimals = 6,
   className,
   bold = false,
-  viewSize,
+  visibleStorageSize,
+  visibleTooltip = true,
 }: StorageDepositTextProps) => {
   const numberValues = useMemo(() => {
     const valueStr = typeof value === "string" ? value.replace(/,/g, "") : value.toString();
@@ -74,28 +76,27 @@ export const StorageDepositText = ({
   }, [decimals, numberValues]);
 
   const formattedBytesToKB = useMemo(() => {
-    const kb = convertBytesToKB(sizeInBytes);
+    const kb = convertBytesToKB(sizeInBytes, 2);
 
-    if (kb.isZero()) return "0KB";
+    if (!kb) return "0 KB";
 
-    return `${kb.toFormat(2)}KB`;
+    return `${kb} KB`;
   }, [sizeInBytes]);
 
   const renderTooltip = () => {
-    const formmatedBytes = BigNumber(sizeInBytes.toString()).toFormat(0);
     return (
       <TooltipWrapper>
         {formattedInteger}
         {formattedDecimals}
         {denom}
-        &nbsp; ({formmatedBytes} bytes)
+        &nbsp; ({formattedBytesToKB})
       </TooltipWrapper>
     );
   };
 
   return (
     <Wrapper className={className}>
-      <Tooltip content={renderTooltip()}>
+      <Tooltip content={renderTooltip()} visible={visibleTooltip}>
         <div className="amount-wrapper">
           <Text
             className="text-wrapper"
@@ -112,7 +113,7 @@ export const StorageDepositText = ({
           <Text type={maxSize} color={color} display="contents">
             {denom}
           </Text>
-          {viewSize && (
+          {visibleStorageSize && (
             <Text type={minSize} color={color} display="contents">
               &nbsp;({formattedBytesToKB})
             </Text>

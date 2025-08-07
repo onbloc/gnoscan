@@ -125,6 +125,7 @@ export const StandardNetworkRealmListTable = ({
             sizeInBytes={dummy.sizeInBytes}
             minSize="body1"
             maxSize="p4"
+            visibleTooltip={true}
           />
         );
       })

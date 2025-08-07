@@ -91,7 +91,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
       </Field>
 
       <Field label="Storage Deposit" isDesktop={isDesktop}>
-        <StorageDepositAmountBadge viewSize={false} />
+        <StorageDepositAmountBadge visibleStorageSize={true} visibleTooltip={false} />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>
