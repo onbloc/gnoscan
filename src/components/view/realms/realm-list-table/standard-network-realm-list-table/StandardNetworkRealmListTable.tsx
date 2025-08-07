@@ -97,7 +97,7 @@ export const StandardNetworkRealmListTable = ({
   };
 
   const createHeaderTotalCalls = () => {
-    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(163).build();
+    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(133).build();
   };
 
   const createHeaderTotalGasUsed = () => {
@@ -106,7 +106,6 @@ export const StandardNetworkRealmListTable = ({
       .name("Total Gas Used")
       .width(163)
       .renderOption(gasUsed => {
-        console.log(gasUsed, "gasUsed?");
         return <AmountText {...toGNOTAmount(gasUsed.value, gasUsed.denom)} maxSize="p4" minSize="body1" />;
       })
       .build();
@@ -117,7 +116,7 @@ export const StandardNetworkRealmListTable = ({
       .key("storageDeposit")
       .name("Storage Deposit")
       .sort()
-      .width(210)
+      .width(170)
       .renderOption(storageUsed => {
         const dummy = { denom: "ugnot", value: "51212111", sizeInBytes: 16360 };
         return (
