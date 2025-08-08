@@ -10,6 +10,7 @@ import DataListSection from "@/components/view/details-data-section/data-list-se
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
 import { EventDatatable } from "@/components/view/datatable/event";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
+import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.utility";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -27,7 +28,7 @@ const StandardNetworkTransactionInfo = ({
   getUrlWithNetwork,
 }: TransactionInfoProps) => {
   const { transaction } = useTransaction(txHash);
-  const { transactionItem } = transaction;
+  const { transactionItem, transactionEvents } = transaction;
 
   const { data: contractsData, isFetched: isFetchedContractsData } = useGetTransactionContractsByHeight({ txHash });
   const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight({ txHash });
@@ -50,6 +51,13 @@ const StandardNetworkTransactionInfo = ({
     return TransactionMapper.transactionEventsFromApiResponses(allItems || []);
   }, [eventsData?.pages]);
 
+  const storageDepositInfo = React.useMemo(() => {
+    if (!transactionEvents || transactionEvents.length === 0) {
+      return null;
+    }
+    return extractStorageDepositFromTxEvents(transactionEvents);
+  }, [transactionEvents]);
+
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -71,6 +79,7 @@ const StandardNetworkTransactionInfo = ({
           transactionItem={txContracts}
           isDesktop={isDesktop}
           getUrlWithNetwork={getUrlWithNetwork}
+          storageDepositInfo={storageDepositInfo}
           showLog={transactionItem?.rawContent}
         />
       )}

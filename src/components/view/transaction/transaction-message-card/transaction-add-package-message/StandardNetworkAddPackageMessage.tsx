@@ -2,9 +2,9 @@
 import React from "react";
 
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
-import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
+import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
 import {
   Field,
@@ -17,18 +17,13 @@ import {
 } from "@/components/view/transaction/common";
 import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 
-interface TransactionTransferContractProps {
-  message: TransactionContractModel;
-  isDesktop: boolean;
-  getUrlWithNetwork: (uri: string) => string;
-}
-
 const StandardNetworkAddPackageMessage = ({
   isDesktop,
   message,
   getUrlWithNetwork,
-}: TransactionTransferContractProps) => {
-  const deposit = React.useMemo(() => {
+  storageDepositInfo,
+}: TransactionContractMessagesProps) => {
+  const send = React.useMemo(() => {
     if (!message?.deposit) return null;
 
     return toGNOTAmount(message.deposit.value, message.deposit.denom);
@@ -62,11 +57,15 @@ const StandardNetworkAddPackageMessage = ({
       </Field>
 
       <Field label="Storage Deposit" isDesktop={isDesktop}>
-        <StorageDepositAmountBadge visibleStorageSize={true} visibleTooltip={false} />
+        <StorageDepositAmountBadge
+          storageDeposit={storageDepositInfo}
+          visibleStorageSize={true}
+          visibleTooltip={false}
+        />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>
-        <AmountBadge amount={deposit} />
+        <AmountBadge amount={send} />
       </Field>
     </>
   );

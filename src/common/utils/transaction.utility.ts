@@ -3,6 +3,8 @@ import crypto from "crypto";
 import { decodeTxMessages } from "@gnolang/gno-js-client";
 import { Tx, base64ToUint8Array } from "@gnolang/tm2-js-client";
 import { parseTokenAmount } from "./token.utility";
+import { StorageDeposit } from "@/models/storage-deposit-model";
+import { GnoEvent } from "@/types";
 
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
@@ -135,4 +137,28 @@ export function parseTxHash(url: string) {
   const txHash = params[1].split("&")[0];
   const decodedTxHash = decodeURIComponent(txHash).replaceAll(" ", "+");
   return makeSafeBase64Hash(decodedTxHash);
+}
+
+function parsePositiveNumber(value: string): number {
+  return value.startsWith("-") ? 0 : parseInt(value.replace(/[^0-9]/g, ""), 10);
+}
+
+export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): StorageDeposit | null {
+  const storageEvent = txEvents.find(txEvent => txEvent.type === "StorageDeposit");
+
+  if (!storageEvent || !storageEvent.attrs) {
+    return null;
+  }
+
+  const depositAttr = storageEvent.attrs.find(attr => attr.key === "Deposit");
+  const storageAttr = storageEvent.attrs.find(attr => attr.key === "Storage");
+
+  if (!depositAttr || !storageAttr) {
+    return null;
+  }
+
+  return {
+    deposit: parsePositiveNumber(depositAttr.value),
+    storage: parsePositiveNumber(storageAttr.value),
+  };
 }

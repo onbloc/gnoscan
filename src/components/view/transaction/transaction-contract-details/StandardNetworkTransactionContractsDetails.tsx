@@ -14,13 +14,15 @@ import {
   StandardNetworkMsgCallMessage,
   StandardNetworkMsgRunMessage,
 } from "../transaction-message-card";
+import { StorageDeposit } from "@/models/storage-deposit-model";
 
 export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
   showLog?: string;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, showLog }) => {
+  storageDepositInfo?: StorageDeposit | null;
+}> = ({ transactionItem, isDesktop, getUrlWithNetwork, showLog, storageDepositInfo }) => {
   const messages: TransactionContractModel[] = React.useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
@@ -53,6 +55,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
+              storageDepositInfo={storageDepositInfo}
             />
           )}
 
@@ -61,6 +64,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
+              storageDepositInfo={storageDepositInfo}
             />
           )}
 
@@ -69,6 +73,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
+              storageDepositInfo={storageDepositInfo}
             />
           )}
         </S.ContractListBox>
