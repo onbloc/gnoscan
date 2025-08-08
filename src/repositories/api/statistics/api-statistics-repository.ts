@@ -34,5 +34,7 @@ export interface ApiStatisticsRepository {
 
   getTotalGasShare(request: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse>;
 
+  getTotalStorageDeposit(): Promise<{ storage: string; deposit: string } | null>;
+
   getStoragePrice(): Promise<Amount | null>;
 }

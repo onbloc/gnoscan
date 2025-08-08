@@ -20,6 +20,7 @@ import {
 } from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { Amount } from "@/types";
+import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
 
 interface APIResponse<T> {
   data: T;
@@ -209,5 +210,43 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
     } catch (error) {
       return null;
     }
+  }
+
+  async getTotalStorageDeposit(): Promise<{ storage: string; deposit: string } | null> {
+    if (!this.nodeClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
+    }
+
+    const response = await this.nodeClient.abciQueryVMStorageDeposit("gno.land/r/demo/boards").catch(() => null);
+    if (!response || !response?.response?.ResponseBase?.Data) {
+      return null;
+    }
+
+    try {
+      const rawResult = parseABCIKeyValueResponse(response.response.ResponseBase.Data);
+
+      if (this.isValidStorageDepositData(rawResult)) {
+        return {
+          storage: rawResult.storage,
+          deposit: rawResult.deposit,
+        };
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  private isValidStorageDepositData(response: unknown): response is { storage: string; deposit: string } {
+    return (
+      response !== null &&
+      response !== undefined &&
+      typeof response === "object" &&
+      "storage" in response &&
+      "deposit" in response &&
+      typeof (response as { storage: string; deposit: string }).storage === "number" &&
+      typeof (response as { storage: string; deposit: string }).deposit === "number"
+    );
   }
 }

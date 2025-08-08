@@ -6,16 +6,36 @@ import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetStoragePrice } from "@/common/react-query/statistics";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { Amount } from "@/types";
+import { useGetTotalStorageDeposit } from "@/common/react-query/statistics/use-get-total-storage-deposit";
+import { convertBytesToKB } from "@/common/utils/format/format-utils";
 
 export const StandardNetworkDepositCard = () => {
   const { data: storagePrice } = useGetStoragePrice();
+  const { data: totalStorageDeposit } = useGetTotalStorageDeposit();
+
+  const storageDepositDenom = React.useMemo(() => {
+    return storagePrice?.denom || "ugnot";
+  }, [storagePrice?.denom]);
 
   const displayStoragePrice: Amount = React.useMemo(() => {
-    if (!storagePrice) return { value: "0", denom: "ugnot" };
+    if (!storagePrice) return { value: "0", denom: storageDepositDenom };
 
-    const converted = toGNOTAmount(storagePrice.value, storagePrice.denom);
+    const converted = toGNOTAmount(storagePrice.value, storageDepositDenom);
     return converted;
-  }, [storagePrice]);
+  }, [storagePrice, storageDepositDenom]);
+
+  const displayStorageDeposit: Amount = React.useMemo(() => {
+    if (!totalStorageDeposit) return { value: "0", denom: storageDepositDenom };
+
+    const converted = toGNOTAmount(totalStorageDeposit.deposit, storageDepositDenom);
+    return converted;
+  }, [totalStorageDeposit, storageDepositDenom]);
+
+  const formattedBytesToKB = React.useMemo(() => {
+    const kb = convertBytesToKB(totalStorageDeposit?.storage || 0, 2);
+
+    return kb || "0";
+  }, [totalStorageDeposit?.storage]);
 
   return (
     <>
@@ -26,9 +46,9 @@ export const StandardNetworkDepositCard = () => {
         isFetched={true}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {makeDisplayNumber("0")}
+            {makeDisplayNumber(displayStorageDeposit.value)}
             <Text type="p4" display="inline-block" color="primary">
-              &nbsp;GNOT
+              &nbsp;{displayStorageDeposit.denom}
             </Text>
           </Text>
         }
@@ -46,7 +66,10 @@ export const StandardNetworkDepositCard = () => {
               isFetched={true}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber("0")}
+                  {`${formattedBytesToKB}`}
+                  <Text type="body1" display="inline-block" color="primary">
+                    &nbsp;{"KB"}
+                  </Text>
                 </Text>
               }
             />
@@ -64,11 +87,12 @@ export const StandardNetworkDepositCard = () => {
               skeletonWidth={60}
               isFetched={true}
               renderComp={
-                <>
-                  <Text type="p4" color="primary">
-                    {`${makeDisplayNumber(displayStoragePrice.value)} ${displayStoragePrice.denom} / KB`}
+                <Text type="p4" color="primary">
+                  {`${makeDisplayNumber(displayStoragePrice.value)}`}
+                  <Text type="body1" display="inline-block" color="primary">
+                    &nbsp;{`${displayStoragePrice.denom} / KB`}
                   </Text>
-                </>
+                </Text>
               }
             />
           </dd>
