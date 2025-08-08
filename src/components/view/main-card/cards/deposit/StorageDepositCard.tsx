@@ -89,7 +89,7 @@ export const StorageDepositCard = () => {
                 <Text type="p4" color="primary">
                   {`${makeDisplayNumber(displayStoragePrice.value)}`}
                   <Text type="body1" display="inline-block" color="primary">
-                    &nbsp;{`${displayStoragePrice.denom} / ${BYTE_UNITS.KB.unit}`}
+                    &nbsp;{`${displayStoragePrice.denom} / ${BYTE_UNITS.BYTE.unit}`}
                   </Text>
                 </Text>
               }
