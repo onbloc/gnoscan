@@ -524,7 +524,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     let lastMatch = null;
 
     while ((match = regex.exec(responseData)) !== null) {
-      lastMatch = match[1]; // 매칭된 주소 값을 저장
+      lastMatch = match[1];
     }
 
     return lastMatch;

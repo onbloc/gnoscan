@@ -2,13 +2,13 @@ import { UseQueryOptions } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { GetRealmStorageDepositResponse } from "@/repositories/api/realm/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { StorageDeposit } from "@/models/storage-deposit-model";
 
 export const useGetRealmStorageDepositByPath = (
   path: string,
-  options?: UseQueryOptions<GetRealmStorageDepositResponse | null, Error, GetRealmStorageDepositResponse | null>,
+  options?: UseQueryOptions<StorageDeposit | null, Error, StorageDeposit | null>,
 ) => {
   const { apiRealmRepository } = useServiceProvider();
 

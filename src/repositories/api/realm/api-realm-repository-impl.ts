@@ -3,17 +3,12 @@ import { NodeRPCClient } from "@/common/clients/node-client";
 import { ApiRealmRepository } from "./api-realm-repository";
 
 import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactionsRequest } from "./request";
-import {
-  GetRealmEventsResponse,
-  GetRealmResponse,
-  GetRealmsResponse,
-  GetRealmTransactionsResponse,
-  GetRealmStorageDepositResponse,
-} from "./response";
+import { GetRealmEventsResponse, GetRealmResponse, GetRealmsResponse, GetRealmTransactionsResponse } from "./response";
+import { StorageDeposit } from "@/models/storage-deposit-model";
 import { makeQueryParameter } from "@/common/utils/string-util";
+import { isValidStorageDepositData } from "@/common/utils/storage-deposit-util";
 import { CommonError } from "@/common/errors";
 import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
-import { RealmStorageDeposit } from "@/models/realm-storage-deposit-model";
 
 interface APIResponse<T> {
   data: T;
@@ -91,7 +86,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       });
   }
 
-  async getRealmStorageDeposit(realmPath: string): Promise<GetRealmStorageDepositResponse | null> {
+  async getRealmStorageDeposit(realmPath: string): Promise<StorageDeposit | null> {
     if (!this.nodeClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
     }
@@ -104,7 +99,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     try {
       const rawResult = parseABCIKeyValueResponse(response.response.ResponseBase.Data);
 
-      if (this.isValidStorageDepositData(rawResult)) {
+      if (isValidStorageDepositData(rawResult)) {
         return {
           storage: rawResult.storage,
           deposit: rawResult.deposit,
@@ -115,17 +110,5 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     } catch (e) {
       return null;
     }
-  }
-
-  private isValidStorageDepositData(response: unknown): response is RealmStorageDeposit {
-    return (
-      response !== null &&
-      response !== undefined &&
-      typeof response === "object" &&
-      "storage" in response &&
-      "deposit" in response &&
-      typeof (response as RealmStorageDeposit).storage === "number" &&
-      typeof (response as RealmStorageDeposit).deposit === "number"
-    );
   }
 }
