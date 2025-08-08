@@ -8,7 +8,7 @@ import ValidatorStagingData from "../../assets/meta/staging/validators.json";
 import ValidatorTest6Data from "../../assets/meta/test6/validators.json";
 import { Amount } from "@/types";
 import { CommonError } from "@/common/errors";
-import { isValidStorageDepositData } from "@/common/utils/storage-deposit-util";
+import { convertToStorageDeposit, hasStorageDepositProperties } from "@/common/utils/storage-deposit-util";
 import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GNO_PACKAGE_BOARD_PATH } from "@/common/values/gno.constant";
@@ -55,11 +55,8 @@ export class ChainRepository implements IChainRepository {
     try {
       const rawResult = parseABCIKeyValueResponse(response.response.ResponseBase.Data);
 
-      if (isValidStorageDepositData(rawResult)) {
-        return {
-          storage: rawResult.storage,
-          deposit: rawResult.deposit,
-        };
+      if (hasStorageDepositProperties(rawResult)) {
+        return convertToStorageDeposit(rawResult);
       }
 
       return null;

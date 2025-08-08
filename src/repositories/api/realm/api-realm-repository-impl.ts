@@ -6,7 +6,7 @@ import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactions
 import { GetRealmEventsResponse, GetRealmResponse, GetRealmsResponse, GetRealmTransactionsResponse } from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { makeQueryParameter } from "@/common/utils/string-util";
-import { isValidStorageDepositData } from "@/common/utils/storage-deposit-util";
+import { hasStorageDepositProperties, convertToStorageDeposit } from "@/common/utils/storage-deposit-util";
 import { CommonError } from "@/common/errors";
 import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
 
@@ -99,11 +99,8 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     try {
       const rawResult = parseABCIKeyValueResponse(response.response.ResponseBase.Data);
 
-      if (isValidStorageDepositData(rawResult)) {
-        return {
-          storage: rawResult.storage,
-          deposit: rawResult.deposit,
-        };
+      if (hasStorageDepositProperties(rawResult)) {
+        return convertToStorageDeposit(rawResult);
       }
 
       return null;

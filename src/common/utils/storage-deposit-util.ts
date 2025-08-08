@@ -1,18 +1,32 @@
 import { StorageDeposit } from "@/models/storage-deposit-model";
 
 /**
- * Type guard to validate if the given object is a valid StorageDeposit
+ * Type guard to validate if the given object has the required StorageDeposit properties
  * @param response Unknown object to validate
- * @returns boolean indicating if it's a valid StorageDeposit
+ * @returns boolean indicating if it has the required properties
  */
-export const isValidStorageDepositData = (response: unknown): response is StorageDeposit => {
+export const hasStorageDepositProperties = (response: unknown): response is Record<string, unknown> => {
   return (
     response !== null &&
     response !== undefined &&
     typeof response === "object" &&
     "storage" in response &&
-    "deposit" in response &&
-    typeof (response as StorageDeposit).storage === "number" &&
-    typeof (response as StorageDeposit).deposit === "number"
+    "deposit" in response
   );
+};
+
+/**
+ * Converts and validates a raw response into a StorageDeposit object
+ * @param response Object with storage and deposit properties (possibly as strings)
+ * @returns StorageDeposit object with numeric values or null if invalid
+ */
+export const convertToStorageDeposit = (response: Record<string, unknown>): StorageDeposit | null => {
+  const storage = typeof response.storage === "number" ? response.storage : parseInt(String(response.storage), 10);
+  const deposit = typeof response.deposit === "number" ? response.deposit : parseInt(String(response.deposit), 10);
+
+  if (isNaN(storage) || isNaN(deposit)) {
+    return null;
+  }
+
+  return { storage, deposit };
 };
