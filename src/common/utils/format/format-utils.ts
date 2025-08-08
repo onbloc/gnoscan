@@ -51,7 +51,7 @@ export function convertBytesToKB(bytes: number | string | BigNumber, decimalPlac
 }
 
 export function formatBytes(bytes: number | string | BigNumber): ByteSizeResult {
-  if (bytes == null || bytes === undefined || bytes === "") {
+  if (bytes == null || bytes === "") {
     return { value: "0", unit: BYTE_UNITS.BYTE.unit };
   }
 

@@ -60,7 +60,8 @@ export class ChainRepository implements IChainRepository {
       }
 
       return null;
-    } catch {
+    } catch (e) {
+      console.error("GetTotalStorageDeposit Error: ", e);
       return null;
     }
   }

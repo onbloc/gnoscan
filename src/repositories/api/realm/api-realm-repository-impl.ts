@@ -105,6 +105,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
 
       return null;
     } catch (e) {
+      console.error("GetRealmStorageDeposit Error: ", e);
       return null;
     }
   }

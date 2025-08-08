@@ -59,16 +59,22 @@ export const TransactionContractDetails: React.FC<{
       case "/vm.m_addpkg":
         return "AddPackage";
       case "/vm.m_call":
-        const arg0 = message["args"] && message["args"][0];
-        if (typeof arg0 === "string" && arg0.trim() !== "") {
-          return arg0;
+        if (Array.isArray(message["args"]) && message["args"].length > 0) {
+          const arg0 = message["args"][0];
+          if (typeof arg0 === "string" && arg0.trim() !== "") {
+            return arg0;
+          }
         }
+
         if (typeof message["func"] === "string" && message["func"].trim() !== "") {
           return message["func"];
         }
+
         return message["@type"];
       case "/vm.m_run":
         return "MsgRun";
+      default:
+        return message["@type"];
     }
   }, []);
 
