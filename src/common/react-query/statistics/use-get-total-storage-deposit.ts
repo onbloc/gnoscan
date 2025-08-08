@@ -15,7 +15,7 @@ export const useGetTotalStorageDeposit = (
     [QUERY_KEY.getTotalStorageDeposit],
     chainRepository,
     RPC_REPOSITORY_KEY.CHAIN_REPOSITORY,
-    repository => repository.getTotalStorageDeposit(), // TODO: gno.land/r/demo/boards
+    repository => repository.getTotalStorageDeposit(),
     options,
   );
 };
