@@ -15,6 +15,8 @@ import Tooltip from "@/components/ui/tooltip";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
+import { StorageDeposit } from "@/models/storage-deposit-model";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 interface FieldProps {
   label: string;
@@ -254,22 +256,30 @@ export const AmountBadge = ({ amount }: { amount: Amount | null }) => {
 };
 
 export const StorageDepositAmountBadge = ({
+  storageDeposit,
   visibleStorageSize,
   visibleTooltip,
 }: {
+  storageDeposit?: StorageDeposit | null;
   visibleStorageSize?: boolean;
   visibleTooltip?: boolean;
 }) => {
-  const dummy = { value: "5121111", denom: "ugnot", sizeInBytes: 16210 };
-  if (!dummy) return <BadgeText>-</BadgeText>;
+  const displayStorageDepositData: Amount | null = React.useMemo(() => {
+    if (!storageDeposit) return null;
+
+    const converted = toGNOTAmount(storageDeposit.deposit, GNOTToken.denom);
+    return converted;
+  }, [storageDeposit]);
+
+  if (!displayStorageDepositData) return <BadgeText>-</BadgeText>;
 
   return (
     <BadgeText>
       <StorageDepositText
         minSize="body2"
         maxSize="p4"
-        {...toGNOTAmount(dummy.value, dummy.denom)}
-        sizeInBytes={dummy.sizeInBytes}
+        {...toGNOTAmount(displayStorageDepositData.value, displayStorageDepositData.denom)}
+        sizeInBytes={storageDeposit?.storage || 0}
         visibleStorageSize={visibleStorageSize}
         visibleTooltip={visibleTooltip}
       />

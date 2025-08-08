@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { TransactionContractModel } from "@/repositories/api/transaction/response";
+import { TransactionContractMessagesProps } from "@/models/api/transaction";
 import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
 import { getTransactionMessageType } from "@/common/utils/message.utility";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
@@ -19,13 +19,12 @@ import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount"
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 
-interface TransactionTransferContractProps {
-  message: TransactionContractModel;
-  isDesktop: boolean;
-  getUrlWithNetwork: (uri: string) => string;
-}
-
-const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionTransferContractProps) => {
+const StandardNetworkMsgCallMessage = ({
+  isDesktop,
+  message,
+  getUrlWithNetwork,
+  storageDepositInfo,
+}: TransactionContractMessagesProps) => {
   const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
 
   const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
@@ -91,7 +90,11 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
       </Field>
 
       <Field label="Storage Deposit" isDesktop={isDesktop}>
-        <StorageDepositAmountBadge visibleStorageSize={true} visibleTooltip={false} />
+        <StorageDepositAmountBadge
+          storageDeposit={storageDepositInfo}
+          visibleStorageSize={true}
+          visibleTooltip={false}
+        />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

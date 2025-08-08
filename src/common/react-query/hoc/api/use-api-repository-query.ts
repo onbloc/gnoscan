@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions, UseQueryResult } from "react-query";
 import { CommonError } from "@/common/errors";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, RPC_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Higher-order functions for safe queries
@@ -17,7 +17,7 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 export function useApiRepositoryQuery<TData, TError = Error, TRepository = unknown>(
   queryKey: unknown[],
   repository: TRepository | null,
-  repositoryName: API_REPOSITORY_KEY,
+  repositoryName: API_REPOSITORY_KEY | RPC_REPOSITORY_KEY,
   queryFn: (repository: TRepository) => Promise<TData>,
   options?: UseQueryOptions<TData, TError, TData>,
 ): UseQueryResult<TData, TError> {

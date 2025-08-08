@@ -59,9 +59,22 @@ export const TransactionContractDetails: React.FC<{
       case "/vm.m_addpkg":
         return "AddPackage";
       case "/vm.m_call":
-        return message["func"] || message["@type"];
+        if (Array.isArray(message["args"]) && message["args"].length > 0) {
+          const arg0 = message["args"][0];
+          if (typeof arg0 === "string" && arg0.trim() !== "") {
+            return arg0;
+          }
+        }
+
+        if (typeof message["func"] === "string" && message["func"].trim() !== "") {
+          return message["func"];
+        }
+
+        return message["@type"];
       case "/vm.m_run":
         return "MsgRun";
+      default:
+        return message["@type"];
     }
   }, []);
 
@@ -83,7 +96,11 @@ export const TransactionContractDetails: React.FC<{
                 <dd>
                   <Badge>
                     <Text type="p4" color="primary">
-                      {message?.package?.name || tokenMap?.[message?.pkg_path]?.name || message.func || "-"}
+                      {message["@type"] ||
+                        message?.package?.name ||
+                        tokenMap?.[message?.pkg_path]?.name ||
+                        message.func ||
+                        "-"}
                     </Text>
                   </Badge>
                 </dd>
@@ -107,7 +124,9 @@ export const TransactionContractDetails: React.FC<{
                         passHref
                       >
                         <FitContentA>
-                          {formatDisplayPackagePath(message?.package?.path || message?.pkg_path || "-")}
+                          {formatDisplayPackagePath(
+                            message?.func || message?.package?.path || message?.pkg_path || "-",
+                          )}
                         </FitContentA>
                       </Link>
                     </Text>

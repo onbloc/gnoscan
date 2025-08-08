@@ -6,3 +6,5 @@ export const GNO_NETWORK_PREFIXES = {
 export const GNO_BLOCK_CONSTANTS = {
   GENESIS: "genesis",
 };
+
+export const GNO_PACKAGE_BOARD_PATH = "gno.land/r/demo/boards" as const;
