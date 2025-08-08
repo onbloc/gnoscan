@@ -10,6 +10,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { MainTotalTransactionApi } from "./total-transaction/total-transaction-api";
 import { MainTotalDailyFeeApi } from "./total-daily-fee/total-daily-fee-api";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacked-bar-chart2";
 
 interface MainTransactionNewsProps {
   breakpoint: DEVICE_TYPE;
@@ -22,12 +23,19 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
     <Wrapper className={breakpoint}>
       <Card height="274px" className="card-1">
         <Text className="title" type="h6" color="primary">
+          {"Total Storage Deposit"}
+        </Text>
+        <StackedBarChart2 />
+      </Card>
+
+      <Card height="274px" className="card-2">
+        <Text className="title" type="h6" color="primary">
           {"Daily Total Transactions"}
         </Text>
         {isCustomNetwork ? <MainTotalTransaction /> : <MainTotalTransactionApi />}
       </Card>
 
-      <Card height="274px" className="card-2">
+      <Card height="274px" className="card-3">
         <Text className="title" type="h6" color="primary">
           {"Daily Total Fees in GNOT"}
         </Text>
@@ -58,8 +66,13 @@ const Wrapper = styled.div`
     }
 
     .card-2 {
-      grid-column: 1 / 2;
-      grid-row: 2 / 3;
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .card-3 {
+      grid-column: 1;
+      grid-row: 3;
     }
   }
 

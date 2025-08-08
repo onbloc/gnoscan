@@ -7,6 +7,7 @@ export interface TextProps extends React.ComponentPropsWithoutRef<"div"> {
   type: FontsType;
   display?: CSSProperties["display"];
   textAlign?: CSSProperties["textAlign"];
+  fontWeight?: CSSProperties["fontWeight"];
   color?: string;
   margin?: CSSProperties["margin"];
 }
@@ -19,6 +20,7 @@ const Text = ({
   color,
   margin,
   className = "",
+  fontWeight,
   ...restProps
 }: PropsWithChildren<TextProps>) => {
   return (
@@ -26,6 +28,7 @@ const Text = ({
       type={type}
       display={display}
       textAlign={textAlign}
+      fontWeight={fontWeight}
       color={color}
       margin={margin}
       className={className}
@@ -42,6 +45,7 @@ const Wrapper = styled.div<TextProps>`
       ${props.theme.fonts[props.type]};
       text-align: ${props.textAlign};
       display: ${props.display};
+      font-weight: ${props.fontWeight};
       color: ${props.theme.colors[props.color ?? props.theme.colors.black]};
       white-space: pre-wrap;
       margin: ${props.margin};

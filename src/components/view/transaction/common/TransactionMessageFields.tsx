@@ -5,6 +5,7 @@ import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { PaletteKeyType } from "@/styles";
 import { Amount } from "@/types/data-type";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
@@ -13,6 +14,7 @@ import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 
 interface FieldProps {
   label: string;
@@ -247,6 +249,30 @@ export const AmountBadge = ({ amount }: { amount: Amount | null }) => {
   return (
     <BadgeText>
       <AmountText minSize="body2" maxSize="p4" value={amount.value || "0"} denom={amount.denom || ""} />
+    </BadgeText>
+  );
+};
+
+export const StorageDepositAmountBadge = ({
+  visibleStorageSize,
+  visibleTooltip,
+}: {
+  visibleStorageSize?: boolean;
+  visibleTooltip?: boolean;
+}) => {
+  const dummy = { value: "5121111", denom: "ugnot", sizeInBytes: 16210 };
+  if (!dummy) return <BadgeText>-</BadgeText>;
+
+  return (
+    <BadgeText>
+      <StorageDepositText
+        minSize="body2"
+        maxSize="p4"
+        {...toGNOTAmount(dummy.value, dummy.denom)}
+        sizeInBytes={dummy.sizeInBytes}
+        visibleStorageSize={visibleStorageSize}
+        visibleTooltip={visibleTooltip}
+      />
     </BadgeText>
   );
 };

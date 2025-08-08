@@ -4,7 +4,7 @@ import React from "react";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
-import { AmountBadge, BadgeTooltipProps } from "../../common/TransactionMessageFields";
+import { AmountBadge, BadgeTooltipProps, StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 
 import { Field, BadgeText, AddressLink, BadgeList, HoverBadgeList } from "@/components/view/transaction/common";
 
@@ -61,6 +61,10 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
           linkUrl={"/realms/details?path="}
           getUrlWithNetwork={getUrlWithNetwork}
         />
+      </Field>
+
+      <Field label="Storage Deposit" isDesktop={isDesktop}>
+        <StorageDepositAmountBadge visibleStorageSize={true} visibleTooltip={false} />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

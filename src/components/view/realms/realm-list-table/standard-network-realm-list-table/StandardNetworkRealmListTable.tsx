@@ -16,6 +16,7 @@ import { DatatableItem } from "../../../datatable";
 import { Button } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 
 const TOOLTIP_PATH = (
   <>
@@ -52,11 +53,11 @@ export const StandardNetworkRealmListTable = ({
     return [
       createHeaderName(),
       createHeaderPath(),
-      createHeaderFunctions(),
       createHeaderBlock(),
       createHeaderPublisher(),
       createHeaderTotalCalls(),
       createHeaderTotalGasUsed(),
+      createHeaderStorageDeposit(),
     ];
   };
 
@@ -73,10 +74,6 @@ export const StandardNetworkRealmListTable = ({
       .tooltip(TOOLTIP_PATH)
       .renderOption(packagePath => <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={186} />)
       .build();
-  };
-
-  const createHeaderFunctions = () => {
-    return DatatableOption.Builder.builder<Realm>().key("functionCount").name("Functions").width(121).build();
   };
 
   const createHeaderBlock = () => {
@@ -100,7 +97,7 @@ export const StandardNetworkRealmListTable = ({
   };
 
   const createHeaderTotalCalls = () => {
-    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(163).build();
+    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(133).build();
   };
 
   const createHeaderTotalGasUsed = () => {
@@ -110,6 +107,27 @@ export const StandardNetworkRealmListTable = ({
       .width(163)
       .renderOption(gasUsed => {
         return <AmountText {...toGNOTAmount(gasUsed.value, gasUsed.denom)} maxSize="p4" minSize="body1" />;
+      })
+      .build();
+  };
+
+  const createHeaderStorageDeposit = () => {
+    return DatatableOption.Builder.builder<Realm>()
+      .key("storageDeposit")
+      .name("Storage Deposit")
+      .sort()
+      .width(170)
+      .renderOption(storageUsed => {
+        const dummy = { denom: "ugnot", value: "51212111", sizeInBytes: 16360 };
+        return (
+          <StorageDepositText
+            {...toGNOTAmount(dummy.value, dummy.denom)}
+            sizeInBytes={dummy.sizeInBytes}
+            minSize="body1"
+            maxSize="p4"
+            visibleTooltip={true}
+          />
+        );
       })
       .build();
   };
