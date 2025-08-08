@@ -97,12 +97,13 @@ export const parseABCIQueryNumberResponse = (abciData: string | null): number =>
 /**
  * Regular expression for key-value pattern matching.
  * This regular expression matches the following patterns:
- * 1. ([a-zA-Z]\w*) - an identifier that starts with an alphabet (upper or lower case) followed by an alphabet, number, or underscore (_)
- * 2. :\s* - a colon (:) followed by zero or more spaces
- * 3. (\d+) - one or more numbers
+ * 1. \b - word boundary to ensure the key starts at a word boundary (prevents matching keys that start with numbers)
+ * 2. ([a-zA-Z]\w*) - an identifier that starts with an alphabet (upper or lower case) followed by an alphabet, number, or underscore (_)
+ * 3. :\s* - a colon (:) followed by zero or more spaces
+ * 4. (\d+) - one or more numbers
  * @type {RegExp}
  */
-const KEY_VALUE_PATTERN = /([a-zA-Z]\w*):\s*(\d+)/g;
+const KEY_VALUE_PATTERN = /(?:^|\s)([a-zA-Z]\w*):\s*([^\s]+)/g;
 
 /**
  * Parses ABCI query response data that contains key-value pairs.
@@ -114,7 +115,9 @@ export const parseABCIKeyValueResponse = (abciData: string | null): Record<strin
   try {
     const value = extractStringFromResponse(abciData).trim();
 
-    return Array.from(value.matchAll(KEY_VALUE_PATTERN)).reduce<Record<string, string>>(
+    if (!value) return {};
+
+    return Array.from(value.matchAll(new RegExp(KEY_VALUE_PATTERN))).reduce<Record<string, string>>(
       (result, [, key, value]) => ({
         ...result,
         [key]: value.trim(),
