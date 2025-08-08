@@ -17,6 +17,12 @@ export const API_REPOSITORY_KEY = {
 
 export type API_REPOSITORY_KEY = ValuesType<typeof API_REPOSITORY_KEY>;
 
+export const RPC_REPOSITORY_KEY = {
+  CHAIN_REPOSITORY: "RpcChainRepository",
+};
+
+export type RPC_REPOSITORY_KEY = ValuesType<typeof RPC_REPOSITORY_KEY>;
+
 export const DASHBOARD_DATA_REFETCHING_INTERVAL = 5000;
 export const DEFAULT_LIST_ITEMS_SIZE = 40 as const;
 export const DEFAULT_LIST_ITEMS_CACHE_TIME = 5 * 60 * 1000;

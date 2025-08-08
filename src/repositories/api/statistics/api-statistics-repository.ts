@@ -1,4 +1,3 @@
-import { Amount } from "@/types";
 import { GetTotalFeeShareRequest } from "./request";
 import {
   GetLatestBlogsResponse,
@@ -36,6 +35,4 @@ export interface ApiStatisticsRepository {
   getTotalGasShare(request: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse>;
 
   getTotalStorageDeposit(): Promise<StorageDeposit | null>;
-
-  getStoragePrice(): Promise<Amount | null>;
 }

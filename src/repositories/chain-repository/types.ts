@@ -1,9 +1,13 @@
+import { Amount } from "@/types";
+
 export interface IChainRepository {
   getTokenSupply(): Promise<TokenSupplyInfo>;
 
   getValidators(height: number): Promise<string[]>;
 
   getValidatorInfos(chainId: string): Promise<ValidatorInfo[]>;
+
+  getStoragePrice(): Promise<Amount | null>;
 }
 
 export interface TokenSupplyInfo {

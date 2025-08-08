@@ -1,5 +1,3 @@
-import { parseABCI } from "@gnolang/tm2-js-client";
-
 import { NetworkClient } from "@/common/clients/network-client";
 import { NodeRPCClient } from "@/common/clients/node-client";
 import { ApiStatisticsRepository } from "./api-statistics-repository";
@@ -22,7 +20,6 @@ import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GNO_PACKAGE_BOARD_PATH } from "@/common/values/gno.constant";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { isValidStorageDepositData } from "@/common/utils/storage-deposit-util";
-import { Amount } from "@/types";
 import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
 
 interface APIResponse<T> {
@@ -177,42 +174,6 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
       .then(result => {
         return result.data?.data;
       });
-  }
-
-  async getStoragePrice(): Promise<Amount | null> {
-    if (!this.nodeClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
-    }
-
-    const response = await this.nodeClient.abciQueryVMStoragePrice().catch(() => null);
-    if (!response || !response?.response?.ResponseBase?.Data) {
-      return null;
-    }
-
-    try {
-      const rawResult = parseABCI(response.response.ResponseBase.Data);
-
-      if (typeof rawResult !== "string") {
-        return null;
-      }
-
-      // ex) "100ugnot"
-      const priceRegex = /^(\d+)([a-zA-Z]+)$/;
-      const match = rawResult.match(priceRegex);
-
-      if (!match) {
-        return null;
-      }
-
-      const [, amount, denomination] = match;
-
-      return {
-        value: amount,
-        denom: denomination,
-      };
-    } catch (error) {
-      return null;
-    }
   }
 
   async getTotalStorageDeposit(): Promise<StorageDeposit | null> {

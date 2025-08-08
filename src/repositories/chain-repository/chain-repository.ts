@@ -4,6 +4,9 @@ import { IChainRepository, TokenSupplyInfo, ValidatorInfo } from "./types";
 import { ChainType } from "@/common/values/constant-value";
 import ValidatorStagingData from "../../assets/meta/staging/validators.json";
 import ValidatorTest6Data from "../../assets/meta/test6/validators.json";
+import { Amount } from "@/types";
+import { CommonError } from "@/common/errors";
+import { parseABCI } from "@gnolang/tm2-js-client";
 
 export class ChainRepository implements IChainRepository {
   constructor(private nodeRPCClient: NodeRPCClient | null) {}
@@ -32,5 +35,41 @@ export class ChainRepository implements IChainRepository {
       return ValidatorTest6Data;
     }
     return [];
+  }
+
+  async getStoragePrice(): Promise<Amount | null> {
+    if (!this.nodeRPCClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
+    }
+
+    const response = await this.nodeRPCClient.abciQueryVMStoragePrice().catch(() => null);
+    if (!response || !response?.response?.ResponseBase?.Data) {
+      return null;
+    }
+
+    try {
+      const rawResult = parseABCI(response.response.ResponseBase.Data);
+
+      if (typeof rawResult !== "string") {
+        return null;
+      }
+
+      // ex) "100ugnot"
+      const priceRegex = /^(\d+)([a-zA-Z]+)$/;
+      const match = rawResult.match(priceRegex);
+
+      if (!match) {
+        return null;
+      }
+
+      const [, amount, denomination] = match;
+
+      return {
+        value: amount,
+        denom: denomination,
+      };
+    } catch (error) {
+      return null;
+    }
   }
 }
