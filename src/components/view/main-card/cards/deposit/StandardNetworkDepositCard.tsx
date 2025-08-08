@@ -11,8 +11,8 @@ import { formatBytes } from "@/common/utils/format/format-utils";
 import { BYTE_UNITS } from "@/common/values/constant-value";
 
 export const StandardNetworkDepositCard = () => {
-  const { data: storagePrice } = useGetStoragePrice();
-  const { data: totalStorageDeposit } = useGetTotalStorageDeposit();
+  const { data: storagePrice, isFetched: isFetchedStoragePrice } = useGetStoragePrice();
+  const { data: totalStorageDeposit, isFetched: isFetchedTotalStorageDeposit } = useGetTotalStorageDeposit();
 
   const storageDepositDenom = React.useMemo(() => {
     return storagePrice?.denom || "ugnot";
@@ -42,7 +42,7 @@ export const StandardNetworkDepositCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={true}
+        isFetched={isFetchedTotalStorageDeposit}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
             {makeDisplayNumber(displayStorageDeposit.value)}
@@ -62,7 +62,7 @@ export const StandardNetworkDepositCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={true}
+              isFetched={isFetchedTotalStorageDeposit}
               renderComp={
                 <Text type="p4" color="primary">
                   {formattedBytesData.value}
@@ -84,7 +84,7 @@ export const StandardNetworkDepositCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={true}
+              isFetched={isFetchedStoragePrice}
               renderComp={
                 <Text type="p4" color="primary">
                   {`${makeDisplayNumber(displayStoragePrice.value)}`}
