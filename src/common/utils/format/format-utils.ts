@@ -1,7 +1,12 @@
 import BigNumber from "bignumber.js";
 
 import { makeDisplayNumber } from "../string-util";
-import { BYTES_PER_KB } from "@/common/values/constant-value";
+import { BYTE_UNITS, BYTES_PER_KB } from "@/common/values/constant-value";
+
+interface ByteSizeResult {
+  value: string;
+  unit: string;
+}
 
 export const safeString = (value: string | number | null | undefined): string => {
   if (value == null) return "";
@@ -43,4 +48,39 @@ export function convertBytesToKB(bytes: number | string | BigNumber, decimalPlac
   }
 
   return bytesBN.dividedBy(BYTES_PER_KB).toFormat(decimalPlaces, BigNumber.ROUND_FLOOR);
+}
+
+export function formatBytes(bytes: number | string | BigNumber): ByteSizeResult {
+  if (bytes == null || bytes === undefined || bytes === "") {
+    return { value: "0", unit: BYTE_UNITS.BYTE.unit };
+  }
+
+  const bytesBN = BigNumber(bytes.toString());
+
+  if (bytesBN.isNaN() || bytesBN.isNegative()) {
+    return { value: "0", unit: BYTE_UNITS.BYTE.unit };
+  }
+
+  const bytesNum = bytesBN.toNumber();
+
+  // GB
+  if (bytesNum >= BYTE_UNITS.GB.value) {
+    const value = bytesBN.dividedBy(BYTE_UNITS.GB.value).toFormat(2, BigNumber.ROUND_FLOOR);
+    return { value, unit: BYTE_UNITS.GB.unit };
+  }
+
+  // MB
+  if (bytesNum >= BYTE_UNITS.MB.value) {
+    const value = bytesBN.dividedBy(BYTE_UNITS.MB.value).toFormat(2, BigNumber.ROUND_FLOOR);
+    return { value, unit: BYTE_UNITS.MB.unit };
+  }
+
+  // KB
+  if (bytesNum >= BYTE_UNITS.KB.value) {
+    const value = bytesBN.dividedBy(BYTE_UNITS.KB.value).toFormat(2, BigNumber.ROUND_FLOOR);
+    return { value, unit: BYTE_UNITS.KB.unit };
+  }
+
+  // byte
+  return { value: bytesNum.toString(), unit: BYTE_UNITS.BYTE.unit };
 }

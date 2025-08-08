@@ -7,7 +7,8 @@ import { useGetStoragePrice } from "@/common/react-query/statistics";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { Amount } from "@/types";
 import { useGetTotalStorageDeposit } from "@/common/react-query/statistics/use-get-total-storage-deposit";
-import { convertBytesToKB } from "@/common/utils/format/format-utils";
+import { formatBytes } from "@/common/utils/format/format-utils";
+import { BYTE_UNITS } from "@/common/values/constant-value";
 
 export const StandardNetworkDepositCard = () => {
   const { data: storagePrice } = useGetStoragePrice();
@@ -31,10 +32,8 @@ export const StandardNetworkDepositCard = () => {
     return converted;
   }, [totalStorageDeposit, storageDepositDenom]);
 
-  const formattedBytesToKB = React.useMemo(() => {
-    const kb = convertBytesToKB(totalStorageDeposit?.storage || 0, 2);
-
-    return kb || "0";
+  const formattedBytesData = React.useMemo(() => {
+    return formatBytes(totalStorageDeposit?.storage || 0);
   }, [totalStorageDeposit?.storage]);
 
   return (
@@ -66,9 +65,9 @@ export const StandardNetworkDepositCard = () => {
               isFetched={true}
               renderComp={
                 <Text type="p4" color="primary">
-                  {`${formattedBytesToKB}`}
+                  {formattedBytesData.value}
                   <Text type="body1" display="inline-block" color="primary">
-                    &nbsp;{"KB"}
+                    &nbsp;{formattedBytesData.unit}
                   </Text>
                 </Text>
               }
@@ -90,7 +89,7 @@ export const StandardNetworkDepositCard = () => {
                 <Text type="p4" color="primary">
                   {`${makeDisplayNumber(displayStoragePrice.value)}`}
                   <Text type="body1" display="inline-block" color="primary">
-                    &nbsp;{`${displayStoragePrice.denom} / KB`}
+                    &nbsp;{`${displayStoragePrice.denom} / ${BYTE_UNITS.KB.unit}`}
                   </Text>
                 </Text>
               }
