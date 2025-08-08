@@ -9,7 +9,6 @@ import { MainRealmTotalGasShareApi } from "./total-gas-share/total-gas-share-api
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import CustomNetworkActiveNewest from "../main-active-list/active-newest/CustomNetworkActiveNewest";
 import StandardNetworkActiveNewest from "../main-active-list/active-newest/StandardNetworkActiveNewest";
-import { MainTotalStorageDepositShareApi } from "./total-storage-deposit-share/total-storage-deposit-share-api";
 
 interface MainRealmProps {
   breakpoint: DEVICE_TYPE;
@@ -23,14 +22,7 @@ const MainRealm = ({ breakpoint }: MainRealmProps) => {
       <Card height="368px" className="card-1">
         {isCustomNetwork ? <MainRealmTotalGasShare /> : <MainRealmTotalGasShareApi />}
       </Card>
-
-      {isCustomNetwork ? (
-        <CustomNetworkActiveNewest />
-      ) : (
-        <Card height="368px" className="card-1">
-          <MainTotalStorageDepositShareApi />
-        </Card>
-      )}
+      {isCustomNetwork ? <CustomNetworkActiveNewest /> : <StandardNetworkActiveNewest />}
     </Wrapper>
   );
 };

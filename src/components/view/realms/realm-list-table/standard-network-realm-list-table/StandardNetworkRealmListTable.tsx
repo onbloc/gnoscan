@@ -53,11 +53,11 @@ export const StandardNetworkRealmListTable = ({
     return [
       createHeaderName(),
       createHeaderPath(),
+      createHeaderFunctions(),
       createHeaderBlock(),
       createHeaderPublisher(),
       createHeaderTotalCalls(),
       createHeaderTotalGasUsed(),
-      createHeaderStorageDeposit(),
     ];
   };
 
@@ -74,6 +74,10 @@ export const StandardNetworkRealmListTable = ({
       .tooltip(TOOLTIP_PATH)
       .renderOption(packagePath => <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={186} />)
       .build();
+  };
+
+  const createHeaderFunctions = () => {
+    return DatatableOption.Builder.builder<Realm>().key("functionCount").name("Functions").width(121).build();
   };
 
   const createHeaderBlock = () => {
@@ -97,7 +101,7 @@ export const StandardNetworkRealmListTable = ({
   };
 
   const createHeaderTotalCalls = () => {
-    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(133).build();
+    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(163).build();
   };
 
   const createHeaderTotalGasUsed = () => {

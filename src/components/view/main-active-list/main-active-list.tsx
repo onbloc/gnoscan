@@ -9,9 +9,8 @@ import { TextProps } from "@/components/ui/text/text";
 import { PaletteKeyType } from "@/styles";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import ActiveAccountApi from "./active-account/active-account-api";
+import ActiveLatestBlogs from "./active-latest-blogs/active-latest-blogs";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import CustomNetworkActiveNewest from "./active-newest/CustomNetworkActiveNewest";
-import StandardNetworkActiveNewest from "./active-newest/StandardNetworkActiveNewest";
 
 interface StyledTextProps extends TextProps {
   width?: string;
@@ -44,12 +43,12 @@ const MainActiveList = ({ breakpoint }: MainActiveListProps) => {
       {isCustomNetwork ? (
         <React.Fragment>
           <ActiveAccount />
-          <CustomNetworkActiveNewest />
+          <ActiveLatestBlogs />
         </React.Fragment>
       ) : (
         <React.Fragment>
           <ActiveAccountApi />
-          <StandardNetworkActiveNewest />
+          <ActiveLatestBlogs />
         </React.Fragment>
       )}
     </Wrapper>
