@@ -58,8 +58,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
   const { currentNetwork, gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
-  const { data: testData } = useGetRealmStorageDepositByPath(path);
-  console.log(testData, "testData?");
+  const { data: storageDepositData, isFetched: isFetchedStorageDepositData } = useGetRealmStorageDepositByPath(path);
 
   const realmSummary: RealmSummary | null = React.useMemo(() => {
     if (!realmData?.data) return null;
@@ -80,6 +79,17 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     const data = realmSummary.totalUsedFees;
     return toGNOTAmount(data?.value, data?.denom);
   }, [realmSummary?.totalUsedFees]);
+
+  const displayStorageDepositAmount: Amount = React.useMemo(() => {
+    if (!storageDepositData)
+      return {
+        value: "0",
+        denom: GNOTToken.denom,
+      };
+
+    const converted = toGNOTAmount(storageDepositData.deposit, GNOTToken.denom);
+    return converted;
+  }, [storageDepositData]);
 
   const hasGnoWebUrl = React.useMemo(() => {
     return gnoWebUrl !== null && gnoWebUrl !== "";
@@ -319,9 +329,9 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             <StorageDepositText
               minSize="body1"
               maxSize="p4"
-              value={realmTotalUsedFees?.value || "0"}
-              denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
-              sizeInBytes={16302}
+              value={displayStorageDepositAmount.value}
+              denom={displayStorageDepositAmount.denom}
+              sizeInBytes={storageDepositData?.storage || 0}
               visibleStorageSize={true}
               visibleTooltip={false}
             />
