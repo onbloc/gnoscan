@@ -10,7 +10,7 @@ import { useGetTotalStorageDeposit } from "@/common/react-query/statistics/use-g
 import { formatBytes } from "@/common/utils/format/format-utils";
 import { BYTE_UNITS } from "@/common/values/constant-value";
 
-export const StandardNetworkDepositCard = () => {
+export const StorageDepositCard = () => {
   const { data: storagePrice, isFetched: isFetchedStoragePrice } = useGetStoragePrice();
   const { data: totalStorageDeposit, isFetched: isFetchedTotalStorageDeposit } = useGetTotalStorageDeposit();
 
