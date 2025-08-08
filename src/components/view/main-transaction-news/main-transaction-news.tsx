@@ -23,19 +23,12 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
     <Wrapper className={breakpoint}>
       <Card height="274px" className="card-1">
         <Text className="title" type="h6" color="primary">
-          {"Total Storage Deposit"}
-        </Text>
-        <StackedBarChart2 />
-      </Card>
-
-      <Card height="274px" className="card-2">
-        <Text className="title" type="h6" color="primary">
           {"Daily Total Transactions"}
         </Text>
         {isCustomNetwork ? <MainTotalTransaction /> : <MainTotalTransactionApi />}
       </Card>
 
-      <Card height="274px" className="card-3">
+      <Card height="274px" className="card-2">
         <Text className="title" type="h6" color="primary">
           {"Daily Total Fees in GNOT"}
         </Text>
