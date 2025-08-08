@@ -16,11 +16,7 @@ import {
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
 } from "./response";
-import { StorageDeposit } from "@/models/storage-deposit-model";
-import { GNO_PACKAGE_BOARD_PATH } from "@/common/values/gno.constant";
 import { makeQueryParameter } from "@/common/utils/string-util";
-import { isValidStorageDepositData } from "@/common/utils/storage-deposit-util";
-import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
 
 interface APIResponse<T> {
   data: T;
@@ -174,31 +170,5 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
       .then(result => {
         return result.data?.data;
       });
-  }
-
-  async getTotalStorageDeposit(): Promise<StorageDeposit | null> {
-    if (!this.nodeClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
-    }
-
-    const response = await this.nodeClient.abciQueryVMStorageDeposit(GNO_PACKAGE_BOARD_PATH).catch(() => null);
-    if (!response || !response?.response?.ResponseBase?.Data) {
-      return null;
-    }
-
-    try {
-      const rawResult = parseABCIKeyValueResponse(response.response.ResponseBase.Data);
-
-      if (isValidStorageDepositData(rawResult)) {
-        return {
-          storage: rawResult.storage,
-          deposit: rawResult.deposit,
-        };
-      }
-
-      return null;
-    } catch {
-      return null;
-    }
   }
 }

@@ -1,3 +1,5 @@
+import { parseABCI } from "@gnolang/tm2-js-client";
+
 import { NodeRPCClient } from "@/common/clients/node-client";
 import { IChainRepository, TokenSupplyInfo, ValidatorInfo } from "./types";
 
@@ -6,7 +8,10 @@ import ValidatorStagingData from "../../assets/meta/staging/validators.json";
 import ValidatorTest6Data from "../../assets/meta/test6/validators.json";
 import { Amount } from "@/types";
 import { CommonError } from "@/common/errors";
-import { parseABCI } from "@gnolang/tm2-js-client";
+import { isValidStorageDepositData } from "@/common/utils/storage-deposit-util";
+import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
+import { StorageDeposit } from "@/models/storage-deposit-model";
+import { GNO_PACKAGE_BOARD_PATH } from "@/common/values/gno.constant";
 
 export class ChainRepository implements IChainRepository {
   constructor(private nodeRPCClient: NodeRPCClient | null) {}
@@ -35,6 +40,32 @@ export class ChainRepository implements IChainRepository {
       return ValidatorTest6Data;
     }
     return [];
+  }
+
+  async getTotalStorageDeposit(): Promise<StorageDeposit | null> {
+    if (!this.nodeRPCClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
+    }
+
+    const response = await this.nodeRPCClient.abciQueryVMStorageDeposit(GNO_PACKAGE_BOARD_PATH).catch(() => null);
+    if (!response || !response?.response?.ResponseBase?.Data) {
+      return null;
+    }
+
+    try {
+      const rawResult = parseABCIKeyValueResponse(response.response.ResponseBase.Data);
+
+      if (isValidStorageDepositData(rawResult)) {
+        return {
+          storage: rawResult.storage,
+          deposit: rawResult.deposit,
+        };
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   async getStoragePrice(): Promise<Amount | null> {

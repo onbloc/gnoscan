@@ -11,7 +11,6 @@ import {
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
 } from "./response";
-import { StorageDeposit } from "@/models/storage-deposit-model";
 
 export interface ApiStatisticsRepository {
   getLatestBlogs(): Promise<GetLatestBlogsResponse>;
@@ -33,6 +32,4 @@ export interface ApiStatisticsRepository {
   getTotalDailyTransactions(): Promise<GetTotalDailyTransactionsResponse>;
 
   getTotalGasShare(request: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse>;
-
-  getTotalStorageDeposit(): Promise<StorageDeposit | null>;
 }
