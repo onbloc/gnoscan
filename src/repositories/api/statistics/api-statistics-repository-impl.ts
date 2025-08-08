@@ -19,6 +19,7 @@ import {
   GetTotalFeeShareResponse,
 } from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
+import { GNO_PACKAGE_BOARD_PATH } from "@/common/values/gno.constant";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { isValidStorageDepositData } from "@/common/utils/storage-deposit-util";
 import { Amount } from "@/types";
@@ -219,7 +220,7 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
     }
 
-    const response = await this.nodeClient.abciQueryVMStorageDeposit("gno.land/r/demo/boards").catch(() => null);
+    const response = await this.nodeClient.abciQueryVMStorageDeposit(GNO_PACKAGE_BOARD_PATH).catch(() => null);
     if (!response || !response?.response?.ResponseBase?.Data) {
       return null;
     }
