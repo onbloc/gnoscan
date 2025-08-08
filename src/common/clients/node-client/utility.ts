@@ -93,3 +93,19 @@ export const parseABCIQueryNumberResponse = (abciData: string | null): number =>
   }
   return 0;
 };
+
+export const parseABCIKeyValueResponse = (abciData: string | null): Record<string, number> => {
+  const value = extractStringFromResponse(abciData);
+  const result: Record<string, number> = {};
+
+  const regex = /([a-z]\w*):\s*(\d+)/g;
+  let match;
+
+  while ((match = regex.exec(value)) !== null) {
+    const key = match[1];
+    const numValue = parseInt(match[2]);
+    result[key] = numValue;
+  }
+
+  return result;
+};

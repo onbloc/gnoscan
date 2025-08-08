@@ -30,6 +30,7 @@ import Tooltip from "@/components/ui/tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
+import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
 
 interface RealmSummaryProps {
   path: string;
@@ -57,6 +58,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
   const { currentNetwork, gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
+  const { data: testData } = useGetRealmStorageDepositByPath(path);
+  console.log(testData, "testData?");
 
   const realmSummary: RealmSummary | null = React.useMemo(() => {
     if (!realmData?.data) return null;
