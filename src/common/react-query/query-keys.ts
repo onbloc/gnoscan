@@ -21,6 +21,7 @@ export enum QUERY_KEY {
   getRealmByPath = "api_get_realm_by_path",
   getRealmEventsByPath = "api_get_realm_events_by_path",
   getRealmTransactionsByPath = "api_get_realm_transactions_by_path",
+  getRealmStorageDepositByPath = "get_realm_storage_deposit_by_path",
 
   // token
   getTokens = "api_get_tokens",
@@ -39,6 +40,7 @@ export enum QUERY_KEY {
   getTotalDailyFees = "api_get_total_daily_fees",
   getTotalDailyTransactions = "api_get_total_daily_transactions",
   getTotalGasShare = "api_get_total_gas_share",
+  getStoragePrice = "get_storage_price",
 
   // search
   getSearch = "api_get_search",

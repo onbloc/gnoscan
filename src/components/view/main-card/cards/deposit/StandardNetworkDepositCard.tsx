@@ -3,11 +3,20 @@ import React from "react";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import Text from "@/components/ui/text";
 import { makeDisplayNumber } from "@/common/utils/string-util";
-import Tooltip from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import IconInfo from "@/assets/svgs/icon-info.svg";
+import { useGetStoragePrice } from "@/common/react-query/statistics";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { Amount } from "@/types";
 
 export const StandardNetworkDepositCard = () => {
+  const { data: storagePrice } = useGetStoragePrice();
+
+  const displayStoragePrice: Amount = React.useMemo(() => {
+    if (!storagePrice) return { value: "0", denom: "ugnot" };
+
+    const converted = toGNOTAmount(storagePrice.value, storagePrice.denom);
+    return converted;
+  }, [storagePrice]);
+
   return (
     <>
       <FetchedComp
@@ -55,9 +64,11 @@ export const StandardNetworkDepositCard = () => {
               skeletonWidth={60}
               isFetched={true}
               renderComp={
-                <Text type="p4" color="primary">
-                  {makeDisplayNumber("0")}
-                </Text>
+                <>
+                  <Text type="p4" color="primary">
+                    {`${makeDisplayNumber(displayStoragePrice.value)} ${displayStoragePrice.denom} / KB`}
+                  </Text>
+                </>
               }
             />
           </dd>

@@ -8,3 +8,4 @@ export * from "./use-get-summary-transactions";
 export * from "./use-get-total-daily-fees";
 export * from "./use-get-total-daily-transactions";
 export * from "./use-get-total-gas-share";
+export * from "./use-get-storage-price";
