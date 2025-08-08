@@ -13,3 +13,22 @@ export const TESTNET6_CHAIN_ID = "test6";
 export const STAGING_CHAIN_ID = "staging";
 
 export const BYTES_PER_KB = 1024 as const;
+
+export const BYTE_UNITS = {
+  BYTE: {
+    value: Math.pow(BYTES_PER_KB, 0),
+    unit: "byte",
+  },
+  KB: {
+    value: Math.pow(BYTES_PER_KB, 1),
+    unit: "KB",
+  },
+  MB: {
+    value: Math.pow(BYTES_PER_KB, 2),
+    unit: "MB",
+  },
+  GB: {
+    value: Math.pow(BYTES_PER_KB, 3),
+    unit: "GB",
+  },
+} as const;

@@ -1,4 +1,5 @@
 import { NetworkClient } from "@/common/clients/network-client";
+import { NodeRPCClient } from "@/common/clients/node-client";
 import { ApiStatisticsRepository } from "./api-statistics-repository";
 
 import { CommonError } from "@/common/errors";
@@ -23,8 +24,10 @@ interface APIResponse<T> {
 
 export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
   private networkClient: NetworkClient | null;
-  constructor(networkClient: NetworkClient | null) {
+  private nodeClient: NodeRPCClient | null;
+  constructor(networkClient: NetworkClient | null, nodeClient: NodeRPCClient | null) {
     this.networkClient = networkClient;
+    this.nodeClient = nodeClient;
   }
 
   getLatestBlogs(): Promise<GetLatestBlogsResponse> {

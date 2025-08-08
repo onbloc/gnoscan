@@ -134,6 +134,28 @@ export class NodeRPCClient implements NodeClient {
     return this.abciQuery(path);
   }
 
+  abciQueryVMStorageDeposit(realmPath: string) {
+    const path = "vm/qstorage";
+
+    const request = makeRPCRequest({
+      method: "abci_query",
+      params: [path, prepareVMABCIQuery([realmPath]), "0", false],
+    });
+
+    return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
+  }
+
+  abciQueryVMStoragePrice() {
+    const path = "params/vm:p:storage_price";
+
+    const request = makeRPCRequest({
+      method: "abci_query",
+      params: [path, "", "0", false],
+    });
+
+    return this.rpcClient.call<NodeResponseABCIQuery>(request).then(handleResponse);
+  }
+
   abciQueryVMQueryFuncs(packagePath: string): Promise<NodeResponseABCIQuery> {
     const path = "vm/qfuncs";
 

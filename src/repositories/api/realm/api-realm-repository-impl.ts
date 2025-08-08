@@ -1,10 +1,14 @@
 import { NetworkClient } from "@/common/clients/network-client";
+import { NodeRPCClient } from "@/common/clients/node-client";
 import { ApiRealmRepository } from "./api-realm-repository";
 
 import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactionsRequest } from "./request";
 import { GetRealmEventsResponse, GetRealmResponse, GetRealmsResponse, GetRealmTransactionsResponse } from "./response";
+import { StorageDeposit } from "@/models/storage-deposit-model";
 import { makeQueryParameter } from "@/common/utils/string-util";
+import { hasStorageDepositProperties, convertToStorageDeposit } from "@/common/utils/storage-deposit-util";
 import { CommonError } from "@/common/errors";
+import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
 
 interface APIResponse<T> {
   data: T;
@@ -12,8 +16,10 @@ interface APIResponse<T> {
 
 export class ApiRealmRepositoryImpl implements ApiRealmRepository {
   private networkClient: NetworkClient | null;
-  constructor(networkClient: NetworkClient | null) {
+  private nodeClient: NodeRPCClient | null;
+  constructor(networkClient: NetworkClient | null, nodeClient: NodeRPCClient | null) {
     this.networkClient = networkClient;
+    this.nodeClient = nodeClient;
   }
 
   getRealms(params: GetRealmsRequestParameters): Promise<GetRealmsResponse> {
@@ -78,5 +84,29 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       .then(result => {
         return result.data?.data;
       });
+  }
+
+  async getRealmStorageDeposit(realmPath: string): Promise<StorageDeposit | null> {
+    if (!this.nodeClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NodeRPCClient");
+    }
+
+    const response = await this.nodeClient.abciQueryVMStorageDeposit(realmPath).catch(() => null);
+    if (!response || !response?.response?.ResponseBase?.Data) {
+      return null;
+    }
+
+    try {
+      const rawResult = parseABCIKeyValueResponse(response.response.ResponseBase.Data);
+
+      if (hasStorageDepositProperties(rawResult)) {
+        return convertToStorageDeposit(rawResult);
+      }
+
+      return null;
+    } catch (e) {
+      console.error("GetRealmStorageDeposit Error: ", e);
+      return null;
+    }
   }
 }

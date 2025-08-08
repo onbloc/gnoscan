@@ -81,7 +81,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
       return null;
     }
 
-    return new ApiRealmRepositoryImpl(onblocAPIClient);
+    return new ApiRealmRepositoryImpl(onblocAPIClient, nodeRPCClient);
   }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
 
   const apiTokenRepository = useMemo(() => {
@@ -97,7 +97,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
       return null;
     }
 
-    return new ApiStatisticsRepositoryImpl(onblocAPIClient);
+    return new ApiStatisticsRepositoryImpl(onblocAPIClient, nodeRPCClient);
   }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
 
   const apiSearchRepository = useMemo(() => {

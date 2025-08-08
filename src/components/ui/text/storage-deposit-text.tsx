@@ -7,7 +7,7 @@ import { FontsType, PaletteKeyType } from "@/styles";
 import Text from "@/components/ui/text";
 import mixins from "@/styles/mixins";
 import Tooltip from "@/components/ui/tooltip";
-import { convertBytesToKB } from "@/common/utils/format/format-utils";
+import { formatBytes } from "@/common/utils/format/format-utils";
 
 interface StorageDepositTextProps {
   minSize: FontsType;
@@ -75,12 +75,9 @@ export const StorageDepositText = ({
     return `.${numberValues.decimal.toString().slice(0, decimals)}`;
   }, [decimals, numberValues]);
 
-  const formattedBytesToKB = useMemo(() => {
-    const kb = convertBytesToKB(sizeInBytes, 2);
-
-    if (!kb) return "0 KB";
-
-    return `${kb} KB`;
+  const formattedBytes = useMemo(() => {
+    const result = formatBytes(sizeInBytes);
+    return `${result.value} ${result.unit}`;
   }, [sizeInBytes]);
 
   const renderTooltip = () => {
@@ -89,7 +86,7 @@ export const StorageDepositText = ({
         {formattedInteger}
         {formattedDecimals}
         {denom}
-        &nbsp; ({formattedBytesToKB})
+        &nbsp;({formattedBytes})
       </TooltipWrapper>
     );
   };
@@ -115,7 +112,7 @@ export const StorageDepositText = ({
           </Text>
           {visibleStorageSize && (
             <Text type={minSize} color={color} display="contents">
-              &nbsp;({formattedBytesToKB})
+              &nbsp;({formattedBytes})
             </Text>
           )}
         </div>
