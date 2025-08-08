@@ -17,6 +17,7 @@ import {
 } from "@/components/view/transaction/common";
 import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 
 interface TransactionTransferContractProps {
   message: TransactionContractModel;
@@ -87,6 +88,10 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
 
       <Field label="Arguments" isDesktop={isDesktop}>
         <BadgeList items={message?.args} />
+      </Field>
+
+      <Field label="Storage Deposit" isDesktop={isDesktop}>
+        <StorageDepositAmountBadge visibleStorageSize={true} visibleTooltip={false} />
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

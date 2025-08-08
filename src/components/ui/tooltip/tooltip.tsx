@@ -17,9 +17,18 @@ interface TooltipProps {
   width?: number;
   copyText?: string;
   contentWidth?: string;
+  visible?: boolean;
 }
 
-const Tooltip = ({ className, children, content, trigger = "hover", width, copyText = "" }: TooltipProps) => {
+const Tooltip = ({
+  className,
+  children,
+  content,
+  trigger = "hover",
+  width,
+  copyText = "",
+  visible = true,
+}: TooltipProps) => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const themeMode = useRecoilValue(themeState);
 
@@ -54,6 +63,10 @@ const Tooltip = ({ className, children, content, trigger = "hover", width, copyT
       clearTimeout(timer);
     };
   };
+
+  if (!visible) {
+    return <Wrapper className={className}>{children}</Wrapper>;
+  }
 
   return (
     <Wrapper className={className}>
