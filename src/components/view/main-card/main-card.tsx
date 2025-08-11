@@ -17,6 +17,8 @@ import { StandardNetworkBlockCard } from "./cards/block/StandardNetworkBlockCard
 import { CustomNetworkTxsCard } from "./cards/transaction/CustomNetworkTransactionsCard";
 import { StandardNetworkTxsCard } from "./cards/transaction/StandardNetworkTransactionsCard";
 import { StorageDepositCard } from "./cards/deposit/StorageDepositCard";
+import { CustomNetworkAccountCard } from "./cards/account/CustomNetworkAccountCard";
+import { StandardNetworkAccountCard } from "./cards/account/StandardNetworkAccountCard";
 
 interface MainCardProps {
   breakpoint: DEVICE_TYPE;
@@ -40,22 +42,20 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
         </Text>
         {isCustomNetwork ? <CustomNetworkSupplyCard /> : <StandardNetworkSupplyCard />}
       </StyledCard>
-
       <StyledCard>
         <Text type="h5" color="primary">
           Block&nbsp;Height
         </Text>
         {isCustomNetwork ? <CustomNetworkBlockCard /> : <StandardNetworkBlockCard />}
       </StyledCard>
-
       <StyledCard>
         <Text type="h5" color="primary">
           Total&nbsp;Transactions
         </Text>
         {isCustomNetwork ? <CustomNetworkTxsCard /> : <StandardNetworkTxsCard />}
       </StyledCard>
-
-      <StyledCard>
+      {/* // ToDo: expose the card after developing the StorageDeposit API */}
+      {/* <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           Storage&nbsp;Deposit
           <Tooltip content="Total amount of GNOT deposited for storage in real time.">
@@ -65,6 +65,17 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
           </Tooltip>
         </Text>
         <StorageDepositCard />
+      </StyledCard> */}
+      <StyledCard>
+        <Text type="h5" color="primary" className="title-info">
+          Total&nbsp;Accounts
+          <Tooltip content="Total number of accounts included in at least 1 transaction.">
+            <Button width="16px" height="16px" radius="50%" bgColor="base">
+              <IconInfo className="svg-info" />
+            </Button>
+          </Tooltip>
+        </Text>
+        {isCustomNetwork ? <CustomNetworkAccountCard /> : <StandardNetworkAccountCard />}
       </StyledCard>
     </Wrapper>
   );

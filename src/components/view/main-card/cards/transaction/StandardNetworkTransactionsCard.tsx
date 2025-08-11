@@ -51,21 +51,16 @@ export const StandardNetworkTxsCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Total&nbsp;Accounts
+              24h&nbsp;Avg.&nbsp;Fee
             </Text>
-            <Tooltip content="Total number of accounts included in at least 1 transaction.">
-              <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                <IconInfo className="svg-info" />
-              </Button>
-            </Tooltip>
           </dt>
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetchedAccountsData}
+              isFetched={isFetchedTxsData}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber(accountSummaryInfo.totalAccounts)}
+                  {makeDisplayNumber(transactionSummaryInfo.transactionFeeAverage)}
                 </Text>
               }
             />
