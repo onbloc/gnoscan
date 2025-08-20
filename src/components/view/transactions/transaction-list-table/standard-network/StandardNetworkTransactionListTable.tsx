@@ -6,6 +6,7 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { mapDisplayFunctionName } from "@/common/utils/format/format-utils";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 import * as S from "./StandardNetworkTransactionListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -59,9 +60,10 @@ export const StandardNetworkTransactionListTable = ({
       .name("Tx Hash")
       .width(215)
       .colorName("blue")
-      .renderOption((value, data) => (
-        <DatatableItem.TxHash txHash={value} status={data.successYn ? "success" : "failure"} />
-      ))
+      .renderOption((value, data) => {
+        if (!data) return null;
+        return <DatatableItem.TxHash txHash={value || ""} status={data.successYn ? "success" : "failure"} />;
+      })
       .build();
   };
 
@@ -73,8 +75,11 @@ export const StandardNetworkTransactionListTable = ({
       .colorName("blue")
       .tooltip(<S.TooltipContainer>{TOOLTIP_TYPE}</S.TooltipContainer>)
       .renderOption((_, data) => {
-        const func = data.func[0];
+        const func = data.func && data.func.length > 0 ? data.func[0] : null;
+        if (!func) return "-";
+
         const displayFunctionName = mapDisplayFunctionName(func.pkgPath, func.funcType);
+
         return (
           <DatatableItem.Type
             type={func.messageType}
@@ -103,7 +108,10 @@ export const StandardNetworkTransactionListTable = ({
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.Publisher address={data.fromAddress} username={data.fromName} />)
+      .renderOption((_, data) => {
+        if (!data) return null;
+        return <DatatableItem.Publisher address={data?.fromAddress || ""} username={data?.fromName || ""} />;
+      })
       .build();
   };
 
@@ -112,13 +120,14 @@ export const StandardNetworkTransactionListTable = ({
       .key("amount")
       .name("Amount")
       .width(190)
-      .renderOption((_, data) =>
-        data.messageCount > 1 ? (
-          <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.txHash}`} />
+      .renderOption((_, data) => {
+        if (!data) return null;
+        return data.messageCount > 1 ? (
+          <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data?.txHash || ""}`} />
         ) : (
-          <DatatableItem.StandardNetworkAmount data={data.amount} />
-        ),
-      )
+          <DatatableItem.StandardNetworkAmount data={data?.amount || {}} />
+        );
+      })
       .build();
   };
 
@@ -128,7 +137,10 @@ export const StandardNetworkTransactionListTable = ({
       .name("Time")
       .width(160)
       .className("time")
-      .renderOption(date => <DatatableItem.Date date={date} />)
+      .renderOption(date => {
+        if (!date) return null;
+        return <DatatableItem.Date date={date} />;
+      })
       .build();
   };
 
@@ -138,7 +150,10 @@ export const StandardNetworkTransactionListTable = ({
       .name("Fee")
       .width(113)
       .className("fee")
-      .renderOption(fee => <DatatableItem.Amount {...toGNOTAmount(fee.value, fee.denom)} />)
+      .renderOption(fee => {
+        if (!fee || !fee?.value || !fee?.denom) return "-";
+        return <DatatableItem.Amount {...toGNOTAmount(fee.value, fee.denom)} />;
+      })
       .build();
   };
 
