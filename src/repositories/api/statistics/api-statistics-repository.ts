@@ -9,6 +9,7 @@ import {
   GetSummarySupplyResponse,
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
+  GetTotalDailyStorageDepositResponse,
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
   GetTotalRealmStorageDepositResponse,
@@ -40,4 +41,6 @@ export interface ApiStatisticsRepository {
   getTotalDailyRealmStorageDeposit(
     request: GetTotalRealmStorageDepositRequest,
   ): Promise<GetTotalRealmStorageDepositResponse>;
+
+  getTotalDailyStorageDeposit(): Promise<GetTotalDailyStorageDepositResponse>;
 }

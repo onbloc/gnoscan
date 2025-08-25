@@ -14,6 +14,7 @@ import {
   GetSummarySupplyResponse,
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
+  GetTotalDailyStorageDepositResponse,
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
   GetTotalRealmStorageDepositResponse,
@@ -152,6 +153,20 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
     return this.networkClient
       .get<APIResponse<GetTotalDailyTransactionsResponse>>({
         url: "/stats/total-daily-transactions",
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTotalDailyStorageDeposit(): Promise<GetTotalDailyStorageDepositResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetTotalDailyStorageDepositResponse>>({
+        url: "/stats/total-daily-storage-deposit",
       })
       .then(result => {
         return result.data?.data;

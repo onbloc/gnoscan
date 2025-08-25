@@ -7,10 +7,11 @@ import type { EChartsOption } from "echarts";
 
 import { themeState } from "@/states";
 import theme from "@/styles/theme";
+import { TotalDailyStorageDeposit } from "@/types";
 
 interface StackedBarChart2Props {
-  labels?: Array<string>;
-  data?: Array<{ date: string; value: string }>;
+  labels: string[];
+  chartData?: TotalDailyStorageDeposit[];
 }
 
 interface EChartsData {
@@ -22,7 +23,7 @@ interface EChartsData {
   }>;
 }
 
-export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
+export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) => {
   const [themeMode] = useRecoilState(themeState);
 
   const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -33,21 +34,33 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
     return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
   }, [themeMode]);
 
-  const [chartData, setChartData] = React.useState<EChartsData>({
-    labels: ["2025-07-30", "2025-07-31", "2025-08-01", "2025-08-02", "2025-08-03", "2025-08-04", "2025-08-05"],
-    datasets: [
-      {
-        label: "Total Deposited",
-        data: [280, 420, 160.123123, 350.95211212, 480.123123, 600, 700],
-        backgroundColor: themePalette.blue,
-      },
-      {
-        label: "Daily Deposited",
-        data: [320, 180, 450, 280, 162, 100, 100],
-        backgroundColor: themePalette.orange,
-      },
-    ],
-  });
+  const eChartsData = React.useMemo(() => {
+    if (!chartData || chartData.length === 0) {
+      return {
+        lables: [],
+        datasets: [],
+      };
+    }
+
+    const storageDepositData = chartData.map(item => item.storageDepositAmount);
+    const unlockDepositData = chartData.map(item => item.unlockDepositAmount);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Storage Deposit",
+          data: storageDepositData,
+          backgroundColor: themePalette.blue,
+        },
+        {
+          label: "Unlock Deposit",
+          data: unlockDepositData,
+          backgroundColor: themePalette.orange,
+        },
+      ],
+    };
+  }, [chartData, themePalette.blue, themePalette.orange]);
 
   const tooltipInlineStyles = React.useMemo(
     () => ({
@@ -208,7 +221,7 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
 
       xAxis: {
         type: "category",
-        data: chartData.labels,
+        data: eChartsData.labels,
         axisLine: {
           show: true,
           lineStyle: {
@@ -285,7 +298,7 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
         },
       },
 
-      series: chartData.datasets.map((dataset, index) => ({
+      series: eChartsData.datasets.map((dataset, index) => ({
         name: dataset.label,
         type: "bar" as const,
         stack: "total",
@@ -300,7 +313,7 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
         },
       })),
 
-      color: chartData.datasets.map(dataset => dataset.backgroundColor),
+      color: eChartsData.datasets.map(dataset => dataset.backgroundColor),
     };
   };
 
@@ -323,7 +336,7 @@ export const StackedBarChart2 = ({}: StackedBarChart2Props) => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [themeMode, chartData]);
+  }, [themeMode, eChartsData]);
 
   React.useEffect(() => {
     return () => {

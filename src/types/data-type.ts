@@ -265,3 +265,9 @@ export interface TotalStorageDeposit {
   storagePricePerByte: string;
   storageUsage: string;
 }
+
+export interface TotalDailyStorageDeposit {
+  date: string;
+  storageDepositAmount: number;
+  unlockDepositAmount: number;
+}

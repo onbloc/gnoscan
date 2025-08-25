@@ -11,6 +11,9 @@ import { MainTotalTransactionApi } from "./total-transaction/total-transaction-a
 import { MainTotalDailyFeeApi } from "./total-daily-fee/total-daily-fee-api";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacked-bar-chart2";
+import { useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
+import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 interface MainTransactionNewsProps {
   breakpoint: DEVICE_TYPE;
@@ -18,6 +21,40 @@ interface MainTransactionNewsProps {
 
 const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
   const { isCustomNetwork } = useNetworkProvider();
+  const { data, isFetched } = useGetTotalDailyStroageDeposit();
+
+  const labels = React.useMemo(() => {
+    if (!data?.items || data.items.length === 0) return [];
+
+    return [...data.items]
+      .map(item => item.date)
+      .sort((a, b) => {
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return dateA.getTime() - dateB.getTime();
+      });
+  }, [data?.items]);
+
+  const chartData = React.useMemo(() => {
+    if (!data?.items || data.items.length === 0) return [];
+
+    return labels.map(label => {
+      const info = data.items.find(info => info.date === label);
+      if (!info) {
+        return {
+          date: label,
+          storageDepositAmount: 0,
+          unlockDepositAmount: 0,
+        };
+      }
+
+      return {
+        date: label,
+        storageDepositAmount: Number(formatTokenDecimal(info.storageDepositAmount, GNOTToken.decimals) || 0),
+        unlockDepositAmount: Number(formatTokenDecimal(info.unlockDepositAmount, GNOTToken.decimals) || 0),
+      };
+    });
+  }, [labels, data]);
 
   return (
     <Wrapper className={breakpoint}>
@@ -25,7 +62,7 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
         <Text className="title" type="h6" color="primary">
           {"Total Storage Deposit"}
         </Text>
-        <StackedBarChart2 />
+        <StackedBarChart2 labels={labels} chartData={chartData} />
       </Card>
 
       <Card height="274px" className="card-2">

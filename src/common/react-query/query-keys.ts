@@ -44,6 +44,7 @@ export enum QUERY_KEY {
   getStoragePrice = "get_storage_price",
   getStorageDeposit = "api_get_storage_deposit",
   getTotalDailyRealmStorageDeposit = "api_get_total_daily_realm_storage_deposit",
+  getTotalDailyStorageDeposit = "api_get_total_daily_storage_deposit",
 
   // search
   getSearch = "api_get_search",
