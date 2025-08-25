@@ -5,6 +5,7 @@ import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
+import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.utility";
 
 import CustomNetworkTransactionSummary from "@/components/view/transaction/transaction-summary/custom-network-transaction-summary/CustomNetworkTransactionSummary";
 import StandardNetworkTransactionSummary from "@/components/view/transaction/transaction-summary/standard-network-transaction-summary/StandardNetworkTransactionSummary";

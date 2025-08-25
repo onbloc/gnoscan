@@ -39,6 +39,8 @@ export class TransactionMapper {
         type: "",
         rawContent: response.errorLog,
       },
+      storageDeposit: response.storageDeposit,
+      storageUsage: response.storageUsage,
       transactionEvents: [],
       hasApplicationError: response.hasApplicationError,
     };

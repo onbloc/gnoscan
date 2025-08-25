@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { AmountUtils } from "@/common/utils/amount.utility";
 
 const TOOLTIP_PATH = (
   <>
@@ -53,11 +55,11 @@ export const StandardNetworkRealmListTable = ({
     return [
       createHeaderName(),
       createHeaderPath(),
-      createHeaderFunctions(),
       createHeaderBlock(),
       createHeaderPublisher(),
       createHeaderTotalCalls(),
       createHeaderTotalGasUsed(),
+      createHeaderStorageDeposit(),
     ];
   };
 
@@ -101,7 +103,7 @@ export const StandardNetworkRealmListTable = ({
   };
 
   const createHeaderTotalCalls = () => {
-    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(163).build();
+    return DatatableOption.Builder.builder<Realm>().key("totalCalls").name("Total Calls").sort().width(133).build();
   };
 
   const createHeaderTotalGasUsed = () => {
@@ -121,12 +123,17 @@ export const StandardNetworkRealmListTable = ({
       .name("Storage Deposit")
       .sort()
       .width(170)
-      .renderOption(storageUsed => {
-        const dummy = { denom: "ugnot", value: "51212111", sizeInBytes: 16360 };
+      .renderOption((_, data) => {
+        const { totalStorageDeposit, totalUnlockDeposit, storageUsage } = data;
+
+        const storageDeposit = AmountUtils.subtract(totalStorageDeposit, totalUnlockDeposit);
+        const sizeInBytes =
+          storageUsage && typeof storageUsage.value === "string" ? parseInt(storageUsage.value, 10) || 0 : 0;
+
         return (
           <StorageDepositText
-            {...toGNOTAmount(dummy.value, dummy.denom)}
-            sizeInBytes={dummy.sizeInBytes}
+            {...toGNOTAmount(storageDeposit.value, storageDeposit.denom)}
+            sizeInBytes={sizeInBytes}
             minSize="body1"
             maxSize="p4"
             visibleTooltip={true}
