@@ -43,6 +43,7 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
       if (!info) {
         return {
           date: label,
+          totalStorageDepositAmount: 0,
           storageDepositAmount: 0,
           unlockDepositAmount: 0,
         };
@@ -50,6 +51,7 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
 
       return {
         date: label,
+        totalStorageDepositAmount: Number(formatTokenDecimal(info.totalStorageDepositAmount, GNOTToken.decimals) || 0),
         storageDepositAmount: Number(formatTokenDecimal(info.storageDepositAmount, GNOTToken.decimals) || 0),
         unlockDepositAmount: Number(formatTokenDecimal(info.unlockDepositAmount, GNOTToken.decimals) || 0),
       };

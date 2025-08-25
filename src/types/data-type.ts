@@ -274,4 +274,5 @@ export interface TotalDailyStorageDeposit {
   date: string;
   storageDepositAmount: number;
   unlockDepositAmount: number;
+  totalStorageDepositAmount: number;
 }
