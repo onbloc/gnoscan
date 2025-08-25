@@ -55,7 +55,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
-              storageDepositInfo={storageDepositInfo}
             />
           )}
 
@@ -64,7 +63,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
-              storageDepositInfo={storageDepositInfo}
             />
           )}
 
@@ -73,7 +71,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
-              storageDepositInfo={storageDepositInfo}
             />
           )}
         </S.ContractListBox>

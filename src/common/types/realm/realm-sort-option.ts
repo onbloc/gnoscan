@@ -1,4 +1,4 @@
-export type RealmListSortField = "none" | "packageName" | "totalCalls";
+export type RealmListSortField = "none" | "packageName" | "totalCalls" | "storageDeposit";
 export type RealmListSortOrder = "none" | "asc" | "desc";
 
 export interface RealmListSortOption {

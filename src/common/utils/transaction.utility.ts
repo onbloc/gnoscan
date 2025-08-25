@@ -143,8 +143,14 @@ function parsePositiveNumber(value: string): number {
   return value.startsWith("-") ? 0 : parseInt(value.replace(/[^0-9]/g, ""), 10);
 }
 
+function parseUnlockDepositValue(attrs: { key: string; value: string }[]): number {
+  const unlockDepositAttr = attrs.find(attr => attr.key === "Deposit");
+  return unlockDepositAttr ? parsePositiveNumber(unlockDepositAttr.value) : 0;
+}
+
 export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): StorageDeposit | null {
   const storageEvent = txEvents.find(txEvent => txEvent.type === "StorageDeposit");
+  const unlockStorageEvent = txEvents.find(txEvent => txEvent.type === "UnlockDeposit");
 
   if (!storageEvent || !storageEvent.attrs) {
     return null;
@@ -153,12 +159,23 @@ export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): Storage
   const depositAttr = storageEvent.attrs.find(attr => attr.key === "Deposit");
   const storageAttr = storageEvent.attrs.find(attr => attr.key === "Storage");
 
-  if (!depositAttr || !storageAttr) {
+  if (!depositAttr || !storageAttr || !unlockStorageEvent) {
     return null;
   }
 
+  const releaseStorageAttr = unlockStorageEvent.attrs.find(attr => attr.key === "ReleaseStorage");
+
+  const baseDepositValue = parsePositiveNumber(depositAttr.value);
+  const unlockValue =
+    unlockStorageEvent && unlockStorageEvent.attrs ? parseUnlockDepositValue(unlockStorageEvent.attrs) : 0;
+  const finalDepositValue = Math.max(0, baseDepositValue - unlockValue);
+
+  const baseStorageValue = parsePositiveNumber(storageAttr.value);
+  const releaseStorageValue = releaseStorageAttr ? parsePositiveNumber(releaseStorageAttr.value) : 0;
+  const finalStorageValue = Math.max(0, baseStorageValue - releaseStorageValue);
+
   return {
-    deposit: parsePositiveNumber(depositAttr.value),
-    storage: parsePositiveNumber(storageAttr.value),
+    deposit: finalDepositValue,
+    storage: finalStorageValue,
   };
 }

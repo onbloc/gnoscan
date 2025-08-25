@@ -15,19 +15,28 @@ import {
   BadgeList,
   AmountBadge,
 } from "@/components/view/transaction/common";
-import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
+import { Amount } from "@/types";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 const StandardNetworkAddPackageMessage = ({
   isDesktop,
   message,
   getUrlWithNetwork,
-  storageDepositInfo,
 }: TransactionContractMessagesProps) => {
   const send = React.useMemo(() => {
     if (!message?.deposit) return null;
 
     return toGNOTAmount(message.deposit.value, message.deposit.denom);
   }, [message?.deposit]);
+
+  const maxDeposit: Amount | null = React.useMemo(() => {
+    if (!message.maxDeposit) return null;
+
+    return {
+      value: message.maxDeposit || "0",
+      denom: GNOTToken.denom,
+    };
+  }, [message.maxDeposit]);
 
   return (
     <>
@@ -56,16 +65,12 @@ const StandardNetworkAddPackageMessage = ({
         <BadgeList items={message?.files} />
       </Field>
 
-      <Field label="Storage Deposit" isDesktop={isDesktop}>
-        <StorageDepositAmountBadge
-          storageDeposit={storageDepositInfo}
-          visibleStorageSize={true}
-          visibleTooltip={false}
-        />
-      </Field>
-
       <Field label="Send" isDesktop={isDesktop}>
         <AmountBadge amount={send} />
+      </Field>
+
+      <Field label="Max_Deposit" isDesktop={isDesktop}>
+        <AmountBadge amount={maxDeposit} />
       </Field>
     </>
   );

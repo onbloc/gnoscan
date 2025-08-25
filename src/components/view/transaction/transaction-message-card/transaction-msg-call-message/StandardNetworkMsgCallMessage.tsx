@@ -17,15 +17,20 @@ import {
 } from "@/components/view/transaction/common";
 import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
-import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
+import { Amount } from "@/types";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
-const StandardNetworkMsgCallMessage = ({
-  isDesktop,
-  message,
-  getUrlWithNetwork,
-  storageDepositInfo,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
+
+  const maxDeposit: Amount | null = React.useMemo(() => {
+    if (!message.maxDeposit) return null;
+
+    return {
+      value: message.maxDeposit || "0",
+      denom: GNOTToken.denom,
+    };
+  }, [message.maxDeposit]);
 
   const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
 
@@ -89,16 +94,12 @@ const StandardNetworkMsgCallMessage = ({
         <BadgeList items={message?.args} />
       </Field>
 
-      <Field label="Storage Deposit" isDesktop={isDesktop}>
-        <StorageDepositAmountBadge
-          storageDeposit={storageDepositInfo}
-          visibleStorageSize={true}
-          visibleTooltip={false}
-        />
-      </Field>
-
       <Field label="Send" isDesktop={isDesktop}>
         <AmountBadge amount={message?.send} />
+      </Field>
+
+      <Field label="Max_Deposit" isDesktop={isDesktop}>
+        <AmountBadge amount={maxDeposit} />
       </Field>
     </>
   );

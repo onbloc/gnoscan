@@ -1,18 +1,26 @@
 import React from "react";
+import { merge } from "lodash";
 
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import Text from "@/components/ui/text";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetStoragePrice } from "@/common/react-query/statistics";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
-import { Amount } from "@/types";
-import { useGetTotalStorageDeposit } from "@/common/react-query/statistics/use-get-total-storage-deposit";
+import { Amount, TotalStorageDeposit } from "@/types";
 import { formatBytes } from "@/common/utils/format/format-utils";
 import { BYTE_UNITS } from "@/common/values/constant-value";
+import { useGetStorageDeposit } from "@/common/react-query/statistics/use-get-storage-deposit";
+import { DEFAULT_TOTAL_STORAGE_DEPOSIT_INFO } from "@/common/values/default-object/summary/total-storage-deposit-info";
 
 export const StorageDepositCard = () => {
   const { data: storagePrice, isFetched: isFetchedStoragePrice } = useGetStoragePrice();
-  const { data: totalStorageDeposit, isFetched: isFetchedTotalStorageDeposit } = useGetTotalStorageDeposit();
+  const { data: storageDeposit, isFetched: isFetchedStorageDeposit } = useGetStorageDeposit();
+
+  const totalStorageDepositInfo: TotalStorageDeposit = React.useMemo(() => {
+    if (!storageDeposit?.data) return DEFAULT_TOTAL_STORAGE_DEPOSIT_INFO;
+
+    return merge({}, DEFAULT_TOTAL_STORAGE_DEPOSIT_INFO, storageDeposit.data);
+  }, [storageDeposit?.data]);
 
   const storageDepositDenom = React.useMemo(() => {
     return storagePrice?.denom || "ugnot";
@@ -26,15 +34,14 @@ export const StorageDepositCard = () => {
   }, [storagePrice, storageDepositDenom]);
 
   const displayStorageDeposit: Amount = React.useMemo(() => {
-    if (!totalStorageDeposit) return { value: "0", denom: storageDepositDenom };
+    const { value = "0", denom = storageDepositDenom } = totalStorageDepositInfo?.storageDepositAmount || {};
 
-    const converted = toGNOTAmount(totalStorageDeposit.deposit, storageDepositDenom);
-    return converted;
-  }, [totalStorageDeposit, storageDepositDenom]);
+    return toGNOTAmount(value, denom);
+  }, [totalStorageDepositInfo, storageDepositDenom]);
 
   const formattedBytesData = React.useMemo(() => {
-    return formatBytes(totalStorageDeposit?.storage || 0);
-  }, [totalStorageDeposit?.storage]);
+    return formatBytes(totalStorageDepositInfo?.storageUsage || 0);
+  }, [totalStorageDepositInfo?.storageUsage]);
 
   return (
     <>
@@ -42,7 +49,7 @@ export const StorageDepositCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={isFetchedTotalStorageDeposit}
+        isFetched={isFetchedStorageDeposit}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
             {makeDisplayNumber(displayStorageDeposit.value)}
@@ -62,7 +69,7 @@ export const StorageDepositCard = () => {
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetchedTotalStorageDeposit}
+              isFetched={isFetchedStorageDeposit}
               renderComp={
                 <Text type="p4" color="primary">
                   {formattedBytesData.value}

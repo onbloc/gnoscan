@@ -14,6 +14,11 @@ export interface RealmModel {
   totalCallCountFailed: number;
   totalCallCount: number;
   totalGasUsed: Amount;
+  storageUsage: Amount;
+  totalReleaseStorageUsage: number;
+  totalStorageUsage: number;
+  totalStorageDeposit: Amount;
+  totalUnlockDeposit: Amount;
 }
 
 export interface RealmSummaryModel {

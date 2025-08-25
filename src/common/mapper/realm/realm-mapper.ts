@@ -18,6 +18,11 @@ export class RealmMapper {
       functionCount: response.funcCount,
       totalCalls: totalCallCount,
       totalGasUsed: response.totalGasUsed,
+      storageUsage: response.storageUsage,
+      totalReleaseStorageUsage: response.totalReleaseStorageUsage,
+      totalStorageDeposit: response.totalStorageDeposit,
+      totalStorageUsage: response.totalStorageUsage,
+      totalUnlockDeposit: response.totalUnlockDeposit,
     };
   }
 

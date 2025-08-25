@@ -17,6 +17,10 @@ import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import TransactionSuccessWarningTooltip from "@/components/ui/tooltip/transaction-success-warning-tooltip/TransactionSuccessWarningTooltip";
+import { StorageDeposit } from "@/models/storage-deposit-model";
+import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
+import { DEFAULT_TX_STORAGE_DEPOSIT } from "@/common/values/default-object/transaction";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
@@ -25,6 +29,10 @@ interface TransactionSummaryProps {
   blockResultLog: string | null;
   getUrlWithNetwork: (uri: string) => string;
 }
+
+const TOOLTIP_STORAGE_DEPOSIT = (
+  <>The total amount of GNOT deposited or released for storage usage by this transaction.</>
+);
 
 const StandardNetworkTransactionSummary = ({
   isDesktop,
@@ -51,6 +59,15 @@ const StandardNetworkTransactionSummary = ({
     if (!txErrorType) return "Failed";
     return `Failed: ${txErrorType}`;
   }, [txErrorType]);
+
+  const displayStorageDeposit: StorageDeposit | null = React.useMemo(() => {
+    if (!data?.storageDeposit) return null;
+
+    return {
+      deposit: Number(data.storageDeposit?.value || DEFAULT_TX_STORAGE_DEPOSIT.deposit),
+      storage: Number(data.storageUsage || DEFAULT_TX_STORAGE_DEPOSIT.storage),
+    };
+  }, [data?.storageDeposit, data?.storageUsage]);
 
   const hasApplicationError = Boolean(data?.hasApplicationError);
 
@@ -131,6 +148,23 @@ const StandardNetworkTransactionSummary = ({
           <dt>Gas (Used/Wanted)</dt>
           <dd>
             <Badge>{data.gas}</Badge>
+          </dd>
+        </DLWrap>
+        <DLWrap desktop={isDesktop}>
+          <dt>
+            Storage Deposit
+            <div className="tooltip-wrapper">
+              <Tooltip content={TOOLTIP_STORAGE_DEPOSIT}>
+                <IconTooltip />
+              </Tooltip>
+            </div>
+          </dt>
+          <dd>
+            <StorageDepositAmountBadge
+              storageDeposit={displayStorageDeposit}
+              visibleStorageSize={true}
+              visibleTooltip={false}
+            />
           </dd>
         </DLWrap>
         <DLWrap desktop={isDesktop}>

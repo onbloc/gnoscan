@@ -60,7 +60,9 @@ export const StorageDepositText = ({
       return "";
     }
 
-    return BigNumber(numberValues.integer).toFormat(0);
+    const integerValue = BigNumber(numberValues.integer);
+
+    return integerValue.isNegative() ? `+${integerValue.abs().toFormat(0)}` : integerValue.toFormat(0);
   }, [numberValues]);
 
   const formattedDecimals = useMemo(() => {

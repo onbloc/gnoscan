@@ -33,5 +33,4 @@ export interface TransactionContractMessagesProps {
   message: TransactionContractModel;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
-  storageDepositInfo?: StorageDeposit | null;
 }

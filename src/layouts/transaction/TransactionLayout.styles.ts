@@ -23,6 +23,10 @@ export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
 
   background-color: ${({ theme }) => theme.colors.surface};
 
+  dt {
+    display: flex;
+  }
+
   .svg-icon {
     stroke: ${({ theme }) => theme.colors.primary};
     margin-left: 5px;
@@ -31,7 +35,23 @@ export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
   .badge {
     display: inline-flex;
     line-height: 1em;
+    height: 28px;
     justify-content: center;
     align-items: center;
+  }
+
+  .tooltip-wrapper {
+    position: inherit;
+    display: inline-flex;
+    width: 32px;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      fill: ${({ theme }) => theme.colors.tertiary};
+      & .icon-tooltip_svg__bg {
+        fill: ${({ theme }) => theme.colors.surface};
+      }
+    }
   }
 `;

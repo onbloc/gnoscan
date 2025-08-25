@@ -8,3 +8,6 @@ export * from "./get-summary-transactions-response";
 export * from "./get-total-daily-fees-response";
 export * from "./get-total-daily-transactions-response";
 export * from "./get-total-gas-share-response";
+export * from "./get-storage-deposit-response";
+export * from "./get-total-realm-storage-deposit-response";
+export * from "./get-total-daily-storage-deposit-response";

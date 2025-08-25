@@ -7,13 +7,10 @@ import { AmountBadge, BadgeTooltipProps, StorageDepositAmountBadge } from "../..
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
 import { Field, BadgeText, AddressLink, BadgeList, HoverBadgeList } from "@/components/view/transaction/common";
+import { Amount } from "@/types";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
-const StandardNetworkMsgRunMessage = ({
-  isDesktop,
-  message,
-  getUrlWithNetwork,
-  storageDepositInfo,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const calledFunctions: BadgeTooltipProps[] | null = React.useMemo(() => {
     if (!message?.calledFunctions) return null;
 
@@ -30,6 +27,15 @@ const StandardNetworkMsgRunMessage = ({
 
     return toGNOTAmount(message.send.value, message.send.denom);
   }, [message?.send]);
+
+  const maxDeposit: Amount | null = React.useMemo(() => {
+    if (!message.maxDeposit) return null;
+
+    return {
+      value: message.maxDeposit || "0",
+      denom: GNOTToken.denom,
+    };
+  }, [message.maxDeposit]);
 
   return (
     <>
@@ -62,16 +68,12 @@ const StandardNetworkMsgRunMessage = ({
         />
       </Field>
 
-      <Field label="Storage Deposit" isDesktop={isDesktop}>
-        <StorageDepositAmountBadge
-          storageDeposit={storageDepositInfo}
-          visibleStorageSize={true}
-          visibleTooltip={false}
-        />
-      </Field>
-
       <Field label="Send" isDesktop={isDesktop}>
         <AmountBadge amount={send} />
+      </Field>
+
+      <Field label="Max_Deposit" isDesktop={isDesktop}>
+        <AmountBadge amount={maxDeposit} />
       </Field>
     </>
   );
