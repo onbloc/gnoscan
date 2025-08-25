@@ -8,6 +8,7 @@ import {
   GetLatestBlogsResponse,
   GetMonthlyActiveAccountsResponse,
   GetNewestRealmsResponse,
+  GetStorageDepositResponse,
   GetSummaryAccountsResponse,
   GetSummaryBlocksResponse,
   GetSummarySupplyResponse,
@@ -166,6 +167,20 @@ export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
     return this.networkClient
       .get<APIResponse<GetTotalFeeShareResponse>>({
         url: `/stats/total-gas-share${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getStorageDeposit(): Promise<GetStorageDepositResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetStorageDepositResponse>>({
+        url: "/stats/summary/storage-deposit",
       })
       .then(result => {
         return result.data?.data;

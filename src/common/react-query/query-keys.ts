@@ -42,6 +42,7 @@ export enum QUERY_KEY {
   getTotalGasShare = "api_get_total_gas_share",
   getTotalStorageDeposit = "get_total_storage_deposit",
   getStoragePrice = "get_storage_price",
+  getStorageDeposit = "api_get_storage_deposit",
 
   // search
   getSearch = "api_get_search",

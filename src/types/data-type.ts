@@ -259,3 +259,9 @@ export interface MonthlyRealmGasShared {
   packagePath: string;
   gasShared: number;
 }
+
+export interface TotalStorageDeposit {
+  storageDepositAmount: Amount;
+  storagePricePerByte: string;
+  storageUsage: string;
+}

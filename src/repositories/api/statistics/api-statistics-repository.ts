@@ -3,6 +3,7 @@ import {
   GetLatestBlogsResponse,
   GetMonthlyActiveAccountsResponse,
   GetNewestRealmsResponse,
+  GetStorageDepositResponse,
   GetSummaryAccountsResponse,
   GetSummaryBlocksResponse,
   GetSummarySupplyResponse,
@@ -32,4 +33,6 @@ export interface ApiStatisticsRepository {
   getTotalDailyTransactions(): Promise<GetTotalDailyTransactionsResponse>;
 
   getTotalGasShare(request: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse>;
+
+  getStorageDeposit(): Promise<GetStorageDepositResponse>;
 }
