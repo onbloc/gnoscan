@@ -20,6 +20,7 @@ import TransactionSuccessWarningTooltip from "@/components/ui/tooltip/transactio
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 import { DEFAULT_TX_STORAGE_DEPOSIT } from "@/common/values/default-object/transaction";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
@@ -28,6 +29,10 @@ interface TransactionSummaryProps {
   blockResultLog: string | null;
   getUrlWithNetwork: (uri: string) => string;
 }
+
+const TOOLTIP_STORAGE_DEPOSIT = (
+  <>The total amount of GNOT deposited or released for storage usage by this transaction.</>
+);
 
 const StandardNetworkTransactionSummary = ({
   isDesktop,
@@ -146,7 +151,14 @@ const StandardNetworkTransactionSummary = ({
           </dd>
         </DLWrap>
         <DLWrap desktop={isDesktop}>
-          <dt>Storage Deposit</dt>
+          <dt>
+            Storage Deposit
+            <div className="tooltip-wrapper">
+              <Tooltip content={TOOLTIP_STORAGE_DEPOSIT}>
+                <IconTooltip />
+              </Tooltip>
+            </div>
+          </dt>
           <dd>
             <StorageDepositAmountBadge
               storageDeposit={displayStorageDeposit}
