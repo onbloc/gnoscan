@@ -55,7 +55,7 @@ export function formatBytes(bytes: number | string | BigNumber): ByteSizeResult 
     return { value: "0", unit: BYTE_UNITS.BYTE.unit };
   }
 
-  const bytesBN = BigNumber(bytes.toString());
+  const bytesBN = BigNumber(bytes.toString()).abs();
 
   if (bytesBN.isNaN() || bytesBN.isNegative()) {
     return { value: "0", unit: BYTE_UNITS.BYTE.unit };

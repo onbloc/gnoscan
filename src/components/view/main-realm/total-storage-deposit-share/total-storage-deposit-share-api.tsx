@@ -8,8 +8,8 @@ import { Spinner } from "@/components/ui/loading";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { dateToStr } from "@/common/utils/date-util";
-import { useGetTotalGasShare } from "@/common/react-query/statistics";
-import { PackageInfo } from "@/repositories/api/statistics/response";
+import { useGetTotalDailyRealmStorageDeposit } from "@/common/react-query/statistics";
+import { StorageDepositInfo } from "@/repositories/api/statistics/response";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
@@ -17,7 +17,7 @@ const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.
 
 export const MainTotalStorageDepositShareApi = () => {
   const [period, setPeriod] = useState<7 | 30>(7);
-  const { data, isFetched } = useGetTotalGasShare({ range: period });
+  const { data: data, isFetched } = useGetTotalDailyRealmStorageDeposit({ range: period });
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -57,15 +57,18 @@ export const MainTotalStorageDepositShareApi = () => {
           };
         }
 
-        const totalGas = Object.values(dateData).reduce((sum, pkg: PackageInfo) => sum + pkg.gasShared, 0);
+        const totalStorageDeposit = Object.values(dateData).reduce(
+          (sum, storageDeposit: StorageDepositInfo) => sum + storageDeposit.storageDepositAmount,
+          0,
+        );
 
-        const currentGas = dateData[packagePath].gasShared;
+        const currentTotalStorageDeposit = dateData[packagePath].storageDepositAmount;
 
         return {
-          value: BigNumber(currentGas)
+          value: BigNumber(currentTotalStorageDeposit)
             .shiftedBy(GNOTToken.decimals * -1)
             .toNumber(),
-          rate: totalGas > 0 ? (currentGas / totalGas) * 100 : 0,
+          rate: totalStorageDeposit > 0 ? (currentTotalStorageDeposit / totalStorageDeposit) * 100 : 0,
         };
       });
 
