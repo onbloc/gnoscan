@@ -42,27 +42,30 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
       };
     }
 
-    const totalDepositedData = chartData.map(item => item.totalStorageDepositAmount);
-
+    const originalTotalDepositedData = chartData.map(item => item.totalStorageDepositAmount);
     const originalTodayDepositedData = chartData.map(item => {
       return new BigNumber(item.storageDepositAmount || 0)
         .minus(new BigNumber(item.unlockDepositAmount || 0))
         .toNumber();
     });
+
     const todayDepositedData = originalTodayDepositedData.map(value => Math.abs(value));
+    const adjustedTotalDepositedData = originalTotalDepositedData.map((total, index) => {
+      return new BigNumber(total).minus(originalTodayDepositedData[index]).toNumber();
+    });
 
     return {
       labels,
       datasets: [
         {
           label: "Total Deposited",
-          data: totalDepositedData,
+          data: [...adjustedTotalDepositedData, ...adjustedTotalDepositedData],
           backgroundColor: themePalette.blue,
-          originalData: totalDepositedData,
+          originalData: originalTotalDepositedData,
         },
         {
           label: "Daily Deposited",
-          data: todayDepositedData,
+          data: [...todayDepositedData, ...todayDepositedData],
           backgroundColor: themePalette.orange,
           originalData: originalTodayDepositedData,
         },
