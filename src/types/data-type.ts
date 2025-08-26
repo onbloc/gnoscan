@@ -95,10 +95,12 @@ export interface Realm {
   creatorName?: string;
   functionCount: number;
   totalCalls: number;
-  totalGasUsed: {
-    value: string;
-    denom: string;
-  };
+  totalGasUsed: Amount;
+  storageUsage?: Amount;
+  totalReleaseStorageUsage?: number;
+  totalStorageUsage?: number;
+  totalStorageDeposit?: Amount;
+  totalUnlockDeposit?: Amount;
 }
 
 export interface RealmSummary {
@@ -171,6 +173,8 @@ export interface TransactionSummaryInfo {
   timeStamp: TimeStamp;
   blockResult: any;
   gas: string;
+  storageDeposit?: Amount;
+  storageUsage?: number;
   transactionItem: Transaction | null;
   transactionEvents: GnoEvent[];
   hasApplicationError?: boolean;
@@ -258,4 +262,17 @@ export interface MonthlyDailyTransaction {
 export interface MonthlyRealmGasShared {
   packagePath: string;
   gasShared: number;
+}
+
+export interface TotalStorageDeposit {
+  storageDepositAmount: Amount;
+  storagePricePerByte: string;
+  storageUsage: string;
+}
+
+export interface TotalDailyStorageDeposit {
+  date: string;
+  storageDepositAmount: number;
+  unlockDepositAmount: number;
+  totalStorageDepositAmount: number;
 }

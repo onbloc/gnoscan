@@ -13,6 +13,8 @@ export interface TransactionSummary {
   success: boolean;
   timestamp: string;
   transactionFee: Amount;
+  storageDeposit: Amount;
+  storageUsage: number;
   txHash: string;
   errorLog: string;
   hasApplicationError: boolean;

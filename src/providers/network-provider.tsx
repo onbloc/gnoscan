@@ -143,9 +143,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     }
 
     const apiUrl = currentNetworkModel.apiUrl || "";
-    return new AxiosClient(apiUrl, () => {
-      router.push("/500");
-    });
+    return new AxiosClient(apiUrl, () => {});
   }, [currentNetworkModel]);
 
   const onblocRPCClient = useMemo(() => {

@@ -1,15 +1,18 @@
-import { GetTotalFeeShareRequest } from "./request";
+import { GetTotalFeeShareRequest, GetTotalRealmStorageDepositRequest } from "./request";
 import {
   GetLatestBlogsResponse,
   GetMonthlyActiveAccountsResponse,
   GetNewestRealmsResponse,
+  GetStorageDepositResponse,
   GetSummaryAccountsResponse,
   GetSummaryBlocksResponse,
   GetSummarySupplyResponse,
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
+  GetTotalDailyStorageDepositResponse,
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
+  GetTotalRealmStorageDepositResponse,
 } from "./response";
 
 export interface ApiStatisticsRepository {
@@ -32,4 +35,12 @@ export interface ApiStatisticsRepository {
   getTotalDailyTransactions(): Promise<GetTotalDailyTransactionsResponse>;
 
   getTotalGasShare(request: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse>;
+
+  getStorageDeposit(): Promise<GetStorageDepositResponse>;
+
+  getTotalDailyRealmStorageDeposit(
+    request: GetTotalRealmStorageDepositRequest,
+  ): Promise<GetTotalRealmStorageDepositResponse>;
+
+  getTotalDailyStorageDeposit(): Promise<GetTotalDailyStorageDepositResponse>;
 }
