@@ -59,13 +59,13 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
       datasets: [
         {
           label: "Total Deposited",
-          data: [...adjustedTotalDepositedData, ...adjustedTotalDepositedData],
+          data: adjustedTotalDepositedData,
           backgroundColor: themePalette.blue,
           originalData: originalTotalDepositedData,
         },
         {
           label: "Daily Deposited",
-          data: [...todayDepositedData, ...todayDepositedData],
+          data: todayDepositedData,
           backgroundColor: themePalette.orange,
           originalData: originalTodayDepositedData,
         },
