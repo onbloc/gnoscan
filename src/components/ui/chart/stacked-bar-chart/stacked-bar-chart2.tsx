@@ -8,19 +8,16 @@ import type { EChartsOption } from "echarts";
 import { themeState } from "@/states";
 import theme from "@/styles/theme";
 import { TotalDailyStorageDeposit } from "@/types";
+import { formatBytes } from "@/common/utils/format/format-utils";
+
+export interface TotalDailyStorageDepositWithPrice extends TotalDailyStorageDeposit {
+  totalStorageUsage: number;
+  dailyStorageUsage: number;
+}
 
 interface StackedBarChart2Props {
   labels: string[];
-  chartData?: TotalDailyStorageDeposit[];
-}
-
-interface EChartsData {
-  labels: string[];
-  datasets: Array<{
-    label: string;
-    data: number[];
-    backgroundColor: string;
-  }>;
+  chartData?: TotalDailyStorageDepositWithPrice[];
 }
 
 export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) => {
@@ -37,7 +34,7 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
   const eChartsData = React.useMemo(() => {
     if (!chartData || chartData.length === 0) {
       return {
-        lables: [],
+        labels: [],
         datasets: [],
       };
     }
@@ -49,25 +46,30 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
         .toNumber();
     });
 
-    const todayDepositedData = originalTodayDepositedData.map(value => Math.abs(value));
-    const adjustedTotalDepositedData = originalTotalDepositedData.map((total, index) => {
+    const todayDepositedValues = originalTodayDepositedData.map(value => Math.abs(value));
+    const adjustedTotalDepositedValues = originalTotalDepositedData.map((total, index) => {
       return new BigNumber(total).minus(originalTodayDepositedData[index]).toNumber();
     });
+
+    const totalStorageUsageData = chartData.map(item => item.totalStorageUsage);
+    const dailyStorageUsageData = chartData.map(item => item.dailyStorageUsage);
 
     return {
       labels,
       datasets: [
         {
           label: "Total Deposited",
-          data: adjustedTotalDepositedData,
+          data: adjustedTotalDepositedValues,
           backgroundColor: themePalette.blue,
           originalData: originalTotalDepositedData,
+          storageUsageData: totalStorageUsageData,
         },
         {
           label: "Daily Deposited",
-          data: todayDepositedData,
+          data: todayDepositedValues,
           backgroundColor: themePalette.orange,
           originalData: originalTodayDepositedData,
+          storageUsageData: dailyStorageUsageData,
         },
       ],
     };
@@ -185,12 +187,21 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
   }, []);
 
   const renderTooltipItem = React.useCallback(
-    (param: echarts.DefaultLabelFormatterCallbackParams) => {
+    (param: echarts.DefaultLabelFormatterCallbackParams, storageUsage?: number) => {
       const backgroundColor = param.color ? param.color.toString() : themePalette.primary;
       const colorDotStyle = { ...tooltipInlineStyles.colorDot, background: backgroundColor };
 
       const safeValue = extractSafeParamValue(param.value);
       const { integer, decimal } = formatAmountText(safeValue);
+
+      let formattedStorageUsage = { value: "0", unit: "B" };
+      try {
+        if (storageUsage !== undefined && !isNaN(storageUsage)) {
+          formattedStorageUsage = formatBytes(storageUsage.toString());
+        }
+      } catch (error) {
+        console.error("Error formatting storage usage:", error);
+      }
 
       return `
       <div style="${styleToString(tooltipInlineStyles.itemRow)}">
@@ -203,7 +214,9 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
           <span style="${styleToString(tooltipInlineStyles.integerPart)}">${integer}</span><span style="${styleToString(
         tooltipInlineStyles.decimalPart,
       )}">${decimal}</span><span style="${styleToString(tooltipInlineStyles.denomText)}">GNOT</span></div>
-          <div style="${styleToString(tooltipInlineStyles.denomText)}">(15.123KB)</div>
+          <div style="${styleToString(tooltipInlineStyles.denomText)}">(${formattedStorageUsage.value} ${
+        formattedStorageUsage.unit
+      })</div>
         </div>
       </div>
     `;
@@ -292,17 +305,24 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
 
           const items = paramsArray
             .map(param => {
-              const originalValue =
-                param.seriesIndex !== undefined &&
-                param.dataIndex !== undefined &&
-                eChartsData.datasets[param.seriesIndex]
-                  ? eChartsData.datasets[param.seriesIndex].originalData[param.dataIndex]
-                  : param.value;
+              let originalValue = param.value;
+              let storageUsage: number | undefined = undefined;
+
+              if (param.seriesIndex !== undefined && param.dataIndex !== undefined) {
+                const dataset = eChartsData.datasets[param.seriesIndex];
+                if (dataset) {
+                  originalValue = dataset.originalData[param.dataIndex];
+
+                  if (dataset.storageUsageData && dataset.storageUsageData.length > param.dataIndex) {
+                    storageUsage = dataset.storageUsageData[param.dataIndex];
+                  }
+                }
+              }
 
               const customParam = { ...param, value: originalValue };
               return `
         <div style="${styleToString(tooltipInlineStyles.itemContainer)}">
-          ${renderTooltipItem(customParam)}
+          ${renderTooltipItem(customParam, storageUsage)}
         </div>
       `;
             })
@@ -317,7 +337,7 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
         },
       },
 
-      series: eChartsData.datasets.map((dataset, index) => ({
+      series: eChartsData.datasets.map(dataset => ({
         name: dataset.label,
         type: "bar" as const,
         stack: "total",
