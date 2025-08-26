@@ -43,11 +43,13 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
     }
 
     const totalDepositedData = chartData.map(item => item.totalStorageDepositAmount);
-    const todayDepositedData = chartData.map(item => {
+
+    const originalTodayDepositedData = chartData.map(item => {
       return new BigNumber(item.storageDepositAmount || 0)
         .minus(new BigNumber(item.unlockDepositAmount || 0))
         .toNumber();
     });
+    const todayDepositedData = originalTodayDepositedData.map(value => Math.abs(value));
 
     return {
       labels,
@@ -56,11 +58,13 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
           label: "Total Deposited",
           data: totalDepositedData,
           backgroundColor: themePalette.blue,
+          originalData: totalDepositedData,
         },
         {
           label: "Daily Deposited",
           data: todayDepositedData,
           backgroundColor: themePalette.orange,
+          originalData: originalTodayDepositedData,
         },
       ],
     };
@@ -284,13 +288,21 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
           const title = `<div style="${styleToString(tooltipInlineStyles.title)}">${paramsArray[0].name}</div>`;
 
           const items = paramsArray
-            .map(
-              param => `
-            <div style="${styleToString(tooltipInlineStyles.itemContainer)}">
-              ${renderTooltipItem(param)}
-            </div>
-          `,
-            )
+            .map(param => {
+              const originalValue =
+                param.seriesIndex !== undefined &&
+                param.dataIndex !== undefined &&
+                eChartsData.datasets[param.seriesIndex]
+                  ? eChartsData.datasets[param.seriesIndex].originalData[param.dataIndex]
+                  : param.value;
+
+              const customParam = { ...param, value: originalValue };
+              return `
+        <div style="${styleToString(tooltipInlineStyles.itemContainer)}">
+          ${renderTooltipItem(customParam)}
+        </div>
+      `;
+            })
             .join("");
 
           return `
@@ -309,7 +321,13 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
         barWidth: "70%",
         data: dataset.data,
         itemStyle: {
-          color: dataset.backgroundColor,
+          color:
+            dataset.label === "Daily Deposited"
+              ? (params: echarts.DefaultLabelFormatterCallbackParams) => {
+                  const originalValue = dataset.originalData[params.dataIndex];
+                  return originalValue < 0 ? themePalette.gray300 : dataset.backgroundColor;
+                }
+              : dataset.backgroundColor,
         },
         emphasis: {
           focus: "series" as const,
