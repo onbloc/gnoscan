@@ -27,7 +27,7 @@ export const LazyBlockTotalFee = ({ blockHeight, maxSize = "p4", minSize = "body
 
     const txs = block.block.data.txs?.map(decodeTransaction);
     return txs?.reduce((result, tx) => {
-      const fee = tx.fee?.gasFee ? parseTokenAmount(tx.fee.gasFee) : 0;
+      const fee = tx.fee?.gas_fee ? parseTokenAmount(tx.fee.gas_fee) : 0;
       return result + fee;
     }, 0);
   }, [block, isFetched]);
