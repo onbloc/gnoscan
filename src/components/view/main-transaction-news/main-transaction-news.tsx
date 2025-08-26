@@ -11,7 +11,7 @@ import { MainTotalTransactionApi } from "./total-transaction/total-transaction-a
 import { MainTotalDailyFeeApi } from "./total-daily-fee/total-daily-fee-api";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacked-bar-chart2";
-import { useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
+import { useGetStoragePrice, useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
@@ -21,7 +21,15 @@ interface MainTransactionNewsProps {
 
 const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
   const { isCustomNetwork } = useNetworkProvider();
-  const { data, isFetched } = useGetTotalDailyStroageDeposit();
+  const { data } = useGetTotalDailyStroageDeposit();
+
+  const { data: storagePriceData } = useGetStoragePrice();
+
+  const storagePrice = React.useMemo(() => {
+    if (!storagePriceData) return "0";
+
+    return storagePriceData.value || "0";
+  }, [storagePriceData]);
 
   const labels = React.useMemo(() => {
     if (!data?.items || data.items.length === 0) return [];
@@ -46,17 +54,24 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
           totalStorageDepositAmount: 0,
           storageDepositAmount: 0,
           unlockDepositAmount: 0,
+          totalStorageUsage: 0,
+          dailyStorageUsage: 0,
         };
       }
+
+      const totalStorageUsage = info.totalStorageDepositAmount / Number(storagePrice);
+      const dailyStorageUsage = (info.storageDepositAmount - info.unlockDepositAmount) / Number(storagePrice);
 
       return {
         date: label,
         totalStorageDepositAmount: Number(formatTokenDecimal(info.totalStorageDepositAmount, GNOTToken.decimals) || 0),
         storageDepositAmount: Number(formatTokenDecimal(info.storageDepositAmount, GNOTToken.decimals) || 0),
         unlockDepositAmount: Number(formatTokenDecimal(info.unlockDepositAmount, GNOTToken.decimals) || 0),
+        totalStorageUsage: totalStorageUsage,
+        dailyStorageUsage: dailyStorageUsage,
       };
     });
-  }, [labels, data]);
+  }, [labels, data, storagePrice]);
 
   return (
     <Wrapper className={breakpoint}>
