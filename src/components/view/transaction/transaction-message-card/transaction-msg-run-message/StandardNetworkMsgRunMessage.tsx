@@ -29,12 +29,9 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
   }, [message?.send]);
 
   const maxDeposit: Amount | null = React.useMemo(() => {
-    if (!message.maxDeposit) return null;
+    if (!message?.maxDeposit) return null;
 
-    return {
-      value: message.maxDeposit || "0",
-      denom: GNOTToken.denom,
-    };
+    return toGNOTAmount(message.maxDeposit.value || "0", message.maxDeposit.denom || GNOTToken.denom);
   }, [message.maxDeposit]);
 
   return (
