@@ -20,7 +20,7 @@ export interface TransactionContractModel {
   calledFunctions: { packagePath: string; method: string }[];
   files: string[];
   deposit: Amount;
-  maxDeposit: string;
+  maxDeposit: Amount;
   send: Amount;
 }
 

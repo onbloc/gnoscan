@@ -18,18 +18,16 @@ import {
 import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { Amount } from "@/types";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
 
   const maxDeposit: Amount | null = React.useMemo(() => {
-    if (!message.maxDeposit) return null;
+    if (!message?.maxDeposit) return null;
 
-    return {
-      value: message.maxDeposit || "0",
-      denom: GNOTToken.denom,
-    };
+    return toGNOTAmount(message.maxDeposit.value || "0", message.maxDeposit.denom || GNOTToken.denom);
   }, [message.maxDeposit]);
 
   const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
