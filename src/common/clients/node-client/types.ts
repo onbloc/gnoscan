@@ -1,3 +1,4 @@
+import { BlockMeta } from "@gnolang/tm2-js-client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface NodeClient {
   health(): Promise<boolean>;
@@ -86,10 +87,6 @@ interface LastCommit {
 }
 interface Data {
   txs: string[] | null;
-}
-export interface BlockMeta {
-  block_id: BlockId;
-  header: Header;
 }
 interface Header {
   version: string;

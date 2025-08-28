@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BlockMeta, BlockResults, NodeRPCClient } from "@/common/clients/node-client";
+import { BlockMeta } from "@gnolang/tm2-js-client";
+
+import { BlockResults, NodeRPCClient } from "@/common/clients/node-client";
 import { IBlockRepository } from "./types";
 import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { gql } from "@apollo/client";
