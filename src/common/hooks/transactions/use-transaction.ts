@@ -81,7 +81,7 @@ export const useTransaction = (hash: string) => {
     return {
       hash: transaction.hash,
       messages: transaction?.messages,
-      success: !txResult?.Error && !txResult?.ResponseBase?.Error,
+      success: !txResult?.ResponseBase?.Error,
       numOfMessage: transaction.messages.length,
       type: firstMessage?.type || "",
       packagePath: firstMessage?.packagePath || "",

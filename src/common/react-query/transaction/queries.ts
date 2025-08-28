@@ -6,15 +6,16 @@ import { TotalTransactionStatInfo, Transaction } from "@/types/data-type";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { PageInfo } from "@/common/clients/indexer-client/types";
 import { BlockInfo } from "@gnolang/tm2-js-client";
+import { BlockResults } from "@/common/clients/node-client";
 
 export const useGetTransactionBlockHeightQuery = (
   hash: string,
-  options?: UseQueryOptions<{ block: BlockInfo | null; blockResult: any } | null, Error>,
+  options?: UseQueryOptions<{ block: BlockInfo | null; blockResult: BlockResults | null } | null, Error>,
 ) => {
   const { currentNetwork } = useNetworkProvider();
   const { blockRepository, transactionRepository } = useServiceProvider();
 
-  return useQuery<{ block: BlockInfo | null; blockResult: any } | null, Error>({
+  return useQuery<{ block: BlockInfo | null; blockResult: BlockResults | null } | null, Error>({
     queryKey: [QUERY_KEY.getTransactionBlockHeight, currentNetwork?.rpcUrl || "", hash],
     queryFn: async () => {
       if (!transactionRepository || !blockRepository) {
