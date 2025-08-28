@@ -81,7 +81,7 @@ interface Block {
   last_commit: LastCommit;
 }
 interface LastCommit {
-  block_id: LastBlockId;
+  block_id: BlockId;
   preCommit: PreCommit | null;
 }
 interface Data {
@@ -99,7 +99,7 @@ interface Header {
   num_txs: string;
   total_txs: string;
   app_version: string;
-  last_block_id: LastBlockId;
+  last_block_id: BlockId;
   last_commit_hash?: any;
   data_hash?: any;
   validators_hash: string;
@@ -108,10 +108,6 @@ interface Header {
   app_hash?: any;
   last_results_hash?: any;
   proposer_address: number[] | string;
-}
-interface LastBlockId {
-  hash?: any;
-  parts: Parts;
 }
 interface BlockId {
   hash: string;
