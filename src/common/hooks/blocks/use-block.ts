@@ -58,7 +58,7 @@ export const useBlock = (height: number) => {
       return [];
     }
     return transactions?.map((transaction, index) => {
-      const result = blockResult.deliver_tx.find((_, resultIndex) => index === resultIndex);
+      const result = (blockResult.deliver_tx || []).find((_, resultIndex) => index === resultIndex);
       const defaultMessage = makeTransactionMessageInfo(getDefaultMessageByBlockTransaction(transaction.messages));
       const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
 
@@ -73,6 +73,10 @@ export const useBlock = (height: number) => {
         from: defaultMessage?.from || "",
         to: defaultMessage?.to || "",
         amount: defaultMessage?.amount || {
+          value: "0",
+          denom: GNOTToken.denom,
+        },
+        maxDeposit: defaultMessage?.max_deposit || {
           value: "0",
           denom: GNOTToken.denom,
         },
