@@ -48,7 +48,7 @@ export const BlockDatatable = ({ breakpoint, data, isError, hasNextPage, fetchNe
       .name("Block Hash")
       .width(243)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.BlockHash hash={data.hash} height={data.height} />)
+      .renderOption((_, data) => (data.hash ? <DatatableItem.BlockHash hash={data.hash} height={data.height} /> : null))
       .build();
   };
 

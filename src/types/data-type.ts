@@ -23,7 +23,7 @@ export interface BlogDetail {
 }
 
 export interface Block {
-  hash: string;
+  hash: string | null;
   height: number;
   time: string;
   numTxs: number;

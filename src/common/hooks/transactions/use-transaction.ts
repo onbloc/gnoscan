@@ -64,22 +64,24 @@ export const useTransaction = (hash: string) => {
     }
 
     const txIndex = transactions.findIndex((tx: any) => tx.hash === safetyHash);
-    return blockResult.deliver_tx.find((_: any, index: number) => txIndex === index) || null;
+    return (blockResult.deliver_tx || []).find((_: any, index: number) => txIndex === index) || null;
   }, [transactions, blockResult, safetyHash]);
 
   const transactionItem: Transaction | null = useMemo(() => {
+    if (!transactions) return null;
+
     const transaction = transactions.find((tx: any) => tx.hash === safetyHash) || null;
     if (!transaction || !txResult) {
       return null;
     }
 
     const firstMessage = makeTransactionMessageInfo(transaction.messages[0]);
-    const feeAmount = parseTokenAmount(transaction.fee?.gasFee || "0ugnot");
+    const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
 
     return {
       hash: transaction.hash,
       messages: transaction?.messages,
-      success: !txResult?.Error && !txResult?.ResponseBase?.Error,
+      success: !txResult?.ResponseBase?.Error,
       numOfMessage: transaction.messages.length,
       type: firstMessage?.type || "",
       packagePath: firstMessage?.packagePath || "",
@@ -89,10 +91,14 @@ export const useTransaction = (hash: string) => {
       to: firstMessage?.to || "",
       amount: firstMessage?.amount || {
         value: "0",
-        denom: "ugnot",
+        denom: GNOTToken.denom,
       },
       time: block?.block_meta.header.time || "",
       fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
+      max_deposit: firstMessage?.max_deposit || {
+        value: "0",
+        denom: GNOTToken.denom,
+      },
       memo: transaction.memo || "-",
       events: ((txResult?.ResponseBase?.Events as any[]) || [])?.map((event, index) => ({
         id: `${transaction.hash}_${index}`,
@@ -102,7 +108,7 @@ export const useTransaction = (hash: string) => {
         packagePath: event.pkg_path,
         functionName: event.func,
         attrs: event.attrs,
-        time: block.block.header.time,
+        time: block?.block.header.time || "",
         caller: firstMessage?.from || "",
       })),
       rawContent: JSON.stringify(

@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto from "crypto";
-import { decodeTxMessages } from "@gnolang/gno-js-client";
+import { decodeTxMessages, MsgAddPackage, MsgCall, MsgSend } from "@gnolang/gno-js-client";
+import { MsgRun } from "@gnolang/gno-js-client/bin/proto/gno/vm";
 import { Tx, base64ToUint8Array } from "@gnolang/tm2-js-client";
 import { parseTokenAmount } from "./token.utility";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GnoEvent } from "@/types";
+import { GNOTToken } from "../hooks/common/use-token-meta";
 
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
@@ -55,70 +57,93 @@ export function makeHexByBase64(base64Hash: string) {
 export function makeTransactionMessageInfo(message: any) {
   switch (message["@type"]) {
     case "/vm.m_call": {
-      if (message.func === "Transfer") {
+      const msg = message as MsgCall;
+      if (msg.func === "Transfer") {
+        const msgArgs = msg?.args || [];
+
         return {
           type: message["@type"],
-          packagePath: message.pkg_path,
-          functionName: message.func,
-          from: message.caller,
-          to: message.args.length > 0 ? message.args[0] : "",
+          packagePath: msg.pkg_path,
+          functionName: msg.func,
+          from: msg.caller,
+          to: msgArgs.length > 0 ? msgArgs[0] : "",
           amount: {
             value: message.args.length > 1 ? message.args[1] : "0",
-            denom: message.pkg_path,
+            denom: msg.pkg_path,
           },
         };
       }
-      const amountValue = parseTokenAmount(message.send);
+      const amountValue = parseTokenAmount(msg.send);
+      const maxDepositValue = parseTokenAmount(msg.max_deposit);
 
       return {
         type: message["@type"],
-        packagePath: message.pkg_path,
-        functionName: message.func,
-        from: message.caller,
+        packagePath: msg.pkg_path,
+        functionName: msg.func,
+        from: msg.caller,
         amount: {
           value: amountValue,
-          denom: "ugnot",
+          denom: GNOTToken.denom,
+        },
+        max_deposit: {
+          value: maxDepositValue,
+          denom: GNOTToken.denom,
         },
       };
     }
     case "/vm.m_addpkg": {
-      const amountValue = parseTokenAmount(message.deposit);
+      const msg = message as MsgAddPackage;
+
+      const maxDepositValue = parseTokenAmount(msg.max_deposit);
 
       return {
         type: message["@type"],
-        packagePath: message.package?.path || message.package?.Path || "",
+        packagePath: msg?.package?.path || "",
         functionName: "AddPkg",
-        from: message.creator,
+        from: msg.creator,
         amount: {
-          value: amountValue,
-          denom: "ugnot",
+          value: "0",
+          denom: GNOTToken.denom,
+        },
+        max_deposit: {
+          value: maxDepositValue,
+          denom: GNOTToken.denom,
         },
       };
     }
     case "/vm.m_run": {
+      const msg = message as MsgRun;
+
+      const maxDepositValue = parseTokenAmount(msg.max_deposit);
+
       return {
         type: message["@type"],
-        packagePath: message.package?.path || message.package?.Path || "",
+        packagePath: msg?.package?.path || "",
         functionName: "MsgRun",
-        from: message.caller,
+        from: msg.caller,
         amount: {
           value: "0",
-          denom: "ugnot",
+          denom: GNOTToken.denom,
+        },
+        max_deposit: {
+          value: maxDepositValue,
+          denom: GNOTToken.denom,
         },
       };
     }
     case "/bank.MsgSend": {
-      const amountValue = parseTokenAmount(message.amount);
+      const msg = message as MsgSend;
+      const amountValue = parseTokenAmount(msg.amount);
 
       return {
         type: message["@type"],
         packagePath: "/bank.MsgSend",
         functionName: "Transfer",
-        from: message.from_address,
-        to: message.to_address,
+        from: msg.from_address,
+        to: msg.to_address,
         amount: {
           value: amountValue,
-          denom: "ugnot",
+          denom: GNOTToken.denom,
         },
       };
     }

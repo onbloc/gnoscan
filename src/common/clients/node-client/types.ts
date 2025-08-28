@@ -1,3 +1,4 @@
+import { BlockMeta, BlockInfo } from "@gnolang/tm2-js-client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface NodeClient {
   health(): Promise<boolean>;
@@ -6,7 +7,7 @@ export interface NodeClient {
 
   genesis(): Promise<NodeResponseGenesis>;
 
-  block(height: number): Promise<NodeResponseBlock>;
+  block(height: number): Promise<BlockInfo>;
 
   blockResults(height: number): Promise<NodeResponseBlockResults>;
 
@@ -81,15 +82,11 @@ interface Block {
   last_commit: LastCommit;
 }
 interface LastCommit {
-  block_id: LastBlockId;
+  block_id: BlockId;
   preCommit: PreCommit | null;
 }
 interface Data {
   txs: string[] | null;
-}
-export interface BlockMeta {
-  block_id: BlockId;
-  header: Header;
 }
 interface Header {
   version: string;
@@ -99,7 +96,7 @@ interface Header {
   num_txs: string;
   total_txs: string;
   app_version: string;
-  last_block_id: LastBlockId;
+  last_block_id: BlockId;
   last_commit_hash?: any;
   data_hash?: any;
   validators_hash: string;
@@ -108,10 +105,6 @@ interface Header {
   app_hash?: any;
   last_results_hash?: any;
   proposer_address: number[] | string;
-}
-interface LastBlockId {
-  hash?: any;
-  parts: Parts;
 }
 interface BlockId {
   hash: string;
@@ -133,7 +126,7 @@ interface PreCommit {
 }
 
 export interface BlockResults {
-  deliver_tx: DeliverTx[];
+  deliver_tx: DeliverTx[] | null;
   end_block: Endblock;
   begin_block: BeginBlock;
 }

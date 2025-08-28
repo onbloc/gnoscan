@@ -1,3 +1,4 @@
+import { BlockInfo } from "@gnolang/tm2-js-client";
 import { HttpRPCClient, RPCClient, RPCResponse, makeRPCRequest } from "../rpc-client";
 import {
   NodeClient,
@@ -62,13 +63,13 @@ export class NodeRPCClient implements NodeClient {
     return this.rpcClient.call<NodeResponseGenesis>(request).then(handleResponse);
   }
 
-  block(height: number): Promise<NodeResponseBlock> {
+  block(height: number): Promise<BlockInfo> {
     const request = makeRPCRequest({
       method: "block",
       params: [height.toString()],
     });
 
-    return this.rpcClient.call<NodeResponseBlock>(request).then(handleResponse);
+    return this.rpcClient.call<BlockInfo>(request).then(handleResponse);
   }
 
   blockResults(height: number): Promise<NodeResponseBlockResults> {
