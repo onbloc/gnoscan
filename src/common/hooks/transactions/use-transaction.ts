@@ -64,7 +64,7 @@ export const useTransaction = (hash: string) => {
     }
 
     const txIndex = transactions.findIndex((tx: any) => tx.hash === safetyHash);
-    return blockResult.deliver_tx.find((_: any, index: number) => txIndex === index) || null;
+    return (blockResult.deliver_tx || []).find((_: any, index: number) => txIndex === index) || null;
   }, [transactions, blockResult, safetyHash]);
 
   const transactionItem: Transaction | null = useMemo(() => {
