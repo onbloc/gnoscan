@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BlockMeta } from "@gnolang/tm2-js-client";
+import { BlockInfo, BlockMeta } from "@gnolang/tm2-js-client";
 
 import { BlockResults, NodeRPCClient } from "@/common/clients/node-client";
 import { IBlockRepository } from "./types";
@@ -22,7 +22,7 @@ export class BlockRepository implements IBlockRepository {
       .catch(() => null);
   }
 
-  async getBlock(height: number): Promise<any | null> {
+  async getBlock(height: number): Promise<BlockInfo | null> {
     if (!this.nodeRPCClient) {
       return null;
     }

@@ -68,13 +68,15 @@ export const useTransaction = (hash: string) => {
   }, [transactions, blockResult, safetyHash]);
 
   const transactionItem: Transaction | null = useMemo(() => {
+    if (!transactions) return null;
+
     const transaction = transactions.find((tx: any) => tx.hash === safetyHash) || null;
     if (!transaction || !txResult) {
       return null;
     }
 
     const firstMessage = makeTransactionMessageInfo(transaction.messages[0]);
-    const feeAmount = parseTokenAmount(transaction.fee?.gasFee || "0ugnot");
+    const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
 
     return {
       hash: transaction.hash,
@@ -102,7 +104,7 @@ export const useTransaction = (hash: string) => {
         packagePath: event.pkg_path,
         functionName: event.func,
         attrs: event.attrs,
-        time: block.block.header.time,
+        time: block?.block.header.time || "",
         caller: firstMessage?.from || "",
       })),
       rawContent: JSON.stringify(

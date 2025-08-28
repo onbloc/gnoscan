@@ -5,6 +5,7 @@ import { Block } from "@/types/data-type";
 import { toBech32Address } from "@/common/utils/bech32.utility";
 import { BlockResults, NodeResponseBlock } from "@/common/clients/node-client";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { BlockInfo } from "@gnolang/tm2-js-client";
 
 export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | null, Error>) => {
   const { currentNetwork } = useNetworkProvider();
@@ -27,14 +28,11 @@ export const useGetLatestBlockHeightIntervalQuery = (options?: UseQueryOptions<n
   return useGetLatestBlockHeightQuery({ ...options, refetchInterval: 5_000 });
 };
 
-export const useGetBlockQuery = (
-  blockHeight: number | null,
-  options?: UseQueryOptions<NodeResponseBlock | null, Error>,
-) => {
+export const useGetBlockQuery = (blockHeight: number | null, options?: UseQueryOptions<BlockInfo | null, Error>) => {
   const { currentNetwork } = useNetworkProvider();
   const { blockRepository } = useServiceProvider();
 
-  return useQuery<NodeResponseBlock | null, Error>({
+  return useQuery<BlockInfo | null, Error>({
     queryKey: [QUERY_KEY.getBlock, currentNetwork?.rpcUrl || "", blockHeight],
     queryFn: () => {
       if (!blockRepository || !blockHeight) {

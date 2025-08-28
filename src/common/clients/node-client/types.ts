@@ -1,4 +1,4 @@
-import { BlockMeta } from "@gnolang/tm2-js-client";
+import { BlockMeta, BlockInfo } from "@gnolang/tm2-js-client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface NodeClient {
   health(): Promise<boolean>;
@@ -7,7 +7,7 @@ export interface NodeClient {
 
   genesis(): Promise<NodeResponseGenesis>;
 
-  block(height: number): Promise<NodeResponseBlock>;
+  block(height: number): Promise<BlockInfo>;
 
   blockResults(height: number): Promise<NodeResponseBlockResults>;
 
@@ -126,7 +126,7 @@ interface PreCommit {
 }
 
 export interface BlockResults {
-  deliver_tx: DeliverTx[];
+  deliver_tx: DeliverTx[] | null;
   end_block: Endblock;
   begin_block: BeginBlock;
 }
