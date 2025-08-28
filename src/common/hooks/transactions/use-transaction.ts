@@ -91,10 +91,14 @@ export const useTransaction = (hash: string) => {
       to: firstMessage?.to || "",
       amount: firstMessage?.amount || {
         value: "0",
-        denom: "ugnot",
+        denom: GNOTToken.denom,
       },
       time: block?.block_meta.header.time || "",
       fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
+      max_deposit: firstMessage?.max_deposit || {
+        value: "0",
+        denom: GNOTToken.denom,
+      },
       memo: transaction.memo || "-",
       events: ((txResult?.ResponseBase?.Events as any[]) || [])?.map((event, index) => ({
         id: `${transaction.hash}_${index}`,

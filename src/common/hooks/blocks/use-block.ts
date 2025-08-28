@@ -76,6 +76,10 @@ export const useBlock = (height: number) => {
           value: "0",
           denom: GNOTToken.denom,
         },
+        maxDeposit: defaultMessage?.max_deposit || {
+          value: "0",
+          denom: GNOTToken.denom,
+        },
         time: block?.block_meta.header.time || "",
         fee: {
           value: feeAmount.toString(),
