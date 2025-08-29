@@ -51,7 +51,7 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
       if (dailyChange >= 0) {
         return new BigNumber(total).minus(dailyChange).toNumber();
       } else {
-        return total;
+        return new BigNumber(total).minus(Math.abs(dailyChange)).toNumber();
       }
     });
     const dailyValues = originalTodayDepositedData.map(value => Math.abs(value));
