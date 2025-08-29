@@ -46,10 +46,15 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
         .toNumber();
     });
 
-    const todayDepositedValues = originalTodayDepositedData.map(value => Math.abs(value));
-    const adjustedTotalDepositedValues = originalTotalDepositedData.map((total, index) => {
-      return new BigNumber(total).minus(originalTodayDepositedData[index]).toNumber();
+    const baseValues = originalTotalDepositedData.map((total, index) => {
+      const dailyChange = originalTodayDepositedData[index];
+      if (dailyChange >= 0) {
+        return new BigNumber(total).minus(dailyChange).toNumber();
+      } else {
+        return total;
+      }
     });
+    const dailyValues = originalTodayDepositedData.map(value => Math.abs(value));
 
     const totalStorageUsageData = chartData.map(item => item.totalStorageUsage);
     const dailyStorageUsageData = chartData.map(item => item.dailyStorageUsage);
@@ -59,14 +64,14 @@ export const StackedBarChart2 = ({ labels, chartData }: StackedBarChart2Props) =
       datasets: [
         {
           label: "Total Deposited",
-          data: adjustedTotalDepositedValues,
+          data: baseValues,
           backgroundColor: themePalette.blue,
           originalData: originalTotalDepositedData,
           storageUsageData: totalStorageUsageData,
         },
         {
           label: "Daily Deposited",
-          data: todayDepositedValues,
+          data: dailyValues,
           backgroundColor: themePalette.orange,
           originalData: originalTodayDepositedData,
           storageUsageData: dailyStorageUsageData,
