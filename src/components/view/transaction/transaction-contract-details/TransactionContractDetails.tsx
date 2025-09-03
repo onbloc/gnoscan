@@ -59,15 +59,15 @@ export const TransactionContractDetails: React.FC<{
       case "/vm.m_addpkg":
         return "AddPackage";
       case "/vm.m_call":
+        if (typeof message["func"] === "string" && message["func"].trim() !== "") {
+          return message["func"];
+        }
+
         if (Array.isArray(message["args"]) && message["args"].length > 0) {
           const arg0 = message["args"][0];
           if (typeof arg0 === "string" && arg0.trim() !== "") {
             return arg0;
           }
-        }
-
-        if (typeof message["func"] === "string" && message["func"].trim() !== "") {
-          return message["func"];
         }
 
         return message["@type"];
@@ -125,7 +125,7 @@ export const TransactionContractDetails: React.FC<{
                       >
                         <FitContentA>
                           {formatDisplayPackagePath(
-                            message?.func || message?.package?.path || message?.pkg_path || "-",
+                            message?.pkg_path || message?.package?.path || message?.func || "-",
                           )}
                         </FitContentA>
                       </Link>
@@ -133,7 +133,7 @@ export const TransactionContractDetails: React.FC<{
                     <Tooltip
                       content="Copied!"
                       trigger="click"
-                      copyText={message?.package?.path || message?.pkg_path || "-"}
+                      copyText={message?.pkg_path || message?.package?.path || "-"}
                       className="address-tooltip"
                     >
                       <S.StyledIconCopy />
@@ -153,6 +153,7 @@ export const TransactionContractDetails: React.FC<{
               </Badge>
             </dd>
           </DLWrap>
+
           {message["@type"] === "/vm.m_call" && message?.func === "Transfer" && (
             <TransactionTransferContract
               message={message}
