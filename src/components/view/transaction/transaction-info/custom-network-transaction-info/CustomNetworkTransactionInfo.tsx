@@ -35,7 +35,7 @@ const CustomNetworkTransactionInfo = ({
       },
       {
         tabName: "Events",
-        size: 0,
+        size: transactionEvents.length || 0,
       },
     ];
   }, [transactionEvents]);
