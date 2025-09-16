@@ -5,7 +5,7 @@ import { IChainRepository, TokenSupplyInfo, ValidatorInfo } from "./types";
 
 import { ChainType } from "@/common/values/constant-value";
 import ValidatorStagingData from "../../assets/meta/staging/validators.json";
-import ValidatorTest6Data from "../../assets/meta/test6/validators.json";
+import ValidatorTest8Data from "../../assets/meta/test8/validators.json";
 import { Amount } from "@/types";
 import { CommonError } from "@/common/errors";
 import { convertToStorageDeposit, hasStorageDepositProperties } from "@/common/utils/storage-deposit-util";
@@ -36,8 +36,8 @@ export class ChainRepository implements IChainRepository {
     if (chainId === ChainType.STAGING) {
       return ValidatorStagingData;
     }
-    if (chainId === ChainType.TESTNET6) {
-      return ValidatorTest6Data;
+    if (chainId === ChainType.TESTNET8) {
+      return ValidatorTest8Data;
     }
     return [];
   }
