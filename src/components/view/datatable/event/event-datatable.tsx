@@ -266,7 +266,7 @@ const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible,
                 {' → std.Emit("'} {/* eslint-disable-line quotes */}
                 <span className="event-name">{event.type}</span>
                 {'"'} {/* eslint-disable-line quotes */}
-                {event.attrs.map((attr, index) => (
+                {(event.attrs || []).map((attr, index) => (
                   <React.Fragment key={index}>
                     {", "}
                     <span className="event-param">{attr.key}</span>
@@ -278,7 +278,7 @@ const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible,
               </Text>
             </div>
           </div>
-          {event.attrs.length > 0 && (
+          {(event.attrs || []).length > 0 && (
             <div className="event-details-attributes">
               <div className="data-header">
                 <Text className="key" type="h7" color={"primary"}>

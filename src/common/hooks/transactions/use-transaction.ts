@@ -9,6 +9,7 @@ import { parseTokenAmount } from "@/common/utils/token.utility";
 import { decodeTransaction, makeSafeBase64Hash, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
 import { Transaction, TransactionSummaryInfo } from "@/types/data-type";
 import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
+import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
 
 export const useTransaction = (hash: string) => {
   const safetyHash = makeSafeBase64Hash(hash);
@@ -100,17 +101,13 @@ export const useTransaction = (hash: string) => {
         denom: GNOTToken.denom,
       },
       memo: transaction.memo || "-",
-      events: ((txResult?.ResponseBase?.Events as any[]) || [])?.map((event, index) => ({
-        id: `${transaction.hash}_${index}`,
-        blockHeight: blockHeight || 0,
-        transactionHash: transaction.hash,
-        type: event.type,
-        packagePath: event.pkg_path,
-        functionName: event.func,
-        attrs: event.attrs,
-        time: block?.block.header.time || "",
-        caller: firstMessage?.from || "",
-      })),
+      events: parseTransactionEvents(
+        (txResult?.ResponseBase?.Events as any[]) || [],
+        transaction.hash,
+        blockHeight || 0,
+        block?.block.header.time || "",
+        firstMessage?.from || "",
+      ),
       rawContent: JSON.stringify(
         {
           messages: transaction?.messages || "",
