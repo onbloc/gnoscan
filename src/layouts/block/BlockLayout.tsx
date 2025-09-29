@@ -21,6 +21,20 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
 
   const { block, isFetched: isFetchedRpcData, isErrorBlock: isErrorRpcData } = useBlock(blockHeight);
 
+  const titleOptionProps = React.useMemo(
+    () => ({
+      prevProps: {
+        disabled: !block?.hasPreviousBlock,
+        path: `/block/${Number(blockHeight) - 1}`,
+      },
+      nextProps: {
+        disabled: !block?.hasNextBlock,
+        path: `/block/${Number(blockHeight) + 1}`,
+      },
+    }),
+    [block?.hasPreviousBlock, block?.hasNextBlock, blockHeight],
+  );
+
   if (isCustomNetwork && isFetchedRpcData && isErrorRpcData)
     return (
       <S.InnerLayout>
@@ -34,16 +48,7 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
         <S.Wrapper breakpoint={breakpoint}>
           <S.TitleWrapper isDesktop={isDesktop}>
             <PageTitle type={isDesktop ? "h2" : "p2"} title={`Block #${blockHeight}`} />
-            <TitleOption
-              prevProps={{
-                disabled: !block?.hasPreviousBlock,
-                path: `/block/${Number(block.blockHeight) - 1}`,
-              }}
-              nextProps={{
-                disabled: !block?.hasNextBlock,
-                path: `/block/${Number(block.blockHeight) + 1}`,
-              }}
-            />
+            <TitleOption {...titleOptionProps} />
           </S.TitleWrapper>
           {blockSummary}
           {blockInfo}
