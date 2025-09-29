@@ -19,18 +19,34 @@ interface TitleOptionProps {
 const TitleOption = ({ prevProps, nextProps }: TitleOptionProps) => {
   const { getUrlWithNetwork } = useNetwork();
 
+  const ArrowButton = ({
+    disabled,
+    href,
+    direction = "right",
+  }: {
+    disabled: boolean;
+    href: string;
+    direction?: "left" | "right";
+  }) => {
+    const className = direction === "left" ? "icon-arrow-left" : "icon-arrow-right";
+
+    return disabled ? (
+      <S.ArrowButton disabled>
+        <IconArrow className={className} />
+      </S.ArrowButton>
+    ) : (
+      <Link href={href}>
+        <S.ArrowButton>
+          <IconArrow className={className} />
+        </S.ArrowButton>
+      </Link>
+    );
+  };
+
   return (
     <S.TitleWrap>
-      <Link href={getUrlWithNetwork(prevProps.path)}>
-        <S.ArrowButton disabled={prevProps.disabled}>
-          <IconArrow className="icon-arrow-right" />
-        </S.ArrowButton>
-      </Link>
-      <Link href={getUrlWithNetwork(nextProps.path)}>
-        <S.ArrowButton disabled={nextProps.disabled}>
-          <IconArrow className="icon-arrow-left" />
-        </S.ArrowButton>
-      </Link>
+      <ArrowButton disabled={prevProps.disabled} href={getUrlWithNetwork(prevProps.path)} direction="right" />
+      <ArrowButton disabled={nextProps.disabled} href={getUrlWithNetwork(nextProps.path)} direction="left" />
     </S.TitleWrap>
   );
 };

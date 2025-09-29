@@ -48,7 +48,7 @@ export class NodeRPCClient implements NodeClient {
   status(): Promise<NodeResponseStatus> {
     const request = makeRPCRequest({
       method: "status",
-      params: [],
+      params: ["0"],
     });
 
     return this.rpcClient.call<NodeResponseStatus>(request).then(handleResponse);

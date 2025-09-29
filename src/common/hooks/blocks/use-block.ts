@@ -175,18 +175,40 @@ export const useBlock = (height: number) => {
   }, [block, isFetched, isErrorBlockData]);
 
   const hasPreviousBlock = useMemo(() => {
+    // When the height is 0 (Genesis block), there is no previous block.
+    if (height === 0) {
+      return false;
+    }
+
+    // If block data exists, verify the actual block height
+    if (block) {
+      const currentHeight = Number(block.block.header.height);
+      return currentHeight > 0;
+    }
+
+    // If there is no block data, it is impossible to determine whether it is a previous block.
+    return false;
+  }, [block, height]);
+
+  const hasNextBlock = useMemo(() => {
+    // If latestBlockHeight is missing, it is impossible to determine whether the next block is valid.
+    if (latestBlockHeight === undefined || latestBlockHeight === null) {
+      return false;
+    }
+
+    // If the height is 0 and the latest block height is greater than 0, the next block exists
+    if (height === 0) {
+      return latestBlockHeight > 0;
+    }
+
+    // Cannot determine if no block exists
     if (!block) {
       return false;
     }
-    return Number(block.block.header.height) > 1;
-  }, [block?.block_meta.header.height]);
 
-  const hasNextBlock = useMemo(() => {
-    if (!block || !latestBlockHeight) {
-      return false;
-    }
+    // If the current block height is less than the latest block height, the next block exists
     return Number(block.block.header.height) < latestBlockHeight;
-  }, [block?.block_meta.header.height, latestBlockHeight]);
+  }, [block, height, latestBlockHeight]);
 
   const blockSummaryInfo: BlockSummaryInfo = useMemo(() => {
     return {
