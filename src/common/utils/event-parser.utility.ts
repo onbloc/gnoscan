@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GnoEvent } from "@/types";
+import { GnoEvent, StorageUnlockEventData } from "@/types";
 import { EVENT_TYPES, EventType, GnoEventData, StorageDepositEventData } from "@/types";
 
 export type EventParser = (
@@ -30,6 +30,18 @@ const eventParsers: Record<EventType, EventParser> = {
     attrs: [
       { key: "bytes_delta", value: event.bytes_delta || "" },
       { key: "fee_delta", value: event.fee_delta || "" },
+    ],
+  }),
+
+  [EVENT_TYPES.STORAGE_UNLOCK_EVENT]: (event: StorageUnlockEventData, baseInfo): GnoEvent => ({
+    ...baseInfo,
+    type: "StorageUnlock",
+    packagePath: event.pkg_path,
+    functionName: "StorageUnlock",
+    attrs: [
+      { key: "bytes_delta", value: event.bytes_delta || "" },
+      { key: "fee_refund", value: event.fee_refund || "" },
+      { key: "refund_withheld", value: String(event.refund_withheld || false) },
     ],
   }),
 };
