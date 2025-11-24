@@ -48,34 +48,48 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   }, [chains, setChainData]);
 
   useEffect(() => {
-    // If the query fails to load.
-    if (!!window?.location?.href.split("?")?.[1] && Object.keys(router.query).length === 0) {
+    // Wait until the router is ready (before query parameter parsing is complete)
+    if (!router.isReady) return;
+
+    // If the network is already configured, prevent duplicate execution
+    if (currentNetwork) return;
+
+    // Custom Network Type Handling
+    if (router.query?.type === "custom") {
+      setCurrentNetwork({
+        isCustom: true,
+        chainId: "",
+        apiUrl: "",
+        rpcUrl: router.query?.rpcUrl?.toString() || "",
+        indexerUrl: router.query?.indexerUrl?.toString() || "",
+        gnoWebUrl: null,
+      });
       return;
     }
 
-    if (!currentNetwork) {
-      if (router.query?.type === "custom") {
-        setCurrentNetwork({
-          isCustom: true,
-          chainId: "",
-          apiUrl: "",
-          rpcUrl: router.query?.rpcUrl?.toString() || "",
-          indexerUrl: router.query?.indexerUrl?.toString() || "",
-          gnoWebUrl: null,
-        });
-        return;
-      }
-      const chain = chains.find(chain => chain.chainId === router.query?.chainId?.toString()) || chains[0];
-      setCurrentNetwork({
-        isCustom: false,
-        chainId: chain.chainId,
-        apiUrl: chain.apiUrl || "",
-        rpcUrl: chain.rpcUrl || "",
-        indexerUrl: chain.indexerUrl || "",
-        gnoWebUrl: chain?.gnoWebUrl || null,
-      });
+    // Extract the requested chainId from the URL
+    const requestedChainId = router.query?.chainId?.toString();
+    // Find the chain matching the requested chainId
+    const chain = requestedChainId ? chains.find(chain => chain.chainId === requestedChainId) : null;
+
+    // If no valid chain exists, use the default chain (first one)
+    const selectedChain = chain || chains[0];
+
+    // Warning log when an invalid chainId is entered
+    if (requestedChainId && !chain) {
+      console.warn(`Invalid ChainId: ${requestedChainId}, using default chain: ${chains[0].chainId}`);
     }
-  }, [router.query, currentNetwork, chains]);
+
+    // Network settings for the selected chain
+    setCurrentNetwork({
+      isCustom: false,
+      chainId: selectedChain.chainId,
+      apiUrl: selectedChain.apiUrl || "",
+      rpcUrl: selectedChain.rpcUrl || "",
+      indexerUrl: selectedChain.indexerUrl || "",
+      gnoWebUrl: selectedChain?.gnoWebUrl || null,
+    });
+  }, [router.isReady, router.query, chains]);
 
   const currentNetworkModel: ChainModel | null = useMemo(() => {
     if (!currentNetwork) {
