@@ -5,7 +5,7 @@ import { IChainRepository, TokenSupplyInfo, ValidatorInfo } from "./types";
 
 import { ChainType } from "@/common/values/constant-value";
 import ValidatorStagingData from "../../assets/meta/staging/validators.json";
-import ValidatorTest9Data from "../../assets/meta/test9/validators.json";
+import ValidatorTest9Data from "../../assets/meta/test10/validators.json";
 import { Amount } from "@/types";
 import { CommonError } from "@/common/errors";
 import { convertToStorageDeposit, hasStorageDepositProperties } from "@/common/utils/storage-deposit-util";
