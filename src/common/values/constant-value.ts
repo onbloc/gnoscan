@@ -5,11 +5,11 @@ export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "";
 export const DAY_TIME = 86_400_000 as const; // Day time: 24 * 60 * 60 * 1000
 
 export enum ChainType {
-  TESTNET10 = "test10",
+  TESTNET11 = "test11",
   STAGING = "staging",
 }
 
-export const TESTNET10_CHAIN_ID = "test10";
+export const TESTNET11_CHAIN_ID = "test11";
 export const STAGING_CHAIN_ID = "staging";
 
 export const BYTES_PER_KB = 1024 as const;
