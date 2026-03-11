@@ -49,4 +49,8 @@ export enum QUERY_KEY {
   // search
   getSearch = "api_get_search",
   getSearchAutocomplete = "api_get_search_autocomplete",
+
+  // validator
+  getValidators = "api_get_validators",
+  getValidatorCommits = "api_get_validator_commits",
 }

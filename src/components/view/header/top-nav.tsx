@@ -1,24 +1,24 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import Link from "next/link";
-import styled from "styled-components";
-import { useRouter } from "@/common/hooks/common/use-router";
-import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
-import { searchState, themeState } from "@/states";
-import { useRecoilState, useRecoilValue } from "recoil";
-import Text from "@/components/ui/text";
-import theme from "@/styles/theme";
-import mixins from "@/styles/mixins";
+import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
+import { useRouter } from "@/common/hooks/common/use-router";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { isDesktop } from "@/common/hooks/use-media";
-import dynamic from "next/dynamic";
+import { useNetwork } from "@/common/hooks/use-network";
+import { debounce } from "@/common/utils/string-util";
 import { SubInput } from "@/components/ui/input";
 import Network from "@/components/ui/network";
+import Text from "@/components/ui/text";
+import { searchState, themeState } from "@/states";
+import mixins from "@/styles/mixins";
+import theme from "@/styles/theme";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import React, { useCallback, useState } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import styled from "styled-components";
 import { SubMenu } from "./sub-menu";
-import { debounce } from "@/common/utils/string-util";
-import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { useNetwork } from "@/common/hooks/use-network";
 
 const Desktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.Desktop), {
   ssr: false,
@@ -34,16 +34,16 @@ interface EntryProps {
 
 export const navItems = [
   {
-    name: "Home",
-    path: "/",
-  },
-  {
     name: "Blocks",
     path: "/blocks",
   },
   {
     name: "Transactions",
     path: "/transactions",
+  },
+  {
+    name: "Validators",
+    path: "/validators",
   },
   {
     name: "Realms",
