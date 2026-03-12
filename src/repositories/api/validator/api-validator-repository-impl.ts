@@ -1,7 +1,7 @@
 import { NetworkClient } from "@/common/clients/network-client";
 import { ApiValidatorRepository } from "./api-validator-repository";
 import { GetValidatorsRequest, GetValidatorCommitsRequest } from "./request";
-import { GetValidatorsResponse, GetValidatorCommitsResponse } from "./response";
+import { GetValidatorsResponse, GetValidatorCommitsResponse, GetValidatorByAddressResponse } from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors/common/common-error";
 
@@ -40,6 +40,18 @@ export class ApiValidatorRepositoryImpl implements ApiValidatorRepository {
     return this.networkClient
       .get<APIResponse<GetValidatorCommitsResponse>>({
         url: `/validators/commits${requestParams}`,
+      })
+      .then(result => result.data?.data);
+  }
+
+  getValidatorByAddress(address: string): Promise<GetValidatorByAddressResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetValidatorByAddressResponse>>({
+        url: `/validators/${address}`,
       })
       .then(result => result.data?.data);
   }

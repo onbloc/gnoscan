@@ -53,4 +53,5 @@ export enum QUERY_KEY {
   // validator
   getValidators = "api_get_validators",
   getValidatorCommits = "api_get_validator_commits",
+  getValidatorByAddress = "api_get_validator_by_address",
 }
