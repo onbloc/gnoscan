@@ -13,6 +13,7 @@ export const API_REPOSITORY_KEY = {
   TOKEN_REPOSITORY: "ApiTokenRepository",
   STATISTICS_REPOSITORY: "ApiStatisticsRepository",
   SEARCH_REPOSITORY: "ApiSearchRepository",
+  VALIDATOR_REPOSITORY: "ApiValidatorRepository",
 };
 
 export type API_REPOSITORY_KEY = ValuesType<typeof API_REPOSITORY_KEY>;

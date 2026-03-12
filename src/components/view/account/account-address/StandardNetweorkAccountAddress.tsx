@@ -1,27 +1,39 @@
 import React from "react";
 
+import { useNetwork } from "@/common/hooks/use-network";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { ValidatorInfo } from "@/layouts/account/AccountLayout";
 
-import * as S from "./AccountAddress.styles";
-import Text from "@/components/ui/text";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import AccountAddressSkeleton from "./AccountAddressSkeleton";
+import IconLink from "@/assets/svgs/icon-link.svg";
+import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import { Divider } from "@/components/ui/divider/Divider";
+import Text from "@/components/ui/text";
 import { Username } from "@/components/ui/username/Username";
+import * as S from "./AccountAddress.styles";
+import AccountAddressSkeleton from "./AccountAddressSkeleton";
 
 interface AccountAddressProps {
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
   address: string;
+  validatorInfo?: ValidatorInfo | null;
 }
 
-const StandardNetworkAccountAddress = ({ isDesktop, address }: AccountAddressProps) => {
+const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: AccountAddressProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
+  const { gnoWebUrl } = useNetwork();
 
   const username: string | null = React.useMemo(() => {
     if (!data?.data || !data?.data?.name) return null;
     return data.data.name;
   }, [data?.data.name]);
+
+  const handleValidatorLinkClick = React.useCallback(() => {
+    const url = `${gnoWebUrl}/r/gnops/valopers:${address}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, [gnoWebUrl, address]);
 
   if (isLoading || !isFetched) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
@@ -41,7 +53,18 @@ const StandardNetworkAccountAddress = ({ isDesktop, address }: AccountAddressPro
                 <IconCopy />
               </S.CopyTooltip>
             </S.Content>
-            {username && <Username username={username} />}
+            {validatorInfo?.name && (
+              <>
+                <Divider size={1} length={18} orientation="vertical" />
+                <LinkWrapper onClick={handleValidatorLinkClick} rel="noreferrer">
+                  <Text type="p4" color="primary">
+                    {validatorInfo.name}
+                  </Text>
+                  {gnoWebUrl && <IconLink />}
+                </LinkWrapper>
+              </>
+            )}
+            {!validatorInfo && username && <Username username={username} />}
           </S.ContentWrapper>
         </S.AccountWrapper>
       </S.Box>

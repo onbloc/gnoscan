@@ -9,15 +9,32 @@ import * as S from "./AccountLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+
+export interface ValidatorInfo {
+  name: string;
+  proposalId: string | null;
+}
 
 interface AccountLayoutProps {
   address: string;
+  isValidator?: boolean;
+  isFetchedValidator?: boolean;
+  validatorInfo?: ValidatorInfo | null;
   accountAddress: React.ReactNode;
   accountAssets: React.ReactNode;
   accountTransactions: React.ReactNode;
 }
 
-const AccountLayout = ({ address, accountAddress, accountAssets, accountTransactions }: AccountLayoutProps) => {
+const AccountLayout = ({
+  address,
+  isValidator = false,
+  isFetchedValidator = false,
+  validatorInfo,
+  accountAddress,
+  accountAssets,
+  accountTransactions,
+}: AccountLayoutProps) => {
   const { breakpoint, isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
@@ -40,6 +57,10 @@ const AccountLayout = ({ address, accountAddress, accountAssets, accountTransact
     [isCustomNetwork, address, isFetchedAccount],
   );
 
+  const pageTitle = isValidator ? "Validator Details" : "Account Details";
+
+  const isLoadingPageTitle = !isCustomNetwork && !isFetchedValidator;
+
   if (hasErrorCustomNetwork || hasErrorStandardNetwork)
     return (
       <S.InnerLayout>
@@ -51,7 +72,11 @@ const AccountLayout = ({ address, accountAddress, accountAssets, accountTransact
     <S.Container breakpoint={breakpoint}>
       <S.InnerLayout>
         <S.Wrapper breakpoint={breakpoint}>
-          <PageTitle type={isDesktop ? "h2" : "p2"} title="Account Details" />
+          {isLoadingPageTitle ? (
+            <SkeletonBar width={200} height={isDesktop ? 36 : 24} />
+          ) : (
+            <PageTitle type={isDesktop ? "h2" : "p2"} title={pageTitle} />
+          )}
           {accountAddress}
           {accountAssets}
           {accountTransactions}
