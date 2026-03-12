@@ -146,8 +146,8 @@ const Wrapper = styled.div<EntryProps>`
 const Nav = styled.nav`
   ${mixins.flexbox("row", "center", "center")};
   margin-left: auto;
-  gap: 40px;
-  margin-right: 40px;
+  gap: 35px;
+  margin-right: 35px;
 
   .navigation-item {
     cursor: pointer;

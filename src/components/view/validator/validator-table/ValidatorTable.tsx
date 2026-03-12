@@ -1,16 +1,16 @@
-import React, { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
+import IconLink from "@/assets/svgs/icon-link.svg";
+import { useNetwork } from "@/common/hooks/use-network";
+import { formatDate, getDateDiff, getLocalDateString } from "@/common/utils/date-util";
+import { textEllipsis } from "@/common/utils/string-util";
+import Tooltip from "@/components/ui/tooltip";
 import {
+  ValidatorCommitItem,
+  ValidatorCommitModel,
   ValidatorModel,
   ValidatorStatus,
-  ValidatorCommitModel,
-  ValidatorCommitItem,
 } from "@/models/api/validator/validator-model";
-import { textEllipsis } from "@/common/utils/string-util";
-import { getDateDiff, getLocalDateString, formatDate } from "@/common/utils/date-util";
-import { useNetwork } from "@/common/hooks/use-network";
-import Tooltip from "@/components/ui/tooltip";
-import IconLink from "@/assets/svgs/icon-link.svg";
 
 import * as S from "./ValidatorTable.styles";
 
@@ -84,7 +84,7 @@ const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize 
           <S.HeaderCell width={COLUMN_WIDTHS.name}>Validator Name</S.HeaderCell>
           <S.HeaderCell width={COLUMN_WIDTHS.status}>Status</S.HeaderCell>
           <S.HeaderCell width={COLUMN_WIDTHS.address}>Address</S.HeaderCell>
-          <S.HeaderCell width={COLUMN_WIDTHS.shares}>Shares</S.HeaderCell>
+          <S.HeaderCell width={COLUMN_WIDTHS.shares}>V.P Shares</S.HeaderCell>
           <S.HeaderCell width={COLUMN_WIDTHS.startTime}>Start Time</S.HeaderCell>
           <S.HeaderCell width={COLUMN_WIDTHS.profile}>Profile</S.HeaderCell>
           <S.HeaderCell flex align="right">

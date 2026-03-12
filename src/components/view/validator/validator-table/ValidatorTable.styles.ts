@@ -123,7 +123,7 @@ export const StatusBadge = styled.span<{ status: ValidatorStatus; clickable?: bo
   padding: 4px 16px;
   border-radius: 4px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 20px;
   color: ${({ theme }) => theme.colors.white};
   background-color: ${({ status }) => statusColorMap[status]};
