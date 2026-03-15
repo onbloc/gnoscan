@@ -10,8 +10,8 @@ import { ChainType } from "@/common/values/constant-value";
 import { GNO_PACKAGE_BOARD_PATH } from "@/common/values/gno.constant";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { Amount } from "@/types";
+import ValidatorGnoland1Data from "../../assets/meta/gnoland1/validators.json";
 import ValidatorStagingData from "../../assets/meta/staging/validators.json";
-import ValidatorTest11Data from "../../assets/meta/test11/validators.json";
 
 export class ChainRepository implements IChainRepository {
   constructor(private nodeRPCClient: NodeRPCClient | null) {}
@@ -36,8 +36,8 @@ export class ChainRepository implements IChainRepository {
     if (chainId === ChainType.STAGING) {
       return ValidatorStagingData;
     }
-    if (chainId === ChainType.TESTNET11) {
-      return ValidatorTest11Data;
+    if (chainId === ChainType.GNOLAND1) {
+      return ValidatorGnoland1Data;
     }
     return [];
   }
