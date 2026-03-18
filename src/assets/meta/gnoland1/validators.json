@@ -1,0 +1,52 @@
+[
+  {
+    "address": "g1uhv7wr7nku89se3t7v8fpquc7n5sf8rfkywxpc",
+    "name": "moul-val-01",
+    "power": "1"
+  },
+  {
+    "address": "g1jyaxj5t95dhlp9f8edkm0p0evw87qejluld86p",
+    "name": "berty-val1",
+    "power": "1"
+  },
+  {
+    "address": "g10jdd8vlgydfypynrk23ul90jnsg5twrtvmcmh4",
+    "name": "aeddi-val-01",
+    "power": "1"
+  },
+  {
+    "address": "g1hg2ggz86lagh9kfn8vqh66hlccaq23rm9vs5ly",
+    "name": "gnocore-sentry-01",
+    "power": "1"
+  },
+  {
+    "address": "g1vta7dwp4guuhkfzksenfcheky4xf9hue8mgne4",
+    "name": "gnocore-val-01",
+    "power": "1"
+  },
+  {
+    "address": "g1d5hh9fw3l00gugfzafskaxqlmsyvxfaj6l2q60",
+    "name": "gnocore-val-02",
+    "power": "1"
+  },
+  {
+    "address": "g1wu87cyc08tzs9wvj8twu30njxp87urq0e526ud",
+    "name": "gnocore-val-03",
+    "power": "1"
+  },
+  {
+    "address": "g15sdr5dxpnwxwy28wqfxj488h3jsq3vkce5szv8",
+    "name": "gnocore-val-04",
+    "power": "1"
+  },
+  {
+    "address": "g1kn7p0wqumvqlcqzhkwnavkhf0z4qnr73ltwsae",
+    "name": "samourai-crew-1",
+    "power": "1"
+  },
+  {
+    "address": "g1waazuzqs7tzpdfa0qwxvctms0f9ccarg58ussh",
+    "name": "samourai-crew-2",
+    "power": "1"
+  }
+]
