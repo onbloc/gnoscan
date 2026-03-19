@@ -30,10 +30,7 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
       <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply
-          <Tooltip
-            width={229}
-            content="This number represents the total supply at Genesis in testnets, which can be subject to change in mainnet."
-          >
+          <Tooltip width={229} content="Total GNOT supply at Genesis.">
             <Button width="16px" height="16px" radius="50%" bgColor="base">
               <IconInfo className="svg-info" />
             </Button>
