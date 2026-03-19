@@ -31,10 +31,7 @@ export const CustomNetworkSupplyCard = () => {
             <Text type="p4" color="tertiary">
               Airdrop Supply
             </Text>
-            <Tooltip
-              width={215}
-              content="Estimated supply of GNOTs to be airdropped. This number is not final, and is subject to change."
-            >
+            <Tooltip width={215} content="Total GNOTs to be airdropped to Cosmos and AtomOne holders.">
               <Button width="16px" height="16px" radius="50%" bgColor="surface">
                 <IconInfo className="svg-info" />
               </Button>
@@ -58,7 +55,7 @@ export const CustomNetworkSupplyCard = () => {
             <Text type="p4" color="tertiary">
               Airdrop&nbsp;Holders
             </Text>
-            <Tooltip content="Total number of holders eligible for the GNOT airdrop. This number is not final and is subject to change.">
+            <Tooltip content="Total number of holders receiving 1 GNOT or more.">
               <Button width="16px" height="16px" radius="50%" bgColor="surface">
                 <IconInfo className="svg-info" />
               </Button>
