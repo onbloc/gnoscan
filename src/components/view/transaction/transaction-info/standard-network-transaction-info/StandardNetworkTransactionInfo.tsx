@@ -1,16 +1,16 @@
 import React from "react";
 
-import { GnoEvent, TransactionContractInfo } from "@/types/data-type";
-import { useGetTransactionEventsByHeight } from "@/common/react-query/transaction/api/use-get-transaction-events-by-hash";
-import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
-import { TransactionMapper } from "@/common/mapper/transaction/transaction-mapper";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
+import { TransactionMapper } from "@/common/mapper/transaction/transaction-mapper";
+import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
+import { useGetTransactionEventsByHeight } from "@/common/react-query/transaction/api/use-get-transaction-events-by-hash";
+import { GnoEvent, TransactionContractInfo } from "@/types/data-type";
 
+import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.utility";
+import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
+import { EventDatatable } from "@/components/view/datatable/event";
 import DataListSection from "@/components/view/details-data-section/data-list-section";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
-import { EventDatatable } from "@/components/view/datatable/event";
-import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
-import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.utility";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -77,10 +77,10 @@ const StandardNetworkTransactionInfo = ({
       {currentTab === "Messages" && (
         <StandardNetworkTransactionContractDetails
           transactionItem={txContracts}
+          rawTransaction={transactionItem}
           isDesktop={isDesktop}
           getUrlWithNetwork={getUrlWithNetwork}
           storageDepositInfo={storageDepositInfo}
-          showLog={transactionItem?.rawContent}
         />
       )}
       {currentTab === "Events" && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}

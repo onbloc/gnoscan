@@ -1,34 +1,67 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { Transaction, TransactionContractInfo } from "@/types/data-type";
-import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
+import { TransactionContractModel } from "@/repositories/api/transaction/response";
+import { Transaction, TransactionContractInfo } from "@/types/data-type";
 
-import * as S from "./TransactionContractDetails.styles";
-import Text from "@/components/ui/text";
 import ShowLog from "@/components/ui/show-log";
+import Text from "@/components/ui/text";
+import { StorageDeposit } from "@/models/storage-deposit-model";
 import {
-  StandardNetworkBankMsgSendMessage,
   StandardNetworkAddPackageMessage,
+  StandardNetworkBankMsgSendMessage,
   StandardNetworkMsgCallMessage,
   StandardNetworkMsgRunMessage,
 } from "../transaction-message-card";
-import { StorageDeposit } from "@/models/storage-deposit-model";
+import * as S from "./TransactionContractDetails.styles";
 
 export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
+  rawTransaction: Transaction | null;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
-  showLog?: string;
   storageDepositInfo?: StorageDeposit | null;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, showLog, storageDepositInfo }) => {
+}> = ({ transactionItem, isDesktop, getUrlWithNetwork, rawTransaction }) => {
   const messages: TransactionContractModel[] = React.useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
     }
     return transactionItem?.messages;
   }, [transactionItem?.messages]);
+
+  const getMessageFiles = React.useCallback(
+    (index: number) => {
+      if (!rawTransaction?.messages || rawTransaction?.messages.length <= index) {
+        return null;
+      }
+
+      const message = rawTransaction?.messages?.[index];
+      if (!message) {
+        return null;
+      }
+
+      const packageFiles = message?.package?.files;
+      if (!packageFiles) {
+        return null;
+      }
+
+      return packageFiles.map((file: any) => {
+        return {
+          name: file?.name ?? "",
+          body: file?.body ?? "",
+        };
+      });
+    },
+    [rawTransaction?.messages],
+  );
+
+  const showLog = React.useMemo(() => {
+    if (!rawTransaction) {
+      return null;
+    }
+    return rawTransaction.rawContent;
+  }, [rawTransaction]);
 
   if (!transactionItem) {
     return <React.Fragment />;
@@ -62,6 +95,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             <StandardNetworkAddPackageMessage
               message={message}
               isDesktop={isDesktop}
+              files={getMessageFiles(i) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
@@ -70,6 +104,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
             <StandardNetworkMsgRunMessage
               message={message}
               isDesktop={isDesktop}
+              files={getMessageFiles(i) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}

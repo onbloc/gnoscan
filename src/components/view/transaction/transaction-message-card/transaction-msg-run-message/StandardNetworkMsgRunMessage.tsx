@@ -3,14 +3,20 @@ import React from "react";
 
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
-import { AmountBadge, BadgeTooltipProps, StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
+import { AmountBadge, BadgeTooltipProps } from "../../common/TransactionMessageFields";
 
-import { Field, BadgeText, AddressLink, BadgeList, HoverBadgeList } from "@/components/view/transaction/common";
-import { Amount } from "@/types";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import ShowLog from "@/components/ui/show-log";
+import { AddressLink, BadgeList, BadgeText, Field, HoverBadgeList } from "@/components/view/transaction/common";
+import { Amount } from "@/types";
 
-const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
+const StandardNetworkMsgRunMessage = ({
+  isDesktop,
+  message,
+  files = [],
+  getUrlWithNetwork,
+}: TransactionContractMessagesProps) => {
   const calledFunctions: BadgeTooltipProps[] | null = React.useMemo(() => {
     if (!message?.calledFunctions) return null;
 
@@ -55,6 +61,7 @@ const StandardNetworkMsgRunMessage = ({ isDesktop, message, getUrlWithNetwork }:
 
       <Field label="Files" isDesktop={isDesktop}>
         <BadgeList items={message?.files} />
+        {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
       </Field>
 
       <Field label="Called Functions" isDesktop={isDesktop}>

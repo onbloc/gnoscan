@@ -6,21 +6,23 @@ import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import ShowLog from "@/components/ui/show-log";
 import {
+  AddressLink,
+  AmountBadge,
+  BadgeList,
+  BadgeText,
   Field,
   FieldWithTooltip,
-  BadgeText,
-  AddressLink,
   PkgPathLink,
-  BadgeList,
-  AmountBadge,
 } from "@/components/view/transaction/common";
 import { Amount } from "@/types";
-import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 const StandardNetworkAddPackageMessage = ({
   isDesktop,
   message,
+  files = [],
   getUrlWithNetwork,
 }: TransactionContractMessagesProps) => {
   const send = React.useMemo(() => {
@@ -60,6 +62,7 @@ const StandardNetworkAddPackageMessage = ({
 
       <Field label="Files" isDesktop={isDesktop}>
         <BadgeList items={message?.files} />
+        {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
       </Field>
 
       <Field label="Send" isDesktop={isDesktop}>

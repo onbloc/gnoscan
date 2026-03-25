@@ -1,4 +1,3 @@
-import { StorageDeposit } from "@/models/storage-deposit-model";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { Amount } from "@/types/data-type";
 
@@ -32,5 +31,6 @@ export interface TransactionModel extends BaseTransactionModel {
 export interface TransactionContractMessagesProps {
   message: TransactionContractModel;
   isDesktop: boolean;
+  files?: { name: string; body: string }[] | null;
   getUrlWithNetwork: (uri: string) => string;
 }
