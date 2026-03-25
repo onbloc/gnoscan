@@ -1,21 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
 import Link from "next/link";
+import React from "react";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type";
 
-import * as S from "./TransactionContractDetails.styles";
-import Text from "@/components/ui/text";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
-import Badge from "@/components/ui/badge";
-import Tooltip from "@/components/ui/tooltip";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
-import TransactionTransferContract from "../transaction-transfer-contract/TransactionTransferContract";
+import Badge from "@/components/ui/badge";
+import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
+import Text from "@/components/ui/text";
+import Tooltip from "@/components/ui/tooltip";
 import { TransactionAddPackageContract } from "../transaction-add-package-contract/TransactionAddPackageContract";
 import { TransactionCallerContract } from "../transaction-caller-contract/TransactionCallerContract";
+import { TransactionMsgRunContract } from "../transaction-msg-run-contract/TransactionMsgRunContract";
+import TransactionTransferContract from "../transaction-transfer-contract/TransactionTransferContract";
+import * as S from "./TransactionContractDetails.styles";
 
 const TOOLTIP_PACKAGE_PATH = (
   <>
@@ -78,6 +79,42 @@ export const TransactionContractDetails: React.FC<{
     }
   }, []);
 
+  const isVmAddPkg = React.useCallback((message: any) => {
+    return message?.["@type"] === "/vm.m_addpkg";
+  }, []);
+
+  const isVmCall = React.useCallback((message: any) => {
+    return message?.["@type"] === "/vm.m_call";
+  }, []);
+
+  const isBankMsgSend = React.useCallback((message: any) => {
+    return message?.["@type"] === "/bank.MsgSend";
+  }, []);
+
+  const isVmRun = React.useCallback((message: any) => {
+    return message?.["@type"] === "/vm.m_run";
+  }, []);
+
+  const getMessageFiles = React.useCallback((message: any) => {
+    console.log("message", message);
+    if (!isVmAddPkg(message) && !isVmRun(message)) {
+      return null;
+    }
+
+    const files = message?.files || message?.package?.files;
+
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      return null;
+    }
+
+    return files.map(file => {
+      return {
+        name: file?.name ?? "",
+        body: file?.body ?? "",
+      };
+    });
+  }, []);
+
   if (!transactionItem) {
     return <React.Fragment />;
   }
@@ -89,7 +126,7 @@ export const TransactionContractDetails: React.FC<{
           {transactionItem.numOfMessage > 1 && (
             <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
           )}
-          {message["@type"] !== "/bank.MsgSend" && (
+          {isBankMsgSend(message) && (
             <>
               <DLWrap desktop={isDesktop}>
                 <dt>Name</dt>
@@ -154,7 +191,7 @@ export const TransactionContractDetails: React.FC<{
             </dd>
           </DLWrap>
 
-          {message["@type"] === "/vm.m_call" && message?.func === "Transfer" && (
+          {isVmCall(message) && message?.func === "Transfer" && (
             <TransactionTransferContract
               message={message}
               isDesktop={isDesktop}
@@ -162,7 +199,7 @@ export const TransactionContractDetails: React.FC<{
               getTokenAmount={getTokenAmount}
             />
           )}
-          {message["@type"] === "/bank.MsgSend" && (
+          {isBankMsgSend(message) && (
             <TransactionTransferContract
               message={message}
               isDesktop={isDesktop}
@@ -170,15 +207,24 @@ export const TransactionContractDetails: React.FC<{
               getTokenAmount={getTokenAmount}
             />
           )}
-          {message["@type"] === "/vm.m_addpkg" && (
+          {isVmAddPkg(message) && (
             <TransactionAddPackageContract
               message={message}
               isDesktop={isDesktop}
+              files={getMessageFiles(message) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
           {hasCaller(message) && (
             <TransactionCallerContract message={message} isDesktop={isDesktop} getUrlWithNetwork={getUrlWithNetwork} />
+          )}
+          {isVmRun(message) && (
+            <TransactionMsgRunContract
+              message={message}
+              isDesktop={isDesktop}
+              files={getMessageFiles(message) || []}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
           )}
         </S.ContractListBox>
       ))}
