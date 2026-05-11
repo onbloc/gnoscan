@@ -12,6 +12,7 @@ import { HttpRPCClient } from "@/common/clients/rpc-client/http-rpc-client";
 
 import { ChainModel, getChainSupportType } from "@/models/chain-model";
 import { NetworkState } from "@/states";
+import { getDefaultChain } from "@/common/config/network.config";
 
 interface NetworkContextProps {
   chains: ChainModel[];
@@ -72,8 +73,8 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     // Find the chain matching the requested chainId
     const chain = requestedChainId ? chains.find(chain => chain.chainId === requestedChainId) : null;
 
-    // If no valid chain exists, use the default chain (first one)
-    const selectedChain = chain || chains[0];
+    // If no valid chain exists, use the configured default (NEXT_PUBLIC_DEFAULT_CHAIN_ID) or fall back to chains[0]
+    const selectedChain = chain || getDefaultChain(chains) || chains[0];
 
     // Warning log when an invalid chainId is entered
     if (requestedChainId && !chain) {
