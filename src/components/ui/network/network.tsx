@@ -154,7 +154,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                 <Text type="h7" color="primary">
                   {chain.name}
                 </Text>
-                <Text type="body1" color="tertiary">
+                <Text type="body1" color="tertiary" className="ellipsis">
                   {chain.rpcUrl}
                 </Text>
               </div>
@@ -224,6 +224,9 @@ const NetworkButton = styled.button<StyleProps>`
   .svg-icon {
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    flex-shrink: 0;
   }
 `;
 
@@ -287,6 +290,8 @@ const NetworkList = styled.ul<StyleProps>`
       display: flex;
       flex-direction: column;
       width: 100%;
+      min-width: 0;
+      overflow: hidden;
       gap: 6px;
     }
 
