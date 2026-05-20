@@ -4,6 +4,7 @@ import styled from "styled-components";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import Text from "@/components/ui/text";
+import { useMemo } from "react";
 
 interface Props {
   token: string | undefined;
@@ -18,6 +19,11 @@ export const StandardNetworkTokenTitle = ({ name, symbol, pkgPath, tokenId, imag
   const { getUrlWithNetwork } = useNetwork();
   const tokenLinkId = tokenId || pkgPath;
 
+  const displayTokenName = useMemo(() => {
+    const displaySymbol = symbol.length > 9 ? `${symbol.slice(0, 9)}...` : symbol;
+    return `${name} (${displaySymbol})`;
+  }, [name, symbol]);
+
   return (
     <Link href={getUrlWithNetwork(`/tokens/${tokenLinkId}`)}>
       <TokenTitleWrapper>
@@ -29,7 +35,7 @@ export const StandardNetworkTokenTitle = ({ name, symbol, pkgPath, tokenId, imag
           </div>
         )}
 
-        <Text type="p4">{`${name} (${symbol})`}</Text>
+        <Text type="p4">{displayTokenName}</Text>
       </TokenTitleWrapper>
     </Link>
   );
