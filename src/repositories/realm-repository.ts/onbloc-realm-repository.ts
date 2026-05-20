@@ -315,6 +315,8 @@ export class OnblocRealmRepository implements IRealmRepository {
     }
 
     return result.map(tokenInfo => ({
+      tokenId: "",
+      slug: "",
       ...tokenInfo,
       functions: [],
       totalSupply: 0,
@@ -368,6 +370,8 @@ export class OnblocRealmRepository implements IRealmRepository {
     return {
       realmTransaction,
       tokenInfo: {
+        tokenId: "",
+        slug: "",
         name: tokenInfo.name,
         symbol: tokenInfo.symbol,
         decimals: tokenInfo.decimals,

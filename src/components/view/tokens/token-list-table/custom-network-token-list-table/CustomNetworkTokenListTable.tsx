@@ -101,13 +101,15 @@ export const CustomNetworkTokenListTable = ({
   };
 
   const createHeaderPkgPath = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<GRC20Info | GRC20InfoWithLogo>()
       .key("packagePath")
       .name("Path")
       .width(176)
       .colorName("blue")
       .tooltip(TOOLTIP_PACAKGE_PATH)
-      .renderOption(packagePath => <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} />)
+      .renderOption((packagePath, data) =>
+        packagePath ? <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} /> : <>{data.symbol}</>,
+      )
       .build();
   };
 

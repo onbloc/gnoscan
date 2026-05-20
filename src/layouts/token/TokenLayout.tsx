@@ -10,15 +10,15 @@ import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 
 interface TokenLayoutProps {
-  tokenPath: string;
+  tokenId: string;
   tokenSummary: React.ReactNode;
   tokenTransactionInfo: React.ReactNode;
 }
 
-const TokenLayout = ({ tokenPath, tokenSummary, tokenTransactionInfo }: TokenLayoutProps) => {
+const TokenLayout = ({ tokenId, tokenSummary, tokenTransactionInfo }: TokenLayoutProps) => {
   const { breakpoint, isDesktop } = useWindowSize();
 
-  const { summary, isFetched: isFetchedToken } = useToken(tokenPath);
+  const { summary, isFetched: isFetchedToken } = useToken(tokenId);
   const { isFetchedGRC20Tokens } = useTokenMeta();
   const { isFetched: isFetchedUsername } = useUsername();
 

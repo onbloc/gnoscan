@@ -1,16 +1,16 @@
 import React from "react";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { Amount } from "@/types/data-type";
+import { useAccount } from "@/common/hooks/account/use-account";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
-import { useAccount } from "@/common/hooks/account/use-account";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { AccountAssetViewModel } from "@/types/account";
+import { Amount } from "@/types/data-type";
 
-import * as S from "./AccountAssets.styles";
 import Text from "@/components/ui/text";
-import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
+import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import * as S from "./AccountAssets.styles";
 
 interface AccountAssetsProps {
   address: string;
@@ -34,6 +34,8 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
 
     return tokenBalances.map((asset: Amount): AccountAssetViewModel => {
       return {
+        tokenId: "",
+        slug: "",
         amount: { value: asset.value, denom: asset.denom },
         packagePath: "",
         logoUrl: "",

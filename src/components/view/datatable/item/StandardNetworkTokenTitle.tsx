@@ -1,10 +1,9 @@
-import React from "react";
 import Link from "next/link";
 import styled from "styled-components";
 
+import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import Text from "@/components/ui/text";
-import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 
 interface Props {
   token: string | undefined;
@@ -12,13 +11,15 @@ interface Props {
   name: string | undefined;
   symbol: string;
   pkgPath: string;
+  tokenId: string;
 }
 
-export const StandardNetworkTokenTitle = ({ name, symbol, pkgPath, imagePath }: Props) => {
+export const StandardNetworkTokenTitle = ({ name, symbol, pkgPath, tokenId, imagePath }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
+  const tokenLinkId = tokenId || pkgPath;
 
   return (
-    <Link href={getUrlWithNetwork(`/tokens/${pkgPath}`)}>
+    <Link href={getUrlWithNetwork(`/tokens/${tokenLinkId}`)}>
       <TokenTitleWrapper>
         {imagePath ? (
           <img className="token" src={imagePath} alt="token logo" />

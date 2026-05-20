@@ -20,6 +20,7 @@ interface AccountAssetItemProps {
   amount: Amount;
   logoUrl?: string | null;
   tokenPath?: string;
+  tokenId?: string;
   showTokenPathLink?: boolean;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
@@ -30,6 +31,7 @@ const AccountAssetItem = ({
   amount,
   logoUrl,
   tokenPath,
+  tokenId,
   showTokenPathLink,
   breakpoint,
   isDesktop,
@@ -84,7 +86,7 @@ const AccountAssetItem = ({
           {getTokenInfo(amount.denom)?.name || ""}
           {shouldShowTokenPathLink && (
             <NonMobile>
-              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenPath}`)}>
+              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenId || tokenPath}`)}>
                 <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
                   {displayTokenPath}
                 </Text>

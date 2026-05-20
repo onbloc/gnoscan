@@ -1,6 +1,6 @@
-import { Amount } from "@/types/data-type";
-
 export interface TokenModel {
+  tokenId: string;
+  slug: string;
   name: string;
   symbol: string;
   owner: string;

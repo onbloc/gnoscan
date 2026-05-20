@@ -1,6 +1,8 @@
 export interface AccountAssetModel {
   address: string;
   tokenType: "Native" | "GRC20";
+  tokenId: string;
+  slug: string;
   packagePath: string;
   amount: string;
   name: string;

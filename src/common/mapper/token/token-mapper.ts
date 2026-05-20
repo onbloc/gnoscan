@@ -8,6 +8,8 @@ export interface GRC20InfoWithLogo extends GRC20Info {
 export class TokenMapper {
   public static fromApiResponse(response: TokenModel): GRC20InfoWithLogo {
     return {
+      tokenId: response.tokenId,
+      slug: response.slug,
       packagePath: response.path,
       owner: response.owner,
       name: response.name,

@@ -20,6 +20,8 @@ interface TokenSummaryProps {
   isFetchedGRC20Tokens: boolean;
   isFetched: boolean;
   summaryData: {
+    tokenId: string;
+    slug: string;
     name: string;
     symbol: string;
     decimals: string | number;
@@ -118,6 +120,14 @@ const TokenSummary = ({
           </Badge>
         </dd>
       </DLWrap>
+      {summaryData.slug && summaryData.slug.trim() !== "" && (
+        <DLWrap desktop={isDesktop}>
+          <dt>Slug</dt>
+          <dd>
+            <Badge>{summaryData.slug}</Badge>
+          </dd>
+        </DLWrap>
+      )}
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
         <dd className="function-wrapper">

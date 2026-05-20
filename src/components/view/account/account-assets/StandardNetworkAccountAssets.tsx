@@ -1,18 +1,18 @@
-import React from "react";
 import BigNumber from "bignumber.js";
+import React from "react";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { AccountAssetViewModel } from "@/types/account";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { AccountAssetViewModel } from "@/types/account";
 
-import * as S from "./AccountAssets.styles";
-import Text from "@/components/ui/text";
-import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
-import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
-import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
+import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
+import Text from "@/components/ui/text";
+import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
+import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import * as S from "./AccountAssets.styles";
 
 interface AccountAssetsProps {
   address: string;
@@ -31,6 +31,8 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
       .map((asset): AccountAssetViewModel => {
         const amount = formatTokenDecimal(asset.amount, asset.decimals);
         return {
+          tokenId: asset.tokenId,
+          slug: asset.slug,
           amount: {
             value: amount,
             denom: asset.symbol,
@@ -56,10 +58,11 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
           grc20TokenAssets.map((grc20TokenAsset: AccountAssetViewModel) => {
             return (
               <AccountAssetItem
-                key={`asset-token-${grc20TokenAsset.amount.denom}`}
+                key={`asset-token-${grc20TokenAsset.tokenId}`}
                 amount={grc20TokenAsset.amount}
                 showTokenPathLink={true}
                 tokenPath={grc20TokenAsset.packagePath}
+                tokenId={grc20TokenAsset.tokenId}
                 logoUrl={grc20TokenAsset.logoUrl}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}
@@ -79,6 +82,8 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
 
   const nativeTokenAsset: AccountAssetViewModel = React.useMemo(() => {
     return {
+      tokenId: GNOTmetadata?.data.tokenId || "",
+      slug: GNOTmetadata?.data.slug || "",
       amount: {
         value: BigNumber(data?.value || 0).toString(),
         denom: GNOTToken.denom,
