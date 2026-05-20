@@ -7,17 +7,17 @@ import CustomNetworkTokenSummary from "@/components/view/token/token-summary/Cus
 import StandardNetworkTokenSummary from "@/components/view/token/token-summary/StandardNetworkTokenSummary";
 
 interface TokenSummaryContainerProps {
-  tokenPath: string;
+  tokenId: string;
 }
 
-const TokenSummaryContainer = ({ tokenPath }: TokenSummaryContainerProps) => {
+const TokenSummaryContainer = ({ tokenId }: TokenSummaryContainerProps) => {
   const { isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   return isCustomNetwork ? (
-    <CustomNetworkTokenSummary tokenPath={tokenPath} isDesktop={isDesktop} />
+    <CustomNetworkTokenSummary tokenPath={tokenId} isDesktop={isDesktop} />
   ) : (
-    <StandardNetworkTokenSummary tokenPath={tokenPath} isDesktop={isDesktop} />
+    <StandardNetworkTokenSummary tokenId={tokenId} isDesktop={isDesktop} />
   );
 };
 

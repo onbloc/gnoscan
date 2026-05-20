@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   useGetGRC20Token,
   useGetHoldersQuery,
@@ -6,6 +5,7 @@ import {
   useGetRealmTotalSupplyQuery,
 } from "@/common/react-query/realm";
 import { TokenSummary } from "@/types/data-type";
+import { useMemo } from "react";
 
 export const useToken = (path: string[] | string | undefined) => {
   const packagePath = useMemo(() => {
@@ -26,6 +26,8 @@ export const useToken = (path: string[] | string | undefined) => {
 
   const tokenSummary: TokenSummary = useMemo(() => {
     return {
+      tokenId: data?.tokenInfo.tokenId || "",
+      slug: data?.tokenInfo.slug || "",
       name: data?.tokenInfo.name || "",
       symbol: data?.tokenInfo.symbol || "",
       decimals: data?.tokenInfo.decimals || "",

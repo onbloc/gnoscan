@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
+import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { SearchResult } from "@/repositories/api/search/response";
-import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 
-import * as S from "./SearchResultItem.styles";
-import Text from "@/components/ui/text";
 import { formatDisplayTokenPath } from "@/common/utils/token.utility";
+import Text from "@/components/ui/text";
+import * as S from "./SearchResultItem.styles";
 
 export const SearchResultItem = ({
   item,
@@ -57,7 +57,7 @@ export const SearchResultItem = ({
 
     case SEARCH_RESULT_TYPE.TOKEN:
       return (
-        <Link href={getUrlWithNetwork(`/tokens/${item.title}`)} passHref style={{ width: "100%" }}>
+        <Link href={getUrlWithNetwork(item.link || `/tokens/${item.title}`)} passHref style={{ width: "100%" }}>
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">

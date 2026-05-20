@@ -118,6 +118,8 @@ export interface Package {
 }
 
 export interface GRC20Info {
+  tokenId: string;
+  slug: string;
   packagePath: string;
   owner: string;
   name: string;

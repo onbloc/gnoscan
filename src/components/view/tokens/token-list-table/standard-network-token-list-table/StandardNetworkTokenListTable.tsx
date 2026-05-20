@@ -66,6 +66,7 @@ export const StandardNetworkTokenListTable = ({
           name={data.name}
           symbol={data.symbol}
           pkgPath={data.packagePath}
+          tokenId={data.tokenId}
         />
       ))
       .build();
@@ -99,13 +100,15 @@ export const StandardNetworkTokenListTable = ({
   };
 
   const createHeaderPkgPath = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("packagePath")
       .name("Path")
       .width(176)
       .colorName("blue")
       .tooltip(TOOLTIP_PACAKGE_PATH)
-      .renderOption(packagePath => <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} />)
+      .renderOption((packagePath, data) =>
+        packagePath ? <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={160} /> : <>{data.symbol}</>,
+      )
       .build();
   };
 

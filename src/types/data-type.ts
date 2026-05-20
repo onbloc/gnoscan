@@ -73,6 +73,8 @@ export interface TokenMeta {
 }
 
 export interface TokenSummary {
+  tokenId: string;
+  slug: string;
   name: string;
   symbol: string;
   decimals: string | number;

@@ -357,6 +357,8 @@ export class RealmRepository implements IRealmRepository {
     return {
       realmTransaction,
       tokenInfo: {
+        tokenId: "",
+        slug: "",
         name: tokenInfo.name,
         symbol: tokenInfo.symbol,
         decimals: tokenInfo.decimals,

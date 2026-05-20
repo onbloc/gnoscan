@@ -1,5 +1,7 @@
 export interface GetTokenResponse {
   data: {
+    tokenId: string;
+    slug: string;
     name: string;
     symbol: string;
     totalSupply: string;

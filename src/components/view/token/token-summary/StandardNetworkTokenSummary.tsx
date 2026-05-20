@@ -1,25 +1,25 @@
-import React from "react";
 import Link from "next/link";
+import React from "react";
 
-import { TokenSummary } from "@/types/data-type";
-import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetTokenById } from "@/common/react-query/token/api";
+import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
+import { TokenSummary } from "@/types/data-type";
 
-import * as S from "./TokenSummary.styles";
-import Text from "@/components/ui/text";
-import Badge from "@/components/ui/badge";
-import DataSection from "@/components/view/details-data-section";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
-import Tooltip from "@/components/ui/tooltip";
-import ShowLog from "@/components/ui/show-log";
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
+import Badge from "@/components/ui/badge";
+import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import ShowLog from "@/components/ui/show-log";
+import Text from "@/components/ui/text";
+import Tooltip from "@/components/ui/tooltip";
+import DataSection from "@/components/view/details-data-section";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import * as S from "./TokenSummary.styles";
 
 interface TokenSummaryProps {
-  tokenPath: string;
+  tokenId: string;
   isDesktop: boolean;
 }
 
@@ -30,10 +30,10 @@ const TOOLTIP_PACKAGE_PATH = (
   </>
 );
 
-const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps) => {
+const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
 
-  const { data, isFetched } = useGetTokenById(tokenPath);
+  const { data, isFetched } = useGetTokenById(tokenId);
 
   const tokenSummary: TokenSummary | null = React.useMemo(() => {
     const summaryData = data?.data;
@@ -41,6 +41,8 @@ const StandardNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps
     if (!summaryData) return null;
 
     return {
+      tokenId: summaryData.tokenId,
+      slug: summaryData.slug,
       name: summaryData.name,
       symbol: summaryData.symbol,
       decimals: summaryData.decimals,

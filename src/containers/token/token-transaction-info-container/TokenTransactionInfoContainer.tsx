@@ -5,13 +5,13 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import TokenTransactionInfo from "@/components/view/token/token-transaction-info/TokenTranasctionInfo";
 
 interface TokenTransactionInfoContainerProps {
-  tokenPath: string;
+  tokenId: string;
 }
 
-const TokenTransactionInfoContainer = ({ tokenPath }: TokenTransactionInfoContainerProps) => {
+const TokenTransactionInfoContainer = ({ tokenId }: TokenTransactionInfoContainerProps) => {
   const { isCustomNetwork } = useNetworkProvider();
 
-  return <TokenTransactionInfo tokenPath={tokenPath} isCustomNetwork={isCustomNetwork} />;
+  return <TokenTransactionInfo tokenPath={tokenId} isCustomNetwork={isCustomNetwork} />;
 };
 
 export default TokenTransactionInfoContainer;

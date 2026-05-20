@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SEARCH_TITLE } from "@/components/ui/search-result/search-result";
 import { useQuery, UseQueryResult } from "react-query";
 import { useGetGRC20Tokens, useGetRealmsQuery } from "../react-query/realm";
 import { useUsername } from "./account/use-username";
-import { useGetUsingAccountTransactionCount } from "../react-query/transaction";
-import { SEARCH_TITLE } from "@/components/ui/search-result/search-result";
 export interface keyOfSearch {
   [key: string]: {
     address?: string;
     username?: string;
     packagePath?: string;
     name?: string;
+    tokenId?: string;
   }[];
 }
 
@@ -56,6 +56,7 @@ const useSearchQuery = (keyword: string) => {
         searchResult[SEARCH_TITLE.TOKENS] = filteredTokens.map(token => ({
           name: token.name,
           packagePath: token.packagePath,
+          tokenId: token.tokenId,
         }));
       }
       if (filteredRealms.length > 0) {

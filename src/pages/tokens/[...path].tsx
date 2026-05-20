@@ -9,14 +9,14 @@ import TokenTransactionInfoContainer from "@/containers/token/token-transaction-
 export default function Page() {
   const router = useRouter();
   const { path } = router.query;
-  const tokenPath = Array.isArray(path) ? path.join("/").split("?")[0] : path?.toString();
+  const tokenId = Array.isArray(path) ? path.join("/").split("?")[0] : path?.toString();
 
   return (
     <>
       <TokenLayout
-        tokenPath={tokenPath || ""}
-        tokenSummary={<TokenSummaryContainer tokenPath={tokenPath || ""} />}
-        tokenTransactionInfo={<TokenTransactionInfoContainer tokenPath={tokenPath || ""} />}
+        tokenId={tokenId || ""}
+        tokenSummary={<TokenSummaryContainer tokenId={tokenId || ""} />}
+        tokenTransactionInfo={<TokenTransactionInfoContainer tokenId={tokenId || ""} />}
       />
     </>
   );
