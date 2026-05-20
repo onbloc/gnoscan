@@ -8,7 +8,6 @@ import { AccountAssetViewModel } from "@/types/account";
 
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
-import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
 import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
@@ -78,22 +77,20 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
 const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
   const { data, isFetched } = useGetNativeTokenBalance(address);
 
-  const { data: GNOTmetadata, isFetched: isFetchedGNOTmetadata } = useGetTokenMetaByPath(GNOTToken.denom);
-
+  // Native denoms (e.g. ugnot) are not served by the token-meta API. Let
+  // AccountAssetItem fall back to gno-token-resource via useTokenMeta for logo.
   const nativeTokenAsset: AccountAssetViewModel = React.useMemo(() => {
     return {
-      tokenId: GNOTmetadata?.data.tokenId || "",
-      slug: GNOTmetadata?.data.slug || "",
+      tokenId: "",
+      slug: "",
       amount: {
         value: BigNumber(data?.value || 0).toString(),
         denom: GNOTToken.denom,
       },
-      packagePath: GNOTmetadata?.data.path || "",
-      logoUrl: GNOTmetadata?.data.logoUrl || "",
+      packagePath: "",
+      logoUrl: "",
     };
-  }, [data?.value, GNOTmetadata?.data]);
-
-  const isFetchedNativeTokenAsset = isFetched && isFetchedGNOTmetadata;
+  }, [data?.value]);
 
   return (
     <AccountAssetItem
@@ -102,7 +99,7 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
       logoUrl={nativeTokenAsset.logoUrl}
       breakpoint={breakpoint}
       isDesktop={isDesktop}
-      isFetched={isFetchedNativeTokenAsset}
+      isFetched={isFetched}
     />
   );
 };
