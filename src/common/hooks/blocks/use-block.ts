@@ -1,15 +1,14 @@
-import { useMemo } from "react";
 import { useGetBlockQuery, useGetBlockResultQuery, useGetLatestBlockHeightQuery } from "@/common/react-query/block";
+import { toBech32Address } from "@/common/utils/bech32.utility";
 import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
-import { decodeTransaction, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
-import BigNumber from "bignumber.js";
-import { GnoEvent, Transaction } from "@/types/data-type";
 import { parseTokenAmount } from "@/common/utils/token.utility";
-import { GNOTToken } from "../common/use-token-meta";
-import { toBech32Address } from "@/common/utils/bech32.utility";
+import { decodeTransaction, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
 import { getDefaultMessageByBlockTransaction } from "@/repositories/utility";
-import { BlockSummaryInfo } from "@/types/data-type";
+import { BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-type";
+import BigNumber from "bignumber.js";
+import { useMemo } from "react";
+import { GNOTToken } from "../common/use-token-meta";
 
 export const useBlock = (height: number) => {
   const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
@@ -174,25 +173,35 @@ export const useBlock = (height: number) => {
     return block == null || isErrorBlockData;
   }, [block, isFetched, isErrorBlockData]);
 
+  const isValidBlockHeight = (height: number): boolean => {
+    return Number.isSafeInteger(height) && height >= 0;
+  };
+
   const hasPreviousBlock = useMemo(() => {
     // When the height is 0 (Genesis block), there is no previous block.
     if (height === 0) {
       return false;
     }
 
-    // If block data exists, verify the actual block height
-    if (block) {
-      const currentHeight = Number(block.block.header.height);
-      return currentHeight > 0;
+    if (latestBlockHeight === undefined || latestBlockHeight === null) {
+      return false;
     }
 
-    // If there is no block data, it is impossible to determine whether it is a previous block.
-    return false;
-  }, [block, height]);
+    if (!isValidBlockHeight(height)) {
+      return false;
+    }
+
+    // If block data exists, verify the actual block height
+    return latestBlockHeight >= height;
+  }, [latestBlockHeight, height]);
 
   const hasNextBlock = useMemo(() => {
     // If latestBlockHeight is missing, it is impossible to determine whether the next block is valid.
     if (latestBlockHeight === undefined || latestBlockHeight === null) {
+      return false;
+    }
+
+    if (!isValidBlockHeight(height)) {
       return false;
     }
 
@@ -201,14 +210,9 @@ export const useBlock = (height: number) => {
       return latestBlockHeight > 0;
     }
 
-    // Cannot determine if no block exists
-    if (!block) {
-      return false;
-    }
-
     // If the current block height is less than the latest block height, the next block exists
-    return Number(block.block.header.height) < latestBlockHeight;
-  }, [block, height, latestBlockHeight]);
+    return height < latestBlockHeight;
+  }, [height, latestBlockHeight]);
 
   const blockSummaryInfo: BlockSummaryInfo = useMemo(() => {
     return {
