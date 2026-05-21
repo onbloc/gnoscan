@@ -173,6 +173,10 @@ export const useBlock = (height: number) => {
     return block == null || isErrorBlockData;
   }, [block, isFetched, isErrorBlockData]);
 
+  const isValidBlockHeight = (height: number): boolean => {
+    return Number.isSafeInteger(height) && height >= 0;
+  };
+
   const hasPreviousBlock = useMemo(() => {
     // When the height is 0 (Genesis block), there is no previous block.
     if (height === 0) {
@@ -183,6 +187,10 @@ export const useBlock = (height: number) => {
       return false;
     }
 
+    if (!isValidBlockHeight(height)) {
+      return false;
+    }
+
     // If block data exists, verify the actual block height
     return latestBlockHeight >= height;
   }, [latestBlockHeight, height]);
@@ -190,6 +198,10 @@ export const useBlock = (height: number) => {
   const hasNextBlock = useMemo(() => {
     // If latestBlockHeight is missing, it is impossible to determine whether the next block is valid.
     if (latestBlockHeight === undefined || latestBlockHeight === null) {
+      return false;
+    }
+
+    if (!isValidBlockHeight(height)) {
       return false;
     }
 
