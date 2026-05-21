@@ -200,7 +200,7 @@ export const useBlock = (height: number) => {
 
     // If the current block height is less than the latest block height, the next block exists
     return height < latestBlockHeight;
-  }, [block, height, latestBlockHeight]);
+  }, [height, latestBlockHeight]);
 
   const blockSummaryInfo: BlockSummaryInfo = useMemo(() => {
     return {
