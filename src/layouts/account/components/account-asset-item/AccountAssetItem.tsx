@@ -6,6 +6,7 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useNetwork } from "@/common/hooks/use-network";
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import { formatDisplayTokenPath } from "@/common/utils/token.utility";
+import { resolveAccountAssetLogoUrl } from "./account-asset-item.utility";
 
 import * as S from "./AccountAssetItem.styles";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
@@ -41,14 +42,14 @@ const AccountAssetItem = ({
   const { getUrlWithNetwork } = useNetwork();
 
   const tokenLogoUrl = React.useMemo(() => {
-    return logoUrl || getTokenImage(amount.denom) || "";
-  }, [logoUrl, amount.denom]);
+    return resolveAccountAssetLogoUrl(logoUrl, amount.denom, getTokenImage);
+  }, [logoUrl, amount.denom, getTokenImage]);
 
   const tokenLogoImage = React.useMemo(() => {
     if (tokenLogoUrl) return <img src={tokenLogoUrl} alt={`${amount.denom}-token-image`} />;
 
     return <UnknownToken aria-label="Unknown token image" width="40" height="40" />;
-  }, [tokenLogoUrl, getTokenImage, amount.denom]);
+  }, [tokenLogoUrl, amount.denom]);
 
   const shouldShowTokenPathLink = React.useMemo(() => {
     return showTokenPathLink && tokenPath;
