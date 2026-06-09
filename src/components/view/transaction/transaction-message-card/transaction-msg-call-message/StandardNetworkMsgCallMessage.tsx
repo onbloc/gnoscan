@@ -1,25 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { TransactionContractMessagesProps } from "@/models/api/transaction";
-import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
 import { getTransactionMessageType } from "@/common/utils/message.utility";
+import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
+import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import {
+  AddressLink,
+  AmountBadge,
+  BadgeList,
+  BadgeText,
   Field,
   FieldWithTooltip,
-  BadgeText,
-  AddressLink,
   PkgPathLink,
-  BadgeList,
-  AmountBadge,
 } from "@/components/view/transaction/common";
-import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
-import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { Amount } from "@/types";
-import { toGNOTAmount } from "@/common/utils/native-token-utility";
-import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
@@ -30,7 +30,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
     return toGNOTAmount(message.maxDeposit.value || "0", message.maxDeposit.denom || GNOTToken.denom);
   }, [message.maxDeposit]);
 
-  const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER;
+  const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER && message.args.length == 2;
 
   const commonFields = (
     <>

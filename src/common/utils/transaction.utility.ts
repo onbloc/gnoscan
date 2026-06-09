@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import crypto from "crypto";
-import { decodeTxMessages, MsgAddPackage, MsgCall, MsgSend } from "@gnolang/gno-js-client";
-import { MsgRun } from "@gnolang/gno-js-client/bin/proto/gno/vm";
-import { Tx, base64ToUint8Array } from "@gnolang/tm2-js-client";
-import { parseTokenAmount } from "./token.utility";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GnoEvent } from "@/types";
+import { decodeTxMessages, MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnolang/gno-js-client";
+import { base64ToUint8Array, Tx } from "@gnolang/tm2-js-client";
+import crypto from "crypto";
 import { GNOTToken } from "../hooks/common/use-token-meta";
-
+import { parseTokenAmount } from "./token.utility";
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
   const hash = makeHash(txBytes);
   const decodedTx = Tx.decode(txBytes);
-  const messages = decodeTxMessages(decodedTx.messages);
+  const messages = decodeTxMessages(decodedTx.messages) as any[];
   return {
     ...decodedTx,
     hash,

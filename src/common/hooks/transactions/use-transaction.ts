@@ -4,12 +4,12 @@ import { useMemo } from "react";
 
 import { useGetTransactionBlockHeightQuery } from "@/common/react-query/transaction";
 import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
+import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import { decodeTransaction, makeSafeBase64Hash, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
 import { Transaction, TransactionSummaryInfo } from "@/types/data-type";
 import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
-import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
 
 export const useTransaction = (hash: string) => {
   const safetyHash = makeSafeBase64Hash(hash);
@@ -115,7 +115,8 @@ export const useTransaction = (hash: string) => {
           signatures: transaction?.signatures || "",
           memo: transaction?.memo || "",
         },
-        null,
+        // BigInt values from the decoded transaction are not serializable by default.
+        (_key, value) => (typeof value === "bigint" ? value.toString() : value),
         2,
       ),
     };
