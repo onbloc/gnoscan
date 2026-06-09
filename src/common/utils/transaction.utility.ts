@@ -10,7 +10,7 @@ export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
   const hash = makeHash(txBytes);
   const decodedTx = Tx.decode(txBytes);
-  const messages = decodeTxMessages(decodedTx.messages);
+  const messages = decodeTxMessages(decodedTx.messages) as any[];
   return {
     ...decodedTx,
     hash,
