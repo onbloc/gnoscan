@@ -1,22 +1,25 @@
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
-import React from "react";
 import styled from "styled-components";
 
 interface Props {
-  functions: string[];
+  functions?: string[];
 }
 
 export const Functions = ({ functions }: Props) => {
   return (
     <FunctionsWrapper className="ellipsis">
-      {functions.map((func, index) => (
-        <Badge className="function" type="blue" margin={"0px"} key={index}>
-          <Text type="p4" color="white">
-            {func}
-          </Text>
-        </Badge>
-      ))}
+      {functions ? (
+        functions.map((func, index) => (
+          <Badge className="function" type="blue" margin={"0px"} key={index}>
+            <Text type="p4" color="white">
+              {func}
+            </Text>
+          </Badge>
+        ))
+      ) : (
+        <Text type="p4">-</Text>
+      )}
     </FunctionsWrapper>
   );
 };
