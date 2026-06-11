@@ -4,9 +4,9 @@ export const MESSAGE_TYPES = {
   VM_ADDPKG: "/vm.m_addpkg",
   VM_RUN: "/vm.m_run",
   BANK_MSG_SEND: "/bank.MsgSend",
-  AUTH_CREATE_SESSION: "/auth.MsgCreateSession",
-  AUTH_REVOKE_SESSION: "/auth.MsgRevokeSession",
-  AUTH_REVOKE_ALL_SESSIONS: "/auth.MsgRevokeAllSessions",
+  AUTH_CREATE_SESSION: "/auth.m_create_session",
+  AUTH_REVOKE_SESSION: "/auth.m_revoke_session",
+  AUTH_REVOKE_ALL_SESSIONS: "/auth.m_revoke_all_sessions",
 } as const;
 
 // Function type constants
