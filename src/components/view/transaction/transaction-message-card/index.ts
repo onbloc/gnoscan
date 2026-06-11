@@ -2,3 +2,5 @@ export { default as StandardNetworkBankMsgSendMessage } from "./transaction-bank
 export { default as StandardNetworkAddPackageMessage } from "./transaction-add-package-message/StandardNetworkAddPackageMessage";
 export { default as StandardNetworkMsgCallMessage } from "./transaction-msg-call-message/StandardNetworkMsgCallMessage";
 export { default as StandardNetworkMsgRunMessage } from "./transaction-msg-run-message/StandardNetworkMsgRunMessage";
+export { default as StandardNetworkCreateSessionMessage } from "./transaction-create-session-message/StandardNetworkCreateSessionMessage";
+export { default as StandardNetworkRevokeSessionMessage } from "./transaction-revoke-session-message/StandardNetworkRevokeSessionMessage";

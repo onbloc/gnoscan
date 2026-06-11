@@ -11,8 +11,10 @@ import { StorageDeposit } from "@/models/storage-deposit-model";
 import {
   StandardNetworkAddPackageMessage,
   StandardNetworkBankMsgSendMessage,
+  StandardNetworkCreateSessionMessage,
   StandardNetworkMsgCallMessage,
   StandardNetworkMsgRunMessage,
+  StandardNetworkRevokeSessionMessage,
 } from "../transaction-message-card";
 import * as S from "./TransactionContractDetails.styles";
 
@@ -105,6 +107,23 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
               message={message}
               isDesktop={isDesktop}
               files={getMessageFiles(i) || []}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
+          )}
+
+          {message.messageType === MESSAGE_TYPES.AUTH_CREATE_SESSION && (
+            <StandardNetworkCreateSessionMessage
+              message={message}
+              isDesktop={isDesktop}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
+          )}
+
+          {(message.messageType === MESSAGE_TYPES.AUTH_REVOKE_SESSION ||
+            message.messageType === MESSAGE_TYPES.AUTH_REVOKE_ALL_SESSIONS) && (
+            <StandardNetworkRevokeSessionMessage
+              message={message}
+              isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
