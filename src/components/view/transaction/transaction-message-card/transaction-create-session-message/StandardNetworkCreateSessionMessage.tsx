@@ -24,7 +24,7 @@ const StandardNetworkCreateSessionMessage = ({
 
   // `expiresAt` is a unix timestamp in seconds; convert to milliseconds for display.
   const expiresAt = React.useMemo(() => {
-    if (!session?.expiresAt) return "-";
+    if (session?.expiresAt === undefined || session?.expiresAt === null) return "-";
 
     return getLocalDateString(session.expiresAt * 1000);
   }, [session?.expiresAt]);
