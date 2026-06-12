@@ -4,6 +4,9 @@ export const MESSAGE_TYPES = {
   VM_ADDPKG: "/vm.m_addpkg",
   VM_RUN: "/vm.m_run",
   BANK_MSG_SEND: "/bank.MsgSend",
+  AUTH_CREATE_SESSION: "/auth.m_create_session",
+  AUTH_REVOKE_SESSION: "/auth.m_revoke_session",
+  AUTH_REVOKE_ALL_SESSIONS: "/auth.m_revoke_all_sessions",
 } as const;
 
 // Function type constants
@@ -11,6 +14,9 @@ export const TRANSACTION_FUNCTION_TYPES = {
   TRANSFER: "Transfer",
   ADD_PKG: "AddPkg",
   MSG_RUN: "MsgRun",
+  CREATE_SESSION: "CreateSession",
+  REVOKE_SESSION: "RevokeSession",
+  REVOKE_ALL_SESSIONS: "RevokeAllSessions",
 } as const;
 
 export type MessageType = (typeof MESSAGE_TYPES)[keyof typeof MESSAGE_TYPES];
