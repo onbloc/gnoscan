@@ -2,7 +2,7 @@ import { Amount } from "@/types/data-type";
 
 // Session-account specific fields of `create_session`, `revoke_session`, and `revoke_all_sessions` messages.
 export interface TransactionSession {
-  spendLimit: Amount;
+  spendLimit: Amount | null;
   sessionKey: string;
   allowPaths: string[];
   expiresAt: number;
@@ -31,7 +31,7 @@ export interface TransactionContractModel {
   deposit: Amount;
   maxDeposit: Amount;
   send: Amount;
-  session?: TransactionSession;
+  session?: TransactionSession | null;
 }
 
 export interface GetTransactionContractsResponse {
