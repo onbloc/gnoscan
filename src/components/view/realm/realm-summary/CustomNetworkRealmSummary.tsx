@@ -2,10 +2,7 @@ import React from "react";
 import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
-import { NonMobile } from "@/common/hooks/use-media";
 import { Amount, Transaction } from "@/types/data-type";
-import { makeTemplate } from "@/common/utils/template.utils";
-import { GNOSTUDIO_REALM_FUNCTION_TEMPLATE, GNOSTUDIO_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useRealm } from "@/common/hooks/realms/use-realm";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -14,9 +11,8 @@ import { useGetRealmTransactionsQuery } from "@/common/react-query/realm";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import IconLink from "@/assets/svgs/icon-link.svg";
 import DataSection from "../../details-data-section";
-import { DLWrap, FitContentA, LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Tooltip from "@/components/ui/tooltip";
 import Text from "@/components/ui/text";
@@ -48,37 +44,9 @@ const TOOLTIP_BALANCE = (
 const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
   const { summary, isFetched } = useRealm(path);
   const { data: realmTransactions, isFetched: isFetchedRealmTransactions } = useGetRealmTransactionsQuery(path);
-  const { currentNetwork, getUrlWithNetwork } = useNetwork();
+  const { getUrlWithNetwork } = useNetwork();
   const { getName } = useUsername();
   const { getTokenAmount } = useTokenMeta();
-
-  const moveGnoStudioViewRealm = React.useCallback(() => {
-    if (!currentNetwork) {
-      return;
-    }
-
-    const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
-      PACKAGE_PATH: path,
-      NETWORK: currentNetwork?.chainId || "",
-    });
-    window.open(url, "_blank");
-  }, [path, currentNetwork]);
-
-  const moveGnoStudioViewRealmFunction = React.useCallback(
-    (functionName: string) => {
-      if (!currentNetwork) {
-        return;
-      }
-
-      const url = makeTemplate(GNOSTUDIO_REALM_FUNCTION_TEMPLATE, {
-        PACKAGE_PATH: path,
-        NETWORK: currentNetwork?.chainId || "",
-        FUNCTION_NAME: functionName,
-      });
-      window.open(url, "_blank");
-    },
-    [path, currentNetwork],
-  );
 
   const balanceStr = React.useMemo(() => {
     if (!summary?.balance) {
@@ -123,15 +91,6 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
               <IconCopy className="svg-icon" />
             </Tooltip>
           </Badge>
-
-          <NonMobile>
-            <LinkWrapper onClick={moveGnoStudioViewRealm}>
-              <Text type="p4" className="ellipsis">
-                Try in GnoStudio
-              </Text>
-              <IconLink className="icon-link" />
-            </LinkWrapper>
-          </NonMobile>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
@@ -158,12 +117,10 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
         <dt>Public Functions</dt>
         <dd className="function-wrapper">
           {summary?.funcs?.map((v: string, index: number) => (
-            <Badge className="link" key={index} type="blue" onClick={() => moveGnoStudioViewRealmFunction(v)}>
-              <Tooltip className="tooltip" content="Click to try in GnoStudio">
-                <Text type="p4" color="white">
-                  {v}
-                </Text>
-              </Tooltip>
+            <Badge key={index} type="blue">
+              <Text type="p4" color="white">
+                {v}
+              </Text>
             </Badge>
           ))}
         </dd>

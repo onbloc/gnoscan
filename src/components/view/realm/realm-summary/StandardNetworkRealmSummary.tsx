@@ -9,11 +9,7 @@ import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { makeTemplate } from "@/common/utils/template.utils";
-import {
-  GNOSTUDIO_REALM_FUNCTION_TEMPLATE,
-  GNOSTUDIO_REALM_TEMPLATE,
-  GNOWEB_REALM_TEMPLATE,
-} from "@/common/values/url.constant";
+import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { Amount, RealmSummary } from "@/types/data-type";
 
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -55,7 +51,7 @@ const TOOLTIP_BALANCE = (
 const TOOLTIP_STORAGE_DEPOSIT = <>Total amount of GNOT deposited for storage in real time.</>;
 
 const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
-  const { currentNetwork, gnoWebUrl, getUrlWithNetwork } = useNetwork();
+  const { gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
   const { data: storageDepositData, isFetched: isFetchedStorageDepositData } = useGetRealmStorageDepositByPath(path);
@@ -111,34 +107,6 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     window.open(url, "_blank");
   }, [path, gnoWebUrl]);
 
-  const moveGnoStudioViewRealm = React.useCallback(() => {
-    if (!currentNetwork) {
-      return;
-    }
-
-    const url = makeTemplate(GNOSTUDIO_REALM_TEMPLATE, {
-      PACKAGE_PATH: path,
-      NETWORK: currentNetwork?.chainId || "",
-    });
-    window.open(url, "_blank");
-  }, [path, currentNetwork]);
-
-  const moveGnoStudioViewRealmFunction = React.useCallback(
-    (functionName: string) => {
-      if (!currentNetwork) {
-        return;
-      }
-
-      const url = makeTemplate(GNOSTUDIO_REALM_FUNCTION_TEMPLATE, {
-        PACKAGE_PATH: path,
-        NETWORK: currentNetwork?.chainId || "",
-        FUNCTION_NAME: functionName,
-      });
-      window.open(url, "_blank");
-    },
-    [path, currentNetwork],
-  );
-
   const displayBlockPublished = React.useMemo(() => {
     return formatDisplayBlockHeight(realmSummary?.blockPublished);
   }, [realmSummary?.blockPublished]);
@@ -188,13 +156,6 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
                 <IconLink className="icon-link" />
               </LinkWrapper>
             )}
-
-            <LinkWrapper onClick={moveGnoStudioViewRealm}>
-              <Text type="p4" className="ellipsis">
-                Try in GnoStudio
-              </Text>
-              <IconLink className="icon-link" />
-            </LinkWrapper>
           </NonMobile>
         </dd>
       </DLWrap>
@@ -222,12 +183,10 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
         <dt>Public Functions</dt>
         <dd className="function-wrapper">
           {realmSummary?.funcs?.map((v: string, index: number) => (
-            <Badge className="link" key={index} type="blue" onClick={() => moveGnoStudioViewRealmFunction(v)}>
-              <Tooltip className="tooltip" content="Click to try in GnoStudio">
-                <Text type="p4" color="white">
-                  {v}
-                </Text>
-              </Tooltip>
+            <Badge key={index} type="blue">
+              <Text type="p4" color="white">
+                {v}
+              </Text>
             </Badge>
           ))}
         </dd>
