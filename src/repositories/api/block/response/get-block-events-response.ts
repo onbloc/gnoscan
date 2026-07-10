@@ -6,5 +6,6 @@ export interface GetBlockEventsResponse {
   page: {
     cursor: string;
     hasNext: boolean;
+    totalCount?: number;
   };
 }
