@@ -2,12 +2,11 @@ import React from "react";
 
 import { useMappedApiBlockEvents } from "@/common/services/block/use-mapped-api-block-events";
 
-import DataListSection from "../../details-data-section/data-list-section";
-import { BlockDetailDatatable } from "../../datatable";
-import { EventDatatable } from "../../datatable/event";
-import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { useMappedApiBlockTransactions } from "@/common/services/block/use-mapped-api-block-transactions";
+import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import { BlockDetailDatatable } from "../../datatable";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
+import DataListSection from "../../details-data-section/data-list-section";
 
 interface BlockInfoProps {
   blockHeight: number;
@@ -27,6 +26,7 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
 
   const {
     data: events,
+    totalCount: eventsTotalCount,
     isFetched: isFetchedEvents,
     hasNextPage: eventsHasNextpage,
     fetchNextPage: eventsFetchNextPage,
@@ -39,10 +39,10 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
       },
       {
         tabName: "Events",
-        size: events.length,
+        size: eventsTotalCount ?? events.length,
       },
     ];
-  }, [events]);
+  }, [events, eventsTotalCount]);
 
   if (!isFetchedEvents || !isFetchedTransactions) return <TableSkeleton />;
 

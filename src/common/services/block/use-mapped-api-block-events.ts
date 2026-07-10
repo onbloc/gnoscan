@@ -50,8 +50,12 @@ export const useMappedApiBlockEvents = (params: GetBlockEventsRequest) => {
   const isLoading = isApiLoading || !isDataReady;
   const isFetched = isApiFetched && isDataReady;
 
+  // The API returns the total event count only on the first page.
+  const totalCount = apiData?.pages?.[0]?.page?.totalCount;
+
   return {
     data: events,
+    totalCount,
     isFetched,
     isLoading,
     isError: isApiError,
