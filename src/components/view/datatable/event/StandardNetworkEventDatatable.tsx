@@ -14,7 +14,6 @@ import Link from "next/link";
 import { useNetwork } from "@/common/hooks/use-network";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
-import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
 import { Button } from "@/components/ui/button";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 
@@ -37,16 +36,10 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
   const { breakpoint } = useWindowSize();
   const themeMode = useRecoilValue(themeState);
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
-  const [page, setPage] = useState(0);
 
   const loaded = useMemo(() => {
     return isFetched;
   }, [isFetched]);
-
-  const filteredEvents = useMemo(() => {
-    const endIndex = (page + 1) * EVENT_TABLE_PAGE_SIZE;
-    return events.slice(0, endIndex);
-  }, [events, page]);
 
   const toggleEventDetails = (eventId: string) => {
     setActiveEvents(prev => (prev.includes(eventId) ? prev.filter(id => id !== eventId) : [...prev, eventId]));
@@ -156,7 +149,7 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
             themeMode: themeMode,
           };
         })}
-        datas={filteredEvents}
+        datas={events}
         renderDetails={renderDetails}
       />
 
