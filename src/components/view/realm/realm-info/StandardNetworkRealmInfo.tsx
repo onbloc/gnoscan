@@ -42,9 +42,6 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     return RealmMapper.realmEventFromApiResponses(allItems);
   }, [eventData?.pages]);
 
-  // The API returns the total event count only on the first page.
-  const eventTotalCount = eventData?.pages?.[0]?.page?.totalCount;
-
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -52,10 +49,9 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
       },
       {
         tabName: "Events",
-        size: eventTotalCount ?? realmEvents.length,
       },
     ];
-  }, [realmEvents, eventTotalCount]);
+  }, []);
 
   if (!isFetchedTransactionData) return <TableSkeleton />;
 
