@@ -24,6 +24,5 @@ export interface GetAccountEventsResponse {
   page: {
     cursor: string;
     hasNext: boolean;
-    totalCount?: number;
   };
 }

@@ -58,6 +58,9 @@ const StandardNetworkTransactionInfo = ({
     return extractStorageDepositFromTxEvents(transactionEvents);
   }, [transactionEvents]);
 
+  // The API returns the total event count only on the first page.
+  const eventTotalCount = eventsData?.pages?.[0]?.page?.totalCount;
+
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -65,10 +68,10 @@ const StandardNetworkTransactionInfo = ({
       },
       {
         tabName: "Events",
-        size: txEvents.length || 0,
+        size: eventTotalCount ?? txEvents.length,
       },
     ];
-  }, [eventsData]);
+  }, [eventsData, eventTotalCount, txEvents.length]);
 
   if (!isFetchedContractsData || !isFetchedEventsData) return <TableSkeleton />;
 

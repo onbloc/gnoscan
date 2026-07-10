@@ -73,9 +73,6 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
 
   const [currentTab, setCurrentTab] = React.useState("Transactions");
 
-  // The API returns the total event count only on the first page.
-  const eventTotalCount = eventData?.pages?.[0]?.page?.totalCount;
-
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -83,10 +80,9 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
       },
       {
         tabName: "Events",
-        size: eventTotalCount ?? accountEvents.length,
       },
     ];
-  }, [accountEvents, eventTotalCount]);
+  }, []);
 
   if (!isFetchedTransactionData) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;

@@ -42,10 +42,9 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
       },
       {
         tabName: "Events",
-        size: transactionEvents.length,
       },
     ];
-  }, [transactionEvents]);
+  }, []);
 
   if (isLoadingTransactions || !isFetchedAccountTransactions) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
