@@ -110,6 +110,7 @@ export const StandardNetworkRealmListTable = ({
     return DatatableOption.Builder.builder<Realm>()
       .key("totalGasUsed")
       .name("Total Gas Used")
+      .sort()
       .width(163)
       .renderOption(gasUsed => {
         return <AmountText {...toGNOTAmount(gasUsed.value, gasUsed.denom)} maxSize="p4" minSize="body1" />;

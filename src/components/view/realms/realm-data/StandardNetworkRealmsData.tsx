@@ -1,7 +1,7 @@
 import React from "react";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { sortRealmList } from "@/common/utils/sort/realm-list-sort";
+import { toRealmListApiSortParams } from "@/common/utils/sort/realm-list-sort";
 import { RealmListSortOption } from "@/common/types/realm";
 
 import { StandardNetworkRealmListTable } from "../realm-list-table/standard-network-realm-list-table/StandardNetworkRealmListTable";
@@ -14,20 +14,18 @@ interface StandardNetworkRealmsDataProps {
 }
 
 const StandardNetworkRealmsData = ({ breakpoint, sortOption, setSortOption }: StandardNetworkRealmsDataProps) => {
-  const { data, isFetched, hasNextPage, fetchNextPage } = useMappedApiRealms();
+  // Sorting is applied server-side over the full realm set; the sort option is
+  // forwarded as API params so pagination follows the server order.
+  const apiParams = React.useMemo(() => toRealmListApiSortParams(sortOption), [sortOption.field, sortOption.order]);
 
-  const realmListData = React.useMemo(() => {
-    if (!data) return [];
-
-    return sortRealmList(data, sortOption);
-  }, [data, sortOption.field, sortOption.order]);
+  const { data, isFetched, hasNextPage, fetchNextPage } = useMappedApiRealms(apiParams);
 
   return (
     <StandardNetworkRealmListTable
       breakpoint={breakpoint}
       sortOption={sortOption}
       setSortOption={setSortOption}
-      realms={realmListData}
+      realms={data}
       isFetched={isFetched}
       hasNextPage={hasNextPage}
       fetchNextPage={fetchNextPage}

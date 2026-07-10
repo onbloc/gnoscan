@@ -3,7 +3,7 @@ export interface GetRealmsRequestParameters {
 
   limit?: number; // @default 20
 
-  sort?: "name" | "totalCallCount";
+  sort?: "name" | "totalCallCount" | "storageDeposit" | "totalGasUsed";
 
   order?: "asc" | "desc";
 }
