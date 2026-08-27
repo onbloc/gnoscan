@@ -7,6 +7,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { themeState } from "@/states";
 import { makeDisplayNumber } from "@/common/utils/string-util";
+import { TokenListSortOption } from "@/common/types/token";
 
 import * as S from "./StandardNetworkTokenListTable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -31,6 +32,8 @@ interface TokenListTableProps {
   isLoading: boolean;
   isError: boolean;
   fetchNextPage: () => void;
+  sortOption: TokenListSortOption;
+  setSortOption: (sortOption: TokenListSortOption) => void;
 }
 
 export const StandardNetworkTokenListTable = ({
@@ -39,6 +42,8 @@ export const StandardNetworkTokenListTable = ({
   hasNextPage,
   isFetched,
   fetchNextPage,
+  sortOption,
+  setSortOption,
 }: TokenListTableProps) => {
   const themeMode = useRecoilValue(themeState);
   const { indexerQueryClient } = useNetworkProvider();
@@ -124,6 +129,8 @@ export const StandardNetworkTokenListTable = ({
           };
         })}
         datas={data}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
       {hasNextPage ? (
