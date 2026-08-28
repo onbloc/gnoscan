@@ -27,6 +27,7 @@ export enum QUERY_KEY {
   getTokens = "api_get_tokens",
   getTokenById = "api_get_token_by_id",
   getTokenTransactionsById = "api_get_token_transactions_by_id",
+  getTokenHoldersById = "api_get_token_holders_by_id",
   getTokenMetaByPath = "api_get_token_meta_by_path",
 
   // statistics
