@@ -4,6 +4,7 @@ import DataListSection from "../../details-data-section/data-list-section";
 import { TokenDetailDatatable } from "../../datatable";
 import { TokenDetailDatatablePage } from "../../datatable/token-detail/token-detail-page";
 import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-holders-page";
+import { useGetTokenHoldersByid, useGetTokenTransactionsByid } from "@/common/react-query/token/api";
 
 interface TokenTransactionInfoProps {
   tokenPath: string;
@@ -13,13 +14,28 @@ interface TokenTransactionInfoProps {
 }
 
 const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurrentTab }: TokenTransactionInfoProps) => {
+  const { data: transactionsData } = useGetTokenTransactionsByid(
+    { path: tokenPath },
+    { enabled: !isCustomNetwork && !!tokenPath },
+  );
+  const { data: holdersData } = useGetTokenHoldersByid(
+    { path: tokenPath },
+    { enabled: !isCustomNetwork && !!tokenPath },
+  );
+
+  const transactionsCount = transactionsData?.pages[0]?.page.totalCount;
+  const holdersCount = holdersData?.pages[0]?.page.totalCount;
+
   const detailTabs = React.useMemo(() => {
     if (isCustomNetwork) {
-      return [{ tabName: "Transactions" }];
+      return [{ tabName: "Transactions", size: transactionsCount }];
     }
 
-    return [{ tabName: "Transactions" }, { tabName: "Holders" }];
-  }, [isCustomNetwork]);
+    return [
+      { tabName: "Transactions", size: transactionsCount },
+      { tabName: "Holders", size: holdersCount },
+    ];
+  }, [isCustomNetwork, transactionsCount, holdersCount]);
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
