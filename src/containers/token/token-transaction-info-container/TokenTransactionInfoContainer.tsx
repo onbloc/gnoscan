@@ -12,6 +12,12 @@ const TokenTransactionInfoContainer = ({ tokenId }: TokenTransactionInfoContaine
   const { isCustomNetwork } = useNetworkProvider();
   const [currentTab, setCurrentTab] = React.useState("Transactions");
 
+  React.useEffect(() => {
+    if (isCustomNetwork && currentTab !== "Transactions") {
+      setCurrentTab("Transactions");
+    }
+  }, [isCustomNetwork, currentTab]);
+
   return (
     <TokenTransactionInfo
       tokenPath={tokenId}
