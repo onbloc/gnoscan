@@ -12,12 +12,11 @@ interface Props {
   name: string | undefined;
   symbol: string;
   pkgPath: string;
-  tokenId: string;
 }
 
-export const StandardNetworkTokenTitle = ({ name, symbol, pkgPath, tokenId, imagePath }: Props) => {
+export const StandardNetworkTokenTitle = ({ name, symbol, pkgPath, imagePath }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  const tokenLinkId = tokenId || pkgPath;
+  const tokenKey = pkgPath && symbol ? `${pkgPath}.${symbol}` : pkgPath;
 
   const displayTokenName = useMemo(() => {
     const displaySymbol = symbol.length > 9 ? `${symbol.slice(0, 9)}...` : symbol;
@@ -25,7 +24,7 @@ export const StandardNetworkTokenTitle = ({ name, symbol, pkgPath, tokenId, imag
   }, [name, symbol]);
 
   return (
-    <Link href={getUrlWithNetwork(`/tokens/${tokenLinkId}`)}>
+    <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
       <TokenTitleWrapper>
         {imagePath ? (
           <img className="token" src={imagePath} alt="token logo" />
