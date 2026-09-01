@@ -40,6 +40,8 @@ export const useMappedApiTransaction = (hash: string) => {
   const [transaction, setTransaction] = React.useState<TransactionSummaryInfo>(INITIAL_TRANSACTION_SUMMARY_STATE);
   const [isDataReady, setIsDataReady] = React.useState(false);
 
+  const hasData = Boolean(apiData?.data);
+
   React.useEffect(() => {
     if (isApiFetched && apiData?.data) {
       const mappedTransaction = TransactionMapper.transactionFromApiResponse(apiData.data);
@@ -49,13 +51,14 @@ export const useMappedApiTransaction = (hash: string) => {
     }
   }, [apiData?.data, isApiFetched]);
 
-  const isLoading = isApiLoading || !isDataReady;
-  const isFetched = isApiFetched && isDataReady;
+  const isLoading = isApiLoading || (hasData && !isDataReady);
+  const isFetched = isApiFetched && (!hasData || isDataReady);
 
   return {
     data: transaction,
     isFetched,
     isLoading,
     isError: isApiError,
+    hasData,
   };
 };

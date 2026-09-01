@@ -3,11 +3,13 @@ import styled from "styled-components";
 
 import { useRouter } from "@/common/hooks/common/use-router";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useNetwork } from "@/common/hooks/use-network";
 
 import Search from "@/assets/svgs/icon-search.svg";
 import mixins from "@/styles/mixins";
 import SearchResult from "../search-result";
 import StandardNetworkSearchResult from "../search-result/StandardNetworkSearchResult";
+import { getSearchSubmitUrl } from "./search-submit-url";
 
 interface SubInputProps {
   className?: string;
@@ -19,13 +21,16 @@ interface SubInputProps {
 export const SubInput = ({ className = "", value, onChange, clearValue }: SubInputProps) => {
   const router = useRouter();
   const { isCustomNetwork } = useNetworkProvider();
+  const { getUrlWithNetwork } = useNetwork();
 
   useEffect(() => {
     clearValue && clearValue();
   }, [router.asPath]);
 
   const moveSearchPage = () => {
-    const searchUrl = `/search?keyword=${value}`;
+    const searchUrl = getSearchSubmitUrl(value, getUrlWithNetwork);
+    if (!searchUrl) return;
+
     router.push(searchUrl);
   };
 

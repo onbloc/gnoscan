@@ -7,6 +7,7 @@ import * as S from "./TransactionLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
 
 interface TransactionLayoutProps {
   txHash: string;
@@ -19,8 +20,16 @@ const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: Tran
   const { isCustomNetwork } = useNetworkProvider();
 
   const { isFetched, isError } = useTransaction(txHash);
+  const { isFetched: isFetchedApiData, isError: isErrorApiData, hasData: hasApiData } = useMappedApiTransaction(txHash);
 
   if (isCustomNetwork && isFetched && isError)
+    return (
+      <S.InnerLayout>
+        <NotFound keyword={txHash} breakpoint={breakpoint} />
+      </S.InnerLayout>
+    );
+
+  if (!isCustomNetwork && isFetchedApiData && (isErrorApiData || !hasApiData))
     return (
       <S.InnerLayout>
         <NotFound keyword={txHash} breakpoint={breakpoint} />

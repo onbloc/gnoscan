@@ -11,6 +11,7 @@ import { useRouter } from "@/common/hooks/common/use-router";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import StandardNetworkSearchResult from "../search-result/StandardNetworkSearchResult";
+import { getSearchSubmitUrl } from "./search-submit-url";
 
 interface SubInputProps {
   className?: string;
@@ -39,7 +40,9 @@ export const MainInput = ({
   }, [router.asPath]);
 
   const moveSearchPage = () => {
-    const searchUrl = getUrlWithNetwork(`/search?keyword=${value}`);
+    const searchUrl = getSearchSubmitUrl(value, getUrlWithNetwork);
+    if (!searchUrl) return;
+
     router.push(searchUrl);
   };
 
