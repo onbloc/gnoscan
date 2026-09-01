@@ -7,7 +7,7 @@ import * as S from "./TransactionLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
+import { useGetTransactionByHash } from "@/common/react-query/transaction/api";
 
 interface TransactionLayoutProps {
   txHash: string;
@@ -20,7 +20,11 @@ const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: Tran
   const { isCustomNetwork } = useNetworkProvider();
 
   const { isFetched, isError } = useTransaction(txHash);
-  const { isFetched: isFetchedApiData, isError: isErrorApiData, hasData: hasApiData } = useMappedApiTransaction(txHash);
+  const {
+    data: apiTransaction,
+    isFetched: isFetchedApiData,
+    isError: isErrorApiData,
+  } = useGetTransactionByHash(txHash, { enabled: !isCustomNetwork && !!txHash });
 
   if (isCustomNetwork && isFetched && isError)
     return (
@@ -29,7 +33,7 @@ const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: Tran
       </S.InnerLayout>
     );
 
-  if (!isCustomNetwork && isFetchedApiData && (isErrorApiData || !hasApiData))
+  if (!isCustomNetwork && isFetchedApiData && (isErrorApiData || !apiTransaction?.data))
     return (
       <S.InnerLayout>
         <NotFound keyword={txHash} breakpoint={breakpoint} />

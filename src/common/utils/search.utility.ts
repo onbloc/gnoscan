@@ -24,9 +24,11 @@ export function parseSearchString(search: string) {
     return {};
   }
 
-  const jsonIndex = search.lastIndexOf(".json");
-  if (jsonIndex > -1) {
-    search = search.substring(jsonIndex + ".json".length);
+  const queryIndex = search.indexOf("?");
+  if (queryIndex > -1) {
+    search = search.substring(queryIndex + 1);
+  } else if (search.includes("/")) {
+    return {};
   }
 
   const searchParams = new URLSearchParams(search.startsWith("?") ? search.substring(1) : search);
