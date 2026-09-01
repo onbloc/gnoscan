@@ -22,6 +22,25 @@ export function formatTokenDecimal(amount: string | number, decimals: number): s
   return amountToBigNumber.shiftedBy(-normalizedDecimals).toString(10);
 }
 
+/**
+ * GRC20 helper-routed transfers denominate their amount in the token's
+ * registry key ({packagePath}.{symbol}) instead of the bare packagePath used
+ * everywhere else (see onbloc-api-v3 IsGRC20HelperTransfer). Strip that
+ * trailing ".{symbol}" so the denom matches the packagePath keys used by
+ * tokenMap / the token-meta API.
+ */
+export function stripTokenKeySymbol(denom: string): string {
+  if (!denom) return denom;
+
+  const lastSlashIndex = denom.lastIndexOf("/");
+  const lastSegment = lastSlashIndex === -1 ? denom : denom.slice(lastSlashIndex + 1);
+  const dotIndex = lastSegment.lastIndexOf(".");
+
+  if (dotIndex === -1) return denom;
+
+  return denom.slice(0, lastSlashIndex + 1) + lastSegment.slice(0, dotIndex);
+}
+
 export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
   if (!path || typeof path !== "string") return path;
 
