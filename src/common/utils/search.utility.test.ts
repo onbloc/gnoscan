@@ -302,6 +302,33 @@ describe("processSearchKeyword", () => {
         )}`,
       });
     });
+
+    // The backend (onbloc-api-v3 PR #213) now exposes/accepts tx hashes as hex too.
+    test("Hex-encoded transaction hash should also redirect to the transaction details page", () => {
+      const txHash = "3031323334353637383961626364656630313233343536373839616263646566";
+      const result = processSearchKeyword(txHash, networkParams);
+
+      expect(result).toEqual({
+        keyword: txHash,
+        permanent: false,
+        destination: `/transactions/details?type=mainnet&rpcUrl=https://rpc.gno.network&indexerUrl=https://index.gno.network&chainId=gno-mainnet-1&txhash=${encodeURIComponent(
+          txHash,
+        )}`,
+      });
+    });
+
+    test("Uppercase hex-encoded transaction hash should also redirect to the transaction details page", () => {
+      const txHash = "3031323334353637383961626364656630313233343536373839616263646566".toUpperCase();
+      const result = processSearchKeyword(txHash, networkParams);
+
+      expect(result).toEqual({
+        keyword: txHash,
+        permanent: false,
+        destination: `/transactions/details?type=mainnet&rpcUrl=https://rpc.gno.network&indexerUrl=https://index.gno.network&chainId=gno-mainnet-1&txhash=${encodeURIComponent(
+          txHash,
+        )}`,
+      });
+    });
   });
 
   // Account search tests

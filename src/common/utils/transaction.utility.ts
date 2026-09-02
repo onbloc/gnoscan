@@ -18,7 +18,58 @@ export function decodeTransaction(tx: string) {
   };
 }
 
+const HASH_BYTE_LENGTH = 32;
+
+/**
+ * Reports whether the given string is a hex-encoded 32-byte (SHA256-size) hash.
+ * Mirrors the backend's `utils.IsHexHash` (see onbloc-api-v3 PR #213).
+ */
+export function isHexHash(hash: string): boolean {
+  return /^[0-9a-fA-F]{64}$/.test(hash);
+}
+
+/**
+ * Reports whether the given string is a base64-encoded 32-byte (SHA256-size) hash.
+ * Mirrors the backend's `utils.IsBase64Hash` (see onbloc-api-v3 PR #213).
+ */
+export function isBase64Hash(hash: string): boolean {
+  if (!/^[0-9a-zA-Z+/]{43}=$/.test(hash)) {
+    return false;
+  }
+  try {
+    return Buffer.from(hash, "base64").length === HASH_BYTE_LENGTH;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Converts a hex-encoded hash to base64. Assumes hex is a valid 32-byte hash.
+ */
+export function hexHashToBase64(hex: string): string {
+  return Buffer.from(hex, "hex").toString("base64");
+}
+
+/**
+ * Converts a base64-encoded hash to hex. Assumes base64 is a valid 32-byte hash.
+ */
+export function base64HashToHex(base64: string): string {
+  return Buffer.from(base64, "base64").toString("hex");
+}
+
+/**
+ * Normalizes a hash to base64, accepting either hex or base64 input.
+ * Use before comparing against/querying an RPC node directly (tm2 wire format is base64).
+ * Falls back to a best-effort base64 round-trip for anything that doesn't strictly
+ * match either format, to avoid throwing on unexpected input.
+ */
 export function makeSafeBase64Hash(data: string) {
+  if (isHexHash(data)) {
+    return hexHashToBase64(data);
+  }
+  if (isBase64Hash(data)) {
+    return data;
+  }
   try {
     return Buffer.from(data, "base64").toString("base64");
   } catch {
@@ -26,14 +77,14 @@ export function makeSafeBase64Hash(data: string) {
   }
 }
 
+/**
+ * Reports whether the given string is a transaction/block hash, in either
+ * hex or base64 form. The backend now accepts and returns both (see
+ * onbloc-api-v3 PR #213), so search-keyword detection must recognize both.
+ */
 export function isHash(hash: string): boolean {
   try {
-    if (hash.length < 40) {
-      return false;
-    }
-
-    const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-    return base64regex.test(hash + "=") || base64regex.test(hash);
+    return isHexHash(hash) || isBase64Hash(hash);
   } catch {
     return false;
   }
@@ -150,6 +201,12 @@ export function makeTransactionMessageInfo(message: any) {
   }
 }
 
+/**
+ * Extracts the `txhash` query param from a URL, preserving its original
+ * encoding (hex or base64). The API accepts either format directly, so no
+ * format normalization happens here — callers that specifically need base64
+ * (e.g. comparing against an RPC node) should apply makeSafeBase64Hash themselves.
+ */
 export function parseTxHash(url: string) {
   if (!url.includes("txhash=")) {
     return "";
@@ -158,8 +215,7 @@ export function parseTxHash(url: string) {
   if (params.length < 2) return "";
 
   const txHash = params[1].split("&")[0];
-  const decodedTxHash = decodeURIComponent(txHash).replaceAll(" ", "+");
-  return makeSafeBase64Hash(decodedTxHash);
+  return decodeURIComponent(txHash).replaceAll(" ", "+");
 }
 
 function parsePositiveNumber(value: string): number {
