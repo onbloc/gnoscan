@@ -9,6 +9,7 @@ export enum QUERY_KEY {
   getBlockByHeight = "api_get_block_by_height",
   getBlockEventsByHeight = "api_get_block_events_by_height",
   getBlockTransactionsByHeight = "api_get_block_transactions_by_height",
+  getBlockTransactionsCountByHeight = "api_get_block_transactions_count_by_height",
 
   // transaction
   getTransactions = "api_get_transactions",

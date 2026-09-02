@@ -2,7 +2,13 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { ApiBlockRepository } from "./api-block-repository";
 
 import { GetBlockEventsRequest, GetBlocksRequestParameters, GetBlockTransactionsRequest } from "./request";
-import { GetBlocksResponse, GetBlockResponse, GetBlockEventsResponse, GetBlockTransactionsResponse } from "./response";
+import {
+  GetBlocksResponse,
+  GetBlockResponse,
+  GetBlockEventsResponse,
+  GetBlockTransactionsResponse,
+  GetBlockTransactionsCountResponse,
+} from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors/common/common-error";
 
@@ -74,6 +80,20 @@ export class ApiBlockRepositoryImpl implements ApiBlockRepository {
     return this.networkClient
       .get<APIResponse<GetBlockTransactionsResponse>>({
         url: `blocks/${blockHeight}/transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getBlockTransactionsCount(height: string): Promise<GetBlockTransactionsCountResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetBlockTransactionsCountResponse>>({
+        url: `blocks/${height}/transactions/count`,
       })
       .then(result => {
         return result.data?.data;
