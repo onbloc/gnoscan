@@ -33,6 +33,8 @@ export interface Block {
 }
 
 export interface BlockSummaryInfo {
+  hash?: string;
+  hashBase64?: string;
   timeStamp: TimeStamp;
   network: string;
   blockHeight: number | null;
@@ -138,6 +140,7 @@ export interface ValueWithDenomType {
 
 export interface Transaction {
   hash: string;
+  hashBase64?: string;
   success: boolean;
   numOfMessage: number;
   type: string;

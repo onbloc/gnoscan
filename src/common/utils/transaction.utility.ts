@@ -90,6 +90,15 @@ export function isHash(hash: string): boolean {
   }
 }
 
+/**
+ * Uppercases a hash for display when it's hex (matching Tendermint/Cosmos
+ * convention). Base64 hashes are returned unchanged since base64 is
+ * case-sensitive and uppercasing it would corrupt the value.
+ */
+export function toDisplayHash(hash: string): string {
+  return isHexHash(hash) ? hash.toUpperCase() : hash;
+}
+
 export function makeHash(bytes: Uint8Array) {
   return crypto.createHash("sha256").setEncoding("utf-8").update(bytes).digest("base64");
 }

@@ -39,8 +39,9 @@ export class BlockMapper {
     const gasUsed = response.gasUsed || 0;
     const gas = formatGasString(gasWanted, gasUsed);
 
-    // Todo: transactions
     return {
+      hash: response.blockHash,
+      hashBase64: response.blockHashBase64,
       timeStamp,
       network: safeString(response.network),
       blockHeight: response.blockHeight,

@@ -19,6 +19,8 @@ export interface BlockModel {
 export interface BlockSummaryModel {
   blockHash: string;
 
+  blockHashBase64: string;
+
   blockHeight: number;
 
   gasUsed: number;
