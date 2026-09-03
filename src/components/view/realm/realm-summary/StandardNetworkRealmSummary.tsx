@@ -18,7 +18,7 @@ import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import Badge from "@/components/ui/badge";
-import { DLWrap, FitContentA, LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentA, FitContentSpan, LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
@@ -202,13 +202,13 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
                 </Text>
               </FitContentA>
             ) : (
-              <FitContentA>
+              <FitContentSpan>
                 <Link href={getUrlWithNetwork(`/account/${realmSummary?.publisherAddress}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
                     {realmSummary?.publisherName || realmSummary?.publisherAddress || ""}
                   </Text>
                 </Link>
-              </FitContentA>
+              </FitContentSpan>
             )}
           </Badge>
         </dd>
@@ -225,11 +225,11 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               </FitContentA>
             ) : (
               <Link href={getUrlWithNetwork(`/block/${realmSummary?.blockPublished}`)} passHref>
-                <FitContentA>
+                <FitContentSpan>
                   <Text type="p4" color="blue">
                     {displayBlockPublished}
                   </Text>
-                </FitContentA>
+                </FitContentSpan>
               </Link>
             )}
           </Badge>
