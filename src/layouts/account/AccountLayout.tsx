@@ -52,10 +52,17 @@ const AccountLayout = ({
     () => isCustomNetwork && !bech32Address,
     [isCustomNetwork, bech32Address],
   );
-  const hasErrorStandardNetwork = React.useMemo(
-    () => !isCustomNetwork && isFetchedAccount && (!account || !account?.data),
-    [isCustomNetwork, address, isFetchedAccount],
-  );
+  const hasErrorStandardNetwork = React.useMemo(() => {
+    if (isCustomNetwork || !isFetchedAccount) {
+      return false;
+    }
+
+    if (!account?.data) {
+      return true;
+    }
+
+    return !isBech32Address(address) && !account.data.name;
+  }, [isCustomNetwork, address, isFetchedAccount, account?.data]);
 
   const pageTitle = isValidator ? "Validator Details" : "Account Details";
 

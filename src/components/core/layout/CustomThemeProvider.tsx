@@ -6,12 +6,10 @@ import { themeState } from "@/states";
 import { setItem, getItem } from "@/repositories/storage/storage";
 
 export const CustomThemeProvider = ({ children }: { children: React.ReactElement }) => {
-  const [mounted, setMounted] = useState(false);
   const [themeMode, setThemeMode] = useRecoilState(themeState);
-  const [palette, setPalette] = useState<Palette | null>(null);
+  const [palette, setPalette] = useState<Palette>(theme.lightTheme);
 
   useEffect(() => {
-    setMounted(true);
     const localThemeValue = getItem("theme");
     if (!localThemeValue) {
       setItem("theme", "light");
@@ -35,6 +33,5 @@ export const CustomThemeProvider = ({ children }: { children: React.ReactElement
     </ThemeProvider>
   );
 
-  if (!mounted || !palette) return <></>;
   return body;
 };
