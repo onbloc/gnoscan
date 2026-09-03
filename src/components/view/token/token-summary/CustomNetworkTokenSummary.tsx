@@ -8,7 +8,7 @@ import * as S from "./TokenSummary.styles";
 import Text from "@/components/ui/text";
 import Badge from "@/components/ui/badge";
 import DataSection from "@/components/view/details-data-section";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
 import ShowLog from "@/components/ui/show-log";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
@@ -123,13 +123,13 @@ const CustomNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps) 
                 {summaryData.owner}
               </Text>
             ) : (
-              <FitContentA>
+              <FitContentSpan>
                 <Link href={getUrlWithNetwork(`/account/${summaryData.owner}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
                     {getName(summaryData.owner) || summaryData.owner}
                   </Text>
                 </Link>
-              </FitContentA>
+              </FitContentSpan>
             )}
           </Badge>
         </dd>

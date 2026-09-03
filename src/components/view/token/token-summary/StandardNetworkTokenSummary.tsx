@@ -10,7 +10,7 @@ import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import Badge from "@/components/ui/badge";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -149,13 +149,13 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
                 {tokenSummary?.ownerName || tokenSummary?.owner || ""}
               </Text>
             ) : (
-              <FitContentA>
+              <FitContentSpan>
                 <Link href={getUrlWithNetwork(`/account/${tokenSummary?.owner}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
                     {tokenSummary?.ownerName || tokenSummary?.owner || ""}
                   </Text>
                 </Link>
-              </FitContentA>
+              </FitContentSpan>
             )}
           </Badge>
         </dd>
