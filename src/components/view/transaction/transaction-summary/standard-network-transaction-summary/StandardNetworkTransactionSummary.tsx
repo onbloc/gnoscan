@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 
 import DataSection from "@/components/view/details-data-section";
-import { DateDiffText, DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DateDiffText, DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -142,11 +142,11 @@ const StandardNetworkTransactionSummary = ({
           <dd>
             <Badge>
               <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
-                <FitContentA>
+                <FitContentSpan>
                   <Text type="p4" color="blue">
                     {displayBlockHeight}
                   </Text>
-                </FitContentA>
+                </FitContentSpan>
               </Link>
             </Badge>
           </dd>
