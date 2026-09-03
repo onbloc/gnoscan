@@ -4,6 +4,7 @@ import IconSuccess from "@/assets/svgs/icon-status-success.svg";
 import IconFail from "@/assets/svgs/icon-status-fail.svg";
 import { StatusKeyType } from "@/common/utils";
 import { textEllipsis } from "@/common/utils/string-util";
+import { toDisplayHash } from "@/common/utils/transaction.utility";
 import { useNetwork } from "@/common/hooks/use-network";
 
 interface Props {
@@ -13,11 +14,12 @@ interface Props {
 
 export const TxHash = ({ txHash, status }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
+  const displayHash = toDisplayHash(txHash ?? "");
 
   return (
     <TxHashWrapper>
-      <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
-        {textEllipsis(txHash ?? "", 8)}
+      <a className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${displayHash}`)}>
+        {textEllipsis(displayHash, 8)}
       </a>
       <span className="status">{status === "failure" ? <IconFail /> : <IconSuccess />}</span>
     </TxHashWrapper>

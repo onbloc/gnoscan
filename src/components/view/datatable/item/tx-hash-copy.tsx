@@ -3,6 +3,7 @@ import Link from "next/link";
 import styled from "styled-components";
 
 import { textEllipsis } from "@/common/utils/string-util";
+import { toDisplayHash } from "@/common/utils/transaction.utility";
 import { useNetwork } from "@/common/hooks/use-network";
 import { TX_HASH_ELLIPSIS_LENGTH } from "@/common/values/number.constant";
 
@@ -15,11 +16,12 @@ interface Props {
 
 export const TxHashCopy = ({ txHash }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
+  const displayHash = toDisplayHash(txHash ?? "");
   return (
     <TxHashWrapper>
-      <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}>
-        {textEllipsis(txHash ?? "", TX_HASH_ELLIPSIS_LENGTH)}
-        <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={txHash} width={85}>
+      <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${displayHash}`)}>
+        {textEllipsis(displayHash, TX_HASH_ELLIPSIS_LENGTH)}
+        <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={displayHash} width={85}>
           <IconCopy className="svg-icon" />
         </Tooltip>
       </Link>

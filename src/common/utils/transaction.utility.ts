@@ -18,7 +18,58 @@ export function decodeTransaction(tx: string) {
   };
 }
 
+const HASH_BYTE_LENGTH = 32;
+
+/**
+ * Reports whether the given string is a hex-encoded 32-byte (SHA256-size) hash.
+ * Mirrors the backend's `utils.IsHexHash` (see onbloc-api-v3 PR #213).
+ */
+export function isHexHash(hash: string): boolean {
+  return /^[0-9a-fA-F]{64}$/.test(hash);
+}
+
+/**
+ * Reports whether the given string is a base64-encoded 32-byte (SHA256-size) hash.
+ * Mirrors the backend's `utils.IsBase64Hash` (see onbloc-api-v3 PR #213), plus the
+ * unpadded 43-char form (missing the trailing `=`) for backward compatibility with
+ * legacy links.
+ */
+export function isBase64Hash(hash: string): boolean {
+  if (!/^[0-9a-zA-Z+/]{43}=?$/.test(hash)) {
+    return false;
+  }
+  try {
+    return Buffer.from(hash, "base64").length === HASH_BYTE_LENGTH;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Converts a hex-encoded hash to base64. Assumes hex is a valid 32-byte hash.
+ */
+export function hexHashToBase64(hex: string): string {
+  return Buffer.from(hex, "hex").toString("base64");
+}
+
+/**
+ * Converts a base64-encoded hash to hex. Assumes base64 is a valid 32-byte hash.
+ */
+export function base64HashToHex(base64: string): string {
+  return Buffer.from(base64, "base64").toString("hex");
+}
+
+/**
+ * Normalizes a hash to padded base64, accepting either hex or base64 (padded or
+ * unpadded) input. Use before comparing against/querying an RPC node directly
+ * (tm2 wire format is base64). Falls back to a best-effort base64 round-trip for
+ * anything that doesn't strictly match either format, to avoid throwing on
+ * unexpected input.
+ */
 export function makeSafeBase64Hash(data: string) {
+  if (isHexHash(data)) {
+    return hexHashToBase64(data);
+  }
   try {
     return Buffer.from(data, "base64").toString("base64");
   } catch {
@@ -26,17 +77,26 @@ export function makeSafeBase64Hash(data: string) {
   }
 }
 
+/**
+ * Reports whether the given string is a transaction/block hash, in either
+ * hex or base64 form. The backend now accepts and returns both (see
+ * onbloc-api-v3 PR #213), so search-keyword detection must recognize both.
+ */
 export function isHash(hash: string): boolean {
   try {
-    if (hash.length < 40) {
-      return false;
-    }
-
-    const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-    return base64regex.test(hash + "=") || base64regex.test(hash);
+    return isHexHash(hash) || isBase64Hash(hash);
   } catch {
     return false;
   }
+}
+
+/**
+ * Uppercases a hash for display when it's hex (matching Tendermint/Cosmos
+ * convention). Base64 hashes are returned unchanged since base64 is
+ * case-sensitive and uppercasing it would corrupt the value.
+ */
+export function toDisplayHash(hash: string): string {
+  return isHexHash(hash) ? hash.toUpperCase() : hash;
 }
 
 export function makeHash(bytes: Uint8Array) {
@@ -150,6 +210,13 @@ export function makeTransactionMessageInfo(message: any) {
   }
 }
 
+/**
+ * Extracts the `txhash` query param from a URL. Hex is passed through
+ * unchanged; a base64 hash (padded or legacy unpadded) is normalized via
+ * makeSafeBase64Hash so it still resolves correctly against both the RPC
+ * and the API. Anything that isn't recognized as either form is passed
+ * through as-is rather than mangled by a best-effort base64 round-trip.
+ */
 export function parseTxHash(url: string) {
   if (!url.includes("txhash=")) {
     return "";
@@ -159,7 +226,10 @@ export function parseTxHash(url: string) {
 
   const txHash = params[1].split("&")[0];
   const decodedTxHash = decodeURIComponent(txHash).replaceAll(" ", "+");
-  return makeSafeBase64Hash(decodedTxHash);
+  if (isHexHash(decodedTxHash)) {
+    return decodedTxHash;
+  }
+  return isBase64Hash(decodedTxHash) ? makeSafeBase64Hash(decodedTxHash) : decodedTxHash;
 }
 
 function parsePositiveNumber(value: string): number {

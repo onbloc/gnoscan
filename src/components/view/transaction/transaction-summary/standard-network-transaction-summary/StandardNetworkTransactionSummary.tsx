@@ -16,6 +16,7 @@ import { Amount } from "@/types/data-type";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
+import { toDisplayHash } from "@/common/utils/transaction.utility";
 import TransactionSuccessWarningTooltip from "@/components/ui/tooltip/transaction-success-warning-tooltip/TransactionSuccessWarningTooltip";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
@@ -71,6 +72,8 @@ const StandardNetworkTransactionSummary = ({
 
   const hasApplicationError = Boolean(data?.hasApplicationError);
 
+  const txHashDisplay = data.transactionItem?.hash ? toDisplayHash(data.transactionItem.hash) : "";
+
   if (!isFetched) return <TableSkeleton />;
 
   return (
@@ -103,11 +106,28 @@ const StandardNetworkTransactionSummary = ({
           <dd>
             <Badge>
               <Text type="p4" color="inherit" className="ellipsis">
-                {txHash}
+                {txHashDisplay || "-"}
               </Text>
-              <Tooltip content="Copied!" trigger="click" copyText={txHash}>
-                <StyledIconCopy className="svg-icon" />
-              </Tooltip>
+              {txHashDisplay && (
+                <Tooltip content="Copied!" trigger="click" copyText={txHashDisplay}>
+                  <StyledIconCopy className="svg-icon" />
+                </Tooltip>
+              )}
+            </Badge>
+          </dd>
+        </DLWrap>
+        <DLWrap desktop={isDesktop}>
+          <dt>Tx Hash (base64)</dt>
+          <dd>
+            <Badge>
+              <Text type="p4" color="inherit" className="ellipsis">
+                {data.transactionItem.hashBase64 || "-"}
+              </Text>
+              {data.transactionItem.hashBase64 && (
+                <Tooltip content="Copied!" trigger="click" copyText={data.transactionItem.hashBase64}>
+                  <StyledIconCopy className="svg-icon" />
+                </Tooltip>
+              )}
             </Badge>
           </dd>
         </DLWrap>

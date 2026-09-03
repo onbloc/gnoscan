@@ -16,6 +16,7 @@ export interface TransactionSummary {
   storageDeposit: Amount;
   storageUsage: number;
   txHash: string;
+  txHashBase64: string;
   errorLog: string;
   hasApplicationError: boolean;
   txIndex: number;
