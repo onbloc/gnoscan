@@ -8,7 +8,7 @@ import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type"
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import Badge from "@/components/ui/badge";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -160,11 +160,11 @@ export const TransactionContractDetails: React.FC<{
                         )}
                         passHref
                       >
-                        <FitContentA>
+                        <FitContentSpan>
                           {formatDisplayPackagePath(
                             message?.pkg_path || message?.package?.path || message?.func || "-",
                           )}
-                        </FitContentA>
+                        </FitContentSpan>
                       </Link>
                     </Text>
                     <Tooltip

@@ -137,6 +137,13 @@ export const FitContentA = styled.a`
   max-width: fit-content;
 `;
 
+// Same box as FitContentA, but for use inside next/link's <Link> — which already
+// renders its own <a> — so we don't end up with an invalid <a> nested in <a>.
+export const FitContentSpan = styled.span`
+  width: 100%;
+  max-width: fit-content;
+`;
+
 export const LinkWrapper = styled.a`
   display: flex;
   flex-direction: row;
