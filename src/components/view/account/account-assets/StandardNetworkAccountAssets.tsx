@@ -61,7 +61,6 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
                 amount={grc20TokenAsset.amount}
                 showTokenPathLink={true}
                 tokenPath={grc20TokenAsset.packagePath}
-                tokenId={grc20TokenAsset.tokenId}
                 logoUrl={grc20TokenAsset.logoUrl}
                 breakpoint={breakpoint}
                 isDesktop={isDesktop}

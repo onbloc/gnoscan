@@ -21,7 +21,6 @@ interface AccountAssetItemProps {
   amount: Amount;
   logoUrl?: string | null;
   tokenPath?: string;
-  tokenId?: string;
   showTokenPathLink?: boolean;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
@@ -32,7 +31,6 @@ const AccountAssetItem = ({
   amount,
   logoUrl,
   tokenPath,
-  tokenId,
   showTokenPathLink,
   breakpoint,
   isDesktop,
@@ -59,6 +57,11 @@ const AccountAssetItem = ({
     if (!tokenPath) return null;
     return formatDisplayTokenPath(tokenPath.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""));
   }, [tokenPath]);
+
+  const tokenKey = React.useMemo(() => {
+    if (!tokenPath) return tokenPath;
+    return amount.denom ? `${tokenPath}.${amount.denom}` : tokenPath;
+  }, [tokenPath, amount.denom]);
 
   if (!isFetched) {
     return (
@@ -87,7 +90,7 @@ const AccountAssetItem = ({
           {getTokenInfo(amount.denom)?.name || ""}
           {shouldShowTokenPathLink && (
             <NonMobile>
-              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenId || tokenPath}`)}>
+              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
                 <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
                   {displayTokenPath}
                 </Text>

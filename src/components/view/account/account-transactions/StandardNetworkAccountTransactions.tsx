@@ -73,16 +73,21 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
 
   const [currentTab, setCurrentTab] = React.useState("Transactions");
 
+  const transactionsCount = transactionData?.pages[0]?.page.totalCount;
+  const eventsCount = eventData?.pages[0]?.page.totalCount;
+
   const detailTabs = React.useMemo(() => {
     return [
       {
         tabName: "Transactions",
+        size: transactionsCount ?? accountTransactions.length,
       },
       {
         tabName: "Events",
+        size: eventsCount ?? accountEvents.length,
       },
     ];
-  }, []);
+  }, [transactionsCount, eventsCount, accountTransactions, accountEvents]);
 
   if (!isFetchedTransactionData) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;

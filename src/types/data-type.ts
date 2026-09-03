@@ -162,6 +162,14 @@ export interface Transaction {
   events?: GnoEvent[];
 }
 
+export interface TokenHolder {
+  rank: number;
+  address: string;
+  nameTag?: string | null;
+  balance: Amount;
+  percentage: number;
+}
+
 export interface TransactionContractInfo {
   messages: any[];
   numOfMessage: number;

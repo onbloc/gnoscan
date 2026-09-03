@@ -15,5 +15,6 @@ export interface GetAccountTransactionsResponse {
   page: {
     cursor: string;
     hasNext: boolean;
+    totalCount?: number;
   };
 }

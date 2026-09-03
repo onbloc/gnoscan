@@ -6,5 +6,6 @@ export interface GetTokenTransactionsResponse {
     cursor: string;
     hasNext: boolean;
     nextCursor: string;
+    totalCount: number;
   };
 }

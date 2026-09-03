@@ -133,9 +133,10 @@ const RealmsList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) =
 
 const TokensList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) => {
   const { getUrlWithNetwork } = useNetwork();
+  const tokenKey = item.symbol ? `${item.packagePath}.${item.symbol}` : item.packagePath;
 
   return (
-    <Link href={getUrlWithNetwork(`/tokens/${item.packagePath}`)} passHref>
+    <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref>
       <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.name}

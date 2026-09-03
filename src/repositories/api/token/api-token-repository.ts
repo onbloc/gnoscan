@@ -1,5 +1,6 @@
-import { GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
+import { GetTokenHoldersRequest, GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
 import {
+  GetTokenHoldersResponse,
   GetTokenMetaByPathResponse,
   GetTokenResponse,
   GetTokensResponse,
@@ -12,6 +13,8 @@ export interface ApiTokenRepository {
   getToken(tokenId: string): Promise<GetTokenResponse>;
 
   getTokenTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse>;
+
+  getTokenHolders(params: GetTokenHoldersRequest): Promise<GetTokenHoldersResponse>;
 
   getTokenMetaByPath(path: string): Promise<GetTokenMetaByPathResponse>;
 }
