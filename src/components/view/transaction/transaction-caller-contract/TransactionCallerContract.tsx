@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { v1 } from "uuid";
 
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -33,11 +33,11 @@ export const TransactionCallerContract = ({
       <dd>
         <Badge>
           <Link href={getUrlWithNetwork(`/account/${caller || "-"}`)} passHref>
-            <FitContentA>
+            <FitContentSpan>
               <Text type="p4" color="blue" className={ellipsisTextKey.includes("Caller") ? "ellipsis" : "multi-line"}>
                 {caller ? <Tooltip content={caller}>{caller}</Tooltip> : "-"}
               </Text>
-            </FitContentA>
+            </FitContentSpan>
           </Link>
         </Badge>
       </dd>

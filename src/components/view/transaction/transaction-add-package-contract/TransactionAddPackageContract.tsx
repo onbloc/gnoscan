@@ -5,7 +5,7 @@ import { v1 } from "uuid";
 
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import Badge from "@/components/ui/badge";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -56,11 +56,11 @@ export const TransactionAddPackageContract = ({
         <dd>
           <Badge>
             <Link href={getUrlWithNetwork(`/account/${creatorAddress}`)} passHref>
-              <FitContentA>
+              <FitContentSpan>
                 <Text type="p4" color="blue" className={"ellipsis"}>
                   {creatorAddress ? <Tooltip content={creatorAddress}>{creatorName}</Tooltip> : "-"}
                 </Text>
-              </FitContentA>
+              </FitContentSpan>
             </Link>
           </Badge>
         </dd>
