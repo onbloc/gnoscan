@@ -30,10 +30,12 @@ export function isHexHash(hash: string): boolean {
 
 /**
  * Reports whether the given string is a base64-encoded 32-byte (SHA256-size) hash.
- * Mirrors the backend's `utils.IsBase64Hash` (see onbloc-api-v3 PR #213).
+ * Mirrors the backend's `utils.IsBase64Hash` (see onbloc-api-v3 PR #213), plus the
+ * unpadded 43-char form (missing the trailing `=`) for backward compatibility with
+ * legacy links.
  */
 export function isBase64Hash(hash: string): boolean {
-  if (!/^[0-9a-zA-Z+/]{43}=$/.test(hash)) {
+  if (!/^[0-9a-zA-Z+/]{43}=?$/.test(hash)) {
     return false;
   }
   try {
@@ -58,17 +60,15 @@ export function base64HashToHex(base64: string): string {
 }
 
 /**
- * Normalizes a hash to base64, accepting either hex or base64 input.
- * Use before comparing against/querying an RPC node directly (tm2 wire format is base64).
- * Falls back to a best-effort base64 round-trip for anything that doesn't strictly
- * match either format, to avoid throwing on unexpected input.
+ * Normalizes a hash to padded base64, accepting either hex or base64 (padded or
+ * unpadded) input. Use before comparing against/querying an RPC node directly
+ * (tm2 wire format is base64). Falls back to a best-effort base64 round-trip for
+ * anything that doesn't strictly match either format, to avoid throwing on
+ * unexpected input.
  */
 export function makeSafeBase64Hash(data: string) {
   if (isHexHash(data)) {
     return hexHashToBase64(data);
-  }
-  if (isBase64Hash(data)) {
-    return data;
   }
   try {
     return Buffer.from(data, "base64").toString("base64");
@@ -211,10 +211,11 @@ export function makeTransactionMessageInfo(message: any) {
 }
 
 /**
- * Extracts the `txhash` query param from a URL, preserving its original
- * encoding (hex or base64). The API accepts either format directly, so no
- * format normalization happens here — callers that specifically need base64
- * (e.g. comparing against an RPC node) should apply makeSafeBase64Hash themselves.
+ * Extracts the `txhash` query param from a URL. Hex is passed through
+ * unchanged; a base64 hash (padded or legacy unpadded) is normalized via
+ * makeSafeBase64Hash so it still resolves correctly against both the RPC
+ * and the API. Anything that isn't recognized as either form is passed
+ * through as-is rather than mangled by a best-effort base64 round-trip.
  */
 export function parseTxHash(url: string) {
   if (!url.includes("txhash=")) {
@@ -224,7 +225,11 @@ export function parseTxHash(url: string) {
   if (params.length < 2) return "";
 
   const txHash = params[1].split("&")[0];
-  return decodeURIComponent(txHash).replaceAll(" ", "+");
+  const decodedTxHash = decodeURIComponent(txHash).replaceAll(" ", "+");
+  if (isHexHash(decodedTxHash)) {
+    return decodedTxHash;
+  }
+  return isBase64Hash(decodedTxHash) ? makeSafeBase64Hash(decodedTxHash) : decodedTxHash;
 }
 
 function parsePositiveNumber(value: string): number {

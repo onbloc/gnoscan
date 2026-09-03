@@ -317,6 +317,20 @@ describe("processSearchKeyword", () => {
       });
     });
 
+    // Legacy links may have the trailing "=" stripped from the base64 hash.
+    test("Unpadded base64 transaction hash should also redirect to the transaction details page", () => {
+      const txHash = "lk1sZ7ZgbHo75gEbv1pImpNorTXHe7zBgROekjZpjt4";
+      const result = processSearchKeyword(txHash, networkParams);
+
+      expect(result).toEqual({
+        keyword: txHash,
+        permanent: false,
+        destination: `/transactions/details?type=mainnet&rpcUrl=https://rpc.gno.network&indexerUrl=https://index.gno.network&chainId=gno-mainnet-1&txhash=${encodeURIComponent(
+          txHash,
+        )}`,
+      });
+    });
+
     test("Uppercase hex-encoded transaction hash should also redirect to the transaction details page", () => {
       const txHash = "3031323334353637383961626364656630313233343536373839616263646566".toUpperCase();
       const result = processSearchKeyword(txHash, networkParams);
