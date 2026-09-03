@@ -39,7 +39,7 @@ export const useGetTransactionContractsByHeight = (
     {
       ...options,
       getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
-      enabled: !!params.txHash,
+      enabled: (options?.enabled ?? true) && !!params.txHash,
     },
   );
 };

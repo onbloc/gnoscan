@@ -6,6 +6,7 @@ import {
 import {
   GetTransactionResponse,
   GetTransactionsResponse,
+  GetTransactionPendingResponse,
   GetTransactionContractsResponse,
   GetTransactionEventsResponse,
 } from "./response";
@@ -14,6 +15,8 @@ export interface ApiTransactionRepository {
   getTransactions(params: GetTransactionsRequestParameters): Promise<GetTransactionsResponse>;
 
   getTransaction(hash: string): Promise<GetTransactionResponse>;
+
+  getTransactionPending(hash: string): Promise<GetTransactionPendingResponse>;
 
   getTransactionContracts(params: GetTransactionContractsRequest): Promise<GetTransactionContractsResponse>;
 

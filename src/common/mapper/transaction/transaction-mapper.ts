@@ -3,6 +3,8 @@ import { GnoEvent, Transaction, TransactionContractInfo, TransactionSummaryInfo 
 
 import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString } from "@/common/utils/format/format-utils";
+import { decodeTransaction } from "@/common/utils/transaction.utility";
+import { parseTokenAmount } from "@/common/utils/token.utility";
 import { EventModel } from "@/models/api/event/event-model";
 
 export class TransactionMapper {
@@ -43,6 +45,51 @@ export class TransactionMapper {
       storageUsage: response.storageUsage,
       transactionEvents: [],
       hasApplicationError: response.hasApplicationError,
+    };
+  }
+
+  /**
+   * Builds a TransactionSummaryInfo from a pending tx's raw mempool bytes (GET
+   * /v1/transactions/{hash}/pending). Only fields that can be read off the raw
+   * std.Tx are populated (memo, fee, gas wanted, decoded messages) — nothing that
+   * requires block inclusion or execution results (timestamp, block height, gas
+   * used, success, storage deposit/usage) exists yet, so those are left out
+   * rather than filled in with placeholders.
+   */
+  public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo {
+    const decoded = decodeTransaction(rawTx);
+    const gasWanted = Number(decoded.fee?.gas_wanted ?? 0);
+    const feeAmount = parseTokenAmount(decoded.fee?.gas_fee || "0ugnot");
+
+    return {
+      network: "",
+      timeStamp: { time: "", passedTime: "" },
+      blockResult: "",
+      gas: "",
+      transactionItem: {
+        success: false,
+        isPending: true,
+        blockHeight: 0,
+        fee: {
+          value: feeAmount.toString(),
+          denom: "ugnot",
+        },
+        memo: decoded.memo || "",
+        amount: {
+          denom: "",
+          value: "",
+        },
+        from: "",
+        functionName: "",
+        hash: decoded.hash,
+        gasWanted,
+        numOfMessage: decoded.messages?.length || 0,
+        packagePath: "",
+        time: "",
+        type: "",
+        messages: decoded.messages,
+      },
+      transactionEvents: [],
     };
   }
 

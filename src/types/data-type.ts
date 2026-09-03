@@ -139,6 +139,8 @@ export interface ValueWithDenomType {
 export interface Transaction {
   hash: string;
   success: boolean;
+  /** Set when this tx hasn't been confirmed yet — built from a raw mempool tx, not the indexer. */
+  isPending?: boolean;
   numOfMessage: number;
   type: string;
   packagePath: string;
@@ -153,6 +155,8 @@ export interface Transaction {
   time: string;
   fee: Amount;
   gasUsed?: Amount;
+  /** Only populated for a pending tx, where gas used isn't known yet. */
+  gasWanted?: number;
   memo?: string;
   rawContent?: string;
   messages?: any[];
