@@ -9,7 +9,7 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useGetValidatorNames } from "@/common/hooks/common/use-get-validator-names";
 
 import DataSection from "../../details-data-section";
-import { DateDiffText, DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DateDiffText, DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
@@ -76,13 +76,13 @@ const CustomNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryProps
         <dt>Proposer</dt>
         <dd>
           <Badge>
-            <FitContentA>
+            <FitContentSpan>
               <Link href={getUrlWithNetwork(`/account/${block?.proposerAddress}`)} passHref>
                 <Text type="p4" color="blue" className="ellipsis">
                   {proposerDisplayName}
                 </Text>
               </Link>
-            </FitContentA>
+            </FitContentSpan>
           </Badge>
         </dd>
       </DLWrap>
