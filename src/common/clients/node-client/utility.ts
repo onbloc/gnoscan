@@ -10,8 +10,9 @@ export const makeRPCUrl = (url: string) => {
     };
   }
 
+  const httpTarget = `http://${uri}`;
   return {
-    httpUrl: `http://${uri}`,
+    httpUrl: `/api/rpc-proxy?target=${encodeURIComponent(httpTarget)}`,
     wsUrl: `ws://${uri}`,
   };
 };
