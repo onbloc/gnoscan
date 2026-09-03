@@ -45,8 +45,10 @@ export const useMappedApiBlock = (height: string) => {
   const [block, setBlock] = React.useState<BlockSummaryInfo>(INITIAL_BLOCK_SUMMARY_STATE);
   const [isDataReady, setIsDataReady] = React.useState(false);
 
+  const hasData = Boolean(apiData?.data);
+
   React.useEffect(() => {
-    if (isApiFetched && apiData) {
+    if (isApiFetched && apiData?.data) {
       const mappedBlock = BlockMapper.blockFromApiResponse(apiData.data);
 
       const blockHeight = mappedBlock.blockHeight || 0;
@@ -63,13 +65,14 @@ export const useMappedApiBlock = (height: string) => {
     }
   }, [apiData, isApiFetched, latestBlockHeight]);
 
-  const isLoading = isApiLoading || !isDataReady;
-  const isFetched = isApiFetched && isDataReady;
+  const isLoading = isApiLoading || (hasData && !isDataReady);
+  const isFetched = isApiFetched && (!hasData || isDataReady);
 
   return {
     data: block,
     isFetched,
     isLoading,
     isError: isApiError,
+    hasData,
   };
 };

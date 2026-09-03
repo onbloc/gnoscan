@@ -97,6 +97,8 @@ export const useMappedApiTransaction = (hash: string, enabled = true) => {
   const [gracePeriodElapsed, setGracePeriodElapsed] = React.useState(false);
   const firstCheckedAtRef = React.useRef<number | null>(null);
 
+  const hasData = Boolean(apiData?.data);
+
   React.useEffect(() => {
     setSettled(null);
     setGracePeriodElapsed(false);
@@ -139,5 +141,6 @@ export const useMappedApiTransaction = (hash: string, enabled = true) => {
     isFetched: status === "confirmed" || status === "pending" || status === "not_found",
     isLoading: status === "loading",
     isError: status === "not_found",
+    hasData,
   };
 };

@@ -8,6 +8,7 @@ import TitleOption from "@/components/view/common/title-option/TitleOption";
 import * as S from "./BlockLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
+import { useGetBlockByHeight } from "@/common/react-query/block/api";
 
 interface BlockLayoutProps {
   blockHeight: number;
@@ -20,6 +21,11 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
   const { isCustomNetwork } = useNetworkProvider();
 
   const { block, isFetched: isFetchedRpcData, isErrorBlock: isErrorRpcData } = useBlock(blockHeight);
+  const {
+    isFetched: isFetchedApiData,
+    isError: isErrorApiData,
+    data: apiBlock,
+  } = useGetBlockByHeight(String(blockHeight), { enabled: !isCustomNetwork });
 
   const titleOptionProps = React.useMemo(
     () => ({
@@ -36,6 +42,13 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
   );
 
   if (isCustomNetwork && isFetchedRpcData && isErrorRpcData)
+    return (
+      <S.InnerLayout>
+        <NotFound keyword={`${blockHeight}`} breakpoint={breakpoint} />
+      </S.InnerLayout>
+    );
+
+  if (!isCustomNetwork && isFetchedApiData && (isErrorApiData || !apiBlock?.data))
     return (
       <S.InnerLayout>
         <NotFound keyword={`${blockHeight}`} breakpoint={breakpoint} />
