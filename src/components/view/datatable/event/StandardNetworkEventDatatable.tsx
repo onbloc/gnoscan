@@ -19,6 +19,7 @@ import { useWindowSize } from "@/common/hooks/use-window-size";
 
 interface Props {
   isFetched: boolean;
+  isError?: boolean;
   events: GnoEvent[];
   hasNextPage?: boolean;
   nextPage?: () => void;
@@ -32,7 +33,7 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, nextPage }: Props) => {
+export const StandardNetworkEventDatatable = ({ isFetched, isError, events, hasNextPage, nextPage }: Props) => {
   const { breakpoint } = useWindowSize();
   const themeMode = useRecoilValue(themeState);
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
@@ -151,6 +152,7 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
         })}
         datas={events}
         renderDetails={renderDetails}
+        supported={!isError}
       />
 
       {hasNextPage ? (

@@ -24,6 +24,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
   const {
     data: eventData,
     isFetched: isFetchedEventData,
+    isError: isErrorEventData,
     hasNextPage: hasNextPageEventData,
     fetchNextPage: fetchNextPageEventData,
   } = useGetRealmEventsByPath({ path });
@@ -74,6 +75,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
       {currentTab === "Events" && (
         <StandardNetworkEventDatatable
           isFetched={isFetchedEventData}
+          isError={isErrorEventData}
           events={realmEvents}
           hasNextPage={hasNextPageEventData}
           nextPage={fetchNextPageEventData}
