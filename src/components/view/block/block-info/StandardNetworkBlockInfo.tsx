@@ -17,6 +17,7 @@ interface BlockInfoProps {
 const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
   const {
     data: transactions,
+    totalCount: transactionsTotalCount,
     isFetched: isFetchedTransactions,
     hasNextPage: transactionsHasNextPage,
     fetchNextPage: transactionsFetchNextPage,
@@ -36,13 +37,14 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
     return [
       {
         tabName: "Transactions",
+        size: transactionsTotalCount ?? transactions.length,
       },
       {
         tabName: "Events",
         size: eventsTotalCount ?? events.length,
       },
     ];
-  }, [events, eventsTotalCount]);
+  }, [transactions, transactionsTotalCount, events, eventsTotalCount]);
 
   if (!isFetchedEvents || !isFetchedTransactions) return <TableSkeleton />;
 

@@ -33,6 +33,8 @@ export interface Block {
 }
 
 export interface BlockSummaryInfo {
+  hash?: string;
+  hashBase64?: string;
   timeStamp: TimeStamp;
   network: string;
   blockHeight: number | null;
@@ -138,6 +140,7 @@ export interface ValueWithDenomType {
 
 export interface Transaction {
   hash: string;
+  hashBase64?: string;
   success: boolean;
   /** Set when this tx hasn't been confirmed yet — built from a raw mempool tx, not the indexer. */
   isPending?: boolean;
@@ -161,6 +164,14 @@ export interface Transaction {
   rawContent?: string;
   messages?: any[];
   events?: GnoEvent[];
+}
+
+export interface TokenHolder {
+  rank: number;
+  address: string;
+  nameTag?: string | null;
+  balance: Amount;
+  percentage: number;
 }
 
 export interface TransactionContractInfo {

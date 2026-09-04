@@ -12,7 +12,7 @@ import { useGetRealmTransactionsQuery } from "@/common/react-query/realm";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import DataSection from "../../details-data-section";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentA, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Tooltip from "@/components/ui/tooltip";
 import Text from "@/components/ui/text";
@@ -136,13 +136,13 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
                 </Text>
               </FitContentA>
             ) : (
-              <FitContentA>
+              <FitContentSpan>
                 <Link href={getUrlWithNetwork(`/account/${summary?.publisherAddress}`)} passHref>
                   <Text type="p4" color="blue" className="ellipsis">
                     {getName(summary?.publisherAddress || "") || summary?.publisherAddress}
                   </Text>
                 </Link>
-              </FitContentA>
+              </FitContentSpan>
             )}
           </Badge>
         </dd>
@@ -159,11 +159,11 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
               </FitContentA>
             ) : (
               <Link href={getUrlWithNetwork(`/block/${summary?.blockPublished}`)} passHref>
-                <FitContentA>
+                <FitContentSpan>
                   <Text type="p4" color="blue">
                     {summary?.blockPublished}
                   </Text>
-                </FitContentA>
+                </FitContentSpan>
               </Link>
             )}
           </Badge>

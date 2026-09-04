@@ -10,7 +10,7 @@ import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
@@ -159,7 +159,7 @@ export const AddressLink: React.FC<AddressLinkProps> = ({ address, addressName, 
       <S.AddressTextBox>
         <Text type="p4" color="blue" className="ellipsis">
           <Link href={getUrlWithNetwork(`/account/${address}`)} passHref>
-            <FitContentA>{displayAccount}</FitContentA>
+            <FitContentSpan>{displayAccount}</FitContentSpan>
           </Link>
         </Text>
         <Tooltip content="Copied!" trigger="click" copyText={copyText} className="address-tooltip">
@@ -189,7 +189,7 @@ export const PkgPathLink: React.FC<PkgPathLinkProps> = ({ path, getUrlWithNetwor
       <S.AddressTextBox>
         <Text type="p4" color="blue" className="ellipsis">
           <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
-            <FitContentA>{displayPkgPath}</FitContentA>
+            <FitContentSpan>{displayPkgPath}</FitContentSpan>
           </Link>
         </Text>
         <Tooltip content="Copied!" trigger="click" copyText={path} className="address-tooltip">

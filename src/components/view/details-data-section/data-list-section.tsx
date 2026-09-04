@@ -2,6 +2,7 @@ import React from "react";
 import Text from "@/components/ui/text";
 import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
 import { isDesktop } from "@/common/hooks/use-media";
+import { makeDisplayNumber } from "@/common/utils/string-util";
 
 interface DataListSectionProps {
   children: React.ReactNode;
@@ -30,7 +31,7 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
             {tab.size !== undefined && (
               <div className={desktop ? "badge" : "badge small"}>
                 <Text type={"p4"} color={"primary"}>
-                  {tab.size}
+                  {makeDisplayNumber(tab.size)}
                 </Text>
               </div>
             )}

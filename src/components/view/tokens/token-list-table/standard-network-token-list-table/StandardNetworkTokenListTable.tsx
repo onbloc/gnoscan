@@ -71,7 +71,6 @@ export const StandardNetworkTokenListTable = ({
           name={data.name}
           symbol={data.symbol}
           pkgPath={data.packagePath}
-          tokenId={data.tokenId}
         />
       ))
       .build();

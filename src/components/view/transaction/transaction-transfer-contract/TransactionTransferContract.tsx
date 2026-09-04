@@ -9,7 +9,7 @@ import { parseTokenAmount } from "@/common/utils/token.utility";
 import * as S from "./TransactionTransferContract.styles";
 import Text from "@/components/ui/text";
 import { Amount } from "@/types/data-type";
-import { DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import { AmountText } from "@/components/ui/text/amount-text";
 import Tooltip from "@/components/ui/tooltip";
@@ -56,7 +56,7 @@ const TransactionTransferContract = ({
             <S.AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
                 <Link href={getUrlWithNetwork(`/account/${fromAddress}`)} passHref>
-                  <FitContentA>{fromAddress}</FitContentA>
+                  <FitContentSpan>{fromAddress}</FitContentSpan>
                 </Link>
               </Text>
               <Tooltip content="Copied!" trigger="click" copyText={fromAddress} className="address-tooltip">
@@ -73,7 +73,7 @@ const TransactionTransferContract = ({
             <S.AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
                 <Link href={getUrlWithNetwork(`/account/${toAddress}`)} passHref>
-                  <FitContentA>{toAddress}</FitContentA>
+                  <FitContentSpan>{toAddress}</FitContentSpan>
                 </Link>
               </Text>
               <Tooltip content="Copied!" trigger="click" copyText={toAddress} className="address-tooltip">

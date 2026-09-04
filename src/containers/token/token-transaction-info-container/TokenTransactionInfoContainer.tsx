@@ -10,8 +10,22 @@ interface TokenTransactionInfoContainerProps {
 
 const TokenTransactionInfoContainer = ({ tokenId }: TokenTransactionInfoContainerProps) => {
   const { isCustomNetwork } = useNetworkProvider();
+  const [currentTab, setCurrentTab] = React.useState("Transactions");
 
-  return <TokenTransactionInfo tokenPath={tokenId} isCustomNetwork={isCustomNetwork} />;
+  React.useEffect(() => {
+    if (isCustomNetwork && currentTab !== "Transactions") {
+      setCurrentTab("Transactions");
+    }
+  }, [isCustomNetwork, currentTab]);
+
+  return (
+    <TokenTransactionInfo
+      tokenPath={tokenId}
+      isCustomNetwork={isCustomNetwork}
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    />
+  );
 };
 
 export default TokenTransactionInfoContainer;

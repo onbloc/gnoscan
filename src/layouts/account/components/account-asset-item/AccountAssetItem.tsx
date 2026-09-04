@@ -19,9 +19,9 @@ import IconLink from "@/assets/svgs/icon-link.svg";
 
 interface AccountAssetItemProps {
   amount: Amount;
+  name?: string;
   logoUrl?: string | null;
   tokenPath?: string;
-  tokenId?: string;
   showTokenPathLink?: boolean;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
@@ -30,9 +30,9 @@ interface AccountAssetItemProps {
 
 const AccountAssetItem = ({
   amount,
+  name,
   logoUrl,
   tokenPath,
-  tokenId,
   showTokenPathLink,
   breakpoint,
   isDesktop,
@@ -60,6 +60,11 @@ const AccountAssetItem = ({
     return formatDisplayTokenPath(tokenPath.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""));
   }, [tokenPath]);
 
+  const tokenKey = React.useMemo(() => {
+    if (!tokenPath) return tokenPath;
+    return amount.denom ? `${tokenPath}.${amount.denom}` : tokenPath;
+  }, [tokenPath, amount.denom]);
+
   if (!isFetched) {
     return (
       <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
@@ -84,10 +89,10 @@ const AccountAssetItem = ({
         <S.LogoWrapper>{tokenLogoImage}</S.LogoWrapper>
 
         <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
-          {getTokenInfo(amount.denom)?.name || ""}
+          {name || getTokenInfo(amount.denom)?.name || ""}
           {shouldShowTokenPathLink && (
             <NonMobile>
-              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenId || tokenPath}`)}>
+              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
                 <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
                   {displayTokenPath}
                 </Text>

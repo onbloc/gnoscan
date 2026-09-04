@@ -1,6 +1,7 @@
 import { useGetTokenMetaQuery } from "@/common/react-query/meta";
 import { useGetGRC20Tokens } from "@/common/react-query/realm";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
+import { stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { Amount, TokenInfo } from "@/types/data-type";
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo } from "react";
@@ -48,7 +49,7 @@ export const useTokenMeta = () => {
 
   const getTokenInfo = useCallback(
     (tokenId: string): TokenInfo | undefined => {
-      const tokenInfo = tokenMap[tokenId];
+      const tokenInfo = tokenMap[tokenId] || tokenMap[stripTokenKeySymbol(tokenId)];
       if (!tokenInfo) {
         const values = tokenId.split("/");
         const namespace = values[values.length - 1].toUpperCase();
@@ -66,7 +67,7 @@ export const useTokenMeta = () => {
 
   const getTokenAmount = useCallback(
     (tokenId: string, amountRaw: string | number): Amount => {
-      const tokenInfo = tokenMap[tokenId];
+      const tokenInfo = tokenMap[tokenId] || tokenMap[stripTokenKeySymbol(tokenId)];
       if (!tokenInfo) {
         const values = tokenId.split("/");
         return {
