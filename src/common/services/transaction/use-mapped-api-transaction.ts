@@ -17,16 +17,21 @@ export const INITIAL_TRANSACTION_SUMMARY_STATE: TransactionSummaryInfo = {
   transactionItem: null,
 };
 
-// Matches the backend's mempool poll interval (1s) closely enough to catch a pending
-// tx while it's still in the pool, without hammering the API.
-const POLL_INTERVAL_MS = 3000;
+// Once a tx is confirmed and indexed it won't change again, so this only governs how
+// quickly we notice: confirmation itself, or a pending tx graduating to confirmed.
+const POLL_INTERVAL_CONFIRMED_MS = 2000;
+
+// Matches the backend's mempool poll interval (1s) so we catch a pending tx as soon as
+// it's actually in the pool — this is the fast path right after a wallet broadcasts and
+// sends the user straight to the explorer, before the indexer has the tx at all.
+const POLL_INTERVAL_PENDING_MS = 1000;
 
 // GET /transactions/{hash}/pending's UNKNOWN is not a confirmed negative (see its
 // backend doc comment) — the node only exposes its oldest mempool entries, and a
 // freshly-broadcast tx can also land in the gap between leaving the mempool and the
 // indexer finishing the confirmed write. Ride out a few poll cycles as "loading"
 // before settling on not_found, instead of treating the first UNKNOWN as final.
-const NOT_FOUND_GRACE_MS = 10000;
+const NOT_FOUND_GRACE_MS = 30000;
 
 export type TransactionLookupStatus = "loading" | "confirmed" | "pending" | "not_found";
 
@@ -36,12 +41,14 @@ type Settled = { hash: string; status: "confirmed" | "pending"; data: Transactio
  * Hooks to get transaction-detail data for the "standard" (indexer-backed) network.
  *
  * 1. Looks up the confirmed tx via GET /transactions/{hash}, polling every
- *    POLL_INTERVAL_MS until it's found.
- * 2. If it comes back not-found, also polls GET /transactions/{hash}/pending —
- *    reads the tx straight out of the gno node's mempool and decodes it
- *    client-side, so only fields derivable from the raw tx bytes are available
- *    (memo, fee, gas wanted, decoded messages), not block height/timestamp/gas
- *    used/success/storage, which only exist once the tx is confirmed and indexed.
+ *    POLL_INTERVAL_CONFIRMED_MS until it's found.
+ * 2. If it comes back not-found, also polls GET /transactions/{hash}/pending every
+ *    POLL_INTERVAL_PENDING_MS — reads the tx straight out of the gno node's mempool
+ *    and decodes it client-side, so only fields derivable from the raw tx bytes are
+ *    available (memo, fee, gas wanted, decoded messages), not block height/timestamp/
+ *    gas used/success/storage, which only exist once the tx is confirmed and indexed.
+ *    This is what catches a tx moments after a wallet broadcasts it and sends the user
+ *    straight to the explorer, before the confirmed lookup has anything to show.
  * 3. A poll tick that finds nothing new is simply ignored — the page keeps
  *    showing whatever it already had, and the next tick tries again. This
  *    matters because a tx leaving the mempool almost always means it just got
@@ -69,7 +76,7 @@ export const useMappedApiTransaction = (hash: string, enabled = true) => {
     // mid-initialization on first mount, which fails with a CommonError before
     // ever making a request. Retry a few times for that case only.
     retry: (failureCount, error) => error instanceof CommonError && failureCount < 3,
-    refetchInterval: data => (data?.data ? false : POLL_INTERVAL_MS),
+    refetchInterval: data => (data?.data ? false : POLL_INTERVAL_CONFIRMED_MS),
   });
 
   const confirmedResolved = isApiFetched && !isApiError && !!apiData?.data;
@@ -81,7 +88,7 @@ export const useMappedApiTransaction = (hash: string, enabled = true) => {
     // error here is transient (network hiccup, or the same repository-init race
     // as above) — worth a few retries rather than waiting a full poll cycle.
     retry: 3,
-    refetchInterval: POLL_INTERVAL_MS,
+    refetchInterval: POLL_INTERVAL_PENDING_MS,
   });
 
   // The last result good enough to show. A poll tick only ever moves this forward
