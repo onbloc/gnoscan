@@ -19,6 +19,7 @@ import IconLink from "@/assets/svgs/icon-link.svg";
 
 interface AccountAssetItemProps {
   amount: Amount;
+  name?: string;
   logoUrl?: string | null;
   tokenPath?: string;
   showTokenPathLink?: boolean;
@@ -29,6 +30,7 @@ interface AccountAssetItemProps {
 
 const AccountAssetItem = ({
   amount,
+  name,
   logoUrl,
   tokenPath,
   showTokenPathLink,
@@ -87,7 +89,7 @@ const AccountAssetItem = ({
         <S.LogoWrapper>{tokenLogoImage}</S.LogoWrapper>
 
         <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
-          {getTokenInfo(amount.denom)?.name || ""}
+          {name || getTokenInfo(amount.denom)?.name || ""}
           {shouldShowTokenPathLink && (
             <NonMobile>
               <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
