@@ -9,6 +9,7 @@ import {
 import {
   GetTransactionsResponse,
   GetTransactionResponse,
+  GetTransactionPendingResponse,
   GetTransactionContractsResponse,
   GetTransactionEventsResponse,
 } from "./response";
@@ -49,6 +50,20 @@ export class ApiTransactionRepositoryImpl implements ApiTransactionRepository {
     return this.networkClient
       .get<APIResponse<GetTransactionResponse>>({
         url: `transactions/${encodeURIComponent(hash)}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTransactionPending(hash: string): Promise<GetTransactionPendingResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    return this.networkClient
+      .get<APIResponse<GetTransactionPendingResponse>>({
+        url: `transactions/${encodeURIComponent(hash)}/pending`,
       })
       .then(result => {
         return result.data?.data;

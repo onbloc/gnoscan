@@ -71,6 +71,7 @@ const StandardNetworkTransactionSummary = ({
   }, [data?.storageDeposit, data?.storageUsage]);
 
   const hasApplicationError = Boolean(data?.hasApplicationError);
+  const isPending = Boolean(data?.transactionItem?.isPending);
 
   const txHashDisplay = data.transactionItem?.hash ? toDisplayHash(data.transactionItem.hash) : "";
 
@@ -80,27 +81,29 @@ const StandardNetworkTransactionSummary = ({
     data?.transactionItem && (
       <DataSection title="Summary">
         <DLWrap desktop={isDesktop}>
-          <dt>Success</dt>
+          <dt>Status</dt>
           <dd style={{ display: "flex" }}>
-            <Badge type={data.transactionItem.success ? "green" : "failed"}>
+            <Badge type={isPending ? "pending" : data.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">
-                {data.transactionItem.success ? "Success" : displayTxErrorInfo}
+                {isPending ? "Pending" : data.transactionItem.success ? "Success" : displayTxErrorInfo}
               </Text>
             </Badge>
-            {hasApplicationError && <TransactionSuccessWarningTooltip />}
+            {!isPending && hasApplicationError && <TransactionSuccessWarningTooltip />}
           </dd>
         </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Timestamp</dt>
-          <dd>
-            <Badge>
-              <Text type="p4" color="inherit" className="ellipsis">
-                {data.timeStamp.time}
-              </Text>
-              <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
-            </Badge>
-          </dd>
-        </DLWrap>
+        {!isPending && (
+          <DLWrap desktop={isDesktop}>
+            <dt>Timestamp</dt>
+            <dd>
+              <Badge>
+                <Text type="p4" color="inherit" className="ellipsis">
+                  {data.timeStamp.time}
+                </Text>
+                <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
+              </Badge>
+            </dd>
+          </DLWrap>
+        )}
         <DLWrap desktop={isDesktop}>
           <dt>Tx Hash</dt>
           <dd>
@@ -131,26 +134,30 @@ const StandardNetworkTransactionSummary = ({
             </Badge>
           </dd>
         </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Network</dt>
-          <dd>
-            <Badge>{data.network}</Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Block</dt>
-          <dd>
-            <Badge>
-              <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
-                <FitContentSpan>
-                  <Text type="p4" color="blue">
-                    {displayBlockHeight}
-                  </Text>
-                </FitContentSpan>
-              </Link>
-            </Badge>
-          </dd>
-        </DLWrap>
+        {!isPending && (
+          <DLWrap desktop={isDesktop}>
+            <dt>Network</dt>
+            <dd>
+              <Badge>{data.network}</Badge>
+            </dd>
+          </DLWrap>
+        )}
+        {!isPending && (
+          <DLWrap desktop={isDesktop}>
+            <dt>Block</dt>
+            <dd>
+              <Badge>
+                <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
+                  <FitContentSpan>
+                    <Text type="p4" color="blue">
+                      {displayBlockHeight}
+                    </Text>
+                  </FitContentSpan>
+                </Link>
+              </Badge>
+            </dd>
+          </DLWrap>
+        )}
         <DLWrap desktop={isDesktop}>
           <dt>Transaction Fee</dt>
           <dd>
@@ -165,35 +172,37 @@ const StandardNetworkTransactionSummary = ({
           </dd>
         </DLWrap>
         <DLWrap desktop={isDesktop}>
-          <dt>Gas (Used/Wanted)</dt>
+          <dt>{isPending ? "Gas Wanted" : "Gas (Used/Wanted)"}</dt>
           <dd>
-            <Badge>{data.gas}</Badge>
+            <Badge>{isPending ? data.transactionItem.gasWanted ?? "-" : data.gas}</Badge>
           </dd>
         </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>
-            Storage Deposit
-            <div className="tooltip-wrapper">
-              <Tooltip content={TOOLTIP_STORAGE_DEPOSIT}>
-                <IconTooltip />
-              </Tooltip>
-            </div>
-          </dt>
-          <dd>
-            <StorageDepositAmountBadge
-              storageDeposit={displayStorageDeposit}
-              visibleStorageSize={true}
-              visibleTooltip={false}
-            />
-          </dd>
-        </DLWrap>
+        {!isPending && (
+          <DLWrap desktop={isDesktop}>
+            <dt>
+              Storage Deposit
+              <div className="tooltip-wrapper">
+                <Tooltip content={TOOLTIP_STORAGE_DEPOSIT}>
+                  <IconTooltip />
+                </Tooltip>
+              </div>
+            </dt>
+            <dd>
+              <StorageDepositAmountBadge
+                storageDeposit={displayStorageDeposit}
+                visibleStorageSize={true}
+                visibleTooltip={false}
+              />
+            </dd>
+          </DLWrap>
+        )}
         <DLWrap desktop={isDesktop}>
           <dt>Memo</dt>
           <dd>
             <Badge>{data.transactionItem.memo || "-"}</Badge>
           </dd>
         </DLWrap>
-        {!data.transactionItem.success && (
+        {!isPending && !data.transactionItem.success && (
           <ShowLog isTabLog={false} logData={blockResultLog || ""} btnTextType="Error Logs" />
         )}
       </DataSection>

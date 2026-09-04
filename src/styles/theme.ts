@@ -8,6 +8,7 @@ const lightTheme: Palette = {
   failed: "#FF4D4F",
   blue: "#2090F3",
   green: "#00C59A",
+  pending: "#9BA9BE",
   white: "#FFFFFF",
   reverse: "#000000",
   primary: "#333333",
@@ -39,6 +40,7 @@ const darkTheme: Palette = {
   failed: "#FF4D4F",
   blue: "#2090F3",
   green: "#00C59A",
+  pending: "#9BA9BE",
   white: "#FFFFFF",
   reverse: "#FFFFFF",
   primary: "#FFFFFF",
@@ -165,6 +167,7 @@ export type PaletteKeyType =
   | "failed"
   | "blue"
   | "green"
+  | "pending"
   | "white"
   | "reverse"
   | "primary"

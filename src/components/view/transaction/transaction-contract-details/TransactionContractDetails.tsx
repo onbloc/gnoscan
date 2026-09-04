@@ -96,7 +96,6 @@ export const TransactionContractDetails: React.FC<{
   }, []);
 
   const getMessageFiles = React.useCallback((message: any) => {
-    console.log("message", message);
     if (!isVmAddPkg(message) && !isVmRun(message)) {
       return null;
     }

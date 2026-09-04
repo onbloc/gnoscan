@@ -2,12 +2,12 @@ import React from "react";
 
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
+import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
 
 import * as S from "./TransactionLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { useGetTransactionByHash } from "@/common/react-query/transaction/api";
 
 interface TransactionLayoutProps {
   txHash: string;
@@ -19,21 +19,12 @@ const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: Tran
   const { breakpoint, isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
-  const { isFetched, isError } = useTransaction(txHash);
-  const {
-    data: apiTransaction,
-    isFetched: isFetchedApiData,
-    isError: isErrorApiData,
-  } = useGetTransactionByHash(txHash, { enabled: !isCustomNetwork && !!txHash });
+  const { isFetched: isFetchedRpc, isError: isErrorRpc } = useTransaction(txHash);
+  const { status: apiStatus } = useMappedApiTransaction(txHash, !isCustomNetwork);
 
-  if (isCustomNetwork && isFetched && isError)
-    return (
-      <S.InnerLayout>
-        <NotFound keyword={txHash} breakpoint={breakpoint} />
-      </S.InnerLayout>
-    );
+  const showNotFound = isCustomNetwork ? isFetchedRpc && isErrorRpc : apiStatus === "not_found";
 
-  if (!isCustomNetwork && isFetchedApiData && (isErrorApiData || !apiTransaction?.data))
+  if (showNotFound)
     return (
       <S.InnerLayout>
         <NotFound keyword={txHash} breakpoint={breakpoint} />
