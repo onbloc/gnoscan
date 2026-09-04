@@ -3,7 +3,7 @@ import { GnoEvent, Transaction, TransactionContractInfo, TransactionSummaryInfo 
 
 import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString } from "@/common/utils/format/format-utils";
-import { decodeTransaction } from "@/common/utils/transaction.utility";
+import { base64HashToHex, decodeTransaction } from "@/common/utils/transaction.utility";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import { EventModel } from "@/models/api/event/event-model";
 
@@ -90,7 +90,8 @@ export class TransactionMapper {
         },
         from: "",
         functionName: "",
-        hash: decoded.hash,
+        hash: base64HashToHex(decoded.hash),
+        hashBase64: decoded.hash,
         gasWanted,
         numOfMessage: decoded.messages?.length || 0,
         packagePath: "",
