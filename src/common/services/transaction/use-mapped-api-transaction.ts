@@ -117,9 +117,13 @@ export const useMappedApiTransaction = (hash: string, enabled = true) => {
       setSettled({ hash, status: "confirmed", data: TransactionMapper.transactionFromApiResponse(apiData.data) });
     } else if (pendingData?.status === "PENDING" && pendingData.rawTx) {
       const data = TransactionMapper.transactionFromPendingRawTx(pendingData.rawTx);
-      setSettled(prev =>
-        prev?.hash === hash && prev.status === "confirmed" ? prev : { hash, status: "pending", data },
-      );
+      // A decode failure is treated like a poll tick that found nothing new: keep
+      // whatever was already shown (or stay in "loading") and let the next tick retry.
+      if (data) {
+        setSettled(prev =>
+          prev?.hash === hash && prev.status === "confirmed" ? prev : { hash, status: "pending", data },
+        );
+      }
     }
   }, [hash, confirmedResolved, apiData?.data, pendingData?.status, pendingData?.rawTx]);
 

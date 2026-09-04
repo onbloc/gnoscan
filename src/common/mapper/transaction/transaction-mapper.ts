@@ -56,8 +56,16 @@ export class TransactionMapper {
    * used, success, storage deposit/usage) exists yet, so those are left out
    * rather than filled in with placeholders.
    */
-  public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo {
-    const decoded = decodeTransaction(rawTx);
+  public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo | null {
+    let decoded: ReturnType<typeof decodeTransaction>;
+    try {
+      decoded = decodeTransaction(rawTx);
+    } catch {
+      // Malformed raw tx bytes from the pending endpoint: treat as a miss so the
+      // caller keeps polling instead of showing a broken page.
+      return null;
+    }
+
     const gasWanted = Number(decoded.fee?.gas_wanted ?? 0);
     const feeAmount = parseTokenAmount(decoded.fee?.gas_fee || "0ugnot");
 
