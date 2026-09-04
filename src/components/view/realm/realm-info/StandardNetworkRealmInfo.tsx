@@ -42,16 +42,21 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     return RealmMapper.realmEventFromApiResponses(allItems);
   }, [eventData?.pages]);
 
+  const transactionsCount = transactionData?.pages[0]?.page.totalCount;
+  const eventsCount = eventData?.pages[0]?.page.totalCount;
+
   const detailTabs = React.useMemo(() => {
     return [
       {
         tabName: "Transactions",
+        size: transactionsCount ?? realmTransactions.length,
       },
       {
         tabName: "Events",
+        size: eventsCount ?? realmEvents.length,
       },
     ];
-  }, []);
+  }, [transactionsCount, eventsCount, realmTransactions, realmEvents]);
 
   if (!isFetchedTransactionData) return <TableSkeleton />;
 

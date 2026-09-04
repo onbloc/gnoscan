@@ -7,5 +7,6 @@ export interface GetRealmTransactionsResponse {
     cursor: string;
     hasNext: boolean;
     nextCursor: string;
+    totalCount?: number;
   };
 }

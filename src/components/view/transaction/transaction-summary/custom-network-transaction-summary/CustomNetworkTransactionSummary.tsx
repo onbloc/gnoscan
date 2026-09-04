@@ -6,7 +6,7 @@ import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 import { TransactionSummaryInfo } from "@/types/data-type";
 
 import DataSection from "@/components/view/details-data-section";
-import { DateDiffText, DLWrap, FitContentA } from "@/components/ui/detail-page-common-styles";
+import { DateDiffText, DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -99,11 +99,11 @@ const CustomNetworkTransactionSummary = ({
           <dd>
             <Badge>
               <Link href={getUrlWithNetwork(`/block/${transactionSummaryInfo.transactionItem.blockHeight}`)} passHref>
-                <FitContentA>
+                <FitContentSpan>
                   <Text type="p4" color="blue">
                     {transactionSummaryInfo.transactionItem.blockHeight}
                   </Text>
-                </FitContentA>
+                </FitContentSpan>
               </Link>
             </Badge>
           </dd>

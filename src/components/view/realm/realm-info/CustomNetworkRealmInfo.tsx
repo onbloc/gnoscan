@@ -22,12 +22,14 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
     return [
       {
         tabName: "Transactions",
+        size: realmTransactions.length,
       },
       {
         tabName: "Events",
+        size: transactionEvents.length,
       },
     ];
-  }, []);
+  }, [realmTransactions, transactionEvents]);
 
   if (!isFetched) return <TableSkeleton />;
 

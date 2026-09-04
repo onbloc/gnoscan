@@ -10,6 +10,7 @@ export interface keyOfSearch {
     packagePath?: string;
     name?: string;
     tokenId?: string;
+    symbol?: string;
   }[];
 }
 
@@ -57,6 +58,7 @@ const useSearchQuery = (keyword: string) => {
           name: token.name,
           packagePath: token.packagePath,
           tokenId: token.tokenId,
+          symbol: token.symbol,
         }));
       }
       if (filteredRealms.length > 0) {

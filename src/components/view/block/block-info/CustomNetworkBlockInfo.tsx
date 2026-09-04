@@ -20,13 +20,14 @@ const CustomNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bloc
     return [
       {
         tabName: "Transactions",
+        size: transactionItems.length,
       },
       {
         tabName: "Events",
         size: events.length,
       },
     ];
-  }, []);
+  }, [transactionItems, events]);
 
   if (!isFetched) return <TableSkeleton />;
 

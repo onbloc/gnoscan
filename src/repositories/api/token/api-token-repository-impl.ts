@@ -1,8 +1,9 @@
 import { NetworkClient } from "@/common/clients/network-client";
 import { ApiTokenRepository } from "./api-token-repository";
 
-import { GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
+import { GetTokenHoldersRequest, GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
 import {
+  GetTokenHoldersResponse,
   GetTokenMetaByPathResponse,
   GetTokenResponse,
   GetTokensResponse,
@@ -62,6 +63,23 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
     return this.networkClient
       .get<APIResponse<GetTokenTransactionsResponse>>({
         url: `tokens/${encodeURIComponent(path)}/transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTokenHolders(params: GetTokenHoldersRequest): Promise<GetTokenHoldersResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetTokenHoldersResponse>>({
+        url: `tokens/${encodeURIComponent(path)}/holders${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

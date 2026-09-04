@@ -35,6 +35,7 @@ export class TransactionMapper {
         from: "",
         functionName: "",
         hash: response.txHash,
+        hashBase64: response.txHashBase64,
         numOfMessage: 0,
         packagePath: "",
         time: "",

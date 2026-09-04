@@ -10,7 +10,7 @@ import { useRecoilState } from "recoil";
 import styled, { css } from "styled-components";
 import Text from "@/components/ui/text";
 import { v1 } from "uuid";
-import { FitContentA } from "../detail-page-common-styles";
+import { FitContentSpan } from "../detail-page-common-styles";
 import Link from "next/link";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
@@ -122,20 +122,21 @@ const RealmsList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) =
 
   return (
     <Link href={getUrlWithNetwork(`/realms/details?path=${item.packagePath}`)} passHref>
-      <FitContentA onClick={() => onClick(searchTitle, item)}>
+      <FitContentSpan onClick={() => onClick(searchTitle, item)}>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.packagePath}
         </Text>
-      </FitContentA>
+      </FitContentSpan>
     </Link>
   );
 };
 
 const TokensList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) => {
   const { getUrlWithNetwork } = useNetwork();
+  const tokenKey = item.symbol ? `${item.packagePath}.${item.symbol}` : item.packagePath;
 
   return (
-    <Link href={getUrlWithNetwork(`/tokens/${item.packagePath}`)} passHref>
+    <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref>
       <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.name}
@@ -189,7 +190,7 @@ const Wrapper = styled.div<StyleProps>`
   gap: 8px;
 `;
 
-const FitContentAStyle = styled(FitContentA)`
+const FitContentAStyle = styled(FitContentSpan)`
   ${mixins.flexbox("row", "center", "center")}
 `;
 
