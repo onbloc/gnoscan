@@ -3,7 +3,7 @@ import { GnoEvent, Transaction, TransactionContractInfo, TransactionSummaryInfo 
 
 import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString } from "@/common/utils/format/format-utils";
-import { decodeTransaction } from "@/common/utils/transaction.utility";
+import { base64HashToHex, decodeTransaction } from "@/common/utils/transaction.utility";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import { EventModel } from "@/models/api/event/event-model";
 
@@ -57,8 +57,16 @@ export class TransactionMapper {
    * used, success, storage deposit/usage) exists yet, so those are left out
    * rather than filled in with placeholders.
    */
-  public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo {
-    const decoded = decodeTransaction(rawTx);
+  public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo | null {
+    let decoded: ReturnType<typeof decodeTransaction>;
+    try {
+      decoded = decodeTransaction(rawTx);
+    } catch {
+      // Malformed raw tx bytes from the pending endpoint: treat as a miss so the
+      // caller keeps polling instead of showing a broken page.
+      return null;
+    }
+
     const gasWanted = Number(decoded.fee?.gas_wanted ?? 0);
     const feeAmount = parseTokenAmount(decoded.fee?.gas_fee || "0ugnot");
 
@@ -82,7 +90,8 @@ export class TransactionMapper {
         },
         from: "",
         functionName: "",
-        hash: decoded.hash,
+        hash: base64HashToHex(decoded.hash),
+        hashBase64: decoded.hash,
         gasWanted,
         numOfMessage: decoded.messages?.length || 0,
         packagePath: "",
