@@ -1,8 +1,8 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import React from "react";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { NonMobile } from "@/common/hooks/use-media";
 import { useNetwork } from "@/common/hooks/use-network";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
@@ -27,6 +27,10 @@ import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
+
+const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
+  ssr: false,
+});
 
 interface RealmSummaryProps {
   path: string;
