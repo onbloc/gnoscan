@@ -38,6 +38,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
           },
           packagePath: asset.packagePath,
           logoUrl: asset.logoUrl,
+          name: asset.name,
         };
       });
   }, [data?.data]);
@@ -59,6 +60,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
               <AccountAssetItem
                 key={`asset-token-${grc20TokenAsset.tokenId}`}
                 amount={grc20TokenAsset.amount}
+                name={grc20TokenAsset.name}
                 showTokenPathLink={true}
                 tokenPath={grc20TokenAsset.packagePath}
                 logoUrl={grc20TokenAsset.logoUrl}
@@ -88,6 +90,7 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
       },
       packagePath: "",
       logoUrl: "",
+      name: GNOTToken.name,
     };
   }, [data?.value]);
 
@@ -95,6 +98,7 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
     <AccountAssetItem
       key={`asset-token-${nativeTokenAsset.amount.denom}`}
       amount={nativeTokenAsset.amount}
+      name={nativeTokenAsset.name}
       logoUrl={nativeTokenAsset.logoUrl}
       breakpoint={breakpoint}
       isDesktop={isDesktop}
