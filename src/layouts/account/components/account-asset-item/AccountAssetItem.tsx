@@ -1,4 +1,5 @@
 import React from "react";
+import dynamic from "next/dynamic";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { Amount } from "@/types/data-type";
@@ -12,10 +13,13 @@ import * as S from "./AccountAssetItem.styles";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
-import { NonMobile } from "@/common/hooks/use-media";
 import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import Text from "@/components/ui/text";
 import IconLink from "@/assets/svgs/icon-link.svg";
+
+const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
+  ssr: false,
+});
 
 interface AccountAssetItemProps {
   amount: Amount;
