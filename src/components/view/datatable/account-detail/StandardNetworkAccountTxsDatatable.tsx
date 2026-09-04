@@ -17,6 +17,7 @@ interface Props {
   address: string;
   data: Transaction[];
   isFetched: boolean;
+  isError?: boolean;
   hasNextPage?: boolean;
   nextPage: () => void;
 }
@@ -29,7 +30,14 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const StandardNetworkAccountTxsDatatable = ({ address, data, isFetched, hasNextPage, nextPage }: Props) => {
+export const StandardNetworkAccountTxsDatatable = ({
+  address,
+  data,
+  isFetched,
+  isError,
+  hasNextPage,
+  nextPage,
+}: Props) => {
   const themeMode = useRecoilValue(themeState);
   const { breakpoint } = useWindowSize();
 
@@ -150,6 +158,7 @@ export const StandardNetworkAccountTxsDatatable = ({ address, data, isFetched, h
           };
         })}
         datas={data || []}
+        supported={!isError}
       />
       {hasNextPage ? (
         <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>

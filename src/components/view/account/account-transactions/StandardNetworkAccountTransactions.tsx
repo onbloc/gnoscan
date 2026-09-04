@@ -18,12 +18,14 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
   const {
     data: transactionData,
     isFetched: isFetchedTransactionData,
+    isError: isErrorTransactionData,
     hasNextPage,
     fetchNextPage,
   } = useGetAccountTransactions({ address });
   const {
     data: eventData,
     isFetched: isFetchedEventData,
+    isError: isErrorEventData,
     hasNextPage: eventHasNextPage,
     fetchNextPage: eventFetchNextPage,
   } = useGetAccountEvents({ address });
@@ -100,6 +102,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
           address={address}
           data={accountTransactions}
           isFetched={isFetchedTransactionData}
+          isError={isErrorTransactionData}
           hasNextPage={hasNextPage}
           nextPage={fetchNextPage}
         />
@@ -108,6 +111,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         <StandardNetworkEventDatatable
           events={accountEvents}
           isFetched={isFetchedEventData}
+          isError={isErrorEventData}
           hasNextPage={eventHasNextPage}
           nextPage={eventFetchNextPage}
         />
