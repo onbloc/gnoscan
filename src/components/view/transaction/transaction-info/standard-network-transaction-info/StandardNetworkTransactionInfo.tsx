@@ -40,14 +40,16 @@ const StandardNetworkTransactionInfo = ({
   // Contracts/events only exist once the tx is confirmed and indexed — fetching them
   // any earlier (e.g. during the not-yet-settled grace window right after a 404) would
   // just get back an empty success response and flash an empty tab.
-  const { data: contractsData, isFetched: isFetchedContractsData } = useGetTransactionContractsByHeight(
-    { txHash },
-    { enabled: apiStatus === "confirmed" },
-  );
-  const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight(
-    { txHash },
-    { enabled: apiStatus === "confirmed" },
-  );
+  const {
+    data: contractsData,
+    isFetched: isFetchedContractsData,
+    isError: isErrorContractsData,
+  } = useGetTransactionContractsByHeight({ txHash }, { enabled: apiStatus === "confirmed" });
+  const {
+    data: eventsData,
+    isFetched: isFetchedEventsData,
+    isError: isErrorEventsData,
+  } = useGetTransactionEventsByHeight({ txHash }, { enabled: apiStatus === "confirmed" });
 
   const txContracts: TransactionContractInfo = React.useMemo(() => {
     if (!contractsData?.pages) return { messages: [], numOfMessage: 0, rawContent: "" };
@@ -114,11 +116,14 @@ const StandardNetworkTransactionInfo = ({
             transactionItem={txContracts}
             rawTransaction={transactionItem}
             isDesktop={isDesktop}
+            isError={isErrorContractsData}
             getUrlWithNetwork={getUrlWithNetwork}
             storageDepositInfo={storageDepositInfo}
           />
         ))}
-      {currentTab === "Events" && !isPending && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
+      {currentTab === "Events" && !isPending && (
+        <EventDatatable events={txEvents} isFetched={isFetchedEventsData} isError={isErrorEventsData} />
+      )}
     </DataListSection>
   );
 };

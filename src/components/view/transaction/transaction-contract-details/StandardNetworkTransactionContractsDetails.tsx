@@ -22,9 +22,10 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
   rawTransaction: Transaction | null;
   isDesktop: boolean;
+  isError?: boolean;
   getUrlWithNetwork: (uri: string) => string;
   storageDepositInfo?: StorageDeposit | null;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, rawTransaction }) => {
+}> = ({ transactionItem, isDesktop, isError, getUrlWithNetwork, rawTransaction }) => {
   const messages: TransactionContractModel[] = React.useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
@@ -67,6 +68,16 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
 
   if (!transactionItem) {
     return <React.Fragment />;
+  }
+
+  if (isError && messages.length === 0) {
+    return (
+      <S.ContractListBox>
+        <Text type="p4" color="primary">
+          Not Supported
+        </Text>
+      </S.ContractListBox>
+    );
   }
 
   return (
