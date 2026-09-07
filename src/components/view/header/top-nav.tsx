@@ -50,6 +50,10 @@ export const navItems = [
     path: "/realms",
   },
   {
+    name: "Accounts",
+    path: "/accounts",
+  },
+  {
     name: "Tokens",
     path: "/tokens",
   },
