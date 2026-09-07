@@ -20,6 +20,7 @@ interface ValidatorTableProps {
   fromHeight: number | null;
   toHeight: number | null;
   commitSize: number;
+  isError?: boolean;
 }
 
 const COLUMN_WIDTHS = {
@@ -38,7 +39,7 @@ const STATUS_DISPLAY_MAP: Record<ValidatorStatus, string> = {
   PENDING: "Pending",
 };
 
-const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize }: ValidatorTableProps) => {
+const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize, isError }: ValidatorTableProps) => {
   const { getUrlWithNetwork, gnoWebUrl } = useNetwork();
 
   const getCommitsByAddress = useCallback(
@@ -72,7 +73,7 @@ const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize 
   if (validators.length === 0) {
     return (
       <S.Container>
-        <S.NoDataWrapper>No data to display</S.NoDataWrapper>
+        <S.NoDataWrapper>{isError ? "Not Supported" : "No data to display"}</S.NoDataWrapper>
       </S.Container>
     );
   }

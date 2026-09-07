@@ -12,6 +12,7 @@ const ValidatorsContainer = () => {
     data: validatorsData,
     isLoading: isValidatorsLoading,
     isFetched: isValidatorsFetched,
+    isError: isValidatorsError,
   } = useGetValidators({ limit: 100 });
 
   const { data: commitsData } = useGetValidatorCommits({ size: COMMIT_SIZE });
@@ -25,6 +26,7 @@ const ValidatorsContainer = () => {
       fromHeight={commitsData?.fromHeight ?? null}
       toHeight={commitsData?.toHeight ?? null}
       commitSize={COMMIT_SIZE}
+      isError={isValidatorsError}
     />
   );
 };
