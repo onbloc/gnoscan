@@ -174,6 +174,15 @@ export interface TokenHolder {
   percentage: number;
 }
 
+export interface AccountListItem {
+  rank: number;
+  address: string;
+  nameTag?: string | null;
+  balance: Amount;
+  percentage: number;
+  txCount: number;
+}
+
 export interface TransactionContractInfo {
   messages: any[];
   numOfMessage: number;

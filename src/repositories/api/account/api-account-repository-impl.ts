@@ -1,8 +1,13 @@
 import { NetworkClient } from "@/common/clients/network-client";
 import { ApiAccountRepository } from "./api-account-repository";
 
-import { GetAccountEventsRequest, GetAccountTransactionsRequest } from "./request";
-import { GetAccountEventsResponse, GetAccountResponse, GetAccountTransactionsResponse } from "./response";
+import { GetAccountEventsRequest, GetAccountsRequest, GetAccountTransactionsRequest } from "./request";
+import {
+  GetAccountEventsResponse,
+  GetAccountResponse,
+  GetAccountsResponse,
+  GetAccountTransactionsResponse,
+} from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
 
@@ -24,6 +29,22 @@ export class ApiAccountRepositoryImpl implements ApiAccountRepository {
     return this.networkClient
       .get<APIResponse<GetAccountResponse>>({
         url: `accounts/${address}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getAccounts(params: GetAccountsRequest): Promise<GetAccountsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const requestParams = makeQueryParameter({ ...params });
+
+    return this.networkClient
+      .get<APIResponse<GetAccountsResponse>>({
+        url: `accounts${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
