@@ -15,6 +15,7 @@ import { useWindowSize } from "@/common/hooks/use-window-size";
 interface Props {
   transactions: Transaction[];
   isFetched: boolean;
+  isError?: boolean;
   hasNextPage?: boolean;
   nextPage: () => void;
 }
@@ -27,7 +28,7 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nextPage }: Props) => {
+export const BlockDetailDatatable = ({ transactions, isFetched, isError, hasNextPage, nextPage }: Props) => {
   const { breakpoint } = useWindowSize();
   const themeMode = useRecoilValue(themeState);
   const { getTokenAmount } = useTokenMeta();
@@ -148,6 +149,7 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
           };
         })}
         datas={transactions}
+        supported={!isError}
       />
       {hasNextPage ? (
         <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>

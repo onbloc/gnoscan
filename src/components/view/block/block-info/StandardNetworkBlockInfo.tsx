@@ -19,6 +19,7 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
     data: transactions,
     totalCount: transactionsTotalCount,
     isFetched: isFetchedTransactions,
+    isError: isErrorTransactions,
     hasNextPage: transactionsHasNextPage,
     fetchNextPage: transactionsFetchNextPage,
   } = useMappedApiBlockTransactions({
@@ -55,6 +56,7 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
         <BlockDetailDatatable
           transactions={transactions}
           isFetched={isFetchedTransactions}
+          isError={isErrorTransactions}
           hasNextPage={transactionsHasNextPage}
           nextPage={transactionsFetchNextPage}
         />

@@ -18,6 +18,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
   const {
     data: transactionData,
     isFetched: isFetchedTransactionData,
+    isError: isErrorTransactionData,
     hasNextPage: hasNextPageTransactionData,
     fetchNextPage: fetchNextPageTransactionData,
   } = useGetRealmTransactionsByPath({ path });
@@ -67,6 +68,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
         <RealmDetailDatatable
           data={realmTransactions}
           isFetched={isFetchedTransactionData}
+          isError={isErrorTransactionData}
           hasNextPage={hasNextPageTransactionData || false}
           nextPage={fetchNextPageTransactionData}
           pkgPath={`${path}`}
