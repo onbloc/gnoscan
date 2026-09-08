@@ -16,6 +16,7 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
+import { stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 
 type TransferView = "all" | "net";
@@ -160,7 +161,10 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
     const tokenKey = transfer.amount.denom;
     const lastSegment = tokenKey.split("/").pop() || tokenKey;
     const symbol = lastSegment.includes(".") ? lastSegment.slice(lastSegment.lastIndexOf(".") + 1) : lastSegment;
-    const imagePath = getTokenImage(transfer.amount.denom);
+    // Unlike `getTokenInfo`/`getTokenAmount`, `getTokenImage` does a single-key lookup
+    // with no fallback to the stripped pkgPath — pass it the stripped key directly so a
+    // `pkgPath.SYMBOL` denom still matches a token-meta id stored as plain `pkgPath`.
+    const imagePath = getTokenImage(stripTokenKeySymbol(transfer.amount.denom));
 
     const decimals = decimalsByTokenKey[tokenKey];
     const displayValue =
