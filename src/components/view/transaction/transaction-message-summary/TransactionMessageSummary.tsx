@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import styled from "styled-components";
+import { useQueries } from "react-query";
+import BigNumber from "bignumber.js";
 
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
@@ -11,6 +13,8 @@ import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import { BadgeList, Field } from "@/components/view/transaction/common";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useNetwork } from "@/common/hooks/use-network";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 
@@ -84,6 +88,41 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
 
   const { getTokenAmount, getTokenImage } = useTokenMeta();
   const { getUrlWithNetwork } = useNetwork();
+  const { apiTokenRepository } = useServiceProvider();
+  const { currentNetwork } = useNetworkProvider();
+
+  const grc20TokenKeys = React.useMemo(() => {
+    const keys = new Set<string>();
+    transfers.forEach(transfer => {
+      if (transfer.assetType === "grc20") keys.add(transfer.amount.denom);
+    });
+    netTransfers.forEach(transfer => {
+      if (transfer.assetType === "grc20") keys.add(transfer.amount.denom);
+    });
+    return Array.from(keys);
+  }, [transfers, netTransfers]);
+
+  const tokenQueries = useQueries(
+    grc20TokenKeys.map(tokenKey => ({
+      queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
+      queryFn: () => {
+        if (!apiTokenRepository) return Promise.reject(new Error("FAILED_INITIALIZE_REPOSITORY"));
+        return apiTokenRepository.getToken(tokenKey);
+      },
+      enabled: !!apiTokenRepository,
+      retry: 1,
+      staleTime: 5 * 60 * 1000,
+    })),
+  );
+
+  const decimalsByTokenKey = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    grc20TokenKeys.forEach((tokenKey, index) => {
+      const decimals = tokenQueries[index]?.data?.data?.decimals;
+      if (decimals !== undefined) map[tokenKey] = decimals;
+    });
+    return map;
+  }, [grc20TokenKeys, tokenQueries]);
 
   const renderAddress = (address: string) => {
     if (!address) {
@@ -109,9 +148,8 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
   };
 
   const renderAmount = (transfer: { assetType: string; amount: { value: string; denom: string } }) => {
-    const displayAmount = getTokenAmount(transfer.amount.denom, transfer.amount.value);
-
     if (transfer.assetType !== "grc20") {
+      const displayAmount = getTokenAmount(transfer.amount.denom, transfer.amount.value);
       return <AmountText value={displayAmount.value} denom={displayAmount.denom} maxSize="p4" minSize="p4" />;
     }
 
@@ -124,9 +162,15 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
     const symbol = lastSegment.includes(".") ? lastSegment.slice(lastSegment.lastIndexOf(".") + 1) : lastSegment;
     const imagePath = getTokenImage(transfer.amount.denom);
 
+    const decimals = decimalsByTokenKey[tokenKey];
+    const displayValue =
+      decimals !== undefined
+        ? BigNumber(transfer.amount.value).shiftedBy(-decimals).toString()
+        : getTokenAmount(transfer.amount.denom, transfer.amount.value).value;
+
     return (
       <>
-        <AmountText value={displayAmount.value} denom="" maxSize="p4" minSize="p4" />
+        <AmountText value={displayValue} denom="" maxSize="p4" minSize="p4" />
         <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
           <TokenChip>
             {imagePath ? (
