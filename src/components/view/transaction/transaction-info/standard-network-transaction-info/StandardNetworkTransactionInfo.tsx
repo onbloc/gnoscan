@@ -27,7 +27,9 @@ interface TransactionInfoProps {
 
 // Messages and Events used to be separate tabs. Both are "raw detail you rarely need"
 // once `summary` exists to answer "what happened" up front, so they're now merged behind
-// one "Show Logs" toggle (Terra Finder-style) instead of a tab switcher.
+// one "Show Details" toggle (Terra Finder-style) instead of a tab switcher. Named "Details"
+// rather than "Logs" so it doesn't collide with the per-message raw-log "Show Logs" toggle
+// (`ShowLog`) that can appear inside the revealed message cards.
 const StandardNetworkTransactionInfo = ({ txHash, isDesktop, getUrlWithNetwork }: TransactionInfoProps) => {
   const { transaction } = useTransaction(txHash);
   const { transactionItem, transactionEvents } = transaction;
@@ -92,8 +94,8 @@ const StandardNetworkTransactionInfo = ({ txHash, isDesktop, getUrlWithNetwork }
   );
 
   const logsButtonText = showLogs
-    ? "Hide Logs"
-    : `Show Logs (Messages ${txContracts.numOfMessage} · Events ${eventTotalCount})`;
+    ? "Hide Details"
+    : `Show Details (Messages ${txContracts.numOfMessage} · Events ${eventTotalCount})`;
 
   const logsContent = (
     <DataListSection
