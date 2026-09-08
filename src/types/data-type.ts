@@ -185,6 +185,33 @@ export interface TransactionEvent {
   events: GnoEvent[];
 }
 
+export type NetTransferDirection = "received" | "sent";
+
+export interface AssetTransfer {
+  tokenId?: string;
+  assetType: string;
+  from: string;
+  to: string;
+  amount: Amount;
+}
+
+export interface NetTransfer {
+  tokenId?: string;
+  assetType: string;
+  address: string;
+  direction: NetTransferDirection;
+  amount: Amount;
+}
+
+/** Interpreted view of a tx's asset movement, from the API's `summary` field. `types` is
+ *  whatever a message directly invoked (e.g. "transfer", or a raw function name like
+ *  "ExactInSwapRoute") — not yet a realm-aware semantic label. */
+export interface TransactionSummaryDetail {
+  types: string[];
+  transfers: AssetTransfer[];
+  netTransfers: NetTransfer[];
+}
+
 export interface TransactionSummaryInfo {
   network: any;
   timeStamp: TimeStamp;
@@ -195,6 +222,7 @@ export interface TransactionSummaryInfo {
   transactionItem: Transaction | null;
   transactionEvents: GnoEvent[];
   hasApplicationError?: boolean;
+  summary?: TransactionSummaryDetail | null;
 }
 
 export interface NewestRealm {

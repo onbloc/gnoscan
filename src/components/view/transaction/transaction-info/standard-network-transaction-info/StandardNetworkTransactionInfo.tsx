@@ -12,8 +12,10 @@ import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.ut
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { EventDatatable } from "@/components/view/datatable/event";
 import DataListSection from "@/components/view/details-data-section/data-list-section";
+import { ViewMoreButton } from "@/components/ui/button";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
+import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -23,19 +25,18 @@ interface TransactionInfoProps {
   getUrlWithNetwork: (uri: string) => string;
 }
 
-const StandardNetworkTransactionInfo = ({
-  txHash,
-  isDesktop,
-  currentTab,
-  setCurrentTab,
-  getUrlWithNetwork,
-}: TransactionInfoProps) => {
+// Messages and Events used to be separate tabs. Both are "raw detail you rarely need"
+// once `summary` exists to answer "what happened" up front, so they're now merged behind
+// one "Show Logs" toggle (Terra Finder-style) instead of a tab switcher.
+const StandardNetworkTransactionInfo = ({ txHash, isDesktop, getUrlWithNetwork }: TransactionInfoProps) => {
   const { transaction } = useTransaction(txHash);
   const { transactionItem, transactionEvents } = transaction;
 
   const { data: apiTransaction, status: apiStatus } = useMappedApiTransaction(txHash);
   const isPending = apiStatus === "pending";
   const { getTokenAmount } = useTokenMeta();
+  const [showLogs, setShowLogs] = React.useState(false);
+  const [logsTab, setLogsTab] = React.useState("Messages");
 
   // Contracts/events only exist once the tx is confirmed and indexed — fetching them
   // any earlier (e.g. during the not-yet-settled grace window right after a 404) would
@@ -75,50 +76,62 @@ const StandardNetworkTransactionInfo = ({
   }, [transactionEvents]);
 
   // The API returns the total event count only on the first page.
-  const eventTotalCount = eventsData?.pages?.[0]?.page?.totalCount;
-
-  // Events only exist once a tx has actually executed, so there's nothing to show —
-  // or even a meaningful "0" for — while it's still pending. Drop the tab entirely
-  // rather than rendering an empty table that reads as "confirmed, zero events".
-  const detailTabs = React.useMemo(() => {
-    const tabs: { tabName: string; size?: number }[] = [{ tabName: "Messages" }];
-
-    if (!isPending) {
-      tabs.push({ tabName: "Events", size: eventTotalCount ?? txEvents.length });
-    }
-
-    return tabs;
-  }, [isPending, eventsData, eventTotalCount, txEvents.length]);
-
-  React.useEffect(() => {
-    if (isPending && currentTab === "Events") {
-      setCurrentTab("Messages");
-    }
-  }, [isPending, currentTab, setCurrentTab]);
+  const eventTotalCount = eventsData?.pages?.[0]?.page?.totalCount ?? txEvents.length;
 
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
   if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
 
+  // Collapsing Messages/Events behind "Show Logs" is only a win when `summary` actually
+  // gives the user something to look at instead — an old API response, an unparseable tx,
+  // or a summary with every field empty must fall back to the pre-existing always-open
+  // view, or the page would default to showing almost nothing but a button.
+  const summaryData = apiTransaction?.summary;
+  const hasRenderableSummary = Boolean(
+    summaryData &&
+      (summaryData.types.length > 0 || summaryData.transfers.length > 0 || summaryData.netTransfers.length > 0),
+  );
+
+  const logsButtonText = showLogs
+    ? "Hide Logs"
+    : `Show Logs (Messages ${txContracts.numOfMessage} · Events ${eventTotalCount})`;
+
+  const logsContent = (
+    <DataListSection
+      tabs={[{ tabName: "Messages" }, { tabName: "Events", size: eventTotalCount }]}
+      currentTab={logsTab}
+      setCurrentTab={setLogsTab}
+    >
+      {logsTab === "Messages" && (
+        <StandardNetworkTransactionContractDetails
+          transactionItem={txContracts}
+          rawTransaction={transactionItem}
+          isDesktop={isDesktop}
+          getUrlWithNetwork={getUrlWithNetwork}
+          storageDepositInfo={storageDepositInfo}
+        />
+      )}
+      {logsTab === "Events" && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
+    </DataListSection>
+  );
+
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Messages" &&
-        (isPending ? (
-          <TransactionContractDetails
-            transactionItem={apiTransaction.transactionItem}
-            isDesktop={isDesktop}
-            getUrlWithNetwork={getUrlWithNetwork}
-            getTokenAmount={getTokenAmount}
-          />
-        ) : (
-          <StandardNetworkTransactionContractDetails
-            transactionItem={txContracts}
-            rawTransaction={transactionItem}
-            isDesktop={isDesktop}
-            getUrlWithNetwork={getUrlWithNetwork}
-            storageDepositInfo={storageDepositInfo}
-          />
-        ))}
-      {currentTab === "Events" && !isPending && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
+    <DataListSection tabs={[{ tabName: "Activity" }]} currentTab="Activity" setCurrentTab={() => undefined}>
+      {isPending ? (
+        <TransactionContractDetails
+          transactionItem={apiTransaction.transactionItem}
+          isDesktop={isDesktop}
+          getUrlWithNetwork={getUrlWithNetwork}
+          getTokenAmount={getTokenAmount}
+        />
+      ) : summaryData && hasRenderableSummary ? (
+        <>
+          <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
+          {showLogs && logsContent}
+          <ViewMoreButton text={logsButtonText} onClick={() => setShowLogs(prev => !prev)} />
+        </>
+      ) : (
+        logsContent
+      )}
     </DataListSection>
   );
 };
