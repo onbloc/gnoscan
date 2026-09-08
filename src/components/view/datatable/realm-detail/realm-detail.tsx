@@ -10,7 +10,6 @@ import { DatatableItem } from "..";
 import { eachMedia } from "@/common/hooks/use-media";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
-import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { Transaction } from "@/types/data-type";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
@@ -34,7 +33,6 @@ const TOOLTIP_TYPE = (
 export const RealmDetailDatatable = ({ pkgPath, data, isFetched, isError, hasNextPage, nextPage }: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
-  const { getTokenAmount } = useTokenMeta();
 
   const createHeaders = () => {
     return [
