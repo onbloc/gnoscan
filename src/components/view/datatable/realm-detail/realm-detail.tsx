@@ -14,7 +14,6 @@ import { Transaction } from "@/types/data-type";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
 interface Props {
-  pkgPath: string;
   data: Transaction[];
   isFetched: boolean;
   isError?: boolean;
@@ -30,7 +29,7 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const RealmDetailDatatable = ({ pkgPath, data, isFetched, isError, hasNextPage, nextPage }: Props) => {
+export const RealmDetailDatatable = ({ data, isFetched, isError, hasNextPage, nextPage }: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
 

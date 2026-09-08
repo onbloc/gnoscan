@@ -71,7 +71,6 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
           isError={isErrorTransactionData}
           hasNextPage={hasNextPageTransactionData || false}
           nextPage={fetchNextPageTransactionData}
-          pkgPath={`${path}`}
         />
       )}
       {currentTab === "Events" && (
