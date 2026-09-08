@@ -46,19 +46,19 @@ const TransactionMessageSummary = ({ summary, isDesktop }: Props) => {
           <BadgeList items={summary.types} />
         </Field>
       )}
-      {hasGrc20 && (
-        <TransferGroup
-          label="Tokens Transferred"
-          transfers={grc20Transfers}
-          netTransfers={grc20NetTransfers}
-          isDesktop={isDesktop}
-        />
-      )}
       {hasNative && (
         <TransferGroup
           label="Internal Transactions"
           transfers={nativeTransfers}
           netTransfers={nativeNetTransfers}
+          isDesktop={isDesktop}
+        />
+      )}
+      {hasGrc20 && (
+        <TransferGroup
+          label="Tokens Transferred"
+          transfers={grc20Transfers}
+          netTransfers={grc20NetTransfers}
           isDesktop={isDesktop}
         />
       )}
@@ -151,7 +151,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
   const renderAmount = (transfer: { assetType: string; amount: { value: string; denom: string } }) => {
     if (transfer.assetType !== "grc20") {
       const displayAmount = getTokenAmount(transfer.amount.denom, transfer.amount.value);
-      return <AmountText value={displayAmount.value} denom={displayAmount.denom} maxSize="p4" minSize="p4" />;
+      return <AmountText value={displayAmount.value} denom={displayAmount.denom} maxSize="p4" minSize="body2" />;
     }
 
     // The API's denom for a GRC20 leg already comes as `pkgPath.SYMBOL` (e.g.
@@ -174,7 +174,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
 
     return (
       <>
-        <AmountText value={displayValue} denom="" maxSize="p4" minSize="p4" />
+        <AmountText value={displayValue} denom="" maxSize="p4" minSize="body2" />
         <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
           <TokenChip>
             {imagePath ? (
