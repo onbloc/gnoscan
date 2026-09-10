@@ -21,7 +21,7 @@ const TransferSummaryLine = ({ transfer }: Props) => {
       <Text type="p4" color="tertiary">
         Transfer
       </Text>
-      <TransferAmount transfer={transfer} decimalsByTokenKey={decimalsByTokenKey} />
+      <TransferAmount transfer={transfer} decimalsByTokenKey={decimalsByTokenKey} bold />
       <Text type="p4" color="tertiary">
         to
       </Text>

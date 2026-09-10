@@ -134,9 +134,10 @@ interface TokenAmountDisplayProps {
   rawValue: string;
   isGrc20: boolean;
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
+  bold?: boolean;
 }
 
-const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey }: TokenAmountDisplayProps) => {
+const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey, bold }: TokenAmountDisplayProps) => {
   const { getTokenAmount, getTokenImage } = useTokenMeta();
   const { getUrlWithNetwork } = useNetwork();
 
@@ -148,7 +149,7 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey 
 
     return (
       <>
-        <AmountText value={displayAmount.value} denom="" maxSize="p4" minSize="body2" />
+        <AmountText value={displayAmount.value} denom="" maxSize="p4" minSize="body2" bold={bold} />
         <TokenChip>
           {imagePath ? (
             <img className="token-icon" src={imagePath} alt="" />
@@ -179,7 +180,7 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey 
 
   return (
     <>
-      <AmountText value={displayValue} denom="" maxSize="p4" minSize="body2" />
+      <AmountText value={displayValue} denom="" maxSize="p4" minSize="body2" bold={bold} />
       <Link href={getUrlWithNetwork(`/tokens/${linkTokenKey}`)}>
         <TokenChip>
           {imagePath ? (
@@ -199,14 +200,16 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey 
 interface TransferAmountProps {
   transfer: { assetType: string; amount: { value: string; denom: string } };
   decimalsByTokenKey: Record<string, number>;
+  bold?: boolean;
 }
 
-export const TransferAmount = ({ transfer, decimalsByTokenKey }: TransferAmountProps) => (
+export const TransferAmount = ({ transfer, decimalsByTokenKey, bold }: TransferAmountProps) => (
   <TokenAmountDisplay
     tokenKey={transfer.amount.denom}
     rawValue={transfer.amount.value}
     isGrc20={transfer.assetType === "grc20"}
     tokenInfosByTokenKey={toTokenInfos(decimalsByTokenKey)}
+    bold={bold}
   />
 );
 
