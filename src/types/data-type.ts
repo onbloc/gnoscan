@@ -191,7 +191,9 @@ export interface AssetTransfer {
   tokenId?: string;
   assetType: string;
   from: string;
+  fromPackagePath?: string;
   to: string;
+  toPackagePath?: string;
   amount: Amount;
 }
 
@@ -199,6 +201,7 @@ export interface NetTransfer {
   tokenId?: string;
   assetType: string;
   address: string;
+  packagePath?: string;
   direction: NetTransferDirection;
   amount: Amount;
 }
@@ -207,6 +210,7 @@ export interface ActionAsset {
   assetType: string;
   key: string;
   value: string;
+  packagePath?: string;
 }
 
 export interface TransactionAction {

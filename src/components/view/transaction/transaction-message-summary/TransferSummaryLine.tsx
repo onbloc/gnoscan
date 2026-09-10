@@ -25,7 +25,7 @@ const TransferSummaryLine = ({ transfer }: Props) => {
       <Text type="p4" color="tertiary">
         to
       </Text>
-      <TransferAddress address={transfer.to} />
+      <TransferAddress address={transfer.to} packagePath={transfer.toPackagePath} />
     </Line>
   );
 };

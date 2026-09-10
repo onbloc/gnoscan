@@ -137,7 +137,7 @@ export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<st
   return tokenInfo?.symbol || fallbackSymbol;
 }
 
-export const TransferAddress = ({ address }: { address: string }) => {
+export const TransferAddress = ({ address, packagePath }: { address: string; packagePath?: string }) => {
   const { getUrlWithNetwork } = useNetwork();
 
   if (!address) {
@@ -150,11 +150,15 @@ export const TransferAddress = ({ address }: { address: string }) => {
 
   return (
     <AddressChip>
-      <Link href={getUrlWithNetwork(`/account/${address}`)}>
-        <Text type="p4" color="blue" display="contents">
-          {textEllipsis(address, 6)}
-        </Text>
-      </Link>
+      {packagePath ? (
+        <RealmLink pkgPath={packagePath}>{packagePath.replace("gno.land/", "")}</RealmLink>
+      ) : (
+        <Link href={getUrlWithNetwork(`/account/${address}`)}>
+          <Text type="p4" color="blue" display="contents">
+            {textEllipsis(address, 6)}
+          </Text>
+        </Link>
+      )}
       <Tooltip content="Copied!" trigger="click" copyText={address}>
         <IconCopy className="copy-icon" />
       </Tooltip>

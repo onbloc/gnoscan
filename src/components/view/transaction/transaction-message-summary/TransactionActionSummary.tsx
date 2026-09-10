@@ -106,7 +106,7 @@ function renderActionSentence(
           <Verb>Approve</Verb>
           {amount(approvedAmount)}
           <Verb>for</Verb>
-          <TransferAddress address={spender.value} />
+          <TransferAddress address={spender.value} packagePath={spender.packagePath} />
         </>
       );
     }
@@ -408,7 +408,7 @@ function renderActionSentence(
           <Verb>Deploy</Verb>
           <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
           <Verb>by</Verb>
-          <TransferAddress address={creator.value} />
+          <TransferAddress address={creator.value} packagePath={creator.packagePath} />
         </>
       );
     }
