@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
+import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
-import { AssetTransfer, Transaction, TransactionContractInfo, TransactionSummaryDetail } from "@/types/data-type";
+import { Transaction, TransactionContractInfo } from "@/types/data-type";
 
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { StorageDeposit } from "@/models/storage-deposit-model";
-import TransferSummaryLine from "../transaction-message-summary/TransferSummaryLine";
 import {
   StandardNetworkAddPackageMessage,
   StandardNetworkBankMsgSendMessage,
@@ -19,35 +18,13 @@ import {
 } from "../transaction-message-card";
 import * as S from "./TransactionContractDetails.styles";
 
-// A message is "just a transfer" when there's nothing else in the tx to summarize
-// separately — the top-line heading would otherwise duplicate (or fight with) a
-// multi-action summary, which is out of scope here (needs the backend's action data).
-const getSingleTransferSummary = (
-  message: TransactionContractModel | undefined,
-  numOfMessage: number,
-  summary?: TransactionSummaryDetail | null,
-): AssetTransfer | null => {
-  if (!message || numOfMessage !== 1 || !summary || summary.transfers.length !== 1) return null;
-
-  const isBankSend = message.messageType === MESSAGE_TYPES.BANK_MSG_SEND;
-  const isTransferCall =
-    message.messageType === MESSAGE_TYPES.VM_CALL &&
-    message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER &&
-    message.args.length === 2;
-
-  if (!isBankSend && !isTransferCall) return null;
-
-  return summary.transfers[0];
-};
-
 export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
   rawTransaction: Transaction | null;
   isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
   storageDepositInfo?: StorageDeposit | null;
-  summary?: TransactionSummaryDetail | null;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, rawTransaction, summary }) => {
+}> = ({ transactionItem, isDesktop, getUrlWithNetwork, rawTransaction }) => {
   const messages: TransactionContractModel[] = React.useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
@@ -99,11 +76,6 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           {transactionItem.numOfMessage > 1 && (
             <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
           )}
-
-          {(() => {
-            const transferSummary = getSingleTransferSummary(message, transactionItem.numOfMessage, summary);
-            return transferSummary && <TransferSummaryLine transfer={transferSummary} />;
-          })()}
 
           {message.messageType === MESSAGE_TYPES.BANK_MSG_SEND && (
             <StandardNetworkBankMsgSendMessage

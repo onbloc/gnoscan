@@ -16,6 +16,8 @@ import { StandardNetworkTransactionContractDetails } from "../../transaction-con
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
 import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
 import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
+import TransferSummaryLine from "../../transaction-message-summary/TransferSummaryLine";
+import { getSingleTransferSummary } from "../../transaction-message-summary/transfer-render";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -103,6 +105,7 @@ const StandardNetworkTransactionInfo = ({
 
   const summaryData = apiTransaction?.summary;
   const summaryActions = summaryData?.actions ?? [];
+  const singleTransferSummary = getSingleTransferSummary(txContracts.numOfMessage, summaryData);
   const hasRenderableSummary = Boolean(
     summaryData &&
       (summaryActions.length > 0 ||
@@ -122,10 +125,15 @@ const StandardNetworkTransactionInfo = ({
           />
         ) : (
           <>
-            {hasRenderableSummary && summaryData && (
+            {/* The single-transfer heading sits above "GRC-20 Transferred" in the same top
+                summary slot as the action summary, instead of down in the per-message details. */}
+            {(singleTransferSummary || hasRenderableSummary) && (
               <>
                 <TransactionActionSummary actions={summaryActions} />
-                <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
+                {singleTransferSummary && <TransferSummaryLine transfer={singleTransferSummary} />}
+                {hasRenderableSummary && summaryData && (
+                  <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
+                )}
               </>
             )}
             <StandardNetworkTransactionContractDetails
@@ -134,7 +142,6 @@ const StandardNetworkTransactionInfo = ({
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
               storageDepositInfo={storageDepositInfo}
-              summary={summaryData}
             />
           </>
         ))}
