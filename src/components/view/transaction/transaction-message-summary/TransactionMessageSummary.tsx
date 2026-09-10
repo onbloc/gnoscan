@@ -118,8 +118,12 @@ const TopAlignedDLWrap = styled(DLWrap)`
   align-items: flex-start !important;
 `;
 
+// The inner DLWrap row is always :first-of-type here, so its own top padding is zeroed.
+// without padding-top below, a preceding action-summary divider would sit flush against
+// the "GRC-20 Transferred" label instead of matching the normal row gap.
 const SummaryWrapper = styled.div`
   width: 100%;
+  padding-top: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed100};
 `;

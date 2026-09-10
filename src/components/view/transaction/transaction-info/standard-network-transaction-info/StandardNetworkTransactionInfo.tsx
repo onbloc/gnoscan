@@ -14,6 +14,7 @@ import { EventDatatable } from "@/components/view/datatable/event";
 import DataListSection from "@/components/view/details-data-section/data-list-section";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
+import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
 import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
 
 interface TransactionInfoProps {
@@ -101,9 +102,11 @@ const StandardNetworkTransactionInfo = ({
   if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
 
   const summaryData = apiTransaction?.summary;
+  const summaryActions = summaryData?.actions ?? [];
   const hasRenderableSummary = Boolean(
     summaryData &&
-      (summaryData.transfers.some(transfer => transfer.assetType === "grc20") ||
+      (summaryActions.length > 0 ||
+        summaryData.transfers.some(transfer => transfer.assetType === "grc20") ||
         summaryData.netTransfers.some(transfer => transfer.assetType === "grc20")),
   );
 
@@ -120,7 +123,10 @@ const StandardNetworkTransactionInfo = ({
         ) : (
           <>
             {hasRenderableSummary && summaryData && (
-              <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
+              <>
+                <TransactionActionSummary actions={summaryActions} />
+                <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
+              </>
             )}
             <StandardNetworkTransactionContractDetails
               transactionItem={txContracts}

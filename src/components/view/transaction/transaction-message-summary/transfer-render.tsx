@@ -15,33 +15,26 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
 import { stripTokenKeySymbol } from "@/common/utils/token.utility";
+import { ActionAsset } from "@/types/data-type";
 
-interface Grc20AmountLeg {
-  assetType: string;
-  amount: { denom: string };
+export interface TokenDisplayInfo {
+  decimals?: number;
+  symbol?: string;
+  tokenKey?: string;
 }
 
-// Shared by every view that lists GRC-20 legs (the "All/Net Transfers" table and a
-// single-line transfer summary): resolves each distinct GRC-20 denom's decimals once,
-// rather than each caller re-querying the same token.
-export const useGrc20TokenDecimals = (items: Grc20AmountLeg[]): Record<string, number> => {
+export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDisplayInfo> => {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork } = useNetworkProvider();
 
-  const grc20TokenKeys = React.useMemo(() => {
-    const keys = new Set<string>();
-    items.forEach(item => {
-      if (item.assetType === "grc20") keys.add(item.amount.denom);
-    });
-    return Array.from(keys);
-  }, [items]);
+  const queryKeys = React.useMemo(() => getTokenInfoQueryKeys(tokenKeys), [tokenKeys]);
 
   const tokenQueries = useQueries(
-    grc20TokenKeys.map(tokenKey => ({
+    queryKeys.map(tokenKey => ({
       queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
       queryFn: () => {
         if (!apiTokenRepository) return Promise.reject(new Error("FAILED_INITIALIZE_REPOSITORY"));
-        return apiTokenRepository.getToken(tokenKey);
+        return apiTokenRepository.getTokenMetaByPath(tokenKey);
       },
       enabled: !!apiTokenRepository,
       retry: 1,
@@ -50,13 +43,65 @@ export const useGrc20TokenDecimals = (items: Grc20AmountLeg[]): Record<string, n
   );
 
   return React.useMemo(() => {
+    const map: Record<string, TokenDisplayInfo> = {};
+    queryKeys.forEach((tokenKey, index) => {
+      const token = tokenQueries[index]?.data?.data;
+      if (!token) return;
+
+      map[tokenKey] = {
+        decimals: token.decimals,
+        symbol: token.symbol,
+        tokenKey: toTokenKey(token.path || tokenKey, token.symbol),
+      };
+    });
+
+    return withTokenKeyAliases(map, tokenKeys);
+  }, [tokenKeys, queryKeys, tokenQueries]);
+};
+
+export const useTokenDecimalsByKeys = (tokenKeys: string[]): Record<string, number> => {
+  const tokenInfos = useTokenInfosByKeys(tokenKeys);
+
+  return React.useMemo(() => {
     const map: Record<string, number> = {};
-    grc20TokenKeys.forEach((tokenKey, index) => {
-      const decimals = tokenQueries[index]?.data?.data?.decimals;
-      if (decimals !== undefined) map[tokenKey] = decimals;
+    Object.entries(tokenInfos).forEach(([tokenKey, tokenInfo]) => {
+      if (tokenInfo.decimals !== undefined) map[tokenKey] = tokenInfo.decimals;
     });
     return map;
-  }, [grc20TokenKeys, tokenQueries]);
+  }, [tokenInfos]);
+};
+
+interface Grc20AmountLeg {
+  assetType: string;
+  amount: { denom: string };
+}
+
+export const useGrc20TokenDecimals = (items: Grc20AmountLeg[]): Record<string, number> => {
+  const grc20TokenKeys = React.useMemo(() => {
+    const keys = new Set<string>();
+    items.forEach(item => {
+      if (item.assetType === "grc20") keys.add(item.amount.denom);
+    });
+    return Array.from(keys);
+  }, [items]);
+
+  return useTokenDecimalsByKeys(grc20TokenKeys);
+};
+
+const isGrc20AssetType = (assetType: string) => assetType.includes("/");
+
+export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
+  const tokenKeys = React.useMemo(() => {
+    const keys = new Set<string>();
+    actions.forEach(action => {
+      action.assets.forEach(asset => {
+        if (asset.key.startsWith("amount") && isGrc20AssetType(asset.assetType)) keys.add(asset.assetType);
+      });
+    });
+    return Array.from(keys);
+  }, [actions]);
+
+  return useTokenInfosByKeys(tokenKeys);
 };
 
 export const TransferAddress = ({ address }: { address: string }) => {
@@ -84,20 +129,22 @@ export const TransferAddress = ({ address }: { address: string }) => {
   );
 };
 
-interface TransferAmountProps {
-  transfer: { assetType: string; amount: { value: string; denom: string } };
-  decimalsByTokenKey: Record<string, number>;
+interface TokenAmountDisplayProps {
+  tokenKey: string;
+  rawValue: string;
+  isGrc20: boolean;
+  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
 }
 
-export const TransferAmount = ({ transfer, decimalsByTokenKey }: TransferAmountProps) => {
+const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey }: TokenAmountDisplayProps) => {
   const { getTokenAmount, getTokenImage } = useTokenMeta();
   const { getUrlWithNetwork } = useNetwork();
 
-  if (transfer.assetType !== "grc20") {
+  if (!isGrc20) {
     // Native assets aren't linkable to a `/tokens/[...path]` page like GRC20 is, so the
-    // symbol stays plain text here — but it still gets the same icon chip treatment.
-    const displayAmount = getTokenAmount(transfer.amount.denom, transfer.amount.value);
-    const imagePath = getTokenImage(transfer.amount.denom);
+    // symbol stays plain text here, but it still gets the same icon chip treatment.
+    const displayAmount = getTokenAmount(tokenKey, rawValue);
+    const imagePath = getTokenImage(tokenKey);
 
     return (
       <>
@@ -116,28 +163,24 @@ export const TransferAmount = ({ transfer, decimalsByTokenKey }: TransferAmountP
     );
   }
 
-  // The API's denom for a GRC20 leg already comes as `pkgPath.SYMBOL` (e.g.
-  // "gno.land/r/gnoswap/gns.GNS"), which is exactly the key `/tokens/[...path]`
-  // expects — so it doubles as both the link target and the display symbol,
-  // regardless of whether this token happens to be in the local token-meta cache.
-  const tokenKey = transfer.amount.denom;
+  const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
+  const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
   const lastSegment = tokenKey.split("/").pop() || tokenKey;
-  const symbol = lastSegment.includes(".") ? lastSegment.slice(lastSegment.lastIndexOf(".") + 1) : lastSegment;
-  // Unlike `getTokenInfo`/`getTokenAmount`, `getTokenImage` does a single-key lookup
-  // with no fallback to the stripped pkgPath — pass it the stripped key directly so a
-  // `pkgPath.SYMBOL` denom still matches a token-meta id stored as plain `pkgPath`.
-  const imagePath = getTokenImage(stripTokenKeySymbol(transfer.amount.denom));
+  const fallbackSymbol = lastSegment.includes(".") ? lastSegment.slice(lastSegment.lastIndexOf(".") + 1) : lastSegment;
+  const symbol = tokenInfo?.symbol || fallbackSymbol;
+  const linkTokenKey = tokenInfo?.tokenKey || (symbol ? toTokenKey(normalizedTokenKey, symbol) : tokenKey);
+  const imagePath = getTokenImage(stripTokenKeySymbol(linkTokenKey));
 
-  const decimals = decimalsByTokenKey[tokenKey];
+  const decimals = tokenInfo?.decimals;
   const displayValue =
     decimals !== undefined
-      ? BigNumber(transfer.amount.value).shiftedBy(-decimals).toString()
-      : getTokenAmount(transfer.amount.denom, transfer.amount.value).value;
+      ? BigNumber(rawValue).shiftedBy(-decimals).toString()
+      : getTokenAmount(tokenKey, rawValue).value;
 
   return (
     <>
       <AmountText value={displayValue} denom="" maxSize="p4" minSize="body2" />
-      <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
+      <Link href={getUrlWithNetwork(`/tokens/${linkTokenKey}`)}>
         <TokenChip>
           {imagePath ? (
             <img className="token-icon" src={imagePath} alt="" />
@@ -152,6 +195,82 @@ export const TransferAmount = ({ transfer, decimalsByTokenKey }: TransferAmountP
     </>
   );
 };
+
+interface TransferAmountProps {
+  transfer: { assetType: string; amount: { value: string; denom: string } };
+  decimalsByTokenKey: Record<string, number>;
+}
+
+export const TransferAmount = ({ transfer, decimalsByTokenKey }: TransferAmountProps) => (
+  <TokenAmountDisplay
+    tokenKey={transfer.amount.denom}
+    rawValue={transfer.amount.value}
+    isGrc20={transfer.assetType === "grc20"}
+    tokenInfosByTokenKey={toTokenInfos(decimalsByTokenKey)}
+  />
+);
+
+interface ActionAmountProps {
+  asset: ActionAsset;
+  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
+}
+
+export const ActionAmount = ({ asset, tokenInfosByTokenKey }: ActionAmountProps) => (
+  <TokenAmountDisplay
+    tokenKey={asset.assetType}
+    rawValue={asset.value}
+    isGrc20={isGrc20AssetType(asset.assetType)}
+    tokenInfosByTokenKey={tokenInfosByTokenKey}
+  />
+);
+
+const toTokenInfos = (decimalsByTokenKey: Record<string, number>): Record<string, TokenDisplayInfo> =>
+  Object.fromEntries(Object.entries(decimalsByTokenKey).map(([tokenKey, decimals]) => [tokenKey, { decimals }]));
+
+function getTokenInfoQueryKeys(tokenKeys: string[]): string[] {
+  const keys = new Set<string>();
+  tokenKeys.forEach(tokenKey => {
+    keys.add(tokenKey);
+    keys.add(stripTokenKeySymbol(tokenKey));
+  });
+  return Array.from(keys);
+}
+
+function withTokenKeyAliases(
+  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
+  tokenKeys: string[],
+): Record<string, TokenDisplayInfo> {
+  const map = { ...tokenInfosByTokenKey };
+
+  tokenKeys.forEach(tokenKey => {
+    const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
+    const sourceInfo = map[tokenKey];
+    const currentInfo = map[normalizedTokenKey];
+    const symbol = getTokenKeySymbol(tokenKey);
+    if (!sourceInfo && !symbol) return;
+
+    map[normalizedTokenKey] = {
+      ...sourceInfo,
+      ...currentInfo,
+      symbol: currentInfo?.symbol || sourceInfo?.symbol || symbol,
+      tokenKey: currentInfo?.tokenKey || sourceInfo?.tokenKey || toTokenKey(normalizedTokenKey, symbol),
+    };
+  });
+
+  return map;
+}
+
+function getTokenKeySymbol(tokenKey: string): string {
+  const lastSegment = tokenKey.split("/").pop() || "";
+  const dotIndex = lastSegment.lastIndexOf(".");
+  return dotIndex === -1 ? "" : lastSegment.slice(dotIndex + 1);
+}
+
+function toTokenKey(path: string, symbol?: string): string {
+  if (!symbol) return path;
+  const normalizedPath = stripTokenKeySymbol(path);
+  return `${normalizedPath}.${symbol}`;
+}
 
 const AddressChip = styled.span`
   display: inline-flex;

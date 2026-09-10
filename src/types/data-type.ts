@@ -203,13 +203,23 @@ export interface NetTransfer {
   amount: Amount;
 }
 
-/** Interpreted view of a tx's asset movement, from the API's `summary` field. `types` is
- *  whatever a message directly invoked (e.g. "transfer", or a raw function name like
- *  "ExactInSwapRoute") — not yet a realm-aware semantic label. */
+export interface ActionAsset {
+  assetType: string;
+  key: string;
+  value: string;
+}
+
+export interface TransactionAction {
+  realm: string;
+  type: string;
+  assets: ActionAsset[];
+}
+
 export interface TransactionSummaryDetail {
   types: string[];
   transfers: AssetTransfer[];
   netTransfers: NetTransfer[];
+  actions: TransactionAction[];
 }
 
 export interface TransactionSummaryInfo {
