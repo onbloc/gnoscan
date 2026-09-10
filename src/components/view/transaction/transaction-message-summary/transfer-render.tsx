@@ -109,6 +109,16 @@ export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
     actions.forEach(action => {
       action.assets.forEach(asset => {
         if (asset.key.startsWith("amount") && isGrc20AssetType(asset.assetType)) keys.add(asset.assetType);
+        // createPool's "pool" asset is the raw "token0Path:token1Path:fee" pool path - its
+        // token pair has no amount leg to key off, so pull them out here too.
+        if (asset.key === "pool") {
+          asset.value
+            .split(":")
+            .slice(0, 2)
+            .forEach(tokenPath => {
+              if (isGrc20AssetType(tokenPath)) keys.add(tokenPath);
+            });
+        }
       });
     });
     return Array.from(keys);
@@ -116,6 +126,16 @@ export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
 
   return useTokenInfosByKeys(tokenKeys);
 };
+
+// Same symbol resolution TokenAmountDisplay uses (registry lookup, else the last "."-segment
+// of the token path) - exported for callers that need just the symbol, not a full amount.
+export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<string, TokenDisplayInfo>): string {
+  const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
+  const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
+  const lastSegment = tokenKey.split("/").pop() || tokenKey;
+  const fallbackSymbol = lastSegment.includes(".") ? lastSegment.slice(lastSegment.lastIndexOf(".") + 1) : lastSegment;
+  return tokenInfo?.symbol || fallbackSymbol;
+}
 
 export const TransferAddress = ({ address }: { address: string }) => {
   const { getUrlWithNetwork } = useNetwork();
@@ -139,6 +159,18 @@ export const TransferAddress = ({ address }: { address: string }) => {
         <IconCopy className="copy-icon" />
       </Tooltip>
     </AddressChip>
+  );
+};
+
+export const RealmLink = ({ pkgPath, children }: { pkgPath: string; children: React.ReactNode }) => {
+  const { getUrlWithNetwork } = useNetwork();
+
+  return (
+    <Link href={getUrlWithNetwork(`/realms/details?path=${pkgPath}`)}>
+      <Text type="p4" color="blue" display="contents">
+        {children}
+      </Text>
+    </Link>
   );
 };
 

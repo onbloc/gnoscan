@@ -2,8 +2,16 @@ import React from "react";
 import styled from "styled-components";
 
 import Text from "@/components/ui/text";
+import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { ActionAsset, TransactionAction } from "@/types/data-type";
-import { ActionAmount, TokenDisplayInfo, TransferAddress, useActionTokenInfos } from "./transfer-render";
+import {
+  ActionAmount,
+  RealmLink,
+  TokenDisplayInfo,
+  TransferAddress,
+  getTokenSymbol,
+  useActionTokenInfos,
+} from "./transfer-render";
 
 interface Props {
   actions: TransactionAction[];
@@ -54,6 +62,18 @@ const Verb = ({ children }: { children: React.ReactNode }) => (
   <Text type="p4" color="tertiary">
     {children}
   </Text>
+);
+
+// Pool fee tiers are raw hundredths-of-a-bip units (e.g. "3000" = 0.3%), same as gnoswap itself
+// uses - see onbloc-api-v3's gnoswap/pool.go.
+const formatFeePercent = (fee: string) => `${formatTokenDecimal(fee, 4)}%`;
+
+const PoolFeeClause = ({ fee }: { fee: string }) => (
+  <>
+    <Verb>in a</Verb>
+    <Plain>{formatFeePercent(fee)}</Plain>
+    <Verb>pool</Verb>
+  </>
 );
 
 function renderActionSentence(
@@ -134,6 +154,7 @@ function renderActionSentence(
     case "reposition": {
       const tokens = amountAssets(assets);
       const position = findAsset(assets, "position");
+      const fee = findAsset(assets, "fee");
       if (tokens.length === 0 || !position) break;
       return (
         <>
@@ -141,12 +162,14 @@ function renderActionSentence(
           {joinAmounts(tokens, amount)}
           <Verb>to position</Verb>
           <Ref value={position.value} />
+          {fee && <PoolFeeClause fee={fee.value} />}
         </>
       );
     }
     case "removeLiquidity": {
       const tokens = amountAssets(assets);
       const position = findAsset(assets, "position");
+      const fee = findAsset(assets, "fee");
       if (tokens.length === 0 || !position) break;
       return (
         <>
@@ -154,12 +177,14 @@ function renderActionSentence(
           {joinAmounts(tokens, amount)}
           <Verb>from position</Verb>
           <Ref value={position.value} />
+          {fee && <PoolFeeClause fee={fee.value} />}
         </>
       );
     }
     case "collectFee": {
       const tokens = amountAssets(assets);
       const position = findAsset(assets, "position");
+      const fee = findAsset(assets, "fee");
       if (tokens.length === 0 || !position) break;
       return (
         <>
@@ -167,6 +192,7 @@ function renderActionSentence(
           {joinAmounts(tokens, amount)}
           <Verb>from position</Verb>
           <Ref value={position.value} />
+          {fee && <PoolFeeClause fee={fee.value} />}
         </>
       );
     }
@@ -274,11 +300,18 @@ function renderActionSentence(
     }
     case "createPool": {
       const pool = findAsset(assets, "pool");
-      if (!pool) break;
+      const fee = findAsset(assets, "fee");
+      if (!pool || !fee) break;
+      const [token0Path, token1Path] = pool.value.split(":");
+      if (!token0Path || !token1Path) break;
       return (
         <>
           <Verb>Create pool</Verb>
-          <Plain>{pool.value}</Plain>
+          <Plain>
+            {getTokenSymbol(token0Path, tokenInfosByTokenKey)}/{getTokenSymbol(token1Path, tokenInfosByTokenKey)}
+          </Plain>
+          <Plain>{formatFeePercent(fee.value)}</Plain>
+          <Verb>pool</Verb>
         </>
       );
     }
@@ -363,6 +396,19 @@ function renderActionSentence(
         <>
           <Verb>Cancel proposal</Verb>
           <Ref value={proposal.value} />
+        </>
+      );
+    }
+    case "deploy": {
+      const packageName = findAsset(assets, "packageName");
+      const creator = findAsset(assets, "creator");
+      if (!packageName || !creator) break;
+      return (
+        <>
+          <Verb>Deploy</Verb>
+          <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
+          <Verb>by</Verb>
+          <TransferAddress address={creator.value} />
         </>
       );
     }
