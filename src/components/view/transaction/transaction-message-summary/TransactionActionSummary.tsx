@@ -60,7 +60,7 @@ function renderActionSentence(
   action: TransactionAction,
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
 ): React.ReactNode {
-  const { type, assets } = action;
+  const { type, assets, realm } = action;
   const amount = (asset: ActionAsset) => <ActionAmount asset={asset} tokenInfosByTokenKey={tokenInfosByTokenKey} />;
 
   switch (type) {
@@ -87,6 +87,46 @@ function renderActionSentence(
           {amount(approvedAmount)}
           <Verb>for</Verb>
           <TransferAddress address={spender.value} />
+        </>
+      );
+    }
+    case "mint": {
+      if (realm === "grc721") {
+        const tokenId = findAsset(assets, "tokenId");
+        if (!tokenId) break;
+        return (
+          <>
+            <Verb>Mint NFT</Verb>
+            <Ref value={tokenId.value} />
+          </>
+        );
+      }
+      const [mintedAmount] = amountAssets(assets);
+      if (!mintedAmount) break;
+      return (
+        <>
+          <Verb>Mint</Verb>
+          {amount(mintedAmount)}
+        </>
+      );
+    }
+    case "burn": {
+      if (realm === "grc721") {
+        const tokenId = findAsset(assets, "tokenId");
+        if (!tokenId) break;
+        return (
+          <>
+            <Verb>Burn NFT</Verb>
+            <Ref value={tokenId.value} />
+          </>
+        );
+      }
+      const [burnedAmount] = amountAssets(assets);
+      if (!burnedAmount) break;
+      return (
+        <>
+          <Verb>Burn</Verb>
+          {amount(burnedAmount)}
         </>
       );
     }
