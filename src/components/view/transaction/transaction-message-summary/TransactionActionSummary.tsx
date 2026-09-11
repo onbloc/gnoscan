@@ -64,22 +64,12 @@ const Ref = ({ label, value, href }: { label?: string; value: string; href?: str
 };
 
 // gnoscan has no page of its own for a pool/position - link out to gnoswap's app pool page
-// instead (it has no separate per-position page). poolPath must be the pool's own canonical
-// "token0Path:token1Path:fee" (sorted the way gnoswap itself sorts it), so this is only safe to
-// build from a token pair that came from the pool's own on-chain path - see buildPoolPath.
+// instead (it has no separate per-position page).
 const gnoswapPoolUrl = (poolPath: string) =>
   `${GNOSWAP_APP_BASE_URL}/earn/pool?poolPath=${encodeURIComponent(poolPath)}`;
 
-// Only buildable when both position tokens are present - a single-sided add/remove drops the
-// zero-amount side entirely (see onbloc-api-v3's nonZeroAssets), leaving no way to recover its
-// path, so this deliberately returns null rather than guessing.
-const buildPoolPath = (tokens: ActionAsset[], fee: ActionAsset | undefined): string | null => {
-  if (tokens.length !== 2 || !fee) return null;
-  return `${tokens[0].assetType}:${tokens[1].assetType}:${fee.value}`;
-};
-
-// stake/unstake/collectReward move no token amount of their own, so the backend gives the pool's
-// poolPath directly (already "token0Path:token1Path:fee") instead of separate amount assets.
+// Every pool/position action carries its own canonical "pool" asset (already the on-chain
+// "token0Path:token1Path:fee"), so this is never reconstructed from other assets.
 const poolHref = (pool: ActionAsset | undefined) => (pool ? gnoswapPoolUrl(pool.value) : undefined);
 
 const Plain = ({ children }: { children: React.ReactNode }) => (
@@ -217,15 +207,15 @@ function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext)
   const { type, assets, realm } = action;
   const tokens = amountAssets(assets);
   const position = findAsset(assets, "position");
+  const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
   if (tokens.length === 0 || !position) return null;
-  const poolPath = buildPoolPath(tokens, fee);
   return (
     <>
       <Verb>{type === "reposition" ? "Reposition" : "Add liquidity"}</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>to</Verb>
-      <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
+      <Ref label="position" value={position.value} href={poolHref(pool)} />
       {fee && <PoolFeeClause fee={fee.value} />}
       <ViaRealmClause realm={realm} />
     </>
@@ -236,15 +226,15 @@ function renderRemoveLiquidity(action: TransactionAction, ctx: ActionRenderConte
   const { assets, realm } = action;
   const tokens = amountAssets(assets);
   const position = findAsset(assets, "position");
+  const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
   if (tokens.length === 0 || !position) return null;
-  const poolPath = buildPoolPath(tokens, fee);
   return (
     <>
       <Verb>Remove liquidity</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
-      <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
+      <Ref label="position" value={position.value} href={poolHref(pool)} />
       {fee && <PoolFeeClause fee={fee.value} />}
       <ViaRealmClause realm={realm} />
     </>
@@ -255,15 +245,15 @@ function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): 
   const { assets, realm } = action;
   const tokens = amountAssets(assets);
   const position = findAsset(assets, "position");
+  const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
   if (tokens.length === 0 || !position) return null;
-  const poolPath = buildPoolPath(tokens, fee);
   return (
     <>
       <Verb>Collect fee</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
-      <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
+      <Ref label="position" value={position.value} href={poolHref(pool)} />
       {fee && <PoolFeeClause fee={fee.value} />}
       <ViaRealmClause realm={realm} />
     </>
