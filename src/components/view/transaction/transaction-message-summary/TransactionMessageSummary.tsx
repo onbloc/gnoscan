@@ -81,11 +81,11 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
                   <Text type="p4" color="primary" fontWeight={700}>
                     From
                   </Text>
-                  <TransferAddress address={transfer.from} packagePath={transfer.fromPackagePath} />
+                  <TransferAddress address={transfer.from} />
                   <Text type="p4" color="primary" fontWeight={700}>
                     To
                   </Text>
-                  <TransferAddress address={transfer.to} packagePath={transfer.toPackagePath} />
+                  <TransferAddress address={transfer.to} />
                   <Text type="p4" color="primary" fontWeight={700}>
                     For
                   </Text>
@@ -99,7 +99,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
             <List>
               {netTransfers.map((transfer, index) => (
                 <li key={index}>
-                  <TransferAddress address={transfer.address} packagePath={transfer.packagePath} />
+                  <TransferAddress address={transfer.address} />
                   <Text type="p4" color="primary" fontWeight={700}>
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>
