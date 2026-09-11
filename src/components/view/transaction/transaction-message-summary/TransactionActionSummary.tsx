@@ -129,378 +129,457 @@ const poolPairLabel = (
   return `${getTokenSymbol(token0Path, tokenInfosByTokenKey)}/${getTokenSymbol(token1Path, tokenInfosByTokenKey)}`;
 };
 
+// Each action type's sentence lives in its own renderer, keyed by type in ACTION_RENDERERS below -
+// keeps a new action type's blast radius (and its tests) to one function instead of a growing
+// switch. A renderer returns null (not throws/break) when its required assets are missing, so the
+// dispatcher can fall back to the raw type name.
+interface ActionRenderContext {
+  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
+  amount: (asset: ActionAsset) => React.ReactNode;
+}
+
+type ActionRenderer = (action: TransactionAction, ctx: ActionRenderContext) => React.ReactNode | null;
+
+function renderSwap(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [from] = amountInAssets(action.assets);
+  const [to] = amountOutAssets(action.assets);
+  if (!from || !to) return null;
+  return (
+    <>
+      <Verb>Swap</Verb>
+      {ctx.amount(from)}
+      <Verb>for</Verb>
+      {ctx.amount(to)}
+    </>
+  );
+}
+
+function renderApprove(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [approvedAmount] = amountAssets(action.assets);
+  const spender = findAsset(action.assets, "spender");
+  if (!approvedAmount || !spender) return null;
+  return (
+    <>
+      <Verb>Approve</Verb>
+      {ctx.amount(approvedAmount)}
+      <Verb>for</Verb>
+      <TransferAddress address={spender.value} packagePath={spender.packagePath} />
+    </>
+  );
+}
+
+function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, tag } = action;
+  if (tag === "grc721") {
+    const tokenId = findAsset(assets, "tokenId");
+    if (!tokenId) return null;
+    return (
+      <>
+        <Verb>Mint NFT</Verb>
+        <Ref value={tokenId.value} />
+      </>
+    );
+  }
+  const [mintedAmount] = amountAssets(assets);
+  if (!mintedAmount) return null;
+  return (
+    <>
+      <Verb>Mint</Verb>
+      {ctx.amount(mintedAmount)}
+    </>
+  );
+}
+
+function renderBurn(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, tag } = action;
+  if (tag === "grc721") {
+    const tokenId = findAsset(assets, "tokenId");
+    if (!tokenId) return null;
+    return (
+      <>
+        <Verb>Burn NFT</Verb>
+        <Ref value={tokenId.value} />
+      </>
+    );
+  }
+  const [burnedAmount] = amountAssets(assets);
+  if (!burnedAmount) return null;
+  return (
+    <>
+      <Verb>Burn</Verb>
+      {ctx.amount(burnedAmount)}
+    </>
+  );
+}
+
+// Shared by "addLiquidity" and "reposition" - identical shape, only the verb differs.
+function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { type, assets, realm } = action;
+  const tokens = amountAssets(assets);
+  const position = findAsset(assets, "position");
+  const fee = findAsset(assets, "fee");
+  if (tokens.length === 0 || !position) return null;
+  const poolPath = buildPoolPath(tokens, fee);
+  return (
+    <>
+      <Verb>{type === "reposition" ? "Reposition" : "Add liquidity"}</Verb>
+      {joinAmounts(tokens, ctx.amount)}
+      <Verb>to</Verb>
+      <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
+      {fee && <PoolFeeClause fee={fee.value} />}
+      <ViaRealmClause realm={realm} />
+    </>
+  );
+}
+
+function renderRemoveLiquidity(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, realm } = action;
+  const tokens = amountAssets(assets);
+  const position = findAsset(assets, "position");
+  const fee = findAsset(assets, "fee");
+  if (tokens.length === 0 || !position) return null;
+  const poolPath = buildPoolPath(tokens, fee);
+  return (
+    <>
+      <Verb>Remove liquidity</Verb>
+      {joinAmounts(tokens, ctx.amount)}
+      <Verb>from</Verb>
+      <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
+      {fee && <PoolFeeClause fee={fee.value} />}
+      <ViaRealmClause realm={realm} />
+    </>
+  );
+}
+
+function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, realm } = action;
+  const tokens = amountAssets(assets);
+  const position = findAsset(assets, "position");
+  const fee = findAsset(assets, "fee");
+  if (tokens.length === 0 || !position) return null;
+  const poolPath = buildPoolPath(tokens, fee);
+  return (
+    <>
+      <Verb>Collect fee</Verb>
+      {joinAmounts(tokens, ctx.amount)}
+      <Verb>from</Verb>
+      <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
+      {fee && <PoolFeeClause fee={fee.value} />}
+      <ViaRealmClause realm={realm} />
+    </>
+  );
+}
+
+function renderStake(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, realm } = action;
+  const position = findAsset(assets, "position");
+  if (!position) return null;
+  const pool = findAsset(assets, "pool");
+  const fee = findAsset(assets, "fee");
+  return (
+    <>
+      <Verb>Stake</Verb>
+      <Ref label="position" value={position.value} href={poolHref(pool)} />
+      {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)} />}
+      <ViaRealmClause realm={realm} />
+    </>
+  );
+}
+
+function renderUnstake(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, realm } = action;
+  const position = findAsset(assets, "position");
+  if (!position) return null;
+  const pool = findAsset(assets, "pool");
+  const fee = findAsset(assets, "fee");
+  return (
+    <>
+      <Verb>Unstake</Verb>
+      <Ref label="position" value={position.value} href={poolHref(pool)} />
+      {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)} />}
+      <ViaRealmClause realm={realm} />
+    </>
+  );
+}
+
+function renderCollectReward(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, realm } = action;
+  const [reward] = amountAssets(assets);
+  const position = findAsset(assets, "position");
+  if (!reward || !position) return null;
+  const pool = findAsset(assets, "pool");
+  const fee = findAsset(assets, "fee");
+  return (
+    <>
+      <Verb>Collect reward</Verb>
+      {ctx.amount(reward)}
+      <Verb>from</Verb>
+      <Ref label="position" value={position.value} href={poolHref(pool)} />
+      {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)} />}
+      <ViaRealmClause realm={realm} />
+    </>
+  );
+}
+
+function renderCreateExternalIncentive(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [reward, bond] = amountAssets(action.assets);
+  const incentive = findAsset(action.assets, "incentive");
+  if (!reward || !bond || !incentive) return null;
+  return (
+    <>
+      <Verb>Create incentive</Verb>
+      <Ref value={incentive.value} />
+      <Verb>with</Verb>
+      {ctx.amount(reward)}
+      <Verb>(+</Verb>
+      {ctx.amount(bond)}
+      <Verb>bond)</Verb>
+    </>
+  );
+}
+
+function renderCreateProject(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [token] = amountAssets(action.assets);
+  const project = findAsset(action.assets, "project");
+  if (!token || !project) return null;
+  return (
+    <>
+      <Verb>Create project</Verb>
+      <Ref value={project.value} />
+      <Verb>with</Verb>
+      {ctx.amount(token)}
+    </>
+  );
+}
+
+function renderDepositGns(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [gns] = amountAssets(action.assets);
+  const deposit = findAsset(action.assets, "deposit");
+  if (!gns || !deposit) return null;
+  return (
+    <>
+      <Verb>Deposit</Verb>
+      {ctx.amount(gns)}
+      <Verb>(deposit</Verb>
+      <Ref value={deposit.value} />
+      <Verb>)</Verb>
+    </>
+  );
+}
+
+function renderCollectDepositGns(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [gns] = amountAssets(action.assets);
+  const deposit = findAsset(action.assets, "deposit");
+  if (!gns || !deposit) return null;
+  return (
+    <>
+      <Verb>Withdraw</Verb>
+      {ctx.amount(gns)}
+      <Verb>from deposit</Verb>
+      <Ref value={deposit.value} />
+    </>
+  );
+}
+
+function renderCollectDepositReward(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [reward] = amountAssets(action.assets);
+  const deposit = findAsset(action.assets, "deposit");
+  if (!reward || !deposit) return null;
+  return (
+    <>
+      <Verb>Collect reward</Verb>
+      {ctx.amount(reward)}
+      <Verb>from deposit</Verb>
+      <Ref value={deposit.value} />
+    </>
+  );
+}
+
+function renderCreatePool(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const { assets, realm } = action;
+  const pool = findAsset(assets, "pool");
+  const fee = findAsset(assets, "fee");
+  if (!pool || !fee) return null;
+  const [token0Path, token1Path] = pool.value.split(":");
+  if (!token0Path || !token1Path) return null;
+  const pairLabel = `${getTokenSymbol(token0Path, ctx.tokenInfosByTokenKey)}/${getTokenSymbol(
+    token1Path,
+    ctx.tokenInfosByTokenKey,
+  )}`;
+  return (
+    <>
+      <Verb>Create pool</Verb>
+      <a href={gnoswapPoolUrl(pool.value)} target="_blank" rel="noopener noreferrer">
+        <Text type="p4" color="blue" display="contents">
+          {pairLabel}
+        </Text>
+      </a>
+      <Plain>{formatFeePercent(fee.value)}</Plain>
+      <Verb>pool</Verb>
+      <ViaRealmClause realm={realm} />
+    </>
+  );
+}
+
+function renderDelegate(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [gns] = amountAssets(action.assets);
+  if (!gns) return null;
+  return (
+    <>
+      <Verb>Delegate</Verb>
+      {ctx.amount(gns)}
+    </>
+  );
+}
+
+function renderUndelegate(): React.ReactNode {
+  return <Verb>Undelegate</Verb>;
+}
+
+function renderRedelegate(): React.ReactNode {
+  return <Verb>Redelegate</Verb>;
+}
+
+function renderCollectEmissionReward(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [gns] = amountAssets(action.assets);
+  if (!gns) return null;
+  return (
+    <>
+      <Verb>Collect emission reward</Verb>
+      {ctx.amount(gns)}
+    </>
+  );
+}
+
+function renderCollectProtocolFeeReward(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [token] = amountAssets(action.assets);
+  if (!token) return null;
+  return (
+    <>
+      <Verb>Collect protocol fee reward</Verb>
+      {ctx.amount(token)}
+    </>
+  );
+}
+
+function renderCollectUndelegatedGns(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
+  const [gns] = amountAssets(action.assets);
+  if (!gns) return null;
+  return (
+    <>
+      <Verb>Collect undelegated</Verb>
+      {ctx.amount(gns)}
+    </>
+  );
+}
+
+function renderPropose(action: TransactionAction): React.ReactNode | null {
+  const proposal = findAsset(action.assets, "proposal");
+  if (!proposal) return null;
+  return (
+    <>
+      <Verb>Create proposal</Verb>
+      <Ref value={proposal.value} />
+    </>
+  );
+}
+
+function renderVote(action: TransactionAction): React.ReactNode | null {
+  const proposal = findAsset(action.assets, "proposal");
+  if (!proposal) return null;
+  return (
+    <>
+      <Verb>Vote on proposal</Verb>
+      <Ref value={proposal.value} />
+    </>
+  );
+}
+
+function renderExecute(action: TransactionAction): React.ReactNode | null {
+  const proposal = findAsset(action.assets, "proposal");
+  if (!proposal) return null;
+  return (
+    <>
+      <Verb>Execute proposal</Verb>
+      <Ref value={proposal.value} />
+    </>
+  );
+}
+
+function renderCancel(action: TransactionAction): React.ReactNode | null {
+  const proposal = findAsset(action.assets, "proposal");
+  if (!proposal) return null;
+  return (
+    <>
+      <Verb>Cancel proposal</Verb>
+      <Ref value={proposal.value} />
+    </>
+  );
+}
+
+function renderDeploy(action: TransactionAction): React.ReactNode | null {
+  const packageName = findAsset(action.assets, "packageName");
+  const creator = findAsset(action.assets, "creator");
+  if (!packageName || !creator) return null;
+  return (
+    <>
+      <Verb>Deploy</Verb>
+      <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
+      <Verb>by</Verb>
+      <TransferAddress address={creator.value} packagePath={creator.packagePath} />
+    </>
+  );
+}
+
+const ACTION_RENDERERS: Record<string, ActionRenderer> = {
+  swap: renderSwap,
+  approve: renderApprove,
+  mint: renderMint,
+  burn: renderBurn,
+  addLiquidity: renderAddLiquidity,
+  reposition: renderAddLiquidity,
+  removeLiquidity: renderRemoveLiquidity,
+  collectFee: renderCollectFee,
+  stake: renderStake,
+  unstake: renderUnstake,
+  collectReward: renderCollectReward,
+  createExternalIncentive: renderCreateExternalIncentive,
+  createProject: renderCreateProject,
+  depositGns: renderDepositGns,
+  collectDepositGns: renderCollectDepositGns,
+  collectDepositReward: renderCollectDepositReward,
+  createPool: renderCreatePool,
+  delegate: renderDelegate,
+  undelegate: renderUndelegate,
+  redelegate: renderRedelegate,
+  collectEmissionReward: renderCollectEmissionReward,
+  collectProtocolFeeReward: renderCollectProtocolFeeReward,
+  collectUndelegatedGns: renderCollectUndelegatedGns,
+  propose: renderPropose,
+  vote: renderVote,
+  execute: renderExecute,
+  cancel: renderCancel,
+  deploy: renderDeploy,
+};
+
 function renderActionSentence(
   action: TransactionAction,
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
 ): React.ReactNode {
-  const { type, assets, tag, realm } = action;
-  const amount = (asset: ActionAsset) => <ActionAmount asset={asset} tokenInfosByTokenKey={tokenInfosByTokenKey} />;
+  const ctx: ActionRenderContext = {
+    tokenInfosByTokenKey,
+    amount: asset => <ActionAmount asset={asset} tokenInfosByTokenKey={tokenInfosByTokenKey} />,
+  };
 
-  switch (type) {
-    case "swap": {
-      const [from] = amountInAssets(assets);
-      const [to] = amountOutAssets(assets);
-      if (!from || !to) break;
-      return (
-        <>
-          <Verb>Swap</Verb>
-          {amount(from)}
-          <Verb>for</Verb>
-          {amount(to)}
-        </>
-      );
-    }
-    case "approve": {
-      const [approvedAmount] = amountAssets(assets);
-      const spender = findAsset(assets, "spender");
-      if (!approvedAmount || !spender) break;
-      return (
-        <>
-          <Verb>Approve</Verb>
-          {amount(approvedAmount)}
-          <Verb>for</Verb>
-          <TransferAddress address={spender.value} packagePath={spender.packagePath} />
-        </>
-      );
-    }
-    case "mint": {
-      if (tag === "grc721") {
-        const tokenId = findAsset(assets, "tokenId");
-        if (!tokenId) break;
-        return (
-          <>
-            <Verb>Mint NFT</Verb>
-            <Ref value={tokenId.value} />
-          </>
-        );
-      }
-      const [mintedAmount] = amountAssets(assets);
-      if (!mintedAmount) break;
-      return (
-        <>
-          <Verb>Mint</Verb>
-          {amount(mintedAmount)}
-        </>
-      );
-    }
-    case "burn": {
-      if (tag === "grc721") {
-        const tokenId = findAsset(assets, "tokenId");
-        if (!tokenId) break;
-        return (
-          <>
-            <Verb>Burn NFT</Verb>
-            <Ref value={tokenId.value} />
-          </>
-        );
-      }
-      const [burnedAmount] = amountAssets(assets);
-      if (!burnedAmount) break;
-      return (
-        <>
-          <Verb>Burn</Verb>
-          {amount(burnedAmount)}
-        </>
-      );
-    }
-    case "addLiquidity":
-    case "reposition": {
-      const tokens = amountAssets(assets);
-      const position = findAsset(assets, "position");
-      const fee = findAsset(assets, "fee");
-      if (tokens.length === 0 || !position) break;
-      const poolPath = buildPoolPath(tokens, fee);
-      return (
-        <>
-          <Verb>{type === "reposition" ? "Reposition" : "Add liquidity"}</Verb>
-          {joinAmounts(tokens, amount)}
-          <Verb>to</Verb>
-          <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
-          {fee && <PoolFeeClause fee={fee.value} />}
-          <ViaRealmClause realm={realm} />
-        </>
-      );
-    }
-    case "removeLiquidity": {
-      const tokens = amountAssets(assets);
-      const position = findAsset(assets, "position");
-      const fee = findAsset(assets, "fee");
-      if (tokens.length === 0 || !position) break;
-      const poolPath = buildPoolPath(tokens, fee);
-      return (
-        <>
-          <Verb>Remove liquidity</Verb>
-          {joinAmounts(tokens, amount)}
-          <Verb>from</Verb>
-          <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
-          {fee && <PoolFeeClause fee={fee.value} />}
-          <ViaRealmClause realm={realm} />
-        </>
-      );
-    }
-    case "collectFee": {
-      const tokens = amountAssets(assets);
-      const position = findAsset(assets, "position");
-      const fee = findAsset(assets, "fee");
-      if (tokens.length === 0 || !position) break;
-      const poolPath = buildPoolPath(tokens, fee);
-      return (
-        <>
-          <Verb>Collect fee</Verb>
-          {joinAmounts(tokens, amount)}
-          <Verb>from</Verb>
-          <Ref label="position" value={position.value} href={poolPath ? gnoswapPoolUrl(poolPath) : undefined} />
-          {fee && <PoolFeeClause fee={fee.value} />}
-          <ViaRealmClause realm={realm} />
-        </>
-      );
-    }
-    case "stake": {
-      const position = findAsset(assets, "position");
-      if (!position) break;
-      const pool = findAsset(assets, "pool");
-      const fee = findAsset(assets, "fee");
-      return (
-        <>
-          <Verb>Stake</Verb>
-          <Ref label="position" value={position.value} href={poolHref(pool)} />
-          {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, tokenInfosByTokenKey)} />}
-          <ViaRealmClause realm={realm} />
-        </>
-      );
-    }
-    case "unstake": {
-      const position = findAsset(assets, "position");
-      if (!position) break;
-      const pool = findAsset(assets, "pool");
-      const fee = findAsset(assets, "fee");
-      return (
-        <>
-          <Verb>Unstake</Verb>
-          <Ref label="position" value={position.value} href={poolHref(pool)} />
-          {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, tokenInfosByTokenKey)} />}
-          <ViaRealmClause realm={realm} />
-        </>
-      );
-    }
-    case "collectReward": {
-      const [reward] = amountAssets(assets);
-      const position = findAsset(assets, "position");
-      if (!reward || !position) break;
-      const pool = findAsset(assets, "pool");
-      const fee = findAsset(assets, "fee");
-      return (
-        <>
-          <Verb>Collect reward</Verb>
-          {amount(reward)}
-          <Verb>from</Verb>
-          <Ref label="position" value={position.value} href={poolHref(pool)} />
-          {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, tokenInfosByTokenKey)} />}
-          <ViaRealmClause realm={realm} />
-        </>
-      );
-    }
-    case "createExternalIncentive": {
-      const [reward, bond] = amountAssets(assets);
-      const incentive = findAsset(assets, "incentive");
-      if (!reward || !bond || !incentive) break;
-      return (
-        <>
-          <Verb>Create incentive</Verb>
-          <Ref value={incentive.value} />
-          <Verb>with</Verb>
-          {amount(reward)}
-          <Verb>(+</Verb>
-          {amount(bond)}
-          <Verb>bond)</Verb>
-        </>
-      );
-    }
-    case "createProject": {
-      const [token] = amountAssets(assets);
-      const project = findAsset(assets, "project");
-      if (!token || !project) break;
-      return (
-        <>
-          <Verb>Create project</Verb>
-          <Ref value={project.value} />
-          <Verb>with</Verb>
-          {amount(token)}
-        </>
-      );
-    }
-    case "depositGns": {
-      const [gns] = amountAssets(assets);
-      const deposit = findAsset(assets, "deposit");
-      if (!gns || !deposit) break;
-      return (
-        <>
-          <Verb>Deposit</Verb>
-          {amount(gns)}
-          <Verb>(deposit</Verb>
-          <Ref value={deposit.value} />
-          <Verb>)</Verb>
-        </>
-      );
-    }
-    case "collectDepositGns": {
-      const [gns] = amountAssets(assets);
-      const deposit = findAsset(assets, "deposit");
-      if (!gns || !deposit) break;
-      return (
-        <>
-          <Verb>Withdraw</Verb>
-          {amount(gns)}
-          <Verb>from deposit</Verb>
-          <Ref value={deposit.value} />
-        </>
-      );
-    }
-    case "collectDepositReward": {
-      const [reward] = amountAssets(assets);
-      const deposit = findAsset(assets, "deposit");
-      if (!reward || !deposit) break;
-      return (
-        <>
-          <Verb>Collect reward</Verb>
-          {amount(reward)}
-          <Verb>from deposit</Verb>
-          <Ref value={deposit.value} />
-        </>
-      );
-    }
-    case "createPool": {
-      const pool = findAsset(assets, "pool");
-      const fee = findAsset(assets, "fee");
-      if (!pool || !fee) break;
-      const [token0Path, token1Path] = pool.value.split(":");
-      if (!token0Path || !token1Path) break;
-      const pairLabel = `${getTokenSymbol(token0Path, tokenInfosByTokenKey)}/${getTokenSymbol(
-        token1Path,
-        tokenInfosByTokenKey,
-      )}`;
-      return (
-        <>
-          <Verb>Create pool</Verb>
-          <a href={gnoswapPoolUrl(pool.value)} target="_blank" rel="noopener noreferrer">
-            <Text type="p4" color="blue" display="contents">
-              {pairLabel}
-            </Text>
-          </a>
-          <Plain>{formatFeePercent(fee.value)}</Plain>
-          <Verb>pool</Verb>
-          <ViaRealmClause realm={realm} />
-        </>
-      );
-    }
-    case "delegate": {
-      const [gns] = amountAssets(assets);
-      if (!gns) break;
-      return (
-        <>
-          <Verb>Delegate</Verb>
-          {amount(gns)}
-        </>
-      );
-    }
-    case "undelegate":
-      return <Verb>Undelegate</Verb>;
-    case "redelegate":
-      return <Verb>Redelegate</Verb>;
-    case "collectEmissionReward": {
-      const [gns] = amountAssets(assets);
-      if (!gns) break;
-      return (
-        <>
-          <Verb>Collect emission reward</Verb>
-          {amount(gns)}
-        </>
-      );
-    }
-    case "collectProtocolFeeReward": {
-      const [token] = amountAssets(assets);
-      if (!token) break;
-      return (
-        <>
-          <Verb>Collect protocol fee reward</Verb>
-          {amount(token)}
-        </>
-      );
-    }
-    case "collectUndelegatedGns": {
-      const [gns] = amountAssets(assets);
-      if (!gns) break;
-      return (
-        <>
-          <Verb>Collect undelegated</Verb>
-          {amount(gns)}
-        </>
-      );
-    }
-    case "propose": {
-      const proposal = findAsset(assets, "proposal");
-      if (!proposal) break;
-      return (
-        <>
-          <Verb>Create proposal</Verb>
-          <Ref value={proposal.value} />
-        </>
-      );
-    }
-    case "vote": {
-      const proposal = findAsset(assets, "proposal");
-      if (!proposal) break;
-      return (
-        <>
-          <Verb>Vote on proposal</Verb>
-          <Ref value={proposal.value} />
-        </>
-      );
-    }
-    case "execute": {
-      const proposal = findAsset(assets, "proposal");
-      if (!proposal) break;
-      return (
-        <>
-          <Verb>Execute proposal</Verb>
-          <Ref value={proposal.value} />
-        </>
-      );
-    }
-    case "cancel": {
-      const proposal = findAsset(assets, "proposal");
-      if (!proposal) break;
-      return (
-        <>
-          <Verb>Cancel proposal</Verb>
-          <Ref value={proposal.value} />
-        </>
-      );
-    }
-    case "deploy": {
-      const packageName = findAsset(assets, "packageName");
-      const creator = findAsset(assets, "creator");
-      if (!packageName || !creator) break;
-      return (
-        <>
-          <Verb>Deploy</Verb>
-          <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
-          <Verb>by</Verb>
-          <TransferAddress address={creator.value} packagePath={creator.packagePath} />
-        </>
-      );
-    }
-  }
-
-  return <Verb>{type}</Verb>;
+  return ACTION_RENDERERS[action.type]?.(action, ctx) ?? <Verb>{action.type}</Verb>;
 }
 
 function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
   const seen = new Set<string>();
 
   return actions.filter(action => {
-    const key = `${action.realm}:${action.type}:${action.assets
-      .map(asset => `${asset.assetType}:${asset.key}:${asset.value}`)
+    const key = `${action.tag}:${action.realm}:${action.type}:${action.assets
+      .map(asset => `${asset.assetType}:${asset.key}:${asset.value}:${asset.packagePath ?? ""}`)
       .join("|")}`;
 
     if (seen.has(key)) return false;
