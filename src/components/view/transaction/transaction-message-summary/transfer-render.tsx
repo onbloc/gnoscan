@@ -14,7 +14,7 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
-import { getFallbackTokenSymbol, stripTokenKeySymbol } from "@/common/utils/token.utility";
+import { getFallbackTokenSymbol, getTokenKeySymbol, stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { ActionAsset, AssetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 
 // A tx is "just a transfer" when there's nothing else to summarize separately (no
@@ -78,24 +78,12 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
   }, [tokenKeys, queryKeys, tokenQueries]);
 };
 
-export const useTokenDecimalsByKeys = (tokenKeys: string[]): Record<string, number> => {
-  const tokenInfos = useTokenInfosByKeys(tokenKeys);
-
-  return React.useMemo(() => {
-    const map: Record<string, number> = {};
-    Object.entries(tokenInfos).forEach(([tokenKey, tokenInfo]) => {
-      if (tokenInfo.decimals !== undefined) map[tokenKey] = tokenInfo.decimals;
-    });
-    return map;
-  }, [tokenInfos]);
-};
-
 interface Grc20AmountLeg {
   assetType: string;
   amount: { denom: string };
 }
 
-export const useGrc20TokenDecimals = (items: Grc20AmountLeg[]): Record<string, number> => {
+export const useGrc20TokenInfos = (items: Grc20AmountLeg[]): Record<string, TokenDisplayInfo> => {
   const grc20TokenKeys = React.useMemo(() => {
     const keys = new Set<string>();
     items.forEach(item => {
@@ -104,7 +92,7 @@ export const useGrc20TokenDecimals = (items: Grc20AmountLeg[]): Record<string, n
     return Array.from(keys);
   }, [items]);
 
-  return useTokenDecimalsByKeys(grc20TokenKeys);
+  return useTokenInfosByKeys(grc20TokenKeys);
 };
 
 const isGrc20AssetType = (assetType: string) => assetType.includes("/");
@@ -250,16 +238,16 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey,
 
 interface TransferAmountProps {
   transfer: { assetType: string; amount: { value: string; denom: string } };
-  decimalsByTokenKey: Record<string, number>;
+  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
   bold?: boolean;
 }
 
-export const TransferAmount = ({ transfer, decimalsByTokenKey, bold }: TransferAmountProps) => (
+export const TransferAmount = ({ transfer, tokenInfosByTokenKey, bold }: TransferAmountProps) => (
   <TokenAmountDisplay
     tokenKey={transfer.amount.denom}
     rawValue={transfer.amount.value}
     isGrc20={transfer.assetType === "grc20"}
-    tokenInfosByTokenKey={toTokenInfos(decimalsByTokenKey)}
+    tokenInfosByTokenKey={tokenInfosByTokenKey}
     bold={bold}
   />
 );
@@ -277,9 +265,6 @@ export const ActionAmount = ({ asset, tokenInfosByTokenKey }: ActionAmountProps)
     tokenInfosByTokenKey={tokenInfosByTokenKey}
   />
 );
-
-const toTokenInfos = (decimalsByTokenKey: Record<string, number>): Record<string, TokenDisplayInfo> =>
-  Object.fromEntries(Object.entries(decimalsByTokenKey).map(([tokenKey, decimals]) => [tokenKey, { decimals }]));
 
 function getTokenInfoQueryKeys(tokenKeys: string[]): string[] {
   const keys = new Set<string>();
@@ -312,17 +297,6 @@ function withTokenKeyAliases(
   });
 
   return map;
-}
-
-// Same numeric-tokenId-suffix handling as getFallbackTokenSymbol, but "" (not the raw segment)
-// when there's no "." at all - callers use that to mean "no symbol suffix to alias".
-function getTokenKeySymbol(tokenKey: string): string {
-  const lastSegment = tokenKey.split("/").pop() || "";
-  const parts = lastSegment.split(".");
-  if (parts.length <= 1) return "";
-
-  const withoutNumericSuffix = /^\d+$/.test(parts[parts.length - 1]) ? parts.slice(0, -1) : parts;
-  return withoutNumericSuffix.length <= 1 ? "" : withoutNumericSuffix[withoutNumericSuffix.length - 1];
 }
 
 function toTokenKey(path: string, symbol?: string): string {

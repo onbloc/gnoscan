@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
-import { TransferAddress, TransferAmount, useGrc20TokenDecimals } from "./transfer-render";
+import { TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
 
 type TransferView = "all" | "net";
 
@@ -54,7 +54,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
   const activeView: TransferView =
     view === "all" && !hasAll && hasNet ? "net" : view === "net" && !hasNet && hasAll ? "all" : view;
 
-  const decimalsByTokenKey = useGrc20TokenDecimals(
+  const tokenInfosByTokenKey = useGrc20TokenInfos(
     React.useMemo(() => [...transfers, ...netTransfers], [transfers, netTransfers]),
   );
 
@@ -89,7 +89,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
                   <Text type="p4" color="primary" fontWeight={700}>
                     For
                   </Text>
-                  <TransferAmount transfer={transfer} decimalsByTokenKey={decimalsByTokenKey} />
+                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
                 </li>
               ))}
             </List>
@@ -103,7 +103,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
                   <Text type="p4" color="primary" fontWeight={700}>
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>
-                  <TransferAmount transfer={transfer} decimalsByTokenKey={decimalsByTokenKey} />
+                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
                 </li>
               ))}
             </List>

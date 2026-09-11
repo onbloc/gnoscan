@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Text from "@/components/ui/text";
 import { AssetTransfer } from "@/types/data-type";
-import { TransferAddress, TransferAmount, useGrc20TokenDecimals } from "./transfer-render";
+import { TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
 
 interface Props {
   transfer: AssetTransfer;
@@ -14,14 +14,14 @@ interface Props {
 // `Transfer` call) — sourced from the tx-level `summary.transfers` leg rather than the
 // message's own args, so it stays consistent with the "All/Net Transfers" view below it.
 const TransferSummaryLine = ({ transfer }: Props) => {
-  const decimalsByTokenKey = useGrc20TokenDecimals(React.useMemo(() => [transfer], [transfer]));
+  const tokenInfosByTokenKey = useGrc20TokenInfos(React.useMemo(() => [transfer], [transfer]));
 
   return (
     <Line>
       <Text type="p4" color="tertiary">
         Transfer
       </Text>
-      <TransferAmount transfer={transfer} decimalsByTokenKey={decimalsByTokenKey} bold />
+      <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} bold />
       <Text type="p4" color="tertiary">
         to
       </Text>
