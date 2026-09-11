@@ -41,6 +41,22 @@ export function stripTokenKeySymbol(denom: string): string {
   return denom.slice(0, lastSlashIndex + 1) + lastSegment.slice(0, dotIndex);
 }
 
+/**
+ * Best-effort symbol parsed straight from a token key/path, for when the token-meta API has no
+ * record of it at all (e.g. a token that was never registered). Registry-keyed denoms end in
+ * ".{symbol}"; grc20 helper-routed ones tack on a further purely-numeric ".{7 digits}" tokenId
+ * suffix (see stripTokenKeySymbol) - drop that suffix, if present, before taking the last
+ * "."-segment as the symbol, or the trailing numbers themselves get mistaken for the symbol.
+ */
+export function getFallbackTokenSymbol(tokenKey: string): string {
+  const lastSegment = tokenKey.split("/").pop() || tokenKey;
+  const parts = lastSegment.split(".");
+  if (parts.length <= 1) return lastSegment;
+
+  const withoutNumericSuffix = /^\d+$/.test(parts[parts.length - 1]) ? parts.slice(0, -1) : parts;
+  return withoutNumericSuffix[withoutNumericSuffix.length - 1];
+}
+
 export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
   if (!path || typeof path !== "string") return path;
 

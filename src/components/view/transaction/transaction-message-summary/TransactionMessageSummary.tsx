@@ -171,8 +171,8 @@ const List = styled.ul`
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
-    padding: 8px 0;
+    gap: 6px;
+    padding: 4px 0;
     ${({ theme }) => theme.fonts.p4};
   }
 `;

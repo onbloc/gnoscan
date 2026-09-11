@@ -47,9 +47,11 @@ const amountAssets = (assets: ActionAsset[]) => assets.filter(asset => asset.key
 const amountInAssets = (assets: ActionAsset[]) => assets.filter(asset => asset.key === "amountIn");
 const amountOutAssets = (assets: ActionAsset[]) => assets.filter(asset => asset.key === "amountOut");
 
+// Blue only when it's an actual link (href) - an unlinked reference is just a specific value,
+// same as any other Plain, not something a user could click through.
 const Ref = ({ label, value, href }: { label?: string; value: string; href?: string }) => {
   const text = (
-    <Text type="p4" color="blue" display="contents">
+    <Text type="p4" color={href ? "blue" : "primary"} display="contents">
       {label ? `${label} #${value}` : `#${value}`}
     </Text>
   );

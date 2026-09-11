@@ -14,7 +14,7 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
-import { stripTokenKeySymbol } from "@/common/utils/token.utility";
+import { getFallbackTokenSymbol, stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { ActionAsset, AssetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 
 // A tx is "just a transfer" when there's nothing else to summarize separately (no
@@ -132,9 +132,7 @@ export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
 export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<string, TokenDisplayInfo>): string {
   const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
   const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
-  const lastSegment = tokenKey.split("/").pop() || tokenKey;
-  const fallbackSymbol = lastSegment.includes(".") ? lastSegment.slice(lastSegment.lastIndexOf(".") + 1) : lastSegment;
-  return tokenInfo?.symbol || fallbackSymbol;
+  return tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);
 }
 
 export const TransferAddress = ({ address, packagePath }: { address: string; packagePath?: string }) => {
@@ -215,9 +213,7 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey,
 
   const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
   const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
-  const lastSegment = tokenKey.split("/").pop() || tokenKey;
-  const fallbackSymbol = lastSegment.includes(".") ? lastSegment.slice(lastSegment.lastIndexOf(".") + 1) : lastSegment;
-  const symbol = tokenInfo?.symbol || fallbackSymbol;
+  const symbol = tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);
   const linkTokenKey = tokenInfo?.tokenKey || (symbol ? toTokenKey(normalizedTokenKey, symbol) : tokenKey);
   const imagePath = getTokenImage(stripTokenKeySymbol(linkTokenKey));
 
@@ -312,10 +308,15 @@ function withTokenKeyAliases(
   return map;
 }
 
+// Same numeric-tokenId-suffix handling as getFallbackTokenSymbol, but "" (not the raw segment)
+// when there's no "." at all - callers use that to mean "no symbol suffix to alias".
 function getTokenKeySymbol(tokenKey: string): string {
   const lastSegment = tokenKey.split("/").pop() || "";
-  const dotIndex = lastSegment.lastIndexOf(".");
-  return dotIndex === -1 ? "" : lastSegment.slice(dotIndex + 1);
+  const parts = lastSegment.split(".");
+  if (parts.length <= 1) return "";
+
+  const withoutNumericSuffix = /^\d+$/.test(parts[parts.length - 1]) ? parts.slice(0, -1) : parts;
+  return withoutNumericSuffix.length <= 1 ? "" : withoutNumericSuffix[withoutNumericSuffix.length - 1];
 }
 
 function toTokenKey(path: string, symbol?: string): string {
