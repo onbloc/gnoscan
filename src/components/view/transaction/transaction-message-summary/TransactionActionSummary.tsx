@@ -99,9 +99,9 @@ const PoolFeeClause = ({ fee, pairLabel }: { fee: string; pairLabel?: string }) 
 
 // "gno.land/r/gnoswap/staker/v1" -> "r/gnoswap/staker/v1" - same trim as TransferAddress's realm
 // display, minus the everywhere-repeated "gno.land" prefix.
-const ViaRealmClause = ({ realm }: { realm: string }) => (
+const ViaRealmClause = ({ realm, preposition = "via" }: { realm: string; preposition?: string }) => (
   <>
-    <Verb>via</Verb>
+    <Verb>{preposition}</Verb>
     <RealmLink pkgPath={realm}>{realm.replace("gno.land/", "")}</RealmLink>
   </>
 );
@@ -159,14 +159,16 @@ function renderApprove(action: TransactionAction, ctx: ActionRenderContext): Rea
 }
 
 function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { assets, tag } = action;
+  const { assets, tag, realm } = action;
   if (tag === "grc721") {
     const tokenId = findAsset(assets, "tokenId");
     if (!tokenId) return null;
+    const label = tokenId.assetType.includes("gnoswap") ? "position" : "NFT";
     return (
       <>
-        <Verb>Mint NFT</Verb>
-        <Ref value={tokenId.value} />
+        <Verb>Mint</Verb>
+        <Ref label={label} value={tokenId.value} />
+        <ViaRealmClause realm={realm} preposition="on" />
       </>
     );
   }
@@ -176,19 +178,22 @@ function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.
     <>
       <Verb>Mint</Verb>
       {ctx.amount(mintedAmount)}
+      <ViaRealmClause realm={realm} preposition="on" />
     </>
   );
 }
 
 function renderBurn(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { assets, tag } = action;
+  const { assets, tag, realm } = action;
   if (tag === "grc721") {
     const tokenId = findAsset(assets, "tokenId");
     if (!tokenId) return null;
+    const label = tokenId.assetType.includes("gnoswap") ? "position" : "NFT";
     return (
       <>
-        <Verb>Burn NFT</Verb>
-        <Ref value={tokenId.value} />
+        <Verb>Burn</Verb>
+        <Ref label={label} value={tokenId.value} />
+        <ViaRealmClause realm={realm} preposition="on" />
       </>
     );
   }
@@ -198,6 +203,7 @@ function renderBurn(action: TransactionAction, ctx: ActionRenderContext): React.
     <>
       <Verb>Burn</Verb>
       {ctx.amount(burnedAmount)}
+      <ViaRealmClause realm={realm} preposition="on" />
     </>
   );
 }
