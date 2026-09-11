@@ -214,6 +214,7 @@ export interface ActionAsset {
 }
 
 export interface TransactionAction {
+  tag: string;
   realm: string;
   type: string;
   assets: ActionAsset[];
