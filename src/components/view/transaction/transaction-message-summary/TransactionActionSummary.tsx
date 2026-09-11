@@ -2,11 +2,15 @@ import React from "react";
 import styled from "styled-components";
 
 import Text from "@/components/ui/text";
+import Tooltip from "@/components/ui/tooltip";
+import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { GNOSWAP_APP_BASE_URL } from "@/common/values/constant-value";
+import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { ActionAsset, TransactionAction } from "@/types/data-type";
 import {
   ActionAmount,
+  AddressChip,
   RealmLink,
   TokenDisplayInfo,
   TransferAddress,
@@ -87,7 +91,7 @@ const formatFeePercent = (fee: string) => `${formatTokenDecimal(fee, 4)}%`;
 // pairLabel and the fee% live in one Text (not two adjacent "display: contents" nodes) - two
 // such nodes next to each other don't reliably get the flex gap between them, so they'd render
 // glued together ("GNS0.3%") otherwise. Blue+linked when href is given (same rule as Ref), else
-// a plain bold value like any other Plain.
+// a plain bold black value.
 const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: string; href?: string }) => {
   const label = pairLabel ? `${pairLabel} ${formatFeePercent(fee)}` : formatFeePercent(fee);
   const text = (
@@ -111,12 +115,47 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
   );
 };
 
+// Same chip+copy treatment as TransferAddress's packagePath branch, for a realm link shown
+// on its own (not resolved from some other address field) - keeps every pkgPath link in the
+// summary copyable the same way, and copies the realm's actual g1... address (same convention
+// as TransferAddress, and as RealmSummary.realmAddress) rather than the path text.
+const RealmChip = ({ pkgPath, children }: { pkgPath: string; children: React.ReactNode }) => (
+  <AddressChip>
+    <RealmLink pkgPath={pkgPath}>{children}</RealmLink>
+    <Tooltip content="Copied!" trigger="click" copyText={toBech32AddressByPackagePath("g", pkgPath)}>
+      <IconCopy className="copy-icon" />
+    </Tooltip>
+  </AddressChip>
+);
+
 // "gno.land/r/gnoswap/staker/v1" -> "r/gnoswap/staker/v1" - same trim as TransferAddress's realm
 // display, minus the everywhere-repeated "gno.land" prefix.
 const ViaRealmClause = ({ realm, preposition = "via" }: { realm: string; preposition?: string }) => (
   <>
     <Verb>{preposition}</Verb>
-    <RealmLink pkgPath={realm}>{realm.replace("gno.land/", "")}</RealmLink>
+    <RealmChip pkgPath={realm}>{realm.replace("gno.land/", "")}</RealmChip>
+  </>
+);
+
+// Shared tail of every pool/position action (addLiquidity/removeLiquidity/collectFee/stake/
+// unstake/collectReward): the position ref, its pool's fee tier, and the emitting realm.
+const PositionClause = ({
+  position,
+  pool,
+  fee,
+  pairLabel,
+  realm,
+}: {
+  position: ActionAsset;
+  pool: ActionAsset | undefined;
+  fee: ActionAsset | undefined;
+  pairLabel?: string;
+  realm: string;
+}) => (
+  <>
+    <Ref label="position" value={position.value} href={poolHref(pool)} />
+    {fee && <PoolFeeClause fee={fee.value} pairLabel={pairLabel} href={poolHref(pool)} />}
+    <ViaRealmClause realm={realm} />
   </>
 );
 
@@ -235,9 +274,7 @@ function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext)
       <Verb>{type === "reposition" ? "Reposition" : "Add liquidity"}</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>to</Verb>
-      <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} href={poolHref(pool)} />}
-      <ViaRealmClause realm={realm} />
+      <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
     </>
   );
 }
@@ -254,9 +291,7 @@ function renderRemoveLiquidity(action: TransactionAction, ctx: ActionRenderConte
       <Verb>Remove liquidity</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
-      <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} href={poolHref(pool)} />}
-      <ViaRealmClause realm={realm} />
+      <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
     </>
   );
 }
@@ -273,9 +308,7 @@ function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): 
       <Verb>Collect fee</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
-      <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} href={poolHref(pool)} />}
-      <ViaRealmClause realm={realm} />
+      <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
     </>
   );
 }
@@ -289,15 +322,13 @@ function renderStake(action: TransactionAction, ctx: ActionRenderContext): React
   return (
     <>
       <Verb>Stake</Verb>
-      <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && (
-        <PoolFeeClause
-          fee={fee.value}
-          pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-          href={poolHref(pool)}
-        />
-      )}
-      <ViaRealmClause realm={realm} />
+      <PositionClause
+        position={position}
+        pool={pool}
+        fee={fee}
+        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+        realm={realm}
+      />
     </>
   );
 }
@@ -311,15 +342,13 @@ function renderUnstake(action: TransactionAction, ctx: ActionRenderContext): Rea
   return (
     <>
       <Verb>Unstake</Verb>
-      <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && (
-        <PoolFeeClause
-          fee={fee.value}
-          pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-          href={poolHref(pool)}
-        />
-      )}
-      <ViaRealmClause realm={realm} />
+      <PositionClause
+        position={position}
+        pool={pool}
+        fee={fee}
+        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+        realm={realm}
+      />
     </>
   );
 }
@@ -336,15 +365,13 @@ function renderCollectReward(action: TransactionAction, ctx: ActionRenderContext
       <Verb>Collect reward</Verb>
       {ctx.amount(reward)}
       <Verb>from</Verb>
-      <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && (
-        <PoolFeeClause
-          fee={fee.value}
-          pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-          href={poolHref(pool)}
-        />
-      )}
-      <ViaRealmClause realm={realm} />
+      <PositionClause
+        position={position}
+        pool={pool}
+        fee={fee}
+        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+        realm={realm}
+      />
     </>
   );
 }
@@ -437,12 +464,7 @@ function renderCreatePool(action: TransactionAction, ctx: ActionRenderContext): 
   return (
     <>
       <Verb>Create pool</Verb>
-      <a href={gnoswapPoolUrl(pool.value)} target="_blank" rel="noopener noreferrer">
-        <Text type="p4" color="blue" display="contents">
-          {pairLabel} {formatFeePercent(fee.value)}
-        </Text>
-      </a>
-      <Verb>pool</Verb>
+      <PoolFeeClause fee={fee.value} pairLabel={pairLabel} href={poolHref(pool)} />
       <ViaRealmClause realm={realm} />
     </>
   );
@@ -551,7 +573,7 @@ function renderDeploy(action: TransactionAction): React.ReactNode | null {
   return (
     <>
       <Verb>Deploy</Verb>
-      <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
+      <RealmChip pkgPath={packageName.assetType}>{packageName.value}</RealmChip>
       <Verb>by</Verb>
       <TransferAddress address={creator.value} packagePath={creator.packagePath} />
     </>

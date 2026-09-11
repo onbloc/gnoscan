@@ -305,7 +305,7 @@ function toTokenKey(path: string, symbol?: string): string {
   return `${normalizedPath}.${symbol}`;
 }
 
-const AddressChip = styled.span`
+export const AddressChip = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 2px;
