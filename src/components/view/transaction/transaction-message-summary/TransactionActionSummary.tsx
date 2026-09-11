@@ -74,12 +74,6 @@ const gnoswapPoolUrl = (poolPath: string) =>
 // "token0Path:token1Path:fee"), so this is never reconstructed from other assets.
 const poolHref = (pool: ActionAsset | undefined) => (pool ? gnoswapPoolUrl(pool.value) : undefined);
 
-const Plain = ({ children }: { children: React.ReactNode }) => (
-  <Text type="p4" color="primary" fontWeight={700} display="contents">
-    {children}
-  </Text>
-);
-
 const Verb = ({ children }: { children: React.ReactNode }) => (
   <Text type="p4" color="tertiary">
     {children}
@@ -90,14 +84,32 @@ const Verb = ({ children }: { children: React.ReactNode }) => (
 // uses - see onbloc-api-v3's gnoswap/pool.go.
 const formatFeePercent = (fee: string) => `${formatTokenDecimal(fee, 4)}%`;
 
-const PoolFeeClause = ({ fee, pairLabel }: { fee: string; pairLabel?: string }) => (
-  <>
-    <Verb>{pairLabel ? "in" : "in a"}</Verb>
-    {pairLabel && <Plain>{pairLabel}</Plain>}
-    <Plain>{formatFeePercent(fee)}</Plain>
-    <Verb>pool</Verb>
-  </>
-);
+// pairLabel and the fee% live in one Text (not two adjacent "display: contents" nodes) - two
+// such nodes next to each other don't reliably get the flex gap between them, so they'd render
+// glued together ("GNS0.3%") otherwise. Blue+linked when href is given (same rule as Ref), else
+// a plain bold value like any other Plain.
+const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: string; href?: string }) => {
+  const label = pairLabel ? `${pairLabel} ${formatFeePercent(fee)}` : formatFeePercent(fee);
+  const text = (
+    <Text type="p4" color={href ? "blue" : "primary"} fontWeight={href ? undefined : 700} display="contents">
+      {label}
+    </Text>
+  );
+
+  return (
+    <>
+      <Verb>{pairLabel ? "in" : "in a"}</Verb>
+      {href ? (
+        <a href={href} target="_blank" rel="noopener noreferrer">
+          {text}
+        </a>
+      ) : (
+        text
+      )}
+      <Verb>pool</Verb>
+    </>
+  );
+};
 
 // "gno.land/r/gnoswap/staker/v1" -> "r/gnoswap/staker/v1" - same trim as TransferAddress's realm
 // display, minus the everywhere-repeated "gno.land" prefix.
@@ -224,7 +236,7 @@ function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext)
       {joinAmounts(tokens, ctx.amount)}
       <Verb>to</Verb>
       <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} />}
+      {fee && <PoolFeeClause fee={fee.value} href={poolHref(pool)} />}
       <ViaRealmClause realm={realm} />
     </>
   );
@@ -243,7 +255,7 @@ function renderRemoveLiquidity(action: TransactionAction, ctx: ActionRenderConte
       {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
       <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} />}
+      {fee && <PoolFeeClause fee={fee.value} href={poolHref(pool)} />}
       <ViaRealmClause realm={realm} />
     </>
   );
@@ -262,7 +274,7 @@ function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): 
       {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
       <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} />}
+      {fee && <PoolFeeClause fee={fee.value} href={poolHref(pool)} />}
       <ViaRealmClause realm={realm} />
     </>
   );
@@ -278,7 +290,13 @@ function renderStake(action: TransactionAction, ctx: ActionRenderContext): React
     <>
       <Verb>Stake</Verb>
       <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)} />}
+      {fee && (
+        <PoolFeeClause
+          fee={fee.value}
+          pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+          href={poolHref(pool)}
+        />
+      )}
       <ViaRealmClause realm={realm} />
     </>
   );
@@ -294,7 +312,13 @@ function renderUnstake(action: TransactionAction, ctx: ActionRenderContext): Rea
     <>
       <Verb>Unstake</Verb>
       <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)} />}
+      {fee && (
+        <PoolFeeClause
+          fee={fee.value}
+          pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+          href={poolHref(pool)}
+        />
+      )}
       <ViaRealmClause realm={realm} />
     </>
   );
@@ -313,7 +337,13 @@ function renderCollectReward(action: TransactionAction, ctx: ActionRenderContext
       {ctx.amount(reward)}
       <Verb>from</Verb>
       <Ref label="position" value={position.value} href={poolHref(pool)} />
-      {fee && <PoolFeeClause fee={fee.value} pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)} />}
+      {fee && (
+        <PoolFeeClause
+          fee={fee.value}
+          pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+          href={poolHref(pool)}
+        />
+      )}
       <ViaRealmClause realm={realm} />
     </>
   );
@@ -409,10 +439,9 @@ function renderCreatePool(action: TransactionAction, ctx: ActionRenderContext): 
       <Verb>Create pool</Verb>
       <a href={gnoswapPoolUrl(pool.value)} target="_blank" rel="noopener noreferrer">
         <Text type="p4" color="blue" display="contents">
-          {pairLabel}
+          {pairLabel} {formatFeePercent(fee.value)}
         </Text>
       </a>
-      <Plain>{formatFeePercent(fee.value)}</Plain>
       <Verb>pool</Verb>
       <ViaRealmClause realm={realm} />
     </>
