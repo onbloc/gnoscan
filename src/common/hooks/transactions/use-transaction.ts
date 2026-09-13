@@ -7,7 +7,11 @@ import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
 import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { parseTokenAmount } from "@/common/utils/token.utility";
-import { decodeTransaction, makeSafeBase64Hash, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
+import {
+  decodeTransactionSafely,
+  makeSafeBase64Hash,
+  makeTransactionMessageInfo,
+} from "@/common/utils/transaction.utility";
 import { Transaction, TransactionSummaryInfo } from "@/types/data-type";
 import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
 
@@ -56,7 +60,7 @@ export const useTransaction = (hash: string) => {
     if (!block) {
       return [];
     }
-    return block.block.data.txs?.map(decodeTransaction);
+    return block.block.data.txs?.map(decodeTransactionSafely);
   }, [block]);
 
   const txResult = useMemo(() => {

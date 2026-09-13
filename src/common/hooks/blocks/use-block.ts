@@ -3,7 +3,7 @@ import { toBech32Address } from "@/common/utils/bech32.utility";
 import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
 import { parseTokenAmount } from "@/common/utils/token.utility";
-import { decodeTransaction, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
+import { decodeTransactionSafely, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
 import { getDefaultMessageByBlockTransaction } from "@/repositories/utility";
 import { BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-type";
 import BigNumber from "bignumber.js";
@@ -49,7 +49,7 @@ export const useBlock = (height: number) => {
     if (!block) {
       return [];
     }
-    return block.block.data.txs?.map(decodeTransaction);
+    return block.block.data.txs?.map(decodeTransactionSafely);
   }, [block]);
 
   const transactionItems: Transaction[] = useMemo(() => {
@@ -148,7 +148,7 @@ export const useBlock = (height: number) => {
                 return null;
               }
 
-              const transaction = decodeTransaction(block?.block.data.txs?.[index]);
+              const transaction = decodeTransactionSafely(block?.block.data.txs?.[index]);
               const eventId = transaction.hash + "_" + index + "_" + eventIndex;
               const caller = transaction?.messages?.[0]?.caller || "";
               return {

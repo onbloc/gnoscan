@@ -5,6 +5,7 @@ import {
   isHash,
   isHexHash,
   makeSafeBase64Hash,
+  makeTransactionMessageInfo,
   parseTxHash,
   toDisplayHash,
 } from "./transaction.utility";
@@ -80,6 +81,17 @@ describe("toDisplayHash", () => {
 
   it("leaves base64 hashes untouched", () => {
     expect(toDisplayHash(PADDED_BASE64_HASH)).toBe(PADDED_BASE64_HASH);
+  });
+});
+
+describe("makeTransactionMessageInfo", () => {
+  it("returns null for a missing message (e.g. all messages of a tx were undecodable)", () => {
+    expect(makeTransactionMessageInfo(undefined)).toBeNull();
+    expect(makeTransactionMessageInfo(null)).toBeNull();
+  });
+
+  it("returns null for an unrecognized message type", () => {
+    expect(makeTransactionMessageInfo({ "@type": "/vm.m_enable_pkg" })).toBeNull();
   });
 });
 

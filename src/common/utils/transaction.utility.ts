@@ -5,17 +5,54 @@ import { decodeTxMessages, MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnol
 import { base64ToUint8Array, Tx } from "@gnolang/tm2-js-client";
 import crypto from "crypto";
 import { GNOTToken } from "../hooks/common/use-token-meta";
+import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
   const hash = makeHash(txBytes);
   const decodedTx = Tx.decode(txBytes);
-  const messages = decodeTxMessages(decodedTx.messages) as any[];
+  const messages = decodeTxMessagesSafely(decodedTx.messages);
   return {
     ...decodedTx,
     hash,
     messages,
   };
+}
+
+const EMPTY_DECODED_TRANSACTION = {
+  hash: "",
+  messages: [] as any[],
+  memo: "",
+  fee: undefined,
+  signatures: [] as any[],
+};
+
+/**
+ * Same as `decodeTransaction`, but never throws: falls back to an empty
+ * transaction shape if the raw tx can't be decoded at all (e.g. a protobuf-level
+ * encoding change), so one bad tx can't break rendering of a whole block/list.
+ */
+export function decodeTransactionSafely(tx: string) {
+  return tryOrDefault(() => decodeTransaction(tx), EMPTY_DECODED_TRANSACTION);
+}
+
+/**
+ * Decodes each raw message individually so an unsupported/unknown message type
+ * (e.g. a new chain message the client library doesn't know yet) doesn't fail
+ * decoding for the entire transaction. An undecodable message is kept as an
+ * "unsupported" placeholder (rather than dropped) so message counts and raw
+ * content stay accurate; `makeTransactionMessageInfo` already renders any
+ * unrecognized "@type" as blank.
+ */
+function decodeTxMessagesSafely(rawMessages: any[]): any[] {
+  return rawMessages.flatMap(rawMessage => {
+    try {
+      return decodeTxMessages([rawMessage]);
+    } catch (error) {
+      console.warn(`Keeping message with unsupported type "${rawMessage?.type_url}" as a placeholder:`, error);
+      return [{ "@type": rawMessage?.type_url, unsupported: true }];
+    }
+  });
 }
 
 const HASH_BYTE_LENGTH = 32;
@@ -113,6 +150,10 @@ export function makeHexByBase64(base64Hash: string) {
 }
 
 export function makeTransactionMessageInfo(message: any) {
+  if (!message) {
+    return null;
+  }
+
   switch (message["@type"]) {
     case "/vm.m_call": {
       const msg = message as MsgCall;
