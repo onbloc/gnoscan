@@ -2,7 +2,7 @@
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GnoEvent } from "@/types";
 import { decodeTxMessages, MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnolang/gno-js-client";
-import { base64ToUint8Array, Tx } from "@gnolang/tm2-js-client";
+import { base64ToUint8Array, Tx, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
 import crypto from "crypto";
 import { GNOTToken } from "../hooks/common/use-token-meta";
 import { tryOrDefault } from "./common.utility";
@@ -40,8 +40,8 @@ export function decodeTransactionSafely(tx: string) {
  * Decodes each raw message individually so an unsupported/unknown message type
  * (e.g. a new chain message the client library doesn't know yet) doesn't fail
  * decoding for the entire transaction. An undecodable message is kept as an
- * "unsupported" placeholder (rather than dropped) so message counts and raw
- * content stay accurate; `makeTransactionMessageInfo` already renders any
+ * "unsupported" placeholder that keeps its raw payload (base64) so message
+ * counts and raw content stay accurate; `makeTransactionMessageInfo` already renders any
  * unrecognized "@type" as blank.
  */
 function decodeTxMessagesSafely(rawMessages: any[]): any[] {
@@ -50,7 +50,13 @@ function decodeTxMessagesSafely(rawMessages: any[]): any[] {
       return decodeTxMessages([rawMessage]);
     } catch (error) {
       console.warn(`Keeping message with unsupported type "${rawMessage?.type_url}" as a placeholder:`, error);
-      return [{ "@type": rawMessage?.type_url, unsupported: true }];
+      return [
+        {
+          "@type": rawMessage?.type_url,
+          value: rawMessage?.value ? uint8ArrayToBase64(rawMessage.value) : "",
+          unsupported: true,
+        },
+      ];
     }
   });
 }
