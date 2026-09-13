@@ -2,11 +2,14 @@
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GnoEvent } from "@/types";
 import { decodeTxMessages, MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnolang/gno-js-client";
-import { base64ToUint8Array, Tx, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
 import crypto from "crypto";
 import { GNOTToken } from "../hooks/common/use-token-meta";
 import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
+import { decodeExtraTxMessage, EXTRA_MESSAGE_TYPES, MsgEnablePackage, MsgRejectPackage } from "./tx-proto-decoder";
+import { Tx } from "@/common/proto/vendor/tm2/tx";
+
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
   const hash = makeHash(txBytes);
@@ -46,6 +49,10 @@ export function decodeTransactionSafely(tx: string) {
  */
 function decodeTxMessagesSafely(rawMessages: any[]): any[] {
   return rawMessages.flatMap(rawMessage => {
+    const extra = decodeExtraTxMessage(rawMessage?.type_url, rawMessage?.value);
+    if (extra) {
+      return [extra];
+    }
     try {
       return decodeTxMessages([rawMessage]);
     } catch (error) {
@@ -248,6 +255,34 @@ export function makeTransactionMessageInfo(message: any) {
         to: msg.to_address,
         amount: {
           value: amountValue,
+          denom: GNOTToken.denom,
+        },
+      };
+    }
+    case EXTRA_MESSAGE_TYPES.VM_ENABLE_PKG: {
+      const msg = message as MsgEnablePackage;
+
+      return {
+        type: message["@type"],
+        packagePath: msg.pkg_path,
+        functionName: "EnablePkg",
+        from: msg.approver,
+        amount: {
+          value: "0",
+          denom: GNOTToken.denom,
+        },
+      };
+    }
+    case EXTRA_MESSAGE_TYPES.VM_REJECT_PKG: {
+      const msg = message as MsgRejectPackage;
+
+      return {
+        type: message["@type"],
+        packagePath: msg.pkg_path,
+        functionName: "RejectPkg",
+        from: msg.sender,
+        amount: {
+          value: "0",
           denom: GNOTToken.denom,
         },
       };
