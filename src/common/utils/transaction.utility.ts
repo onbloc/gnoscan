@@ -49,11 +49,11 @@ export function decodeTransactionSafely(tx: string) {
  */
 function decodeTxMessagesSafely(rawMessages: any[]): any[] {
   return rawMessages.flatMap(rawMessage => {
-    const extra = decodeExtraTxMessage(rawMessage?.type_url, rawMessage?.value);
-    if (extra) {
-      return [extra];
-    }
     try {
+      const extra = decodeExtraTxMessage(rawMessage?.type_url, rawMessage?.value);
+      if (extra) {
+        return [extra];
+      }
       return decodeTxMessages([rawMessage]);
     } catch (error) {
       console.warn(`Keeping message with unsupported type "${rawMessage?.type_url}" as a placeholder:`, error);

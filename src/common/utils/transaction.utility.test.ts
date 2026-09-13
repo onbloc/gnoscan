@@ -125,6 +125,25 @@ describe("decodeTransaction", () => {
   });
 });
 
+describe("decodeTransaction", () => {
+  it("keeps a malformed vendored-type payload as a placeholder without dropping other messages", () => {
+    const supported = { type_url: "/vm.m_call", value: Uint8Array.from([1, 2, 3]) };
+    // field 1, length 16, but no bytes follow: the vendored decoder throws "premature EOF"
+    const malformed = { type_url: "/vm.m_enable_pkg", value: Uint8Array.from([0x0a, 0x10]) };
+    const rawTx = Buffer.from(
+      Tx.encode({ messages: [supported, malformed], fee: undefined, signatures: [], memo: "" }).finish(),
+    ).toString("base64");
+    mockedDecodeTxMessages.mockReturnValue([{ "@type": "/vm.m_call", caller: "g1caller" }]);
+
+    const decoded = decodeTransaction(rawTx);
+
+    expect(decoded.messages).toEqual([
+      { "@type": "/vm.m_call", caller: "g1caller" },
+      { "@type": "/vm.m_enable_pkg", value: Buffer.from([0x0a, 0x10]).toString("base64"), unsupported: true },
+    ]);
+  });
+});
+
 describe("makeTransactionMessageInfo", () => {
   it("returns null for a missing message (e.g. all messages of a tx were undecodable)", () => {
     expect(makeTransactionMessageInfo(undefined)).toBeNull();
