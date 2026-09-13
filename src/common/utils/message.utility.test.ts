@@ -1,6 +1,11 @@
 import { getTransactionMessageType } from "./message.utility";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
-import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "../values/message-types.constant";
+import {
+  MESSAGE_TYPES,
+  TRANSACTION_FUNCTION_TYPES,
+  isEnablePackageMessageType,
+  isRejectPackageMessageType,
+} from "../values/message-types.constant";
 
 describe("getTransactionMessageType", () => {
   describe("Testing basic mappings", () => {
@@ -17,6 +22,20 @@ describe("getTransactionMessageType", () => {
     test("MsgRun -> MsgRun", () => {
       const message = { messageType: MESSAGE_TYPES.VM_RUN } as TransactionContractModel;
       expect(getTransactionMessageType(message)).toBe(TRANSACTION_FUNCTION_TYPES.MSG_RUN);
+    });
+
+    test("EnablePackage (chain and API type strings) -> EnablePkg", () => {
+      for (const messageType of [MESSAGE_TYPES.VM_ENABLE_PKG, MESSAGE_TYPES.VM_ENABLE_PACKAGE]) {
+        const message = { messageType } as TransactionContractModel;
+        expect(getTransactionMessageType(message)).toBe(TRANSACTION_FUNCTION_TYPES.ENABLE_PKG);
+      }
+    });
+
+    test("RejectPackage (chain and API type strings) -> RejectPkg", () => {
+      for (const messageType of [MESSAGE_TYPES.VM_REJECT_PKG, MESSAGE_TYPES.VM_REJECT_PACKAGE]) {
+        const message = { messageType } as TransactionContractModel;
+        expect(getTransactionMessageType(message)).toBe(TRANSACTION_FUNCTION_TYPES.REJECT_PKG);
+      }
     });
   });
 
@@ -85,5 +104,21 @@ describe("getTransactionMessageType", () => {
       const message = { messageType: null } as unknown as TransactionContractModel;
       expect(getTransactionMessageType(message)).toBe(null);
     });
+  });
+});
+
+describe("package approval message type guards", () => {
+  test("isEnablePackageMessageType accepts both chain and API type strings", () => {
+    expect(isEnablePackageMessageType(MESSAGE_TYPES.VM_ENABLE_PKG)).toBe(true);
+    expect(isEnablePackageMessageType(MESSAGE_TYPES.VM_ENABLE_PACKAGE)).toBe(true);
+    expect(isEnablePackageMessageType(MESSAGE_TYPES.VM_REJECT_PACKAGE)).toBe(false);
+    expect(isEnablePackageMessageType(undefined)).toBe(false);
+  });
+
+  test("isRejectPackageMessageType accepts both chain and API type strings", () => {
+    expect(isRejectPackageMessageType(MESSAGE_TYPES.VM_REJECT_PKG)).toBe(true);
+    expect(isRejectPackageMessageType(MESSAGE_TYPES.VM_REJECT_PACKAGE)).toBe(true);
+    expect(isRejectPackageMessageType(MESSAGE_TYPES.VM_ENABLE_PACKAGE)).toBe(false);
+    expect(isRejectPackageMessageType(null)).toBe(false);
   });
 });
