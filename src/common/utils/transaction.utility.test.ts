@@ -1,5 +1,5 @@
+import { Tx } from "@/common/proto/vendor/tm2/tx";
 import { decodeTxMessages } from "@gnolang/gno-js-client";
-import { Tx } from "@gnolang/tm2-js-client";
 import {
   base64HashToHex,
   decodeTransaction,
@@ -18,13 +18,11 @@ import {
 jest.mock("@gnolang/gno-js-client", () => ({ decodeTxMessages: jest.fn() }));
 jest.mock("@/common/hooks/common/use-token-meta", () => ({ GNOTToken: { denom: "ugnot" } }));
 jest.mock("@gnolang/tm2-js-client", () => ({
-  Tx: { decode: jest.fn() },
   base64ToUint8Array: (b64: string) => Uint8Array.from(Buffer.from(b64, "base64")),
   uint8ArrayToBase64: (bytes: Uint8Array) => Buffer.from(bytes).toString("base64"),
 }));
 
 const mockedDecodeTxMessages = decodeTxMessages as jest.MockedFunction<typeof decodeTxMessages>;
-const mockedTxDecode = Tx.decode as jest.MockedFunction<typeof Tx.decode>;
 
 const PADDED_BASE64_HASH = "lk1sZ7ZgbHo75gEbv1pImpNorTXHe7zBgROekjZpjt4=";
 const UNPADDED_BASE64_HASH = "lk1sZ7ZgbHo75gEbv1pImpNorTXHe7zBgROekjZpjt4";
@@ -108,11 +106,9 @@ describe("decodeTransaction", () => {
   it("keeps the raw payload of an unsupported message while decoding supported ones", () => {
     const supported = { type_url: "/vm.m_call", value: Uint8Array.from([1, 2, 3]) };
     const unsupported = { type_url: "/vm.m_unknown", value: Uint8Array.from([4, 5, 6]) };
-    mockedTxDecode.mockReturnValue({
-      messages: [supported, unsupported],
-      signatures: [],
-      memo: "",
-    } as unknown as ReturnType<typeof Tx.decode>);
+    const rawTx = Buffer.from(
+      Tx.encode({ messages: [supported, unsupported], fee: undefined, signatures: [], memo: "" }).finish(),
+    ).toString("base64");
     mockedDecodeTxMessages.mockImplementation(messages => {
       if (messages[0].type_url !== "/vm.m_call") {
         throw new Error(`unsupported message type ${messages[0].type_url}`);
@@ -120,11 +116,30 @@ describe("decodeTransaction", () => {
       return [{ "@type": "/vm.m_call", caller: "g1caller" }];
     });
 
-    const decoded = decodeTransaction("AQID");
+    const decoded = decodeTransaction(rawTx);
 
     expect(decoded.messages).toEqual([
       { "@type": "/vm.m_call", caller: "g1caller" },
       { "@type": "/vm.m_unknown", value: Buffer.from([4, 5, 6]).toString("base64"), unsupported: true },
+    ]);
+  });
+});
+
+describe("decodeTransaction", () => {
+  it("keeps a malformed vendored-type payload as a placeholder without dropping other messages", () => {
+    const supported = { type_url: "/vm.m_call", value: Uint8Array.from([1, 2, 3]) };
+    // field 1, length 16, but no bytes follow: the vendored decoder throws "premature EOF"
+    const malformed = { type_url: "/vm.m_enable_pkg", value: Uint8Array.from([0x0a, 0x10]) };
+    const rawTx = Buffer.from(
+      Tx.encode({ messages: [supported, malformed], fee: undefined, signatures: [], memo: "" }).finish(),
+    ).toString("base64");
+    mockedDecodeTxMessages.mockReturnValue([{ "@type": "/vm.m_call", caller: "g1caller" }]);
+
+    const decoded = decodeTransaction(rawTx);
+
+    expect(decoded.messages).toEqual([
+      { "@type": "/vm.m_call", caller: "g1caller" },
+      { "@type": "/vm.m_enable_pkg", value: Buffer.from([0x0a, 0x10]).toString("base64"), unsupported: true },
     ]);
   });
 });
@@ -136,7 +151,7 @@ describe("makeTransactionMessageInfo", () => {
   });
 
   it("returns null for an unrecognized message type", () => {
-    expect(makeTransactionMessageInfo({ "@type": "/vm.m_enable_pkg" })).toBeNull();
+    expect(makeTransactionMessageInfo({ "@type": "/vm.m_unknown" })).toBeNull();
   });
 });
 
