@@ -16,8 +16,6 @@ import { StandardNetworkTransactionContractDetails } from "../../transaction-con
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
 import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
 import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
-import TransferSummaryLine from "../../transaction-message-summary/TransferSummaryLine";
-import { getSingleTransferSummary } from "../../transaction-message-summary/transfer-render";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -105,7 +103,6 @@ const StandardNetworkTransactionInfo = ({
 
   const summaryData = apiTransaction?.summary;
   const summaryActions = summaryData?.actions ?? [];
-  const singleTransferSummary = getSingleTransferSummary(txContracts.numOfMessage, summaryData);
   const hasRenderableSummary = Boolean(
     summaryData &&
       (summaryActions.length > 0 ||
@@ -125,15 +122,10 @@ const StandardNetworkTransactionInfo = ({
           />
         ) : (
           <>
-            {/* The single-transfer heading sits above "GRC-20 Transferred" in the same top
-                summary slot as the action summary, instead of down in the per-message details. */}
-            {(singleTransferSummary || hasRenderableSummary) && (
+            {hasRenderableSummary && summaryData && (
               <>
                 <TransactionActionSummary actions={summaryActions} />
-                {singleTransferSummary && <TransferSummaryLine transfer={singleTransferSummary} />}
-                {hasRenderableSummary && summaryData && (
-                  <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
-                )}
+                <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
               </>
             )}
             <StandardNetworkTransactionContractDetails
