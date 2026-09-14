@@ -566,16 +566,33 @@ function renderCancel(action: TransactionAction): React.ReactNode | null {
   );
 }
 
-function renderDeploy(action: TransactionAction): React.ReactNode | null {
+function renderEnable(action: TransactionAction): React.ReactNode | null {
+  const packageName = findAsset(action.assets, "packageName");
+  const creator = findAsset(action.assets, "creator");
+  if (!packageName || !creator) return null;
+  return (
+    <>
+      <Verb>Enable</Verb>
+      <RealmChip pkgPath={packageName.assetType}>{packageName.value}</RealmChip>
+      <Verb>by</Verb>
+      <TransferAddress address={creator.value} packagePath={creator.packagePath} />
+    </>
+  );
+}
+
+// Package has no realm page until enabled, so no RealmChip link here (unlike renderEnable).
+function renderDeployPending(action: TransactionAction): React.ReactNode | null {
   const packageName = findAsset(action.assets, "packageName");
   const creator = findAsset(action.assets, "creator");
   if (!packageName || !creator) return null;
   return (
     <>
       <Verb>Deploy</Verb>
-      <RealmChip pkgPath={packageName.assetType}>{packageName.value}</RealmChip>
+      <Text type="p4" color="primary" fontWeight={700} display="contents">
+        {packageName.value}
+      </Text>
       <Verb>by</Verb>
-      <TransferAddress address={creator.value} packagePath={creator.packagePath} />
+      <TransferAddress address={creator.value} />
     </>
   );
 }
@@ -608,7 +625,9 @@ const ACTION_RENDERERS: Record<string, ActionRenderer> = {
   vote: renderVote,
   execute: renderExecute,
   cancel: renderCancel,
-  deploy: renderDeploy,
+  enable: renderEnable,
+  deploy: renderEnable, // legacy/cached alias
+  deployPending: renderDeployPending,
 };
 
 function renderActionSentence(

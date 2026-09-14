@@ -6,8 +6,9 @@ import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { TransactionMapper } from "@/common/mapper/transaction/transaction-mapper";
 import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
 import { useGetTransactionEventsByHeight } from "@/common/react-query/transaction/api/use-get-transaction-events-by-hash";
-import { GnoEvent, TransactionContractInfo } from "@/types/data-type";
+import { GnoEvent, TransactionAction, TransactionContractInfo } from "@/types/data-type";
 
+import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.utility";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { EventDatatable } from "@/components/view/datatable/event";
@@ -62,6 +63,33 @@ const StandardNetworkTransactionInfo = ({
     };
   }, [contractsData?.pages]);
 
+  const summaryData = apiTransaction?.summary;
+  const summaryActions = summaryData?.actions ?? [];
+
+  // Synthesize a "deployPending" action per AddPkg message not yet covered by a real
+  // enable/deploy action (backend has no action for it until EnablePackage succeeds).
+  const pendingDeployActions: TransactionAction[] = React.useMemo(() => {
+    if (!summaryData?.types.includes("deploy")) return [];
+
+    const coveredPkgPaths = new Set(
+      summaryActions.filter(action => action.type === "enable" || action.type === "deploy").map(action => action.realm),
+    );
+
+    return txContracts.messages
+      .filter(message => message.messageType === MESSAGE_TYPES.VM_ADDPKG && !coveredPkgPaths.has(message.pkgPath))
+      .map(
+        (addPackageMessage): TransactionAction => ({
+          tag: "vm",
+          realm: addPackageMessage.pkgPath,
+          type: "deployPending",
+          assets: [
+            { assetType: addPackageMessage.pkgPath, key: "packageName", value: addPackageMessage.name },
+            { assetType: addPackageMessage.pkgPath, key: "creator", value: addPackageMessage.creator },
+          ],
+        }),
+      );
+  }, [summaryData?.types, summaryActions, txContracts.messages]);
+
   const txEvents: GnoEvent[] = React.useMemo(() => {
     if (!eventsData?.pages) return [];
 
@@ -101,11 +129,11 @@ const StandardNetworkTransactionInfo = ({
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
   if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
 
-  const summaryData = apiTransaction?.summary;
-  const summaryActions = summaryData?.actions ?? [];
+  const displayActions = [...summaryActions, ...pendingDeployActions];
+
   const hasRenderableSummary = Boolean(
     summaryData &&
-      (summaryActions.length > 0 ||
+      (displayActions.length > 0 ||
         summaryData.transfers.some(transfer => transfer.assetType === "grc20") ||
         summaryData.netTransfers.some(transfer => transfer.assetType === "grc20")),
   );
@@ -124,7 +152,7 @@ const StandardNetworkTransactionInfo = ({
           <>
             {hasRenderableSummary && summaryData && (
               <>
-                <TransactionActionSummary actions={summaryActions} />
+                <TransactionActionSummary actions={displayActions} />
                 <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
               </>
             )}
