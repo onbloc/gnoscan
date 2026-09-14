@@ -1,5 +1,8 @@
 export const GNO_TOKEN_RESOURCE_BASE_URI = "https://raw.githubusercontent.com/onbloc/gno-token-resource/main";
 
+// gnoscan has no pool/position page of its own - link out to gnoswap's app instead.
+export const GNOSWAP_APP_BASE_URL = "https://beta.gnoswap.io";
+
 export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "";
 
 export const DAY_TIME = 86_400_000 as const; // Day time: 24 * 60 * 60 * 1000
