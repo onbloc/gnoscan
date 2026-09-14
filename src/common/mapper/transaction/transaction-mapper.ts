@@ -47,6 +47,7 @@ export class TransactionMapper {
       storageUsage: response.storageUsage,
       transactionEvents: [],
       hasApplicationError: response.hasApplicationError,
+      summary: response.summary,
     };
   }
 
