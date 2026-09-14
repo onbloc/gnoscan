@@ -41,7 +41,6 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
           isFetched={isFetchedTransactions}
           hasNextPage={hasNextPage}
           nextPage={nextPage}
-          pkgPath={`${path}`}
         />
       )}
       {currentTab === "Events" && <EventDatatable isFetched={isFetched} events={transactionEvents} />}

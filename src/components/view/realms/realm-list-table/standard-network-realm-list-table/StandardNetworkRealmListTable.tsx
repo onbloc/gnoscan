@@ -32,6 +32,7 @@ interface RealmListTableProps {
   sortOption: RealmListSortOption;
   realms: Realm[];
   isFetched: boolean;
+  isError: boolean;
   hasNextPage?: boolean;
   fetchNextPage: () => void;
   setSortOption: (sortOption: RealmListSortOption) => void;
@@ -43,6 +44,7 @@ export const StandardNetworkRealmListTable = ({
   setSortOption,
   realms,
   isFetched,
+  isError,
   hasNextPage,
   fetchNextPage,
 }: RealmListTableProps) => {
@@ -156,7 +158,7 @@ export const StandardNetworkRealmListTable = ({
         datas={realms || []}
         sortOption={sortOption}
         setSortOption={setSortOption}
-        supported={!!indexerQueryClient}
+        supported={!!indexerQueryClient && !isError}
       />
 
       {hasNextPage ? (

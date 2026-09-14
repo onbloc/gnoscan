@@ -41,6 +41,7 @@ export const StandardNetworkTokenListTable = ({
   data,
   hasNextPage,
   isFetched,
+  isError,
   fetchNextPage,
   sortOption,
   setSortOption,
@@ -130,7 +131,7 @@ export const StandardNetworkTokenListTable = ({
         datas={data}
         sortOption={sortOption}
         setSortOption={setSortOption}
-        supported={!!indexerQueryClient}
+        supported={!!indexerQueryClient && !isError}
       />
       {hasNextPage ? (
         <div className="button-wrapper">

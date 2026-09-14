@@ -17,6 +17,12 @@ export const useGetTokenMetaByPath = (
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     repository => repository.getTokenMetaByPath(path),
-    { ...options, enabled: !!path, cacheTime: 60 * 60 * 1000, staleTime: 60 * 60 * 1000 },
+    {
+      enabled: !!path,
+      retry: false,
+      cacheTime: 60 * 60 * 1000,
+      staleTime: 60 * 60 * 1000,
+      ...options,
+    },
   );
 };

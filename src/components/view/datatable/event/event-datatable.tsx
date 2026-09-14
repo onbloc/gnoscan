@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   isFetched: boolean;
+  isError?: boolean;
   events: GnoEvent[];
 }
 
@@ -31,7 +32,7 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const EventDatatable = ({ isFetched, events }: Props) => {
+export const EventDatatable = ({ isFetched, isError, events }: Props) => {
   const media = eachMedia();
   const themeMode = useRecoilValue(themeState);
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
@@ -170,6 +171,7 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
         })}
         datas={filteredEvents}
         renderDetails={renderDetails}
+        supported={!isError}
       />
 
       {hasNextPage && (

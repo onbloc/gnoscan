@@ -18,7 +18,7 @@ const StandardNetworkRealmsData = ({ breakpoint, sortOption, setSortOption }: St
   // forwarded as API params so pagination follows the server order.
   const apiParams = React.useMemo(() => toRealmListApiSortParams(sortOption), [sortOption.field, sortOption.order]);
 
-  const { data, isFetched, hasNextPage, fetchNextPage } = useMappedApiRealms(apiParams);
+  const { data, isFetched, isError, hasNextPage, fetchNextPage } = useMappedApiRealms(apiParams);
 
   return (
     <StandardNetworkRealmListTable
@@ -27,6 +27,7 @@ const StandardNetworkRealmsData = ({ breakpoint, sortOption, setSortOption }: St
       setSortOption={setSortOption}
       realms={data}
       isFetched={isFetched}
+      isError={isError}
       hasNextPage={hasNextPage}
       fetchNextPage={fetchNextPage}
     />
