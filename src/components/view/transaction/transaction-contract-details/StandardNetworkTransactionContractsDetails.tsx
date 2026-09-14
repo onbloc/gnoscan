@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
+import {
+  MESSAGE_TYPES,
+  isEnablePackageMessageType,
+  isRejectPackageMessageType,
+} from "@/common/values/message-types.constant";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { Transaction, TransactionContractInfo } from "@/types/data-type";
 
@@ -12,8 +16,10 @@ import {
   StandardNetworkAddPackageMessage,
   StandardNetworkBankMsgSendMessage,
   StandardNetworkCreateSessionMessage,
+  StandardNetworkEnablePackageMessage,
   StandardNetworkMsgCallMessage,
   StandardNetworkMsgRunMessage,
+  StandardNetworkRejectPackageMessage,
   StandardNetworkRevokeSessionMessage,
 } from "../transaction-message-card";
 import * as S from "./TransactionContractDetails.styles";
@@ -122,6 +128,22 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           {(message.messageType === MESSAGE_TYPES.AUTH_REVOKE_SESSION ||
             message.messageType === MESSAGE_TYPES.AUTH_REVOKE_ALL_SESSIONS) && (
             <StandardNetworkRevokeSessionMessage
+              message={message}
+              isDesktop={isDesktop}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
+          )}
+
+          {isEnablePackageMessageType(message.messageType) && (
+            <StandardNetworkEnablePackageMessage
+              message={message}
+              isDesktop={isDesktop}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
+          )}
+
+          {isRejectPackageMessageType(message.messageType) && (
+            <StandardNetworkRejectPackageMessage
               message={message}
               isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}

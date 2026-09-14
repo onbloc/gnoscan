@@ -2,6 +2,7 @@ import { TransactionContractModel, TransactionSummary } from "@/repositories/api
 import { GnoEvent, Transaction, TransactionContractInfo, TransactionSummaryInfo } from "@/types/data-type";
 
 import { getTimeStamp } from "@/common/utils/date-util";
+import { tryOrDefault } from "@/common/utils/common.utility";
 import { formatGasString } from "@/common/utils/format/format-utils";
 import { base64HashToHex, decodeTransaction } from "@/common/utils/transaction.utility";
 import { parseTokenAmount } from "@/common/utils/token.utility";
@@ -59,12 +60,10 @@ export class TransactionMapper {
    * rather than filled in with placeholders.
    */
   public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo | null {
-    let decoded: ReturnType<typeof decodeTransaction>;
-    try {
-      decoded = decodeTransaction(rawTx);
-    } catch {
-      // Malformed raw tx bytes from the pending endpoint: treat as a miss so the
-      // caller keeps polling instead of showing a broken page.
+    // Malformed raw tx bytes from the pending endpoint fall back to null, so the
+    // caller treats it as a miss and keeps polling instead of showing a broken page.
+    const decoded = tryOrDefault<ReturnType<typeof decodeTransaction> | null>(() => decodeTransaction(rawTx), null);
+    if (!decoded) {
       return null;
     }
 

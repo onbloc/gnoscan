@@ -6,7 +6,7 @@ import { AmountText } from "@/components/ui/text/amount-text";
 import { FontsType } from "@/styles";
 import { Amount } from "@/types/data-type";
 import { useGetBlockQuery } from "@/common/react-query/block";
-import { decodeTransaction } from "@/common/utils/transaction.utility";
+import { decodeTransactionSafely } from "@/common/utils/transaction.utility";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import BigNumber from "bignumber.js";
 
@@ -25,7 +25,7 @@ export const LazyBlockTotalFee = ({ blockHeight, maxSize = "p4", minSize = "body
       return null;
     }
 
-    const txs = block.block.data.txs?.map(decodeTransaction);
+    const txs = block.block.data.txs?.map(decodeTransactionSafely);
     return txs?.reduce((result, tx) => {
       const fee = tx.fee?.gas_fee ? parseTokenAmount(tx.fee.gas_fee) : 0;
       return result + fee;
