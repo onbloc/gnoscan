@@ -25,9 +25,9 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
   const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
 
   const maxDeposit: Amount | null = React.useMemo(() => {
-    if (!message?.maxDeposit) return null;
+    if (!message?.maxDeposit || !message.maxDeposit.value || message.maxDeposit.value === "0") return null;
 
-    return toGNOTAmount(message.maxDeposit.value || "0", message.maxDeposit.denom || GNOTToken.denom);
+    return toGNOTAmount(message.maxDeposit.value, message.maxDeposit.denom || GNOTToken.denom);
   }, [message.maxDeposit]);
 
   const isTransferType = message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER && message.args.length == 2;
@@ -42,6 +42,10 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
         <BadgeText type="blue" color="white">
           {getTransactionMessageType(message)}
         </BadgeText>
+      </Field>
+
+      <Field label="Pkg Name" isDesktop={isDesktop}>
+        <BadgeText>{message.pkgName || "-"}</BadgeText>
       </Field>
 
       <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
@@ -96,9 +100,11 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
         <AmountBadge amount={message?.send} />
       </Field>
 
-      <Field label="Max_Deposit" isDesktop={isDesktop}>
-        <AmountBadge amount={maxDeposit} />
-      </Field>
+      {maxDeposit && (
+        <Field label="Max_Deposit" isDesktop={isDesktop}>
+          <AmountBadge amount={maxDeposit} />
+        </Field>
+      )}
     </>
   );
 

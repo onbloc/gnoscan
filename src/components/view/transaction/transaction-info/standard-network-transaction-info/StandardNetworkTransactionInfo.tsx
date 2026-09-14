@@ -14,6 +14,10 @@ import { EventDatatable } from "@/components/view/datatable/event";
 import DataListSection from "@/components/view/details-data-section/data-list-section";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
+import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
+import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
+import TransferSummaryLine from "../../transaction-message-summary/TransferSummaryLine";
+import { getSingleTransferSummary } from "../../transaction-message-summary/transfer-render";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -99,6 +103,16 @@ const StandardNetworkTransactionInfo = ({
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
   if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
 
+  const summaryData = apiTransaction?.summary;
+  const summaryActions = summaryData?.actions ?? [];
+  const singleTransferSummary = getSingleTransferSummary(txContracts.numOfMessage, summaryData);
+  const hasRenderableSummary = Boolean(
+    summaryData &&
+      (summaryActions.length > 0 ||
+        summaryData.transfers.some(transfer => transfer.assetType === "grc20") ||
+        summaryData.netTransfers.some(transfer => transfer.assetType === "grc20")),
+  );
+
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Messages" &&
@@ -110,13 +124,26 @@ const StandardNetworkTransactionInfo = ({
             getTokenAmount={getTokenAmount}
           />
         ) : (
-          <StandardNetworkTransactionContractDetails
-            transactionItem={txContracts}
-            rawTransaction={transactionItem}
-            isDesktop={isDesktop}
-            getUrlWithNetwork={getUrlWithNetwork}
-            storageDepositInfo={storageDepositInfo}
-          />
+          <>
+            {/* The single-transfer heading sits above "GRC-20 Transferred" in the same top
+                summary slot as the action summary, instead of down in the per-message details. */}
+            {(singleTransferSummary || hasRenderableSummary) && (
+              <>
+                <TransactionActionSummary actions={summaryActions} />
+                {singleTransferSummary && <TransferSummaryLine transfer={singleTransferSummary} />}
+                {hasRenderableSummary && summaryData && (
+                  <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
+                )}
+              </>
+            )}
+            <StandardNetworkTransactionContractDetails
+              transactionItem={txContracts}
+              rawTransaction={transactionItem}
+              isDesktop={isDesktop}
+              getUrlWithNetwork={getUrlWithNetwork}
+              storageDepositInfo={storageDepositInfo}
+            />
+          </>
         ))}
       {currentTab === "Events" && !isPending && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
     </DataListSection>
