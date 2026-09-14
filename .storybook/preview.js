@@ -3,7 +3,6 @@ import {RecoilRoot} from 'recoil';
 import {CustomThemeProvider} from '../src/components/core/layout/CustomThemeProvider';
 
 export const parameters = {
-  actions: {argTypesRegex: '^on[A-Z].*'},
   controls: {
     matchers: {
       color: /(background|color)$/i,
