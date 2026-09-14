@@ -2634,11 +2634,6 @@
     "@types/react" "*"
     csstype "^3.0.2"
 
-"@types/uuid@^8.3.4":
-  version "8.3.4"
-  resolved "https://registry.npmjs.org/@types/uuid/-/uuid-8.3.4.tgz"
-  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
-
 "@types/ws@^8.5.10":
   version "8.5.12"
   resolved "https://registry.npmjs.org/@types/ws/-/ws-8.5.12.tgz"
@@ -9654,15 +9649,15 @@ utility-types@^3.10.0:
   resolved "https://registry.npmjs.org/utility-types/-/utility-types-3.11.0.tgz"
   integrity sha512-6Z7Ma2aVEWisaL6TvBCy7P8rm2LQoPv6dJ7ecIaIixHcwfbJ0x7mWdbcwlIM5IGQxPZSFYeqRCqlOOeKoJYMkw==
 
+uuid@^11.1.0:
+  version "11.1.1"
+  resolved "https://registry.npmjs.org/uuid/-/uuid-11.1.1.tgz"
+  integrity sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==
+
 uuid@^13.0.0:
   version "13.0.2"
   resolved "https://registry.npmjs.org/uuid/-/uuid-13.0.2.tgz"
   integrity sha512-vzi9uRZ926x4XV73S/4qQaTwPXM2JBj6/6lI/byHH1jOpCzb0zDbfytgA9LcN/hzb2l7WQSQnxITOVx5un/wGw==
-
-uuid@^9.0.0:
-  version "9.0.1"
-  resolved "https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz"
-  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
 v8-to-istanbul@^9.0.1:
   version "9.3.0"
