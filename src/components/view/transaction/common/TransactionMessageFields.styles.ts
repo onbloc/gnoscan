@@ -54,21 +54,6 @@ export const RealmStatusBadgeContent = styled.div`
     width: 16px;
     height: 16px;
     line-height: 0;
-
-    .tooltip-button {
-      width: 16px;
-      height: 16px;
-    }
-
-    svg {
-      width: 16px;
-      height: 16px;
-      fill: #ff4d4f;
-
-      & .icon-tooltip_svg__bg {
-        fill: #ffffff;
-      }
-    }
   }
 `;
 

@@ -21,6 +21,8 @@ import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import Badge from "@/components/ui/badge";
 import { DLWrap, FitContentA, FitContentSpan, LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import FloatingTooltip from "@/components/ui/floating-tooltip";
+import IconInfo from "@/components/ui/icon-info";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
@@ -69,21 +71,6 @@ const notYetEnabledBadgeStyle = css`
     width: 16px;
     height: 16px;
     line-height: 0;
-
-    .tooltip-button {
-      width: 16px;
-      height: 16px;
-    }
-
-    svg {
-      width: 16px;
-      height: 16px;
-      fill: #ff4d4f;
-
-      & .icon-tooltip_svg__bg {
-        fill: #ffffff;
-      }
-    }
   }
 `;
 
@@ -93,9 +80,9 @@ const NotYetEnabledBadge = () => (
       <Text type="p4" color="white" fontWeight={600}>
         Not Yet Enabled
       </Text>
-      <Tooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip" width={280}>
-        <IconTooltip />
-      </Tooltip>
+      <FloatingTooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip">
+        <IconInfo size={16} fill="#ffffff" />
+      </FloatingTooltip>
     </span>
   </Badge>
 );

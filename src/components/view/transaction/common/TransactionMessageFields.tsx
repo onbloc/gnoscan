@@ -13,6 +13,8 @@ import { useGetRealmByPath } from "@/common/react-query/realm/api";
 
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
+import FloatingTooltip from "@/components/ui/floating-tooltip";
+import IconInfo from "@/components/ui/icon-info";
 import Text from "@/components/ui/text";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
@@ -193,9 +195,9 @@ const NotYetEnabledBadge = () => (
       <Text type="p4" color="white" fontWeight={600}>
         Not Yet Enabled
       </Text>
-      <Tooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip" width={280}>
-        <IconTooltip />
-      </Tooltip>
+      <FloatingTooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip">
+        <IconInfo size={16} fill="#ffffff" />
+      </FloatingTooltip>
     </S.RealmStatusBadgeContent>
   </Badge>
 );
