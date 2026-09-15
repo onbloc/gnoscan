@@ -4,9 +4,10 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
-import { TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
+import { SUMMARY_ASSET_TYPES, TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
 
 type TransferView = "all" | "net";
+const GNOSWAP_EMISSION_PACKAGE_PATH = "gno.land/r/gnoswap/emission";
 
 interface Props {
   summary: TransactionSummaryDetail;
@@ -14,8 +15,16 @@ interface Props {
 }
 
 const TransactionMessageSummary = ({ summary, isDesktop }: Props) => {
-  const grc20Transfers = summary.transfers.filter(transfer => transfer.assetType === "grc20");
-  const grc20NetTransfers = summary.netTransfers.filter(transfer => transfer.assetType === "grc20");
+  const grc20Transfers = summary.transfers.filter(
+    transfer => transfer.assetType === SUMMARY_ASSET_TYPES.GRC20 && !isGnoswapEmissionTransfer(transfer),
+  );
+  const grc20TransferAddresses = new Set(grc20Transfers.flatMap(transfer => [transfer.from, transfer.to]));
+  const grc20NetTransfers = summary.netTransfers.filter(
+    transfer =>
+      transfer.assetType === SUMMARY_ASSET_TYPES.GRC20 &&
+      !isGnoswapEmissionNetTransfer(transfer) &&
+      grc20TransferAddresses.has(transfer.address),
+  );
 
   const hasGrc20 = grc20Transfers.length > 0 || grc20NetTransfers.length > 0;
 
@@ -32,6 +41,17 @@ const TransactionMessageSummary = ({ summary, isDesktop }: Props) => {
     </SummaryWrapper>
   );
 };
+
+function isGnoswapEmissionTransfer(transfer: AssetTransfer): boolean {
+  return (
+    transfer.fromPackagePath === GNOSWAP_EMISSION_PACKAGE_PATH ||
+    transfer.toPackagePath === GNOSWAP_EMISSION_PACKAGE_PATH
+  );
+}
+
+function isGnoswapEmissionNetTransfer(transfer: NetTransfer): boolean {
+  return transfer.packagePath === GNOSWAP_EMISSION_PACKAGE_PATH;
+}
 
 interface TransferGroupProps {
   label: string;

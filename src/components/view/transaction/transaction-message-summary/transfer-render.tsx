@@ -65,11 +65,16 @@ interface Grc20AmountLeg {
   amount: { denom: string };
 }
 
+export const SUMMARY_ASSET_TYPES = {
+  NATIVE: "native",
+  GRC20: "grc20",
+} as const;
+
 export const useGrc20TokenInfos = (items: Grc20AmountLeg[]): Record<string, TokenDisplayInfo> => {
   const grc20TokenKeys = React.useMemo(() => {
     const keys = new Set<string>();
     items.forEach(item => {
-      if (item.assetType === "grc20") keys.add(item.amount.denom);
+      if (item.assetType === SUMMARY_ASSET_TYPES.GRC20) keys.add(item.amount.denom);
     });
     return Array.from(keys);
   }, [items]);
@@ -115,7 +120,11 @@ export const getTransferSummaryLines = (
 ): AssetTransfer[] => {
   if (!summary || summary.actions.length > 0 || summary.transfers.length === 0) return [];
   if (summary.transfers.length !== numOfMessage) return [];
-  if (!summary.transfers.every(transfer => transfer.assetType === "native" || transfer.assetType === "grc20"))
+  if (
+    !summary.transfers.every(
+      transfer => transfer.assetType === SUMMARY_ASSET_TYPES.NATIVE || transfer.assetType === SUMMARY_ASSET_TYPES.GRC20,
+    )
+  )
     return [];
 
   return summary.transfers;
@@ -308,7 +317,7 @@ export const TransferAmount = ({ transfer, tokenInfosByTokenKey, compact = false
   <TokenAmountDisplay
     tokenKey={transfer.amount.denom}
     rawValue={transfer.amount.value}
-    isGrc20={transfer.assetType === "grc20"}
+    isGrc20={transfer.assetType === SUMMARY_ASSET_TYPES.GRC20}
     tokenInfosByTokenKey={tokenInfosByTokenKey}
     compact={compact}
   />
