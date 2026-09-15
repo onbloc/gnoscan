@@ -632,7 +632,7 @@ function renderDeploy(action: TransactionAction): React.ReactNode | null {
   return (
     <>
       <Verb>Deployed</Verb>
-      <Text type="p4" color="blue" display="contents">
+      <Text type="p4" color="primary" fontWeight={700} display="contents">
         {packageName.value}
       </Text>
       <Verb>by</Verb>
@@ -716,7 +716,7 @@ function renderMessageFallback(
     return (
       <>
         <Verb>Deployed</Verb>
-        <Text type="p4" color="blue" display="contents">
+        <Text type="p4" color="primary" fontWeight={700} display="contents">
           {message.name}
         </Text>
         <Verb>by</Verb>
