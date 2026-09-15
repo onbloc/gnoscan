@@ -194,7 +194,7 @@ const notYetEnabledBadgeStyle = css`
 const NotYetEnabledBadge = () => (
   <Badge cssExtend={notYetEnabledBadgeStyle}>
     <S.RealmStatusBadgeContent>
-      <Text type="p4" color="white" fontWeight={600}>
+      <Text type="p4" color="white" fontWeight={400}>
         Not Yet Enabled
       </Text>
       <FloatingTooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip">
