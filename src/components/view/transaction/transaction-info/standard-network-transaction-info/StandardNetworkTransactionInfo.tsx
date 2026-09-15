@@ -14,10 +14,7 @@ import { EventDatatable } from "@/components/view/datatable/event";
 import DataListSection from "@/components/view/details-data-section/data-list-section";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
-import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
-import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
-import TransferSummaryLine from "../../transaction-message-summary/TransferSummaryLine";
-import { getTransferSummaryLines } from "../../transaction-message-summary/transfer-render";
+import TransactionTopSummary from "../../transaction-message-summary/TransactionTopSummary";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -63,10 +60,6 @@ const StandardNetworkTransactionInfo = ({
       rawContent: "",
     };
   }, [contractsData?.pages]);
-
-  const summaryData = apiTransaction?.summary;
-  const summaryActions = summaryData?.actions ?? [];
-  const transferSummaryLines = getTransferSummaryLines(txContracts.numOfMessage, summaryData);
 
   const txEvents: GnoEvent[] = React.useMemo(() => {
     if (!eventsData?.pages) return [];
@@ -119,9 +112,12 @@ const StandardNetworkTransactionInfo = ({
           />
         ) : (
           <>
-            <TransactionActionSummary actions={summaryActions} types={summaryData?.types} />
-            {transferSummaryLines.length > 0 && <TransferSummaryLine transfers={transferSummaryLines} />}
-            {summaryData && <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />}
+            <TransactionTopSummary
+              messages={txContracts.messages}
+              numOfMessage={txContracts.numOfMessage}
+              summary={apiTransaction?.summary}
+              isDesktop={isDesktop}
+            />
             <StandardNetworkTransactionContractDetails
               transactionItem={txContracts}
               rawTransaction={transactionItem}

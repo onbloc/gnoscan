@@ -709,6 +709,10 @@ function selectDisplayActions(actions: TransactionAction[], types?: string[]): T
   });
 }
 
+export function hasDisplayActions(actions: TransactionAction[], types?: string[]): boolean {
+  return selectDisplayActions(actions, types).length > 0;
+}
+
 function actionMatchesSummaryType(action: TransactionAction, type: string): boolean {
   const actionType = action.type.toLowerCase();
   const summaryType = type.toLowerCase();
