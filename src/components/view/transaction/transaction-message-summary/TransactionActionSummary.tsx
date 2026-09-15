@@ -36,16 +36,13 @@ interface Props {
 const TransactionActionSummary = ({ messages, actions }: Props) => {
   const pairedActions = React.useMemo(() => pairMessagesWithActions(messages, actions), [messages, actions]);
 
-  const matchedActions = React.useMemo(
-    () => pairedActions.filter((action): action is TransactionAction => !!action),
-    [pairedActions],
-  );
+  const matchedActions = React.useMemo(() => pairedActions.flat(), [pairedActions]);
   const actionTokenInfos = useActionTokenInfos(matchedActions);
 
   const transferFallbackLegs = React.useMemo(
     () =>
       messages
-        .filter((message, index) => !pairedActions[index] && isTransferFallback(message))
+        .filter((message, index) => pairedActions[index].length === 0 && isTransferFallback(message))
         .map(message => ({
           assetType: message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20",
           amount: message.amount,
@@ -63,7 +60,7 @@ const TransactionActionSummary = ({ messages, actions }: Props) => {
   return (
     <Wrapper>
       {messages.map((message, index) => {
-        const matchedAction = pairedActions[index];
+        const matchedMessageActions = pairedActions[index];
         return (
           <ActionLine key={index}>
             {numbered && (
@@ -71,8 +68,13 @@ const TransactionActionSummary = ({ messages, actions }: Props) => {
                 {`${index + 1}.`}
               </Text>
             )}
-            {matchedAction
-              ? renderActionSentence(matchedAction, tokenInfosByTokenKey)
+            {matchedMessageActions.length > 0
+              ? matchedMessageActions.map((action, actionIndex) => (
+                  <React.Fragment key={actionIndex}>
+                    {actionIndex > 0 && <Verb>·</Verb>}
+                    {renderActionSentence(action, tokenInfosByTokenKey)}
+                  </React.Fragment>
+                ))
               : renderMessageFallback(message, tokenInfosByTokenKey)}
           </ActionLine>
         );
