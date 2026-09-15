@@ -42,7 +42,7 @@ const TransactionActionSummary = ({ messages, actions }: Props) => {
   const transferFallbackLegs = React.useMemo(
     () =>
       messages
-        .filter((message, index) => pairedActions[index].length === 0 && isTransferFallback(message))
+        .filter((message, index) => pairedActions[index].length === 0 && isTransferShapedMessage(message))
         .map(message => ({
           assetType: message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20",
           amount: message.amount,
@@ -734,12 +734,6 @@ function renderMessageFallback(
       <TransferAddress address={message.caller || message.creator} />
     </>
   );
-}
-
-// Only "Transfer"-shaped messages (bank send, or a grc20 Transfer call) need a
-// grc20 token lookup for their fallback line — everything else's fallback is plain text.
-function isTransferFallback(message: TransactionContractModel): boolean {
-  return isTransferShapedMessage(message);
 }
 
 // Same guard StandardNetworkMsgCallMessage uses to decide whether a VM_CALL message is
