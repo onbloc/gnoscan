@@ -4,6 +4,7 @@ import Link from "next/link";
 import { css } from "styled-components";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { PaletteKeyType } from "@/styles";
 import { Amount } from "@/types/data-type";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
@@ -192,6 +193,9 @@ const NotYetEnabledBadge = () => (
       <Text type="p4" color="white" fontWeight={600}>
         Not Yet Enabled
       </Text>
+      <Tooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip" width={280}>
+        <IconTooltip />
+      </Tooltip>
     </S.RealmStatusBadgeContent>
   </Badge>
 );
