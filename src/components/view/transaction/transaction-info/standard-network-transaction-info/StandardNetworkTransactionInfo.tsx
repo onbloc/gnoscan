@@ -16,6 +16,8 @@ import { StandardNetworkTransactionContractDetails } from "../../transaction-con
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
 import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
 import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
+import TransferSummaryLine from "../../transaction-message-summary/TransferSummaryLine";
+import { getTransferSummaryLines } from "../../transaction-message-summary/transfer-render";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -64,6 +66,7 @@ const StandardNetworkTransactionInfo = ({
 
   const summaryData = apiTransaction?.summary;
   const summaryActions = summaryData?.actions ?? [];
+  const transferSummaryLines = getTransferSummaryLines(txContracts.numOfMessage, summaryData);
 
   const txEvents: GnoEvent[] = React.useMemo(() => {
     if (!eventsData?.pages) return [];
@@ -117,6 +120,7 @@ const StandardNetworkTransactionInfo = ({
         ) : (
           <>
             <TransactionActionSummary actions={summaryActions} types={summaryData?.types} />
+            {transferSummaryLines.length > 0 && <TransferSummaryLine transfers={transferSummaryLines} />}
             {summaryData && <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />}
             <StandardNetworkTransactionContractDetails
               transactionItem={txContracts}

@@ -16,7 +16,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getFallbackTokenSymbol, getTokenKeySymbol, stripTokenKeySymbol } from "@/common/utils/token.utility";
-import { ActionAsset } from "@/types/data-type";
+import { ActionAsset, AssetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 
 export interface TokenDisplayInfo {
   decimals?: number;
@@ -107,6 +107,18 @@ export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
   }, [actions]);
 
   return useTokenInfosByKeys(tokenKeys);
+};
+
+export const getTransferSummaryLines = (
+  numOfMessage: number,
+  summary?: TransactionSummaryDetail | null,
+): AssetTransfer[] => {
+  if (!summary || summary.actions.length > 0 || summary.transfers.length === 0) return [];
+  if (summary.transfers.length !== numOfMessage) return [];
+  if (!summary.transfers.every(transfer => transfer.assetType === "native" || transfer.assetType === "grc20"))
+    return [];
+
+  return summary.transfers;
 };
 
 // Same symbol resolution TokenAmountDisplay uses (registry lookup, else the last "."-segment
