@@ -25,7 +25,7 @@ const TransferSummaryLine = ({ transfers }: Props) => {
           <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
             Transfer
           </Text>
-          <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} bold />
+          <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
           <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
             to
           </Text>
@@ -41,7 +41,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  padding-bottom: 36px;
+  padding-bottom: 16px;
 `;
 
 const Line = styled.div`

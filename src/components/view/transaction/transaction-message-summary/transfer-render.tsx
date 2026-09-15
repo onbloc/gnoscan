@@ -200,7 +200,6 @@ interface TokenAmountDisplayProps {
   rawValue: string;
   isGrc20: boolean;
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
-  bold?: boolean;
   compact?: boolean;
 }
 
@@ -209,7 +208,6 @@ const TokenAmountDisplay = ({
   rawValue,
   isGrc20,
   tokenInfosByTokenKey,
-  bold,
   compact = false,
 }: TokenAmountDisplayProps) => {
   const { getTokenAmount, getTokenImage } = useTokenMeta();
@@ -230,7 +228,7 @@ const TokenAmountDisplay = ({
           denom=""
           maxSize={textType}
           minSize="p4"
-          bold={bold}
+          fontWeight={500}
           lineHeight={lineHeight}
         />
         <TokenChip>
@@ -238,6 +236,7 @@ const TokenAmountDisplay = ({
             type={textType}
             color="primary"
             display="contents"
+            fontWeight={500}
             style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
           >
             {displayAmount.denom}
@@ -268,13 +267,21 @@ const TokenAmountDisplay = ({
 
   return (
     <>
-      <AmountText value={displayValue} denom="" maxSize={textType} minSize="p4" bold={bold} lineHeight={lineHeight} />
+      <AmountText
+        value={displayValue}
+        denom=""
+        maxSize={textType}
+        minSize="p4"
+        fontWeight={500}
+        lineHeight={lineHeight}
+      />
       <Link href={getUrlWithNetwork(`/tokens/${linkTokenKey}`)}>
         <TokenChip>
           <Text
             type={textType}
             color="blue"
             display="contents"
+            fontWeight={500}
             style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
           >
             {symbol}
@@ -293,17 +300,15 @@ const TokenAmountDisplay = ({
 interface TransferAmountProps {
   transfer: { assetType: string; amount: { value: string; denom: string } };
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
-  bold?: boolean;
   compact?: boolean;
 }
 
-export const TransferAmount = ({ transfer, tokenInfosByTokenKey, bold, compact = false }: TransferAmountProps) => (
+export const TransferAmount = ({ transfer, tokenInfosByTokenKey, compact = false }: TransferAmountProps) => (
   <TokenAmountDisplay
     tokenKey={transfer.amount.denom}
     rawValue={transfer.amount.value}
     isGrc20={transfer.assetType === "grc20"}
     tokenInfosByTokenKey={tokenInfosByTokenKey}
-    bold={bold}
     compact={compact}
   />
 );
@@ -379,11 +384,10 @@ const TokenChip = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-left: 2px;
 
   .token-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
   }
 `;

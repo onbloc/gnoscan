@@ -78,15 +78,15 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
             <List>
               {transfers.map((transfer, index) => (
                 <li key={index}>
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <Text type="p4" color="primary">
                     From
                   </Text>
                   <TransferAddress address={transfer.from} compact />
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <Text type="p4" color="primary">
                     To
                   </Text>
                   <TransferAddress address={transfer.to} compact />
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <Text type="p4" color="primary">
                     For
                   </Text>
                   <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
@@ -100,7 +100,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
               {netTransfers.map((transfer, index) => (
                 <li key={index}>
                   <TransferAddress address={transfer.address} compact />
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <Text type="p4" color="primary">
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>
                   <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
@@ -123,6 +123,7 @@ const SummaryWrapper = styled.div`
   width: 100%;
   padding-top: 12px;
   padding-bottom: 16px;
+  margin-bottom: 16px;
   border-top: 1px solid ${({ theme }) => theme.colors.dimmed100};
   border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed100};
 `;

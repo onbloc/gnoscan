@@ -92,20 +92,26 @@ const formatFeePercent = (fee: string) => `${formatTokenDecimal(fee, 4)}%`;
 
 // pairLabel and the fee% live in one Text (not two adjacent "display: contents" nodes) - two
 // such nodes next to each other don't reliably get the flex gap between them, so they'd render
-// glued together ("GNS0.3%") otherwise. Blue+linked when href is given (same rule as Ref), else
-// a plain bold black value.
+// glued together ("GNS0.3%") otherwise.
 const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: string; href?: string }) => {
-  const label = pairLabel ? `${pairLabel} ${formatFeePercent(fee)}` : formatFeePercent(fee);
+  const feeLabel = formatFeePercent(fee);
   const text = (
-    <Text
-      type="p2"
-      color={href ? "blue" : "primary"}
-      fontWeight={href ? undefined : 700}
-      display="contents"
-      style={SUMMARY_LINE_HEIGHT}
-    >
-      {label}
-    </Text>
+    <>
+      {pairLabel && (
+        <Text
+          type="p2"
+          color={href ? "blue" : "primary"}
+          fontWeight={500}
+          display="contents"
+          style={SUMMARY_LINE_HEIGHT}
+        >
+          {pairLabel}
+        </Text>
+      )}
+      <Text type="p2" color={href ? "blue" : "primary"} display="contents" style={SUMMARY_LINE_HEIGHT}>
+        {pairLabel ? ` ${feeLabel}` : feeLabel}
+      </Text>
+    </>
   );
 
   return (
@@ -118,7 +124,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
       ) : (
         text
       )}
-      <Text type="p2" color="primary" fontWeight={700} display="contents" style={SUMMARY_LINE_HEIGHT}>
+      <Text type="p2" color="primary" display="contents" style={SUMMARY_LINE_HEIGHT}>
         pool
       </Text>
     </>

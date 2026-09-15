@@ -21,5 +21,6 @@ export const Content = styled.div`
   box-shadow: ${({ theme }) =>
     theme.themeKey === "dark" ? "10px 14px 60px 0px rgba(0, 0, 0, 0.4)" : "10px 14px 48px 0px rgba(0, 0, 0, 0.12)"};
   word-break: keep-all;
+  white-space: pre-line;
   text-align: center;
 `;

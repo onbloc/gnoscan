@@ -15,6 +15,7 @@ interface AmountTextProps {
   color?: PaletteKeyType;
   className?: string;
   bold?: boolean;
+  fontWeight?: CSSProperties["fontWeight"];
   wrap?: boolean;
   // Overrides maxSize/minSize's own line-height - for callers matching a one-off Figma
   // spec (e.g. 28px) that doesn't correspond to any of the app's shared text tokens.
@@ -30,6 +31,7 @@ export const AmountText = ({
   decimals = 6,
   className,
   bold = false,
+  fontWeight,
   wrap = true,
   lineHeight,
 }: AmountTextProps) => {
@@ -81,7 +83,7 @@ export const AmountText = ({
             type={maxSize}
             color={color}
             display="contents"
-            fontWeight={bold ? 600 : undefined}
+            fontWeight={fontWeight ?? (bold ? 600 : undefined)}
             style={lineHeight ? { lineHeight } : undefined}
           >
             {formattedInteger}
@@ -91,11 +93,18 @@ export const AmountText = ({
             color={color}
             display="contents"
             className="decimals"
+            fontWeight={fontWeight}
             style={lineHeight ? { lineHeight } : undefined}
           >
             {formattedDecimals}
           </Text>
-          <Text type={maxSize} color={color} display="contents" style={lineHeight ? { lineHeight } : undefined}>
+          <Text
+            type={maxSize}
+            color={color}
+            display="contents"
+            fontWeight={fontWeight}
+            style={lineHeight ? { lineHeight } : undefined}
+          >
             {denom}
           </Text>
         </>
