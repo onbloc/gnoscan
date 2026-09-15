@@ -6,9 +6,8 @@ import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { TransactionMapper } from "@/common/mapper/transaction/transaction-mapper";
 import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
 import { useGetTransactionEventsByHeight } from "@/common/react-query/transaction/api/use-get-transaction-events-by-hash";
-import { GnoEvent, TransactionAction, TransactionContractInfo } from "@/types/data-type";
+import { GnoEvent, TransactionContractInfo } from "@/types/data-type";
 
-import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.utility";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { EventDatatable } from "@/components/view/datatable/event";
@@ -17,8 +16,6 @@ import { StandardNetworkTransactionContractDetails } from "../../transaction-con
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
 import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
 import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
-import TransferSummaryLine from "../../transaction-message-summary/TransferSummaryLine";
-import { getSingleTransferSummary } from "../../transaction-message-summary/transfer-render";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -68,30 +65,6 @@ const StandardNetworkTransactionInfo = ({
   const summaryData = apiTransaction?.summary;
   const summaryActions = summaryData?.actions ?? [];
 
-  // Synthesize a "deployPending" action per AddPkg message not yet covered by a real
-  // enable/deploy action (backend has no action for it until EnablePackage succeeds).
-  const pendingDeployActions: TransactionAction[] = React.useMemo(() => {
-    if (!summaryData?.types.includes("deploy")) return [];
-
-    const coveredPkgPaths = new Set(
-      summaryActions.filter(action => action.type === "enable" || action.type === "deploy").map(action => action.realm),
-    );
-
-    return txContracts.messages
-      .filter(message => message.messageType === MESSAGE_TYPES.VM_ADDPKG && !coveredPkgPaths.has(message.pkgPath))
-      .map(
-        (addPackageMessage): TransactionAction => ({
-          tag: "vm",
-          realm: addPackageMessage.pkgPath,
-          type: "deployPending",
-          assets: [
-            { assetType: addPackageMessage.pkgPath, key: "packageName", value: addPackageMessage.name },
-            { assetType: addPackageMessage.pkgPath, key: "creator", value: addPackageMessage.creator },
-          ],
-        }),
-      );
-  }, [summaryData?.types, summaryActions, txContracts.messages]);
-
   const txEvents: GnoEvent[] = React.useMemo(() => {
     if (!eventsData?.pages) return [];
 
@@ -131,16 +104,6 @@ const StandardNetworkTransactionInfo = ({
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
   if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
 
-  const displayActions = [...summaryActions, ...pendingDeployActions];
-  const singleTransferSummary = getSingleTransferSummary(txContracts.numOfMessage, summaryData);
-
-  const hasRenderableSummary = Boolean(
-    summaryData &&
-      (displayActions.length > 0 ||
-        summaryData.transfers.some(transfer => transfer.assetType === "grc20") ||
-        summaryData.netTransfers.some(transfer => transfer.assetType === "grc20")),
-  );
-
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Messages" &&
@@ -153,17 +116,12 @@ const StandardNetworkTransactionInfo = ({
           />
         ) : (
           <>
-            {/* The single-transfer heading sits above "GRC-20 Transferred" in the same top
-                summary slot as the action summary, instead of down in the per-message details. */}
-            {(singleTransferSummary || hasRenderableSummary) && (
-              <>
-                <TransactionActionSummary actions={displayActions} />
-                {singleTransferSummary && <TransferSummaryLine transfer={singleTransferSummary} />}
-                {hasRenderableSummary && summaryData && (
-                  <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
-                )}
-              </>
-            )}
+            {/* One numbered line per message, always — built from the messages themselves
+                (function name + caller/creator), not from the backend summary. A message's
+                line is only enriched from `summaryActions` when a matching action exists
+                for its pkgPath (see pairMessagesWithActions). */}
+            <TransactionActionSummary messages={txContracts.messages} actions={summaryActions} />
+            {summaryData && <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />}
             <StandardNetworkTransactionContractDetails
               transactionItem={txContracts}
               rawTransaction={transactionItem}

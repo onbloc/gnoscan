@@ -7,41 +7,76 @@ import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { GNOSWAP_APP_BASE_URL } from "@/common/values/constant-value";
 import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { getTransactionMessageType } from "@/common/utils/message.utility";
+import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
+import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { ActionAsset, TransactionAction } from "@/types/data-type";
+import { pairMessagesWithActions } from "./pair-messages-with-actions";
 import {
   ActionAmount,
   AddressChip,
   RealmLink,
   TokenDisplayInfo,
   TransferAddress,
+  TransferAmount,
   getTokenSymbol,
   useActionTokenInfos,
+  useGrc20TokenInfos,
 } from "./transfer-render";
 
 interface Props {
+  messages: TransactionContractModel[];
   actions: TransactionAction[];
 }
 
-const TransactionActionSummary = ({ actions }: Props) => {
-  const displayActions = React.useMemo(() => dedupeActions(actions), [actions]);
-  const tokenInfosByTokenKey = useActionTokenInfos(displayActions);
+// The numbered summary is built one line per message, always — the backend `summary`
+// is only used to *enrich* a line when it can be matched to that message's pkgPath
+// (see pairMessagesWithActions). This keeps the line count equal to the message count
+// regardless of what (if anything) the backend summary reports.
+const TransactionActionSummary = ({ messages, actions }: Props) => {
+  const pairedActions = React.useMemo(() => pairMessagesWithActions(messages, actions), [messages, actions]);
 
-  if (displayActions.length === 0) return null;
+  const matchedActions = React.useMemo(
+    () => pairedActions.filter((action): action is TransactionAction => !!action),
+    [pairedActions],
+  );
+  const actionTokenInfos = useActionTokenInfos(matchedActions);
 
-  const numbered = displayActions.length > 1;
+  const transferFallbackLegs = React.useMemo(
+    () =>
+      messages
+        .filter((message, index) => !pairedActions[index] && isTransferFallback(message))
+        .map(message => ({
+          assetType: message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20",
+          amount: message.amount,
+        })),
+    [messages, pairedActions],
+  );
+  const transferTokenInfos = useGrc20TokenInfos(transferFallbackLegs);
+
+  const tokenInfosByTokenKey = { ...actionTokenInfos, ...transferTokenInfos };
+
+  if (messages.length === 0) return null;
+
+  const numbered = messages.length > 1;
 
   return (
     <Wrapper>
-      {displayActions.map((action, index) => (
-        <ActionLine key={index}>
-          {numbered && (
-            <Text type="p4" color="tertiary">
-              {`${index + 1}.`}
-            </Text>
-          )}
-          {renderActionSentence(action, tokenInfosByTokenKey)}
-        </ActionLine>
-      ))}
+      {messages.map((message, index) => {
+        const matchedAction = pairedActions[index];
+        return (
+          <ActionLine key={index}>
+            {numbered && (
+              <Text type="p4" color="tertiary">
+                {`${index + 1}.`}
+              </Text>
+            )}
+            {matchedAction
+              ? renderActionSentence(matchedAction, tokenInfosByTokenKey)
+              : renderMessageFallback(message, tokenInfosByTokenKey)}
+          </ActionLine>
+        );
+      })}
     </Wrapper>
   );
 };
@@ -580,23 +615,6 @@ function renderEnable(action: TransactionAction): React.ReactNode | null {
   );
 }
 
-// Package has no realm page until enabled, so no RealmChip link here (unlike renderEnable).
-function renderDeployPending(action: TransactionAction): React.ReactNode | null {
-  const packageName = findAsset(action.assets, "packageName");
-  const creator = findAsset(action.assets, "creator");
-  if (!packageName || !creator) return null;
-  return (
-    <>
-      <Verb>Deploy</Verb>
-      <Text type="p4" color="primary" fontWeight={700} display="contents">
-        {packageName.value}
-      </Text>
-      <Verb>by</Verb>
-      <TransferAddress address={creator.value} />
-    </>
-  );
-}
-
 const ACTION_RENDERERS: Record<string, ActionRenderer> = {
   swap: renderSwap,
   approve: renderApprove,
@@ -627,7 +645,6 @@ const ACTION_RENDERERS: Record<string, ActionRenderer> = {
   cancel: renderCancel,
   enable: renderEnable,
   deploy: renderEnable, // legacy/cached alias
-  deployPending: renderDeployPending,
 };
 
 function renderActionSentence(
@@ -642,18 +659,59 @@ function renderActionSentence(
   return ACTION_RENDERERS[action.type]?.(action, ctx) ?? <Verb>{action.type}</Verb>;
 }
 
-function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
-  const seen = new Set<string>();
+// A message only reaches here when nothing in the backend summary could be matched to
+// it (see pairMessagesWithActions) — so this is built purely from the message's own
+// fields, independent of `summary`. "Transfer" (bank send, or a grc20 Transfer call)
+// and "AddPkg" get their familiar dedicated phrasing; everything else falls back to
+// the generic "{FunctionName} by {caller}" shape.
+function renderMessageFallback(
+  message: TransactionContractModel,
+  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
+): React.ReactNode {
+  const label = getTransactionMessageType(message);
 
-  return actions.filter(action => {
-    const key = `${action.tag}:${action.realm}:${action.type}:${action.assets
-      .map(asset => `${asset.assetType}:${asset.key}:${asset.value}:${asset.packagePath ?? ""}`)
-      .join("|")}`;
+  if (label === TRANSACTION_FUNCTION_TYPES.TRANSFER) {
+    const assetType = message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20";
+    return (
+      <>
+        <Verb>Transfer</Verb>
+        <TransferAmount
+          transfer={{ assetType, amount: message.amount }}
+          tokenInfosByTokenKey={tokenInfosByTokenKey}
+          bold
+        />
+        <Verb>to</Verb>
+        <TransferAddress address={message.to} />
+      </>
+    );
+  }
 
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  if (label === TRANSACTION_FUNCTION_TYPES.ADD_PKG) {
+    return (
+      <>
+        <Verb>Deploy</Verb>
+        <Text type="p4" color="primary" fontWeight={700} display="contents">
+          {message.name}
+        </Text>
+        <Verb>by</Verb>
+        <TransferAddress address={message.creator} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Verb>{label}</Verb>
+      <Verb>by</Verb>
+      <TransferAddress address={message.caller || message.creator} />
+    </>
+  );
+}
+
+// Only "Transfer"-shaped messages (bank send, or a grc20 Transfer call) need a
+// grc20 token lookup for their fallback line — everything else's fallback is plain text.
+function isTransferFallback(message: TransactionContractModel): boolean {
+  return getTransactionMessageType(message) === TRANSACTION_FUNCTION_TYPES.TRANSFER;
 }
 
 function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) => React.ReactNode): React.ReactNode[] {

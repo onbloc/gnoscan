@@ -15,26 +15,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getFallbackTokenSymbol, getTokenKeySymbol, stripTokenKeySymbol } from "@/common/utils/token.utility";
-import { ActionAsset, AssetTransfer, TransactionSummaryDetail } from "@/types/data-type";
-
-// A tx is "just a transfer" when there's nothing else to summarize separately (no
-// parsed actions) and exactly one transfer leg — regardless of which message shape
-// produced it (bank send, a plain grc20 Transfer call, or a vm.m_run script that just
-// does a transfer under the hood). Restricted to native/grc20: a plain (non-mint/burn)
-// GRC-721 transfer has no action of its own either, but TransferAmount below has no
-// tokenId-aware rendering - showing it here would read as "Transfer 1 {collection}"
-// instead of naming the NFT, so it's left for the per-message details to show instead.
-export const getSingleTransferSummary = (
-  numOfMessage: number,
-  summary?: TransactionSummaryDetail | null,
-): AssetTransfer | null => {
-  if (numOfMessage !== 1 || !summary || summary.actions.length > 0 || summary.transfers.length !== 1) return null;
-
-  const [transfer] = summary.transfers;
-  if (transfer.assetType !== "native" && transfer.assetType !== "grc20") return null;
-
-  return transfer;
-};
+import { ActionAsset } from "@/types/data-type";
 
 export interface TokenDisplayInfo {
   decimals?: number;
