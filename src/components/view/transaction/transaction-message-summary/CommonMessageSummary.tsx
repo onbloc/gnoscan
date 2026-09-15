@@ -20,14 +20,14 @@ const CommonMessageSummary = ({ messages }: Props) => {
       {messages.map((message, index) => (
         <Line key={`${message.messageType}-${message.pkgPath}-${message.funcType}-${index}`}>
           {numbered && (
-            <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
+            <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
               {`${index + 1}.`}
             </Text>
           )}
-          <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
             {getSummaryFunctionName(message)}
           </Text>
-          <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
             by
           </Text>
           <TransferAddress address={getSummaryCaller(message)} />

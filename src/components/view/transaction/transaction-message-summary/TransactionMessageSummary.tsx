@@ -78,15 +78,15 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
             <List>
               {transfers.map((transfer, index) => (
                 <li key={index}>
-                  <Text type="p4" color="primary">
+                  <Text type="p4" color="primary" fontWeight={400}>
                     From
                   </Text>
                   <TransferAddress address={transfer.from} compact />
-                  <Text type="p4" color="primary">
+                  <Text type="p4" color="primary" fontWeight={400}>
                     To
                   </Text>
                   <TransferAddress address={transfer.to} compact />
-                  <Text type="p4" color="primary">
+                  <Text type="p4" color="primary" fontWeight={400}>
                     For
                   </Text>
                   <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
@@ -100,7 +100,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
               {netTransfers.map((transfer, index) => (
                 <li key={index}>
                   <TransferAddress address={transfer.address} compact />
-                  <Text type="p4" color="primary">
+                  <Text type="p4" color="primary" fontWeight={400}>
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>
                   <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
@@ -118,10 +118,10 @@ const TopAlignedDLWrap = styled(DLWrap)`
   align-items: flex-start !important;
 `;
 
-// Figma places a 1px separator 12px above the GRC-20 transfer row.
+// Figma places a 1px separator 16px above the GRC-20 transfer row.
 const SummaryWrapper = styled.div`
   width: 100%;
-  padding-top: 12px;
+  padding-top: 16px;
   padding-bottom: 16px;
   margin-bottom: 16px;
   border-top: 1px solid ${({ theme }) => theme.colors.dimmed100};
@@ -160,7 +160,7 @@ const Switch = styled.div`
     &.active {
       background-color: ${({ theme }) => theme.colors.base};
       color: ${({ theme }) => theme.colors.primary};
-      font-weight: 600;
+      font-weight: 400;
     }
   }
 `;

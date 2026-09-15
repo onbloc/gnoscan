@@ -37,7 +37,7 @@ const TransactionActionSummary = ({ actions, types }: Props) => {
       {displayActions.map((action, index) => (
         <ActionLine key={index}>
           {numbered && (
-            <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
+            <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
               {`${index + 1}.`}
             </Text>
           )}
@@ -57,7 +57,7 @@ const amountOutAssets = (assets: ActionAsset[]) => assets.filter(asset => asset.
 // same as any other Plain, not something a user could click through.
 const Ref = ({ label, value, href }: { label?: string; value: string; href?: string }) => {
   const text = (
-    <Text type="p2" color={href ? "blue" : "primary"} display="contents" style={SUMMARY_LINE_HEIGHT}>
+    <Text type="p2" color={href ? "blue" : "primary"} fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
       {label ? `${label} #${value}` : `#${value}`}
     </Text>
   );
@@ -81,7 +81,7 @@ const gnoswapPoolUrl = (poolPath: string) =>
 const poolHref = (pool: ActionAsset | undefined) => (pool ? gnoswapPoolUrl(pool.value) : undefined);
 
 const Verb = ({ children }: { children: React.ReactNode }) => (
-  <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
+  <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
     {children}
   </Text>
 );
@@ -108,7 +108,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
           {pairLabel}
         </Text>
       )}
-      <Text type="p2" color={href ? "blue" : "primary"} display="contents" style={SUMMARY_LINE_HEIGHT}>
+      <Text type="p2" color={href ? "blue" : "primary"} fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
         {pairLabel ? ` ${feeLabel}` : feeLabel}
       </Text>
     </>
@@ -124,7 +124,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
       ) : (
         text
       )}
-      <Text type="p2" color="primary" display="contents" style={SUMMARY_LINE_HEIGHT}>
+      <Text type="p2" color="primary" fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
         pool
       </Text>
     </>

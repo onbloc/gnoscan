@@ -144,7 +144,7 @@ export const TransferAddress = ({
 
   if (!address) {
     return (
-      <Text type={textType} color="primary" style={textStyle}>
+      <Text type={textType} color="primary" fontWeight={400} style={textStyle}>
         -
       </Text>
     );
@@ -158,7 +158,7 @@ export const TransferAddress = ({
         </RealmLink>
       ) : (
         <Link href={getUrlWithNetwork(`/account/${address}`)}>
-          <Text type={textType} color="blue" display="contents" style={textStyle}>
+          <Text type={textType} color="blue" fontWeight={400} display="contents" style={textStyle}>
             {textEllipsis(address, 6)}
           </Text>
         </Link>
@@ -186,6 +186,7 @@ export const RealmLink = ({
       <Text
         type={compact ? "p4" : "p2"}
         color="blue"
+        fontWeight={400}
         display="contents"
         style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
       >
