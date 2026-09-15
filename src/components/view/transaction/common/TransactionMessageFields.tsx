@@ -28,12 +28,14 @@ interface FieldProps {
   label: string;
   children: React.ReactNode;
   isDesktop: boolean;
+  className?: string;
+  contentClassName?: string;
 }
 
-export const Field: React.FC<FieldProps> = ({ label, children, isDesktop }) => (
-  <DLWrap desktop={isDesktop}>
+export const Field: React.FC<FieldProps> = ({ label, children, isDesktop, className, contentClassName }) => (
+  <DLWrap desktop={isDesktop} className={className}>
     <dt>{label}</dt>
-    <dd>{children}</dd>
+    <dd className={contentClassName}>{children}</dd>
   </DLWrap>
 );
 

@@ -58,7 +58,7 @@ const StandardNetworkMsgRunMessage = ({
         />
       </Field>
 
-      <Field label="Files" isDesktop={isDesktop}>
+      <Field label="Files" isDesktop={isDesktop} className="top-aligned" contentClassName="files-wrapper">
         <BadgeList items={message?.files} />
         {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
       </Field>
