@@ -19,6 +19,9 @@ import {
   useActionTokenInfos,
 } from "./transfer-render";
 
+const GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH = "gno.land/r/gnoswap/protocol_fee";
+const WUGNOT_TOKEN_PATH = "gno.land/r/gnoland/wugnot.wugnot";
+
 interface Props {
   actions: TransactionAction[];
   types?: string[];
@@ -26,7 +29,7 @@ interface Props {
 
 const TransactionActionSummary = ({ actions, types }: Props) => {
   const displayActions = React.useMemo(() => selectDisplayActions(actions, types), [actions, types]);
-  const tokenInfosByTokenKey = useActionTokenInfos(displayActions);
+  const tokenInfosByTokenKey = useActionTokenInfos(actions);
 
   if (displayActions.length === 0) return null;
 
@@ -41,7 +44,7 @@ const TransactionActionSummary = ({ actions, types }: Props) => {
               {`${index + 1}.`}
             </Text>
           )}
-          {renderActionSentence(action, tokenInfosByTokenKey, displayActions)}
+          {renderActionSentence(action, tokenInfosByTokenKey, actions)}
         </ActionLine>
       ))}
     </Wrapper>
@@ -253,6 +256,25 @@ function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.
     const tokenId = findAsset(assets, "tokenId");
     if (!tokenId) return null;
     const label = tokenId.assetType.includes("gnoswap") ? "position" : "NFT";
+    const liquidityAction = findLiquidityActionByPosition(ctx.actions, tokenId.value);
+    const pool = liquidityAction?.assets.find(asset => asset.key === "pool");
+    const fee = liquidityAction?.assets.find(asset => asset.key === "fee");
+
+    if (label === "position" && liquidityAction) {
+      return (
+        <>
+          <Verb>Mint</Verb>
+          <PositionClause
+            position={{ ...tokenId, key: "position" }}
+            pool={pool}
+            fee={fee}
+            pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+            realm={liquidityAction.realm}
+          />
+        </>
+      );
+    }
+
     return (
       <>
         <Verb>Mint</Verb>
@@ -263,6 +285,16 @@ function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.
   }
   const [mintedAmount] = amountAssets(assets);
   if (!mintedAmount) return null;
+
+  if (isWugnotMintAction(action)) {
+    return (
+      <>
+        <Verb>Deposit</Verb>
+        {ctx.amount(mintedAmount)}
+      </>
+    );
+  }
+
   return (
     <>
       <Verb>Mint</Verb>
@@ -301,13 +333,26 @@ function renderBurn(action: TransactionAction, ctx: ActionRenderContext): React.
 function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
   const { type, assets, realm } = action;
   const tokens = amountAssets(assets);
+  const [depositAmount] = tokens;
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
-  if (tokens.length === 0 || !position) return null;
+  if (!depositAmount) return null;
+
+  if (type === "addLiquidity") {
+    return (
+      <>
+        <Verb>Deposit</Verb>
+        {ctx.amount(depositAmount)}
+      </>
+    );
+  }
+
+  if (!position) return null;
+
   return (
     <>
-      <Verb>{type === "reposition" ? "Reposition" : "Add liquidity"}</Verb>
+      <Verb>Reposition</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>to</Verb>
       <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
@@ -334,17 +379,21 @@ function renderRemoveLiquidity(action: TransactionAction, ctx: ActionRenderConte
 
 function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
   const { assets, realm } = action;
-  const tokens = amountAssets(assets);
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
-  if (tokens.length === 0 || !position) return null;
+  if (!position) return null;
   return (
     <>
       <Verb>Collect fee</Verb>
-      {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
-      <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
+      <PositionClause
+        position={position}
+        pool={pool}
+        fee={fee}
+        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+        realm={realm}
+      />
     </>
   );
 }
@@ -391,15 +440,15 @@ function renderUnstake(action: TransactionAction, ctx: ActionRenderContext): Rea
 
 function renderCollectReward(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
   const { assets, realm } = action;
-  const [reward] = amountAssets(assets);
+  const rewards = amountAssets(assets);
   const position = findAsset(assets, "position");
-  if (!reward || !position) return null;
+  if (rewards.length === 0 || !position) return null;
   const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
   return (
     <>
       <Verb>Collect reward</Verb>
-      {ctx.amount(reward)}
+      {joinAmounts(rewards, ctx.amount)}
       <Verb>from</Verb>
       <PositionClause
         position={position}
@@ -688,31 +737,107 @@ function findStakePoolByPosition(actions: TransactionAction[], positionId: strin
     ?.assets.find(asset => asset.key === "pool");
 }
 
+function findLiquidityActionByPosition(
+  actions: TransactionAction[],
+  positionId: string,
+): TransactionAction | undefined {
+  return actions
+    .filter(action => action.type === "addLiquidity" || action.type === "reposition")
+    .find(action => findAsset(action.assets, "position")?.value === positionId);
+}
+
 function selectDisplayActions(actions: TransactionAction[], types?: string[]): TransactionAction[] {
   const uniqueActions = dedupeActions(actions);
   if (!types?.length) return uniqueActions;
 
   const displayActions = uniqueActions.filter(action => types.some(type => actionMatchesSummaryType(action, type)));
-  const approveActions = displayActions.filter(action => action.type === "approve");
-  const approveTypeCount = types.filter(type =>
-    approveActions.some(action => actionMatchesSummaryType(action, type)),
-  ).length;
+  return orderLiquidityBeforePositionMint(
+    groupCollectRewardActions(filterProtocolMintActions(filterProtocolFeeApproveActions(displayActions))),
+  );
+}
 
-  if (approveActions.length <= approveTypeCount) {
-    return displayActions;
-  }
-
-  const preferredApprove =
-    approveActions.find(action => amountAssets(action.assets)[0]?.value !== "0") ?? approveActions[0];
-  let usedPreferredApprove = false;
-
-  return displayActions.filter(action => {
+function filterProtocolFeeApproveActions(actions: TransactionAction[]): TransactionAction[] {
+  return actions.filter(action => {
     if (action.type !== "approve") return true;
-    if (action !== preferredApprove || usedPreferredApprove) return false;
 
-    usedPreferredApprove = true;
-    return true;
+    const spender = findAsset(action.assets, "spender");
+    return spender?.packagePath !== GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH;
   });
+}
+
+function filterProtocolMintActions(actions: TransactionAction[]): TransactionAction[] {
+  const hasPositionMint = actions.some(action => action.type === "mint" && action.tag === "grc721");
+  if (!hasPositionMint) return actions;
+
+  return actions.filter(action => action.type !== "mint" || action.tag === "grc721");
+}
+
+function isWugnotMintAction(action: TransactionAction): boolean {
+  const [amount] = amountAssets(action.assets);
+  return (
+    action.type === "mint" && action.tag === "grc20" && stripActionAssetTokenId(amount?.assetType) === WUGNOT_TOKEN_PATH
+  );
+}
+
+function stripActionAssetTokenId(assetType = ""): string {
+  return assetType.replace(/\.\d+$/, "");
+}
+
+function groupCollectRewardActions(actions: TransactionAction[]): TransactionAction[] {
+  const rewardActionIndexesByKey = new Map<string, number>();
+  const nextActions: TransactionAction[] = [];
+
+  actions.forEach(action => {
+    if (action.type !== "collectReward") {
+      nextActions.push(action);
+      return;
+    }
+
+    const key = getPositionActionKey(action);
+    const existingIndex = rewardActionIndexesByKey.get(key);
+    if (existingIndex === undefined) {
+      rewardActionIndexesByKey.set(key, nextActions.length);
+      nextActions.push(action);
+      return;
+    }
+
+    const existingAction = nextActions[existingIndex];
+    nextActions[existingIndex] = {
+      ...existingAction,
+      assets: [...existingAction.assets, ...amountAssets(action.assets)],
+    };
+  });
+
+  return nextActions;
+}
+
+function getPositionActionKey(action: TransactionAction): string {
+  const position = findAsset(action.assets, "position")?.value ?? "";
+  const pool = findAsset(action.assets, "pool")?.value ?? "";
+  const fee = findAsset(action.assets, "fee")?.value ?? "";
+  return `${action.realm}:${position}:${pool}:${fee}`;
+}
+
+function orderLiquidityBeforePositionMint(actions: TransactionAction[]): TransactionAction[] {
+  const nextActions = [...actions];
+
+  nextActions.forEach((action, index) => {
+    if (action.type !== "mint" || action.tag !== "grc721") return;
+
+    const position = findAsset(action.assets, "tokenId");
+    if (!position) return;
+
+    const liquidityIndex = nextActions.findIndex(
+      candidate =>
+        candidate.type === "addLiquidity" && findAsset(candidate.assets, "position")?.value === position.value,
+    );
+    if (liquidityIndex <= index) return;
+
+    const [liquidityAction] = nextActions.splice(liquidityIndex, 1);
+    nextActions.splice(index, 0, liquidityAction);
+  });
+
+  return nextActions;
 }
 
 export function hasDisplayActions(actions: TransactionAction[], types?: string[]): boolean {
@@ -722,6 +847,8 @@ export function hasDisplayActions(actions: TransactionAction[], types?: string[]
 function actionMatchesSummaryType(action: TransactionAction, type: string): boolean {
   const actionType = action.type.toLowerCase();
   const summaryType = type.toLowerCase();
+
+  if (summaryType === "deposit" && (actionType === "addliquidity" || isWugnotMintAction(action))) return true;
 
   return summaryType === actionType || summaryType.includes(actionType);
 }
