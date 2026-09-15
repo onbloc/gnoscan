@@ -116,11 +116,7 @@ const StandardNetworkTransactionInfo = ({
           />
         ) : (
           <>
-            {/* One numbered line per message, always — built from the messages themselves
-                (function name + caller/creator), not from the backend summary. A message's
-                line is only enriched from `summaryActions` when a matching action exists
-                for its pkgPath (see pairMessagesWithActions). */}
-            <TransactionActionSummary messages={txContracts.messages} actions={summaryActions} />
+            <TransactionActionSummary actions={summaryActions} types={summaryData?.types} />
             {summaryData && <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />}
             <StandardNetworkTransactionContractDetails
               transactionItem={txContracts}

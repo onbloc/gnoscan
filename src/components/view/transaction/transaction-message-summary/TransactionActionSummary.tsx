@@ -7,11 +7,7 @@ import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { GNOSWAP_APP_BASE_URL } from "@/common/values/constant-value";
 import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
-import { getTransactionMessageType } from "@/common/utils/message.utility";
-import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
-import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { ActionAsset, TransactionAction } from "@/types/data-type";
-import { pairMessagesWithActions } from "./pair-messages-with-actions";
 import {
   ActionAmount,
   AddressChip,
@@ -19,67 +15,35 @@ import {
   SUMMARY_LINE_HEIGHT,
   TokenDisplayInfo,
   TransferAddress,
-  TransferAmount,
   getTokenSymbol,
   useActionTokenInfos,
-  useGrc20TokenInfos,
 } from "./transfer-render";
 
 interface Props {
-  messages: TransactionContractModel[];
   actions: TransactionAction[];
+  types?: string[];
 }
 
-// The numbered summary is built one line per message, always — the backend `summary`
-// is only used to *enrich* a line when it can be matched to that message's pkgPath
-// (see pairMessagesWithActions). This keeps the line count equal to the message count
-// regardless of what (if anything) the backend summary reports.
-const TransactionActionSummary = ({ messages, actions }: Props) => {
-  const pairedActions = React.useMemo(() => pairMessagesWithActions(messages, actions), [messages, actions]);
+const TransactionActionSummary = ({ actions, types }: Props) => {
+  const displayActions = React.useMemo(() => selectDisplayActions(actions, types), [actions, types]);
+  const tokenInfosByTokenKey = useActionTokenInfos(displayActions);
 
-  const matchedActions = React.useMemo(() => pairedActions.flat(), [pairedActions]);
-  const actionTokenInfos = useActionTokenInfos(matchedActions);
+  if (displayActions.length === 0) return null;
 
-  const transferFallbackLegs = React.useMemo(
-    () =>
-      messages
-        .filter((message, index) => pairedActions[index].length === 0 && isTransferShapedMessage(message))
-        .map(message => ({
-          assetType: message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20",
-          amount: message.amount,
-        })),
-    [messages, pairedActions],
-  );
-  const transferTokenInfos = useGrc20TokenInfos(transferFallbackLegs);
-
-  const tokenInfosByTokenKey = { ...actionTokenInfos, ...transferTokenInfos };
-
-  if (messages.length === 0) return null;
-
-  const numbered = messages.length > 1;
+  const numbered = displayActions.length > 1;
 
   return (
     <Wrapper>
-      {messages.map((message, index) => {
-        const matchedMessageActions = pairedActions[index];
-        return (
-          <ActionLine key={index}>
-            {numbered && (
-              <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
-                {`${index + 1}.`}
-              </Text>
-            )}
-            {matchedMessageActions.length > 0
-              ? matchedMessageActions.map((action, actionIndex) => (
-                  <React.Fragment key={actionIndex}>
-                    {actionIndex > 0 && <Verb>·</Verb>}
-                    {renderActionSentence(action, tokenInfosByTokenKey)}
-                  </React.Fragment>
-                ))
-              : renderMessageFallback(message, tokenInfosByTokenKey)}
-          </ActionLine>
-        );
-      })}
+      {displayActions.map((action, index) => (
+        <ActionLine key={index}>
+          {numbered && (
+            <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
+              {`${index + 1}.`}
+            </Text>
+          )}
+          {renderActionSentence(action, tokenInfosByTokenKey, displayActions)}
+        </ActionLine>
+      ))}
     </Wrapper>
   );
 };
@@ -224,6 +188,7 @@ const poolPairLabel = (
 // dispatcher can fall back to the raw type name.
 interface ActionRenderContext {
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
+  actions: TransactionAction[];
   amount: (asset: ActionAsset) => React.ReactNode;
 }
 
@@ -244,9 +209,28 @@ function renderSwap(action: TransactionAction, ctx: ActionRenderContext): React.
 }
 
 function renderApprove(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const [approvedAmount] = amountAssets(action.assets);
-  const spender = findAsset(action.assets, "spender");
-  if (!approvedAmount || !spender) return null;
+  const { assets, tag } = action;
+  const spender = findAsset(assets, "spender");
+  if (!spender) return null;
+
+  if (tag === "grc721") {
+    const tokenId = findAsset(assets, "tokenId");
+    if (!tokenId) return null;
+    const label = tokenId.assetType.includes("gnoswap") ? "position" : "NFT";
+    const pool = findStakePoolByPosition(ctx.actions, tokenId.value);
+
+    return (
+      <>
+        <Verb>Approve</Verb>
+        <Ref label={label} value={tokenId.value} href={poolHref(pool)} />
+        <Verb>for</Verb>
+        <TransferAddress address={spender.value} packagePath={spender.packagePath} />
+      </>
+    );
+  }
+
+  const [approvedAmount] = amountAssets(assets);
+  if (!approvedAmount) return null;
   return (
     <>
       <Verb>Approve</Verb>
@@ -680,66 +664,70 @@ const ACTION_RENDERERS: Record<string, ActionRenderer> = {
 function renderActionSentence(
   action: TransactionAction,
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
+  actionList: TransactionAction[],
 ): React.ReactNode {
   const ctx: ActionRenderContext = {
     tokenInfosByTokenKey,
+    actions: actionList,
     amount: asset => <ActionAmount asset={asset} tokenInfosByTokenKey={tokenInfosByTokenKey} />,
   };
 
   return ACTION_RENDERERS[action.type]?.(action, ctx) ?? <Verb>{action.type}</Verb>;
 }
 
-// A message only reaches here when nothing in the backend summary could be matched to
-// it (see pairMessagesWithActions) — so this is built purely from the message's own
-// fields, independent of `summary`. "Transfer" (bank send, or a grc20 Transfer call)
-// and "AddPkg" get their familiar dedicated phrasing; everything else falls back to
-// the generic "{FunctionName} by {caller}" shape.
-function renderMessageFallback(
-  message: TransactionContractModel,
-  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
-): React.ReactNode {
-  const label = getTransactionMessageType(message);
-
-  if (isTransferShapedMessage(message)) {
-    const assetType = message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20";
-    return (
-      <>
-        <Verb>Transfer</Verb>
-        <TransferAmount transfer={{ assetType, amount: message.amount }} tokenInfosByTokenKey={tokenInfosByTokenKey} />
-        <Verb>to</Verb>
-        <TransferAddress address={message.to} />
-      </>
-    );
-  }
-
-  if (label === TRANSACTION_FUNCTION_TYPES.ADD_PKG) {
-    return (
-      <>
-        <Verb>Deploy</Verb>
-        <RealmLink pkgPath={message.pkgPath}>{message.name}</RealmLink>
-        <Verb>by</Verb>
-        <TransferAddress address={message.creator} />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <Verb>{label}</Verb>
-      <Verb>by</Verb>
-      <TransferAddress address={message.caller || message.creator} />
-    </>
-  );
+function findStakePoolByPosition(actions: TransactionAction[], positionId: string): ActionAsset | undefined {
+  return actions
+    .filter(action => action.type === "stake")
+    .find(action => findAsset(action.assets, "position")?.value === positionId)
+    ?.assets.find(asset => asset.key === "pool");
 }
 
-// Same guard StandardNetworkMsgCallMessage uses to decide whether a VM_CALL message is
-// transfer-shaped (funcType "Transfer" with exactly 2 args) before trusting its
-// amount/from/to fields — a "Transfer"-named call with a different signature isn't
-// guaranteed to have those fields populated as a plain amount+recipient. Bank sends have
-// no such ambiguity: messageType alone is enough.
-function isTransferShapedMessage(message: TransactionContractModel): boolean {
-  if (message.messageType === MESSAGE_TYPES.BANK_MSG_SEND) return true;
-  return message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER && message.args.length === 2;
+function selectDisplayActions(actions: TransactionAction[], types?: string[]): TransactionAction[] {
+  const uniqueActions = dedupeActions(actions);
+  if (!types?.length) return uniqueActions;
+
+  const displayActions = uniqueActions.filter(action => types.some(type => actionMatchesSummaryType(action, type)));
+  const approveActions = displayActions.filter(action => action.type === "approve");
+  const approveTypeCount = types.filter(type =>
+    approveActions.some(action => actionMatchesSummaryType(action, type)),
+  ).length;
+
+  if (approveActions.length <= approveTypeCount) {
+    return displayActions;
+  }
+
+  const preferredApprove =
+    approveActions.find(action => amountAssets(action.assets)[0]?.value !== "0") ?? approveActions[0];
+  let usedPreferredApprove = false;
+
+  return displayActions.filter(action => {
+    if (action.type !== "approve") return true;
+    if (action !== preferredApprove || usedPreferredApprove) return false;
+
+    usedPreferredApprove = true;
+    return true;
+  });
+}
+
+function actionMatchesSummaryType(action: TransactionAction, type: string): boolean {
+  const actionType = action.type.toLowerCase();
+  const summaryType = type.toLowerCase();
+
+  return summaryType === actionType || summaryType.includes(actionType);
+}
+
+function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
+  const seen = new Set<string>();
+
+  return actions.filter(action => {
+    const key = `${action.tag}:${action.realm}:${action.type}:${action.assets
+      .map(asset => `${asset.assetType}:${asset.key}:${asset.value}:${asset.packagePath ?? ""}`)
+      .join("|")}`;
+
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) => React.ReactNode): React.ReactNode[] {
