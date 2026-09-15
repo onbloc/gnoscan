@@ -15,10 +15,20 @@ export function pairMessagesWithActions(
   const remaining = [...actions];
 
   return messages.map(message => {
-    const index = remaining.findIndex(action => action.realm === message.pkgPath);
+    const candidates = pkgPathCandidates(message);
+    const index = remaining.findIndex(action => candidates.includes(action.realm));
     if (index === -1) return undefined;
 
     const [matched] = remaining.splice(index, 1);
     return matched;
   });
+}
+
+// A `/vm.m_run` message's own `pkgPath` is just its ephemeral run-script package, not a
+// realm — the realm(s) it actually touches live in `calledFunctions[].packagePath`
+// (see StandardNetworkMsgRunMessage, which renders those as "Called Functions" and
+// never reads `pkgPath`). Include them so a run-script swap/stake/etc. still matches
+// its backend action, which reports the *called* realm.
+function pkgPathCandidates(message: TransactionContractModel): string[] {
+  return [message.pkgPath, ...(message.calledFunctions?.map(fn => fn.packagePath) ?? [])];
 }

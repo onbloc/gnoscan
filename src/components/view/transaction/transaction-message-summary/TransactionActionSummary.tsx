@@ -145,7 +145,9 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
       ) : (
         text
       )}
-      <Verb>pool</Verb>
+      <Text type="p4" color="primary" fontWeight={700} display="contents">
+        pool
+      </Text>
     </>
   );
 };
@@ -601,16 +603,40 @@ function renderCancel(action: TransactionAction): React.ReactNode | null {
   );
 }
 
+// Same format as renderDeploy (Verb + package name + "by" + creator) — the only
+// difference is that the package now has a realm page, so its name links there
+// (via the pkgPath the summary reports as the packageName asset's assetType).
 function renderEnable(action: TransactionAction): React.ReactNode | null {
   const packageName = findAsset(action.assets, "packageName");
   const creator = findAsset(action.assets, "creator");
   if (!packageName || !creator) return null;
   return (
     <>
-      <Verb>Enable</Verb>
-      <RealmChip pkgPath={packageName.assetType}>{packageName.value}</RealmChip>
+      <Verb>Enabled</Verb>
+      <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
       <Verb>by</Verb>
       <TransferAddress address={creator.value} packagePath={creator.packagePath} />
+    </>
+  );
+}
+
+// A raw "deploy" action is the AddPkg event itself, reported immediately — it does NOT
+// mean the package has been enabled (confirmed against a live onbloc-api-v3 response:
+// `summary.types: ["deploy"]` / `action.type: "deploy"` for a freshly-added, not-yet-enabled
+// package). Same packageName/creator assets as "enable", but no realm page exists yet, so
+// no RealmChip link (unlike renderEnable).
+function renderDeploy(action: TransactionAction): React.ReactNode | null {
+  const packageName = findAsset(action.assets, "packageName");
+  const creator = findAsset(action.assets, "creator");
+  if (!packageName || !creator) return null;
+  return (
+    <>
+      <Verb>Deployed</Verb>
+      <Text type="p4" color="blue" display="contents">
+        {packageName.value}
+      </Text>
+      <Verb>by</Verb>
+      <TransferAddress address={creator.value} />
     </>
   );
 }
@@ -644,7 +670,7 @@ const ACTION_RENDERERS: Record<string, ActionRenderer> = {
   execute: renderExecute,
   cancel: renderCancel,
   enable: renderEnable,
-  deploy: renderEnable, // legacy/cached alias
+  deploy: renderDeploy,
 };
 
 function renderActionSentence(
@@ -670,7 +696,7 @@ function renderMessageFallback(
 ): React.ReactNode {
   const label = getTransactionMessageType(message);
 
-  if (label === TRANSACTION_FUNCTION_TYPES.TRANSFER) {
+  if (isTransferShapedMessage(message)) {
     const assetType = message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20";
     return (
       <>
@@ -689,8 +715,8 @@ function renderMessageFallback(
   if (label === TRANSACTION_FUNCTION_TYPES.ADD_PKG) {
     return (
       <>
-        <Verb>Deploy</Verb>
-        <Text type="p4" color="primary" fontWeight={700} display="contents">
+        <Verb>Deployed</Verb>
+        <Text type="p4" color="blue" display="contents">
           {message.name}
         </Text>
         <Verb>by</Verb>
@@ -711,7 +737,17 @@ function renderMessageFallback(
 // Only "Transfer"-shaped messages (bank send, or a grc20 Transfer call) need a
 // grc20 token lookup for their fallback line — everything else's fallback is plain text.
 function isTransferFallback(message: TransactionContractModel): boolean {
-  return getTransactionMessageType(message) === TRANSACTION_FUNCTION_TYPES.TRANSFER;
+  return isTransferShapedMessage(message);
+}
+
+// Same guard StandardNetworkMsgCallMessage uses to decide whether a VM_CALL message is
+// transfer-shaped (funcType "Transfer" with exactly 2 args) before trusting its
+// amount/from/to fields — a "Transfer"-named call with a different signature isn't
+// guaranteed to have those fields populated as a plain amount+recipient. Bank sends have
+// no such ambiguity: messageType alone is enough.
+function isTransferShapedMessage(message: TransactionContractModel): boolean {
+  if (message.messageType === MESSAGE_TYPES.BANK_MSG_SEND) return true;
+  return message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER && message.args.length === 2;
 }
 
 function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) => React.ReactNode): React.ReactNode[] {

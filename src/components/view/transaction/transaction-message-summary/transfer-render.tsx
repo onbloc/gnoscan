@@ -173,14 +173,14 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey,
       <>
         <AmountText value={displayAmount.value} denom="" maxSize="p4" minSize="body2" bold={bold} />
         <TokenChip>
+          <Text type="p4" color="primary" display="contents">
+            {displayAmount.denom}
+          </Text>
           {imagePath ? (
             <img className="token-icon" src={imagePath} alt="" />
           ) : (
             <UnknownToken className="token-icon" width="16" height="16" />
           )}
-          <Text type="p4" color="primary" display="contents">
-            {displayAmount.denom}
-          </Text>
         </TokenChip>
       </>
     );
@@ -203,14 +203,14 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey,
       <AmountText value={displayValue} denom="" maxSize="p4" minSize="body2" bold={bold} />
       <Link href={getUrlWithNetwork(`/tokens/${linkTokenKey}`)}>
         <TokenChip>
+          <Text type="p4" color="blue" display="contents">
+            {symbol}
+          </Text>
           {imagePath ? (
             <img className="token-icon" src={imagePath} alt="" />
           ) : (
             <UnknownToken className="token-icon" width="16" height="16" />
           )}
-          <Text type="p4" color="blue" display="contents">
-            {symbol}
-          </Text>
         </TokenChip>
       </Link>
     </>

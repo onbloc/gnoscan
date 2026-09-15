@@ -32,6 +32,14 @@ function makeAction(realm: string, type: string): TransactionAction {
   return { tag: "vm", realm, type, assets: [] };
 }
 
+function makeRunMessage(calledPackagePaths: string[]): TransactionContractModel {
+  return {
+    ...makeMessage("gno.land/r/run_script"), // an m_run message's own pkgPath is its ephemeral script package, not a realm
+    messageType: "/vm.m_run",
+    calledFunctions: calledPackagePaths.map(packagePath => ({ packagePath, method: "Swap" })),
+  };
+}
+
 describe("pairMessagesWithActions", () => {
   it("returns one entry per message, matching each pkgPath in order", () => {
     const messages = [makeMessage("gno.land/r/a"), makeMessage("gno.land/r/b")];
@@ -68,6 +76,15 @@ describe("pairMessagesWithActions", () => {
     const result = pairMessagesWithActions(messages, actions);
 
     expect(result).toHaveLength(1);
+    expect(result[0]?.type).toBe("swap");
+  });
+
+  it("matches an m_run message by its calledFunctions packagePath, not its own pkgPath", () => {
+    const messages = [makeRunMessage(["gno.land/r/gnoswap/pool"])];
+    const actions = [makeAction("gno.land/r/gnoswap/pool", "swap")];
+
+    const result = pairMessagesWithActions(messages, actions);
+
     expect(result[0]?.type).toBe("swap");
   });
 });
