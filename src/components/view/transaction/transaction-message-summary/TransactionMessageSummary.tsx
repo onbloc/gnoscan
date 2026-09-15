@@ -136,24 +136,30 @@ const Content = styled.div`
 
 const Switch = styled.div`
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  width: 206px;
   height: 32px;
-  padding: 4px 16px;
+  padding: 3px;
   background-color: ${({ theme }) => theme.colors.surface};
-  border-radius: 4px;
+  border-radius: 8px;
 
   button {
     ${({ theme }) => theme.fonts.p4};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
     padding: 0;
     border: none;
+    border-radius: 6px;
     background-color: transparent;
-    color: ${({ theme }) => theme.colors.primary};
+    color: ${({ theme }) => theme.colors.tertiary};
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: background-color 0.15s, color 0.15s;
 
-    &:hover {
-      opacity: 0.7;
+    &.active {
+      background-color: ${({ theme }) => theme.colors.base};
+      color: ${({ theme }) => theme.colors.primary};
+      font-weight: 600;
     }
   }
 `;
@@ -161,18 +167,18 @@ const Switch = styled.div`
 const List = styled.ul`
   display: flex;
   flex-direction: column;
-  width: fit-content;
+  width: 740px;
   max-width: 100%;
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 4px;
-  padding: 4px 16px;
+  padding: 6px 16px;
+  gap: 6px;
 
   li {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 4px 0;
     ${({ theme }) => theme.fonts.p4};
   }
 `;
