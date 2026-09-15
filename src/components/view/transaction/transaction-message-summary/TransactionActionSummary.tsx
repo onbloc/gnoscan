@@ -20,6 +20,7 @@ import {
 } from "./transfer-render";
 
 const GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH = "gno.land/r/gnoswap/protocol_fee";
+const GNOSWAP_GNS_TOKEN_PATH = "gno.land/r/gnoswap/gns.GNS";
 const WUGNOT_TOKEN_PATH = "gno.land/r/gnoland/wugnot.wugnot";
 
 interface Props {
@@ -769,13 +770,23 @@ function filterProtocolMintActions(actions: TransactionAction[]): TransactionAct
   const hasPositionMint = actions.some(action => action.type === "mint" && action.tag === "grc721");
   if (!hasPositionMint) return actions;
 
-  return actions.filter(action => action.type !== "mint" || action.tag === "grc721");
+  return actions.filter(action => !isGnoswapProtocolMintAction(action));
 }
 
 function isWugnotMintAction(action: TransactionAction): boolean {
   const [amount] = amountAssets(action.assets);
   return (
     action.type === "mint" && action.tag === "grc20" && stripActionAssetTokenId(amount?.assetType) === WUGNOT_TOKEN_PATH
+  );
+}
+
+function isGnoswapProtocolMintAction(action: TransactionAction): boolean {
+  const [amount] = amountAssets(action.assets);
+  return (
+    action.type === "mint" &&
+    action.tag === "grc20" &&
+    action.realm === "gno.land/p/nt/grc20" &&
+    stripActionAssetTokenId(amount?.assetType) === GNOSWAP_GNS_TOKEN_PATH
   );
 }
 
