@@ -16,8 +16,6 @@ import { StandardNetworkTransactionContractDetails } from "../../transaction-con
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
 import TransactionActionSummary from "../../transaction-message-summary/TransactionActionSummary";
 import TransactionMessageSummary from "../../transaction-message-summary/TransactionMessageSummary";
-import TransferSummaryLine from "../../transaction-message-summary/TransferSummaryLine";
-import { getSingleTransferSummary } from "../../transaction-message-summary/transfer-render";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -64,6 +62,9 @@ const StandardNetworkTransactionInfo = ({
     };
   }, [contractsData?.pages]);
 
+  const summaryData = apiTransaction?.summary;
+  const summaryActions = summaryData?.actions ?? [];
+
   const txEvents: GnoEvent[] = React.useMemo(() => {
     if (!eventsData?.pages) return [];
 
@@ -103,16 +104,6 @@ const StandardNetworkTransactionInfo = ({
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
   if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
 
-  const summaryData = apiTransaction?.summary;
-  const summaryActions = summaryData?.actions ?? [];
-  const singleTransferSummary = getSingleTransferSummary(txContracts.numOfMessage, summaryData);
-  const hasRenderableSummary = Boolean(
-    summaryData &&
-      (summaryActions.length > 0 ||
-        summaryData.transfers.some(transfer => transfer.assetType === "grc20") ||
-        summaryData.netTransfers.some(transfer => transfer.assetType === "grc20")),
-  );
-
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Messages" &&
@@ -125,17 +116,12 @@ const StandardNetworkTransactionInfo = ({
           />
         ) : (
           <>
-            {/* The single-transfer heading sits above "GRC-20 Transferred" in the same top
-                summary slot as the action summary, instead of down in the per-message details. */}
-            {(singleTransferSummary || hasRenderableSummary) && (
-              <>
-                <TransactionActionSummary actions={summaryActions} />
-                {singleTransferSummary && <TransferSummaryLine transfer={singleTransferSummary} />}
-                {hasRenderableSummary && summaryData && (
-                  <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />
-                )}
-              </>
-            )}
+            {/* One numbered line per message, always — built from the messages themselves
+                (function name + caller/creator), not from the backend summary. A message's
+                line is only enriched from `summaryActions` when a matching action exists
+                for its pkgPath (see pairMessagesWithActions). */}
+            <TransactionActionSummary messages={txContracts.messages} actions={summaryActions} />
+            {summaryData && <TransactionMessageSummary summary={summaryData} isDesktop={isDesktop} />}
             <StandardNetworkTransactionContractDetails
               transactionItem={txContracts}
               rawTransaction={transactionItem}
