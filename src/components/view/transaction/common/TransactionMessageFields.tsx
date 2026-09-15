@@ -320,7 +320,7 @@ export const AmountBadge = ({ amount }: { amount: Amount | null }) => {
   if (!amount) return <BadgeText>-</BadgeText>;
   return (
     <BadgeText>
-      <AmountText minSize="body2" maxSize="p4" value={amount.value || "0"} denom={amount.denom || ""} />
+      <AmountText minSize="body2" maxSize="p4" value={amount.value || "0"} denom={amount.denom || ""} wrap={false} />
     </BadgeText>
   );
 };

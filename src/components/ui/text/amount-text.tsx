@@ -15,6 +15,7 @@ interface AmountTextProps {
   color?: PaletteKeyType;
   className?: string;
   bold?: boolean;
+  wrap?: boolean;
   // Overrides maxSize/minSize's own line-height - for callers matching a one-off Figma
   // spec (e.g. 28px) that doesn't correspond to any of the app's shared text tokens.
   lineHeight?: CSSProperties["lineHeight"];
@@ -29,6 +30,7 @@ export const AmountText = ({
   decimals = 6,
   className,
   bold = false,
+  wrap = true,
   lineHeight,
 }: AmountTextProps) => {
   const numberValues = useMemo(() => {
@@ -71,7 +73,7 @@ export const AmountText = ({
   }, [decimals, numberValues]);
 
   return (
-    <Wrapper className={className}>
+    <Wrapper className={className} $wrap={wrap}>
       <div className="amount-wrapper">
         <>
           <Text
@@ -102,13 +104,14 @@ export const AmountText = ({
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ $wrap: boolean }>`
   ${mixins.flexbox("row", "center", "flex-start")};
 
   &,
   & * {
     display: inline;
-    word-break: break-all;
+    white-space: ${({ $wrap }) => ($wrap ? "normal" : "nowrap")};
+    word-break: ${({ $wrap }) => ($wrap ? "break-all" : "normal")};
   }
 
   .decimals::after {
