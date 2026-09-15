@@ -1,14 +1,20 @@
 import React, { CSSProperties } from "react";
 import Link from "next/link";
 
+import { css } from "styled-components";
+
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { PaletteKeyType } from "@/styles";
 import { Amount } from "@/types/data-type";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { useGetRealmByPath } from "@/common/react-query/realm/api";
 
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
+import FloatingTooltip from "@/components/ui/floating-tooltip";
+import IconInfo from "@/components/ui/icon-info";
 import Text from "@/components/ui/text";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
@@ -22,12 +28,14 @@ interface FieldProps {
   label: string;
   children: React.ReactNode;
   isDesktop: boolean;
+  className?: string;
+  contentClassName?: string;
 }
 
-export const Field: React.FC<FieldProps> = ({ label, children, isDesktop }) => (
-  <DLWrap desktop={isDesktop}>
+export const Field: React.FC<FieldProps> = ({ label, children, isDesktop, className, contentClassName }) => (
+  <DLWrap desktop={isDesktop} className={className}>
     <dt>{label}</dt>
-    <dd>{children}</dd>
+    <dd className={contentClassName}>{children}</dd>
   </DLWrap>
 );
 
@@ -174,29 +182,67 @@ interface PkgPathLinkProps {
   path: string;
   getUrlWithNetwork: (uri: string) => string;
   isEllipsis?: boolean;
+  visibleRealmStatus?: boolean;
 }
 
-export const PkgPathLink: React.FC<PkgPathLinkProps> = ({ path, getUrlWithNetwork, isEllipsis }) => {
+const notYetEnabledBadgeStyle = css`
+  min-height: 28px;
+  background-color: #ff4d4f;
+  margin-right: 0;
+`;
+
+const NotYetEnabledBadge = () => (
+  <Badge cssExtend={notYetEnabledBadgeStyle}>
+    <S.RealmStatusBadgeContent>
+      <Text type="p4" color="white" fontWeight={400}>
+        Not Yet Enabled
+      </Text>
+      <FloatingTooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip">
+        <IconInfo size={16} fill="#ffffff" />
+      </FloatingTooltip>
+    </S.RealmStatusBadgeContent>
+  </Badge>
+);
+
+const useIsRealmNotEnabled = (path: string, enabled: boolean) => {
+  const { data, isFetched } = useGetRealmByPath(path, {
+    enabled: enabled && !!path && path !== "-",
+    retry: 1,
+  });
+
+  return isFetched && data?.data?.isEnableYn === "N";
+};
+
+export const PkgPathLink: React.FC<PkgPathLinkProps> = ({
+  path,
+  getUrlWithNetwork,
+  isEllipsis,
+  visibleRealmStatus,
+}) => {
   const displayPkgPath = React.useMemo(() => {
     if (isEllipsis) {
       return formatDisplayPackagePath(path);
     }
     return path;
   }, [path]);
+  const isRealmNotEnabled = useIsRealmNotEnabled(path, !!visibleRealmStatus);
 
   return (
-    <Badge>
-      <S.AddressTextBox>
-        <Text type="p4" color="blue" className="ellipsis">
-          <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
-            <FitContentSpan>{displayPkgPath}</FitContentSpan>
-          </Link>
-        </Text>
-        <Tooltip content="Copied!" trigger="click" copyText={path} className="address-tooltip">
-          <S.StyledIconCopy />
-        </Tooltip>
-      </S.AddressTextBox>
-    </Badge>
+    <S.PackagePathWrapper>
+      <Badge>
+        <S.AddressTextBox>
+          <Text type="p4" color="blue" className="ellipsis">
+            <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
+              <FitContentSpan>{displayPkgPath}</FitContentSpan>
+            </Link>
+          </Text>
+          <Tooltip content="Copied!" trigger="click" copyText={path} className="address-tooltip">
+            <S.StyledIconCopy />
+          </Tooltip>
+        </S.AddressTextBox>
+      </Badge>
+      {isRealmNotEnabled && <NotYetEnabledBadge />}
+    </S.PackagePathWrapper>
   );
 };
 
@@ -221,28 +267,56 @@ export const HoverBadgeList = ({
   items,
   linkUrl,
   getUrlWithNetwork,
+  visibleRealmStatus,
 }: {
   items: BadgeTooltipProps[] | null;
   linkUrl?: string;
   getUrlWithNetwork?: (uri: string) => string;
+  visibleRealmStatus?: boolean;
 }) => {
   const hasLinkUrl = !!linkUrl;
   if (!items || items.length === 0) return <BadgeText>-</BadgeText>;
   return (
     <S.BadgeListWrapper>
       {items.map(item => (
-        <HoverBadgeText
+        <HoverBadgeItem
           key={`${item.label}${item.tooltip}`}
-          type="blue"
-          color="white"
-          tooltipContent={item.tooltip}
-          hasLink={hasLinkUrl}
-          linkUrl={getUrlWithNetwork ? getUrlWithNetwork(`${linkUrl}${item.tooltip}`) : undefined}
-        >
-          {item.label}
-        </HoverBadgeText>
+          item={item}
+          linkUrl={hasLinkUrl ? linkUrl : undefined}
+          getUrlWithNetwork={getUrlWithNetwork}
+          visibleRealmStatus={visibleRealmStatus}
+        />
       ))}
     </S.BadgeListWrapper>
+  );
+};
+
+const HoverBadgeItem = ({
+  item,
+  linkUrl,
+  getUrlWithNetwork,
+  visibleRealmStatus,
+}: {
+  item: BadgeTooltipProps;
+  linkUrl?: string;
+  getUrlWithNetwork?: (uri: string) => string;
+  visibleRealmStatus?: boolean;
+}) => {
+  const isRealmNotEnabled = useIsRealmNotEnabled(item.tooltip, !!visibleRealmStatus);
+
+  return (
+    <S.PackagePathWrapper>
+      <HoverBadgeText
+        type="blue"
+        color="white"
+        tooltipContent={item.tooltip}
+        hasLink={!!linkUrl}
+        linkUrl={getUrlWithNetwork && linkUrl ? getUrlWithNetwork(`${linkUrl}${item.tooltip}`) : undefined}
+      >
+        {item.label}
+      </HoverBadgeText>
+      {isRealmNotEnabled && <NotYetEnabledBadge />}
+    </S.PackagePathWrapper>
   );
 };
 
@@ -250,7 +324,7 @@ export const AmountBadge = ({ amount }: { amount: Amount | null }) => {
   if (!amount) return <BadgeText>-</BadgeText>;
   return (
     <BadgeText>
-      <AmountText minSize="body2" maxSize="p4" value={amount.value || "0"} denom={amount.denom || ""} />
+      <AmountText minSize="body2" maxSize="p4" value={amount.value || "0"} denom={amount.denom || ""} wrap={false} />
     </BadgeText>
   );
 };

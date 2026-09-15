@@ -34,6 +34,29 @@ export const BadgeListWrapper = styled.div`
   gap: 12px;
 `;
 
+export const PackagePathWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+
+  > .badge {
+    margin: 0;
+  }
+`;
+
+export const RealmStatusBadgeContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  .not-yet-enabled-tooltip {
+    width: 16px;
+    height: 16px;
+    line-height: 0;
+  }
+`;
+
 export const TooltipContentWrapper = styled.div`
   display: flex;
   flex-direction: column;

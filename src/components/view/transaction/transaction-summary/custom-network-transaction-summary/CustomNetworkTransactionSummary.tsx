@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import Link from "next/link";
 
-import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 import { TransactionSummaryInfo } from "@/types/data-type";
 
 import DataSection from "@/components/view/details-data-section";
@@ -55,7 +53,7 @@ const CustomNetworkTransactionSummary = ({
     transactionSummaryInfo.transactionItem && (
       <DataSection title="Summary">
         <DLWrap desktop={isDesktop}>
-          <dt>Success</dt>
+          <dt>Status</dt>
           <dd>
             <Badge type={transactionSummaryInfo.transactionItem.success ? "green" : "failed"}>
               <Text type="p4" color="white">

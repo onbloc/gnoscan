@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
 import { getTransactionMessageType } from "@/common/utils/message.utility";
@@ -49,7 +48,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
       </Field>
 
       <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
-        <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} />
+        <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} visibleRealmStatus />
       </FieldWithTooltip>
     </>
   );

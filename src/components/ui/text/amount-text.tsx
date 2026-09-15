@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { CSSProperties, useMemo } from "react";
 import BigNumber from "bignumber.js";
 import styled from "styled-components";
 
@@ -15,6 +15,11 @@ interface AmountTextProps {
   color?: PaletteKeyType;
   className?: string;
   bold?: boolean;
+  fontWeight?: CSSProperties["fontWeight"];
+  wrap?: boolean;
+  // Overrides maxSize/minSize's own line-height - for callers matching a one-off Figma
+  // spec (e.g. 28px) that doesn't correspond to any of the app's shared text tokens.
+  lineHeight?: CSSProperties["lineHeight"];
 }
 
 export const AmountText = ({
@@ -26,6 +31,9 @@ export const AmountText = ({
   decimals = 6,
   className,
   bold = false,
+  fontWeight,
+  wrap = true,
+  lineHeight,
 }: AmountTextProps) => {
   const numberValues = useMemo(() => {
     const valueStr = typeof value === "string" ? value.replace(/,/g, "") : value.toString();
@@ -67,7 +75,7 @@ export const AmountText = ({
   }, [decimals, numberValues]);
 
   return (
-    <Wrapper className={className}>
+    <Wrapper className={className} $wrap={wrap}>
       <div className="amount-wrapper">
         <>
           <Text
@@ -75,14 +83,28 @@ export const AmountText = ({
             type={maxSize}
             color={color}
             display="contents"
-            fontWeight={bold ? 600 : undefined}
+            fontWeight={fontWeight ?? (bold ? 600 : undefined)}
+            style={lineHeight ? { lineHeight } : undefined}
           >
             {formattedInteger}
           </Text>
-          <Text type={minSize} color={color} display="contents" className="decimals">
+          <Text
+            type={minSize}
+            color={color}
+            display="contents"
+            className="decimals"
+            fontWeight={fontWeight}
+            style={lineHeight ? { lineHeight } : undefined}
+          >
             {formattedDecimals}
           </Text>
-          <Text type={maxSize} color={color} display="contents">
+          <Text
+            type={maxSize}
+            color={color}
+            display="contents"
+            fontWeight={fontWeight}
+            style={lineHeight ? { lineHeight } : undefined}
+          >
             {denom}
           </Text>
         </>
@@ -91,13 +113,14 @@ export const AmountText = ({
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ $wrap: boolean }>`
   ${mixins.flexbox("row", "center", "flex-start")};
 
   &,
   & * {
     display: inline;
-    word-break: break-all;
+    white-space: ${({ $wrap }) => ($wrap ? "normal" : "nowrap")};
+    word-break: ${({ $wrap }) => ($wrap ? "break-all" : "normal")};
   }
 
   .decimals::after {

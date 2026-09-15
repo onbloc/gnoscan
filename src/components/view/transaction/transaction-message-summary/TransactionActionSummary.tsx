@@ -7,78 +7,47 @@ import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { GNOSWAP_APP_BASE_URL } from "@/common/values/constant-value";
 import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
-import { getTransactionMessageType } from "@/common/utils/message.utility";
-import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "@/common/values/message-types.constant";
-import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { ActionAsset, TransactionAction } from "@/types/data-type";
-import { pairMessagesWithActions } from "./pair-messages-with-actions";
 import {
   ActionAmount,
   AddressChip,
   RealmLink,
+  SUMMARY_LINE_HEIGHT,
   TokenDisplayInfo,
   TransferAddress,
-  TransferAmount,
   getTokenSymbol,
   useActionTokenInfos,
-  useGrc20TokenInfos,
 } from "./transfer-render";
 
+const GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH = "gno.land/r/gnoswap/protocol_fee";
+const GNOSWAP_GNS_TOKEN_PATH = "gno.land/r/gnoswap/gns.GNS";
+const WUGNOT_TOKEN_PATH = "gno.land/r/gnoland/wugnot.wugnot";
+
 interface Props {
-  messages: TransactionContractModel[];
   actions: TransactionAction[];
+  types?: string[];
 }
 
-// The numbered summary is built one line per message, always — the backend `summary`
-// is only used to *enrich* a line when it can be matched to that message's pkgPath
-// (see pairMessagesWithActions). This keeps the line count equal to the message count
-// regardless of what (if anything) the backend summary reports.
-const TransactionActionSummary = ({ messages, actions }: Props) => {
-  const pairedActions = React.useMemo(() => pairMessagesWithActions(messages, actions), [messages, actions]);
+const TransactionActionSummary = ({ actions, types }: Props) => {
+  const displayActions = React.useMemo(() => selectDisplayActions(actions, types), [actions, types]);
+  const tokenInfosByTokenKey = useActionTokenInfos(actions);
 
-  const matchedActions = React.useMemo(() => pairedActions.flat(), [pairedActions]);
-  const actionTokenInfos = useActionTokenInfos(matchedActions);
+  if (displayActions.length === 0) return null;
 
-  const transferFallbackLegs = React.useMemo(
-    () =>
-      messages
-        .filter((message, index) => pairedActions[index].length === 0 && isTransferShapedMessage(message))
-        .map(message => ({
-          assetType: message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20",
-          amount: message.amount,
-        })),
-    [messages, pairedActions],
-  );
-  const transferTokenInfos = useGrc20TokenInfos(transferFallbackLegs);
-
-  const tokenInfosByTokenKey = { ...actionTokenInfos, ...transferTokenInfos };
-
-  if (messages.length === 0) return null;
-
-  const numbered = messages.length > 1;
+  const numbered = displayActions.length > 1;
 
   return (
     <Wrapper>
-      {messages.map((message, index) => {
-        const matchedMessageActions = pairedActions[index];
-        return (
-          <ActionLine key={index}>
-            {numbered && (
-              <Text type="p4" color="tertiary">
-                {`${index + 1}.`}
-              </Text>
-            )}
-            {matchedMessageActions.length > 0
-              ? matchedMessageActions.map((action, actionIndex) => (
-                  <React.Fragment key={actionIndex}>
-                    {actionIndex > 0 && <Verb>·</Verb>}
-                    {renderActionSentence(action, tokenInfosByTokenKey)}
-                  </React.Fragment>
-                ))
-              : renderMessageFallback(message, tokenInfosByTokenKey)}
-          </ActionLine>
-        );
-      })}
+      {displayActions.map((action, index) => (
+        <ActionLine key={index}>
+          {numbered && (
+            <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+              {`${index + 1}.`}
+            </Text>
+          )}
+          {renderActionSentence(action, tokenInfosByTokenKey, actions)}
+        </ActionLine>
+      ))}
     </Wrapper>
   );
 };
@@ -92,7 +61,7 @@ const amountOutAssets = (assets: ActionAsset[]) => assets.filter(asset => asset.
 // same as any other Plain, not something a user could click through.
 const Ref = ({ label, value, href }: { label?: string; value: string; href?: string }) => {
   const text = (
-    <Text type="p4" color={href ? "blue" : "primary"} display="contents">
+    <Text type="p2" color={href ? "blue" : "primary"} fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
       {label ? `${label} #${value}` : `#${value}`}
     </Text>
   );
@@ -116,7 +85,7 @@ const gnoswapPoolUrl = (poolPath: string) =>
 const poolHref = (pool: ActionAsset | undefined) => (pool ? gnoswapPoolUrl(pool.value) : undefined);
 
 const Verb = ({ children }: { children: React.ReactNode }) => (
-  <Text type="p4" color="tertiary">
+  <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
     {children}
   </Text>
 );
@@ -127,14 +96,26 @@ const formatFeePercent = (fee: string) => `${formatTokenDecimal(fee, 4)}%`;
 
 // pairLabel and the fee% live in one Text (not two adjacent "display: contents" nodes) - two
 // such nodes next to each other don't reliably get the flex gap between them, so they'd render
-// glued together ("GNS0.3%") otherwise. Blue+linked when href is given (same rule as Ref), else
-// a plain bold black value.
+// glued together ("GNS0.3%") otherwise.
 const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: string; href?: string }) => {
-  const label = pairLabel ? `${pairLabel} ${formatFeePercent(fee)}` : formatFeePercent(fee);
+  const feeLabel = formatFeePercent(fee);
   const text = (
-    <Text type="p4" color={href ? "blue" : "primary"} fontWeight={href ? undefined : 700} display="contents">
-      {label}
-    </Text>
+    <>
+      {pairLabel && (
+        <Text
+          type="p2"
+          color={href ? "blue" : "primary"}
+          fontWeight={500}
+          display="contents"
+          style={SUMMARY_LINE_HEIGHT}
+        >
+          {pairLabel}
+        </Text>
+      )}
+      <Text type="p2" color={href ? "blue" : "primary"} fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
+        {pairLabel ? ` ${feeLabel}` : feeLabel}
+      </Text>
+    </>
   );
 
   return (
@@ -147,7 +128,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
       ) : (
         text
       )}
-      <Text type="p4" color="primary" fontWeight={700} display="contents">
+      <Text type="p2" color="primary" fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
         pool
       </Text>
     </>
@@ -217,6 +198,7 @@ const poolPairLabel = (
 // dispatcher can fall back to the raw type name.
 interface ActionRenderContext {
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
+  actions: TransactionAction[];
   amount: (asset: ActionAsset) => React.ReactNode;
 }
 
@@ -237,9 +219,28 @@ function renderSwap(action: TransactionAction, ctx: ActionRenderContext): React.
 }
 
 function renderApprove(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const [approvedAmount] = amountAssets(action.assets);
-  const spender = findAsset(action.assets, "spender");
-  if (!approvedAmount || !spender) return null;
+  const { assets, tag } = action;
+  const spender = findAsset(assets, "spender");
+  if (!spender) return null;
+
+  if (tag === "grc721") {
+    const tokenId = findAsset(assets, "tokenId");
+    if (!tokenId) return null;
+    const label = tokenId.assetType.includes("gnoswap") ? "position" : "NFT";
+    const pool = findStakePoolByPosition(ctx.actions, tokenId.value);
+
+    return (
+      <>
+        <Verb>Approve</Verb>
+        <Ref label={label} value={tokenId.value} href={poolHref(pool)} />
+        <Verb>for</Verb>
+        <TransferAddress address={spender.value} packagePath={spender.packagePath} />
+      </>
+    );
+  }
+
+  const [approvedAmount] = amountAssets(assets);
+  if (!approvedAmount) return null;
   return (
     <>
       <Verb>Approve</Verb>
@@ -256,6 +257,25 @@ function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.
     const tokenId = findAsset(assets, "tokenId");
     if (!tokenId) return null;
     const label = tokenId.assetType.includes("gnoswap") ? "position" : "NFT";
+    const liquidityAction = findLiquidityActionByPosition(ctx.actions, tokenId.value);
+    const pool = liquidityAction?.assets.find(asset => asset.key === "pool");
+    const fee = liquidityAction?.assets.find(asset => asset.key === "fee");
+
+    if (label === "position" && liquidityAction) {
+      return (
+        <>
+          <Verb>Mint</Verb>
+          <PositionClause
+            position={{ ...tokenId, key: "position" }}
+            pool={pool}
+            fee={fee}
+            pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+            realm={liquidityAction.realm}
+          />
+        </>
+      );
+    }
+
     return (
       <>
         <Verb>Mint</Verb>
@@ -266,6 +286,16 @@ function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.
   }
   const [mintedAmount] = amountAssets(assets);
   if (!mintedAmount) return null;
+
+  if (isWugnotMintAction(action)) {
+    return (
+      <>
+        <Verb>Deposit</Verb>
+        {ctx.amount(mintedAmount)}
+      </>
+    );
+  }
+
   return (
     <>
       <Verb>Mint</Verb>
@@ -304,13 +334,26 @@ function renderBurn(action: TransactionAction, ctx: ActionRenderContext): React.
 function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
   const { type, assets, realm } = action;
   const tokens = amountAssets(assets);
+  const [depositAmount] = tokens;
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
-  if (tokens.length === 0 || !position) return null;
+  if (!depositAmount) return null;
+
+  if (type === "addLiquidity") {
+    return (
+      <>
+        <Verb>Deposit</Verb>
+        {ctx.amount(depositAmount)}
+      </>
+    );
+  }
+
+  if (!position) return null;
+
   return (
     <>
-      <Verb>{type === "reposition" ? "Reposition" : "Add liquidity"}</Verb>
+      <Verb>Reposition</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>to</Verb>
       <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
@@ -337,17 +380,21 @@ function renderRemoveLiquidity(action: TransactionAction, ctx: ActionRenderConte
 
 function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
   const { assets, realm } = action;
-  const tokens = amountAssets(assets);
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
-  if (tokens.length === 0 || !position) return null;
+  if (!position) return null;
   return (
     <>
       <Verb>Collect fee</Verb>
-      {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
-      <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
+      <PositionClause
+        position={position}
+        pool={pool}
+        fee={fee}
+        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
+        realm={realm}
+      />
     </>
   );
 }
@@ -394,15 +441,15 @@ function renderUnstake(action: TransactionAction, ctx: ActionRenderContext): Rea
 
 function renderCollectReward(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
   const { assets, realm } = action;
-  const [reward] = amountAssets(assets);
+  const rewards = amountAssets(assets);
   const position = findAsset(assets, "position");
-  if (!reward || !position) return null;
+  if (rewards.length === 0 || !position) return null;
   const pool = findAsset(assets, "pool");
   const fee = findAsset(assets, "fee");
   return (
     <>
       <Verb>Collect reward</Verb>
-      {ctx.amount(reward)}
+      {joinAmounts(rewards, ctx.amount)}
       <Verb>from</Verb>
       <PositionClause
         position={position}
@@ -622,21 +669,16 @@ function renderEnable(action: TransactionAction): React.ReactNode | null {
   );
 }
 
-// A raw "deploy" action is the AddPkg event itself, reported immediately — it does NOT
-// mean the package has been enabled (confirmed against a live onbloc-api-v3 response:
-// `summary.types: ["deploy"]` / `action.type: "deploy"` for a freshly-added, not-yet-enabled
-// package). Same packageName/creator assets as "enable", but no realm page exists yet, so
-// no RealmChip link (unlike renderEnable).
+// AddPkg creates its realm page immediately, so the package name links to realm detail
+// the same way enable does.
 function renderDeploy(action: TransactionAction): React.ReactNode | null {
   const packageName = findAsset(action.assets, "packageName");
   const creator = findAsset(action.assets, "creator");
   if (!packageName || !creator) return null;
   return (
     <>
-      <Verb>Deployed</Verb>
-      <Text type="p4" color="primary" fontWeight={700} display="contents">
-        {packageName.value}
-      </Text>
+      <Verb>Deploy</Verb>
+      <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
       <Verb>by</Verb>
       <TransferAddress address={creator.value} />
     </>
@@ -678,72 +720,162 @@ const ACTION_RENDERERS: Record<string, ActionRenderer> = {
 function renderActionSentence(
   action: TransactionAction,
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
+  actionList: TransactionAction[],
 ): React.ReactNode {
   const ctx: ActionRenderContext = {
     tokenInfosByTokenKey,
+    actions: actionList,
     amount: asset => <ActionAmount asset={asset} tokenInfosByTokenKey={tokenInfosByTokenKey} />,
   };
 
   return ACTION_RENDERERS[action.type]?.(action, ctx) ?? <Verb>{action.type}</Verb>;
 }
 
-// A message only reaches here when nothing in the backend summary could be matched to
-// it (see pairMessagesWithActions) — so this is built purely from the message's own
-// fields, independent of `summary`. "Transfer" (bank send, or a grc20 Transfer call)
-// and "AddPkg" get their familiar dedicated phrasing; everything else falls back to
-// the generic "{FunctionName} by {caller}" shape.
-function renderMessageFallback(
-  message: TransactionContractModel,
-  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
-): React.ReactNode {
-  const label = getTransactionMessageType(message);
+function findStakePoolByPosition(actions: TransactionAction[], positionId: string): ActionAsset | undefined {
+  return actions
+    .filter(action => action.type === "stake")
+    .find(action => findAsset(action.assets, "position")?.value === positionId)
+    ?.assets.find(asset => asset.key === "pool");
+}
 
-  if (isTransferShapedMessage(message)) {
-    const assetType = message.messageType === MESSAGE_TYPES.BANK_MSG_SEND ? "native" : "grc20";
-    return (
-      <>
-        <Verb>Transfer</Verb>
-        <TransferAmount
-          transfer={{ assetType, amount: message.amount }}
-          tokenInfosByTokenKey={tokenInfosByTokenKey}
-          bold
-        />
-        <Verb>to</Verb>
-        <TransferAddress address={message.to} />
-      </>
-    );
-  }
+function findLiquidityActionByPosition(
+  actions: TransactionAction[],
+  positionId: string,
+): TransactionAction | undefined {
+  return actions
+    .filter(action => action.type === "addLiquidity" || action.type === "reposition")
+    .find(action => findAsset(action.assets, "position")?.value === positionId);
+}
 
-  if (label === TRANSACTION_FUNCTION_TYPES.ADD_PKG) {
-    return (
-      <>
-        <Verb>Deployed</Verb>
-        <Text type="p4" color="primary" fontWeight={700} display="contents">
-          {message.name}
-        </Text>
-        <Verb>by</Verb>
-        <TransferAddress address={message.creator} />
-      </>
-    );
-  }
+function selectDisplayActions(actions: TransactionAction[], types?: string[]): TransactionAction[] {
+  const uniqueActions = dedupeActions(actions);
+  if (!types?.length) return uniqueActions;
 
-  return (
-    <>
-      <Verb>{label}</Verb>
-      <Verb>by</Verb>
-      <TransferAddress address={message.caller || message.creator} />
-    </>
+  const displayActions = uniqueActions.filter(action => types.some(type => actionMatchesSummaryType(action, type)));
+  return orderLiquidityBeforePositionMint(
+    groupCollectRewardActions(filterProtocolMintActions(filterProtocolFeeApproveActions(displayActions))),
   );
 }
 
-// Same guard StandardNetworkMsgCallMessage uses to decide whether a VM_CALL message is
-// transfer-shaped (funcType "Transfer" with exactly 2 args) before trusting its
-// amount/from/to fields — a "Transfer"-named call with a different signature isn't
-// guaranteed to have those fields populated as a plain amount+recipient. Bank sends have
-// no such ambiguity: messageType alone is enough.
-function isTransferShapedMessage(message: TransactionContractModel): boolean {
-  if (message.messageType === MESSAGE_TYPES.BANK_MSG_SEND) return true;
-  return message.funcType === TRANSACTION_FUNCTION_TYPES.TRANSFER && message.args.length === 2;
+function filterProtocolFeeApproveActions(actions: TransactionAction[]): TransactionAction[] {
+  return actions.filter(action => {
+    if (action.type !== "approve") return true;
+
+    const spender = findAsset(action.assets, "spender");
+    return spender?.packagePath !== GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH;
+  });
+}
+
+function filterProtocolMintActions(actions: TransactionAction[]): TransactionAction[] {
+  const hasPositionMint = actions.some(action => action.type === "mint" && action.tag === "grc721");
+  if (!hasPositionMint) return actions;
+
+  return actions.filter(action => !isGnoswapProtocolMintAction(action));
+}
+
+function isWugnotMintAction(action: TransactionAction): boolean {
+  const [amount] = amountAssets(action.assets);
+  return (
+    action.type === "mint" && action.tag === "grc20" && stripActionAssetTokenId(amount?.assetType) === WUGNOT_TOKEN_PATH
+  );
+}
+
+function isGnoswapProtocolMintAction(action: TransactionAction): boolean {
+  const [amount] = amountAssets(action.assets);
+  return (
+    action.type === "mint" &&
+    action.tag === "grc20" &&
+    action.realm === "gno.land/p/nt/grc20" &&
+    stripActionAssetTokenId(amount?.assetType) === GNOSWAP_GNS_TOKEN_PATH
+  );
+}
+
+function stripActionAssetTokenId(assetType = ""): string {
+  return assetType.replace(/\.\d+$/, "");
+}
+
+function groupCollectRewardActions(actions: TransactionAction[]): TransactionAction[] {
+  const rewardActionIndexesByKey = new Map<string, number>();
+  const nextActions: TransactionAction[] = [];
+
+  actions.forEach(action => {
+    if (action.type !== "collectReward") {
+      nextActions.push(action);
+      return;
+    }
+
+    const key = getPositionActionKey(action);
+    const existingIndex = rewardActionIndexesByKey.get(key);
+    if (existingIndex === undefined) {
+      rewardActionIndexesByKey.set(key, nextActions.length);
+      nextActions.push(action);
+      return;
+    }
+
+    const existingAction = nextActions[existingIndex];
+    nextActions[existingIndex] = {
+      ...existingAction,
+      assets: [...existingAction.assets, ...amountAssets(action.assets)],
+    };
+  });
+
+  return nextActions;
+}
+
+function getPositionActionKey(action: TransactionAction): string {
+  const position = findAsset(action.assets, "position")?.value ?? "";
+  const pool = findAsset(action.assets, "pool")?.value ?? "";
+  const fee = findAsset(action.assets, "fee")?.value ?? "";
+  return `${action.realm}:${position}:${pool}:${fee}`;
+}
+
+function orderLiquidityBeforePositionMint(actions: TransactionAction[]): TransactionAction[] {
+  const nextActions = [...actions];
+
+  nextActions.forEach((action, index) => {
+    if (action.type !== "mint" || action.tag !== "grc721") return;
+
+    const position = findAsset(action.assets, "tokenId");
+    if (!position) return;
+
+    const liquidityIndex = nextActions.findIndex(
+      candidate =>
+        candidate.type === "addLiquidity" && findAsset(candidate.assets, "position")?.value === position.value,
+    );
+    if (liquidityIndex <= index) return;
+
+    const [liquidityAction] = nextActions.splice(liquidityIndex, 1);
+    nextActions.splice(index, 0, liquidityAction);
+  });
+
+  return nextActions;
+}
+
+export function hasDisplayActions(actions: TransactionAction[], types?: string[]): boolean {
+  return selectDisplayActions(actions, types).length > 0;
+}
+
+function actionMatchesSummaryType(action: TransactionAction, type: string): boolean {
+  const actionType = action.type.toLowerCase();
+  const summaryType = type.toLowerCase();
+
+  if (summaryType === "deposit" && (actionType === "addliquidity" || isWugnotMintAction(action))) return true;
+
+  return summaryType === actionType || summaryType.includes(actionType);
+}
+
+function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
+  const seen = new Set<string>();
+
+  return actions.filter(action => {
+    const key = `${action.tag}:${action.realm}:${action.type}:${action.assets
+      .map(asset => `${asset.assetType}:${asset.key}:${asset.value}:${asset.packagePath ?? ""}`)
+      .join("|")}`;
+
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) => React.ReactNode): React.ReactNode[] {
@@ -756,15 +888,17 @@ function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) =
 }
 
 // The parent tab pane lays its children out with align-items: flex-start (see
-// DetailsContainer), so without an explicit width this box and its border-bottom
-// would only span its own content instead of the full row width like every other field.
+// DetailsContainer), so without an explicit width this box would only span its
+// own content instead of the full row width like every other field.
+// margin-top pairs with the tab label's own 16px bottom margin (DataListSection)
+// to reach the 32px gap Figma specifies between the tab row and this summary line.
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
+  margin-top: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed100};
 `;
 
 const ActionLine = styled.div`

@@ -34,6 +34,7 @@ export class RealmMapper {
     return {
       name: response.name,
       path: response.path,
+      isEnableYn: response.isEnableYn,
       realmAddress: response.realmAddress,
       publisherAddress: response.publisher,
       publisherName: response.publisherName,

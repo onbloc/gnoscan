@@ -4,9 +4,10 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
-import { TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
+import { SUMMARY_ASSET_TYPES, TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
 
 type TransferView = "all" | "net";
+const GNOSWAP_EMISSION_PACKAGE_PATH = "gno.land/r/gnoswap/emission";
 
 interface Props {
   summary: TransactionSummaryDetail;
@@ -14,8 +15,16 @@ interface Props {
 }
 
 const TransactionMessageSummary = ({ summary, isDesktop }: Props) => {
-  const grc20Transfers = summary.transfers.filter(transfer => transfer.assetType === "grc20");
-  const grc20NetTransfers = summary.netTransfers.filter(transfer => transfer.assetType === "grc20");
+  const grc20Transfers = summary.transfers.filter(
+    transfer => transfer.assetType === SUMMARY_ASSET_TYPES.GRC20 && !isGnoswapEmissionTransfer(transfer),
+  );
+  const grc20TransferAddresses = new Set(grc20Transfers.flatMap(transfer => [transfer.from, transfer.to]));
+  const grc20NetTransfers = summary.netTransfers.filter(
+    transfer =>
+      transfer.assetType === SUMMARY_ASSET_TYPES.GRC20 &&
+      !isGnoswapEmissionNetTransfer(transfer) &&
+      grc20TransferAddresses.has(transfer.address),
+  );
 
   const hasGrc20 = grc20Transfers.length > 0 || grc20NetTransfers.length > 0;
 
@@ -32,6 +41,17 @@ const TransactionMessageSummary = ({ summary, isDesktop }: Props) => {
     </SummaryWrapper>
   );
 };
+
+function isGnoswapEmissionTransfer(transfer: AssetTransfer): boolean {
+  return (
+    transfer.fromPackagePath === GNOSWAP_EMISSION_PACKAGE_PATH ||
+    transfer.toPackagePath === GNOSWAP_EMISSION_PACKAGE_PATH
+  );
+}
+
+function isGnoswapEmissionNetTransfer(transfer: NetTransfer): boolean {
+  return transfer.packagePath === GNOSWAP_EMISSION_PACKAGE_PATH;
+}
 
 interface TransferGroupProps {
   label: string;
@@ -78,18 +98,18 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
             <List>
               {transfers.map((transfer, index) => (
                 <li key={index}>
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <Text type="p4" color="primary" fontWeight={400}>
                     From
                   </Text>
-                  <TransferAddress address={transfer.from} />
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <TransferAddress address={transfer.from} compact />
+                  <Text type="p4" color="primary" fontWeight={400}>
                     To
                   </Text>
-                  <TransferAddress address={transfer.to} />
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <TransferAddress address={transfer.to} compact />
+                  <Text type="p4" color="primary" fontWeight={400}>
                     For
                   </Text>
-                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
+                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
                 </li>
               ))}
             </List>
@@ -99,11 +119,11 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
             <List>
               {netTransfers.map((transfer, index) => (
                 <li key={index}>
-                  <TransferAddress address={transfer.address} />
-                  <Text type="p4" color="primary" fontWeight={700}>
+                  <TransferAddress address={transfer.address} compact />
+                  <Text type="p4" color="primary" fontWeight={400}>
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>
-                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
+                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
                 </li>
               ))}
             </List>
@@ -118,13 +138,13 @@ const TopAlignedDLWrap = styled(DLWrap)`
   align-items: flex-start !important;
 `;
 
-// The inner DLWrap row is always :first-of-type here, so its own top padding is zeroed.
-// without padding-top below, a preceding action-summary divider would sit flush against
-// the "GRC-20 Transferred" label instead of matching the normal row gap.
+// Figma places a 1px separator 16px above the GRC-20 transfer row.
 const SummaryWrapper = styled.div`
   width: 100%;
   padding-top: 16px;
   padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-top: 1px solid ${({ theme }) => theme.colors.dimmed100};
   border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed100};
 `;
 
@@ -132,18 +152,24 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const Switch = styled.div`
   display: inline-flex;
+  width: 206px;
+  height: 32px;
   padding: 3px;
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 8px;
 
   button {
     ${({ theme }) => theme.fonts.p4};
-    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 0;
     border: none;
     border-radius: 6px;
     background-color: transparent;
@@ -154,7 +180,7 @@ const Switch = styled.div`
     &.active {
       background-color: ${({ theme }) => theme.colors.base};
       color: ${({ theme }) => theme.colors.primary};
-      font-weight: 600;
+      font-weight: 400;
     }
   }
 `;
@@ -162,17 +188,18 @@ const Switch = styled.div`
 const List = styled.ul`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 740px;
+  max-width: 100%;
   background-color: ${({ theme }) => theme.colors.surface};
-  border-radius: 8px;
-  padding: 4px 16px;
+  border-radius: 4px;
+  padding: 6px 16px;
+  gap: 6px;
 
   li {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 4px 0;
     ${({ theme }) => theme.fonts.p4};
   }
 `;
