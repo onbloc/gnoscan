@@ -16,6 +16,7 @@ import {
   ActionAmount,
   AddressChip,
   RealmLink,
+  SUMMARY_LINE_HEIGHT,
   TokenDisplayInfo,
   TransferAddress,
   TransferAmount,
@@ -64,7 +65,7 @@ const TransactionActionSummary = ({ messages, actions }: Props) => {
         return (
           <ActionLine key={index}>
             {numbered && (
-              <Text type="p4" color="tertiary">
+              <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
                 {`${index + 1}.`}
               </Text>
             )}
@@ -92,7 +93,7 @@ const amountOutAssets = (assets: ActionAsset[]) => assets.filter(asset => asset.
 // same as any other Plain, not something a user could click through.
 const Ref = ({ label, value, href }: { label?: string; value: string; href?: string }) => {
   const text = (
-    <Text type="p4" color={href ? "blue" : "primary"} display="contents">
+    <Text type="p2" color={href ? "blue" : "primary"} display="contents" style={SUMMARY_LINE_HEIGHT}>
       {label ? `${label} #${value}` : `#${value}`}
     </Text>
   );
@@ -116,7 +117,7 @@ const gnoswapPoolUrl = (poolPath: string) =>
 const poolHref = (pool: ActionAsset | undefined) => (pool ? gnoswapPoolUrl(pool.value) : undefined);
 
 const Verb = ({ children }: { children: React.ReactNode }) => (
-  <Text type="p4" color="tertiary">
+  <Text type="p2" color="tertiary" style={SUMMARY_LINE_HEIGHT}>
     {children}
   </Text>
 );
@@ -132,7 +133,13 @@ const formatFeePercent = (fee: string) => `${formatTokenDecimal(fee, 4)}%`;
 const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: string; href?: string }) => {
   const label = pairLabel ? `${pairLabel} ${formatFeePercent(fee)}` : formatFeePercent(fee);
   const text = (
-    <Text type="p4" color={href ? "blue" : "primary"} fontWeight={href ? undefined : 700} display="contents">
+    <Text
+      type="p2"
+      color={href ? "blue" : "primary"}
+      fontWeight={href ? undefined : 700}
+      display="contents"
+      style={SUMMARY_LINE_HEIGHT}
+    >
       {label}
     </Text>
   );
@@ -147,7 +154,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
       ) : (
         text
       )}
-      <Text type="p4" color="primary" fontWeight={700} display="contents">
+      <Text type="p2" color="primary" fontWeight={700} display="contents" style={SUMMARY_LINE_HEIGHT}>
         pool
       </Text>
     </>
@@ -622,21 +629,16 @@ function renderEnable(action: TransactionAction): React.ReactNode | null {
   );
 }
 
-// A raw "deploy" action is the AddPkg event itself, reported immediately — it does NOT
-// mean the package has been enabled (confirmed against a live onbloc-api-v3 response:
-// `summary.types: ["deploy"]` / `action.type: "deploy"` for a freshly-added, not-yet-enabled
-// package). Same packageName/creator assets as "enable", but no realm page exists yet, so
-// no RealmChip link (unlike renderEnable).
+// AddPkg creates its realm page immediately, so the package name links to realm detail
+// the same way enable does.
 function renderDeploy(action: TransactionAction): React.ReactNode | null {
   const packageName = findAsset(action.assets, "packageName");
   const creator = findAsset(action.assets, "creator");
   if (!packageName || !creator) return null;
   return (
     <>
-      <Verb>Deployed</Verb>
-      <Text type="p4" color="primary" fontWeight={700} display="contents">
-        {packageName.value}
-      </Text>
+      <Verb>Deploy</Verb>
+      <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
       <Verb>by</Verb>
       <TransferAddress address={creator.value} />
     </>
@@ -703,11 +705,7 @@ function renderMessageFallback(
     return (
       <>
         <Verb>Transfer</Verb>
-        <TransferAmount
-          transfer={{ assetType, amount: message.amount }}
-          tokenInfosByTokenKey={tokenInfosByTokenKey}
-          bold
-        />
+        <TransferAmount transfer={{ assetType, amount: message.amount }} tokenInfosByTokenKey={tokenInfosByTokenKey} />
         <Verb>to</Verb>
         <TransferAddress address={message.to} />
       </>
@@ -717,10 +715,8 @@ function renderMessageFallback(
   if (label === TRANSACTION_FUNCTION_TYPES.ADD_PKG) {
     return (
       <>
-        <Verb>Deployed</Verb>
-        <Text type="p4" color="primary" fontWeight={700} display="contents">
-          {message.name}
-        </Text>
+        <Verb>Deploy</Verb>
+        <RealmLink pkgPath={message.pkgPath}>{message.name}</RealmLink>
         <Verb>by</Verb>
         <TransferAddress address={message.creator} />
       </>
@@ -756,15 +752,17 @@ function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) =
 }
 
 // The parent tab pane lays its children out with align-items: flex-start (see
-// DetailsContainer), so without an explicit width this box and its border-bottom
-// would only span its own content instead of the full row width like every other field.
+// DetailsContainer), so without an explicit width this box would only span its
+// own content instead of the full row width like every other field.
+// margin-top pairs with the tab label's own 16px bottom margin (DataListSection)
+// to reach the 32px gap Figma specifies between the tab row and this summary line.
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
+  margin-top: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed100};
 `;
 
 const ActionLine = styled.div`

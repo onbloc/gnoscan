@@ -81,15 +81,15 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
                   <Text type="p4" color="primary" fontWeight={700}>
                     From
                   </Text>
-                  <TransferAddress address={transfer.from} />
+                  <TransferAddress address={transfer.from} compact />
                   <Text type="p4" color="primary" fontWeight={700}>
                     To
                   </Text>
-                  <TransferAddress address={transfer.to} />
+                  <TransferAddress address={transfer.to} compact />
                   <Text type="p4" color="primary" fontWeight={700}>
                     For
                   </Text>
-                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
+                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
                 </li>
               ))}
             </List>
@@ -99,11 +99,11 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop }: TransferGr
             <List>
               {netTransfers.map((transfer, index) => (
                 <li key={index}>
-                  <TransferAddress address={transfer.address} />
+                  <TransferAddress address={transfer.address} compact />
                   <Text type="p4" color="primary" fontWeight={700}>
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>
-                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
+                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
                 </li>
               ))}
             </List>
@@ -132,29 +132,29 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const Switch = styled.div`
   display: inline-flex;
-  padding: 3px;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding: 4px 16px;
   background-color: ${({ theme }) => theme.colors.surface};
-  border-radius: 8px;
+  border-radius: 4px;
 
   button {
     ${({ theme }) => theme.fonts.p4};
-    padding: 5px 12px;
+    padding: 0;
     border: none;
-    border-radius: 6px;
     background-color: transparent;
-    color: ${({ theme }) => theme.colors.tertiary};
+    color: ${({ theme }) => theme.colors.primary};
     cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
+    transition: opacity 0.15s;
 
-    &.active {
-      background-color: ${({ theme }) => theme.colors.base};
-      color: ${({ theme }) => theme.colors.primary};
-      font-weight: 600;
+    &:hover {
+      opacity: 0.7;
     }
   }
 `;
@@ -162,9 +162,10 @@ const Switch = styled.div`
 const List = styled.ul`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   background-color: ${({ theme }) => theme.colors.surface};
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 4px 16px;
 
   li {

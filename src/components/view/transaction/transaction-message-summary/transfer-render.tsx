@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import Link from "next/link";
 import styled from "styled-components";
 import { useQueries } from "react-query";
@@ -7,9 +7,10 @@ import BigNumber from "bignumber.js";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
+import GNOTIcon from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
-import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
@@ -78,6 +79,12 @@ export const useGrc20TokenInfos = (items: Grc20AmountLeg[]): Record<string, Toke
 
 const isGrc20AssetType = (assetType: string) => assetType.includes("/");
 
+// The summary line's 18px/500 text uses a 28px line-height per Figma - a one-off value,
+// not one of the app's shared text tokens (closest, p2, uses 26px) - so it's applied as
+// an inline override rather than added to the theme for this single call site's sake.
+export const SUMMARY_LINE_HEIGHT: CSSProperties = { lineHeight: "28px" };
+const COMPACT_TRANSFER_LINE_HEIGHT: CSSProperties = { lineHeight: "20px" };
+
 export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
   const tokenKeys = React.useMemo(() => {
     const keys = new Set<string>();
@@ -110,12 +117,22 @@ export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<st
   return tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);
 }
 
-export const TransferAddress = ({ address, packagePath }: { address: string; packagePath?: string }) => {
+export const TransferAddress = ({
+  address,
+  packagePath,
+  compact = false,
+}: {
+  address: string;
+  packagePath?: string;
+  compact?: boolean;
+}) => {
   const { getUrlWithNetwork } = useNetwork();
+  const textType = compact ? "p4" : "p2";
+  const textStyle = compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT;
 
   if (!address) {
     return (
-      <Text type="p4" color="primary">
+      <Text type={textType} color="primary" style={textStyle}>
         -
       </Text>
     );
@@ -124,10 +141,12 @@ export const TransferAddress = ({ address, packagePath }: { address: string; pac
   return (
     <AddressChip>
       {packagePath ? (
-        <RealmLink pkgPath={packagePath}>{packagePath.replace("gno.land/", "")}</RealmLink>
+        <RealmLink pkgPath={packagePath} compact={compact}>
+          {packagePath.replace("gno.land/", "")}
+        </RealmLink>
       ) : (
         <Link href={getUrlWithNetwork(`/account/${address}`)}>
-          <Text type="p4" color="blue" display="contents">
+          <Text type={textType} color="blue" display="contents" style={textStyle}>
             {textEllipsis(address, 6)}
           </Text>
         </Link>
@@ -139,12 +158,25 @@ export const TransferAddress = ({ address, packagePath }: { address: string; pac
   );
 };
 
-export const RealmLink = ({ pkgPath, children }: { pkgPath: string; children: React.ReactNode }) => {
+export const RealmLink = ({
+  pkgPath,
+  children,
+  compact = false,
+}: {
+  pkgPath: string;
+  children: React.ReactNode;
+  compact?: boolean;
+}) => {
   const { getUrlWithNetwork } = useNetwork();
 
   return (
     <Link href={getUrlWithNetwork(`/realms/details?path=${pkgPath}`)}>
-      <Text type="p4" color="blue" display="contents">
+      <Text
+        type={compact ? "p4" : "p2"}
+        color="blue"
+        display="contents"
+        style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
+      >
         {children}
       </Text>
     </Link>
@@ -157,11 +189,21 @@ interface TokenAmountDisplayProps {
   isGrc20: boolean;
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
   bold?: boolean;
+  compact?: boolean;
 }
 
-const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey, bold }: TokenAmountDisplayProps) => {
+const TokenAmountDisplay = ({
+  tokenKey,
+  rawValue,
+  isGrc20,
+  tokenInfosByTokenKey,
+  bold,
+  compact = false,
+}: TokenAmountDisplayProps) => {
   const { getTokenAmount, getTokenImage } = useTokenMeta();
   const { getUrlWithNetwork } = useNetwork();
+  const textType = compact ? "p4" : "p2";
+  const lineHeight = compact ? COMPACT_TRANSFER_LINE_HEIGHT.lineHeight : SUMMARY_LINE_HEIGHT.lineHeight;
 
   if (!isGrc20) {
     // Native assets aren't linkable to a `/tokens/[...path]` page like GRC20 is, so the
@@ -171,13 +213,27 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey,
 
     return (
       <>
-        <AmountText value={displayAmount.value} denom="" maxSize="p4" minSize="body2" bold={bold} />
+        <AmountText
+          value={displayAmount.value}
+          denom=""
+          maxSize={textType}
+          minSize="p4"
+          bold={bold}
+          lineHeight={lineHeight}
+        />
         <TokenChip>
-          <Text type="p4" color="primary" display="contents">
+          <Text
+            type={textType}
+            color="primary"
+            display="contents"
+            style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
+          >
             {displayAmount.denom}
           </Text>
           {imagePath ? (
             <img className="token-icon" src={imagePath} alt="" />
+          ) : displayAmount.denom === GNOTToken.symbol ? (
+            <GNOTIcon className="token-icon gnot-token-icon" />
           ) : (
             <UnknownToken className="token-icon" width="16" height="16" />
           )}
@@ -200,10 +256,15 @@ const TokenAmountDisplay = ({ tokenKey, rawValue, isGrc20, tokenInfosByTokenKey,
 
   return (
     <>
-      <AmountText value={displayValue} denom="" maxSize="p4" minSize="body2" bold={bold} />
+      <AmountText value={displayValue} denom="" maxSize={textType} minSize="p4" bold={bold} lineHeight={lineHeight} />
       <Link href={getUrlWithNetwork(`/tokens/${linkTokenKey}`)}>
         <TokenChip>
-          <Text type="p4" color="blue" display="contents">
+          <Text
+            type={textType}
+            color="blue"
+            display="contents"
+            style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
+          >
             {symbol}
           </Text>
           {imagePath ? (
@@ -221,15 +282,17 @@ interface TransferAmountProps {
   transfer: { assetType: string; amount: { value: string; denom: string } };
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
   bold?: boolean;
+  compact?: boolean;
 }
 
-export const TransferAmount = ({ transfer, tokenInfosByTokenKey, bold }: TransferAmountProps) => (
+export const TransferAmount = ({ transfer, tokenInfosByTokenKey, bold, compact = false }: TransferAmountProps) => (
   <TokenAmountDisplay
     tokenKey={transfer.amount.denom}
     rawValue={transfer.amount.value}
     isGrc20={transfer.assetType === "grc20"}
     tokenInfosByTokenKey={tokenInfosByTokenKey}
     bold={bold}
+    compact={compact}
   />
 );
 
@@ -289,11 +352,11 @@ function toTokenKey(path: string, symbol?: string): string {
 export const AddressChip = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
 
   .copy-icon {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     stroke: ${({ theme }) => theme.colors.primary};
     cursor: pointer;
     vertical-align: middle;
