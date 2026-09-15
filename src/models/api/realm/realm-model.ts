@@ -33,6 +33,7 @@ export interface RealmSummaryModel {
   ];
   name: string;
   path: string;
+  isEnableYn?: "Y" | "N" | string;
   publisher: string;
   publisherName: string;
   realmAddress: string;

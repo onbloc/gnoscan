@@ -34,6 +34,19 @@ export const BadgeListWrapper = styled.div`
   gap: 12px;
 `;
 
+export const PackagePathWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+`;
+
+export const RealmStatusBadgeContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
 export const TooltipContentWrapper = styled.div`
   display: flex;
   flex-direction: column;

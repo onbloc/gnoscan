@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
@@ -69,6 +68,7 @@ const StandardNetworkMsgRunMessage = ({
           items={calledFunctions}
           linkUrl={"/realms/details?path="}
           getUrlWithNetwork={getUrlWithNetwork}
+          visibleRealmStatus
         />
       </Field>
 
