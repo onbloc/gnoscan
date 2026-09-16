@@ -1,7 +1,7 @@
 export const GNO_TOKEN_RESOURCE_BASE_URI = "https://raw.githubusercontent.com/onbloc/gno-token-resource/main";
 
 // gnoscan has no pool/position page of its own - link out to gnoswap's app instead.
-export const GNOSWAP_APP_BASE_URL = "https://beta.gnoswap.io";
+export const GNOSWAP_APP_BASE_URL = process.env.NEXT_PUBLIC_GNOSWAP_APP_BASE_URL;
 
 export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "";
 
