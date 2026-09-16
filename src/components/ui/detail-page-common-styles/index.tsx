@@ -60,6 +60,13 @@ export const DLWrap = styled.dl<StyleProps>`
   &:last-of-type {
     padding-bottom: 0px;
   }
+  &.top-aligned {
+    align-items: flex-start;
+
+    dt {
+      padding-top: 4px;
+    }
+  }
   &.multiple-badges {
     padding-top: ${({ desktop }) => (desktop ? "0px" : "12px")};
     .badge {
@@ -104,6 +111,34 @@ export const DLWrap = styled.dl<StyleProps>`
       display: flex;
       flex-direction: row;
       gap: 15px;
+
+      @media (max-width: 767px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        > .badge:first-child {
+          margin: 0;
+          max-width: 100%;
+          min-width: 0;
+        }
+
+        > .badge:not(:first-child),
+        > a,
+        > button {
+          margin: 0;
+          width: fit-content;
+          max-width: 100%;
+        }
+      }
+    }
+
+    &.files-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      min-width: 0;
     }
   }
 

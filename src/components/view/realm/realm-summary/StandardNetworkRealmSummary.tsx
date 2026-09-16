@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React from "react";
+import { css } from "styled-components";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -9,6 +10,7 @@ import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { makeTemplate } from "@/common/utils/template.utils";
+import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { Amount, RealmSummary } from "@/types/data-type";
 
@@ -19,6 +21,8 @@ import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import Badge from "@/components/ui/badge";
 import { DLWrap, FitContentA, FitContentSpan, LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import FloatingTooltip from "@/components/ui/floating-tooltip";
+import IconInfo from "@/components/ui/icon-info";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
@@ -53,6 +57,39 @@ const TOOLTIP_BALANCE = (
 );
 
 const TOOLTIP_STORAGE_DEPOSIT = <>Total amount of GNOT deposited for storage in real time.</>;
+
+const notYetEnabledBadgeStyle = css`
+  background-color: #ff4d4f;
+
+  .not-yet-enabled-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .not-yet-enabled-tooltip {
+    width: 16px;
+    height: 16px;
+    line-height: 0;
+  }
+`;
+
+const NotYetEnabledBadge = () => (
+  <Badge margin="0" cssExtend={notYetEnabledBadgeStyle}>
+    <span className="not-yet-enabled-content">
+      <Text type="p4" color="white" fontWeight={400}>
+        Not Yet Enabled
+      </Text>
+      <FloatingTooltip
+        content={TOOLTIP_NOT_YET_ENABLED}
+        className="not-yet-enabled-tooltip"
+        ariaLabel="Show not yet enabled details"
+      >
+        <IconInfo size={16} fill="#ffffff" />
+      </FloatingTooltip>
+    </span>
+  </Badge>
+);
 
 const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
   const { gnoWebUrl, getUrlWithNetwork } = useNetwork();
@@ -115,6 +152,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     return formatDisplayBlockHeight(realmSummary?.blockPublished);
   }, [realmSummary?.blockPublished]);
 
+  const isRealmNotEnabled = realmSummary?.isEnableYn === "N";
+
   if (!isFetchedRealmData) return <TableSkeleton />;
 
   return (
@@ -135,7 +174,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           </div>
         </dt>
         <dd className="path-wrapper">
-          <Badge>
+          <Badge margin="0">
             <Text type="p4" color="reverse" className="ellipsis">
               {formatDisplayPackagePath(realmSummary?.path)}
             </Text>
@@ -150,6 +189,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               <IconCopy className="svg-icon" />
             </Tooltip>
           </Badge>
+
+          {isRealmNotEnabled && <NotYetEnabledBadge />}
 
           <NonMobile>
             {hasGnoWebUrl && (

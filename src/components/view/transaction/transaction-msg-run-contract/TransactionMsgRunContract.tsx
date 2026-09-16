@@ -36,14 +36,12 @@ export const TransactionMsgRunContract = ({ message, isDesktop, files = [] }: Tr
   return (
     <>
       {hasFiles && (
-        <DLWrap desktop={isDesktop} key={v1()}>
-          <DLWrap desktop={isDesktop} key={v1()}>
-            <dt>Files</dt>
-            <dd>
-              <BadgeList items={files?.map(file => file.name) || []} />
-              {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
-            </dd>
-          </DLWrap>
+        <DLWrap desktop={isDesktop} key={v1()} className="top-aligned">
+          <dt>Files</dt>
+          <dd className="files-wrapper">
+            <BadgeList items={files?.map(file => file.name) || []} />
+            {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
+          </dd>
         </DLWrap>
       )}
       <DLWrap desktop={isDesktop} key={v1()}>

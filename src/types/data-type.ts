@@ -110,6 +110,7 @@ export interface Realm {
 export interface RealmSummary {
   name: string;
   path: string;
+  isEnableYn?: "Y" | "N" | string;
   realmAddress: string;
   publisherAddress: string;
   publisherName?: string;
