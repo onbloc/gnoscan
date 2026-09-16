@@ -13,6 +13,7 @@ import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 export interface ValidatorInfo {
   name: string;
+  operationAddress: string | null;
   proposalId: string | null;
 }
 

@@ -23,6 +23,7 @@ export default function Page() {
     if (!validatorData?.name) return null;
     return {
       name: validatorData.name,
+      operationAddress: validatorData.operationAddress,
       proposalId: validatorData.proposalId,
     };
   }, [validatorData]);
