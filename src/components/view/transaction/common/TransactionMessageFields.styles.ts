@@ -49,9 +49,14 @@ export const PackagePathWrapper = styled.div`
     align-items: flex-start;
     gap: 12px;
 
-    > .badge {
+    > .badge:first-child {
       max-width: 100%;
       min-width: 0;
+    }
+
+    > .badge:not(:first-child) {
+      width: fit-content;
+      max-width: 100%;
     }
   }
 `;

@@ -117,12 +117,18 @@ export const DLWrap = styled.dl<StyleProps>`
         align-items: flex-start;
         gap: 12px;
 
-        > .badge,
-        > a,
-        > button {
+        > .badge:first-child {
           margin: 0;
           max-width: 100%;
           min-width: 0;
+        }
+
+        > .badge:not(:first-child),
+        > a,
+        > button {
+          margin: 0;
+          width: fit-content;
+          max-width: 100%;
         }
       }
     }
