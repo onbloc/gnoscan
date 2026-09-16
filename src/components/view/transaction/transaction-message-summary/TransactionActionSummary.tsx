@@ -754,7 +754,9 @@ function selectDisplayActions(actions: TransactionAction[], types?: string[]): T
 
   const displayActions = uniqueActions.filter(action => types.some(type => actionMatchesSummaryType(action, type)));
   return orderLiquidityBeforePositionMint(
-    groupCollectRewardActions(filterProtocolMintActions(filterProtocolFeeApproveActions(displayActions))),
+    groupCollectRewardActions(
+      filterWugnotWrapActions(filterProtocolMintActions(filterProtocolFeeApproveActions(displayActions))),
+    ),
   );
 }
 
@@ -779,6 +781,26 @@ function isWugnotMintAction(action: TransactionAction): boolean {
   return (
     action.type === "mint" && action.tag === "grc20" && stripActionAssetTokenId(amount?.assetType) === WUGNOT_TOKEN_PATH
   );
+}
+
+// A wugnot auto-wrap (mint) that exactly funds an addLiquidity/reposition step is already
+// represented by that action's own "Deposit" line - keeping both renders the same amount twice.
+function filterWugnotWrapActions(actions: TransactionAction[]): TransactionAction[] {
+  const liquidityWugnotAmounts = new Set(
+    actions
+      .filter(action => action.type === "addLiquidity" || action.type === "reposition")
+      .flatMap(action => amountAssets(action.assets))
+      .filter(asset => stripActionAssetTokenId(asset.assetType) === WUGNOT_TOKEN_PATH)
+      .map(asset => asset.value),
+  );
+  if (liquidityWugnotAmounts.size === 0) return actions;
+
+  return actions.filter(action => {
+    if (!isWugnotMintAction(action)) return true;
+
+    const [amount] = amountAssets(action.assets);
+    return !amount || !liquidityWugnotAmounts.has(amount.value);
+  });
 }
 
 function isGnoswapProtocolMintAction(action: TransactionAction): boolean {
