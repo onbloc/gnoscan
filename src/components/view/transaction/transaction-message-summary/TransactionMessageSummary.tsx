@@ -231,7 +231,7 @@ const List = styled.ul<{ $embedded: boolean }>`
   max-width: 100%;
   background-color: ${({ theme, $embedded }) => ($embedded ? theme.colors.base : theme.colors.surface)};
   border-radius: 4px;
-  padding: ${({ $embedded }) => ($embedded ? "4px 16px" : "6px 16px")};
+  padding: ${({ $embedded }) => ($embedded ? "10px 16px" : "6px 16px")};
   gap: 6px;
 
   li {

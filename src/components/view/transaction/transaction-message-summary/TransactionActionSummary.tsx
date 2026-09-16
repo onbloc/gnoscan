@@ -754,7 +754,9 @@ function selectDisplayActions(actions: TransactionAction[], types?: string[]): T
 
   const displayActions = uniqueActions.filter(action => types.some(type => actionMatchesSummaryType(action, type)));
   return orderLiquidityBeforePositionMint(
-    groupCollectRewardActions(filterProtocolMintActions(filterProtocolFeeApproveActions(displayActions))),
+    groupCollectRewardActions(
+      filterWugnotWrapActions(filterProtocolMintActions(filterProtocolFeeApproveActions(displayActions))),
+    ),
   );
 }
 
@@ -779,6 +781,33 @@ function isWugnotMintAction(action: TransactionAction): boolean {
   return (
     action.type === "mint" && action.tag === "grc20" && stripActionAssetTokenId(amount?.assetType) === WUGNOT_TOKEN_PATH
   );
+}
+
+// A wugnot auto-wrap (mint) that exactly funds an addLiquidity/reposition step is already
+// represented by that action's own "Deposit" line - keeping both renders the same amount twice.
+// Uses a remaining-count map (not a Set) so N separate wraps of the same amount only get
+// consumed by N matching addLiquidity/reposition amounts, not all of them.
+function filterWugnotWrapActions(actions: TransactionAction[]): TransactionAction[] {
+  const remainingLiquidityWugnotAmounts = new Map<string, number>();
+  actions
+    .filter(action => action.type === "addLiquidity" || action.type === "reposition")
+    .flatMap(action => amountAssets(action.assets))
+    .filter(asset => stripActionAssetTokenId(asset.assetType) === WUGNOT_TOKEN_PATH)
+    .forEach(asset => {
+      remainingLiquidityWugnotAmounts.set(asset.value, (remainingLiquidityWugnotAmounts.get(asset.value) ?? 0) + 1);
+    });
+  if (remainingLiquidityWugnotAmounts.size === 0) return actions;
+
+  return actions.filter(action => {
+    if (!isWugnotMintAction(action)) return true;
+
+    const [amount] = amountAssets(action.assets);
+    const remaining = amount ? remainingLiquidityWugnotAmounts.get(amount.value) : undefined;
+    if (!remaining) return true;
+
+    remainingLiquidityWugnotAmounts.set(amount.value, remaining - 1);
+    return false;
+  });
 }
 
 function isGnoswapProtocolMintAction(action: TransactionAction): boolean {
