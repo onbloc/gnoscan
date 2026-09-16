@@ -37,17 +37,17 @@ const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: P
       );
     case "common-summary":
       return (
-        <>
-          <TransferSummaryLine transfers={transferSummaryLines} />
-          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} />}
-        </>
+        <SummaryCard>
+          <TransferSummaryLine transfers={transferSummaryLines} embedded />
+          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
+        </SummaryCard>
       );
     case "common-message":
       return (
-        <>
-          <CommonMessageSummary messages={messages} />
-          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} />}
-        </>
+        <SummaryCard>
+          <CommonMessageSummary messages={messages} embedded />
+          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
+        </SummaryCard>
       );
     case "none":
       return summary ? <TransactionMessageSummary summary={summary} isDesktop={isDesktop} /> : null;
