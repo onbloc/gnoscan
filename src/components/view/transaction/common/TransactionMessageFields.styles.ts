@@ -43,6 +43,17 @@ export const PackagePathWrapper = styled.div`
   > .badge {
     margin: 0;
   }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    > .badge {
+      max-width: 100%;
+      min-width: 0;
+    }
+  }
 `;
 
 export const RealmStatusBadgeContent = styled.div`

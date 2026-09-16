@@ -111,6 +111,20 @@ export const DLWrap = styled.dl<StyleProps>`
       display: flex;
       flex-direction: row;
       gap: 15px;
+
+      @media (max-width: 767px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        > .badge,
+        > a,
+        > button {
+          margin: 0;
+          max-width: 100%;
+          min-width: 0;
+        }
+      }
     }
 
     &.files-wrapper {
