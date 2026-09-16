@@ -160,19 +160,23 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: 
   );
 };
 
+// The 200px label column (and the row gap that goes with it) is a desktop-only
+// layout: DLWrap switches to flex-direction: column below desktop, where a fixed
+// flex-basis is read as a height, not a width - forcing "0 0 200px" there would
+// blow up the label into a 200px-tall empty box instead of stacking normally.
 const TopAlignedDLWrap = styled(DLWrap)<{ $embedded: boolean }>`
   align-items: flex-start !important;
-  gap: ${({ $embedded }) => ($embedded ? "24px" : "0px")};
+  gap: ${({ $embedded, desktop }) => ($embedded ? (desktop ? "24px" : "12px") : "0px")};
 
   dt {
-    flex: ${({ $embedded }) => ($embedded ? "0 0 200px" : "initial")};
+    flex: ${({ $embedded, desktop }) => ($embedded && desktop ? "0 0 200px" : "initial")};
     color: ${({ theme, $embedded }) => ($embedded ? theme.colors.primary : theme.colors.tertiary)};
     ${({ theme, $embedded }) => $embedded && theme.fonts.p3};
   }
 
   dd {
-    width: ${({ $embedded }) => ($embedded ? "auto" : "100%")};
-    flex: ${({ $embedded }) => ($embedded ? "0 1 auto" : "initial")};
+    width: ${({ $embedded, desktop }) => ($embedded && desktop ? "auto" : "100%")};
+    flex: ${({ $embedded, desktop }) => ($embedded && desktop ? "0 1 auto" : "initial")};
   }
 `;
 
