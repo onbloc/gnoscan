@@ -785,21 +785,28 @@ function isWugnotMintAction(action: TransactionAction): boolean {
 
 // A wugnot auto-wrap (mint) that exactly funds an addLiquidity/reposition step is already
 // represented by that action's own "Deposit" line - keeping both renders the same amount twice.
+// Uses a remaining-count map (not a Set) so N separate wraps of the same amount only get
+// consumed by N matching addLiquidity/reposition amounts, not all of them.
 function filterWugnotWrapActions(actions: TransactionAction[]): TransactionAction[] {
-  const liquidityWugnotAmounts = new Set(
-    actions
-      .filter(action => action.type === "addLiquidity" || action.type === "reposition")
-      .flatMap(action => amountAssets(action.assets))
-      .filter(asset => stripActionAssetTokenId(asset.assetType) === WUGNOT_TOKEN_PATH)
-      .map(asset => asset.value),
-  );
-  if (liquidityWugnotAmounts.size === 0) return actions;
+  const remainingLiquidityWugnotAmounts = new Map<string, number>();
+  actions
+    .filter(action => action.type === "addLiquidity" || action.type === "reposition")
+    .flatMap(action => amountAssets(action.assets))
+    .filter(asset => stripActionAssetTokenId(asset.assetType) === WUGNOT_TOKEN_PATH)
+    .forEach(asset => {
+      remainingLiquidityWugnotAmounts.set(asset.value, (remainingLiquidityWugnotAmounts.get(asset.value) ?? 0) + 1);
+    });
+  if (remainingLiquidityWugnotAmounts.size === 0) return actions;
 
   return actions.filter(action => {
     if (!isWugnotMintAction(action)) return true;
 
     const [amount] = amountAssets(action.assets);
-    return !amount || !liquidityWugnotAmounts.has(amount.value);
+    const remaining = amount ? remainingLiquidityWugnotAmounts.get(amount.value) : undefined;
+    if (!remaining) return true;
+
+    remainingLiquidityWugnotAmounts.set(amount.value, remaining - 1);
+    return false;
   });
 }
 
