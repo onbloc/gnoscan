@@ -31,9 +31,9 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
   }, [data?.data.name]);
 
   const handleValidatorLinkClick = React.useCallback(() => {
-    const url = `${gnoWebUrl}/r/gnops/valopers:${address}`;
+    const url = `${gnoWebUrl}/r/gnops/valopers:${validatorInfo?.operationAddress}`;
     window.open(url, "_blank", "noopener,noreferrer");
-  }, [gnoWebUrl, address]);
+  }, [gnoWebUrl, validatorInfo?.operationAddress]);
 
   if (isLoading || !isFetched) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
