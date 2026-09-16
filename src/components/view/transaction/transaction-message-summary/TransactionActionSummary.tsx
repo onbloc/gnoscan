@@ -26,9 +26,10 @@ const WUGNOT_TOKEN_PATH = "gno.land/r/gnoland/wugnot.wugnot";
 interface Props {
   actions: TransactionAction[];
   types?: string[];
+  embedded?: boolean;
 }
 
-const TransactionActionSummary = ({ actions, types }: Props) => {
+const TransactionActionSummary = ({ actions, types, embedded = false }: Props) => {
   const displayActions = React.useMemo(() => selectDisplayActions(actions, types), [actions, types]);
   const tokenInfosByTokenKey = useActionTokenInfos(actions);
 
@@ -37,7 +38,7 @@ const TransactionActionSummary = ({ actions, types }: Props) => {
   const numbered = displayActions.length > 1;
 
   return (
-    <Wrapper>
+    <Wrapper $embedded={embedded}>
       {displayActions.map((action, index) => (
         <ActionLine key={index}>
           {numbered && (
@@ -892,13 +893,13 @@ function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) =
 // own content instead of the full row width like every other field.
 // margin-top pairs with the tab label's own 16px bottom margin (DataListSection)
 // to reach the 32px gap Figma specifies between the tab row and this summary line.
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ $embedded: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: ${({ $embedded }) => ($embedded ? "6px" : "12px")};
   width: 100%;
-  margin-top: 16px;
-  padding-bottom: 16px;
+  margin-top: ${({ $embedded }) => ($embedded ? "0px" : "16px")};
+  padding-bottom: ${({ $embedded }) => ($embedded ? "0px" : "16px")};
 `;
 
 const ActionLine = styled.div`

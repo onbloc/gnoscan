@@ -41,8 +41,11 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  margin-top: 16px;
-  padding-bottom: 16px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  padding: 24px;
+  background-color: ${({ theme }) => theme.colors.surface};
+  border-radius: 16px;
 `;
 
 const Line = styled.div`

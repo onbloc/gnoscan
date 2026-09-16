@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { TransactionSummaryDetail } from "@/types/data-type";
@@ -29,10 +30,10 @@ const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: P
   switch (summaryCase) {
     case "custom":
       return (
-        <>
-          <TransactionActionSummary actions={actions} types={summary?.types} />
-          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} />}
-        </>
+        <SummaryCard>
+          <TransactionActionSummary actions={actions} types={summary?.types} embedded />
+          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
+        </SummaryCard>
       );
     case "common-summary":
       return (
@@ -69,5 +70,14 @@ function getTransactionTopSummaryCase({
   if (hasMessages) return "common-message";
   return "none";
 }
+
+const SummaryCard = styled.div`
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding: 24px;
+  background-color: ${({ theme }) => theme.colors.surface};
+  border-radius: 16px;
+`;
 
 export default TransactionTopSummary;
