@@ -55,6 +55,21 @@ function isGnoswapEmissionNetTransfer(transfer: NetTransfer): boolean {
   return transfer.packagePath === GNOSWAP_EMISSION_PACKAGE_PATH;
 }
 
+function getTransferAddressPackagePath(transfer: AssetTransfer, side: "from" | "to"): string | undefined {
+  const ownPackagePath = side === "from" ? transfer.fromPackagePath : transfer.toPackagePath;
+  if (ownPackagePath) return ownPackagePath;
+
+  if (side === "from" && !transfer.from) return transfer.toPackagePath || getAmountPackagePath(transfer);
+  if (side === "to" && !transfer.to) return transfer.fromPackagePath || getAmountPackagePath(transfer);
+
+  return undefined;
+}
+
+function getAmountPackagePath(transfer: AssetTransfer): string | undefined {
+  if (transfer.assetType !== SUMMARY_ASSET_TYPES.GRC20) return undefined;
+  return transfer.amount.denom.replace(/\.[^.]+$/, "");
+}
+
 interface TransferGroupProps {
   label: string;
   transfers: AssetTransfer[];
@@ -104,11 +119,19 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: 
                   <Text type="p4" color="primary" fontWeight={400}>
                     From
                   </Text>
-                  <TransferAddress address={transfer.from} compact />
+                  <TransferAddress
+                    address={transfer.from}
+                    packagePath={getTransferAddressPackagePath(transfer, "from")}
+                    compact
+                  />
                   <Text type="p4" color="primary" fontWeight={400}>
                     To
                   </Text>
-                  <TransferAddress address={transfer.to} compact />
+                  <TransferAddress
+                    address={transfer.to}
+                    packagePath={getTransferAddressPackagePath(transfer, "to")}
+                    compact
+                  />
                   <Text type="p4" color="primary" fontWeight={400}>
                     For
                   </Text>
@@ -122,7 +145,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: 
             <List $embedded={embedded}>
               {netTransfers.map((transfer, index) => (
                 <li key={index}>
-                  <TransferAddress address={transfer.address} compact />
+                  <TransferAddress address={transfer.address} packagePath={transfer.packagePath} compact />
                   <Text type="p4" color="primary" fontWeight={400}>
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>

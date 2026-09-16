@@ -151,7 +151,7 @@ export const TransferAddress = ({
   const textType = compact ? "p4" : "p2";
   const textStyle = compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT;
 
-  if (!address) {
+  if (!address && !packagePath) {
     return (
       <Text type={textType} color="primary" fontWeight={400} style={textStyle}>
         -
@@ -172,7 +172,7 @@ export const TransferAddress = ({
           </Text>
         </Link>
       )}
-      <Tooltip content="Copied!" trigger="click" copyText={address}>
+      <Tooltip content="Copied!" trigger="click" copyText={address || packagePath || ""}>
         <IconCopy className="copy-icon" />
       </Tooltip>
     </AddressChip>
