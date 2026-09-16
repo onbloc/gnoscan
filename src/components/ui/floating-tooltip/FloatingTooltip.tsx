@@ -8,6 +8,7 @@ import {
   offset,
   safePolygon,
   shift,
+  useClick,
   useDismiss,
   useFloating,
   useFocus,
@@ -31,6 +32,7 @@ interface FloatingTooltipProps {
   className?: string;
   floatClassName?: string;
   enabled?: boolean;
+  ariaLabel?: string;
 }
 
 const FloatingTooltip = ({
@@ -41,6 +43,7 @@ const FloatingTooltip = ({
   className,
   floatClassName,
   enabled = true,
+  ariaLabel = "Show tooltip",
 }: FloatingTooltipProps) => {
   const [open, setOpen] = React.useState(false);
   const [arrowElement, setArrowElement] = React.useState<SVGSVGElement | null>(null);
@@ -78,9 +81,10 @@ const FloatingTooltip = ({
     handleClose: safePolygon({ buffer: -Infinity }),
   });
   const focus = useFocus(context, { enabled });
+  const click = useClick(context, { enabled });
   const dismiss = useDismiss(context);
   const role = useRole(context, { role: "tooltip" });
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss, role]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, click, dismiss, role]);
   const referenceRef = useMergeRefs([refs.setReference]);
 
   const showTooltip = enabled && open;
@@ -89,6 +93,9 @@ const FloatingTooltip = ({
     <>
       <BaseTooltipWrapper
         ref={referenceRef}
+        type="button"
+        aria-label={ariaLabel}
+        aria-disabled={!enabled}
         style={{
           width,
         }}

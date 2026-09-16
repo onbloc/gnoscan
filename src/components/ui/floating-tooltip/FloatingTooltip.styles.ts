@@ -1,8 +1,15 @@
 import styled from "styled-components";
 
-export const BaseTooltipWrapper = styled.div`
+export const BaseTooltipWrapper = styled.button`
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
   cursor: default;
   display: flex;
+  font: inherit;
+  margin: 0;
+  padding: 0;
 `;
 
 export const TooltipLayer = styled.div`

@@ -80,7 +80,11 @@ const NotYetEnabledBadge = () => (
       <Text type="p4" color="white" fontWeight={400}>
         Not Yet Enabled
       </Text>
-      <FloatingTooltip content={TOOLTIP_NOT_YET_ENABLED} className="not-yet-enabled-tooltip">
+      <FloatingTooltip
+        content={TOOLTIP_NOT_YET_ENABLED}
+        className="not-yet-enabled-tooltip"
+        ariaLabel="Show not yet enabled details"
+      >
         <IconInfo size={16} fill="#ffffff" />
       </FloatingTooltip>
     </span>
