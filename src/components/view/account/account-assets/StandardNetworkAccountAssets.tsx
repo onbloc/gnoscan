@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import React from "react";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { AccountAssetViewModel } from "@/types/account";
@@ -21,6 +22,7 @@ interface AccountAssetsProps {
 
 const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
+  const { getTokenMeta } = useTokenResourceMeta();
 
   const grc20TokenAssets: AccountAssetViewModel[] = React.useMemo(() => {
     if (!data?.data) return [];
@@ -28,20 +30,26 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     return data.data.assets
       .filter(asset => asset.name && asset.symbol)
       .map((asset): AccountAssetViewModel => {
-        const amount = formatTokenDecimal(asset.amount, asset.decimals);
+        const resolved = getTokenMeta(asset.packagePath, {
+          name: asset.name,
+          symbol: asset.symbol,
+          decimals: asset.decimals,
+          image: asset.logoUrl,
+        });
+        const amount = formatTokenDecimal(asset.amount, resolved.decimals);
         return {
           tokenId: asset.tokenId,
           slug: asset.slug,
           amount: {
             value: amount,
-            denom: asset.symbol,
+            denom: resolved.symbol,
           },
           packagePath: asset.packagePath,
-          logoUrl: asset.logoUrl,
-          name: asset.name,
+          logoUrl: resolved.image ?? "",
+          name: resolved.name,
         };
       });
-  }, [data?.data]);
+  }, [data?.data, getTokenMeta]);
 
   if (isLoading || !isFetched) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;

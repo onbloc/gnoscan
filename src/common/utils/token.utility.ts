@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 import { isBech32Address } from "./bech32.utility";
 import { GNO_NETWORK_PREFIXES } from "../values/gno.constant";
+import { WUGNOT_PACKAGE_PATH, WUGNOT_DISPLAY_DECIMALS } from "../values/constant-value";
 
 export function parseTokenAmount(tokenAmount = "0", denomination = "ugnot"): number {
   const pattern = new RegExp(`^(\\d+)${denomination}$`);
@@ -70,6 +71,63 @@ export function getTokenKeySymbol(tokenKey: string): string {
 
   const withoutNumericSuffix = stripNumericTokenIdSuffix(parts);
   return withoutNumericSuffix.length <= 1 ? "" : withoutNumericSuffix[withoutNumericSuffix.length - 1];
+}
+
+// A helper-routed GRC20 denom can carry both the registry symbol and a numeric tokenId
+// suffix (packagePath.symbol.tokenId) - stripTokenKeySymbol only removes one dot-suffix
+// level per call, so repeat until it stabilizes to reach the bare packagePath regardless
+// of how many suffixes are stacked on top.
+export function toBarePackagePath(denom: string): string {
+  let path = denom;
+  let stripped = stripTokenKeySymbol(path);
+  while (stripped !== path) {
+    path = stripped;
+    stripped = stripTokenKeySymbol(path);
+  }
+  return path;
+}
+
+export interface ResolvedTokenMeta {
+  name: string;
+  symbol: string;
+  decimals: number;
+  image?: string;
+}
+
+export type TokenMetaFallback = ResolvedTokenMeta;
+
+export function isWugnotPackagePath(packagePath: string): boolean {
+  return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;
+}
+
+/**
+ * The static gno-token-resource list is the first-choice source for a token's
+ * name/symbol/decimals/image; the caller's own (backend/on-chain) data is only used as a
+ * fallback for tokens the resource list doesn't know about. It's all-or-nothing per token -
+ * fields aren't merged individually - so the result is never a mix of both sources.
+ */
+export function resolveTokenMeta<T extends { name: string; symbol: string; decimals: number; image?: string }>(
+  tokenResourceMap: Record<string, T>,
+  tokenKey: string,
+  fallback: TokenMetaFallback,
+): ResolvedTokenMeta {
+  const resourceMeta = tokenResourceMap[tokenKey] || tokenResourceMap[toBarePackagePath(tokenKey)];
+  const resolved = resourceMeta
+    ? {
+        name: resourceMeta.name,
+        symbol: resourceMeta.symbol,
+        decimals: resourceMeta.decimals,
+        image: resourceMeta.image || fallback.image,
+      }
+    : fallback;
+
+  // wugnot is on-chain with decimals: 0 and neither source reports it correctly, so this
+  // overrides regardless of which one (resource or fallback) resolved above.
+  if (isWugnotPackagePath(tokenKey)) {
+    return { ...resolved, decimals: WUGNOT_DISPLAY_DECIMALS };
+  }
+
+  return resolved;
 }
 
 export function formatDisplayTokenPath(path: string, visibleLength = 8): string {

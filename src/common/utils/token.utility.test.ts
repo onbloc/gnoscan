@@ -1,4 +1,4 @@
-import { formatTokenDecimal, formatDisplayTokenPath } from "./token.utility";
+import { formatTokenDecimal, formatDisplayTokenPath, resolveTokenMeta, isWugnotPackagePath } from "./token.utility";
 
 describe("formatTokenDecimal", () => {
   describe("when handling valid number inputs", () => {
@@ -184,5 +184,102 @@ describe("formatDisplayTokenPath", () => {
     it("should handle visibleLength larger than address length", () => {
       expect(formatDisplayTokenPath(input, 100)).toBe(input);
     });
+  });
+});
+
+describe("resolveTokenMeta", () => {
+  const fallback = { name: "Backend Name", symbol: "BKD", decimals: 6, image: "backend.png" };
+
+  it("uses the resource entry (all fields) when the token key matches directly", () => {
+    const resourceMap = {
+      "gno.land/r/demo/token": { name: "Resource Name", symbol: "RSRC", decimals: 4, image: "resource.png" },
+    };
+
+    const result = resolveTokenMeta(resourceMap, "gno.land/r/demo/token", fallback);
+
+    expect(result).toEqual({ name: "Resource Name", symbol: "RSRC", decimals: 4, image: "resource.png" });
+  });
+
+  it("matches after stripping a registry-symbol/tokenId suffix from the key", () => {
+    const resourceMap = {
+      "gno.land/r/demo/token": { name: "Resource Name", symbol: "RSRC", decimals: 4, image: "resource.png" },
+    };
+
+    const result = resolveTokenMeta(resourceMap, "gno.land/r/demo/token.RSRC.0000001", fallback);
+
+    expect(result.name).toBe("Resource Name");
+  });
+
+  it("falls back entirely to the caller's data when there's no resource entry", () => {
+    const result = resolveTokenMeta({}, "gno.land/r/unknown/token", fallback);
+
+    expect(result).toEqual(fallback);
+  });
+
+  it("falls back to the caller's image when the resource entry has none", () => {
+    const resourceMap = {
+      "gno.land/r/demo/token": { name: "Resource Name", symbol: "RSRC", decimals: 4, image: undefined },
+    };
+
+    const result = resolveTokenMeta(resourceMap, "gno.land/r/demo/token", fallback);
+
+    expect(result.image).toBe("backend.png");
+  });
+
+  it("never mixes fields from both sources - it's resource-all or fallback-all", () => {
+    const resourceMap = {
+      "gno.land/r/demo/token": { name: "Resource Name", symbol: "RSRC", decimals: 4, image: "resource.png" },
+    };
+
+    const hit = resolveTokenMeta(resourceMap, "gno.land/r/demo/token", fallback);
+    const miss = resolveTokenMeta(resourceMap, "gno.land/r/other/token", fallback);
+
+    expect(hit.decimals).toBe(4);
+    expect(miss).toEqual(fallback);
+  });
+
+  it("overrides wugnot decimals to 6 even when the resource entry (also wrong) reports 0", () => {
+    const resourceMap = {
+      "gno.land/r/gnoland/wugnot": { name: "wrapped GNOT", symbol: "wugnot", decimals: 0, image: "wugnot.png" },
+    };
+
+    const result = resolveTokenMeta(resourceMap, "gno.land/r/gnoland/wugnot", fallback);
+
+    expect(result.decimals).toBe(6);
+    // Only decimals is hardcoded - name/symbol/image still come from the resource entry.
+    expect(result.name).toBe("wrapped GNOT");
+    expect(result.symbol).toBe("wugnot");
+  });
+
+  it("overrides wugnot decimals to 6 even with no resource entry at all (backend-only fallback)", () => {
+    const backendFallback = { name: "wrapped GNOT", symbol: "wugnot", decimals: 0, image: undefined };
+
+    const result = resolveTokenMeta({}, "gno.land/r/gnoland/wugnot.wugnot.0000001", backendFallback);
+
+    expect(result.decimals).toBe(6);
+  });
+
+  it("does not touch decimals for a different token, even one that also happens to report 0", () => {
+    const result = resolveTokenMeta({}, "gno.land/r/other/token", { ...fallback, decimals: 0 });
+
+    expect(result.decimals).toBe(0);
+  });
+});
+
+describe("isWugnotPackagePath", () => {
+  it("matches the bare wugnot package path", () => {
+    expect(isWugnotPackagePath("gno.land/r/gnoland/wugnot")).toBe(true);
+  });
+
+  it("matches a registry-keyed wugnot denom (packagePath.symbol)", () => {
+    expect(isWugnotPackagePath("gno.land/r/gnoland/wugnot.wugnot")).toBe(true);
+  });
+
+  it("matches a helper-routed wugnot denom with a numeric tokenId suffix", () => {
+    expect(isWugnotPackagePath("gno.land/r/gnoland/wugnot.wugnot.1234567")).toBe(true);
+  });
+
+  it("does not match a different token", () => {
+    expect(isWugnotPackagePath("gno.land/r/gnoswap/gns.GNS")).toBe(false);
   });
 });
