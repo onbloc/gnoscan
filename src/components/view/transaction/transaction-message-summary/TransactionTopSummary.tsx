@@ -20,6 +20,7 @@ interface Props {
 
 const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: Props) => {
   const actions = summary?.actions ?? [];
+  const positionOwnerAddress = getSummaryCaller(messages[0]);
   const transferSummaryLines = getTransferSummaryLines(numOfMessage, summary);
   const summaryCase = getTransactionTopSummaryCase({
     hasCustomSummary: hasDisplayActions(actions, summary?.types),
@@ -31,7 +32,12 @@ const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: P
     case "custom":
       return (
         <SummaryCard>
-          <TransactionActionSummary actions={actions} types={summary?.types} embedded />
+          <TransactionActionSummary
+            actions={actions}
+            types={summary?.types}
+            positionOwnerAddress={positionOwnerAddress}
+            embedded
+          />
           {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
         </SummaryCard>
       );
@@ -69,6 +75,11 @@ function getTransactionTopSummaryCase({
   if (hasTransferSummary) return "common-summary";
   if (hasMessages) return "common-message";
   return "none";
+}
+
+function getSummaryCaller(message?: TransactionContractModel): string {
+  if (!message) return "";
+  return message.caller || message.from || message.creator || "";
 }
 
 const SummaryCard = styled.div`

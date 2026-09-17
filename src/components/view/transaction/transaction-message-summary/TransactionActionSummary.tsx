@@ -26,10 +26,11 @@ const WUGNOT_TOKEN_PATH = "gno.land/r/gnoland/wugnot.wugnot";
 interface Props {
   actions: TransactionAction[];
   types?: string[];
+  positionOwnerAddress?: string;
   embedded?: boolean;
 }
 
-const TransactionActionSummary = ({ actions, types, embedded = false }: Props) => {
+const TransactionActionSummary = ({ actions, types, positionOwnerAddress, embedded = false }: Props) => {
   const displayActions = React.useMemo(() => selectDisplayActions(actions, types), [actions, types]);
   const tokenInfosByTokenKey = useActionTokenInfos(actions);
 
@@ -46,7 +47,7 @@ const TransactionActionSummary = ({ actions, types, embedded = false }: Props) =
               {`${index + 1}.`}
             </Text>
           )}
-          {renderActionSentence(action, tokenInfosByTokenKey, actions)}
+          {renderActionSentence(action, tokenInfosByTokenKey, actions, positionOwnerAddress)}
         </ActionLine>
       ))}
     </Wrapper>
@@ -76,14 +77,19 @@ const Ref = ({ label, value, href }: { label?: string; value: string; href?: str
   );
 };
 
-// gnoscan has no page of its own for a pool/position - link out to gnoswap's app pool page
-// instead (it has no separate per-position page).
 const gnoswapPoolUrl = (poolPath: string) =>
   `${GNOSWAP_APP_BASE_URL}/earn/pool?poolPath=${encodeURIComponent(poolPath)}`;
+
+const gnoswapPositionUrl = (poolPath: string, positionId: string, ownerAddress?: string) => {
+  const addrQuery = ownerAddress ? `&addr=${encodeURIComponent(ownerAddress)}` : "";
+  return `${gnoswapPoolUrl(poolPath)}${addrQuery}#${encodeURIComponent(positionId)}`;
+};
 
 // Every pool/position action carries its own canonical "pool" asset (already the on-chain
 // "token0Path:token1Path:fee"), so this is never reconstructed from other assets.
 const poolHref = (pool: ActionAsset | undefined) => (pool ? gnoswapPoolUrl(pool.value) : undefined);
+const positionHref = (pool: ActionAsset | undefined, position: ActionAsset, ownerAddress?: string) =>
+  pool ? gnoswapPositionUrl(pool.value, position.value, ownerAddress) : undefined;
 
 const Verb = ({ children }: { children: React.ReactNode }) => (
   <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
@@ -158,40 +164,17 @@ const ViaRealmClause = ({ realm, preposition = "via" }: { realm: string; preposi
   </>
 );
 
-// Shared tail of every pool/position action (addLiquidity/removeLiquidity/collectFee/stake/
-// unstake/collectReward): the position ref, its pool's fee tier, and the emitting realm.
+// Shared pool-position reference for liquidity/staking actions. The position link opens
+// gnoswap's pool page focused on that position when the caller address is available.
 const PositionClause = ({
   position,
   pool,
-  fee,
-  pairLabel,
-  realm,
+  ownerAddress,
 }: {
   position: ActionAsset;
   pool: ActionAsset | undefined;
-  fee: ActionAsset | undefined;
-  pairLabel?: string;
-  realm: string;
-}) => (
-  <>
-    <Ref label="position" value={position.value} href={poolHref(pool)} />
-    {fee && <PoolFeeClause fee={fee.value} pairLabel={pairLabel} href={poolHref(pool)} />}
-    <ViaRealmClause realm={realm} />
-  </>
-);
-
-// stake/unstake/collectReward have no amount to show a token pair through (see poolHref above),
-// so PoolFeeClause needs the pair spelled out explicitly there - addLiquidity/removeLiquidity/
-// collectFee/reposition already show it via their token amounts, so they pass no pairLabel.
-const poolPairLabel = (
-  pool: ActionAsset | undefined,
-  tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
-): string | undefined => {
-  if (!pool) return undefined;
-  const [token0Path, token1Path] = pool.value.split(":");
-  if (!token0Path || !token1Path) return undefined;
-  return `${getTokenSymbol(token0Path, tokenInfosByTokenKey)}/${getTokenSymbol(token1Path, tokenInfosByTokenKey)}`;
-};
+  ownerAddress?: string;
+}) => <Ref label="position" value={position.value} href={positionHref(pool, position, ownerAddress)} />;
 
 // Each action type's sentence lives in its own renderer, keyed by type in ACTION_RENDERERS below -
 // keeps a new action type's blast radius (and its tests) to one function instead of a growing
@@ -200,6 +183,7 @@ const poolPairLabel = (
 interface ActionRenderContext {
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>;
   actions: TransactionAction[];
+  positionOwnerAddress?: string;
   amount: (asset: ActionAsset) => React.ReactNode;
 }
 
@@ -260,7 +244,6 @@ function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.
     const label = tokenId.assetType.includes("gnoswap") ? "position" : "NFT";
     const liquidityAction = findLiquidityActionByPosition(ctx.actions, tokenId.value);
     const pool = liquidityAction?.assets.find(asset => asset.key === "pool");
-    const fee = liquidityAction?.assets.find(asset => asset.key === "fee");
 
     if (label === "position" && liquidityAction) {
       return (
@@ -269,9 +252,7 @@ function renderMint(action: TransactionAction, ctx: ActionRenderContext): React.
           <PositionClause
             position={{ ...tokenId, key: "position" }}
             pool={pool}
-            fee={fee}
-            pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-            realm={liquidityAction.realm}
+            ownerAddress={ctx.positionOwnerAddress}
           />
         </>
       );
@@ -333,12 +314,11 @@ function renderBurn(action: TransactionAction, ctx: ActionRenderContext): React.
 
 // Shared by "addLiquidity" and "reposition" - identical shape, only the verb differs.
 function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { type, assets, realm } = action;
+  const { type, assets } = action;
   const tokens = amountAssets(assets);
   const [depositAmount] = tokens;
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
-  const fee = findAsset(assets, "fee");
   if (!depositAmount) return null;
 
   if (type === "addLiquidity") {
@@ -357,108 +337,81 @@ function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext)
       <Verb>Reposition</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>to</Verb>
-      <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
+      <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
     </>
   );
 }
 
 function renderRemoveLiquidity(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { assets, realm } = action;
+  const { assets } = action;
   const tokens = amountAssets(assets);
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
-  const fee = findAsset(assets, "fee");
   if (tokens.length === 0 || !position) return null;
   return (
     <>
       <Verb>Remove liquidity</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>from</Verb>
-      <PositionClause position={position} pool={pool} fee={fee} realm={realm} />
+      <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
     </>
   );
 }
 
 function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { assets, realm } = action;
+  const { assets } = action;
+  const fees = amountAssets(assets);
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
-  const fee = findAsset(assets, "fee");
   if (!position) return null;
   return (
     <>
       <Verb>Collect fee</Verb>
+      {fees.length > 0 && joinAmounts(fees, ctx.amount, null)}
       <Verb>from</Verb>
-      <PositionClause
-        position={position}
-        pool={pool}
-        fee={fee}
-        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-        realm={realm}
-      />
+      <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
     </>
   );
 }
 
 function renderStake(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { assets, realm } = action;
+  const { assets } = action;
   const position = findAsset(assets, "position");
   if (!position) return null;
   const pool = findAsset(assets, "pool");
-  const fee = findAsset(assets, "fee");
   return (
     <>
       <Verb>Stake</Verb>
-      <PositionClause
-        position={position}
-        pool={pool}
-        fee={fee}
-        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-        realm={realm}
-      />
+      <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
     </>
   );
 }
 
 function renderUnstake(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { assets, realm } = action;
+  const { assets } = action;
   const position = findAsset(assets, "position");
   if (!position) return null;
   const pool = findAsset(assets, "pool");
-  const fee = findAsset(assets, "fee");
   return (
     <>
       <Verb>Unstake</Verb>
-      <PositionClause
-        position={position}
-        pool={pool}
-        fee={fee}
-        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-        realm={realm}
-      />
+      <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
     </>
   );
 }
 
 function renderCollectReward(action: TransactionAction, ctx: ActionRenderContext): React.ReactNode | null {
-  const { assets, realm } = action;
+  const { assets } = action;
   const rewards = amountAssets(assets);
   const position = findAsset(assets, "position");
   if (rewards.length === 0 || !position) return null;
   const pool = findAsset(assets, "pool");
-  const fee = findAsset(assets, "fee");
   return (
     <>
       <Verb>Collect reward</Verb>
       {joinAmounts(rewards, ctx.amount)}
       <Verb>from</Verb>
-      <PositionClause
-        position={position}
-        pool={pool}
-        fee={fee}
-        pairLabel={poolPairLabel(pool, ctx.tokenInfosByTokenKey)}
-        realm={realm}
-      />
+      <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
     </>
   );
 }
@@ -722,10 +675,12 @@ function renderActionSentence(
   action: TransactionAction,
   tokenInfosByTokenKey: Record<string, TokenDisplayInfo>,
   actionList: TransactionAction[],
+  positionOwnerAddress?: string,
 ): React.ReactNode {
   const ctx: ActionRenderContext = {
     tokenInfosByTokenKey,
     actions: actionList,
+    positionOwnerAddress,
     amount: asset => <ActionAmount asset={asset} tokenInfosByTokenKey={tokenInfosByTokenKey} />,
   };
 
@@ -908,10 +863,14 @@ function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
   });
 }
 
-function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) => React.ReactNode): React.ReactNode[] {
+function joinAmounts(
+  assets: ActionAsset[],
+  renderAmount: (asset: ActionAsset) => React.ReactNode,
+  separator: React.ReactNode = "+",
+): React.ReactNode[] {
   return assets.map((asset, index) => (
     <React.Fragment key={`${asset.assetType}-${asset.key}-${asset.value}-${index}`}>
-      {index > 0 && <Verb>+</Verb>}
+      {index > 0 && separator !== null && <Verb>{separator}</Verb>}
       {renderAmount(asset)}
     </React.Fragment>
   ));
