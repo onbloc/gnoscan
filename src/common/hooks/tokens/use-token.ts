@@ -5,6 +5,7 @@ import {
   useGetRealmFunctionsQuery,
   useGetRealmTotalSupplyQuery,
 } from "@/common/react-query/realm";
+import { isWugnotPackagePath, WUGNOT_DISPLAY_NAME } from "@/common/utils/token.utility";
 import { TokenSummary } from "@/types/data-type";
 import { useMemo } from "react";
 
@@ -35,10 +36,15 @@ export const useToken = (path: string[] | string | undefined) => {
         })
       : undefined;
 
+    const name =
+      data?.tokenInfo.packagePath && isWugnotPackagePath(data.tokenInfo.packagePath)
+        ? WUGNOT_DISPLAY_NAME
+        : resolved?.name ?? data?.tokenInfo.name ?? "";
+
     return {
       tokenId: data?.tokenInfo.tokenId || "",
       slug: data?.tokenInfo.slug || "",
-      name: resolved?.name ?? data?.tokenInfo.name ?? "",
+      name,
       symbol: resolved?.symbol ?? data?.tokenInfo.symbol ?? "",
       decimals: resolved?.decimals ?? data?.tokenInfo.decimals ?? "",
       packagePath: data?.tokenInfo.packagePath || "",

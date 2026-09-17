@@ -102,6 +102,7 @@ export type TokenMetaFallback = ResolvedTokenMeta;
 // correction regardless of which source (resource or fallback) would otherwise have won.
 export const WUGNOT_PACKAGE_PATH = "gno.land/r/gnoland/wugnot";
 export const WUGNOT_DISPLAY_DECIMALS = 6;
+export const WUGNOT_DISPLAY_NAME = "wGNOT (Wrapped GNOT)";
 
 export function isWugnotPackagePath(packagePath: string): boolean {
   return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;

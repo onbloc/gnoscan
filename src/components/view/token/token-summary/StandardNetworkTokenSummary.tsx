@@ -9,7 +9,7 @@ import { TokenSummary } from "@/types/data-type";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { useNetwork } from "@/common/hooks/use-network";
-import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { formatTokenDecimal, isWugnotPackagePath, WUGNOT_DISPLAY_NAME } from "@/common/utils/token.utility";
 import Badge from "@/components/ui/badge";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
@@ -51,7 +51,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
     return {
       tokenId: summaryData.tokenId,
       slug: summaryData.slug,
-      name: resolved.name,
+      name: isWugnotPackagePath(summaryData.path) ? WUGNOT_DISPLAY_NAME : resolved.name,
       symbol: resolved.symbol,
       decimals: resolved.decimals,
       packagePath: summaryData.path,
