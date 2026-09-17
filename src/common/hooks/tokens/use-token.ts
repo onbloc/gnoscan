@@ -5,7 +5,8 @@ import {
   useGetRealmFunctionsQuery,
   useGetRealmTotalSupplyQuery,
 } from "@/common/react-query/realm";
-import { isWugnotPackagePath, WUGNOT_DISPLAY_NAME } from "@/common/utils/token.utility";
+import { isWugnotPackagePath } from "@/common/utils/token.utility";
+import { WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import { TokenSummary } from "@/types/data-type";
 import { useMemo } from "react";
 
