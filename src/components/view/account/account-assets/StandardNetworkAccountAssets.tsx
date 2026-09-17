@@ -34,6 +34,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
           name: asset.name,
           symbol: asset.symbol,
           decimals: asset.decimals,
+          image: asset.logoUrl,
         });
         const amount = formatTokenDecimal(asset.amount, resolved.decimals);
         return {
@@ -44,7 +45,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
             denom: resolved.symbol,
           },
           packagePath: asset.packagePath,
-          logoUrl: asset.logoUrl,
+          logoUrl: resolved.image ?? "",
           name: resolved.name,
         };
       });
