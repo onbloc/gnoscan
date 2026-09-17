@@ -20,7 +20,7 @@ interface Props {
 
 const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: Props) => {
   const actions = summary?.actions ?? [];
-  const positionOwnerAddress = getSummaryCaller(messages[0]);
+  const positionOwnerAddress = getSharedSummaryCaller(messages);
   const transferSummaryLines = getTransferSummaryLines(numOfMessage, summary);
   const summaryCase = getTransactionTopSummaryCase({
     hasCustomSummary: hasDisplayActions(actions, summary?.types),
@@ -77,8 +77,12 @@ function getTransactionTopSummaryCase({
   return "none";
 }
 
-function getSummaryCaller(message?: TransactionContractModel): string {
-  if (!message) return "";
+function getSharedSummaryCaller(messages: TransactionContractModel[]): string {
+  const callers = new Set(messages.map(getSummaryCaller).filter(Boolean));
+  return callers.size === 1 ? Array.from(callers)[0] : "";
+}
+
+function getSummaryCaller(message: TransactionContractModel): string {
   return message.caller || message.from || message.creator || "";
 }
 
