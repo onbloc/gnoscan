@@ -13,33 +13,33 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
   const isNativeDenom = !!denom && isUgnot(denom);
   const packagePath = denom ? stripTokenKeySymbol(denom) : denom;
 
-  const { tokenResourceMap } = useTokenResourceMeta();
-  const resourceMeta = !isNativeDenom && denom ? tokenResourceMap[toBarePackagePath(denom)] : undefined;
+  const { tokenResourceMap, getTokenMeta } = useTokenResourceMeta();
+  const hasResourceMeta = !isNativeDenom && !!denom && !!tokenResourceMap[toBarePackagePath(denom)];
   // The static resource list is the first-choice source; only hit the token-meta API
   // for tokens it doesn't cover.
-  const skipTokenMetaFetch = isNativeDenom || !!resourceMeta;
+  const skipTokenMetaFetch = isNativeDenom || hasResourceMeta;
 
   const { data: tokenMeta, isLoading, isFetched } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : packagePath || "");
 
   const amount: Amount | null = React.useMemo(() => {
     if (!amountInfo) return null;
+    if (isNativeDenom) return toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
 
-    if (!isNativeDenom && resourceMeta) {
-      return {
-        denom: resourceMeta.symbol || amountInfo.denom,
-        value: makeDisplayTokenAmount(amountInfo.value, resourceMeta.decimals),
-      };
-    }
+    const backendMeta =
+      tokenMeta?.data && tokenMeta.data.decimals !== undefined
+        ? { name: "", symbol: tokenMeta.data.symbol || amountInfo.denom, decimals: tokenMeta.data.decimals }
+        : undefined;
 
-    if (!isNativeDenom && tokenMeta?.data && tokenMeta.data.decimals !== undefined) {
+    if (denom && (hasResourceMeta || backendMeta)) {
+      const resolved = getTokenMeta(denom, backendMeta || { name: "", symbol: amountInfo.denom, decimals: 0 });
       return {
-        denom: tokenMeta.data?.symbol || amountInfo.denom,
-        value: makeDisplayTokenAmount(amountInfo.value, tokenMeta.data.decimals),
+        denom: resolved.symbol || amountInfo.denom,
+        value: makeDisplayTokenAmount(amountInfo.value, resolved.decimals),
       };
     }
 
     return toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
-  }, [amountInfo, resourceMeta, tokenMeta?.data, isNativeDenom, packagePath]);
+  }, [amountInfo, denom, hasResourceMeta, tokenMeta?.data, isNativeDenom, packagePath, getTokenMeta]);
 
   return {
     amount,

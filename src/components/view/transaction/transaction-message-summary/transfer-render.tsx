@@ -33,7 +33,7 @@ export interface TokenDisplayInfo {
 export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDisplayInfo> => {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork } = useNetworkProvider();
-  const { tokenResourceMap } = useTokenResourceMeta();
+  const { tokenResourceMap, getTokenMeta } = useTokenResourceMeta();
 
   const queryKeys = React.useMemo(() => getTokenInfoQueryKeys(tokenKeys), [tokenKeys]);
 
@@ -59,28 +59,25 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     const map: Record<string, TokenDisplayInfo> = {};
     queryKeys.forEach((tokenKey, index) => {
       const packagePath = toBarePackagePath(tokenKey);
-      const resourceMeta = tokenResourceMap[packagePath];
-      if (resourceMeta) {
-        map[tokenKey] = {
-          decimals: resourceMeta.decimals,
-          symbol: resourceMeta.symbol,
-          tokenKey: toTokenKey(packagePath, resourceMeta.symbol),
-        };
-        return;
-      }
-
+      const hasResourceMeta = !!tokenResourceMap[packagePath];
       const token = tokenQueries[index]?.data?.data;
-      if (!token) return;
+      if (!hasResourceMeta && !token) return;
+
+      const resolved = getTokenMeta(tokenKey, {
+        name: token?.name ?? "",
+        symbol: token?.symbol ?? "",
+        decimals: token?.decimals ?? 0,
+      });
 
       map[tokenKey] = {
-        decimals: token.decimals,
-        symbol: token.symbol,
-        tokenKey: toTokenKey(token.path || tokenKey, token.symbol),
+        decimals: resolved.decimals,
+        symbol: resolved.symbol,
+        tokenKey: toTokenKey(token?.path || packagePath, resolved.symbol),
       };
     });
 
     return withTokenKeyAliases(map, tokenKeys);
-  }, [tokenKeys, queryKeys, tokenQueries, tokenResourceMap]);
+  }, [tokenKeys, queryKeys, tokenQueries, tokenResourceMap, getTokenMeta]);
 };
 
 interface Grc20AmountLeg {

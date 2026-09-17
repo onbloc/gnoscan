@@ -95,6 +95,18 @@ export interface ResolvedTokenMeta {
 
 export type TokenMetaFallback = ResolvedTokenMeta;
 
+// wugnot is deployed on-chain with decimals: 0, and both the token-meta API and the
+// static gno-token-resource list just reflect that on-chain value (not a bug on their
+// end), so it can't be fixed by picking a different data source - it should actually
+// display as 6, 1:1 with ugnot. Hardcoded here so every resolveTokenMeta caller gets the
+// correction regardless of which source (resource or fallback) would otherwise have won.
+export const WUGNOT_PACKAGE_PATH = "gno.land/r/gnoland/wugnot";
+export const WUGNOT_DISPLAY_DECIMALS = 6;
+
+export function isWugnotPackagePath(packagePath: string): boolean {
+  return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;
+}
+
 /**
  * The static gno-token-resource list is the first-choice source for a token's
  * name/symbol/decimals/image; the caller's own (backend/on-chain) data is only used as a
@@ -107,14 +119,20 @@ export function resolveTokenMeta<T extends { name: string; symbol: string; decim
   fallback: TokenMetaFallback,
 ): ResolvedTokenMeta {
   const resourceMeta = tokenResourceMap[tokenKey] || tokenResourceMap[toBarePackagePath(tokenKey)];
-  if (!resourceMeta) return fallback;
+  const resolved = resourceMeta
+    ? {
+        name: resourceMeta.name,
+        symbol: resourceMeta.symbol,
+        decimals: resourceMeta.decimals,
+        image: resourceMeta.image || fallback.image,
+      }
+    : fallback;
 
-  return {
-    name: resourceMeta.name,
-    symbol: resourceMeta.symbol,
-    decimals: resourceMeta.decimals,
-    image: resourceMeta.image || fallback.image,
-  };
+  if (isWugnotPackagePath(tokenKey)) {
+    return { ...resolved, decimals: WUGNOT_DISPLAY_DECIMALS };
+  }
+
+  return resolved;
 }
 
 export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
