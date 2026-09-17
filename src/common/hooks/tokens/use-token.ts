@@ -1,3 +1,4 @@
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import {
   useGetGRC20Token,
   useGetHoldersQuery,
@@ -23,21 +24,30 @@ export const useToken = (path: string[] | string | undefined) => {
   const { data, isFetched } = useGetGRC20Token(packagePath);
   const { data: holders = 0 } = useGetHoldersQuery(packagePath);
   const { data: realmFunctions, isFetched: isFetchedRealmFunctions } = useGetRealmFunctionsQuery(packagePath);
+  const { getTokenMeta } = useTokenResourceMeta();
 
   const tokenSummary: TokenSummary = useMemo(() => {
+    const resolved = data?.tokenInfo.packagePath
+      ? getTokenMeta(data.tokenInfo.packagePath, {
+          name: data.tokenInfo.name || "",
+          symbol: data.tokenInfo.symbol || "",
+          decimals: Number(data.tokenInfo.decimals) || 0,
+        })
+      : undefined;
+
     return {
       tokenId: data?.tokenInfo.tokenId || "",
       slug: data?.tokenInfo.slug || "",
-      name: data?.tokenInfo.name || "",
-      symbol: data?.tokenInfo.symbol || "",
-      decimals: data?.tokenInfo.decimals || "",
+      name: resolved?.name ?? data?.tokenInfo.name ?? "",
+      symbol: resolved?.symbol ?? data?.tokenInfo.symbol ?? "",
+      decimals: resolved?.decimals ?? data?.tokenInfo.decimals ?? "",
       packagePath: data?.tokenInfo.packagePath || "",
       owner: data?.tokenInfo.owner || "",
       functions: realmFunctions?.map(func => func.functionName) || [],
       totalSupply,
       holders,
     };
-  }, [data, realmFunctions, totalSupply, holders]);
+  }, [data, realmFunctions, totalSupply, holders, getTokenMeta]);
 
   return {
     isFetched: isFetched && isFetchedRealmFunctions,

@@ -11,11 +11,17 @@ import GNOTIcon from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
-import { getFallbackTokenSymbol, getTokenKeySymbol, stripTokenKeySymbol } from "@/common/utils/token.utility";
+import {
+  getFallbackTokenSymbol,
+  getTokenKeySymbol,
+  stripTokenKeySymbol,
+  toBarePackagePath,
+} from "@/common/utils/token.utility";
 import { ActionAsset, AssetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 
 export interface TokenDisplayInfo {
@@ -27,25 +33,42 @@ export interface TokenDisplayInfo {
 export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDisplayInfo> => {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork } = useNetworkProvider();
+  const { tokenResourceMap } = useTokenResourceMeta();
 
   const queryKeys = React.useMemo(() => getTokenInfoQueryKeys(tokenKeys), [tokenKeys]);
 
   const tokenQueries = useQueries(
-    queryKeys.map(tokenKey => ({
-      queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
-      queryFn: () => {
-        if (!apiTokenRepository) return Promise.reject(new Error("FAILED_INITIALIZE_REPOSITORY"));
-        return apiTokenRepository.getTokenMetaByPath(tokenKey);
-      },
-      enabled: !!apiTokenRepository,
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
-    })),
+    queryKeys.map(tokenKey => {
+      const hasResourceMeta = !!tokenResourceMap[toBarePackagePath(tokenKey)];
+      return {
+        queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
+        queryFn: () => {
+          if (!apiTokenRepository) return Promise.reject(new Error("FAILED_INITIALIZE_REPOSITORY"));
+          return apiTokenRepository.getTokenMetaByPath(tokenKey);
+        },
+        // The static resource list is the first-choice source; only hit the token-meta API
+        // for tokens it doesn't cover.
+        enabled: !!apiTokenRepository && !hasResourceMeta,
+        retry: 1,
+        staleTime: 5 * 60 * 1000,
+      };
+    }),
   );
 
   return React.useMemo(() => {
     const map: Record<string, TokenDisplayInfo> = {};
     queryKeys.forEach((tokenKey, index) => {
+      const packagePath = toBarePackagePath(tokenKey);
+      const resourceMeta = tokenResourceMap[packagePath];
+      if (resourceMeta) {
+        map[tokenKey] = {
+          decimals: resourceMeta.decimals,
+          symbol: resourceMeta.symbol,
+          tokenKey: toTokenKey(packagePath, resourceMeta.symbol),
+        };
+        return;
+      }
+
       const token = tokenQueries[index]?.data?.data;
       if (!token) return;
 
@@ -57,7 +80,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     });
 
     return withTokenKeyAliases(map, tokenKeys);
-  }, [tokenKeys, queryKeys, tokenQueries]);
+  }, [tokenKeys, queryKeys, tokenQueries, tokenResourceMap]);
 };
 
 interface Grc20AmountLeg {

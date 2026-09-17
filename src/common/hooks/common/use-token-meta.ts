@@ -1,10 +1,9 @@
-import { useGetTokenMetaQuery } from "@/common/react-query/meta";
 import { useGetGRC20Tokens } from "@/common/react-query/realm";
-import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 import { stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { Amount, TokenInfo } from "@/types/data-type";
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo } from "react";
+import { useTokenResourceMeta } from "./use-token-resource-meta";
 
 export const GNOTToken: TokenInfo = {
   name: "Gno.land",
@@ -15,7 +14,7 @@ export const GNOTToken: TokenInfo = {
 
 export const useTokenMeta = () => {
   const { data: grc20Infos = [], isFetched: isFetchedGRC20Tokens } = useGetGRC20Tokens();
-  const { data: tokenMetas = [], isFetched: isFetchedTokenMeta } = useGetTokenMetaQuery();
+  const { isFetched: isFetchedTokenMeta, getTokenMeta, getTokenImage } = useTokenResourceMeta();
 
   const tokenMap = useMemo(() => {
     const defaultTokenMap: { [key in string]: TokenInfo } = {
@@ -23,11 +22,16 @@ export const useTokenMeta = () => {
     };
     const grc20TokenMap =
       grc20Infos?.reduce<{ [key in string]: TokenInfo }>((accum, current) => {
-        accum[current.packagePath] = {
+        const resolved = getTokenMeta(current.packagePath, {
           name: current.name,
-          denom: current.packagePath,
           symbol: current.symbol,
           decimals: current.decimals,
+        });
+        accum[current.packagePath] = {
+          name: resolved.name,
+          denom: current.packagePath,
+          symbol: resolved.symbol,
+          decimals: resolved.decimals,
         };
         return accum;
       }, {}) || {};
@@ -36,16 +40,7 @@ export const useTokenMeta = () => {
       ...defaultTokenMap,
       ...grc20TokenMap,
     };
-  }, [grc20Infos]);
-
-  const tokenImageMap = useMemo(() => {
-    return (
-      tokenMetas?.reduce<{ [key in string]: string }>((accum, current) => {
-        accum[current.id] = current.image;
-        return accum;
-      }, {}) || {}
-    );
-  }, [tokenMetas]);
+  }, [grc20Infos, getTokenMeta]);
 
   const getTokenInfo = useCallback(
     (tokenId: string): TokenInfo | undefined => {
@@ -85,19 +80,8 @@ export const useTokenMeta = () => {
     [tokenMap],
   );
 
-  const getTokenImage = useCallback(
-    (tokenId: string): string | undefined => {
-      if (!tokenImageMap[tokenId]) {
-        return undefined;
-      }
-      return `${GNO_TOKEN_RESOURCE_BASE_URI}${tokenImageMap[tokenId]}`;
-    },
-    [tokenImageMap],
-  );
-
   return {
     tokenMap,
-    tokenImageMap,
     isFetchedGRC20Tokens,
     isFetchedTokenMeta,
     getTokenInfo,

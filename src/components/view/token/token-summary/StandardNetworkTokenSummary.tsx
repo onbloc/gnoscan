@@ -2,6 +2,7 @@ import Link from "next/link";
 import React from "react";
 
 import { useGetTokenById } from "@/common/react-query/token/api";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { TokenSummary } from "@/types/data-type";
 
@@ -34,26 +35,33 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetTokenById(tokenId);
+  const { getTokenMeta } = useTokenResourceMeta();
 
   const tokenSummary: TokenSummary | null = React.useMemo(() => {
     const summaryData = data?.data;
 
     if (!summaryData) return null;
 
-    return {
-      tokenId: summaryData.tokenId,
-      slug: summaryData.slug,
+    const resolved = getTokenMeta(summaryData.path, {
       name: summaryData.name,
       symbol: summaryData.symbol,
       decimals: summaryData.decimals,
+    });
+
+    return {
+      tokenId: summaryData.tokenId,
+      slug: summaryData.slug,
+      name: resolved.name,
+      symbol: resolved.symbol,
+      decimals: resolved.decimals,
       packagePath: summaryData.path,
       owner: summaryData.owner,
       ownerName: summaryData.ownerName,
       functions: summaryData.funcTypesList,
-      totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, summaryData.decimals)),
+      totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, resolved.decimals)),
       holders: summaryData.holders,
     };
-  }, [data?.data]);
+  }, [data?.data, getTokenMeta]);
 
   const files = React.useMemo(() => {
     const sourceFiles = data?.data?.sourceFiles;

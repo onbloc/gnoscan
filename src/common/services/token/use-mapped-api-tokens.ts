@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useGetTokens } from "@/common/react-query/token/api";
 
 import { GetTokensRequestParameters } from "@/repositories/api/token/request";
@@ -33,12 +34,28 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
   const [tokens, setTokens] = React.useState<GRC20InfoWithLogo[]>([]);
   const [isDataReady, setIsDataReady] = React.useState(false);
 
+  const { getTokenMeta } = useTokenResourceMeta();
+
   React.useEffect(() => {
     if (apiData?.pages) {
       setIsDataReady(false);
 
       const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = TokenMapper.fromApiResponses(allItems);
+      const mappedBlocksData = TokenMapper.fromApiResponses(allItems).map(token => {
+        const resolved = getTokenMeta(token.packagePath, {
+          name: token.name,
+          symbol: token.symbol,
+          decimals: token.decimals,
+          image: token.logoUrl,
+        });
+        return {
+          ...token,
+          name: resolved.name,
+          symbol: resolved.symbol,
+          decimals: resolved.decimals,
+          logoUrl: resolved.image || "",
+        };
+      });
 
       setTokens(mappedBlocksData);
       setIsDataReady(true);
@@ -46,7 +63,7 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
       setTokens([]);
       setIsDataReady(true);
     }
-  }, [apiData?.pages]);
+  }, [apiData?.pages, getTokenMeta]);
 
   const isLoading = isApiLoading || !isDataReady;
   const isFetched = isApiFetched && isDataReady;
