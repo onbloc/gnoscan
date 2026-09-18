@@ -110,7 +110,14 @@ export const StandardNetworkTransactionListTable = ({
       .colorName("blue")
       .renderOption((_, data) => {
         if (!data) return null;
-        return <DatatableItem.Publisher address={data?.fromAddress || ""} username={data?.fromName || ""} />;
+        return (
+          <DatatableItem.Publisher
+            address={data?.fromAddress || ""}
+            username={data?.fromName || ""}
+            label={data?.fromLabel}
+            labelType={data?.fromLabelType}
+          />
+        );
       })
       .build();
   };

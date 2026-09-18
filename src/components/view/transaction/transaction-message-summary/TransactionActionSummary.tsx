@@ -143,7 +143,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
   );
 };
 
-// Same chip+copy treatment as TransferAddress's packagePath branch, for a realm link shown
+// Same chip+copy treatment as TransferAddress's realm-label branch, for a realm link shown
 // on its own (not resolved from some other address field) - keeps every pkgPath link in the
 // summary copyable the same way, and copies the realm's actual g1... address (same convention
 // as TransferAddress, and as RealmSummary.realmAddress) rather than the path text.
@@ -220,7 +220,7 @@ function renderApprove(action: TransactionAction, ctx: ActionRenderContext): Rea
         <Verb>Approve</Verb>
         <Ref label={label} value={tokenId.value} href={poolHref(pool)} />
         <Verb>for</Verb>
-        <TransferAddress address={spender.value} packagePath={spender.packagePath} />
+        <TransferAddress address={spender.value} label={spender.label} labelType={spender.labelType} />
       </>
     );
   }
@@ -232,7 +232,7 @@ function renderApprove(action: TransactionAction, ctx: ActionRenderContext): Rea
       <Verb>Approve</Verb>
       {ctx.amount(approvedAmount)}
       <Verb>for</Verb>
-      <TransferAddress address={spender.value} packagePath={spender.packagePath} />
+      <TransferAddress address={spender.value} label={spender.label} labelType={spender.labelType} />
     </>
   );
 }
@@ -619,7 +619,7 @@ function renderEnable(action: TransactionAction): React.ReactNode | null {
       <Verb>Enabled</Verb>
       <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
       <Verb>by</Verb>
-      <TransferAddress address={creator.value} packagePath={creator.packagePath} />
+      <TransferAddress address={creator.value} label={creator.label} labelType={creator.labelType} />
     </>
   );
 }
@@ -723,9 +723,9 @@ function filterProtocolFeeApproveActions(actions: TransactionAction[]): Transact
     const spender = findAsset(action.assets, "spender");
     if (!spender) return true;
 
-    // The backend doesn't always resolve spender.packagePath for this internal fee-routing
+    // The backend doesn't always resolve spender.label for this internal fee-routing
     // approve, so also match by the address itself - it's deterministic from the pkgPath.
-    return spender.packagePath !== GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH && spender.value !== GNOSWAP_PROTOCOL_FEE_ADDRESS;
+    return spender.label !== GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH && spender.value !== GNOSWAP_PROTOCOL_FEE_ADDRESS;
   });
 }
 
@@ -865,7 +865,7 @@ function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
 
   return actions.filter(action => {
     const key = `${action.tag}:${action.realm}:${action.type}:${action.assets
-      .map(asset => `${asset.assetType}:${asset.key}:${asset.value}:${asset.packagePath ?? ""}`)
+      .map(asset => `${asset.assetType}:${asset.key}:${asset.value}:${asset.label ?? ""}`)
       .join("|")}`;
 
     if (seen.has(key)) return false;

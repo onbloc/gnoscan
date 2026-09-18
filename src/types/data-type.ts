@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TimeStamp } from "@/common/utils/date-util";
 import { TxFee, TxSignature } from "@gnolang/tm2-js-client";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 export interface Board {
   index: number;
@@ -83,6 +84,8 @@ export interface TokenSummary {
   packagePath: string;
   owner: string;
   ownerName?: string;
+  ownerLabel?: string | null;
+  ownerLabelType?: ADDRESS_LABEL_TYPE | null;
   functions: string[];
   totalSupply: number;
   holders: number;
@@ -97,6 +100,8 @@ export interface Realm {
   packagePath: string;
   creator: string;
   creatorName?: string;
+  creatorLabel?: string | null;
+  creatorLabelType?: ADDRESS_LABEL_TYPE | null;
   functionCount: number;
   totalCalls: number;
   totalGasUsed: Amount;
@@ -114,6 +119,8 @@ export interface RealmSummary {
   realmAddress: string;
   publisherAddress: string;
   publisherName?: string;
+  publisherLabel?: string | null;
+  publisherLabelType?: ADDRESS_LABEL_TYPE | null;
   funcs: string[] | undefined;
   blockPublished: number;
   files:
@@ -152,8 +159,12 @@ export interface Transaction {
   blockHeight: number;
   from: string;
   fromName?: string;
+  fromLabel?: string | null;
+  fromLabelType?: ADDRESS_LABEL_TYPE | null;
   to?: string;
   toName?: string;
+  toLabel?: string | null;
+  toLabelType?: ADDRESS_LABEL_TYPE | null;
   amount: Amount;
   amountOut?: Amount;
   time: string;
@@ -171,6 +182,8 @@ export interface TokenHolder {
   rank: number;
   address: string;
   nameTag?: string | null;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
   balance: Amount;
   percentage: number;
 }
@@ -192,9 +205,11 @@ export interface AssetTransfer {
   tokenId?: string;
   assetType: string;
   from: string;
-  fromPackagePath?: string;
+  fromLabel?: string | null;
+  fromLabelType?: ADDRESS_LABEL_TYPE | null;
   to: string;
-  toPackagePath?: string;
+  toLabel?: string | null;
+  toLabelType?: ADDRESS_LABEL_TYPE | null;
   amount: Amount;
 }
 
@@ -202,7 +217,8 @@ export interface NetTransfer {
   tokenId?: string;
   assetType: string;
   address: string;
-  packagePath?: string;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
   direction: NetTransferDirection;
   amount: Amount;
 }
@@ -211,7 +227,8 @@ export interface ActionAsset {
   assetType: string;
   key: string;
   value: string;
-  packagePath?: string;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
 }
 
 export interface TransactionAction {
@@ -250,6 +267,8 @@ export interface NewestRealm {
   packagePath: string;
   creator: string;
   creatorName?: string;
+  creatorLabel?: string | null;
+  creatorLabelType?: ADDRESS_LABEL_TYPE | null;
   functionCount: number;
   totalCalls: number;
   totalGasUsed: Amount;
@@ -261,6 +280,11 @@ export interface GnoEvent {
   transactionHash: string;
   caller: string;
   callerName?: string;
+  callerLabel?: string | null;
+  callerLabelType?: ADDRESS_LABEL_TYPE | null;
+  originCaller?: string;
+  originCallerLabel?: string | null;
+  originCallerLabelType?: ADDRESS_LABEL_TYPE | null;
   type: string;
   packagePath: string;
   functionName: string;
@@ -311,6 +335,8 @@ export interface MonthlyTransactionStatInfo {
 
 export interface MonthlyAccountTransaction {
   account: string;
+  accountLabel?: string | null;
+  accountLabelType?: ADDRESS_LABEL_TYPE | null;
   totalTransaction: number;
   nonTransferTransaction: number;
 }

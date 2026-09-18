@@ -51,6 +51,8 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
         rank: index + 1,
         address: item.address,
         nameTag: item.nameTag,
+        label: item.label,
+        labelType: item.labelType,
         balance: {
           value: formatTokenDecimal(item.balance, decimals),
           denom: symbol,
@@ -87,7 +89,9 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
       .name("Address")
       .width(275)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.CallerCopy caller={data.address} />)
+      .renderOption((_, data) => (
+        <DatatableItem.CallerCopy caller={data.address} label={data.label} labelType={data.labelType} />
+      ))
       .build();
   };
 

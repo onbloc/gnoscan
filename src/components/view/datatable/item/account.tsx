@@ -5,14 +5,18 @@ import styled from "styled-components";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 
 interface Props {
   address: string | undefined;
   addressName?: string;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
 }
 
-export const Account = ({ address, addressName }: Props) => {
+export const Account = ({ address, addressName, label, labelType }: Props) => {
   const { getName } = useUsername();
   const { getUrlWithNetwork } = useNetwork();
   const renderTooltip = () => {
@@ -22,17 +26,22 @@ export const Account = ({ address, addressName }: Props) => {
   const displayName = useMemo(() => {
     if (addressName) return addressName;
 
+    const resolvedName = address ? getName(address) : undefined;
+    if (resolvedName) return resolvedName;
+
+    if (label) return label;
+
     if (!address) {
       return "-";
     }
 
-    return getName(address) || textEllipsis(address ?? "", 6);
-  }, [address, addressName]);
+    return textEllipsis(address, 6);
+  }, [address, addressName, label, getName]);
 
   return (
     <Tooltip content={renderTooltip()}>
       <TooltipWrapper>
-        <Link className="ellipsis" href={getUrlWithNetwork(`/account/${address}`)}>
+        <Link className="ellipsis" href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
           {displayName}
         </Link>
       </TooltipWrapper>

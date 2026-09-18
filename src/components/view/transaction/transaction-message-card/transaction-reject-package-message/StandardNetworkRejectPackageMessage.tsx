@@ -31,6 +31,8 @@ const StandardNetworkRejectPackageMessage = ({
           addressName={message.callerName}
           copyText={message.caller || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.callerLabel}
+          labelType={message.callerLabelType}
         />
       </Field>
     </>

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { SUMMARY_ASSET_TYPES, TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
 
 type TransferView = "all" | "net";
@@ -45,29 +46,40 @@ const TransactionMessageSummary = ({ summary, isDesktop, embedded = false }: Pro
 };
 
 function isGnoswapEmissionTransfer(transfer: AssetTransfer): boolean {
-  return (
-    transfer.fromPackagePath === GNOSWAP_EMISSION_PACKAGE_PATH ||
-    transfer.toPackagePath === GNOSWAP_EMISSION_PACKAGE_PATH
-  );
+  return transfer.fromLabel === GNOSWAP_EMISSION_PACKAGE_PATH || transfer.toLabel === GNOSWAP_EMISSION_PACKAGE_PATH;
 }
 
 function isGnoswapEmissionNetTransfer(transfer: NetTransfer): boolean {
-  return transfer.packagePath === GNOSWAP_EMISSION_PACKAGE_PATH;
+  return transfer.label === GNOSWAP_EMISSION_PACKAGE_PATH;
 }
 
-function getTransferAddressPackagePath(transfer: AssetTransfer, side: "from" | "to"): string | undefined {
-  const ownPackagePath = side === "from" ? transfer.fromPackagePath : transfer.toPackagePath;
-  if (ownPackagePath) return ownPackagePath;
-
-  if (side === "from" && !transfer.from) return transfer.toPackagePath || getAmountPackagePath(transfer);
-  if (side === "to" && !transfer.to) return transfer.fromPackagePath || getAmountPackagePath(transfer);
-
-  return undefined;
+interface TransferAddressLabel {
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
 }
 
-function getAmountPackagePath(transfer: AssetTransfer): string | undefined {
-  if (transfer.assetType !== SUMMARY_ASSET_TYPES.GRC20) return undefined;
-  return transfer.amount.denom.replace(/\.[^.]+$/, "");
+function getTransferAddressLabel(transfer: AssetTransfer, side: "from" | "to"): TransferAddressLabel {
+  const ownLabel = side === "from" ? transfer.fromLabel : transfer.toLabel;
+  const ownLabelType = side === "from" ? transfer.fromLabelType : transfer.toLabelType;
+  if (ownLabel) return { label: ownLabel, labelType: ownLabelType };
+
+  if (side === "from" && !transfer.from) {
+    return transfer.toLabel ? { label: transfer.toLabel, labelType: transfer.toLabelType } : getAmountLabel(transfer);
+  }
+  if (side === "to" && !transfer.to) {
+    return transfer.fromLabel
+      ? { label: transfer.fromLabel, labelType: transfer.fromLabelType }
+      : getAmountLabel(transfer);
+  }
+
+  return {};
+}
+
+// A GRC20 token's own package path is always a realm - stand in for the empty from/to
+// address on a mint/burn leg with the token's realm.
+function getAmountLabel(transfer: AssetTransfer): TransferAddressLabel {
+  if (transfer.assetType !== SUMMARY_ASSET_TYPES.GRC20) return {};
+  return { label: transfer.amount.denom.replace(/\.[^.]+$/, ""), labelType: ADDRESS_LABEL_TYPE.REALM };
 }
 
 interface TransferGroupProps {
@@ -114,30 +126,37 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: 
 
           {activeView === "all" && hasAll && (
             <List $embedded={embedded}>
-              {transfers.map((transfer, index) => (
-                <li key={index}>
-                  <Text type="p4" color="primary" fontWeight={400}>
-                    From
-                  </Text>
-                  <TransferAddress
-                    address={transfer.from}
-                    packagePath={getTransferAddressPackagePath(transfer, "from")}
-                    compact
-                  />
-                  <Text type="p4" color="primary" fontWeight={400}>
-                    To
-                  </Text>
-                  <TransferAddress
-                    address={transfer.to}
-                    packagePath={getTransferAddressPackagePath(transfer, "to")}
-                    compact
-                  />
-                  <Text type="p4" color="primary" fontWeight={400}>
-                    For
-                  </Text>
-                  <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
-                </li>
-              ))}
+              {transfers.map((transfer, index) => {
+                const fromLabel = getTransferAddressLabel(transfer, "from");
+                const toLabel = getTransferAddressLabel(transfer, "to");
+
+                return (
+                  <li key={index}>
+                    <Text type="p4" color="primary" fontWeight={400}>
+                      From
+                    </Text>
+                    <TransferAddress
+                      address={transfer.from}
+                      label={fromLabel.label}
+                      labelType={fromLabel.labelType}
+                      compact
+                    />
+                    <Text type="p4" color="primary" fontWeight={400}>
+                      To
+                    </Text>
+                    <TransferAddress
+                      address={transfer.to}
+                      label={toLabel.label}
+                      labelType={toLabel.labelType}
+                      compact
+                    />
+                    <Text type="p4" color="primary" fontWeight={400}>
+                      For
+                    </Text>
+                    <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} compact />
+                  </li>
+                );
+              })}
             </List>
           )}
 
@@ -145,7 +164,12 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: 
             <List $embedded={embedded}>
               {netTransfers.map((transfer, index) => (
                 <li key={index}>
-                  <TransferAddress address={transfer.address} packagePath={transfer.packagePath} compact />
+                  <TransferAddress
+                    address={transfer.address}
+                    label={transfer.label}
+                    labelType={transfer.labelType}
+                    compact
+                  />
                   <Text type="p4" color="primary" fontWeight={400}>
                     {transfer.direction === "received" ? "Received" : "Sent"}
                   </Text>

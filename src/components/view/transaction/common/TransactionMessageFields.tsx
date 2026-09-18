@@ -10,6 +10,8 @@ import { Amount } from "@/types/data-type";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
@@ -154,19 +156,28 @@ interface AddressLinkProps {
   addressName: string;
   copyText: string;
   getUrlWithNetwork: (uri: string) => string;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
 }
 
-export const AddressLink: React.FC<AddressLinkProps> = ({ address, addressName, copyText, getUrlWithNetwork }) => {
+export const AddressLink: React.FC<AddressLinkProps> = ({
+  address,
+  addressName,
+  copyText,
+  getUrlWithNetwork,
+  label,
+  labelType,
+}) => {
   const displayAccount = React.useMemo(() => {
     if (!address) return "-";
-    return addressName || address;
-  }, [address, addressName]);
+    return addressName || label || address;
+  }, [address, addressName, label]);
 
   return (
     <Badge>
       <S.AddressTextBox>
         <Text type="p4" color="blue" className="ellipsis">
-          <Link href={getUrlWithNetwork(`/account/${address}`)} passHref>
+          <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))} passHref>
             <FitContentSpan>{displayAccount}</FitContentSpan>
           </Link>
         </Text>
