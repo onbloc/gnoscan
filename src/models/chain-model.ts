@@ -7,6 +7,9 @@ export interface ChainModel {
 
   rpcUrl: string | null;
 
+  /** Optional endpoint used when `rpcUrl` stops answering. */
+  fallbackRpcUrl?: string | null;
+
   indexerUrl: string | null;
 
   gnoWebUrl?: string | null;
