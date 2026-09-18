@@ -115,10 +115,11 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     enabled: !!realmSummary?.realmAddress,
   });
 
-  React.useMemo(() => {
+  const realmBalanceList: Amount[] = React.useMemo(() => {
     const nativeAmount = toGNOTAmount(nativeBalanceData?.value || "0", nativeBalanceData?.denom || GNOTToken.denom);
     return [nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)];
   }, [nativeBalanceData, accountData?.data?.assets]);
+  void realmBalanceList;
 
   const realmBalance: Amount | null = React.useMemo(() => {
     if (!realmSummary?.balance) return null;

@@ -8,6 +8,7 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { useGetGRC20TokenBalances, useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetRealmTransactionsQuery } from "@/common/react-query/realm";
+import { Amount } from "@/types/data-type";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -55,10 +56,11 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
     enabled: !!summary?.realmAddress,
   });
 
-  React.useMemo(() => {
+  const realmBalanceList: Amount[] = React.useMemo(() => {
     const rawAmounts = [nativeBalance ?? { value: "0", denom: GNOTToken.denom }, ...(grc20Balances || [])];
     return rawAmounts.map(amount => getTokenAmount(amount.denom, amount.value));
   }, [nativeBalance, grc20Balances, getTokenAmount]);
+  void realmBalanceList;
 
   const balanceStr = React.useMemo(() => {
     if (!summary?.balance) {
