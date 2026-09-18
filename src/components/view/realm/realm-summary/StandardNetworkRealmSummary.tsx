@@ -22,6 +22,7 @@ import { mapAccountAssetsToAmounts } from "./realm-balance.utility";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import Badge from "@/components/ui/badge";
@@ -31,11 +32,10 @@ import IconInfo from "@/components/ui/icon-info";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 import Tooltip from "@/components/ui/tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
-import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
-import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
 
 const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
   ssr: false,
@@ -100,13 +100,14 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
   const { gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
-  const { data: storageDepositData, isFetched: isFetchedStorageDepositData } = useGetRealmStorageDepositByPath(path);
+  const { data: storageDepositData } = useGetRealmStorageDepositByPath(path);
+  const realmResponseData = realmData?.data;
 
   const realmSummary: RealmSummary | null = React.useMemo(() => {
-    if (!realmData?.data) return null;
+    if (!realmResponseData) return null;
 
-    return RealmMapper.realmSummaryFromApiResponse(realmData.data);
-  }, [realmData?.data]);
+    return RealmMapper.realmSummaryFromApiResponse(realmResponseData);
+  }, [realmResponseData]);
 
   const { data: nativeBalanceData } = useGetNativeTokenBalance(realmSummary?.realmAddress || "", {
     enabled: !!realmSummary?.realmAddress,
@@ -120,12 +121,18 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     return [nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)];
   }, [nativeBalanceData, accountData?.data?.assets]);
 
+  const realmBalance: Amount | null = React.useMemo(() => {
+    if (realmBalanceList.length <= 0) return null;
+
+    return realmBalanceList[0];
+  }, [realmBalanceList]);
+
   const realmTotalUsedFees: Amount | null = React.useMemo(() => {
     if (!realmSummary?.totalUsedFees) return null;
 
     const data = realmSummary.totalUsedFees;
     return toGNOTAmount(data?.value, data?.denom);
-  }, [realmSummary?.totalUsedFees]);
+  }, [realmSummary]);
 
   const displayStorageDepositAmount: Amount = React.useMemo(() => {
     if (!storageDepositData)
@@ -317,12 +324,15 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             </Tooltip>
           </div>
         </dt>
-        <dd className="function-wrapper">
-          {realmBalanceList.map((amount, index) => (
-            <Badge key={`${amount.denom}-${index}`}>
-              <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
-            </Badge>
-          ))}
+        <dd>
+          <Badge>
+            <AmountText
+              minSize="body1"
+              maxSize="p4"
+              value={realmBalance?.value || "0"}
+              denom={realmBalance?.denom || GNOTToken.symbol}
+            />
+          </Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
