@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { useRouter } from "@/common/hooks/common/use-router";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetwork } from "@/common/hooks/use-network";
 
 import Search from "@/assets/svgs/icon-search.svg";
@@ -21,14 +22,15 @@ interface SubInputProps {
 export const SubInput = ({ className = "", value, onChange, clearValue }: SubInputProps) => {
   const router = useRouter();
   const { isCustomNetwork } = useNetworkProvider();
+  const { apiSearchRepository } = useServiceProvider();
   const { getUrlWithNetwork } = useNetwork();
 
   useEffect(() => {
     clearValue && clearValue();
   }, [router.asPath]);
 
-  const moveSearchPage = () => {
-    const searchUrl = getSearchSubmitUrl(value, getUrlWithNetwork);
+  const moveSearchPage = async () => {
+    const searchUrl = await getSearchSubmitUrl(value, getUrlWithNetwork, isCustomNetwork, apiSearchRepository);
     if (!searchUrl) return;
 
     router.push(searchUrl);
