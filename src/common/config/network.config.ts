@@ -15,6 +15,7 @@ export function getNetworksFromEnv(): ChainModel[] {
       chainId: process.env.NEXT_PUBLIC_NETWORK1_CHAIN_ID,
       apiUrl: process.env.NEXT_PUBLIC_NETWORK1_API_URL || null,
       rpcUrl: process.env.NEXT_PUBLIC_NETWORK1_RPC_URL || null,
+      fallbackRpcUrl: process.env.NEXT_PUBLIC_NETWORK1_FALLBACK_RPC_URL || null,
       indexerUrl: process.env.NEXT_PUBLIC_NETWORK1_INDEXER_URL || null,
       gnoWebUrl: process.env.NEXT_PUBLIC_NETWORK1_GNO_WEB_URL || null,
     });
@@ -32,6 +33,7 @@ export function getNetworksFromEnv(): ChainModel[] {
       chainId: process.env.NEXT_PUBLIC_NETWORK2_CHAIN_ID,
       apiUrl: process.env.NEXT_PUBLIC_NETWORK2_API_URL || null,
       rpcUrl: process.env.NEXT_PUBLIC_NETWORK2_RPC_URL || null,
+      fallbackRpcUrl: process.env.NEXT_PUBLIC_NETWORK2_FALLBACK_RPC_URL || null,
       indexerUrl: process.env.NEXT_PUBLIC_NETWORK2_INDEXER_URL || null,
       gnoWebUrl: process.env.NEXT_PUBLIC_NETWORK2_GNO_WEB_URL || null,
     });
@@ -49,6 +51,7 @@ export function getNetworksFromEnv(): ChainModel[] {
       chainId: process.env.NEXT_PUBLIC_NETWORK3_CHAIN_ID,
       apiUrl: process.env.NEXT_PUBLIC_NETWORK3_API_URL || null,
       rpcUrl: process.env.NEXT_PUBLIC_NETWORK3_RPC_URL || null,
+      fallbackRpcUrl: process.env.NEXT_PUBLIC_NETWORK3_FALLBACK_RPC_URL || null,
       indexerUrl: process.env.NEXT_PUBLIC_NETWORK3_INDEXER_URL || null,
       gnoWebUrl: process.env.NEXT_PUBLIC_NETWORK3_GNO_WEB_URL || null,
     });

@@ -103,6 +103,8 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
         chainId: "",
         apiUrl: null,
         rpcUrl: decodeURIComponent(currentNetwork.rpcUrl) || null,
+        // A user-supplied endpoint has no fallback to rotate to.
+        fallbackRpcUrl: null,
         indexerUrl: decodeURIComponent(currentNetwork.indexerUrl) || null,
       };
     }
@@ -132,7 +134,9 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
     }
 
     const rpcUrl = currentNetworkModel.rpcUrl || currentNetworkModel.apiUrl || "";
-    return new NodeRPCClient(rpcUrl, currentNetworkModel.chainId);
+    // The fallback stands in for `rpcUrl`, so it does not apply once `apiUrl` is the primary.
+    const fallbackRpcUrl = currentNetworkModel.rpcUrl ? currentNetworkModel.fallbackRpcUrl : null;
+    return new NodeRPCClient(rpcUrl, currentNetworkModel.chainId, fallbackRpcUrl);
   }, [currentNetworkModel]);
 
   const indexerQueryClient = useMemo(() => {
@@ -180,7 +184,7 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
       return null;
     }
 
-    return new NodeRPCClient(mainNetwork.rpcUrl || "", mainNetwork.chainId);
+    return new NodeRPCClient(mainNetwork.rpcUrl || "", mainNetwork.chainId, mainNetwork.fallbackRpcUrl);
   }, [chains]);
 
   const apolloClient = useMemo(() => {
