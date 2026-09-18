@@ -2,13 +2,13 @@ import React from "react";
 import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
-import { Amount, Transaction } from "@/types/data-type";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useRealm } from "@/common/hooks/realms/use-realm";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { useGetGRC20TokenBalances, useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetRealmTransactionsQuery } from "@/common/react-query/realm";
+import { Amount } from "@/types/data-type";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -17,7 +17,6 @@ import { DLWrap, FitContentA, FitContentSpan } from "@/components/ui/detail-page
 import Badge from "@/components/ui/badge";
 import Tooltip from "@/components/ui/tooltip";
 import Text from "@/components/ui/text";
-import { AmountText } from "@/components/ui/text/amount-text";
 import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { RealmTotalContractCalls } from "../realm-total-contract-calls/RealmTotalContractCalls";
@@ -61,6 +60,15 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
     const rawAmounts = [nativeBalance ?? { value: "0", denom: GNOTToken.denom }, ...(grc20Balances || [])];
     return rawAmounts.map(amount => getTokenAmount(amount.denom, amount.value));
   }, [nativeBalance, grc20Balances, getTokenAmount]);
+  React.useDebugValue(realmBalanceList);
+
+  const balanceStr = React.useMemo(() => {
+    if (!summary?.balance) {
+      return "-";
+    }
+    const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
+    return `${amount.value} ${amount.denom}`;
+  }, [getTokenAmount, summary]);
 
   if (!isFetched) return <TableSkeleton />;
 
@@ -184,12 +192,8 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
             </Tooltip>
           </div>
         </dt>
-        <dd className="function-wrapper">
-          {realmBalanceList.map((amount, index) => (
-            <Badge key={`${amount.denom}-${index}`}>
-              <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
-            </Badge>
-          ))}
+        <dd>
+          <Badge>{balanceStr}</Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>

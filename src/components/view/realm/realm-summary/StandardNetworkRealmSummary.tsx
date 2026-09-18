@@ -99,13 +99,14 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
   const { gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
-  const { data: storageDepositData, isFetched: isFetchedStorageDepositData } = useGetRealmStorageDepositByPath(path);
+  const { data: storageDepositData } = useGetRealmStorageDepositByPath(path);
+  const realmResponseData = realmData?.data;
 
   const realmSummary: RealmSummary | null = React.useMemo(() => {
-    if (!realmData?.data) return null;
+    if (!realmResponseData) return null;
 
-    return RealmMapper.realmSummaryFromApiResponse(realmData.data);
-  }, [realmData?.data]);
+    return RealmMapper.realmSummaryFromApiResponse(realmResponseData);
+  }, [realmResponseData]);
 
   const { data: nativeBalanceData } = useGetNativeTokenBalance(realmSummary?.realmAddress || "", {
     enabled: !!realmSummary?.realmAddress,
@@ -118,13 +119,21 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     const nativeAmount = toGNOTAmount(nativeBalanceData?.value || "0", nativeBalanceData?.denom || GNOTToken.denom);
     return [nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)];
   }, [nativeBalanceData, accountData?.data?.assets]);
+  React.useDebugValue(realmBalanceList);
+
+  const realmBalance: Amount | null = React.useMemo(() => {
+    if (!realmSummary?.balance) return null;
+
+    const data = realmSummary.balance;
+    return toGNOTAmount(data.value, data.denom);
+  }, [realmSummary]);
 
   const realmTotalUsedFees: Amount | null = React.useMemo(() => {
     if (!realmSummary?.totalUsedFees) return null;
 
     const data = realmSummary.totalUsedFees;
     return toGNOTAmount(data?.value, data?.denom);
-  }, [realmSummary?.totalUsedFees]);
+  }, [realmSummary]);
 
   const displayStorageDepositAmount: Amount = React.useMemo(() => {
     if (!storageDepositData)
@@ -298,12 +307,15 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             </Tooltip>
           </div>
         </dt>
-        <dd className="function-wrapper">
-          {realmBalanceList.map((amount, index) => (
-            <Badge key={`${amount.denom}-${index}`}>
-              <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
-            </Badge>
-          ))}
+        <dd>
+          <Badge>
+            <AmountText
+              minSize="body1"
+              maxSize="p4"
+              value={realmBalance?.value || "0"}
+              denom={realmBalance?.denom || GNOTToken.symbol}
+            />
+          </Badge>
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
