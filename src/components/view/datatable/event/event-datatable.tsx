@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useCallback, useMemo, useState } from "react";
@@ -17,6 +16,7 @@ import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
 import { eachMedia } from "@/common/hooks/use-media";
 import { Button } from "@/components/ui/button";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 
 interface Props {
   isFetched: boolean;
@@ -124,7 +124,14 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
       .name("Caller")
       .width(180)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.CallerCopy caller={data.caller} username={data.callerName} />)
+      .renderOption((_, data) => (
+        <DatatableItem.CallerCopy
+          caller={data.caller}
+          username={data.callerName}
+          label={data.callerLabel}
+          labelType={data.callerLabelType}
+        />
+      ))
       .build();
   };
 
@@ -242,14 +249,23 @@ const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible,
               <Text type="p4" color={"primary"}>
                 OriginCaller:{" "}
                 <Text type="p4" color={"blue"}>
-                  <Link href={getUrlWithNetwork(`/account/${event.caller}`)} passHref>
-                    {event.caller}
+                  <Link
+                    href={getUrlWithNetwork(
+                      getAddressLinkPath({
+                        address: event.originCaller,
+                        label: event.originCallerLabel,
+                        labelType: event.originCallerLabelType,
+                      }),
+                    )}
+                    passHref
+                  >
+                    {event.originCallerLabel || event.originCaller}
                   </Link>
                   <Tooltip
                     className="path-copy-tooltip"
                     content="Copied!"
                     trigger="click"
-                    copyText={event.caller}
+                    copyText={event.originCaller || ""}
                     width={85}
                   >
                     <IconCopy className="svg-icon" />

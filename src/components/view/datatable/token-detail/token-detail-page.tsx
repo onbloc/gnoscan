@@ -51,8 +51,12 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
         blockHeight: item.blockHeight,
         from: item.fromAddress,
         fromName: item.fromName,
+        fromLabel: item.fromLabel,
+        fromLabelType: item.fromLabelType,
         to: item.toAddress,
         toName: item.toName,
+        toLabel: item.toLabel,
+        toLabelType: item.toLabelType,
         amount: item.amount,
         time: item.timestamp,
         fee: item.fee,
@@ -120,7 +124,14 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.Account address={data.from} addressName={data.fromName} />)
+      .renderOption((_, data) => (
+        <DatatableItem.Account
+          address={data.from}
+          addressName={data.fromName}
+          label={data.fromLabel}
+          labelType={data.fromLabelType}
+        />
+      ))
       .build();
   };
 

@@ -1,4 +1,5 @@
 import { Amount } from "@/types/data-type";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 export interface RealmModel {
   txHash: string;
@@ -10,6 +11,8 @@ export interface RealmModel {
   blockHeight: number;
   publisher: string;
   publisherName: string;
+  publisherLabel?: string | null;
+  publisherLabelType?: ADDRESS_LABEL_TYPE | null;
   totalCallCountSuccess: number;
   totalCallCountFailed: number;
   totalCallCount: number;
@@ -36,6 +39,8 @@ export interface RealmSummaryModel {
   isEnableYn?: "Y" | "N" | string;
   publisher: string;
   publisherName: string;
+  publisherLabel?: string | null;
+  publisherLabelType?: ADDRESS_LABEL_TYPE | null;
   realmAddress: string;
   sourceFiles: [
     {
@@ -59,7 +64,15 @@ export interface RealmEventModel {
 
   callerName: string;
 
+  callerLabel?: string | null;
+
+  callerLabelType?: ADDRESS_LABEL_TYPE | null;
+
   originCaller: string;
+
+  originCallerLabel?: string | null;
+
+  originCallerLabelType?: ADDRESS_LABEL_TYPE | null;
 
   realmPath: string;
 

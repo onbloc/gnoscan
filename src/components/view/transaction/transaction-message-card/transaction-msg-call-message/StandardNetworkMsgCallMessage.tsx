@@ -66,6 +66,8 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
           addressName={message.fromName}
           copyText={message.from || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.fromLabel}
+          labelType={message.fromLabelType}
         />
       </Field>
 
@@ -75,6 +77,8 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
           addressName={message.toName}
           copyText={message.to || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.toLabel}
+          labelType={message.toLabelType}
         />
       </Field>
     </>
@@ -88,6 +92,8 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
           addressName={message.callerName}
           copyText={message.caller || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.callerLabel}
+          labelType={message.callerLabelType}
         />
       </Field>
 

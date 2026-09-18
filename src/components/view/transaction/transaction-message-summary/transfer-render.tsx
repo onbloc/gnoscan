@@ -16,6 +16,8 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { textEllipsis } from "@/common/utils/string-util";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import {
   getFallbackTokenSymbol,
   getTokenKeySymbol,
@@ -160,18 +162,21 @@ export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<st
 
 export const TransferAddress = ({
   address,
-  packagePath,
+  label,
+  labelType,
   compact = false,
 }: {
   address: string;
-  packagePath?: string;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
   compact?: boolean;
 }) => {
   const { getUrlWithNetwork } = useNetwork();
   const textType = compact ? "p4" : "p2";
   const textStyle = compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT;
+  const isRealm = labelType === ADDRESS_LABEL_TYPE.REALM && !!label;
 
-  if (!address && !packagePath) {
+  if (!address && !label) {
     return (
       <Text type={textType} color="primary" fontWeight={400} style={textStyle}>
         -
@@ -181,18 +186,18 @@ export const TransferAddress = ({
 
   return (
     <AddressChip>
-      {packagePath ? (
-        <RealmLink pkgPath={packagePath} compact={compact}>
-          {packagePath.replace("gno.land/", "")}
+      {isRealm ? (
+        <RealmLink pkgPath={label as string} compact={compact}>
+          {(label as string).replace("gno.land/", "")}
         </RealmLink>
       ) : (
-        <Link href={getUrlWithNetwork(`/account/${address}`)}>
+        <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
           <Text type={textType} color="blue" fontWeight={400} display="contents" style={textStyle}>
-            {textEllipsis(address, 6)}
+            {label || textEllipsis(address, 6)}
           </Text>
         </Link>
       )}
-      <Tooltip content="Copied!" trigger="click" copyText={address || packagePath || ""}>
+      <Tooltip content="Copied!" trigger="click" copyText={address || label || ""}>
         <IconCopy className="copy-icon" />
       </Tooltip>
     </AddressChip>

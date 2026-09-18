@@ -161,6 +161,8 @@ export const useBlock = (height: number) => {
                 attrs: event.attrs,
                 time: block.block.header.time,
                 caller,
+                // No separate origin-caller concept for custom networks - the tx's top-level caller stands in.
+                originCaller: caller,
               };
             }) || [],
         )

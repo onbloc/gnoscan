@@ -3,15 +3,19 @@ import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 
 interface Props {
   username: string | undefined;
   address: string | undefined;
   ellipsisNumber?: number;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
 }
 
-export const Publisher = ({ address, username, ellipsisNumber = 8 }: Props) => {
+export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelType }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
 
   const renderTooltip = () => {
@@ -23,16 +27,23 @@ export const Publisher = ({ address, username, ellipsisNumber = 8 }: Props) => {
       return username;
     }
 
+    if (label) {
+      return label;
+    }
+
     if (!address) {
       return "-";
     }
 
     return textEllipsis(address ?? "", ellipsisNumber);
-  }, [address, username]);
+  }, [address, username, label, ellipsisNumber]);
 
   return address && address !== "genesis" ? (
     <Tooltip content={renderTooltip()}>
-      <PublisherLink className="ellipsis" href={getUrlWithNetwork(`/account/${address}`)}>
+      <PublisherLink
+        className="ellipsis"
+        href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
+      >
         {displayName}
       </PublisherLink>
     </Tooltip>

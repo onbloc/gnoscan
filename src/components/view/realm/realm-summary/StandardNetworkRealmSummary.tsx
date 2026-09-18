@@ -11,6 +11,7 @@ import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
@@ -252,14 +253,32 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             {realmSummary?.publisherAddress === "genesis" ? (
               <FitContentA>
                 <Text type="p4" color="blue" className="ellipsis">
-                  {realmSummary?.publisherName || realmSummary?.publisherAddress || ""}
+                  {getAddressDisplayText({
+                    address: realmSummary?.publisherAddress,
+                    name: realmSummary?.publisherName,
+                    label: realmSummary?.publisherLabel,
+                  }) || ""}
                 </Text>
               </FitContentA>
             ) : (
               <FitContentSpan>
-                <Link href={getUrlWithNetwork(`/account/${realmSummary?.publisherAddress}`)} passHref>
+                <Link
+                  href={getUrlWithNetwork(
+                    getAddressLinkPath({
+                      address: realmSummary?.publisherAddress,
+                      name: realmSummary?.publisherName,
+                      label: realmSummary?.publisherLabel,
+                      labelType: realmSummary?.publisherLabelType,
+                    }),
+                  )}
+                  passHref
+                >
                   <Text type="p4" color="blue" className="ellipsis">
-                    {realmSummary?.publisherName || realmSummary?.publisherAddress || ""}
+                    {getAddressDisplayText({
+                      address: realmSummary?.publisherAddress,
+                      name: realmSummary?.publisherName,
+                      label: realmSummary?.publisherLabel,
+                    }) || ""}
                   </Text>
                 </Link>
               </FitContentSpan>

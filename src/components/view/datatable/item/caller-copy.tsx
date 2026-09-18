@@ -3,6 +3,8 @@ import Link from "next/link";
 import styled from "styled-components";
 
 import { textEllipsis } from "@/common/utils/string-util";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -10,14 +12,19 @@ import { useNetwork } from "@/common/hooks/use-network";
 interface Props {
   caller: string;
   username?: string | undefined;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
 }
 
-export const CallerCopy = ({ caller, username }: Props) => {
+export const CallerCopy = ({ caller, username, label, labelType }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   return (
     <CallerWrapper>
-      <Link className="ellipsis" href={getUrlWithNetwork(`/account/${caller}`)}>
-        {textEllipsis(username ?? "", 6) || textEllipsis(caller ?? "", 6)}
+      <Link
+        className="ellipsis"
+        href={getUrlWithNetwork(getAddressLinkPath({ address: caller, name: username, label, labelType }))}
+      >
+        {textEllipsis(username ?? "", 6) || (label ? label : textEllipsis(caller ?? "", 6))}
         <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={caller} width={85}>
           <IconCopy className="svg-icon" />
         </Tooltip>

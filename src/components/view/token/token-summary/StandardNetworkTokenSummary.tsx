@@ -10,6 +10,7 @@ import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import { formatTokenDecimal, isWugnotPackagePath } from "@/common/utils/token.utility";
+import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
@@ -58,6 +59,8 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
       packagePath: summaryData.path,
       owner: summaryData.owner,
       ownerName: summaryData.ownerName,
+      ownerLabel: summaryData.ownerLabel,
+      ownerLabelType: summaryData.ownerLabelType,
       functions: summaryData.funcTypesList,
       totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, resolved.decimals)),
       holders: summaryData.holders,
@@ -155,13 +158,31 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
           <Badge>
             {tokenSummary?.owner && tokenSummary?.owner === "genesis" ? (
               <Text type="p4" color="blue" className="ellipsis">
-                {tokenSummary?.ownerName || tokenSummary?.owner || ""}
+                {getAddressDisplayText({
+                  address: tokenSummary?.owner,
+                  name: tokenSummary?.ownerName,
+                  label: tokenSummary?.ownerLabel,
+                }) || ""}
               </Text>
             ) : (
               <FitContentSpan>
-                <Link href={getUrlWithNetwork(`/account/${tokenSummary?.owner}`)} passHref>
+                <Link
+                  href={getUrlWithNetwork(
+                    getAddressLinkPath({
+                      address: tokenSummary?.owner,
+                      name: tokenSummary?.ownerName,
+                      label: tokenSummary?.ownerLabel,
+                      labelType: tokenSummary?.ownerLabelType,
+                    }),
+                  )}
+                  passHref
+                >
                   <Text type="p4" color="blue" className="ellipsis">
-                    {tokenSummary?.ownerName || tokenSummary?.owner || ""}
+                    {getAddressDisplayText({
+                      address: tokenSummary?.owner,
+                      name: tokenSummary?.ownerName,
+                      label: tokenSummary?.ownerLabel,
+                    }) || ""}
                   </Text>
                 </Link>
               </FitContentSpan>

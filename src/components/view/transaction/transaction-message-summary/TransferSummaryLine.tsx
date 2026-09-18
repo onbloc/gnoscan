@@ -30,7 +30,7 @@ const TransferSummaryLine = ({ transfers, embedded = false }: Props) => {
           <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
             to
           </Text>
-          <TransferAddress address={transfer.to} packagePath={transfer.toPackagePath} />
+          <TransferAddress address={transfer.to} label={transfer.toLabel} labelType={transfer.toLabelType} />
         </Line>
       ))}
     </Wrapper>

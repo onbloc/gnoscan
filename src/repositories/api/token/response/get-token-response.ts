@@ -1,3 +1,5 @@
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+
 export interface GetTokenResponse {
   data: {
     tokenId: string;
@@ -10,6 +12,8 @@ export interface GetTokenResponse {
     funcTypesList: string[];
     owner: string;
     ownerName: string;
+    ownerLabel?: string | null;
+    ownerLabelType?: ADDRESS_LABEL_TYPE | null;
     holders: number;
     sourceFiles: [
       {

@@ -1,4 +1,5 @@
 import { Amount } from "@/types/data-type";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 // Session-account specific fields of `create_session`, `revoke_session`, and `revoke_all_sessions` messages.
 export interface TransactionSession {
@@ -17,13 +18,21 @@ export interface TransactionContractModel {
   funcType: string;
   caller: string;
   callerName: string;
+  callerLabel?: string | null;
+  callerLabelType?: ADDRESS_LABEL_TYPE | null;
   creator: string;
   creatorName: string;
+  creatorLabel?: string | null;
+  creatorLabelType?: ADDRESS_LABEL_TYPE | null;
   amount: Amount;
   from: string;
   fromName: string;
+  fromLabel?: string | null;
+  fromLabelType?: ADDRESS_LABEL_TYPE | null;
   to: string;
   toName: string;
+  toLabel?: string | null;
+  toLabelType?: ADDRESS_LABEL_TYPE | null;
   log: string;
   args: string[];
   calledFunctions: { packagePath: string; method: string }[];
