@@ -20,6 +20,7 @@ import {
 } from "./transfer-render";
 
 const GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH = "gno.land/r/gnoswap/protocol_fee";
+const GNOSWAP_PROTOCOL_FEE_ADDRESS = toBech32AddressByPackagePath("g", GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH);
 const GNOSWAP_GNS_TOKEN_PATH = "gno.land/r/gnoswap/gns.GNS";
 const WUGNOT_TOKEN_PATH = "gno.land/r/gnoland/wugnot.wugnot";
 
@@ -720,7 +721,11 @@ function filterProtocolFeeApproveActions(actions: TransactionAction[]): Transact
     if (action.type !== "approve") return true;
 
     const spender = findAsset(action.assets, "spender");
-    return spender?.packagePath !== GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH;
+    if (!spender) return true;
+
+    // The backend doesn't always resolve spender.packagePath for this internal fee-routing
+    // approve, so also match by the address itself - it's deterministic from the pkgPath.
+    return spender.packagePath !== GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH && spender.value !== GNOSWAP_PROTOCOL_FEE_ADDRESS;
   });
 }
 
@@ -770,13 +775,19 @@ function isGnoswapProtocolMintAction(action: TransactionAction): boolean {
   return (
     action.type === "mint" &&
     action.tag === "grc20" &&
-    action.realm === "gno.land/p/nt/grc20" &&
+    stripRealmVersion(action.realm) === "gno.land/p/nt/grc20" &&
     stripActionAssetTokenId(amount?.assetType) === GNOSWAP_GNS_TOKEN_PATH
   );
 }
 
 function stripActionAssetTokenId(assetType = ""): string {
   return assetType.replace(/\.\d+$/, "");
+}
+
+// Realm paths carry a package version suffix (e.g. "gno.land/p/nt/grc20/v0") that can bump -
+// strip it so realm comparisons stay stable across versions.
+function stripRealmVersion(realm: string): string {
+  return realm.replace(/\/v\d+$/, "");
 }
 
 function groupCollectRewardActions(actions: TransactionAction[]): TransactionAction[] {
