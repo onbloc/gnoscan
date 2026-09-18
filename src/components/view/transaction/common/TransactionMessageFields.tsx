@@ -10,7 +10,7 @@ import { Amount } from "@/types/data-type";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 import * as S from "./TransactionMessageFields.styles";
@@ -170,7 +170,7 @@ export const AddressLink: React.FC<AddressLinkProps> = ({
 }) => {
   const displayAccount = React.useMemo(() => {
     if (!address) return "-";
-    return addressName || label || address;
+    return getAddressDisplayText({ address, name: addressName, label });
   }, [address, addressName, label]);
 
   return (

@@ -10,7 +10,7 @@ import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import { formatTokenDecimal, isWugnotPackagePath } from "@/common/utils/token.utility";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
@@ -158,7 +158,11 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
           <Badge>
             {tokenSummary?.owner && tokenSummary?.owner === "genesis" ? (
               <Text type="p4" color="blue" className="ellipsis">
-                {tokenSummary?.ownerName || tokenSummary?.ownerLabel || tokenSummary?.owner || ""}
+                {getAddressDisplayText({
+                  address: tokenSummary?.owner,
+                  name: tokenSummary?.ownerName,
+                  label: tokenSummary?.ownerLabel,
+                }) || ""}
               </Text>
             ) : (
               <FitContentSpan>
@@ -173,7 +177,11 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
                   passHref
                 >
                   <Text type="p4" color="blue" className="ellipsis">
-                    {tokenSummary?.ownerName || tokenSummary?.ownerLabel || tokenSummary?.owner || ""}
+                    {getAddressDisplayText({
+                      address: tokenSummary?.owner,
+                      name: tokenSummary?.ownerName,
+                      label: tokenSummary?.ownerLabel,
+                    }) || ""}
                   </Text>
                 </Link>
               </FitContentSpan>
