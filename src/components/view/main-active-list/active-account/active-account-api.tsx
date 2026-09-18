@@ -69,6 +69,7 @@ const ActiveAccountApi = () => {
                   href={getUrlWithNetwork(
                     getAddressLinkPath({
                       address: account.account,
+                      name: account.accountName,
                       label: account.accountLabel,
                       labelType: account.accountLabelType,
                     }),

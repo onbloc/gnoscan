@@ -23,10 +23,9 @@ export const Account = ({ address, addressName, label, labelType }: Props) => {
     return <TooltipWrapper>{address}</TooltipWrapper>;
   };
 
-  const displayName = useMemo(() => {
-    if (addressName) return addressName;
+  const resolvedName = addressName || (address ? getName(address) : undefined);
 
-    const resolvedName = address ? getName(address) : undefined;
+  const displayName = useMemo(() => {
     if (resolvedName) return resolvedName;
 
     if (label) return label;
@@ -36,12 +35,15 @@ export const Account = ({ address, addressName, label, labelType }: Props) => {
     }
 
     return textEllipsis(address, 6);
-  }, [address, addressName, label, getName]);
+  }, [address, resolvedName, label]);
 
   return (
     <Tooltip content={renderTooltip()}>
       <TooltipWrapper>
-        <Link className="ellipsis" href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
+        <Link
+          className="ellipsis"
+          href={getUrlWithNetwork(getAddressLinkPath({ address, name: resolvedName, label, labelType }))}
+        >
           {displayName}
         </Link>
       </TooltipWrapper>

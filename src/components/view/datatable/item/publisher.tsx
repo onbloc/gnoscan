@@ -40,7 +40,10 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
 
   return address && address !== "genesis" ? (
     <Tooltip content={renderTooltip()}>
-      <PublisherLink className="ellipsis" href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
+      <PublisherLink
+        className="ellipsis"
+        href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
+      >
         {displayName}
       </PublisherLink>
     </Tooltip>

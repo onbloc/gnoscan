@@ -170,6 +170,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
                   href={getUrlWithNetwork(
                     getAddressLinkPath({
                       address: tokenSummary?.owner,
+                      name: tokenSummary?.ownerName,
                       label: tokenSummary?.ownerLabel,
                       labelType: tokenSummary?.ownerLabelType,
                     }),

@@ -47,4 +47,15 @@ describe("getAddressLinkPath", () => {
       getAddressLinkPath({ address: "g1abc", label: "Binance", labelType: "exchange" as ADDRESS_LABEL_TYPE }),
     ).toBe("/account/g1abc");
   });
+
+  it("links to the account page instead of the realm page when a name is resolved", () => {
+    expect(
+      getAddressLinkPath({
+        address: "g1abc",
+        name: "alice",
+        label: "gno.land/r/gnoswap/router",
+        labelType: ADDRESS_LABEL_TYPE.REALM,
+      }),
+    ).toBe("/account/g1abc");
+  });
 });

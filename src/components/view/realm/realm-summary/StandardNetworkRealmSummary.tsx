@@ -257,6 +257,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
                   href={getUrlWithNetwork(
                     getAddressLinkPath({
                       address: realmSummary?.publisherAddress,
+                      name: realmSummary?.publisherName,
                       label: realmSummary?.publisherLabel,
                       labelType: realmSummary?.publisherLabelType,
                     }),

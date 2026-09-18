@@ -101,6 +101,7 @@ const StandardNetworkActiveNewest = () => {
                     href={getUrlWithNetwork(
                       getAddressLinkPath({
                         address: realm.creator,
+                        name: realm.creatorName,
                         label: realm.creatorLabel,
                         labelType: realm.creatorLabelType,
                       }),

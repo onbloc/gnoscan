@@ -13,9 +13,11 @@ export function getAddressDisplayText({ address, name, label }: AddressLabelInfo
 }
 
 // A curated address links to its realm page when labelType is "realm" (label holds the package
-// path in that case); every other address links to its account page.
-export function getAddressLinkPath({ address, label, labelType }: AddressLabelInfo): string {
-  if (labelType === ADDRESS_LABEL_TYPE.REALM && label) {
+// path in that case); every other address links to its account page. A resolved name takes the
+// same precedence here as it does in getAddressDisplayText, so a named realm address (e.g. one
+// that also has a NameTag) still links where its displayed text implies - the account page.
+export function getAddressLinkPath({ address, name, label, labelType }: AddressLabelInfo): string {
+  if (!name && labelType === ADDRESS_LABEL_TYPE.REALM && label) {
     return `/realms/details?path=${label}`;
   }
 

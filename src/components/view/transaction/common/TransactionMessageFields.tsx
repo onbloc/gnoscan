@@ -177,7 +177,7 @@ export const AddressLink: React.FC<AddressLinkProps> = ({
     <Badge>
       <S.AddressTextBox>
         <Text type="p4" color="blue" className="ellipsis">
-          <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))} passHref>
+          <Link href={getUrlWithNetwork(getAddressLinkPath({ address, name: addressName, label, labelType }))} passHref>
             <FitContentSpan>{displayAccount}</FitContentSpan>
           </Link>
         </Text>
