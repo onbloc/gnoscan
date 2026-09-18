@@ -23,7 +23,7 @@ const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: P
   const positionOwnerAddress = getSharedSummaryCaller(messages);
   const transferSummaryLines = getTransferSummaryLines(numOfMessage, summary);
   const summaryCase = getTransactionTopSummaryCase({
-    hasCustomSummary: hasDisplayActions(actions, summary?.types),
+    hasCustomSummary: hasDisplayActions(actions),
     hasTransferSummary: transferSummaryLines.length > 0,
     hasMessages: messages.length > 0,
   });
@@ -32,12 +32,7 @@ const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: P
     case "custom":
       return (
         <SummaryCard>
-          <TransactionActionSummary
-            actions={actions}
-            types={summary?.types}
-            positionOwnerAddress={positionOwnerAddress}
-            embedded
-          />
+          <TransactionActionSummary actions={actions} positionOwnerAddress={positionOwnerAddress} embedded />
           {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
         </SummaryCard>
       );

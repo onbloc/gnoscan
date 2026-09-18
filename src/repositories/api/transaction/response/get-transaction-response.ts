@@ -2,7 +2,6 @@ import { Amount, TransactionSummaryDetail } from "@/types/data-type";
 
 export interface TransactionSummary {
   blockHeight: number;
-  contractType: string;
   gas: {
     used: number;
     usedPercentage: string;

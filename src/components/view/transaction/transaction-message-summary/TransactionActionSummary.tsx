@@ -19,19 +19,16 @@ import {
   useActionTokenInfos,
 } from "./transfer-render";
 
-const GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH = "gno.land/r/gnoswap/protocol_fee";
-const GNOSWAP_GNS_TOKEN_PATH = "gno.land/r/gnoswap/gns.GNS";
 const WUGNOT_TOKEN_PATH = "gno.land/r/gnoland/wugnot.wugnot";
 
 interface Props {
   actions: TransactionAction[];
-  types?: string[];
   positionOwnerAddress?: string;
   embedded?: boolean;
 }
 
-const TransactionActionSummary = ({ actions, types, positionOwnerAddress, embedded = false }: Props) => {
-  const displayActions = React.useMemo(() => selectDisplayActions(actions, types), [actions, types]);
+const TransactionActionSummary = ({ actions, positionOwnerAddress, embedded = false }: Props) => {
+  const displayActions = React.useMemo(() => selectDisplayActions(actions), [actions]);
   const tokenInfosByTokenKey = useActionTokenInfos(actions);
 
   if (displayActions.length === 0) return null;
@@ -319,22 +316,11 @@ function renderAddLiquidity(action: TransactionAction, ctx: ActionRenderContext)
   const [depositAmount] = tokens;
   const position = findAsset(assets, "position");
   const pool = findAsset(assets, "pool");
-  if (!depositAmount) return null;
-
-  if (type === "addLiquidity") {
-    return (
-      <>
-        <Verb>Deposit</Verb>
-        {ctx.amount(depositAmount)}
-      </>
-    );
-  }
-
-  if (!position) return null;
+  if (!depositAmount || !position) return null;
 
   return (
     <>
-      <Verb>Reposition</Verb>
+      <Verb>{type === "addLiquidity" ? "Deposit" : "Reposition"}</Verb>
       {joinAmounts(tokens, ctx.amount)}
       <Verb>to</Verb>
       <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
@@ -367,7 +353,7 @@ function renderCollectFee(action: TransactionAction, ctx: ActionRenderContext): 
   return (
     <>
       <Verb>Collect fee</Verb>
-      {fees.length > 0 && joinAmounts(fees, ctx.amount, null)}
+      {fees.length > 0 && joinAmounts(fees, ctx.amount)}
       <Verb>from</Verb>
       <PositionClause position={position} pool={pool} ownerAddress={ctx.positionOwnerAddress} />
     </>
@@ -703,75 +689,15 @@ function findLiquidityActionByPosition(
     .find(action => findAsset(action.assets, "position")?.value === positionId);
 }
 
-function selectDisplayActions(actions: TransactionAction[], types?: string[]): TransactionAction[] {
+function selectDisplayActions(actions: TransactionAction[]): TransactionAction[] {
   const uniqueActions = dedupeActions(actions);
-  if (!types?.length) return uniqueActions;
-
-  const displayActions = uniqueActions.filter(action => types.some(type => actionMatchesSummaryType(action, type)));
-  return orderLiquidityBeforePositionMint(
-    groupCollectRewardActions(
-      filterWugnotWrapActions(filterProtocolMintActions(filterProtocolFeeApproveActions(displayActions))),
-    ),
-  );
-}
-
-function filterProtocolFeeApproveActions(actions: TransactionAction[]): TransactionAction[] {
-  return actions.filter(action => {
-    if (action.type !== "approve") return true;
-
-    const spender = findAsset(action.assets, "spender");
-    return spender?.packagePath !== GNOSWAP_PROTOCOL_FEE_PACKAGE_PATH;
-  });
-}
-
-function filterProtocolMintActions(actions: TransactionAction[]): TransactionAction[] {
-  const hasPositionMint = actions.some(action => action.type === "mint" && action.tag === "grc721");
-  if (!hasPositionMint) return actions;
-
-  return actions.filter(action => !isGnoswapProtocolMintAction(action));
+  return orderLiquidityBeforePositionMint(groupCollectRewardActions(uniqueActions));
 }
 
 function isWugnotMintAction(action: TransactionAction): boolean {
   const [amount] = amountAssets(action.assets);
   return (
     action.type === "mint" && action.tag === "grc20" && stripActionAssetTokenId(amount?.assetType) === WUGNOT_TOKEN_PATH
-  );
-}
-
-// A wugnot auto-wrap (mint) that exactly funds an addLiquidity/reposition step is already
-// represented by that action's own "Deposit" line - keeping both renders the same amount twice.
-// Uses a remaining-count map (not a Set) so N separate wraps of the same amount only get
-// consumed by N matching addLiquidity/reposition amounts, not all of them.
-function filterWugnotWrapActions(actions: TransactionAction[]): TransactionAction[] {
-  const remainingLiquidityWugnotAmounts = new Map<string, number>();
-  actions
-    .filter(action => action.type === "addLiquidity" || action.type === "reposition")
-    .flatMap(action => amountAssets(action.assets))
-    .filter(asset => stripActionAssetTokenId(asset.assetType) === WUGNOT_TOKEN_PATH)
-    .forEach(asset => {
-      remainingLiquidityWugnotAmounts.set(asset.value, (remainingLiquidityWugnotAmounts.get(asset.value) ?? 0) + 1);
-    });
-  if (remainingLiquidityWugnotAmounts.size === 0) return actions;
-
-  return actions.filter(action => {
-    if (!isWugnotMintAction(action)) return true;
-
-    const [amount] = amountAssets(action.assets);
-    const remaining = amount ? remainingLiquidityWugnotAmounts.get(amount.value) : undefined;
-    if (!remaining) return true;
-
-    remainingLiquidityWugnotAmounts.set(amount.value, remaining - 1);
-    return false;
-  });
-}
-
-function isGnoswapProtocolMintAction(action: TransactionAction): boolean {
-  const [amount] = amountAssets(action.assets);
-  return (
-    action.type === "mint" &&
-    action.tag === "grc20" &&
-    action.realm === "gno.land/p/nt/grc20" &&
-    stripActionAssetTokenId(amount?.assetType) === GNOSWAP_GNS_TOKEN_PATH
   );
 }
 
@@ -836,17 +762,8 @@ function orderLiquidityBeforePositionMint(actions: TransactionAction[]): Transac
   return nextActions;
 }
 
-export function hasDisplayActions(actions: TransactionAction[], types?: string[]): boolean {
-  return selectDisplayActions(actions, types).length > 0;
-}
-
-function actionMatchesSummaryType(action: TransactionAction, type: string): boolean {
-  const actionType = action.type.toLowerCase();
-  const summaryType = type.toLowerCase();
-
-  if (summaryType === "deposit" && (actionType === "addliquidity" || isWugnotMintAction(action))) return true;
-
-  return summaryType === actionType || summaryType.includes(actionType);
+export function hasDisplayActions(actions: TransactionAction[]): boolean {
+  return selectDisplayActions(actions).length > 0;
 }
 
 function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
@@ -863,14 +780,9 @@ function dedupeActions(actions: TransactionAction[]): TransactionAction[] {
   });
 }
 
-function joinAmounts(
-  assets: ActionAsset[],
-  renderAmount: (asset: ActionAsset) => React.ReactNode,
-  separator: React.ReactNode = "+",
-): React.ReactNode[] {
+function joinAmounts(assets: ActionAsset[], renderAmount: (asset: ActionAsset) => React.ReactNode): React.ReactNode[] {
   return assets.map((asset, index) => (
     <React.Fragment key={`${asset.assetType}-${asset.key}-${asset.value}-${index}`}>
-      {index > 0 && separator !== null && <Verb>{separator}</Verb>}
       {renderAmount(asset)}
     </React.Fragment>
   ));
