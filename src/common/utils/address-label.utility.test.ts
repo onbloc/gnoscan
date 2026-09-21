@@ -9,9 +9,11 @@ describe("getAddressDisplayText", () => {
   });
 
   it("falls back to the label when there is no resolved name", () => {
-    expect(getAddressDisplayText({ address: "g1abc", label: "gno.land/r/gnoswap/router" })).toBe(
-      "gno.land/r/gnoswap/router",
-    );
+    expect(getAddressDisplayText({ address: "g1abc", label: "gno.land/r/gnoswap/router" })).toBe("r/gnoswap/router");
+  });
+
+  it("strips the gno.land/ prefix from a realm label but leaves a non-realm label untouched", () => {
+    expect(getAddressDisplayText({ address: "g1abc", label: "Binance" })).toBe("Binance");
   });
 
   it("falls back to the raw address when there is no name or label", () => {

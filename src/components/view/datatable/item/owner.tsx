@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 
@@ -27,7 +28,7 @@ export const Owner = ({ publisher, publisherUsername, label, labelType }: Props)
     }
 
     if (label) {
-      return label;
+      return stripGnoLandPrefix(label);
     }
 
     if (publisher) {

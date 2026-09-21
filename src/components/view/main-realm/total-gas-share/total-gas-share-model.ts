@@ -1,5 +1,6 @@
 import { ValueWithDenomType } from "@/types/data-type";
 import BigNumber from "bignumber.js";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 interface TotalGasShareData {
   date: string;
@@ -125,7 +126,7 @@ export class TotalGasShareModel {
     return packages.map(item => {
       return {
         date: date ?? "",
-        packagePath: `${item.path}`.replace("gno.land", ""),
+        packagePath: stripGnoLandPrefix(`${item.path}`),
         packageDailyFee: BigNumber(item.daily_fee || 0).toNumber(),
         totalDailyFee: BigNumber(daily_total_fee.value || 0).toNumber(),
         percent: BigNumber(item.percent || 0).toNumber(),

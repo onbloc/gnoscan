@@ -23,6 +23,7 @@ import {
   getTokenKeySymbol,
   stripTokenKeySymbol,
   toBarePackagePath,
+  stripGnoLandPrefix,
 } from "@/common/utils/token.utility";
 import { ActionAsset, AssetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 
@@ -188,7 +189,7 @@ export const TransferAddress = ({
     <AddressChip>
       {isRealm ? (
         <RealmLink pkgPath={label as string} compact={compact}>
-          {(label as string).replace("gno.land/", "")}
+          {stripGnoLandPrefix(label as string)}
         </RealmLink>
       ) : (
         <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>

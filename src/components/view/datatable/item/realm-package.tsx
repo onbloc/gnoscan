@@ -1,10 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
-
 import { useNetwork } from "@/common/hooks/use-network";
-import { formatDisplayTokenPath } from "@/common/utils/token.utility";
+import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 import Tooltip from "@/components/ui/tooltip";
 
@@ -15,7 +13,7 @@ interface Props {
 
 export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  const displayPackagePath = formatDisplayTokenPath(packagePath?.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""), 4);
+  const displayPackagePath = formatDisplayTokenPath(stripGnoLandPrefix(packagePath), 4);
 
   return (
     <Tooltip content={<TooltipContent packagePath={packagePath} />}>
