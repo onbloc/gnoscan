@@ -6,6 +6,7 @@ import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ValidatorInfo } from "@/layouts/account/AccountLayout";
 
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -78,7 +79,7 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
                   <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))} passHref>
                     <LinkWrapper rel="noreferrer">
                       <Text type="p4" color="primary">
-                        {label}
+                        {stripGnoLandPrefix(label)}
                       </Text>
                       <IconLink />
                     </LinkWrapper>

@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -24,7 +25,7 @@ export const CallerCopy = ({ caller, username, label, labelType }: Props) => {
         className="ellipsis"
         href={getUrlWithNetwork(getAddressLinkPath({ address: caller, name: username, label, labelType }))}
       >
-        {textEllipsis(username ?? "", 6) || (label ? label : textEllipsis(caller ?? "", 6))}
+        {textEllipsis(username ?? "", 6) || (label ? stripGnoLandPrefix(label) : textEllipsis(caller ?? "", 6))}
         <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={caller} width={85}>
           <IconCopy className="svg-icon" />
         </Tooltip>

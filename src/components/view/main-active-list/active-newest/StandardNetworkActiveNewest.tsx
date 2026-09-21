@@ -11,6 +11,7 @@ import { getLocalDateString } from "@/common/utils/date-util";
 import { NewestRealm } from "@/types/data-type";
 import { truncateDashboardUsername } from "@/common/utils/common.utility";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
@@ -22,7 +23,7 @@ function makeDisplayRealmPath(path: string, length = 11) {
   if (!path) {
     return "";
   }
-  const displayPath = path.replace("gno.land", "");
+  const displayPath = stripGnoLandPrefix(path);
   return displayPath.length > length ? displayPath.substring(0, length) + "..." : displayPath;
 }
 

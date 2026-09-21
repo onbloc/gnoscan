@@ -1,4 +1,10 @@
-import { formatTokenDecimal, formatDisplayTokenPath, resolveTokenMeta, isWugnotPackagePath } from "./token.utility";
+import {
+  formatTokenDecimal,
+  formatDisplayTokenPath,
+  resolveTokenMeta,
+  isWugnotPackagePath,
+  stripGnoLandPrefix,
+} from "./token.utility";
 
 describe("formatTokenDecimal", () => {
   describe("when handling valid number inputs", () => {
@@ -101,14 +107,14 @@ describe("formatTokenDecimal", () => {
 describe("formatDisplayTokenPath", () => {
   describe("Normal Cases", () => {
     it("should format path with default visibleLength (8)", () => {
-      const input = "/r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
-      const expected = "/r/g1edq4du...cgleuc8p/USDC";
+      const input = "r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
+      const expected = "r/g1edq4du...cgleuc8p/USDC";
       expect(formatDisplayTokenPath(input)).toBe(expected);
     });
 
     it("should format path with custom visibleLength", () => {
-      const input = "/r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
-      const expected = "/r/g1ed...uc8p/USDC";
+      const input = "r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
+      const expected = "r/g1ed...uc8p/USDC";
       expect(formatDisplayTokenPath(input, 4)).toBe(expected);
     });
   });
@@ -134,18 +140,18 @@ describe("formatDisplayTokenPath", () => {
   });
 
   describe("Invalid Format Cases", () => {
-    it("should return original path when not starting with /r/", () => {
+    it("should return original path when not starting with r/", () => {
       const input = "wrong/path/format";
       expect(formatDisplayTokenPath(input)).toBe(input);
     });
 
     it("should return original path when missing token name", () => {
-      const input = "/r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1";
+      const input = "r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1";
       expect(formatDisplayTokenPath(input)).toBe(input);
     });
 
     it("should return original path for malformed input", () => {
-      const input = "/r//USDC";
+      const input = "r//USDC";
       expect(formatDisplayTokenPath(input)).toBe(input);
     });
   });
@@ -156,18 +162,18 @@ describe("formatDisplayTokenPath", () => {
     });
 
     it("should handle path with minimum valid format", () => {
-      const input = "/r/a/b";
+      const input = "r/a/b";
       expect(formatDisplayTokenPath(input)).toBe(input);
     });
 
     it("should handle path with exactly twice the visibleLength", () => {
-      const input = "/r/1234567890123456/TOKEN";
+      const input = "r/1234567890123456/TOKEN";
       expect(formatDisplayTokenPath(input, 8)).toBe(input);
     });
   });
 
   describe("Various VisibleLength Tests", () => {
-    const input = "/r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1/USDC";
+    const input = "r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1/USDC";
 
     it("should handle zero visibleLength", () => {
       expect(formatDisplayTokenPath(input, 0)).toBe(input);
@@ -184,6 +190,27 @@ describe("formatDisplayTokenPath", () => {
     it("should handle visibleLength larger than address length", () => {
       expect(formatDisplayTokenPath(input, 100)).toBe(input);
     });
+  });
+});
+
+describe("stripGnoLandPrefix", () => {
+  it("should strip the gno.land/ prefix", () => {
+    expect(stripGnoLandPrefix("gno.land/r/gnoswap/emission")).toBe("r/gnoswap/emission");
+  });
+
+  it("should return the original path when there is no gno.land/ prefix", () => {
+    expect(stripGnoLandPrefix("r/gnoswap/emission")).toBe("r/gnoswap/emission");
+  });
+
+  it("should return the original value for empty string", () => {
+    expect(stripGnoLandPrefix("")).toBe("");
+  });
+
+  it("should return the original value for null/undefined input", () => {
+    // @ts-expect-error stripGnoLandPrefix expects string type
+    expect(stripGnoLandPrefix(null)).toBe(null);
+    // @ts-expect-error stripGnoLandPrefix expects string type
+    expect(stripGnoLandPrefix(undefined)).toBe(undefined);
   });
 });
 

@@ -130,6 +130,13 @@ export function resolveTokenMeta<T extends { name: string; symbol: string; decim
   return resolved;
 }
 
+export function stripGnoLandPrefix(path: string): string {
+  if (!path || typeof path !== "string") return path;
+
+  const prefix = `${GNO_NETWORK_PREFIXES.GNO_LAND}/`;
+  return path.startsWith(prefix) ? path.slice(prefix.length) : path;
+}
+
 export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
   if (!path || typeof path !== "string") return path;
 

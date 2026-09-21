@@ -1,4 +1,5 @@
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 interface AddressLabelInfo {
   address?: string | null;
@@ -8,8 +9,10 @@ interface AddressLabelInfo {
 }
 
 // Priority: a resolved name (username/nameTag) beats a curated label, which beats the raw address.
+// A realm label holds a full package path (e.g. "gno.land/r/demo/foo20"), so it's stripped of the
+// "gno.land/" prefix the same way every other realm-path display in the app is.
 export function getAddressDisplayText({ address, name, label }: AddressLabelInfo): string | undefined {
-  return name || label || address || undefined;
+  return name || (label ? stripGnoLandPrefix(label) : label) || address || undefined;
 }
 
 // A curated address links to its realm page when labelType is "realm" (label holds the package

@@ -6,7 +6,7 @@ import Tooltip from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { GNOSWAP_APP_BASE_URL } from "@/common/values/constant-value";
 import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
-import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { formatTokenDecimal, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ActionAsset, TransactionAction } from "@/types/data-type";
 import {
   ActionAmount,
@@ -161,7 +161,7 @@ const RealmChip = ({ pkgPath, children }: { pkgPath: string; children: React.Rea
 const ViaRealmClause = ({ realm, preposition = "via" }: { realm: string; preposition?: string }) => (
   <>
     <Verb>{preposition}</Verb>
-    <RealmChip pkgPath={realm}>{realm.replace("gno.land/", "")}</RealmChip>
+    <RealmChip pkgPath={realm}>{stripGnoLandPrefix(realm)}</RealmChip>
   </>
 );
 

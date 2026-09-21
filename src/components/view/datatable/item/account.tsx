@@ -6,6 +6,7 @@ import { useUsername } from "@/common/hooks/account/use-username";
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 
@@ -28,7 +29,7 @@ export const Account = ({ address, addressName, label, labelType }: Props) => {
   const displayName = useMemo(() => {
     if (resolvedName) return resolvedName;
 
-    if (label) return label;
+    if (label) return stripGnoLandPrefix(label);
 
     if (!address) {
       return "-";
