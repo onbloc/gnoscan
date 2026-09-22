@@ -6,9 +6,7 @@ import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useRealm } from "@/common/hooks/realms/use-realm";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useUsername } from "@/common/hooks/account/use-username";
-import { useGetGRC20TokenBalances, useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetRealmTransactionsQuery } from "@/common/react-query/realm";
-import { Amount } from "@/types/data-type";
 
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -48,19 +46,6 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
   const { getName } = useUsername();
   const { getTokenAmount } = useTokenMeta();
-
-  const { data: nativeBalance } = useGetNativeTokenBalance(summary?.realmAddress || "", {
-    enabled: !!summary?.realmAddress,
-  });
-  const { data: grc20Balances } = useGetGRC20TokenBalances(summary?.realmAddress || "", {
-    enabled: !!summary?.realmAddress,
-  });
-
-  const realmBalanceList: Amount[] = React.useMemo(() => {
-    const rawAmounts = [nativeBalance ?? { value: "0", denom: GNOTToken.denom }, ...(grc20Balances || [])];
-    return rawAmounts.map(amount => getTokenAmount(amount.denom, amount.value));
-  }, [nativeBalance, grc20Balances, getTokenAmount]);
-  void realmBalanceList;
 
   const balanceStr = React.useMemo(() => {
     if (!summary?.balance) {

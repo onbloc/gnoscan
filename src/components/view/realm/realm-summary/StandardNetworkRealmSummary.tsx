@@ -17,7 +17,7 @@ import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constan
 import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { Amount, RealmSummary } from "@/types/data-type";
 
-import { mapAccountAssetsToAmounts } from "./realm-balance.utility";
+import { mapAccountAssetsToAmounts, sortAmountsByValueDesc } from "./realm-balance.utility";
 
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
@@ -118,14 +118,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
 
   const realmBalanceList: Amount[] = React.useMemo(() => {
     const nativeAmount = toGNOTAmount(nativeBalanceData?.value || "0", nativeBalanceData?.denom || GNOTToken.denom);
-    return [nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)];
+    return sortAmountsByValueDesc([nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)]);
   }, [nativeBalanceData, accountData?.data?.assets]);
-
-  const realmBalance: Amount | null = React.useMemo(() => {
-    if (realmBalanceList.length <= 0) return null;
-
-    return realmBalanceList[0];
-  }, [realmBalanceList]);
 
   const realmTotalUsedFees: Amount | null = React.useMemo(() => {
     if (!realmSummary?.totalUsedFees) return null;
@@ -324,15 +318,12 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             </Tooltip>
           </div>
         </dt>
-        <dd>
-          <Badge>
-            <AmountText
-              minSize="body1"
-              maxSize="p4"
-              value={realmBalance?.value || "0"}
-              denom={realmBalance?.denom || GNOTToken.symbol}
-            />
-          </Badge>
+        <dd className="function-wrapper">
+          {realmBalanceList.map((amount, index) => (
+            <Badge key={`${amount.denom}-${index}`}>
+              <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
+            </Badge>
+          ))}
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
