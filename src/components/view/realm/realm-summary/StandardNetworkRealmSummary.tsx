@@ -36,6 +36,7 @@ import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 import Tooltip from "@/components/ui/tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
+import PublicFunctions from "@/components/ui/public-functions";
 
 const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
   ssr: false,
@@ -237,7 +238,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {realmSummary?.funcs?.map((v: string, index: number) => (
             <Badge key={index} type="blue">
               <Text type="p4" color="white">
@@ -245,7 +246,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Publisher</dt>

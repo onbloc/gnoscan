@@ -83,34 +83,15 @@ export const DLWrap = styled.dl<StyleProps>`
     width: 100%;
     display: block;
 
-    &.function-wrapper {
-      line-height: 40px;
-
-      .link {
-        padding: 0;
-        transition: 0.2s;
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.6;
-        }
-      }
-
-      .tooltip {
-        display: block;
-        width: 100%;
-        height: 100%;
-
-        .tooltip-button {
-          padding: 4px 16px;
-        }
-      }
-    }
-
     &.path-wrapper {
       display: flex;
       flex-direction: row;
       gap: 15px;
+      margin-top: ${({ desktop }) => (desktop ? "0" : "12px")};
+
+      > .badge {
+        margin-top: 0;
+      }
 
       @media (max-width: 767px) {
         flex-direction: column;
@@ -119,6 +100,7 @@ export const DLWrap = styled.dl<StyleProps>`
 
         > .badge:first-child {
           margin: 0;
+          width: fit-content;
           max-width: 100%;
           min-width: 0;
         }

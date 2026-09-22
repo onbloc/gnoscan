@@ -19,6 +19,7 @@ import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { RealmTotalContractCalls } from "../realm-total-contract-calls/RealmTotalContractCalls";
 import { RealmTotalUsedFeeAmount } from "../realm-total-used-fee-amount/RealmTotalUsedFeeAmount";
+import PublicFunctions from "@/components/ui/public-functions";
 
 interface RealmSummaryProps {
   path: string;
@@ -114,7 +115,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {summary?.funcs?.map((v: string, index: number) => (
             <Badge key={index} type="blue">
               <Text type="p4" color="white">
@@ -122,7 +123,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Publisher</dt>
