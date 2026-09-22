@@ -92,6 +92,23 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       });
   }
 
+  getRealmInternalTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetRealmTransactionsResponse>>({
+        url: `/realms/${encodeURIComponent(path)}/internal-transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
   getRealmTokenTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");

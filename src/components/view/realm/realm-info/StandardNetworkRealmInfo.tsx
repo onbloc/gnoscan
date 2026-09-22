@@ -4,6 +4,7 @@ import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { AccountMapper } from "@/common/mapper/account/account-mapper";
 import {
   useGetRealmEventsByPath,
+  useGetRealmInternalTransfersByPath,
   useGetRealmInternalNativeTransfersByPath,
   useGetRealmTransactionsByPath,
   useGetRealmTokenTransfersByPath,
@@ -14,7 +15,6 @@ import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.cons
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
-import { PlaceholderDatatable } from "../../datatable/placeholder";
 import { RealmDetailDatatable } from "../../datatable";
 
 interface RealmInfoProps {
@@ -30,6 +30,12 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     hasNextPage: hasNextPageTransactionData,
     fetchNextPage: fetchNextPageTransactionData,
   } = useGetRealmTransactionsByPath({ path });
+  const {
+    data: internalTransferData,
+    isFetched: isFetchedInternalTransferData,
+    hasNextPage: hasNextPageInternalTransferData,
+    fetchNextPage: fetchNextPageInternalTransferData,
+  } = useGetRealmInternalTransfersByPath({ path });
   const {
     data: eventData,
     isFetched: isFetchedEventData,
@@ -63,6 +69,13 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     return RealmMapper.realmEventFromApiResponses(allItems);
   }, [eventData?.pages]);
 
+  const realmInternalTransfers = React.useMemo(() => {
+    if (!internalTransferData?.pages) return [];
+
+    const allItems = internalTransferData.pages.flatMap(page => page.items);
+    return RealmMapper.realmTransactionFromApiResponses(allItems);
+  }, [internalTransferData?.pages]);
+
   const realmTokenTransfers = React.useMemo(() => {
     if (!tokenTransferData?.pages) return [];
 
@@ -78,6 +91,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
   }, [internalNativeTransferData?.pages]);
 
   const transactionsCount = transactionData?.pages[0]?.page.totalCount;
+  const internalTransfersCount = internalTransferData?.pages[0]?.page.totalCount;
   const eventsCount = eventData?.pages[0]?.page.totalCount;
   const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
   const internalNativeTransfersCount = internalNativeTransferData?.pages[0]?.page.totalCount;
@@ -88,7 +102,10 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
         tabName: DETAIL_TAB_NAME.TRANSACTIONS,
         size: transactionsCount ?? realmTransactions.length,
       },
-      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS },
+      {
+        tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS,
+        size: internalTransfersCount ?? realmInternalTransfers.length,
+      },
       {
         tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
         size: tokenTransfersCount ?? realmTokenTransfers.length,
@@ -104,8 +121,10 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     ];
   }, [
     transactionsCount,
+    internalTransfersCount,
     eventsCount,
     realmTransactions,
+    realmInternalTransfers,
     realmEvents,
     tokenTransfersCount,
     realmTokenTransfers,
@@ -126,7 +145,15 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
           pkgPath={`${path}`}
         />
       )}
-      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && (
+        <RealmDetailDatatable
+          data={realmInternalTransfers}
+          isFetched={isFetchedInternalTransferData}
+          hasNextPage={hasNextPageInternalTransferData || false}
+          nextPage={fetchNextPageInternalTransferData}
+          pkgPath={`${path}`}
+        />
+      )}
       {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && (
         <StandardNetworkAccountTxsDatatable
           address={path}
