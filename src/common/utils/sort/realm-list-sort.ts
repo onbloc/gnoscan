@@ -9,6 +9,8 @@ type RealmListApiSort = NonNullable<GetRealmsRequestParameters["sort"]>;
 // runs server-side over the full realm set instead of the loaded page only.
 const FIELD_TO_API_SORT: Record<Exclude<RealmListSortField, "none">, RealmListApiSort> = {
   packageName: "name",
+  // The API's existing newest/oldest deployment order uses the realm ID.
+  blockHeight: "id",
   totalCalls: "totalCallCount",
   storageDeposit: "storageDeposit",
   totalGasUsed: "totalGasUsed",
@@ -39,6 +41,9 @@ export const sortRealmList = (items: Realm[] = [], sortOption: RealmListSortOpti
       case "packageName":
         const nameComparison = a.packageName.localeCompare(b.packageName);
         return sortOption.order === "desc" ? -nameComparison : nameComparison;
+
+      case "blockHeight":
+        return sortOption.order === "desc" ? b.blockHeight - a.blockHeight : a.blockHeight - b.blockHeight;
 
       case "totalCalls":
         const aCount = Number(a?.totalCalls || 0);
