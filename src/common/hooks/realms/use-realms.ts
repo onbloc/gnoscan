@@ -98,10 +98,10 @@ export const useRealms = (paging = true, sortOptions?: RealmListSortOption) => {
     }
 
     if (sortOptions.field === "totalCalls") {
-      return dataWithTransactionInfo?.sort(sort) || null;
+      return dataWithTransactionInfo ? [...dataWithTransactionInfo].sort(sort) : null;
     }
 
-    return data.sort(sort);
+    return [...data].sort(sort);
   }, [data, realmTransactionInfos, sortOptions]);
 
   const realms = useMemo(() => {
@@ -130,6 +130,12 @@ export const useRealms = (paging = true, sortOptions?: RealmListSortOption) => {
         return data1.packageName < data2.packageName ? 1 : -1;
       }
       return data1.packageName > data2.packageName ? 1 : -1;
+    }
+
+    if (sortOptions.field === "blockHeight") {
+      return sortOptions.order === "desc"
+        ? Number(data2.blockHeight) - Number(data1.blockHeight)
+        : Number(data1.blockHeight) - Number(data2.blockHeight);
     }
 
     if (sortOptions?.field === "totalCalls") {
