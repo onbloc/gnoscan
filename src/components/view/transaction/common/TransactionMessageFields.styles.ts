@@ -44,6 +44,12 @@ export const PackagePathWrapper = styled.div`
     margin: 0;
   }
 
+  @media (max-width: 1279px) {
+    dd > & {
+      margin-top: 12px;
+    }
+  }
+
   @media (max-width: 767px) {
     flex-direction: column;
     align-items: flex-start;
