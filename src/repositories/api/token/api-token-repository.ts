@@ -14,6 +14,8 @@ export interface ApiTokenRepository {
 
   getTokenTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse>;
 
+  getTokenInternalTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse>;
+
   getTokenHolders(params: GetTokenHoldersRequest): Promise<GetTokenHoldersResponse>;
 
   getTokenMetaByPath(path: string): Promise<GetTokenMetaByPathResponse>;

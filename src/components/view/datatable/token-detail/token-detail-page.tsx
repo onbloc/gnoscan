@@ -8,7 +8,7 @@ import theme from "@/styles/theme";
 import { DatatableItem } from "..";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
-import { useGetTokenTransactionsByid } from "@/common/react-query/token/api";
+import { useGetTokenInternalTransfersByid, useGetTokenTransactionsByid } from "@/common/react-query/token/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { TransactionTableModel } from "@/models/api/common";
@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   path: string[] | any;
+  type?: "transactions" | "internalTransfers";
 }
 
 const TOOLTIP_TYPE = (
@@ -29,11 +30,19 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const TokenDetailDatatablePage = ({ path }: Props) => {
+export const TokenDetailDatatablePage = ({ path, type = "transactions" }: Props) => {
   const themeMode = useRecoilValue(themeState);
   const { breakpoint } = useWindowSize();
+  const isInternalTransfers = type === "internalTransfers";
 
-  const { data, isFetched: isFetchedTransactions, hasNextPage, fetchNextPage } = useGetTokenTransactionsByid({ path });
+  const transactionQuery = useGetTokenTransactionsByid({ path }, { enabled: !isInternalTransfers && !!path });
+  const internalTransferQuery = useGetTokenInternalTransfersByid({ path }, { enabled: isInternalTransfers && !!path });
+  const {
+    data,
+    isFetched: isFetchedTransactions,
+    hasNextPage,
+    fetchNextPage,
+  } = isInternalTransfers ? internalTransferQuery : transactionQuery;
 
   const tokenTransactions: Transaction[] = React.useMemo(() => {
     if (!data?.pages) return [];
