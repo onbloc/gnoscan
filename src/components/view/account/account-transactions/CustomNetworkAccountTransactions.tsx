@@ -1,14 +1,13 @@
 import React from "react";
 
-import { GnoEvent } from "@/types/data-type";
-
 import DataListSection from "../../details-data-section/data-list-section";
 import { AccountDetailDatatable } from "../../datatable";
-import { EventDatatable } from "../../datatable/event";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import { useAccount } from "@/common/hooks/account/use-account";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
+import { PlaceholderDatatable } from "../../datatable/placeholder";
+import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
 
 interface AccountTransactionsProps {
   address: string;
@@ -24,29 +23,19 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
     return getAddress(address) || "";
   }, [address, isFetchedUsername, getAddress]);
 
-  const {
-    isFetchedAccountTransactions,
-    isLoadingTransactions,
-    transactionEvents,
-    accountTransactions,
-    hasNextPage,
-    nextPage,
-  } = useAccount(bech32Address || "");
+  const { isFetchedAccountTransactions, isLoadingTransactions, accountTransactions, hasNextPage, nextPage } =
+    useAccount(bech32Address || "");
 
-  const [currentTab, setCurrentTab] = React.useState("Transactions");
+  const [currentTab, setCurrentTab] = React.useState<string>(DETAIL_TAB_NAME.TRANSACTIONS);
 
   const detailTabs = React.useMemo(() => {
     return [
-      {
-        tabName: "Transactions",
-        size: accountTransactions?.length,
-      },
-      {
-        tabName: "Events",
-        size: transactionEvents.length,
-      },
+      { tabName: DETAIL_TAB_NAME.TRANSACTIONS, size: accountTransactions?.length },
+      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS },
+      { tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS },
+      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE },
     ];
-  }, [accountTransactions, transactionEvents]);
+  }, [accountTransactions]);
 
   if (isLoadingTransactions || !isFetchedAccountTransactions) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
@@ -54,7 +43,7 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Transactions" && (
+      {currentTab === DETAIL_TAB_NAME.TRANSACTIONS && (
         <AccountDetailDatatable
           data={accountTransactions || []}
           address={address}
@@ -63,9 +52,9 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
           nextPage={nextPage}
         />
       )}
-      {currentTab === "Events" && (
-        <EventDatatable events={transactionEvents} isFetched={isFetchedAccountTransactions} />
-      )}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && <PlaceholderDatatable />}
     </DataListSection>
   );
 };

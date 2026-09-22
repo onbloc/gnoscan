@@ -7,4 +7,6 @@ export interface ApiAccountRepository {
   getAccountEvents(params: GetAccountEventsRequest): Promise<GetAccountEventsResponse>;
 
   getAccountTransactions(params: GetAccountTransactionsRequest): Promise<GetAccountTransactionsResponse>;
+
+  getAccountTokenTransfers(params: GetAccountTransactionsRequest): Promise<GetAccountTransactionsResponse>;
 }

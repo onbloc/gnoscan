@@ -3,6 +3,7 @@ export enum QUERY_KEY {
   getAccount = "api_get_account",
   getAccountEvents = "api_get_account_events",
   getAccountTransactions = "api_get_account_transactions",
+  getAccountTokenTransfers = "api_get_account_token_transfers",
 
   // block
   getBlocks = "api_get_blocks",

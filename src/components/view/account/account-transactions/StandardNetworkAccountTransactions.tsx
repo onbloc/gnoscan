@@ -1,13 +1,15 @@
 import React from "react";
 
-import { GnoEvent, Transaction } from "@/types/data-type";
+import { Transaction } from "@/types/data-type";
+import { AccountMapper } from "@/common/mapper/account/account-mapper";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import { useGetAccountTransactions } from "@/common/react-query/account/api/use-get-account-transactions";
-import { useGetAccountEvents } from "@/common/react-query/account/api/use-get-account-events";
-import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
+import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
+import { PlaceholderDatatable } from "../../datatable/placeholder";
+import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
 
 interface AccountTransactionsProps {
   address: string;
@@ -22,77 +24,43 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
     fetchNextPage,
   } = useGetAccountTransactions({ address });
   const {
-    data: eventData,
-    isFetched: isFetchedEventData,
-    hasNextPage: eventHasNextPage,
-    fetchNextPage: eventFetchNextPage,
-  } = useGetAccountEvents({ address });
+    data: tokenTransferData,
+    isFetched: isFetchedTokenTransferData,
+    hasNextPage: tokenTransferHasNextPage,
+    fetchNextPage: tokenTransferFetchNextPage,
+  } = useGetAccountTokenTransfers({ address });
 
   const accountTransactions: Transaction[] = React.useMemo(() => {
     if (!transactionData?.pages) return [];
 
-    const allItems = transactionData.pages.flatMap(page => page.items ?? []);
-    return allItems.map((item): Transaction => {
-      return {
-        amount: item.amountIn,
-        amountOut: item.amountOut,
-        blockHeight: item.blockHeight,
-        fee: item.fee,
-        from: item.fromAddress,
-        to: item.toAddress,
-        hash: item.txHash,
-        numOfMessage: item.messageCount,
-        functionName: item.func[0].funcType,
-        packagePath: item.func[0].pkgPath,
-        type: item.func[0].messageType,
-        success: item.successYn,
-        time: item.timestamp,
-      };
-    });
+    return AccountMapper.accountTransactionFromApiResponses(transactionData.pages.flatMap(page => page.items ?? []));
   }, [transactionData]);
 
-  const accountEvents: GnoEvent[] = React.useMemo(() => {
-    if (!eventData?.pages) return [];
+  const accountTokenTransfers: Transaction[] = React.useMemo(() => {
+    if (!tokenTransferData?.pages) return [];
 
-    const allItems = eventData.pages.flatMap(page => page.items ?? []);
-    return allItems.map((item): GnoEvent => {
-      return {
-        id: item.identifier,
-        blockHeight: item.blockHeight,
-        transactionHash: item.txHash,
-        caller: item.caller,
-        callerName: item.callerName,
-        callerLabel: item.callerLabel,
-        callerLabelType: item.callerLabelType,
-        originCaller: item.originCaller,
-        originCallerLabel: item.originCallerLabel,
-        originCallerLabelType: item.originCallerLabelType,
-        type: item.eventName,
-        packagePath: item.realmPath,
-        functionName: item.function,
-        time: item.timestamp,
-        attrs: item.emit.params,
-      };
-    });
-  }, [eventData]);
+    return AccountMapper.accountTransactionFromApiResponses(tokenTransferData.pages.flatMap(page => page.items ?? []));
+  }, [tokenTransferData]);
 
-  const [currentTab, setCurrentTab] = React.useState("Transactions");
+  const [currentTab, setCurrentTab] = React.useState<string>(DETAIL_TAB_NAME.TRANSACTIONS);
 
   const transactionsCount = transactionData?.pages[0]?.page.totalCount;
-  const eventsCount = eventData?.pages[0]?.page.totalCount;
+  const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
 
   const detailTabs = React.useMemo(() => {
     return [
       {
-        tabName: "Transactions",
+        tabName: DETAIL_TAB_NAME.TRANSACTIONS,
         size: transactionsCount ?? accountTransactions.length,
       },
+      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS },
       {
-        tabName: "Events",
-        size: eventsCount ?? accountEvents.length,
+        tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
+        size: tokenTransfersCount ?? accountTokenTransfers.length,
       },
+      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE },
     ];
-  }, [transactionsCount, eventsCount, accountTransactions, accountEvents]);
+  }, [transactionsCount, accountTransactions, tokenTransfersCount, accountTokenTransfers]);
 
   if (!isFetchedTransactionData) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
@@ -100,7 +68,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Transactions" && (
+      {currentTab === DETAIL_TAB_NAME.TRANSACTIONS && (
         <StandardNetworkAccountTxsDatatable
           address={address}
           data={accountTransactions}
@@ -109,14 +77,17 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
           nextPage={fetchNextPage}
         />
       )}
-      {currentTab === "Events" && (
-        <StandardNetworkEventDatatable
-          events={accountEvents}
-          isFetched={isFetchedEventData}
-          hasNextPage={eventHasNextPage}
-          nextPage={eventFetchNextPage}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && (
+        <StandardNetworkAccountTxsDatatable
+          address={address}
+          data={accountTokenTransfers}
+          isFetched={isFetchedTokenTransferData}
+          hasNextPage={tokenTransferHasNextPage}
+          nextPage={tokenTransferFetchNextPage}
         />
       )}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && <PlaceholderDatatable />}
     </DataListSection>
   );
 };
