@@ -38,4 +38,18 @@ describe("mapAccountAssetsToAmounts", () => {
   test("returns an empty list when assets is undefined", () => {
     expect(mapAccountAssetsToAmounts(undefined)).toEqual([]);
   });
+
+  test("overrides wugnot's on-chain decimals: 0 with the display decimals", () => {
+    const result = mapAccountAssetsToAmounts([
+      makeAsset({
+        packagePath: "gno.land/r/gnoland/wugnot",
+        amount: "2086817777530",
+        name: "Wrapped GNOT",
+        symbol: "wugnot",
+        decimals: 0,
+      }),
+    ]);
+
+    expect(result).toEqual([{ value: "2086817.77753", denom: "wugnot" }]);
+  });
 });

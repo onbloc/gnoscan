@@ -1,12 +1,8 @@
 import React from "react";
-import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
-import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ValidatorInfo } from "@/layouts/account/AccountLayout";
 
 import IconCopy from "@/assets/svgs/icon-copy.svg";
@@ -27,15 +23,12 @@ interface AccountAddressProps {
 
 const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: AccountAddressProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
-  const { gnoWebUrl, getUrlWithNetwork } = useNetwork();
+  const { gnoWebUrl } = useNetwork();
 
   const username: string | null = React.useMemo(() => {
     if (!data?.data || !data?.data?.name) return null;
     return data.data.name;
   }, [data?.data.name]);
-
-  const label = data?.data?.label;
-  const labelType = data?.data?.labelType;
 
   const handleValidatorLinkClick = React.useCallback(() => {
     const url = `${gnoWebUrl}/r/gnops/valopers:${validatorInfo?.operationAddress}`;
@@ -72,25 +65,6 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
               </>
             )}
             {!validatorInfo && username && <Username username={username} />}
-            {!validatorInfo && !username && label && (
-              <>
-                <Divider size={1} length={18} orientation="vertical" />
-                {labelType === ADDRESS_LABEL_TYPE.REALM ? (
-                  <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))} passHref>
-                    <LinkWrapper rel="noreferrer">
-                      <Text type="p4" color="primary">
-                        {stripGnoLandPrefix(label)}
-                      </Text>
-                      <IconLink />
-                    </LinkWrapper>
-                  </Link>
-                ) : (
-                  <Text type="p4" color="primary">
-                    {label}
-                  </Text>
-                )}
-              </>
-            )}
           </S.ContentWrapper>
         </S.AccountWrapper>
       </S.Box>
