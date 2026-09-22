@@ -6,10 +6,18 @@ Thank you for considering contributing to GnoScan! We value and appreciate your 
 **Steps**
 1. Check existing issues or pull requests before submitting a new one to avoid duplicate submissions.
 2. Fork the GnoScan repository.
-3. Create a new branch for your changes.
+3. Create a new branch from the latest `develop` branch for your changes.
 4. Make changes and commit them with a concise and descriptive message using the [Conventional Commits](https://www.conventionalcommits.org/) format. Please check spelling, grammar, and remove any trailing whitespace.
 5. Push your branch to your forked repository.
-6. Submit a pull request to our main branch.
+6. Submit a pull request with `develop` as the base branch.
+
+**Branch Policy**
+- Start contribution branches from `develop` and target `develop` when opening pull requests.
+- The GitHub default branch (`main`) is not the contribution base. Do not target `main` unless a maintainer explicitly requests it.
+- Before submitting, verify that the PR base is `develop` and the commit list and diff contain only the intended changes.
+
+**Pull Request Language**
+Write pull request titles and descriptions in English.
 
 **Pull Request Title**
 Your pull request title must follow the conventional commits format and start with one of the following types:
@@ -22,6 +30,9 @@ Your pull request title must follow the conventional commits format and start wi
 - **fix:** A bug fix.
    - Use this type when you fix a bug or an issue in the existing codebase.
    - Example: **fix: Resolve memory leak issue**
+- **docs:** Documentation changes.
+   - Use this type when you update documentation or contribution guidelines.
+   - Example: **docs: Clarify the contribution base branch**
 - **test:** Adding missing tests or correcting existing tests.
    - Use this type when you add new tests to improve code coverage or fix existing tests that were incorrect or failing.
    - Example: **test: Add unit tests for user registration**
