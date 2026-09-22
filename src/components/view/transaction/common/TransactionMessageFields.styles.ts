@@ -50,6 +50,7 @@ export const PackagePathWrapper = styled.div`
     gap: 12px;
 
     > .badge:first-child {
+      width: fit-content;
       max-width: 100%;
       min-width: 0;
     }

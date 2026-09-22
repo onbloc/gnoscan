@@ -95,6 +95,7 @@ export const DLWrap = styled.dl<StyleProps>`
 
         > .badge:first-child {
           margin: 0;
+          width: fit-content;
           max-width: 100%;
           min-width: 0;
         }
