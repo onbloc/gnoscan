@@ -7,6 +7,7 @@ import DataListSection from "../../details-data-section/data-list-section";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import { useGetAccountTransactions } from "@/common/react-query/account/api/use-get-account-transactions";
 import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
+import { useGetAccountInternalNativeTransfers } from "@/common/react-query/account/api/use-get-account-internal-native-transfers";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
 import { PlaceholderDatatable } from "../../datatable/placeholder";
 import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
@@ -29,6 +30,12 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
     hasNextPage: tokenTransferHasNextPage,
     fetchNextPage: tokenTransferFetchNextPage,
   } = useGetAccountTokenTransfers({ address });
+  const {
+    data: internalNativeTransferData,
+    isFetched: isFetchedInternalNativeTransferData,
+    hasNextPage: internalNativeTransferHasNextPage,
+    fetchNextPage: internalNativeTransferFetchNextPage,
+  } = useGetAccountInternalNativeTransfers({ address });
 
   const accountTransactions: Transaction[] = React.useMemo(() => {
     if (!transactionData?.pages) return [];
@@ -42,10 +49,19 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
     return AccountMapper.accountTransactionFromApiResponses(tokenTransferData.pages.flatMap(page => page.items ?? []));
   }, [tokenTransferData]);
 
+  const accountInternalNativeTransfers: Transaction[] = React.useMemo(() => {
+    if (!internalNativeTransferData?.pages) return [];
+
+    return AccountMapper.accountTransactionFromApiResponses(
+      internalNativeTransferData.pages.flatMap(page => page.items ?? []),
+    );
+  }, [internalNativeTransferData]);
+
   const [currentTab, setCurrentTab] = React.useState<string>(DETAIL_TAB_NAME.TRANSACTIONS);
 
   const transactionsCount = transactionData?.pages[0]?.page.totalCount;
   const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
+  const internalNativeTransfersCount = internalNativeTransferData?.pages[0]?.page.totalCount;
 
   const detailTabs = React.useMemo(() => {
     return [
@@ -58,9 +74,19 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
         size: tokenTransfersCount ?? accountTokenTransfers.length,
       },
-      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE },
+      {
+        tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE,
+        size: internalNativeTransfersCount ?? accountInternalNativeTransfers.length,
+      },
     ];
-  }, [transactionsCount, accountTransactions, tokenTransfersCount, accountTokenTransfers]);
+  }, [
+    transactionsCount,
+    accountTransactions,
+    tokenTransfersCount,
+    accountTokenTransfers,
+    internalNativeTransfersCount,
+    accountInternalNativeTransfers,
+  ]);
 
   if (!isFetchedTransactionData) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
@@ -87,7 +113,15 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
           nextPage={tokenTransferFetchNextPage}
         />
       )}
-      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && (
+        <StandardNetworkAccountTxsDatatable
+          address={address}
+          data={accountInternalNativeTransfers}
+          isFetched={isFetchedInternalNativeTransferData}
+          hasNextPage={internalNativeTransferHasNextPage}
+          nextPage={internalNativeTransferFetchNextPage}
+        />
+      )}
     </DataListSection>
   );
 };

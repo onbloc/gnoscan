@@ -80,4 +80,21 @@ export class ApiAccountRepositoryImpl implements ApiAccountRepository {
         return result.data?.data;
       });
   }
+
+  getAccountInternalNativeTransfers(params: GetAccountTransactionsRequest): Promise<GetAccountTransactionsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { address, ...queryParams } = params;
+    const requestParams = makeQueryParameter(queryParams);
+
+    return this.networkClient
+      .get<APIResponse<GetAccountTransactionsResponse>>({
+        url: `accounts/${address}/internal-transfers${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
 }

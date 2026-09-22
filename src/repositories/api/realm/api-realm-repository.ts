@@ -19,4 +19,6 @@ export interface ApiRealmRepository {
   getRealmTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse>;
 
   getRealmTokenTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse>;
+
+  getRealmInternalNativeTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse>;
 }

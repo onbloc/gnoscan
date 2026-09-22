@@ -4,6 +4,7 @@ import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { AccountMapper } from "@/common/mapper/account/account-mapper";
 import {
   useGetRealmEventsByPath,
+  useGetRealmInternalNativeTransfersByPath,
   useGetRealmTransactionsByPath,
   useGetRealmTokenTransfersByPath,
 } from "@/common/react-query/realm/api";
@@ -41,6 +42,12 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     hasNextPage: hasNextPageTokenTransferData,
     fetchNextPage: fetchNextPageTokenTransferData,
   } = useGetRealmTokenTransfersByPath({ path });
+  const {
+    data: internalNativeTransferData,
+    isFetched: isFetchedInternalNativeTransferData,
+    hasNextPage: hasNextPageInternalNativeTransferData,
+    fetchNextPage: fetchNextPageInternalNativeTransferData,
+  } = useGetRealmInternalNativeTransfersByPath({ path });
 
   const realmTransactions = React.useMemo(() => {
     if (!transactionData?.pages) return [];
@@ -62,9 +69,18 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     return AccountMapper.accountTransactionFromApiResponses(tokenTransferData.pages.flatMap(page => page.items ?? []));
   }, [tokenTransferData?.pages]);
 
+  const realmInternalNativeTransfers = React.useMemo(() => {
+    if (!internalNativeTransferData?.pages) return [];
+
+    return AccountMapper.accountTransactionFromApiResponses(
+      internalNativeTransferData.pages.flatMap(page => page.items ?? []),
+    );
+  }, [internalNativeTransferData?.pages]);
+
   const transactionsCount = transactionData?.pages[0]?.page.totalCount;
   const eventsCount = eventData?.pages[0]?.page.totalCount;
   const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
+  const internalNativeTransfersCount = internalNativeTransferData?.pages[0]?.page.totalCount;
 
   const detailTabs = React.useMemo(() => {
     return [
@@ -77,13 +93,25 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
         tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
         size: tokenTransfersCount ?? realmTokenTransfers.length,
       },
-      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE },
+      {
+        tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE,
+        size: internalNativeTransfersCount ?? realmInternalNativeTransfers.length,
+      },
       {
         tabName: DETAIL_TAB_NAME.EVENTS,
         size: eventsCount ?? realmEvents.length,
       },
     ];
-  }, [transactionsCount, eventsCount, realmTransactions, realmEvents, tokenTransfersCount, realmTokenTransfers]);
+  }, [
+    transactionsCount,
+    eventsCount,
+    realmTransactions,
+    realmEvents,
+    tokenTransfersCount,
+    realmTokenTransfers,
+    internalNativeTransfersCount,
+    realmInternalNativeTransfers,
+  ]);
 
   if (!isFetchedTransactionData) return <TableSkeleton />;
 
@@ -108,7 +136,15 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
           nextPage={fetchNextPageTokenTransferData}
         />
       )}
-      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && (
+        <StandardNetworkAccountTxsDatatable
+          address={path}
+          data={realmInternalNativeTransfers}
+          isFetched={isFetchedInternalNativeTransferData}
+          hasNextPage={hasNextPageInternalNativeTransferData}
+          nextPage={fetchNextPageInternalNativeTransferData}
+        />
+      )}
       {currentTab === DETAIL_TAB_NAME.EVENTS && (
         <StandardNetworkEventDatatable
           isFetched={isFetchedEventData}

@@ -4,6 +4,7 @@ export enum QUERY_KEY {
   getAccountEvents = "api_get_account_events",
   getAccountTransactions = "api_get_account_transactions",
   getAccountTokenTransfers = "api_get_account_token_transfers",
+  getAccountInternalNativeTransfers = "api_get_account_internal_native_transfers",
 
   // block
   getBlocks = "api_get_blocks",
@@ -25,6 +26,7 @@ export enum QUERY_KEY {
   getRealmEventsByPath = "api_get_realm_events_by_path",
   getRealmTransactionsByPath = "api_get_realm_transactions_by_path",
   getRealmTokenTransfersByPath = "api_get_realm_token_transfers_by_path",
+  getRealmInternalNativeTransfersByPath = "api_get_realm_internal_native_transfers_by_path",
   getRealmStorageDepositByPath = "get_realm_storage_deposit_by_path",
 
   // token
