@@ -16,6 +16,8 @@ interface AccountTransactionsProps {
   isDesktop: boolean;
 }
 
+const ACCOUNT_INTERNAL_TRANSFERS_TAB_NAME = "Internal Transfers";
+
 const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTransactionsProps) => {
   const {
     data: transactionData,
@@ -69,12 +71,12 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         size: transactionsCount ?? accountTransactions.length,
       },
       {
-        tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
-        size: tokenTransfersCount ?? accountTokenTransfers.length,
+        tabName: ACCOUNT_INTERNAL_TRANSFERS_TAB_NAME,
+        size: internalNativeTransfersCount ?? accountInternalNativeTransfers.length,
       },
       {
-        tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE,
-        size: internalNativeTransfersCount ?? accountInternalNativeTransfers.length,
+        tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
+        size: tokenTransfersCount ?? accountTokenTransfers.length,
       },
     ];
   }, [
@@ -101,6 +103,15 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
           nextPage={fetchNextPage}
         />
       )}
+      {currentTab === ACCOUNT_INTERNAL_TRANSFERS_TAB_NAME && (
+        <StandardNetworkAccountTxsDatatable
+          address={address}
+          data={accountInternalNativeTransfers}
+          isFetched={isFetchedInternalNativeTransferData}
+          hasNextPage={internalNativeTransferHasNextPage}
+          nextPage={internalNativeTransferFetchNextPage}
+        />
+      )}
       {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && (
         <StandardNetworkAccountTxsDatatable
           address={address}
@@ -108,15 +119,6 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
           isFetched={isFetchedTokenTransferData}
           hasNextPage={tokenTransferHasNextPage}
           nextPage={tokenTransferFetchNextPage}
-        />
-      )}
-      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && (
-        <StandardNetworkAccountTxsDatatable
-          address={address}
-          data={accountInternalNativeTransfers}
-          isFetched={isFetchedInternalNativeTransferData}
-          hasNextPage={internalNativeTransferHasNextPage}
-          nextPage={internalNativeTransferFetchNextPage}
         />
       )}
     </DataListSection>
