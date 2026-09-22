@@ -1,5 +1,11 @@
 import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactionsRequest } from "./request";
-import { GetRealmEventsResponse, GetRealmResponse, GetRealmsResponse, GetRealmTransactionsResponse } from "./response";
+import {
+  GetRealmEventsResponse,
+  GetRealmResponse,
+  GetRealmsResponse,
+  GetRealmTransactionsResponse,
+  GetRealmTokenTransfersResponse,
+} from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 export interface ApiRealmRepository {
   getRealms(params: GetRealmsRequestParameters): Promise<GetRealmsResponse>;
@@ -11,4 +17,6 @@ export interface ApiRealmRepository {
   getRealmEvents(params: GetRealmEventsRequest): Promise<GetRealmEventsResponse>;
 
   getRealmTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse>;
+
+  getRealmTokenTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse>;
 }

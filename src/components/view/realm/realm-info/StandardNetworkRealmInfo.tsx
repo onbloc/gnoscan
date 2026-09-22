@@ -1,11 +1,19 @@
 import React from "react";
 
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
-import { useGetRealmEventsByPath, useGetRealmTransactionsByPath } from "@/common/react-query/realm/api";
+import { AccountMapper } from "@/common/mapper/account/account-mapper";
+import {
+  useGetRealmEventsByPath,
+  useGetRealmTransactionsByPath,
+  useGetRealmTokenTransfersByPath,
+} from "@/common/react-query/realm/api";
 
 import DataListSection from "../../details-data-section/data-list-section";
+import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
+import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
+import { PlaceholderDatatable } from "../../datatable/placeholder";
 import { RealmDetailDatatable } from "../../datatable";
 
 interface RealmInfoProps {
@@ -27,6 +35,12 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     hasNextPage: hasNextPageEventData,
     fetchNextPage: fetchNextPageEventData,
   } = useGetRealmEventsByPath({ path });
+  const {
+    data: tokenTransferData,
+    isFetched: isFetchedTokenTransferData,
+    hasNextPage: hasNextPageTokenTransferData,
+    fetchNextPage: fetchNextPageTokenTransferData,
+  } = useGetRealmTokenTransfersByPath({ path });
 
   const realmTransactions = React.useMemo(() => {
     if (!transactionData?.pages) return [];
@@ -42,27 +56,40 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     return RealmMapper.realmEventFromApiResponses(allItems);
   }, [eventData?.pages]);
 
+  const realmTokenTransfers = React.useMemo(() => {
+    if (!tokenTransferData?.pages) return [];
+
+    return AccountMapper.accountTransactionFromApiResponses(tokenTransferData.pages.flatMap(page => page.items ?? []));
+  }, [tokenTransferData?.pages]);
+
   const transactionsCount = transactionData?.pages[0]?.page.totalCount;
   const eventsCount = eventData?.pages[0]?.page.totalCount;
+  const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
 
   const detailTabs = React.useMemo(() => {
     return [
       {
-        tabName: "Transactions",
+        tabName: DETAIL_TAB_NAME.TRANSACTIONS,
         size: transactionsCount ?? realmTransactions.length,
       },
+      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS },
       {
-        tabName: "Events",
+        tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
+        size: tokenTransfersCount ?? realmTokenTransfers.length,
+      },
+      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE },
+      {
+        tabName: DETAIL_TAB_NAME.EVENTS,
         size: eventsCount ?? realmEvents.length,
       },
     ];
-  }, [transactionsCount, eventsCount, realmTransactions, realmEvents]);
+  }, [transactionsCount, eventsCount, realmTransactions, realmEvents, tokenTransfersCount, realmTokenTransfers]);
 
   if (!isFetchedTransactionData) return <TableSkeleton />;
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Transactions" && (
+      {currentTab === DETAIL_TAB_NAME.TRANSACTIONS && (
         <RealmDetailDatatable
           data={realmTransactions}
           isFetched={isFetchedTransactionData}
@@ -71,7 +98,18 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
           pkgPath={`${path}`}
         />
       )}
-      {currentTab === "Events" && (
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && (
+        <StandardNetworkAccountTxsDatatable
+          address={path}
+          data={realmTokenTransfers}
+          isFetched={isFetchedTokenTransferData}
+          hasNextPage={hasNextPageTokenTransferData}
+          nextPage={fetchNextPageTokenTransferData}
+        />
+      )}
+      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && <PlaceholderDatatable />}
+      {currentTab === DETAIL_TAB_NAME.EVENTS && (
         <StandardNetworkEventDatatable
           isFetched={isFetchedEventData}
           events={realmEvents}
