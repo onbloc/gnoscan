@@ -8,7 +8,11 @@ import theme from "@/styles/theme";
 import { DatatableItem } from "..";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
-import { useGetTokenInternalTransfersByid, useGetTokenTransactionsByid } from "@/common/react-query/token/api";
+import {
+  useGetTokenInternalTransfersByid,
+  useGetTokenMetaTransactionsByid,
+  useGetTokenTransactionsByid,
+} from "@/common/react-query/token/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { TransactionTableModel } from "@/models/api/common";
@@ -19,7 +23,7 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   path: string[] | any;
-  type?: "transactions" | "internalTransfers";
+  type?: "transactions" | "internalTransfers" | "metaTransactions";
 }
 
 const TOOLTIP_TYPE = (
@@ -34,15 +38,20 @@ export const TokenDetailDatatablePage = ({ path, type = "transactions" }: Props)
   const themeMode = useRecoilValue(themeState);
   const { breakpoint } = useWindowSize();
   const isInternalTransfers = type === "internalTransfers";
+  const isMetaTransactions = type === "metaTransactions";
 
-  const transactionQuery = useGetTokenTransactionsByid({ path }, { enabled: !isInternalTransfers && !!path });
+  const transactionQuery = useGetTokenTransactionsByid(
+    { path },
+    { enabled: !isInternalTransfers && !isMetaTransactions && !!path },
+  );
   const internalTransferQuery = useGetTokenInternalTransfersByid({ path }, { enabled: isInternalTransfers && !!path });
+  const metaTransactionQuery = useGetTokenMetaTransactionsByid({ path }, { enabled: isMetaTransactions && !!path });
   const {
     data,
     isFetched: isFetchedTransactions,
     hasNextPage,
     fetchNextPage,
-  } = isInternalTransfers ? internalTransferQuery : transactionQuery;
+  } = isInternalTransfers ? internalTransferQuery : isMetaTransactions ? metaTransactionQuery : transactionQuery;
 
   const tokenTransactions: Transaction[] = React.useMemo(() => {
     if (!data?.pages) return [];

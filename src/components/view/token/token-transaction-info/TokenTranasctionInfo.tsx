@@ -1,13 +1,9 @@
 import React from "react";
 
 import { AccountMapper } from "@/common/mapper/account/account-mapper";
-import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
-import {
-  useGetRealmInternalNativeTransfersByPath,
-  useGetRealmTransactionsByPath,
-} from "@/common/react-query/realm/api";
+import { useGetRealmInternalNativeTransfersByPath } from "@/common/react-query/realm/api";
 import DataListSection from "../../details-data-section/data-list-section";
-import { RealmDetailDatatable, TokenDetailDatatable } from "../../datatable";
+import { TokenDetailDatatable } from "../../datatable";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
 import { TokenDetailDatatablePage } from "../../datatable/token-detail/token-detail-page";
 import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-holders-page";
@@ -15,6 +11,7 @@ import {
   useGetTokenById,
   useGetTokenHoldersByid,
   useGetTokenInternalTransfersByid,
+  useGetTokenMetaTransactionsByid,
   useGetTokenTransactionsByid,
 } from "@/common/react-query/token/api";
 import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
@@ -32,12 +29,10 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const { data: tokenData } = useGetTokenById(tokenPath, { enabled: !isCustomNetwork && !!tokenPath });
   const tokenRealmPath = tokenData?.data.path;
 
-  const {
-    data: transactionsData,
-    isFetched: isFetchedTransactions,
-    hasNextPage: hasNextPageTransactions,
-    fetchNextPage: fetchNextPageTransactions,
-  } = useGetRealmTransactionsByPath({ path: tokenRealmPath || "" }, { enabled: !isCustomNetwork && !!tokenRealmPath });
+  const { data: transactionsData } = useGetTokenMetaTransactionsByid(
+    { path: tokenPath },
+    { enabled: !isCustomNetwork && !!tokenPath },
+  );
   const { data: tokenTransferData } = useGetTokenTransactionsByid(
     { path: tokenPath },
     { enabled: !isCustomNetwork && !!tokenPath },
@@ -60,12 +55,6 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { enabled: !isCustomNetwork && !!tokenRealmPath },
   );
 
-  const tokenTransactions = React.useMemo(() => {
-    if (!transactionsData?.pages) return [];
-
-    return RealmMapper.realmTransactionFromApiResponses(transactionsData.pages.flatMap(page => page.items));
-  }, [transactionsData?.pages]);
-
   const tokenInternalNativeTransfers = React.useMemo(() => {
     if (!internalNativeTransferData?.pages) return [];
 
@@ -79,6 +68,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const internalTransfersCount = internalTransfersData?.pages[0]?.page.totalCount;
   const internalNativeTransfersCount = internalNativeTransferData?.pages[0]?.page.totalCount;
   const holdersCount = holdersData?.pages[0]?.page.totalCount;
+  const transactionsLength = transactionsData?.pages.flatMap(page => page.items ?? []).length ?? 0;
   const tokenTransfersLength = tokenTransferData?.pages.flatMap(page => page.items ?? []).length ?? 0;
   const internalTransfersLength = internalTransfersData?.pages.flatMap(page => page.items ?? []).length ?? 0;
 
@@ -88,7 +78,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     }
 
     return [
-      { tabName: DETAIL_TAB_NAME.TRANSACTIONS, size: transactionsCount ?? tokenTransactions.length },
+      { tabName: DETAIL_TAB_NAME.TRANSACTIONS, size: transactionsCount ?? transactionsLength },
       { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS, size: internalTransfersCount ?? internalTransfersLength },
       { tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS, size: tokenTransfersCount ?? tokenTransfersLength },
       {
@@ -100,7 +90,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   }, [
     isCustomNetwork,
     transactionsCount,
-    tokenTransactions,
+    transactionsLength,
     internalTransfersCount,
     internalTransfersLength,
     tokenTransfersCount,
@@ -116,13 +106,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
         <TokenDetailDatatable path={tokenPath} />
       )}
       {tokenPath && !isCustomNetwork && currentTab === DETAIL_TAB_NAME.TRANSACTIONS && (
-        <RealmDetailDatatable
-          data={tokenTransactions}
-          isFetched={isFetchedTransactions}
-          hasNextPage={hasNextPageTransactions || false}
-          nextPage={fetchNextPageTransactions}
-          pkgPath={tokenRealmPath || tokenPath}
-        />
+        <TokenDetailDatatablePage path={tokenPath} type="metaTransactions" />
       )}
       {tokenPath && !isCustomNetwork && currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && (
         <TokenDetailDatatablePage path={tokenPath} type="internalTransfers" />

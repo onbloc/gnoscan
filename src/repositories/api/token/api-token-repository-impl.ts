@@ -69,6 +69,23 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
       });
   }
 
+  getTokenMetaTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetTokenTransactionsResponse>>({
+        url: `token-meta/${encodeURIComponent(path)}/transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
   getTokenInternalTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");

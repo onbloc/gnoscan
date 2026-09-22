@@ -57,7 +57,7 @@ export class ApiAccountRepositoryImpl implements ApiAccountRepository {
 
     return this.networkClient
       .get<APIResponse<GetAccountTransactionsResponse>>({
-        url: `accounts/${address}/transactions${requestParams}`,
+        url: `accounts/${address}/direct-transactions${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

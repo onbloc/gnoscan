@@ -85,7 +85,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
 
     return this.networkClient
       .get<APIResponse<GetRealmTransactionsResponse>>({
-        url: `/realms/${encodeURIComponent(path)}/transactions${requestParams}`,
+        url: `/realms/${encodeURIComponent(path)}/direct-transactions${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
