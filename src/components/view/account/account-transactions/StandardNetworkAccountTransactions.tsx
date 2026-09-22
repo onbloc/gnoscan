@@ -9,7 +9,6 @@ import { useGetAccountTransactions } from "@/common/react-query/account/api/use-
 import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
 import { useGetAccountInternalNativeTransfers } from "@/common/react-query/account/api/use-get-account-internal-native-transfers";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
-import { PlaceholderDatatable } from "../../datatable/placeholder";
 import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
 
 interface AccountTransactionsProps {
@@ -69,7 +68,6 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         tabName: DETAIL_TAB_NAME.TRANSACTIONS,
         size: transactionsCount ?? accountTransactions.length,
       },
-      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS },
       {
         tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
         size: tokenTransfersCount ?? accountTokenTransfers.length,
@@ -103,7 +101,6 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
           nextPage={fetchNextPage}
         />
       )}
-      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && <PlaceholderDatatable />}
       {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && (
         <StandardNetworkAccountTxsDatatable
           address={address}

@@ -6,7 +6,6 @@ import DataListSection from "../../details-data-section/data-list-section";
 import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
 import { RealmDetailDatatable } from "../../datatable";
 import { EventDatatable } from "../../datatable/event";
-import { PlaceholderDatatable } from "../../datatable/placeholder";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 interface RealmInfoProps {
@@ -25,9 +24,6 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
         tabName: DETAIL_TAB_NAME.TRANSACTIONS,
         size: realmTransactions.length,
       },
-      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS },
-      { tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS },
-      { tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE },
       {
         tabName: DETAIL_TAB_NAME.EVENTS,
         size: transactionEvents.length,
@@ -48,9 +44,6 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
           pkgPath={`${path}`}
         />
       )}
-      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS && <PlaceholderDatatable />}
-      {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && <PlaceholderDatatable />}
-      {currentTab === DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE && <PlaceholderDatatable />}
       {currentTab === DETAIL_TAB_NAME.EVENTS && <EventDatatable isFetched={isFetched} events={transactionEvents} />}
     </DataListSection>
   );
