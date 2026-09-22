@@ -1,43 +1,71 @@
 import React from "react";
-import { useRouter } from "next/router";
+import type { GetServerSidePropsContext } from "next";
+import axios from "axios";
 
 import AccountLayout from "@/layouts/account/AccountLayout";
 import AccountAddressContainer from "@/containers/account/account-address-container/AccountAddressContainer";
 import AccountAssetsContainer from "@/containers/account/account-assets-container/AccountAssetsContainer";
 import AccountTransactionsContainer from "@/containers/account/account-transactions-container/AccountTransactionsContainer";
 import { useGetValidatorByAddress } from "@/common/react-query/validator/api";
-import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
-import { useNetwork } from "@/common/hooks/use-network";
-import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { getDefaultChain, getNetworkConfig } from "@/common/config/network.config";
+import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
+import { GetSearchResponse } from "@/repositories/api/search/response";
+import DefaultChainData from "public/resource/chains.json";
 
-export default function Page() {
-  const router = useRouter();
-  const { address: accountAddress } = router.query;
+const REALM_LOOKUP_TIMEOUT_MS = 5_000;
 
-  const address = accountAddress as string;
+export async function getServerSideProps({ params, query }: GetServerSidePropsContext) {
+  const address = typeof params?.address === "string" ? params.address : null;
+  const isCustomNetwork = query.type === "custom";
 
-  const { isCustomNetwork } = useNetworkProvider();
-  const { getUrlWithNetwork } = useNetwork();
+  if (!address || isCustomNetwork) {
+    return { props: { address: address || "" } };
+  }
 
-  const { data: validatorData, isFetched: isFetchedValidator } = useGetValidatorByAddress(address);
+  const networks = getNetworkConfig(DefaultChainData);
+  const defaultChain = getDefaultChain(networks) || networks[0];
+  const requestedChainId = typeof query.chainId === "string" ? query.chainId : null;
+  const selectedChain = networks.find(network => network.chainId === requestedChainId) || defaultChain;
 
-  // Same rule the search bar uses: a realm address always goes to its realm page, regardless
-  // of a resolved name - unlike getAddressLinkPath's other callers, this isn't displaying text
-  // the link needs to match, so no name is passed in here.
-  const { data: accountData } = useGetAccountByAddress(address, {
-    enabled: !isCustomNetwork && !!address,
-  });
+  if (!selectedChain?.apiUrl) {
+    return { props: { address } };
+  }
 
-  React.useEffect(() => {
-    if (isCustomNetwork || !address || !accountData?.data) return;
+  try {
+    const client = axios.create({
+      baseURL: selectedChain.apiUrl,
+      timeout: REALM_LOOKUP_TIMEOUT_MS,
+      headers: { "Content-Type": "application/json" },
+    });
+    const { data } = await client.get<{ data: GetSearchResponse }>(`/search?param=${encodeURIComponent(address)}`);
+    const results = data.data;
+    const realm = results.find(result => result.type === SEARCH_RESULT_TYPE.REALM);
 
-    const { label, labelType } = accountData.data;
-    const linkPath = getAddressLinkPath({ address, label, labelType });
-    if (linkPath.startsWith("/realms/details")) {
-      router.replace(getUrlWithNetwork(linkPath));
+    if (realm) {
+      // Realm details reads the raw package path from the URL, so its slashes must not be encoded.
+      const chainIdQuery =
+        selectedChain.chainId !== defaultChain?.chainId ? `&chainId=${encodeURIComponent(selectedChain.chainId)}` : "";
+
+      return {
+        redirect: {
+          destination: `/realms/details?path=${realm.title}${chainIdQuery}`,
+          permanent: false,
+        },
+      };
     }
-  }, [isCustomNetwork, address, accountData, getUrlWithNetwork, router]);
+  } catch {
+    // Keep the account page available if the realm lookup service is temporarily unavailable.
+  }
+
+  return { props: { address } };
+}
+
+interface PageProps {
+  address: string;
+}
+
+export default function Page({ address }: PageProps) {
+  const { data: validatorData, isFetched: isFetchedValidator } = useGetValidatorByAddress(address);
 
   const isValidator = React.useMemo(() => {
     return !!validatorData?.name;
