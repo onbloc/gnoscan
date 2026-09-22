@@ -17,7 +17,7 @@ import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constan
 import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { Amount, RealmSummary } from "@/types/data-type";
 
-import { mapAccountAssetsToAmounts } from "./realm-balance.utility";
+import { mapAccountAssetsToAmounts, sortAmountsByValueDesc } from "./realm-balance.utility";
 
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
@@ -118,7 +118,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
 
   const realmBalanceList: Amount[] = React.useMemo(() => {
     const nativeAmount = toGNOTAmount(nativeBalanceData?.value || "0", nativeBalanceData?.denom || GNOTToken.denom);
-    return [nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)];
+    return sortAmountsByValueDesc([nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)]);
   }, [nativeBalanceData, accountData?.data?.assets]);
 
   const realmTotalUsedFees: Amount | null = React.useMemo(() => {

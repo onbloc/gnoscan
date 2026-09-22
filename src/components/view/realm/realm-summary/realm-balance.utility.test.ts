@@ -1,6 +1,6 @@
 import { AccountAssetModel } from "@/repositories/api/account/response";
 
-import { mapAccountAssetsToAmounts } from "./realm-balance.utility";
+import { mapAccountAssetsToAmounts, sortAmountsByValueDesc } from "./realm-balance.utility";
 
 function makeAsset(overrides: Partial<AccountAssetModel> = {}): AccountAssetModel {
   return {
@@ -51,5 +51,35 @@ describe("mapAccountAssetsToAmounts", () => {
     ]);
 
     expect(result).toEqual([{ value: "2086817.77753", denom: "wugnot" }]);
+  });
+});
+
+describe("sortAmountsByValueDesc", () => {
+  test("orders amounts from highest to lowest value regardless of denom", () => {
+    const result = sortAmountsByValueDesc([
+      { value: "0", denom: "GNOT" },
+      { value: "2086817.77753", denom: "wugnot" },
+      { value: "10550316.077354", denom: "GNS" },
+    ]);
+
+    expect(result).toEqual([
+      { value: "10550316.077354", denom: "GNS" },
+      { value: "2086817.77753", denom: "wugnot" },
+      { value: "0", denom: "GNOT" },
+    ]);
+  });
+
+  test("does not mutate the input array", () => {
+    const input = [
+      { value: "1", denom: "A" },
+      { value: "2", denom: "B" },
+    ];
+
+    sortAmountsByValueDesc(input);
+
+    expect(input).toEqual([
+      { value: "1", denom: "A" },
+      { value: "2", denom: "B" },
+    ]);
   });
 });
