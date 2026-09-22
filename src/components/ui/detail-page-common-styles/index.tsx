@@ -87,6 +87,11 @@ export const DLWrap = styled.dl<StyleProps>`
       display: flex;
       flex-direction: row;
       gap: 15px;
+      margin-top: ${({ desktop }) => (desktop ? "0" : "12px")};
+
+      > .badge {
+        margin-top: 0;
+      }
 
       @media (max-width: 767px) {
         flex-direction: column;

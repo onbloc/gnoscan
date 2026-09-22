@@ -52,6 +52,10 @@ const PublicFunctions = ({ children }: { children: React.ReactNode }) => {
 
 const Wrapper = styled.dd`
   min-width: 0;
+
+  @media (max-width: 1279px) {
+    margin-top: 12px;
+  }
 `;
 
 const List = styled.div`
