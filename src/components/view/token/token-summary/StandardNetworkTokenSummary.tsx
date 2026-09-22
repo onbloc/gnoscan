@@ -20,6 +20,7 @@ import Tooltip from "@/components/ui/tooltip";
 import DataSection from "@/components/view/details-data-section";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import * as S from "./TokenSummary.styles";
+import PublicFunctions from "@/components/ui/public-functions";
 
 interface TokenSummaryProps {
   tokenId: string;
@@ -142,7 +143,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>
               <Text type="p4" color="white">
@@ -150,7 +151,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Owner</dt>

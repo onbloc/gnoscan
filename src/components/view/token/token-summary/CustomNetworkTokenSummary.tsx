@@ -18,6 +18,7 @@ import { useToken } from "@/common/hooks/tokens/use-token";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useUsername } from "@/common/hooks/account/use-username";
+import PublicFunctions from "@/components/ui/public-functions";
 
 interface TokenSummaryProps {
   tokenPath: string;
@@ -104,7 +105,7 @@ const CustomNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps) 
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {summaryData.functions.map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>
               <Text type="p4" color="white">
@@ -112,7 +113,7 @@ const CustomNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps) 
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Owner</dt>

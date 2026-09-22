@@ -14,6 +14,7 @@ import ShowLog from "@/components/ui/show-log";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
+import PublicFunctions from "@/components/ui/public-functions";
 
 interface TokenSummaryProps {
   isDesktop: boolean;
@@ -130,7 +131,7 @@ const TokenSummary = ({
       )}
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {summaryData.functions.map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>
               <Text type="p4" color="white">
@@ -138,7 +139,7 @@ const TokenSummary = ({
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Owner</dt>
