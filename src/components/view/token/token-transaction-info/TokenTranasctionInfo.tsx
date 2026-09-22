@@ -1,10 +1,12 @@
 import React from "react";
 
 import { AccountMapper } from "@/common/mapper/account/account-mapper";
-import { useGetRealmInternalNativeTransfersByPath } from "@/common/react-query/realm/api";
+import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { useGetRealmEventsByPath, useGetRealmInternalNativeTransfersByPath } from "@/common/react-query/realm/api";
 import DataListSection from "../../details-data-section/data-list-section";
 import { TokenDetailDatatable } from "../../datatable";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
+import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { TokenDetailDatatablePage } from "../../datatable/token-detail/token-detail-page";
 import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-holders-page";
 import {
@@ -54,6 +56,12 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { path: tokenRealmPath || "" },
     { enabled: !isCustomNetwork && !!tokenRealmPath },
   );
+  const {
+    data: eventData,
+    isFetched: isFetchedEventData,
+    hasNextPage: hasNextPageEventData,
+    fetchNextPage: fetchNextPageEventData,
+  } = useGetRealmEventsByPath({ path: tokenRealmPath || "" }, { enabled: !isCustomNetwork && !!tokenRealmPath });
 
   const tokenInternalNativeTransfers = React.useMemo(() => {
     if (!internalNativeTransferData?.pages) return [];
@@ -63,10 +71,17 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     );
   }, [internalNativeTransferData?.pages]);
 
+  const tokenEvents = React.useMemo(() => {
+    if (!eventData?.pages) return [];
+
+    return RealmMapper.realmEventFromApiResponses(eventData.pages.flatMap(page => page.items ?? []));
+  }, [eventData?.pages]);
+
   const transactionsCount = transactionsData?.pages[0]?.page.totalCount;
   const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
   const internalTransfersCount = internalTransfersData?.pages[0]?.page.totalCount;
   const internalNativeTransfersCount = internalNativeTransferData?.pages[0]?.page.totalCount;
+  const eventsCount = eventData?.pages[0]?.page.totalCount;
   const holdersCount = holdersData?.pages[0]?.page.totalCount;
   const transactionsLength = transactionsData?.pages.flatMap(page => page.items ?? []).length ?? 0;
   const tokenTransfersLength = tokenTransferData?.pages.flatMap(page => page.items ?? []).length ?? 0;
@@ -85,6 +100,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
         tabName: DETAIL_TAB_NAME.INTERNAL_TRANSFERS_NATIVE,
         size: internalNativeTransfersCount ?? tokenInternalNativeTransfers.length,
       },
+      { tabName: DETAIL_TAB_NAME.EVENTS, size: eventsCount ?? tokenEvents.length },
       { tabName: TOKEN_HOLDERS_TAB_NAME, size: holdersCount ?? 0 },
     ];
   }, [
@@ -97,6 +113,8 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     tokenTransfersLength,
     internalNativeTransfersCount,
     tokenInternalNativeTransfers,
+    eventsCount,
+    tokenEvents,
     holdersCount,
   ]);
 
@@ -121,6 +139,14 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
           isFetched={isFetchedInternalNativeTransferData}
           hasNextPage={hasNextPageInternalNativeTransferData}
           nextPage={fetchNextPageInternalNativeTransferData}
+        />
+      )}
+      {tokenPath && !isCustomNetwork && currentTab === DETAIL_TAB_NAME.EVENTS && (
+        <StandardNetworkEventDatatable
+          isFetched={isFetchedEventData}
+          events={tokenEvents}
+          hasNextPage={hasNextPageEventData}
+          nextPage={fetchNextPageEventData}
         />
       )}
       {tokenPath && !isCustomNetwork && currentTab === TOKEN_HOLDERS_TAB_NAME && (
