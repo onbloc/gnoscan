@@ -39,4 +39,30 @@ describe("custom-network transaction list selection", () => {
       ).func,
     ).toBe("Approve");
   });
+
+  it.each(["Deposit", "Withdraw"])("retains wrapped GNOT %s when only approvals surround it", func => {
+    const approval = { func: "Approve", pkg_path: "gno.land/r/demo/token" };
+    const wrap = { func, pkg_path: WUGNOT_PACKAGE_PATH };
+    const decoded = [approval, wrap, approval];
+    expect(
+      getDefaultMessage(
+        decoded.map(value => ({ value })),
+        true,
+      ).value,
+    ).toBe(wrap);
+    expect(getDefaultMessageByBlockTransaction(decoded, true)).toBe(wrap);
+  });
+
+  it("skips wrapped GNOT withdrawal before another action in both message formats", () => {
+    const withdrawal = { func: "Withdraw", pkg_path: WUGNOT_PACKAGE_PATH };
+    const swap = { func: "Swap", pkg_path: "gno.land/r/gnoswap/pool" };
+    const decoded = [withdrawal, swap];
+    expect(
+      getDefaultMessage(
+        decoded.map(value => ({ value })),
+        true,
+      ).value,
+    ).toBe(swap);
+    expect(getDefaultMessageByBlockTransaction(decoded, true)).toBe(swap);
+  });
 });
