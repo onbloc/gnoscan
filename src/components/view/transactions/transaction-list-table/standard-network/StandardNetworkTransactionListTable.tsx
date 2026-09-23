@@ -14,6 +14,7 @@ import { DatatableItem } from "@/components/view/datatable";
 import { Button } from "@/components/ui/button";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { TransactionModel } from "@/models/api/transaction/transaction-model";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 const TOOLTIP_TYPE = (
   <>
@@ -75,7 +76,7 @@ export const StandardNetworkTransactionListTable = ({
       .colorName("blue")
       .tooltip(<S.TooltipContainer>{TOOLTIP_TYPE}</S.TooltipContainer>)
       .renderOption((_, data) => {
-        const func = data.func && data.func.length > 0 ? data.func[0] : null;
+        const func = getRepresentativeTransactionFunction(data);
         if (!func) return "-";
 
         const displayFunctionName = mapDisplayFunctionName(func.pkgPath, func.funcType);

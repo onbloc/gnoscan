@@ -83,7 +83,7 @@ export class OnblocAccountRepository implements IAccountRepository {
       const mappedTransactions = transactionEdges
         .map((edge: any) => edge.transaction)
         .filter((tx: any) => {
-          const defaultMessage = getDefaultMessage(tx.messages);
+          const defaultMessage = getDefaultMessage(tx.messages, tx.success);
           const functionName: string | null = defaultMessage?.func || null;
           const messageArguments: string[] | null = defaultMessage?.args || null;
 
@@ -102,7 +102,7 @@ export class OnblocAccountRepository implements IAccountRepository {
           return false;
         })
         .map(tx => {
-          const defaultMessage = getDefaultMessage(tx.messages);
+          const defaultMessage = getDefaultMessage(tx.messages, tx.success);
           const functionName: string | null = defaultMessage?.func || null;
           const messageArguments: string[] | null = defaultMessage?.args || null;
 

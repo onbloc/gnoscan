@@ -11,6 +11,7 @@ import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/us
 import { useGetAccountInternalNativeTransfers } from "@/common/react-query/account/api/use-get-account-internal-native-transfers";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
 import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 interface AccountTransactionsProps {
   address: string;
@@ -42,7 +43,25 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
   const accountTransactions: Transaction[] = React.useMemo(() => {
     if (!transactionData?.pages) return [];
 
-    return AccountMapper.accountTransactionFromApiResponses(transactionData.pages.flatMap(page => page.items ?? []));
+    const allItems = transactionData.pages.flatMap(page => page.items ?? []);
+    return allItems.map((item): Transaction => {
+      const func = getRepresentativeTransactionFunction(item);
+      return {
+        amount: item.amountIn,
+        amountOut: item.amountOut,
+        blockHeight: item.blockHeight,
+        fee: item.fee,
+        from: item.fromAddress,
+        to: item.toAddress,
+        hash: item.txHash,
+        numOfMessage: item.messageCount,
+        functionName: func?.funcType || "",
+        packagePath: func?.pkgPath || "",
+        type: func?.messageType || "",
+        success: item.successYn,
+        time: item.timestamp,
+      };
+    });
   }, [transactionData]);
 
   const accountTokenTransfers: Transaction[] = React.useMemo(() => {

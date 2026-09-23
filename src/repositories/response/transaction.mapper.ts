@@ -7,7 +7,7 @@ import { getDefaultMessage } from "../utility";
 import { AddPackageValue, BankSendValue, MsgCallValue, MsgRunValue, TransactionWithEvent } from "./transaction.types";
 
 export function mapSendTransactionByBankMsgSend(tx: TransactionWithEvent<BankSendValue>): Transaction {
-  const defaultMessage = getDefaultMessage(tx.messages);
+  const defaultMessage = getDefaultMessage(tx.messages, tx.success);
 
   return {
     hash: tx.hash,
@@ -49,7 +49,7 @@ export function mapSendTransactionByBankMsgSend(tx: TransactionWithEvent<BankSen
 }
 
 export function mapReceivedTransactionByMsgCall(tx: TransactionWithEvent<MsgCallValue>): Transaction {
-  const defaultMessage = getDefaultMessage(tx.messages);
+  const defaultMessage = getDefaultMessage(tx.messages, tx.success);
 
   return {
     hash: tx.hash,
@@ -91,7 +91,7 @@ export function mapReceivedTransactionByMsgCall(tx: TransactionWithEvent<MsgCall
 }
 
 export function mapReceivedTransactionByBankMsgSend(tx: TransactionWithEvent<BankSendValue>): Transaction {
-  const defaultMessage = getDefaultMessage(tx.messages);
+  const defaultMessage = getDefaultMessage(tx.messages, tx.success);
 
   return {
     hash: tx.hash,
@@ -135,7 +135,7 @@ export function mapReceivedTransactionByBankMsgSend(tx: TransactionWithEvent<Ban
 export function mapVMTransaction(
   tx: TransactionWithEvent<BankSendValue | AddPackageValue | MsgRunValue | MsgCallValue>,
 ): Transaction {
-  const defaultMessage = getDefaultMessage(tx.messages);
+  const defaultMessage = getDefaultMessage(tx.messages, tx.success);
 
   if (isAddPackageMessageValue(defaultMessage.value)) {
     const messageValue = defaultMessage.value as AddPackageValue;
