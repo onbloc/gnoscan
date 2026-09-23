@@ -5,9 +5,11 @@ export function isPreparatoryTransactionFunction(packagePath: string, functionNa
   return functionName === "Approve" || (packagePath === WUGNOT_PACKAGE_PATH && functionName === "Deposit");
 }
 
-export function getRepresentativeTransactionFunction(transaction: Pick<BaseTransactionModel, "messageCount" | "func">) {
+export function getRepresentativeTransactionFunction(
+  transaction: Pick<BaseTransactionModel, "messageCount" | "func" | "successYn">,
+) {
   const first = transaction.func[0];
-  if (transaction.messageCount <= 1) return first;
+  if (transaction.successYn !== true || transaction.messageCount <= 1) return first;
 
   return transaction.func.find(func => !isPreparatoryTransactionFunction(func.pkgPath, func.funcType)) ?? first;
 }
