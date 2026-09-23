@@ -19,24 +19,27 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
   return (
     <DetailsContainer desktop={desktop}>
       <div className="tab-area">
-        {tabs.map((tab, index) => (
-          <div className="tab-item" key={index} onClick={() => setCurrentTab(tab.tabName)}>
-            <Text
-              type={desktop ? "h4" : "h6"}
-              color={currentTab === tab.tabName ? "primary" : "tertiary"}
-              margin={desktop ? "0 0 16px 0" : "0 0 16px 0"}
-            >
-              {tab.tabName}
-            </Text>
-            {tab.size !== undefined && (
-              <div className={desktop ? "badge" : "badge small"}>
-                <Text type={"p4"} color={"primary"}>
-                  {makeDisplayNumber(tab.size)}
-                </Text>
-              </div>
-            )}
-          </div>
-        ))}
+        {tabs.map((tab, index) => {
+          const isSelected = currentTab === tab.tabName;
+          return (
+            <div className="tab-item" key={index} onClick={() => setCurrentTab(tab.tabName)}>
+              <Text
+                type={desktop ? (isSelected ? "h4" : "h6") : isSelected ? "h6" : "h7"}
+                color={isSelected ? "primary" : "tertiary"}
+                margin={desktop ? "0 0 16px 0" : "0 0 16px 0"}
+              >
+                {tab.tabName}
+              </Text>
+              {tab.size !== undefined && (
+                <div className={desktop ? "badge" : "badge small"}>
+                  <Text type={"p4"} color={"primary"}>
+                    {makeDisplayNumber(tab.size)}
+                  </Text>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
       {children}
     </DetailsContainer>

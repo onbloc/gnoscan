@@ -17,7 +17,19 @@ export const DetailsContainer = styled.div<StyleProps>`
   .tab-area {
     display: flex;
     flex-direction: row;
-    gap: 32px;
+    gap: 24px;
+
+    @media (max-width: 1279px) {
+      width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+
+      ::-webkit-scrollbar {
+        width: 0px;
+        height: 0px;
+        display: none;
+      }
+    }
 
     .tab-item {
       display: flex;
@@ -25,6 +37,10 @@ export const DetailsContainer = styled.div<StyleProps>`
       gap: 10px;
       justify-content: center;
       cursor: pointer;
+
+      @media (max-width: 1279px) {
+        flex-shrink: 0;
+      }
 
       .badge {
         width: fit-content;
