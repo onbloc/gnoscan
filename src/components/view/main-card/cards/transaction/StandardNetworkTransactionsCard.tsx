@@ -1,20 +1,16 @@
 import React from "react";
 import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
-import { useGetSummaryAccounts, useGetSummaryTransactions } from "@/common/react-query/statistics";
-import { SummaryAccountsInfo, SummaryTransactionsInfo } from "@/types/data-type";
+import { useGetSummaryTransactions } from "@/common/react-query/statistics";
+import { SummaryTransactionsInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
-import {
-  DEFAULT_SUMMARY_ACCOUNTS_INFO,
-  DEFAULT_SUMMARY_TRANSACTIONS_INFO,
-} from "@/common/values/default-object/summary";
-import Tooltip from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import IconInfo from "@/assets/svgs/icon-info.svg";
+import { DEFAULT_SUMMARY_TRANSACTIONS_INFO } from "@/common/values/default-object/summary";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 export const StandardNetworkTxsCard = () => {
-  const { data: txsData, isFetched: isFetchedTxsData } = useGetSummaryTransactions();
-  const { data: accountsData, isFetched: isFetchedAccountsData } = useGetSummaryAccounts();
+  const summaryTransactionsQuery = useGetSummaryTransactions();
+  const { data: txsData } = summaryTransactionsQuery;
+  const isFetchedTxsData = txsData !== undefined;
 
   const transactionSummaryInfo: SummaryTransactionsInfo = React.useMemo(() => {
     if (!txsData?.data) return DEFAULT_SUMMARY_TRANSACTIONS_INFO;
@@ -25,17 +21,8 @@ export const StandardNetworkTxsCard = () => {
     };
   }, [txsData?.data]);
 
-  const accountSummaryInfo: SummaryAccountsInfo = React.useMemo(() => {
-    if (!accountsData) return DEFAULT_SUMMARY_ACCOUNTS_INFO;
-    return {
-      totalAccounts: accountsData.data.total || 0,
-      totalUsers: accountsData.data.users || 0,
-      numOfValidators: String(accountsData.data.validators) || "",
-    };
-  }, [accountsData?.data]);
-
   return (
-    <>
+    <StatisticsQueryState query={summaryTransactionsQuery}>
       <FetchedComp
         skeletonWidth={130}
         skeletonheight={28}
@@ -86,6 +73,6 @@ export const StandardNetworkTxsCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
-    </>
+    </StatisticsQueryState>
   );
 };

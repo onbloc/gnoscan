@@ -5,6 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetStorageDepositResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { retryStatisticsQuery } from "./statistics-query-policy";
 
 export const useGetStorageDeposit = (
   options?: UseQueryOptions<GetStorageDepositResponse, Error, GetStorageDepositResponse>,
@@ -16,6 +17,6 @@ export const useGetStorageDeposit = (
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getStorageDeposit(),
-    options,
+    { retry: retryStatisticsQuery, ...options },
   );
 };
