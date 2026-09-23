@@ -1,6 +1,7 @@
 import { TransactionTableModel } from "@/models/api/common";
 import { RealmEventModel, RealmModel, RealmSummaryModel } from "@/models/api/realm/realm-model";
 import { GnoEvent, Realm, RealmSummary, Transaction } from "@/types/data-type";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 export class RealmMapper {
   public static realmListFromApiResponse(response: RealmModel): Realm {
@@ -58,6 +59,7 @@ export class RealmMapper {
   }
 
   public static realmTransactionFromApiResponse(response: TransactionTableModel): Transaction {
+    const func = getRepresentativeTransactionFunction(response);
     return {
       amount: response.amount,
       blockHeight: response.blockHeight,
@@ -72,9 +74,9 @@ export class RealmMapper {
       toLabelType: response.toLabelType,
       time: response.timestamp,
       numOfMessage: response.messageCount,
-      functionName: response.func[0].funcType,
-      packagePath: response.func[0].pkgPath,
-      type: response.func[0].messageType,
+      functionName: func?.funcType || "",
+      packagePath: func?.pkgPath || "",
+      type: func?.messageType || "",
       hash: response.txHash,
       success: response.successYn,
     };

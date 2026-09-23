@@ -16,6 +16,7 @@ import { TransactionTableModel } from "@/models/api/common";
 import { Transaction } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { Button } from "@/components/ui/button";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 interface Props {
   path: string[] | any;
@@ -41,13 +42,14 @@ export const TokenDetailDatatablePage = ({ path }: Props) => {
     const allItems = data.pages.flatMap(page => page.items);
 
     return allItems.map((item: TransactionTableModel): Transaction => {
+      const func = getRepresentativeTransactionFunction(item);
       return {
         hash: item.txHash,
         success: item.successYn,
         numOfMessage: item.messageCount,
-        type: item.func[0].messageType,
-        packagePath: item.func[0].pkgPath,
-        functionName: item.func[0].funcType,
+        type: func?.messageType || "",
+        packagePath: func?.pkgPath || "",
+        functionName: func?.funcType || "",
         blockHeight: item.blockHeight,
         from: item.fromAddress,
         fromName: item.fromName,
