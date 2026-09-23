@@ -41,6 +41,7 @@ export const getDateDiff = (d: any) => {
 };
 
 export const getLocalDateString = (d: any) => {
+  if (d === "" || d == null) return "-";
   const { value, offsetHours } = getDateUtcToLocal(d);
   const sign = offsetHours > 0 ? "+" : "-";
   const offsetHoursString = offsetHours === 0 ? "UTC" : `UTC${sign}${Math.abs(offsetHours)}`;
