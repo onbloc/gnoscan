@@ -2,6 +2,7 @@ import React from "react";
 
 import { Transaction } from "@/types/data-type";
 import { AccountMapper } from "@/common/mapper/account/account-mapper";
+import { useDetailTabScroll } from "@/common/hooks/detail-tabs/use-detail-tab-scroll";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
@@ -58,7 +59,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
     );
   }, [internalNativeTransferData]);
 
-  const [currentTab, setCurrentTab] = React.useState<string>(DETAIL_TAB_NAME.TRANSACTIONS);
+  const [currentTab, setCurrentTab] = useDetailTabScroll<string>(address, DETAIL_TAB_NAME.TRANSACTIONS);
 
   const transactionsCount = transactionData?.pages[0]?.page.totalCount;
   const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
