@@ -72,7 +72,7 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
 
     return this.networkClient
       .get<APIResponse<GetTokenTransfersResponse>>({
-        url: `tokens/${encodeURIComponent(path)}/transactions${requestParams}`,
+        url: `token-meta/${encodeURIComponent(path)}/token-transfers${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
@@ -156,7 +156,7 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
 
     return this.networkClient
       .get<APIResponse<GetTokenEventsResponse>>({
-        url: `tokens/${encodeURIComponent(path)}/events${requestParams}`,
+        url: `token-meta/${encodeURIComponent(path)}/events${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
