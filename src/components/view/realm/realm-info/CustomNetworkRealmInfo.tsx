@@ -1,7 +1,7 @@
 import React from "react";
 
-import { GnoEvent } from "@/types/data-type";
 import { useRealm } from "@/common/hooks/realms/use-realm";
+import { ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import { RealmDetailDatatable } from "../../datatable";
@@ -21,11 +21,11 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
   const detailTabs = React.useMemo(() => {
     return [
       {
-        tabName: "Transactions",
+        tabName: ACTIVITY_TAB.TRANSACTIONS,
         size: realmTransactions.length,
       },
       {
-        tabName: "Events",
+        tabName: ACTIVITY_TAB.EVENTS,
         size: transactionEvents.length,
       },
     ];
@@ -35,7 +35,7 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === "Transactions" && (
+      {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <RealmDetailDatatable
           data={realmTransactions}
           isFetched={isFetchedTransactions}
@@ -44,7 +44,7 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
           pkgPath={`${path}`}
         />
       )}
-      {currentTab === "Events" && <EventDatatable isFetched={isFetched} events={transactionEvents} />}
+      {currentTab === ACTIVITY_TAB.EVENTS && <EventDatatable isFetched={isFetched} events={transactionEvents} />}
     </DataListSection>
   );
 };

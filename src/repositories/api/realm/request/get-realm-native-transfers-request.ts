@@ -1,4 +1,4 @@
-export interface GetTokenTransactionsRequest {
+export interface GetRealmNativeTransfersRequest {
   path: string;
 
   cursor?: string;

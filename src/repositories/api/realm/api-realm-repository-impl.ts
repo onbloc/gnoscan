@@ -2,8 +2,23 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { NodeRPCClient } from "@/common/clients/node-client";
 import { ApiRealmRepository } from "./api-realm-repository";
 
-import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactionsRequest } from "./request";
-import { GetRealmEventsResponse, GetRealmResponse, GetRealmsResponse, GetRealmTransactionsResponse } from "./response";
+import {
+  GetRealmsRequestParameters,
+  GetRealmEventsRequest,
+  GetRealmDirectTransactionsRequest,
+  GetRealmNativeTransfersRequest,
+  GetRealmTokenTransfersRequest,
+  GetRealmInternalTransactionsRequest,
+} from "./request";
+import {
+  GetRealmEventsResponse,
+  GetRealmResponse,
+  GetRealmsResponse,
+  GetRealmDirectTransactionsResponse,
+  GetRealmNativeTransfersResponse,
+  GetRealmTokenTransfersResponse,
+  GetRealmInternalTransactionsResponse,
+} from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { hasStorageDepositProperties, convertToStorageDeposit } from "@/common/utils/storage-deposit-util";
@@ -69,7 +84,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       });
   }
 
-  getRealmTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse> {
+  getRealmDirectTransactions(params: GetRealmDirectTransactionsRequest): Promise<GetRealmDirectTransactionsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -78,8 +93,61 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     const requestParams = makeQueryParameter({ ...queryParams });
 
     return this.networkClient
-      .get<APIResponse<GetRealmTransactionsResponse>>({
-        url: `/realms/${encodeURIComponent(path)}/transactions${requestParams}`,
+      .get<APIResponse<GetRealmDirectTransactionsResponse>>({
+        url: `/realms/${encodeURIComponent(path)}/direct-transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getRealmNativeTransfers(params: GetRealmNativeTransfersRequest): Promise<GetRealmNativeTransfersResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetRealmNativeTransfersResponse>>({
+        url: `/realms/${encodeURIComponent(path)}/native-transfers${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getRealmTokenTransfers(params: GetRealmTokenTransfersRequest): Promise<GetRealmTokenTransfersResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetRealmTokenTransfersResponse>>({
+        url: `/realms/${encodeURIComponent(path)}/token-transfers${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getRealmInternalTransactions(
+    params: GetRealmInternalTransactionsRequest,
+  ): Promise<GetRealmInternalTransactionsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetRealmInternalTransactionsResponse>>({
+        url: `/realms/${encodeURIComponent(path)}/internal-transactions${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

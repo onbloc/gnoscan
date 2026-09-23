@@ -1,4 +1,4 @@
-export interface GetRealmTransactionsRequest {
+export interface GetRealmInternalTransactionsRequest {
   path: string;
 
   cursor?: string;
