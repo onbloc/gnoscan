@@ -17,7 +17,9 @@ export const DetailsContainer = styled.div<StyleProps>`
   .tab-area {
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 24px;
+    margin-bottom: 16px;
 
     @media (max-width: 1279px) {
       width: 100%;
@@ -34,6 +36,7 @@ export const DetailsContainer = styled.div<StyleProps>`
     .tab-item {
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: 10px;
       justify-content: center;
       cursor: pointer;
@@ -43,6 +46,7 @@ export const DetailsContainer = styled.div<StyleProps>`
       }
 
       .badge {
+        ${mixins.flexbox("row", "center", "center")};
         width: fit-content;
         min-width: 28px;
         height: 28px;

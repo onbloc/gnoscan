@@ -26,7 +26,6 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
               <Text
                 type={desktop ? (isSelected ? "h4" : "h6") : isSelected ? "h6" : "h7"}
                 color={isSelected ? "primary" : "tertiary"}
-                margin={desktop ? "0 0 16px 0" : "0 0 16px 0"}
               >
                 {tab.tabName}
               </Text>
