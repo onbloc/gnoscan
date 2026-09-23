@@ -2,23 +2,23 @@ import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { GetRealmTransactionsRequest } from "@/repositories/api/realm/request";
-import { GetRealmTransactionsResponse } from "@/repositories/api/realm/response";
+import { GetRealmDirectTransactionsRequest } from "@/repositories/api/realm/request";
+import { GetRealmDirectTransactionsResponse } from "@/repositories/api/realm/response";
 import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
-export const useGetRealmInternalTransfersByPath = (
-  params: GetRealmTransactionsRequest,
-  options?: UseInfiniteQueryOptions<GetRealmTransactionsResponse, Error, GetRealmTransactionsResponse>,
-): UseInfiniteQueryResult<GetRealmTransactionsResponse, Error> => {
+export const useGetRealmDirectTransactionsByPath = (
+  params: GetRealmDirectTransactionsRequest,
+  options?: UseInfiniteQueryOptions<GetRealmDirectTransactionsResponse, Error, GetRealmDirectTransactionsResponse>,
+): UseInfiniteQueryResult<GetRealmDirectTransactionsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetRealmTransactionsResponse, Error, typeof apiRealmRepository>(
-    [QUERY_KEY.getRealmInternalTransfersByPath, params],
+  return useApiRepositoryInfiniteQuery<GetRealmDirectTransactionsResponse, Error, typeof apiRealmRepository>(
+    [QUERY_KEY.getRealmDirectTransactionsByPath, params],
     apiRealmRepository,
     API_REPOSITORY_KEY.REALM_REPOSITORY,
     (repository, pageParam) =>
-      repository!.getRealmInternalTransactions({
+      repository!.getRealmDirectTransactions({
         ...params,
         cursor: pageParam as string | undefined,
       }),

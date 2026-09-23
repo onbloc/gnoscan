@@ -1,10 +1,9 @@
 export enum QUERY_KEY {
   // account
   getAccount = "api_get_account",
-  getAccountEvents = "api_get_account_events",
-  getAccountTransactions = "api_get_account_transactions",
+  getAccountDirectTransactions = "api_get_account_direct_transactions",
+  getAccountNativeTransfers = "api_get_account_native_transfers",
   getAccountTokenTransfers = "api_get_account_token_transfers",
-  getAccountInternalNativeTransfers = "api_get_account_internal_native_transfers",
 
   // block
   getBlocks = "api_get_blocks",
@@ -24,20 +23,21 @@ export enum QUERY_KEY {
   getRealms = "api_get_realms",
   getRealmByPath = "api_get_realm_by_path",
   getRealmEventsByPath = "api_get_realm_events_by_path",
-  getRealmTransactionsByPath = "api_get_realm_transactions_by_path",
-  getRealmInternalTransfersByPath = "api_get_realm_internal_transfers_by_path",
+  getRealmDirectTransactionsByPath = "api_get_realm_direct_transactions_by_path",
+  getRealmNativeTransfersByPath = "api_get_realm_native_transfers_by_path",
   getRealmTokenTransfersByPath = "api_get_realm_token_transfers_by_path",
-  getRealmInternalNativeTransfersByPath = "api_get_realm_internal_native_transfers_by_path",
+  getRealmInternalTransactionsByPath = "api_get_realm_internal_transactions_by_path",
   getRealmStorageDepositByPath = "get_realm_storage_deposit_by_path",
 
   // token
   getTokens = "api_get_tokens",
   getTokenById = "api_get_token_by_id",
-  getTokenTransactionsById = "api_get_token_transactions_by_id",
-  getTokenMetaTransactionsById = "api_get_token_meta_transactions_by_id",
-  getTokenInternalTransfersById = "api_get_token_internal_transfers_by_id",
+  getTokenTransfersById = "api_get_token_transfers_by_id",
   getTokenHoldersById = "api_get_token_holders_by_id",
   getTokenMetaByPath = "api_get_token_meta_by_path",
+  getTokenMetaTransactionsById = "api_get_token_meta_transactions_by_id",
+  getTokenMetaInternalTransactionsById = "api_get_token_meta_internal_transactions_by_id",
+  getTokenEventsById = "api_get_token_events_by_id",
 
   // statistics
   getLatestBlogs = "api_get_latest_blogs",

@@ -2,13 +2,22 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { NodeRPCClient } from "@/common/clients/node-client";
 import { ApiRealmRepository } from "./api-realm-repository";
 
-import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactionsRequest } from "./request";
+import {
+  GetRealmsRequestParameters,
+  GetRealmEventsRequest,
+  GetRealmDirectTransactionsRequest,
+  GetRealmNativeTransfersRequest,
+  GetRealmTokenTransfersRequest,
+  GetRealmInternalTransactionsRequest,
+} from "./request";
 import {
   GetRealmEventsResponse,
   GetRealmResponse,
   GetRealmsResponse,
-  GetRealmTransactionsResponse,
+  GetRealmDirectTransactionsResponse,
+  GetRealmNativeTransfersResponse,
   GetRealmTokenTransfersResponse,
+  GetRealmInternalTransactionsResponse,
 } from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { makeQueryParameter } from "@/common/utils/string-util";
@@ -75,7 +84,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       });
   }
 
-  getRealmTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse> {
+  getRealmDirectTransactions(params: GetRealmDirectTransactionsRequest): Promise<GetRealmDirectTransactionsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -84,7 +93,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     const requestParams = makeQueryParameter({ ...queryParams });
 
     return this.networkClient
-      .get<APIResponse<GetRealmTransactionsResponse>>({
+      .get<APIResponse<GetRealmDirectTransactionsResponse>>({
         url: `/realms/${encodeURIComponent(path)}/direct-transactions${requestParams}`,
       })
       .then(result => {
@@ -92,7 +101,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       });
   }
 
-  getRealmInternalTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse> {
+  getRealmNativeTransfers(params: GetRealmNativeTransfersRequest): Promise<GetRealmNativeTransfersResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -101,15 +110,15 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     const requestParams = makeQueryParameter({ ...queryParams });
 
     return this.networkClient
-      .get<APIResponse<GetRealmTransactionsResponse>>({
-        url: `/realms/${encodeURIComponent(path)}/internal-transactions${requestParams}`,
+      .get<APIResponse<GetRealmNativeTransfersResponse>>({
+        url: `/realms/${encodeURIComponent(path)}/native-transfers${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
       });
   }
 
-  getRealmTokenTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse> {
+  getRealmTokenTransfers(params: GetRealmTokenTransfersRequest): Promise<GetRealmTokenTransfersResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -126,7 +135,9 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
       });
   }
 
-  getRealmInternalNativeTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse> {
+  getRealmInternalTransactions(
+    params: GetRealmInternalTransactionsRequest,
+  ): Promise<GetRealmInternalTransactionsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -135,8 +146,8 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     const requestParams = makeQueryParameter({ ...queryParams });
 
     return this.networkClient
-      .get<APIResponse<GetRealmTokenTransfersResponse>>({
-        url: `/realms/${encodeURIComponent(path)}/internal-transfers${requestParams}`,
+      .get<APIResponse<GetRealmInternalTransactionsResponse>>({
+        url: `/realms/${encodeURIComponent(path)}/internal-transactions${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

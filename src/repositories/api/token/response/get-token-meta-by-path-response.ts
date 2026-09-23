@@ -7,6 +7,8 @@ export interface TokenMeta {
   symbol: string;
   decimals: number;
   logoUrl: string | null;
+  realmAddress: string;
+  hostedTokenCount: number;
 }
 
 export interface GetTokenMetaByPathResponse {

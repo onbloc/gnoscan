@@ -1,13 +1,23 @@
 import { NetworkClient } from "@/common/clients/network-client";
 import { ApiTokenRepository } from "./api-token-repository";
 
-import { GetTokenHoldersRequest, GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
+import {
+  GetTokenHoldersRequest,
+  GetTokensRequestParameters,
+  GetTokenTransfersRequest,
+  GetTokenMetaTransactionsRequest,
+  GetTokenMetaInternalTransactionsRequest,
+  GetTokenEventsRequest,
+} from "./request";
 import {
   GetTokenHoldersResponse,
   GetTokenMetaByPathResponse,
   GetTokenResponse,
   GetTokensResponse,
-  GetTokenTransactionsResponse,
+  GetTokenTransfersResponse,
+  GetTokenMetaTransactionsResponse,
+  GetTokenMetaInternalTransactionsResponse,
+  GetTokenEventsResponse,
 } from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
@@ -52,7 +62,7 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
       });
   }
 
-  getTokenTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse> {
+  getTokenTransfers(params: GetTokenTransfersRequest): Promise<GetTokenTransfersResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -61,42 +71,8 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
     const requestParams = makeQueryParameter({ ...queryParams });
 
     return this.networkClient
-      .get<APIResponse<GetTokenTransactionsResponse>>({
+      .get<APIResponse<GetTokenTransfersResponse>>({
         url: `tokens/${encodeURIComponent(path)}/transactions${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
-  }
-
-  getTokenMetaTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    const { path, ...queryParams } = params;
-    const requestParams = makeQueryParameter({ ...queryParams });
-
-    return this.networkClient
-      .get<APIResponse<GetTokenTransactionsResponse>>({
-        url: `token-meta/${encodeURIComponent(path)}/transactions${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
-  }
-
-  getTokenInternalTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    const { path, ...queryParams } = params;
-    const requestParams = makeQueryParameter({ ...queryParams });
-
-    return this.networkClient
-      .get<APIResponse<GetTokenTransactionsResponse>>({
-        url: `tokens/${encodeURIComponent(path)}/internal-transactions${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
@@ -128,6 +104,59 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
     return this.networkClient
       .get<APIResponse<GetTokenMetaByPathResponse>>({
         url: `token-meta/${encodeURIComponent(path)}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTokenMetaTransactions(params: GetTokenMetaTransactionsRequest): Promise<GetTokenMetaTransactionsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetTokenMetaTransactionsResponse>>({
+        url: `token-meta/${encodeURIComponent(path)}/transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTokenMetaInternalTransactions(
+    params: GetTokenMetaInternalTransactionsRequest,
+  ): Promise<GetTokenMetaInternalTransactionsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetTokenMetaInternalTransactionsResponse>>({
+        url: `token-meta/${encodeURIComponent(path)}/internal-transactions${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getTokenEvents(params: GetTokenEventsRequest): Promise<GetTokenEventsResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { path, ...queryParams } = params;
+    const requestParams = makeQueryParameter({ ...queryParams });
+
+    return this.networkClient
+      .get<APIResponse<GetTokenEventsResponse>>({
+        url: `tokens/${encodeURIComponent(path)}/events${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

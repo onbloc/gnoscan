@@ -2,18 +2,19 @@ import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { GetTokenTransactionsRequest } from "@/repositories/api/token/request";
-import { GetTokenTransactionsResponse } from "@/repositories/api/token/response";
+import { GetTokenMetaTransactionsResponse } from "@/repositories/api/token/response";
 import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { GetTokenMetaTransactionsRequest } from "@/repositories/api/token/request";
 
-export const useGetTokenMetaTransactionsByid = (
-  params: GetTokenTransactionsRequest,
-  options?: UseInfiniteQueryOptions<GetTokenTransactionsResponse, Error, GetTokenTransactionsResponse>,
-): UseInfiniteQueryResult<GetTokenTransactionsResponse, Error> => {
+/** Token page's own "Transactions" (direct) tab. */
+export const useGetTokenMetaTransactionsById = (
+  params: GetTokenMetaTransactionsRequest,
+  options?: UseInfiniteQueryOptions<GetTokenMetaTransactionsResponse, Error, GetTokenMetaTransactionsResponse>,
+): UseInfiniteQueryResult<GetTokenMetaTransactionsResponse, Error> => {
   const { apiTokenRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetTokenTransactionsResponse, Error, typeof apiTokenRepository>(
+  return useApiRepositoryInfiniteQuery<GetTokenMetaTransactionsResponse, Error, typeof apiTokenRepository>(
     [QUERY_KEY.getTokenMetaTransactionsById, params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,

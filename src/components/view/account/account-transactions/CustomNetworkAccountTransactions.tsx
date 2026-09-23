@@ -2,12 +2,11 @@ import React from "react";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import { AccountDetailDatatable } from "../../datatable";
-import { EventDatatable } from "../../datatable/event";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import { useAccount } from "@/common/hooks/account/use-account";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
-import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
+import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 
 interface AccountTransactionsProps {
   address: string;
@@ -23,23 +22,22 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
     return getAddress(address) || "";
   }, [address, isFetchedUsername, getAddress]);
 
-  const {
-    isFetchedAccountTransactions,
-    isLoadingTransactions,
-    transactionEvents,
-    accountTransactions,
-    hasNextPage,
-    nextPage,
-  } = useAccount(bech32Address || "");
+  const { isFetchedAccountTransactions, isLoadingTransactions, accountTransactions, hasNextPage, nextPage } =
+    useAccount(bech32Address || "");
 
-  const [currentTab, setCurrentTab] = React.useState<string>(DETAIL_TAB_NAME.TRANSACTIONS);
+  const [currentTab, setCurrentTab] = React.useState<string>(ACTIVITY_TAB.TRANSACTIONS);
 
+  // Custom RPC only supports scanning direct transactions - Native/Token Transfers would require
+  // an indexer this network doesn't have, so those tabs aren't invented; only the one Custom RPC
+  // can genuinely answer is shown (matches ACCOUNT_DETAIL_TABS[0]).
   const detailTabs = React.useMemo(() => {
     return [
-      { tabName: DETAIL_TAB_NAME.TRANSACTIONS, size: accountTransactions?.length },
-      { tabName: DETAIL_TAB_NAME.EVENTS, size: transactionEvents.length },
+      {
+        tabName: ACCOUNT_DETAIL_TABS[0],
+        size: accountTransactions?.length,
+      },
     ];
-  }, [accountTransactions, transactionEvents]);
+  }, [accountTransactions]);
 
   if (isLoadingTransactions || !isFetchedAccountTransactions) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
@@ -47,7 +45,7 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === DETAIL_TAB_NAME.TRANSACTIONS && (
+      {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <AccountDetailDatatable
           data={accountTransactions || []}
           address={address}
@@ -55,9 +53,6 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
           hasNextPage={hasNextPage}
           nextPage={nextPage}
         />
-      )}
-      {currentTab === DETAIL_TAB_NAME.EVENTS && (
-        <EventDatatable events={transactionEvents} isFetched={isFetchedAccountTransactions} />
       )}
     </DataListSection>
   );

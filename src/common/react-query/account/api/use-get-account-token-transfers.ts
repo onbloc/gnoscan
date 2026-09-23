@@ -2,36 +2,30 @@ import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
-import { GetAccountTransactionsRequest } from "@/repositories/api/account/request";
-import { GetAccountTransactionsResponse } from "@/repositories/api/account/response";
+import { GetAccountTokenTransfersRequest } from "@/repositories/api/account/request";
+import { GetAccountTokenTransfersResponse } from "@/repositories/api/account/response";
 import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
-import { CommonError } from "@/common/errors";
 
 export const useGetAccountTokenTransfers = (
-  params: GetAccountTransactionsRequest,
-  options?: UseInfiniteQueryOptions<GetAccountTransactionsResponse, Error, GetAccountTransactionsResponse>,
-): UseInfiniteQueryResult<GetAccountTransactionsResponse, Error> => {
+  params: GetAccountTokenTransfersRequest,
+  options?: UseInfiniteQueryOptions<GetAccountTokenTransfersResponse, Error, GetAccountTokenTransfersResponse>,
+): UseInfiniteQueryResult<GetAccountTokenTransfersResponse, Error> => {
   const { apiAccountRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetAccountTransactionsResponse, Error, typeof apiAccountRepository>(
+  return useApiRepositoryInfiniteQuery<GetAccountTokenTransfersResponse, Error, typeof apiAccountRepository>(
     [QUERY_KEY.getAccountTokenTransfers, params],
     apiAccountRepository,
     API_REPOSITORY_KEY.ACCOUNT_REPOSITORY,
-    (repository, pageParam) => {
-      if (!repository) {
-        throw new CommonError("FAILED_INITIALIZE_REPOSITORY", API_REPOSITORY_KEY.ACCOUNT_REPOSITORY);
-      }
-
-      return repository.getAccountTokenTransfers({
+    (repository, pageParam) =>
+      repository!.getAccountTokenTransfers({
         ...params,
         cursor: pageParam as string | undefined,
-      });
-    },
+      }),
     {
       getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       ...options,
-      enabled: !!params.address,
+      enabled: !!params.address && options?.enabled !== false,
     },
   );
 };

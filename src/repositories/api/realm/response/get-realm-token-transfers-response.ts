@@ -1,2 +1,3 @@
-// Same wire format as the account token-transfers endpoint (mapper.AccountTransactionsResponse).
-export type { GetAccountTransactionsResponse as GetRealmTokenTransfersResponse } from "@/repositories/api/account/response";
+import { ActivityListResponse } from "@/models/api/activity/activity-model";
+
+export type GetRealmTokenTransfersResponse = ActivityListResponse;

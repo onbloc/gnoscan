@@ -1,10 +1,19 @@
-import { GetRealmsRequestParameters, GetRealmEventsRequest, GetRealmTransactionsRequest } from "./request";
+import {
+  GetRealmsRequestParameters,
+  GetRealmEventsRequest,
+  GetRealmDirectTransactionsRequest,
+  GetRealmNativeTransfersRequest,
+  GetRealmTokenTransfersRequest,
+  GetRealmInternalTransactionsRequest,
+} from "./request";
 import {
   GetRealmEventsResponse,
   GetRealmResponse,
   GetRealmsResponse,
-  GetRealmTransactionsResponse,
+  GetRealmDirectTransactionsResponse,
+  GetRealmNativeTransfersResponse,
   GetRealmTokenTransfersResponse,
+  GetRealmInternalTransactionsResponse,
 } from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 export interface ApiRealmRepository {
@@ -16,11 +25,13 @@ export interface ApiRealmRepository {
 
   getRealmEvents(params: GetRealmEventsRequest): Promise<GetRealmEventsResponse>;
 
-  getRealmTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse>;
+  getRealmDirectTransactions(params: GetRealmDirectTransactionsRequest): Promise<GetRealmDirectTransactionsResponse>;
 
-  getRealmInternalTransactions(params: GetRealmTransactionsRequest): Promise<GetRealmTransactionsResponse>;
+  getRealmNativeTransfers(params: GetRealmNativeTransfersRequest): Promise<GetRealmNativeTransfersResponse>;
 
-  getRealmTokenTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse>;
+  getRealmTokenTransfers(params: GetRealmTokenTransfersRequest): Promise<GetRealmTokenTransfersResponse>;
 
-  getRealmInternalNativeTransfers(params: GetRealmTransactionsRequest): Promise<GetRealmTokenTransfersResponse>;
+  getRealmInternalTransactions(
+    params: GetRealmInternalTransactionsRequest,
+  ): Promise<GetRealmInternalTransactionsResponse>;
 }

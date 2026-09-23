@@ -1,144 +1,88 @@
 import React from "react";
 
-import { Transaction } from "@/types/data-type";
-import { AccountMapper } from "@/common/mapper/account/account-mapper";
 import { useDetailTabScroll } from "@/common/hooks/detail-tabs/use-detail-tab-scroll";
-
 import DataListSection from "../../details-data-section/data-list-section";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
-import { useGetAccountTransactions } from "@/common/react-query/account/api/use-get-account-transactions";
+import { ActivityDatatable } from "../../datatable/activity";
+import { useGetAccountDirectTransactions } from "@/common/react-query/account/api/use-get-account-direct-transactions";
+import { useGetAccountNativeTransfers } from "@/common/react-query/account/api/use-get-account-native-transfers";
 import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
-import { useGetAccountInternalNativeTransfers } from "@/common/react-query/account/api/use-get-account-internal-native-transfers";
-import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
-import { DETAIL_TAB_NAME } from "../../details-data-section/detail-tab-name.constant";
-import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
+import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 
 interface AccountTransactionsProps {
   address: string;
   isDesktop: boolean;
 }
 
-const ACCOUNT_INTERNAL_TRANSFERS_TAB_NAME = "Internal Transfers";
-
 const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTransactionsProps) => {
   const {
-    data: transactionData,
-    isFetched: isFetchedTransactionData,
-    hasNextPage,
-    fetchNextPage,
-  } = useGetAccountTransactions({ address });
+    data: directData,
+    isFetched: isFetchedDirect,
+    hasNextPage: hasNextPageDirect,
+    fetchNextPage: fetchNextPageDirect,
+  } = useGetAccountDirectTransactions({ address });
   const {
-    data: tokenTransferData,
-    isFetched: isFetchedTokenTransferData,
-    hasNextPage: tokenTransferHasNextPage,
-    fetchNextPage: tokenTransferFetchNextPage,
+    data: nativeData,
+    isFetched: isFetchedNative,
+    hasNextPage: hasNextPageNative,
+    fetchNextPage: fetchNextPageNative,
+  } = useGetAccountNativeTransfers({ address });
+  const {
+    data: tokenData,
+    isFetched: isFetchedToken,
+    hasNextPage: hasNextPageToken,
+    fetchNextPage: fetchNextPageToken,
   } = useGetAccountTokenTransfers({ address });
-  const {
-    data: internalNativeTransferData,
-    isFetched: isFetchedInternalNativeTransferData,
-    hasNextPage: internalNativeTransferHasNextPage,
-    fetchNextPage: internalNativeTransferFetchNextPage,
-  } = useGetAccountInternalNativeTransfers({ address });
 
-  const accountTransactions: Transaction[] = React.useMemo(() => {
-    if (!transactionData?.pages) return [];
+  const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
+  const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
+  const tokenTransfers = React.useMemo(() => tokenData?.pages.flatMap(page => page.items) ?? [], [tokenData]);
 
-    const allItems = transactionData.pages.flatMap(page => page.items ?? []);
-    return allItems.map((item): Transaction => {
-      const func = getRepresentativeTransactionFunction(item);
-      return {
-        amount: item.amountIn,
-        amountOut: item.amountOut,
-        blockHeight: item.blockHeight,
-        fee: item.fee,
-        from: item.fromAddress,
-        to: item.toAddress,
-        hash: item.txHash,
-        numOfMessage: item.messageCount,
-        functionName: func?.funcType || "",
-        packagePath: func?.pkgPath || "",
-        type: func?.messageType || "",
-        success: item.successYn,
-        time: item.timestamp,
-      };
-    });
-  }, [transactionData]);
+  const [currentTab, setCurrentTab] = useDetailTabScroll<string>(address, ACTIVITY_TAB.TRANSACTIONS);
 
-  const accountTokenTransfers: Transaction[] = React.useMemo(() => {
-    if (!tokenTransferData?.pages) return [];
+  const detailTabs = React.useMemo(
+    () => [
+      { tabName: ACCOUNT_DETAIL_TABS[0], size: directData?.pages[0]?.page.totalCount },
+      { tabName: ACCOUNT_DETAIL_TABS[1], size: nativeData?.pages[0]?.page.totalCount },
+      { tabName: ACCOUNT_DETAIL_TABS[2], size: tokenData?.pages[0]?.page.totalCount },
+    ],
+    [directData, nativeData, tokenData],
+  );
 
-    return AccountMapper.accountTransactionFromApiResponses(tokenTransferData.pages.flatMap(page => page.items ?? []));
-  }, [tokenTransferData]);
-
-  const accountInternalNativeTransfers: Transaction[] = React.useMemo(() => {
-    if (!internalNativeTransferData?.pages) return [];
-
-    return AccountMapper.accountTransactionFromApiResponses(
-      internalNativeTransferData.pages.flatMap(page => page.items ?? []),
-    );
-  }, [internalNativeTransferData]);
-
-  const [currentTab, setCurrentTab] = useDetailTabScroll<string>(address, DETAIL_TAB_NAME.TRANSACTIONS);
-
-  const transactionsCount = transactionData?.pages[0]?.page.totalCount;
-  const tokenTransfersCount = tokenTransferData?.pages[0]?.page.totalCount;
-  const internalNativeTransfersCount = internalNativeTransferData?.pages[0]?.page.totalCount;
-
-  const detailTabs = React.useMemo(() => {
-    return [
-      {
-        tabName: DETAIL_TAB_NAME.TRANSACTIONS,
-        size: transactionsCount ?? accountTransactions.length,
-      },
-      {
-        tabName: ACCOUNT_INTERNAL_TRANSFERS_TAB_NAME,
-        size: internalNativeTransfersCount ?? accountInternalNativeTransfers.length,
-      },
-      {
-        tabName: DETAIL_TAB_NAME.TOKEN_TRANSFERS,
-        size: tokenTransfersCount ?? accountTokenTransfers.length,
-      },
-    ];
-  }, [
-    transactionsCount,
-    accountTransactions,
-    tokenTransfersCount,
-    accountTokenTransfers,
-    internalNativeTransfersCount,
-    accountInternalNativeTransfers,
-  ]);
-
-  if (!isFetchedTransactionData) {
+  if (!isFetchedDirect) {
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
   }
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === DETAIL_TAB_NAME.TRANSACTIONS && (
-        <StandardNetworkAccountTxsDatatable
-          address={address}
-          data={accountTransactions}
-          isFetched={isFetchedTransactionData}
-          hasNextPage={hasNextPage}
-          nextPage={fetchNextPage}
+      {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
+        <ActivityDatatable
+          variant="direct"
+          data={directTransactions}
+          isFetched={isFetchedDirect}
+          hasNextPage={hasNextPageDirect}
+          nextPage={fetchNextPageDirect}
+          moreLabel="View More Transactions"
         />
       )}
-      {currentTab === ACCOUNT_INTERNAL_TRANSFERS_TAB_NAME && (
-        <StandardNetworkAccountTxsDatatable
-          address={address}
-          data={accountInternalNativeTransfers}
-          isFetched={isFetchedInternalNativeTransferData}
-          hasNextPage={internalNativeTransferHasNextPage}
-          nextPage={internalNativeTransferFetchNextPage}
+      {currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS && (
+        <ActivityDatatable
+          variant="transfers"
+          data={nativeTransfers}
+          isFetched={isFetchedNative}
+          hasNextPage={hasNextPageNative}
+          nextPage={fetchNextPageNative}
+          moreLabel="View More Transfers"
         />
       )}
-      {currentTab === DETAIL_TAB_NAME.TOKEN_TRANSFERS && (
-        <StandardNetworkAccountTxsDatatable
-          address={address}
-          data={accountTokenTransfers}
-          isFetched={isFetchedTokenTransferData}
-          hasNextPage={tokenTransferHasNextPage}
-          nextPage={tokenTransferFetchNextPage}
+      {currentTab === ACTIVITY_TAB.TOKEN_TRANSFERS && (
+        <ActivityDatatable
+          variant="transfers"
+          data={tokenTransfers}
+          isFetched={isFetchedToken}
+          hasNextPage={hasNextPageToken}
+          nextPage={fetchNextPageToken}
+          moreLabel="View More Transfers"
         />
       )}
     </DataListSection>
