@@ -8,6 +8,7 @@ import { useGetAccountTransactions } from "@/common/react-query/account/api/use-
 import { useGetAccountEvents } from "@/common/react-query/account/api/use-get-account-events";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { StandardNetworkAccountTxsDatatable } from "../../datatable/account-detail/StandardNetworkAccountTxsDatatable";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 interface AccountTransactionsProps {
   address: string;
@@ -33,6 +34,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
 
     const allItems = transactionData.pages.flatMap(page => page.items ?? []);
     return allItems.map((item): Transaction => {
+      const func = getRepresentativeTransactionFunction(item);
       return {
         amount: item.amountIn,
         amountOut: item.amountOut,
@@ -42,9 +44,9 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
         to: item.toAddress,
         hash: item.txHash,
         numOfMessage: item.messageCount,
-        functionName: item.func[0].funcType,
-        packagePath: item.func[0].pkgPath,
-        type: item.func[0].messageType,
+        functionName: func?.funcType || "",
+        packagePath: func?.pkgPath || "",
+        type: func?.messageType || "",
         success: item.successYn,
         time: item.timestamp,
       };

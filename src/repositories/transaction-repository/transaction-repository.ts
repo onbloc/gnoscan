@@ -15,7 +15,7 @@ import {
 import { ITransactionRepository } from "./types";
 
 function mapTransaction(data: any): Transaction {
-  const defaultMessage = getDefaultMessage(data.messages[0])?.value;
+  const defaultMessage = getDefaultMessage(data.messages, data.success)?.value;
   const amountValue = defaultMessage?.amount || defaultMessage?.send || defaultMessage?.deposit || "0ugnot";
   const typeName = mapTransactionTypeNameByMessage(defaultMessage);
   return {

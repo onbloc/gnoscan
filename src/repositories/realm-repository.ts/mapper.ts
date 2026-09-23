@@ -38,7 +38,7 @@ export function mapTransactionTypeNameByMessage(message: any): string {
 }
 
 export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
-  const defaultMessage = getDefaultMessage(tx.messages);
+  const defaultMessage = getDefaultMessage(tx.messages, tx.success);
   if (isAddPackageMessageValue(defaultMessage.value)) {
     return {
       hash: tx.hash,
