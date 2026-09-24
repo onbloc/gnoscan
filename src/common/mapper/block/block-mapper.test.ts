@@ -71,4 +71,24 @@ describe("transaction list representative function", () => {
     );
     expect(result.functionName).toBe("Deposit");
   });
+
+  it.each(["Deposit", "Withdraw"])("shows standalone wrapped GNOT %s after approvals", functionName => {
+    const result = BlockMapper.blockTransactionsFromApiResponse(
+      transaction([
+        call("Approve", "gno.land/r/demo/token"),
+        call(functionName, WUGNOT_PACKAGE_PATH),
+        call("Approve", "gno.land/r/demo/token"),
+      ]),
+    );
+    expect(result.functionName).toBe(functionName);
+    expect(result.packagePath).toBe(WUGNOT_PACKAGE_PATH);
+  });
+
+  it("skips wrapped GNOT withdrawal when followed by another action", () => {
+    const result = BlockMapper.blockTransactionsFromApiResponse(
+      transaction([call("Withdraw", WUGNOT_PACKAGE_PATH), call("Swap", "gno.land/r/gnoswap/pool")]),
+    );
+    expect(result.functionName).toBe("Swap");
+    expect(result.packagePath).toBe("gno.land/r/gnoswap/pool");
+  });
 });

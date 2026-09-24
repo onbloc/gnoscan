@@ -1,8 +1,17 @@
 import type { BaseTransactionModel } from "@/models/api/transaction/transaction-model";
 import { WUGNOT_PACKAGE_PATH } from "@/common/values/constant-value";
 
+export const APPROVE_FUNCTION = "Approve";
+const WUGNOT_WRAP_FUNCTIONS: Readonly<Record<string, true>> = {
+  Deposit: true,
+  Withdraw: true,
+};
+
 export function isPreparatoryTransactionFunction(packagePath: string, functionName: string): boolean {
-  return functionName === "Approve" || (packagePath === WUGNOT_PACKAGE_PATH && functionName === "Deposit");
+  return (
+    functionName === APPROVE_FUNCTION ||
+    (packagePath === WUGNOT_PACKAGE_PATH && WUGNOT_WRAP_FUNCTIONS[functionName] === true)
+  );
 }
 
 export function getRepresentativeTransactionFunction(
@@ -11,5 +20,9 @@ export function getRepresentativeTransactionFunction(
   const first = transaction.func[0];
   if (transaction.successYn !== true || transaction.messageCount <= 1) return first;
 
-  return transaction.func.find(func => !isPreparatoryTransactionFunction(func.pkgPath, func.funcType)) ?? first;
+  return (
+    transaction.func.find(func => !isPreparatoryTransactionFunction(func.pkgPath, func.funcType)) ??
+    transaction.func.find(func => func.funcType !== APPROVE_FUNCTION) ??
+    first
+  );
 }
