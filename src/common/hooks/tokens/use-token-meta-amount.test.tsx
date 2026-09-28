@@ -3,7 +3,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
-import { useTokenMetaAmount } from "./use-token-meta-amount";
+import { AxiosError, AxiosResponse } from "axios";
+import { retryTokenMetaRequest, useTokenMetaAmount } from "./use-token-meta-amount";
 
 jest.mock("@/common/utils/native-token-utility", () => ({
   isUgnot: () => false,
@@ -49,12 +50,12 @@ const renderAmount = (value = "300000000000") => {
   return result?.amount;
 };
 
-it("falls back to the raw amount and package path without retrying when a token has no metadata", () => {
+it("falls back to the raw amount and package path when a token has no metadata", () => {
   mockBackendMeta();
 
   expect(renderAmount()).toEqual({ value: "300000000000", denom: DENOM.toUpperCase() });
   expect(mockToGNOTAmount).toHaveBeenCalledWith("300000000000", DENOM);
-  expect(mockUseGetTokenMetaByPath).toHaveBeenCalledWith(DENOM, { retry: false });
+  expect(mockUseGetTokenMetaByPath).toHaveBeenCalledWith(DENOM, { retry: retryTokenMetaRequest });
 });
 
 it("applies backend decimals and symbol when metadata exists", () => {
@@ -78,5 +79,18 @@ it("uses the static resource list without calling the token meta API", () => {
   } as never);
 
   expect(renderAmount()).toEqual({ value: "300,000,000", denom: "BBL" });
-  expect(mockUseGetTokenMetaByPath).toHaveBeenCalledWith("", { retry: false });
+  expect(mockUseGetTokenMetaByPath).toHaveBeenCalledWith("", { retry: retryTokenMetaRequest });
+});
+
+const httpError = (status: number) =>
+  new AxiosError("Request failed", undefined, undefined, undefined, { status } as AxiosResponse);
+
+it("does not retry when the token has no metadata", () => {
+  expect(retryTokenMetaRequest(0, httpError(404))).toBe(false);
+});
+
+it("keeps retrying transient failures up to the default limit", () => {
+  expect(retryTokenMetaRequest(0, httpError(500))).toBe(true);
+  expect(retryTokenMetaRequest(2, new AxiosError("Network Error"))).toBe(true);
+  expect(retryTokenMetaRequest(3, httpError(500))).toBe(false);
 });
