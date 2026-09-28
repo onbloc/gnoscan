@@ -81,6 +81,11 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { path: tokenPath, eventType: eventType || undefined, includeStorage },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
+  // Tab badge counts every token event, independent of the list filters.
+  const { data: eventCountData } = useGetTokenEventsById(
+    { path: tokenPath, includeStorage: true, limit: 1 },
+    { enabled: !isCustomNetwork && !!tokenPath },
+  );
 
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
@@ -108,7 +113,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
       { tabName: TOKEN_DETAIL_TABS[1], size: nativeData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[2], size: transfersData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[3], size: internalData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[4], size: eventData?.pages[0]?.page.totalCount },
+      { tabName: TOKEN_DETAIL_TABS[4], size: eventCountData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[5], size: holdersCount },
     ];
   }, [
@@ -118,7 +123,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     nativeData,
     transfersData,
     internalData,
-    eventData,
+    eventCountData,
     holdersCount,
   ]);
 

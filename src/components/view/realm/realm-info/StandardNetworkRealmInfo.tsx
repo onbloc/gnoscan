@@ -65,6 +65,8 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     hasNextPage: hasNextPageEventData,
     fetchNextPage: fetchNextPageEventData,
   } = useGetRealmEventsByPath({ path, eventType: eventType || undefined, includeStorage });
+  // Tab badge counts every realm event, independent of the list filters.
+  const { data: eventCountData } = useGetRealmEventsByPath({ path, includeStorage: true, limit: 1 });
 
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
@@ -87,9 +89,9 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
       { tabName: REALM_DETAIL_TABS[1], size: nativeData?.pages[0]?.page.totalCount },
       { tabName: REALM_DETAIL_TABS[2], size: tokenData?.pages[0]?.page.totalCount },
       { tabName: REALM_DETAIL_TABS[3], size: internalData?.pages[0]?.page.totalCount },
-      { tabName: REALM_DETAIL_TABS[4], size: eventData?.pages[0]?.page.totalCount },
+      { tabName: REALM_DETAIL_TABS[4], size: eventCountData?.pages[0]?.page.totalCount },
     ],
-    [directData, nativeData, tokenData, internalData, eventData],
+    [directData, nativeData, tokenData, internalData, eventCountData],
   );
 
   if (!isFetchedDirect) return <TableSkeleton />;
