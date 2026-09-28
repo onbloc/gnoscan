@@ -14,11 +14,9 @@ export function isPreparatoryTransactionFunction(packagePath: string, functionNa
   );
 }
 
-export function getRepresentativeTransactionFunction(
-  transaction: Pick<BaseTransactionModel, "messageCount" | "func" | "successYn">,
-) {
+export function getRepresentativeTransactionFunction(transaction: Pick<BaseTransactionModel, "messageCount" | "func">) {
   const first = transaction.func[0];
-  if (transaction.successYn !== true || transaction.messageCount <= 1) return first;
+  if (transaction.messageCount <= 1) return first;
 
   return (
     transaction.func.find(func => !isPreparatoryTransactionFunction(func.pkgPath, func.funcType)) ??

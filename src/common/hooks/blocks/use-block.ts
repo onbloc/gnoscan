@@ -59,9 +59,7 @@ export const useBlock = (height: number) => {
     return transactions?.map((transaction, index) => {
       const result = (blockResult.deliver_tx || []).find((_, resultIndex) => index === resultIndex);
       const success = !!result && !result.ResponseBase?.Error;
-      const defaultMessage = makeTransactionMessageInfo(
-        getDefaultMessageByBlockTransaction(transaction.messages, success),
-      );
+      const defaultMessage = makeTransactionMessageInfo(getDefaultMessageByBlockTransaction(transaction.messages));
       const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
 
       return {

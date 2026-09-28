@@ -37,24 +37,25 @@ describe("transaction list representative function", () => {
     expect(input.func).toEqual(original);
   });
 
-  it("keeps the first message of a failed approval transaction", () => {
+  it("selects the action after approval while preserving failed transaction status", () => {
     const input = transaction([call("Approve", "gno.land/r/demo/token"), call("Swap", "gno.land/r/gnoswap/pool")]);
     input.successYn = false;
 
     const result = BlockMapper.blockTransactionsFromApiResponse(input);
-    expect(result.functionName).toBe("Approve");
-    expect(result.packagePath).toBe("gno.land/r/demo/token");
+    expect(result.functionName).toBe("Swap");
+    expect(result.packagePath).toBe("gno.land/r/gnoswap/pool");
     expect(result.success).toBe(false);
     expect(result.numOfMessage).toBe(2);
   });
 
-  it("keeps a wrapped GNOT deposit when the multi-message transaction failed", () => {
+  it("skips a wrapped GNOT deposit before an action even when the transaction failed", () => {
     const input = transaction([call("Deposit", WUGNOT_PACKAGE_PATH), call("Swap", "gno.land/r/gnoswap/pool")]);
     input.successYn = false;
 
     const result = BlockMapper.blockTransactionsFromApiResponse(input);
-    expect(result.functionName).toBe("Deposit");
-    expect(result.packagePath).toBe(WUGNOT_PACKAGE_PATH);
+    expect(result.functionName).toBe("Swap");
+    expect(result.packagePath).toBe("gno.land/r/gnoswap/pool");
+    expect(result.success).toBe(false);
   });
 
   it("does not skip a deposit in another realm", () => {
