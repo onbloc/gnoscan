@@ -100,6 +100,23 @@ export function isWugnotPackagePath(packagePath: string): boolean {
   return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;
 }
 
+export interface ParsedTokenKey {
+  packagePath: string;
+  symbol: string;
+  tokenPath: string;
+}
+
+// "gno.land/r/pad.GDOG.0000002" -> { packagePath: "gno.land/r/pad", symbol: "GDOG", tokenPath: "gno.land/r/pad.GDOG" }
+export function parseTokenKey(tokenKey: string): ParsedTokenKey {
+  const prefix = tokenKey.slice(0, tokenKey.lastIndexOf("/") + 1);
+  const parts = stripNumericTokenIdSuffix(tokenKey.slice(prefix.length).split("."));
+  return {
+    packagePath: prefix + parts[0],
+    symbol: parts.length > 1 ? parts[parts.length - 1] : "",
+    tokenPath: prefix + parts.join("."),
+  };
+}
+
 export interface TokenResourceEntry {
   name: string;
   symbol: string;
@@ -109,36 +126,26 @@ export interface TokenResourceEntry {
   tokenPath?: string;
 }
 
-// Drops a trailing numeric tokenId suffix: "{pkg}.{SYMBOL}.0000001" -> "{pkg}.{SYMBOL}".
-function toResourceTokenPath(tokenKey: string): string {
-  const lastSlashIndex = tokenKey.lastIndexOf("/");
-  const parts = tokenKey.slice(lastSlashIndex + 1).split(".");
-  return tokenKey.slice(0, lastSlashIndex + 1) + stripNumericTokenIdSuffix(parts).join(".");
-}
-
 /**
- * Looks up a token in the static resource list by exact key, then by token path, then by
- * bare packagePath. A key naming a specific token (has a symbol) never falls back to a bare
- * packagePath entry registered for a different token of the same realm (e.g. grc20factory).
+ * Looks up a token-keyed map by exact key, then token path, then bare packagePath.
+ * A packagePath can host several tokens (e.g. grc20factory), so a key naming a symbol only
+ * falls back to the packagePath entry when that entry is the same token.
  */
-export function findTokenResourceMeta<T extends TokenResourceEntry>(
-  tokenResourceMap: Record<string, T>,
+export function findByTokenKey<T extends { symbol?: string; tokenPath?: string }>(
+  tokenMap: Record<string, T>,
   tokenKey: string,
 ): T | undefined {
   if (!tokenKey) return undefined;
 
-  const tokenPath = toResourceTokenPath(tokenKey);
-  const directMeta = tokenResourceMap[tokenKey] || tokenResourceMap[tokenPath];
-  if (directMeta) return directMeta;
+  const { packagePath, symbol, tokenPath } = parseTokenKey(tokenKey);
+  const directEntry = tokenMap[tokenKey] || tokenMap[tokenPath];
+  if (directEntry) return directEntry;
 
-  const bareMeta = tokenResourceMap[toBarePackagePath(tokenKey)];
-  if (!bareMeta) return undefined;
+  const packageEntry = tokenMap[packagePath];
+  if (!packageEntry || !symbol) return packageEntry;
 
-  const isOtherToken =
-    !!getTokenKeySymbol(tokenKey) &&
-    !!bareMeta.tokenPath &&
-    bareMeta.tokenPath.toLowerCase() !== tokenPath.toLowerCase();
-  return isOtherToken ? undefined : bareMeta;
+  const entrySymbol = packageEntry.tokenPath ? parseTokenKey(packageEntry.tokenPath).symbol : packageEntry.symbol;
+  return !entrySymbol || entrySymbol.toLowerCase() === symbol.toLowerCase() ? packageEntry : undefined;
 }
 
 /**
@@ -152,7 +159,7 @@ export function resolveTokenMeta<T extends TokenResourceEntry>(
   tokenKey: string,
   fallback: TokenMetaFallback,
 ): ResolvedTokenMeta {
-  const resourceMeta = findTokenResourceMeta(tokenResourceMap, tokenKey);
+  const resourceMeta = findByTokenKey(tokenResourceMap, tokenKey);
   const resolved = resourceMeta
     ? {
         name: resourceMeta.name,

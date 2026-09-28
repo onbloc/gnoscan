@@ -5,7 +5,7 @@ import {
   ResolvedTokenMeta,
   TokenMetaFallback,
   TokenResourceEntry,
-  findTokenResourceMeta,
+  findByTokenKey,
   resolveTokenMeta,
 } from "@/common/utils/token.utility";
 
@@ -43,14 +43,14 @@ export const useTokenResourceMeta = () => {
 
   const hasTokenResourceMeta = useCallback(
     (tokenKey: string): boolean => {
-      return !!findTokenResourceMeta(tokenResourceMap, tokenKey);
+      return !!findByTokenKey(tokenResourceMap, tokenKey);
     },
     [tokenResourceMap],
   );
 
   const getTokenImage = useCallback(
     (tokenKey: string): string | undefined => {
-      return tokenResourceMap[tokenKey]?.image;
+      return findByTokenKey(tokenResourceMap, tokenKey)?.image;
     },
     [tokenResourceMap],
   );

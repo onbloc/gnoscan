@@ -2,7 +2,8 @@ import {
   formatTokenDecimal,
   formatDisplayTokenPath,
   resolveTokenMeta,
-  findTokenResourceMeta,
+  findByTokenKey,
+  parseTokenKey,
   isWugnotPackagePath,
   stripGnoLandPrefix,
 } from "./token.utility";
@@ -294,43 +295,60 @@ describe("resolveTokenMeta", () => {
   });
 });
 
-describe("findTokenResourceMeta", () => {
+describe("parseTokenKey", () => {
+  it("splits a tokenId into packagePath, symbol and token path", () => {
+    expect(parseTokenKey("gno.land/r/demo/pad.GDOG.0000002")).toEqual({
+      packagePath: "gno.land/r/demo/pad",
+      symbol: "GDOG",
+      tokenPath: "gno.land/r/demo/pad.GDOG",
+    });
+  });
+
+  it("parses a token path and a bare packagePath", () => {
+    expect(parseTokenKey("gno.land/r/demo/pad.GDOG").symbol).toBe("GDOG");
+    expect(parseTokenKey("gno.land/r/demo/pad")).toEqual({
+      packagePath: "gno.land/r/demo/pad",
+      symbol: "",
+      tokenPath: "gno.land/r/demo/pad",
+    });
+  });
+
+  it("keeps a native denom as-is", () => {
+    expect(parseTokenKey("ugnot")).toEqual({ packagePath: "ugnot", symbol: "", tokenPath: "ugnot" });
+  });
+});
+
+describe("findByTokenKey", () => {
   const FACTORY = "gno.land/r/demo/defi/grc20factory";
   const perun = { name: "Perun", symbol: "PERUN", decimals: 6, image: "perun.svg", tokenPath: `${FACTORY}.PERUN` };
   // Mirrors useTokenResourceMeta: keyed by both pkg_path and token_path.
   const resourceMap = { [FACTORY]: perun, [`${FACTORY}.PERUN`]: perun };
 
-  it("matches a factory token by its tokenId", () => {
-    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.PERUN.0000001`)).toBe(perun);
-  });
-
-  it("matches a factory token by its token path", () => {
-    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.PERUN`)).toBe(perun);
+  it("matches a token by tokenId, token path or bare packagePath", () => {
+    expect(findByTokenKey(resourceMap, `${FACTORY}.PERUN.0000001`)).toBe(perun);
+    expect(findByTokenKey(resourceMap, `${FACTORY}.PERUN`)).toBe(perun);
+    expect(findByTokenKey(resourceMap, FACTORY)).toBe(perun);
   });
 
   it("does not match another token hosted by the same realm", () => {
-    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.MOULTEST.0000002`)).toBeUndefined();
-    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.MOULTEST`)).toBeUndefined();
+    expect(findByTokenKey(resourceMap, `${FACTORY}.MOULTEST.0000002`)).toBeUndefined();
+    expect(findByTokenKey(resourceMap, `${FACTORY}.MOULTEST`)).toBeUndefined();
   });
 
-  it("matches the token path case-insensitively on the bare packagePath fallback", () => {
-    expect(findTokenResourceMeta({ [FACTORY]: perun }, `${FACTORY}.perun.0000001`)).toBe(perun);
+  it("falls back to the packagePath entry of the same token, ignoring symbol case", () => {
+    expect(findByTokenKey({ [FACTORY]: perun }, `${FACTORY}.perun.0000001`)).toBe(perun);
   });
 
-  it("still matches a bare packagePath key", () => {
-    expect(findTokenResourceMeta(resourceMap, FACTORY)).toBe(perun);
-  });
+  it("compares by symbol when the entry has no token path", () => {
+    const gdog = { symbol: "GDOG", decimals: 0 };
+    const map = { "gno.land/r/demo/pad": gdog };
 
-  it("falls back to the bare packagePath when the entry has no token path", () => {
-    const legacy = { name: "Legacy", symbol: "LGC", decimals: 6 };
-
-    expect(findTokenResourceMeta({ "gno.land/r/demo/token": legacy }, "gno.land/r/demo/token.OTHER.0000001")).toBe(
-      legacy,
-    );
+    expect(findByTokenKey(map, "gno.land/r/demo/pad.GDOG")).toBe(gdog);
+    expect(findByTokenKey(map, "gno.land/r/demo/pad.DABUTT")).toBeUndefined();
   });
 
   it("returns undefined for an empty key", () => {
-    expect(findTokenResourceMeta(resourceMap, "")).toBeUndefined();
+    expect(findByTokenKey(resourceMap, "")).toBeUndefined();
   });
 
   it("keeps the backend meta for the other factory token in resolveTokenMeta", () => {

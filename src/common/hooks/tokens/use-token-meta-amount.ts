@@ -19,7 +19,8 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
   // for tokens it doesn't cover.
   const skipTokenMetaFetch = isNativeDenom || hasResourceMeta;
 
-  const { data: tokenMeta, isLoading, isFetched } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : packagePath || "");
+  // Query by the full denom: a bare packagePath is ambiguous for multi-token (factory) realms.
+  const { data: tokenMeta, isLoading, isFetched } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : denom || "");
 
   const amount: Amount | null = React.useMemo(() => {
     if (!amountInfo) return null;
