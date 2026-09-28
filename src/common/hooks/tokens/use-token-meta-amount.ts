@@ -20,7 +20,14 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
   const skipTokenMetaFetch = isNativeDenom || hasResourceMeta;
 
   // Query by the full denom: a bare packagePath is ambiguous for multi-token (factory) realms.
-  const { data: tokenMeta, isLoading, isFetched } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : denom || "");
+  // Non GRC20 tokens have no metadata, so retrying only delays the raw amount fallback.
+  const {
+    data: tokenMeta,
+    isLoading,
+    isFetched,
+  } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : denom || "", {
+    retry: false,
+  });
 
   const amount: Amount | null = React.useMemo(() => {
     if (!amountInfo) return null;
@@ -39,7 +46,9 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
       };
     }
 
-    return toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
+    // Without metadata the decimals and symbol are unknown, so show only the raw amount
+    // rather than appending the package path as a denom.
+    return { value: amountInfo.value, denom: "" };
   }, [amountInfo, denom, hasResourceMeta, tokenMeta?.data, isNativeDenom, packagePath, getTokenMeta]);
 
   return {
