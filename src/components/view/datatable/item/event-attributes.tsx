@@ -4,65 +4,49 @@ import styled from "styled-components";
 import Tooltip from "@/components/ui/tooltip";
 import theme from "@/styles/theme";
 
-interface TooltipLine {
-  key?: string;
-  value: string;
+interface Props {
+  attributes: { key: string; value: string }[];
 }
 
-interface TruncatedTextProps {
-  text: string;
-  lines: TooltipLine[];
-}
+/** Events tab "Attributes" column: one-line key=value summary; full list on hover. */
+export const EventAttributes = ({ attributes }: Props) => {
+  if (!attributes.length) return <span>-</span>;
 
-/** One-line text truncated at the cell edge; the full lines show on hover. */
-export const TruncatedText = ({ text, lines }: TruncatedTextProps) => {
-  if (!text) return <span>-</span>;
+  const summary = attributes.map(attribute => `${attribute.key}=${attribute.value}`).join(", ");
 
   const renderTooltip = () => (
     <TooltipWrapper>
-      {lines.map((line, index) => (
+      {attributes.map((attribute, index) => (
         <span key={index}>
-          {line.key !== undefined && <span className="key">{`${line.key}: `}</span>}
-          {line.value}
+          <span className="key">{attribute.key}</span>
+          {`: ${attribute.value}`}
         </span>
       ))}
     </TooltipWrapper>
   );
 
   return (
-    <TruncatedCell>
-      <Tooltip className="ellipsis truncated-trigger" content={renderTooltip()}>
-        <SummaryText className="ellipsis">{text}</SummaryText>
+    <AttributesCell>
+      <Tooltip className="ellipsis attributes-trigger" content={renderTooltip()}>
+        <SummaryText className="ellipsis">{summary}</SummaryText>
       </Tooltip>
-    </TruncatedCell>
+    </AttributesCell>
   );
 };
 
-interface Props {
-  attributes: { key: string; value: string }[];
-}
-
-/** Events tab "Attributes" column: one-line key=value summary; full list on hover. */
-export const EventAttributes = ({ attributes }: Props) => (
-  <TruncatedText
-    text={attributes.map(attribute => `${attribute.key}=${attribute.value}`).join(", ")}
-    lines={attributes}
-  />
-);
-
-// Bound the tooltip trigger to the cell width so the text truncates at the column edge.
-const TruncatedCell = styled.div`
+// Bound the tooltip trigger to the cell width so the summary truncates at the column edge.
+const AttributesCell = styled.div`
   & {
     display: flex;
     width: 100%;
     min-width: 0;
 
-    .truncated-trigger {
+    .attributes-trigger {
       width: 100%;
       min-width: 0;
     }
 
-    .truncated-trigger .tooltip-button {
+    .attributes-trigger .tooltip-button {
       justify-content: flex-start;
       min-width: 0;
     }

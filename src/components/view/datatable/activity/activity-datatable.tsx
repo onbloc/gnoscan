@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 
@@ -12,17 +12,14 @@ import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { ActivityRow } from "@/models/api/activity/activity-model";
 import { DatatableItem } from "..";
-import { ActivityMessagesDetail } from "./activity-messages-detail";
-import { ActivityTransfersDetail } from "./activity-transfers-detail";
-import { ActivityRealmEventsDetail } from "./activity-realm-events-detail";
 import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 /**
- * Column/expansion set shared by every unified activity tab:
- * - "direct": Transactions tab (Tx Hash, Function, Block, Caller, Native Value, Fee, Time; expands messages).
- * - "transfers": Native/Token Transfers on account & realm pages (Amount In/Out; expands transfers).
- * - "token-volume": Token page's own Token Transfers tab (Volume/Transfers count instead of In/Out; expands transfers).
- * - "internal": Internal Transactions tab (Entry Function, Realm Events summary; expands realm events).
+ * Column set shared by every unified activity tab (one row per tx, no row expansion):
+ * - "direct": Transactions tab (Tx Hash, Function, Block, Caller, Native Value, Fee, Time).
+ * - "transfers": Native/Token Transfers on account & realm pages (Amount In/Out).
+ * - "token-volume": Token page's own Token Transfers tab (Volume/Transfers count instead of In/Out).
+ * - "internal": Internal Transactions tab (Entry Function, Realm Events summary).
  */
 export type ActivityDatatableVariant = "direct" | "transfers" | "token-volume" | "internal";
 
@@ -47,13 +44,8 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
   const themeMode = useRecoilValue(themeState);
   const { breakpoint } = useWindowSize();
   const { getTokenAmount } = useTokenMeta();
-  const [expandedRows, setExpandedRows] = useState<string[]>([]);
 
   const headers = useMemo(() => {
-    const toggleRow = (txHash: string) => {
-      setExpandedRows(prev => (prev.includes(txHash) ? prev.filter(hash => hash !== txHash) : [...prev, txHash]));
-    };
-
     const createHeaderTxHash = (width = 200) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("txHash")
@@ -94,52 +86,52 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
         .renderOption(height => <DatatableItem.Block height={height} />)
         .build();
 
-    const createHeaderCaller = () =>
+    const createHeaderCaller = (width: number) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("callerAddress")
         .name("Caller")
-        .width(150)
+        .width(width)
         .colorName("blue")
         .renderOption(address => <DatatableItem.Account address={address} />)
         .build();
 
-    const createHeaderAmountIn = () =>
+    const createHeaderAmountIn = (width: number) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("amountsIn")
         .name("Amount (In)")
-        .width(148)
+        .width(width)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
-    const createHeaderAmountOut = () =>
+    const createHeaderAmountOut = (width: number) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("amountsOut")
         .name("Amount (Out)")
-        .width(148)
+        .width(width)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
-    const createHeaderVolume = () =>
+    const createHeaderVolume = (width: number) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("volume")
         .name("Volume")
-        .width(196)
+        .width(width)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
-    const createHeaderTransferCount = () =>
+    const createHeaderTransferCount = (width: number) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("transferCount")
         .name("Transfers")
-        .width(100)
+        .width(width)
         .renderOption(count => <span>{count}</span>)
         .build();
 
-    const createHeaderRealmEvents = () =>
+    const createHeaderRealmEvents = (width: number) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("realmEvents")
         .name("Realm Events")
-        .width(180)
+        .width(width)
         .renderOption(events => <DatatableItem.RealmEventsSummary events={events} />)
         .build();
 
@@ -163,94 +155,64 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
         ))
         .build();
 
-    const createHeaderToggle = () =>
-      DatatableOption.Builder.builder<ActivityRow>()
-        .key("txHash")
-        .name("")
-        .width(110)
-        .renderOption(txHash => (
-          <DatatableItem.ToggleDetails active={expandedRows.includes(txHash)} onClick={() => toggleRow(txHash)} />
-        ))
-        .build();
-
-    const createHeaderNativeValue = () =>
+    const createHeaderNativeValue = (width: number) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("nativeValue")
         .name("Native Value")
-        .width(146)
+        .width(width)
         .renderOption(amount => <DatatableItem.ActivityAmountStack amounts={amount ? [amount] : []} />)
         .build();
-    // Shared columns keep one width across variants (Tx Hash 200, Block 110, Fee 130, Time 120, toggle 110);
+    // Shared columns keep one width across variants (Tx Hash 200, Block 110, Fee 130, Time 120);
     // the rest is split among variable-length columns so each variant sums to the 1146px table min-width.
     switch (variant) {
       case "direct":
         return [
           createHeaderTxHash(),
-          createHeaderFunction(),
+          createHeaderFunction(220),
           createHeaderBlock(),
-          createHeaderCaller(),
-          createHeaderNativeValue(),
+          createHeaderCaller(170),
+          createHeaderNativeValue(196),
           createHeaderFee(),
           createHeaderTime(),
-          createHeaderToggle(),
         ];
       case "transfers":
         return [
           createHeaderTxHash(),
-          createHeaderFunction(),
+          createHeaderFunction(210),
           createHeaderBlock(),
-          createHeaderAmountIn(),
-          createHeaderAmountOut(),
+          createHeaderAmountIn(188),
+          createHeaderAmountOut(188),
           createHeaderFee(),
           createHeaderTime(),
-          createHeaderToggle(),
         ];
       case "token-volume":
         return [
           createHeaderTxHash(),
-          createHeaderFunction(),
+          createHeaderFunction(210),
           createHeaderBlock(),
-          createHeaderVolume(),
-          createHeaderTransferCount(),
+          createHeaderVolume(256),
+          createHeaderTransferCount(120),
           createHeaderFee(),
           createHeaderTime(),
-          createHeaderToggle(),
         ];
       case "internal":
         // One column fewer: spread the spare width across all columns instead of padding Realm Events.
         return [
-          createHeaderTxHash(226),
-          createHeaderFunction(230),
-          createHeaderRealmEvents(),
-          createHeaderBlock(120),
-          createHeaderFee(145),
-          createHeaderTime(135),
-          createHeaderToggle(),
+          createHeaderTxHash(236),
+          createHeaderFunction(256),
+          createHeaderRealmEvents(220),
+          createHeaderBlock(130),
+          createHeaderFee(160),
+          createHeaderTime(144),
         ];
       default:
         return [];
     }
-  }, [variant, expandedRows, getTokenAmount]);
-
-  const renderDetails = (row: ActivityRow) => {
-    const visible = expandedRows.includes(row.txHash);
-    if (variant === "direct") {
-      return <ActivityMessagesDetail visible={visible} txHash={row.txHash} messages={row.messages} />;
-    }
-    if (variant === "internal") {
-      return <ActivityRealmEventsDetail visible={visible} txHash={row.txHash} events={row.realmEvents} />;
-    }
-    return <ActivityTransfersDetail visible={visible} txHash={row.txHash} transfers={row.transfers} />;
-  };
+  }, [variant, getTokenAmount]);
 
   return (
     <Container>
-      <Datatable
-        loading={!isFetched}
-        headers={headers.map(item => ({ ...item, themeMode }))}
-        datas={data}
-        renderDetails={renderDetails}
-      />
+      <Datatable loading={!isFetched} headers={headers.map(item => ({ ...item, themeMode }))} datas={data} />
       {hasNextPage && nextPage ? (
         <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
           {moreLabel}

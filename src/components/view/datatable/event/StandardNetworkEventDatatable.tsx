@@ -14,7 +14,7 @@ import { useWindowSize } from "@/common/hooks/use-window-size";
 
 /**
  * - "default": Block page events (Identifier, Tx Hash, Block, Event Name, Caller, Time).
- * - "activity": Realm/Token Events tab (Tx Hash, Event Type, Attributes, Block, Time).
+ * - "activity": Realm/Token Events tab (Identifier, Tx Hash, Event Type, Attributes, Block, Time).
  */
 export type EventDatatableVariant = "default" | "activity";
 
@@ -58,6 +58,7 @@ export const StandardNetworkEventDatatable = ({
   const createHeaders = () => {
     if (variant === "activity") {
       return [
+        createHeaderEventId(),
         createHeaderTxHash(),
         createHeaderEventName(),
         createHeaderAttributes(),
@@ -82,7 +83,7 @@ export const StandardNetworkEventDatatable = ({
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("id")
       .name("Identifier")
-      .width(200)
+      .width(isActivity ? 190 : 200)
       .renderOption(id => <DatatableItem.EventId eventId={id} />)
       .build();
   };
@@ -124,7 +125,7 @@ export const StandardNetworkEventDatatable = ({
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("attrs")
       .name("Attributes")
-      .width(446)
+      .width(256)
       .renderOption(attrs => <DatatableItem.EventAttributes attributes={attrs} />)
       .build();
   };
