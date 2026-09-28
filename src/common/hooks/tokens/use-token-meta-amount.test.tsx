@@ -2,9 +2,13 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useTokenMetaAmount } from "./use-token-meta-amount";
 
-jest.mock("@/common/utils/native-token-utility", () => ({ isUgnot: () => false, toGNOTAmount: jest.fn() }));
+jest.mock("@/common/utils/native-token-utility", () => ({
+  isUgnot: () => false,
+  toGNOTAmount: jest.fn((value: string, denom: string) => ({ value, denom: denom.toUpperCase() })),
+}));
 jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
   useTokenResourceMeta: jest.fn(),
 }));
@@ -14,11 +18,13 @@ jest.mock("@/common/react-query/token/api/use-get-token-meta-by-path", () => ({
 
 const mockUseTokenResourceMeta = jest.mocked(useTokenResourceMeta);
 const mockUseGetTokenMetaByPath = jest.mocked(useGetTokenMetaByPath);
+const mockToGNOTAmount = jest.mocked(toGNOTAmount);
 
 const DENOM = "gno.land/r/g1abc/bubble";
 
 beforeEach(() => {
   mockUseGetTokenMetaByPath.mockReset();
+  mockToGNOTAmount.mockClear();
   // No static resource entry: getTokenMeta echoes the backend fallback it is given.
   mockUseTokenResourceMeta.mockReturnValue({
     hasTokenResourceMeta: () => false,
@@ -43,10 +49,11 @@ const renderAmount = (value = "300000000000") => {
   return result?.amount;
 };
 
-it("shows only the raw amount without retrying when a token has no metadata", () => {
+it("falls back to the raw amount and package path without retrying when a token has no metadata", () => {
   mockBackendMeta();
 
-  expect(renderAmount()).toEqual({ value: "300000000000", denom: "" });
+  expect(renderAmount()).toEqual({ value: "300000000000", denom: DENOM.toUpperCase() });
+  expect(mockToGNOTAmount).toHaveBeenCalledWith("300000000000", DENOM);
   expect(mockUseGetTokenMetaByPath).toHaveBeenCalledWith(DENOM, { retry: false });
 });
 
@@ -56,10 +63,11 @@ it("applies backend decimals and symbol when metadata exists", () => {
   expect(renderAmount()).toEqual({ value: "300,000", denom: "BUBBLE" });
 });
 
-it("falls back to the raw amount when the backend response has no decimals", () => {
+it("falls back to the raw amount and package path when the backend response has no decimals", () => {
   mockBackendMeta({ symbol: "BUBBLE" });
 
-  expect(renderAmount()).toEqual({ value: "300000000000", denom: "" });
+  expect(renderAmount()).toEqual({ value: "300000000000", denom: DENOM.toUpperCase() });
+  expect(mockToGNOTAmount).toHaveBeenCalledWith("300000000000", DENOM);
 });
 
 it("uses the static resource list without calling the token meta API", () => {

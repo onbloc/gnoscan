@@ -38,18 +38,3 @@ it("does not hide a nonzero transfer when its display amount rounds to zero", ()
   );
   expect(html.replace(/<[^>]*>/g, "")).toBe("0.000000TOKEN");
 });
-
-it("renders only the raw amount when a token has no metadata", () => {
-  mockUseTokenMetaAmount.mockReturnValue({
-    amount: { value: "300000000000", denom: "" },
-    isLoading: false,
-    isFetched: true,
-  });
-
-  const html = renderToStaticMarkup(
-    <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-      <StandardNetworkAmount data={{ value: "300000000000", denom: "gno.land/r/g1abc/bubble" }} />
-    </ThemeProvider>,
-  );
-  expect(html.replace(/<[^>]*>/g, "").trim()).toBe("300,000,000,000");
-});

@@ -20,7 +20,7 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
   const skipTokenMetaFetch = isNativeDenom || hasResourceMeta;
 
   // Query by the full denom: a bare packagePath is ambiguous for multi-token (factory) realms.
-  // Non GRC20 tokens have no metadata, so retrying only delays the raw amount fallback.
+  // Non GRC20 tokens have no metadata, so retrying only delays the fallback display.
   const {
     data: tokenMeta,
     isLoading,
@@ -46,9 +46,7 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
       };
     }
 
-    // Without metadata the decimals and symbol are unknown, so show only the raw amount
-    // rather than appending the package path as a denom.
-    return { value: amountInfo.value, denom: "" };
+    return toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
   }, [amountInfo, denom, hasResourceMeta, tokenMeta?.data, isNativeDenom, packagePath, getTokenMeta]);
 
   return {
