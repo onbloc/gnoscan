@@ -36,13 +36,13 @@ export interface TokenDisplayInfo {
 export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDisplayInfo> => {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork } = useNetworkProvider();
-  const { tokenResourceMap, getTokenMeta } = useTokenResourceMeta();
+  const { hasTokenResourceMeta, getTokenMeta } = useTokenResourceMeta();
 
   const queryKeys = React.useMemo(() => getTokenInfoQueryKeys(tokenKeys), [tokenKeys]);
 
   const tokenQueries = useQueries(
     queryKeys.map(tokenKey => {
-      const hasResourceMeta = !!tokenResourceMap[toBarePackagePath(tokenKey)];
+      const hasResourceMeta = hasTokenResourceMeta(tokenKey);
       return {
         queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
         queryFn: () => {
@@ -62,7 +62,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     const map: Record<string, TokenDisplayInfo> = {};
     queryKeys.forEach((tokenKey, index) => {
       const packagePath = toBarePackagePath(tokenKey);
-      const hasResourceMeta = !!tokenResourceMap[packagePath];
+      const hasResourceMeta = hasTokenResourceMeta(tokenKey);
       const token = tokenQueries[index]?.data?.data;
       if (!hasResourceMeta && !token) return;
 
@@ -80,7 +80,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     });
 
     return withTokenKeyAliases(map, tokenKeys);
-  }, [tokenKeys, queryKeys, tokenQueries, tokenResourceMap, getTokenMeta]);
+  }, [tokenKeys, queryKeys, tokenQueries, hasTokenResourceMeta, getTokenMeta]);
 };
 
 interface Grc20AmountLeg {

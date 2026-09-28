@@ -2,7 +2,7 @@ import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-m
 import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
 import { isUgnot, toGNOTAmount } from "@/common/utils/native-token-utility";
 import { makeDisplayTokenAmount } from "@/common/utils/string-util";
-import { stripTokenKeySymbol, toBarePackagePath } from "@/common/utils/token.utility";
+import { stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { Amount } from "@/types/data-type";
 import React from "react";
 
@@ -13,8 +13,8 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
   const isNativeDenom = !!denom && isUgnot(denom);
   const packagePath = denom ? stripTokenKeySymbol(denom) : denom;
 
-  const { tokenResourceMap, getTokenMeta } = useTokenResourceMeta();
-  const hasResourceMeta = !isNativeDenom && !!denom && !!tokenResourceMap[toBarePackagePath(denom)];
+  const { hasTokenResourceMeta, getTokenMeta } = useTokenResourceMeta();
+  const hasResourceMeta = !isNativeDenom && !!denom && hasTokenResourceMeta(denom);
   // The static resource list is the first-choice source; only hit the token-meta API
   // for tokens it doesn't cover.
   const skipTokenMetaFetch = isNativeDenom || hasResourceMeta;

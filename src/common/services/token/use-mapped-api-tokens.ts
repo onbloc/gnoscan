@@ -42,7 +42,7 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
 
       const allItems = apiData.pages.flatMap(page => page.items);
       const mappedBlocksData = TokenMapper.fromApiResponses(allItems).map(token => {
-        const resolved = getTokenMeta(token.packagePath, {
+        const resolved = getTokenMeta(token.tokenId || token.packagePath, {
           name: token.name,
           symbol: token.symbol,
           decimals: token.decimals,

@@ -100,18 +100,59 @@ export function isWugnotPackagePath(packagePath: string): boolean {
   return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;
 }
 
+export interface TokenResourceEntry {
+  name: string;
+  symbol: string;
+  decimals: number;
+  image?: string;
+  // Resource `token_path` ({packagePath}.{symbol}); identifies one token inside a multi-token realm.
+  tokenPath?: string;
+}
+
+// Drops a trailing numeric tokenId suffix: "{pkg}.{SYMBOL}.0000001" -> "{pkg}.{SYMBOL}".
+function toResourceTokenPath(tokenKey: string): string {
+  const lastSlashIndex = tokenKey.lastIndexOf("/");
+  const parts = tokenKey.slice(lastSlashIndex + 1).split(".");
+  return tokenKey.slice(0, lastSlashIndex + 1) + stripNumericTokenIdSuffix(parts).join(".");
+}
+
+/**
+ * Looks up a token in the static resource list by exact key, then by token path, then by
+ * bare packagePath. A key naming a specific token (has a symbol) never falls back to a bare
+ * packagePath entry registered for a different token of the same realm (e.g. grc20factory).
+ */
+export function findTokenResourceMeta<T extends TokenResourceEntry>(
+  tokenResourceMap: Record<string, T>,
+  tokenKey: string,
+): T | undefined {
+  if (!tokenKey) return undefined;
+
+  const tokenPath = toResourceTokenPath(tokenKey);
+  const directMeta = tokenResourceMap[tokenKey] || tokenResourceMap[tokenPath];
+  if (directMeta) return directMeta;
+
+  const bareMeta = tokenResourceMap[toBarePackagePath(tokenKey)];
+  if (!bareMeta) return undefined;
+
+  const isOtherToken =
+    !!getTokenKeySymbol(tokenKey) &&
+    !!bareMeta.tokenPath &&
+    bareMeta.tokenPath.toLowerCase() !== tokenPath.toLowerCase();
+  return isOtherToken ? undefined : bareMeta;
+}
+
 /**
  * The static gno-token-resource list is the first-choice source for a token's
  * name/symbol/decimals/image; the caller's own (backend/on-chain) data is only used as a
  * fallback for tokens the resource list doesn't know about. It's all-or-nothing per token -
  * fields aren't merged individually - so the result is never a mix of both sources.
  */
-export function resolveTokenMeta<T extends { name: string; symbol: string; decimals: number; image?: string }>(
+export function resolveTokenMeta<T extends TokenResourceEntry>(
   tokenResourceMap: Record<string, T>,
   tokenKey: string,
   fallback: TokenMetaFallback,
 ): ResolvedTokenMeta {
-  const resourceMeta = tokenResourceMap[tokenKey] || tokenResourceMap[toBarePackagePath(tokenKey)];
+  const resourceMeta = findTokenResourceMeta(tokenResourceMap, tokenKey);
   const resolved = resourceMeta
     ? {
         name: resourceMeta.name,

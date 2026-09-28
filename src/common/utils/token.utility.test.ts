@@ -2,6 +2,7 @@ import {
   formatTokenDecimal,
   formatDisplayTokenPath,
   resolveTokenMeta,
+  findTokenResourceMeta,
   isWugnotPackagePath,
   stripGnoLandPrefix,
 } from "./token.utility";
@@ -290,6 +291,52 @@ describe("resolveTokenMeta", () => {
     const result = resolveTokenMeta({}, "gno.land/r/other/token", { ...fallback, decimals: 0 });
 
     expect(result.decimals).toBe(0);
+  });
+});
+
+describe("findTokenResourceMeta", () => {
+  const FACTORY = "gno.land/r/demo/defi/grc20factory";
+  const perun = { name: "Perun", symbol: "PERUN", decimals: 6, image: "perun.svg", tokenPath: `${FACTORY}.PERUN` };
+  // Mirrors useTokenResourceMeta: keyed by both pkg_path and token_path.
+  const resourceMap = { [FACTORY]: perun, [`${FACTORY}.PERUN`]: perun };
+
+  it("matches a factory token by its tokenId", () => {
+    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.PERUN.0000001`)).toBe(perun);
+  });
+
+  it("matches a factory token by its token path", () => {
+    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.PERUN`)).toBe(perun);
+  });
+
+  it("does not match another token hosted by the same realm", () => {
+    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.MOULTEST.0000002`)).toBeUndefined();
+    expect(findTokenResourceMeta(resourceMap, `${FACTORY}.MOULTEST`)).toBeUndefined();
+  });
+
+  it("matches the token path case-insensitively on the bare packagePath fallback", () => {
+    expect(findTokenResourceMeta({ [FACTORY]: perun }, `${FACTORY}.perun.0000001`)).toBe(perun);
+  });
+
+  it("still matches a bare packagePath key", () => {
+    expect(findTokenResourceMeta(resourceMap, FACTORY)).toBe(perun);
+  });
+
+  it("falls back to the bare packagePath when the entry has no token path", () => {
+    const legacy = { name: "Legacy", symbol: "LGC", decimals: 6 };
+
+    expect(findTokenResourceMeta({ "gno.land/r/demo/token": legacy }, "gno.land/r/demo/token.OTHER.0000001")).toBe(
+      legacy,
+    );
+  });
+
+  it("returns undefined for an empty key", () => {
+    expect(findTokenResourceMeta(resourceMap, "")).toBeUndefined();
+  });
+
+  it("keeps the backend meta for the other factory token in resolveTokenMeta", () => {
+    const fallback = { name: "moultest", symbol: "MOULTEST", decimals: 6, image: undefined };
+
+    expect(resolveTokenMeta(resourceMap, `${FACTORY}.MOULTEST.0000002`, fallback)).toEqual(fallback);
   });
 });
 

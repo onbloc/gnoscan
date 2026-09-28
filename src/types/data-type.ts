@@ -67,6 +67,7 @@ export interface TokenMeta {
   name: string;
   denom?: string;
   pkg_path?: string;
+  token_path?: string;
   symbol: string;
   decimals: number;
   chain_id: string;
