@@ -1,4 +1,10 @@
-import { isOnlyStorageEventsHidden } from "./activity.utility";
+import { isOnlyStorageEventsHidden, toActivityIdentifier } from "./activity.utility";
+
+describe("toActivityIdentifier", () => {
+  it("formats the Events tab identifier with a lowercase hash", () => {
+    expect(toActivityIdentifier("37D627B4ABBFFD7", 3)).toBe("37d627b4abbffd7_3");
+  });
+});
 
 const base = {
   isFetched: true,

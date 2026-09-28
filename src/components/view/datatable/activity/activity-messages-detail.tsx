@@ -1,44 +1,60 @@
 import React from "react";
 
+import { DatatableOption } from "@/components/ui/datatable";
 import { ActivityMessage } from "@/models/api/activity/activity-model";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
-import { ActivityDetailWrapper } from "./activity-detail-wrapper";
+import { toActivityIdentifier } from "@/common/utils/activity.utility";
+import { DatatableItem } from "..";
+import { ActivityDetailTable } from "./activity-detail-wrapper";
 
 interface Props {
   visible: boolean;
+  txHash: string;
   messages: ActivityMessage[];
 }
 
-/** Direct Transactions row expansion: index/type/function/argument summary per message. */
-export const ActivityMessagesDetail = ({ visible, messages }: Props) => {
-  return (
-    <ActivityDetailWrapper className={visible ? "active" : "hidden"}>
-      {visible && (
-        <div className="container">
-          {messages.length === 0 && <span className="empty">No messages</span>}
-          {messages.map(message => (
-            <div className="entry" key={message.index}>
-              <div className="entry-row">
-                <span className="entry-label">{`#${message.index}`}</span>
-                <span className="badge">{message.messageType}</span>
-                <span>{message.funcType}</span>
-              </div>
-              {message.pkgPath && (
-                <div className="entry-row">
-                  <span className="entry-label">Package</span>
-                  <span>{stripGnoLandPrefix(message.pkgPath)}</span>
-                </div>
-              )}
-              {message.args.length > 0 && (
-                <div className="entry-row">
-                  <span className="entry-label">Args</span>
-                  <span>{message.args.join(", ")}</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </ActivityDetailWrapper>
+/** Transactions row expansion: Identifier / Type / Function / Package / Args per message. */
+export const ActivityMessagesDetail = ({ visible, txHash, messages }: Props) => {
+  const headers = React.useMemo(
+    () => [
+      DatatableOption.Builder.builder<ActivityMessage>()
+        .key("index")
+        .name("Identifier")
+        .width(190)
+        .renderOption(index => <DatatableItem.EventId eventId={toActivityIdentifier(txHash, index)} />)
+        .build(),
+      DatatableOption.Builder.builder<ActivityMessage>()
+        .key("messageType")
+        .name("Type")
+        .width(150)
+        .renderOption(type => <span className="ellipsis">{type}</span>)
+        .build(),
+      DatatableOption.Builder.builder<ActivityMessage>()
+        .key("funcType")
+        .name("Function")
+        .width(180)
+        .renderOption(func => (func ? <DatatableItem.EventName eventName={func} /> : <span>-</span>))
+        .build(),
+      DatatableOption.Builder.builder<ActivityMessage>()
+        .key("pkgPath")
+        .name("Package")
+        .width(240)
+        .renderOption(pkgPath => {
+          const path = stripGnoLandPrefix(pkgPath ?? "");
+          return <DatatableItem.TruncatedText text={path} lines={[{ value: path }]} />;
+        })
+        .build(),
+      DatatableOption.Builder.builder<ActivityMessage>()
+        .key("args")
+        .name("Args")
+        .width(290)
+        .renderOption((args: string[]) => (
+          <DatatableItem.TruncatedText text={args.join(", ")} lines={args.map(value => ({ value }))} />
+        ))
+        .build(),
+    ],
+    [txHash],
   );
+
+  return <ActivityDetailTable visible={visible} headers={headers} datas={messages} />;
 };

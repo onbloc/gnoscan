@@ -1,43 +1,58 @@
 import React from "react";
 
-import { ActivityTransfer } from "@/models/api/activity/activity-model";
-import { toDisplayAmount } from "@/common/utils/activity.utility";
+import { DatatableOption } from "@/components/ui/datatable";
+import { ActivityAmount, ActivityTransfer } from "@/models/api/activity/activity-model";
+import { toActivityIdentifier } from "@/common/utils/activity.utility";
 import { DatatableItem } from "..";
-import { ActivityDetailWrapper } from "./activity-detail-wrapper";
+import { ActivityDetailTable } from "./activity-detail-wrapper";
 
 interface Props {
   visible: boolean;
+  txHash: string;
   transfers: ActivityTransfer[];
 }
 
-/** Native/Token Transfers row expansion: From -> To, amount, and source, in event order. */
-export const ActivityTransfersDetail = ({ visible, transfers }: Props) => {
-  return (
-    <ActivityDetailWrapper className={visible ? "active" : "hidden"}>
-      {visible && (
-        <div className="container">
-          {transfers.length === 0 && <span className="empty">No transfers</span>}
-          {transfers.map((transfer, index) => {
-            const amount = toDisplayAmount(transfer.amount);
-            return (
-              <div className="entry" key={index}>
-                <div className="entry-row">
-                  {transfer.fromAddress ? <DatatableItem.Account address={transfer.fromAddress} /> : <span>-</span>}
-                  <span className="entry-arrow">{"→"}</span>
-                  {transfer.toAddress ? <DatatableItem.Account address={transfer.toAddress} /> : <span>-</span>}
-                  <span className="badge">{transfer.source}</span>
-                </div>
-                <div className="entry-row">
-                  <DatatableItem.Amount value={amount.value} denom={amount.denom} />
-                  {amount.tokenIds && amount.tokenIds.length > 0 && (
-                    <span className="entry-label">{`#${amount.tokenIds.join(", #")}`}</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </ActivityDetailWrapper>
+const renderAddress = (address: string) => (address ? <DatatableItem.Account address={address} /> : <span>-</span>);
+
+/** Native/Token Transfers row expansion: Identifier / From / To / Amount / Source, in event order. */
+export const ActivityTransfersDetail = ({ visible, txHash, transfers }: Props) => {
+  const headers = React.useMemo(
+    () => [
+      DatatableOption.Builder.builder<ActivityTransfer>()
+        .key("eventIndex")
+        .name("Identifier")
+        .width(190)
+        .renderOption(eventIndex => <DatatableItem.EventId eventId={toActivityIdentifier(txHash, eventIndex)} />)
+        .build(),
+      DatatableOption.Builder.builder<ActivityTransfer>()
+        .key("fromAddress")
+        .name("From")
+        .width(200)
+        .colorName("blue")
+        .renderOption(renderAddress)
+        .build(),
+      DatatableOption.Builder.builder<ActivityTransfer>()
+        .key("toAddress")
+        .name("To")
+        .width(200)
+        .colorName("blue")
+        .renderOption(renderAddress)
+        .build(),
+      DatatableOption.Builder.builder<ActivityTransfer>()
+        .key("amount")
+        .name("Amount")
+        .width(320)
+        .renderOption((amount: ActivityAmount) => <DatatableItem.ActivityAmountStack amounts={[amount]} />)
+        .build(),
+      DatatableOption.Builder.builder<ActivityTransfer>()
+        .key("source")
+        .name("Source")
+        .width(140)
+        .renderOption(source => <span>{source}</span>)
+        .build(),
+    ],
+    [txHash],
   );
+
+  return <ActivityDetailTable visible={visible} headers={headers} datas={transfers} />;
 };

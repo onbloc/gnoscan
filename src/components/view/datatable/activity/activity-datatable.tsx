@@ -235,12 +235,12 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
   const renderDetails = (row: ActivityRow) => {
     const visible = expandedRows.includes(row.txHash);
     if (variant === "direct") {
-      return <ActivityMessagesDetail visible={visible} messages={row.messages} />;
+      return <ActivityMessagesDetail visible={visible} txHash={row.txHash} messages={row.messages} />;
     }
     if (variant === "internal") {
-      return <ActivityRealmEventsDetail visible={visible} events={row.realmEvents} />;
+      return <ActivityRealmEventsDetail visible={visible} txHash={row.txHash} events={row.realmEvents} />;
     }
-    return <ActivityTransfersDetail visible={visible} transfers={row.transfers} />;
+    return <ActivityTransfersDetail visible={visible} txHash={row.txHash} transfers={row.transfers} />;
   };
 
   return (

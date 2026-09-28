@@ -20,6 +20,11 @@ export function toDisplayAmount(amount: ActivityAmount): DisplayAmount {
   };
 }
 
+/** Same `{txHash}_{index}` identifier the Events tab uses, so expanded rows read alike. */
+export function toActivityIdentifier(txHash: string, index: number): string {
+  return `${txHash.toLowerCase()}_${index}`;
+}
+
 interface StorageOnlyEventsParams {
   isFetched: boolean;
   totalEventCount?: number;
