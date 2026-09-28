@@ -30,17 +30,17 @@ const CustomNetworkTransactionSummary = ({
   isFetchedTxRpcData,
   getUrlWithNetwork,
 }: TransactionSummaryProps) => {
-  const { blockResult, transactionItem } = transactionSummaryInfo;
+  const { txResult, transactionItem } = transactionSummaryInfo;
 
   const blockResultLog = React.useMemo(() => {
     if (transactionItem?.success) return null;
 
     try {
-      return JSON.stringify(blockResult, null, 2);
+      return JSON.stringify(txResult, null, 2);
     } catch {
       return null;
     }
-  }, [transactionItem, blockResult]);
+  }, [transactionItem, txResult]);
 
   const displayTxErrorInfo = React.useMemo(() => {
     if (!txErrorType) return "Failed";

@@ -250,6 +250,8 @@ export interface TransactionSummaryInfo {
   network: any;
   timeStamp: TimeStamp;
   blockResult: any;
+  // deliver_tx result of this tx only
+  txResult?: any;
   gas: string;
   storageDeposit?: Amount;
   storageUsage?: number;
