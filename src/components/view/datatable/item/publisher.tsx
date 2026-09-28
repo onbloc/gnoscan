@@ -40,14 +40,14 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
   }, [address, username, label, ellipsisNumber]);
 
   return address && address !== "genesis" ? (
-    <Tooltip content={renderTooltip()}>
+    <PublisherTooltip content={renderTooltip()}>
       <a
         className="ellipsis"
         href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
       >
         {displayName}
       </a>
-    </Tooltip>
+    </PublisherTooltip>
   ) : (
     <>{displayName}</>
   );
@@ -63,5 +63,14 @@ const TooltipWrapper = styled.span`
     align-items: center;
     word-break: keep-all;
     white-space: nowrap;
+  }
+`;
+
+// Bound the tooltip to the column so long names get the CSS ellipsis
+const PublisherTooltip = styled(Tooltip)`
+  max-width: 100%;
+
+  a {
+    min-width: 0;
   }
 `;
