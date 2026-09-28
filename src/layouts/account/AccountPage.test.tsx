@@ -24,23 +24,18 @@ jest.mock("@/common/react-query/validator/api", () => ({
 jest.mock("@/common/utils/token.utility", () => ({
   stripGnoLandPrefix: (value: string) => value.replace(/^gno\.land\//, ""),
 }));
-jest.mock(
-  "@/layouts/account/AccountLayout",
-  () =>
-    function MockAccountLayout() {
-      return <main>Account details</main>;
-    },
-);
+jest.mock("@/layouts/account/AccountLayout", () => ({
+  __esModule: true,
+  default: function MockAccountLayout() {
+    return <main>Account details</main>;
+  },
+  AccountLayoutSkeleton: function MockAccountLayoutSkeleton() {
+    return <main role="status">Account loading</main>;
+  },
+}));
 jest.mock("@/containers/account/account-address-container/AccountAddressContainer", () => () => null);
 jest.mock("@/containers/account/account-assets-container/AccountAssetsContainer", () => () => null);
 jest.mock("@/containers/account/account-transactions-container/AccountTransactionsContainer", () => () => null);
-jest.mock(
-  "@/components/view/loading/page",
-  () =>
-    function MockLoadingPage() {
-      return <div role="status">Loading</div>;
-    },
-);
 
 beforeEach(() => {
   mockRouter.isReady = true;
@@ -49,7 +44,9 @@ beforeEach(() => {
 });
 
 it("does not expose account details before address classification completes", () => {
-  expect(renderToStaticMarkup(<Page />)).not.toContain("Account details");
+  const markup = renderToStaticMarkup(<Page />);
+  expect(markup).not.toContain("Account details");
+  expect(markup).toContain("Account loading");
 });
 
 it("keeps account details hidden while a named realm is being redirected", () => {

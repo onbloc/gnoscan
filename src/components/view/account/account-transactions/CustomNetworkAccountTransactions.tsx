@@ -5,17 +5,16 @@ import { GnoEvent } from "@/types/data-type";
 import DataListSection from "../../details-data-section/data-list-section";
 import { AccountDetailDatatable } from "../../datatable";
 import { EventDatatable } from "../../datatable/event";
-import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { useAccount } from "@/common/hooks/account/use-account";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
 
 interface AccountTransactionsProps {
   address: string;
-  isDesktop: boolean;
 }
 
-const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransactionsProps) => {
+const CustomNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
   const { isFetched: isFetchedUsername, isLoading: isLoadingUsername, getAddress } = useUsername();
 
   const bech32Address = React.useMemo(() => {
@@ -49,7 +48,7 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
   }, [accountTransactions, transactionEvents]);
 
   if (isLoadingTransactions || !isFetchedAccountTransactions) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountTransactionsSkeleton />;
   }
 
   return (
