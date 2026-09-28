@@ -354,3 +354,19 @@ export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): Storage
     storage: finalStorageValue,
   };
 }
+
+/**
+ * Returns the deliver_tx result of the given tx. block_results.deliver_tx is
+ * ordered the same as the block's txs, so the tx's index maps to its result.
+ */
+export function findTransactionResult(
+  transactions: { hash: string }[],
+  deliverTxs: any[] | null | undefined,
+  hash: string,
+): any | null {
+  const txIndex = transactions.findIndex(tx => tx.hash === hash);
+  if (txIndex < 0) {
+    return null;
+  }
+  return deliverTxs?.[txIndex] || null;
+}
