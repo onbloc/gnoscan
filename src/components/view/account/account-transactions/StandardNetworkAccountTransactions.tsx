@@ -3,7 +3,7 @@ import React from "react";
 import { GnoEvent, Transaction } from "@/types/data-type";
 
 import DataListSection from "../../details-data-section/data-list-section";
-import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { useGetAccountTransactions } from "@/common/react-query/account/api/use-get-account-transactions";
 import { useGetAccountEvents } from "@/common/react-query/account/api/use-get-account-events";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
@@ -12,10 +12,9 @@ import { getRepresentativeTransactionFunction } from "@/common/utils/transaction
 
 interface AccountTransactionsProps {
   address: string;
-  isDesktop: boolean;
 }
 
-const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTransactionsProps) => {
+const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
   const {
     data: transactionData,
     isFetched: isFetchedTransactionData,
@@ -97,7 +96,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
   }, [transactionsCount, eventsCount, accountTransactions, accountEvents]);
 
   if (!isFetchedTransactionData) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountTransactionsSkeleton />;
   }
 
   return (

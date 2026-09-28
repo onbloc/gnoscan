@@ -11,6 +11,7 @@ import NotFound from "@/components/view/search/not-found/NotFound";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import AccountAddressSkeleton from "@/components/view/account/account-address/AccountAddressSkeleton";
+import AccountTransactionsSkeleton from "@/components/view/account/account-transactions/AccountTransactionsSkeleton";
 
 export interface ValidatorInfo {
   name: string;
@@ -113,7 +114,7 @@ export const AccountLayoutSkeleton = () => {
       <SkeletonBar width={200} height={isDesktop ? 36 : 24} />
       <AccountAddressSkeleton isDesktop={isDesktop} />
       <AccountAddressSkeleton isDesktop={isDesktop} />
-      <AccountAddressSkeleton isDesktop={isDesktop} />
+      <AccountTransactionsSkeleton />
     </AccountFrame>
   );
 };
