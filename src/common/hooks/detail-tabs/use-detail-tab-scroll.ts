@@ -22,15 +22,13 @@ export function useDetailTabScroll<T extends string>(scopeKey: string, initialTa
   const maxScrollRef = useRef(0);
 
   useEffect(() => {
-    let rafId: number;
-    const tick = () => {
+    const handleScroll = () => {
       if (window.scrollY > maxScrollRef.current) {
         maxScrollRef.current = window.scrollY;
       }
-      rafId = requestAnimationFrame(tick);
     };
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
