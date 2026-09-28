@@ -65,11 +65,11 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
         ))
         .build();
 
-    const createHeaderFunction = () =>
+    const createHeaderFunction = (width = 190) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("func")
         .name(variant === "internal" ? "Entry Function" : "Function")
-        .width(190)
+        .width(width)
         .colorName("blue")
         .tooltip(TOOLTIP_TYPE)
         .renderOption((_, row) => {
@@ -89,7 +89,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("blockHeight")
         .name("Block")
-        .width(113)
+        .width(100)
         .colorName("blue")
         .renderOption(height => <DatatableItem.Block height={height} />)
         .build();
@@ -98,7 +98,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("callerAddress")
         .name("Caller")
-        .width(170)
+        .width(160)
         .colorName("blue")
         .renderOption(address => <DatatableItem.Account address={address} />)
         .build();
@@ -107,7 +107,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("amountsIn")
         .name("Amount (In)")
-        .width(190)
+        .width(163)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
@@ -115,7 +115,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("amountsOut")
         .name("Amount (Out)")
-        .width(190)
+        .width(163)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
@@ -123,7 +123,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("volume")
         .name("Volume")
-        .width(190)
+        .width(216)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
@@ -131,7 +131,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("transferCount")
         .name("Transfers")
-        .width(120)
+        .width(100)
         .renderOption(count => <span>{count}</span>)
         .build();
 
@@ -139,7 +139,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("realmEvents")
         .name("Realm Events")
-        .width(220)
+        .width(266)
         .renderOption(events => <DatatableItem.RealmEventsSummary events={events} />)
         .build();
 
@@ -147,7 +147,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("timestamp")
         .name("Time")
-        .width(160)
+        .width(130)
         .className("time")
         .renderOption(date => <DatatableItem.Date date={date} />)
         .build();
@@ -157,7 +157,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
         .key("fee")
         .name("Fee")
         .className("fee")
-        .width(113)
+        .width(110)
         .renderOption(({ value, denom }: { value: string; denom: string }) => (
           <DatatableItem.Amount {...getTokenAmount(denom, value)} />
         ))
@@ -177,9 +177,10 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("nativeValue")
         .name("Native Value")
-        .width(180)
+        .width(156)
         .renderOption(amount => <DatatableItem.ActivityAmountStack amounts={amount ? [amount] : []} />)
         .build();
+    // Each variant's widths sum to the 1146px table min-width so columns stay evenly spaced.
     switch (variant) {
       case "direct":
         return [
@@ -195,7 +196,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       case "transfers":
         return [
           createHeaderTxHash(),
-          createHeaderFunction(),
+          createHeaderFunction(180),
           createHeaderBlock(),
           createHeaderAmountIn(),
           createHeaderAmountOut(),
@@ -217,7 +218,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       case "internal":
         return [
           createHeaderTxHash(),
-          createHeaderFunction(),
+          createHeaderFunction(240),
           createHeaderRealmEvents(),
           createHeaderBlock(),
           createHeaderFee(),
