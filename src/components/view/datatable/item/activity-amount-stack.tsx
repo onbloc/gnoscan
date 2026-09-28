@@ -1,4 +1,5 @@
 import React from "react";
+import BigNumber from "bignumber.js";
 import styled from "styled-components";
 
 import { ActivityAmount } from "@/models/api/activity/activity-model";
@@ -11,11 +12,13 @@ interface Props {
 
 /** Renders a stack of activity amounts - accounts/realms can carry several distinct tokens per tx. */
 export const ActivityAmountStack = ({ amounts }: Props) => {
-  if (!amounts.length) return <span>-</span>;
+  // Zero raw amounts show as a dash, like StandardNetworkAmount (a nonzero value that rounds to 0 still shows).
+  const nonZeroAmounts = amounts.filter(amount => !new BigNumber(amount.value).isZero());
+  if (!nonZeroAmounts.length) return <span>-</span>;
 
   return (
     <StackWrapper>
-      {amounts.map((amount, index) => {
+      {nonZeroAmounts.map((amount, index) => {
         const display = toDisplayAmount(amount);
         return (
           <div className="amount-row" key={index}>

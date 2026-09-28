@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import BigNumber from "bignumber.js";
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import styled from "styled-components";
@@ -114,6 +115,8 @@ export const TokenDetailDatatable = ({ path }: Props) => {
       .renderOption((amount: { value: string; denom: string }, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
+        ) : new BigNumber(amount?.value).isZero() ? (
+          <span>-</span>
         ) : (
           <DatatableItem.Amount {...getTokenAmount(amount.denom, amount.value)} />
         ),
