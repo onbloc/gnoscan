@@ -11,7 +11,10 @@ interface Props {
   events: ActivityEvent[];
 }
 
-/** Internal Transactions "Realm Events" column: first event's type + a "+N" badge for the rest. */
+/**
+ * Internal Transactions "Realm Events" column: first event's type + a "+N" badge for the rest.
+ * Hovering anywhere on the cell lists every event type (with its package) in event order.
+ */
 export const RealmEventsSummary = ({ events }: Props) => {
   if (!events.length) return <span>-</span>;
 
@@ -19,8 +22,12 @@ export const RealmEventsSummary = ({ events }: Props) => {
 
   const renderTooltip = () => (
     <TooltipWrapper>
-      <span className="title">{first.eventType}</span>
-      {first.packagePath && <span className="info">{stripGnoLandPrefix(first.packagePath)}</span>}
+      {events.map((event, index) => (
+        <div className="event-item" key={`${event.eventIndex}-${index}`}>
+          <span className="title">{event.eventType}</span>
+          {event.packagePath && <span className="info">{stripGnoLandPrefix(event.packagePath)}</span>}
+        </div>
+      ))}
     </TooltipWrapper>
   );
 
@@ -28,12 +35,12 @@ export const RealmEventsSummary = ({ events }: Props) => {
     <SummaryWrapper>
       <Tooltip className={"ellipsis"} content={renderTooltip()}>
         <span className="event ellipsis">{first.eventType}</span>
+        {rest.length > 0 && (
+          <Text className="rest-count" type="p4" color="reverse" margin="0px 0px 0px 8px">
+            {`+${rest.length}`}
+          </Text>
+        )}
       </Tooltip>
-      {rest.length > 0 && (
-        <Text type="p4" color="reverse" margin="0px 0px 0px 8px">
-          {`+${rest.length}`}
-        </Text>
-      )}
     </SummaryWrapper>
   );
 };
@@ -50,10 +57,16 @@ const SummaryWrapper = styled.div`
     .event {
       display: block;
       width: 100%;
+      min-width: 0;
       padding: 4px 16px;
       color: #fff;
       background-color: ${({ theme }) => theme.colors.blue};
       border-radius: 4px;
+    }
+
+    .rest-count {
+      flex-shrink: 0;
+      white-space: nowrap;
     }
   }
 `;
@@ -66,6 +79,13 @@ const TooltipWrapper = styled.div`
     height: auto;
     justify-content: center;
     align-items: center;
+    gap: 8px;
+
+    .event-item {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
 
     span {
       display: flex;
