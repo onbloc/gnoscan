@@ -147,6 +147,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
             onIncludeStorageChange={setIncludeStorage}
           />
           <StandardNetworkEventDatatable
+            variant="activity"
             isFetched={isFetchedEventData}
             events={realmEvents}
             hasNextPage={hasNextPageEventData}

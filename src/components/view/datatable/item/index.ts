@@ -28,3 +28,4 @@ export * from "./lazy-date";
 export * from "./lazy-block-total-fee";
 export * from "./activity-amount-stack";
 export * from "./realm-events-summary";
+export * from "./event-attributes";

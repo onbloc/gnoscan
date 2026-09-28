@@ -188,6 +188,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
             onIncludeStorageChange={setIncludeStorage}
           />
           <StandardNetworkEventDatatable
+            variant="activity"
             isFetched={isFetchedEventData}
             events={tokenEvents}
             hasNextPage={hasNextPageEventData}
