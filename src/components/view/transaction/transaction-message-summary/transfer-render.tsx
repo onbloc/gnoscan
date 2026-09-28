@@ -19,6 +19,7 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import {
+  findByTokenKey,
   getFallbackTokenSymbol,
   getTokenKeySymbol,
   stripTokenKeySymbol,
@@ -36,13 +37,13 @@ export interface TokenDisplayInfo {
 export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDisplayInfo> => {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork } = useNetworkProvider();
-  const { tokenResourceMap, getTokenMeta } = useTokenResourceMeta();
+  const { hasTokenResourceMeta, getTokenMeta } = useTokenResourceMeta();
 
   const queryKeys = React.useMemo(() => getTokenInfoQueryKeys(tokenKeys), [tokenKeys]);
 
   const tokenQueries = useQueries(
     queryKeys.map(tokenKey => {
-      const hasResourceMeta = !!tokenResourceMap[toBarePackagePath(tokenKey)];
+      const hasResourceMeta = hasTokenResourceMeta(tokenKey);
       return {
         queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
         queryFn: () => {
@@ -62,7 +63,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     const map: Record<string, TokenDisplayInfo> = {};
     queryKeys.forEach((tokenKey, index) => {
       const packagePath = toBarePackagePath(tokenKey);
-      const hasResourceMeta = !!tokenResourceMap[packagePath];
+      const hasResourceMeta = hasTokenResourceMeta(tokenKey);
       const token = tokenQueries[index]?.data?.data;
       if (!hasResourceMeta && !token) return;
 
@@ -80,7 +81,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     });
 
     return withTokenKeyAliases(map, tokenKeys);
-  }, [tokenKeys, queryKeys, tokenQueries, tokenResourceMap, getTokenMeta]);
+  }, [tokenKeys, queryKeys, tokenQueries, hasTokenResourceMeta, getTokenMeta]);
 };
 
 interface Grc20AmountLeg {
@@ -156,8 +157,7 @@ export const getTransferSummaryLines = (
 // Same symbol resolution TokenAmountDisplay uses (registry lookup, else the last "."-segment
 // of the token path) - exported for callers that need just the symbol, not a full amount.
 export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<string, TokenDisplayInfo>): string {
-  const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
-  const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
+  const tokenInfo = findByTokenKey(tokenInfosByTokenKey, tokenKey);
   return tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);
 }
 
@@ -290,10 +290,10 @@ const TokenAmountDisplay = ({
   }
 
   const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
-  const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
+  const tokenInfo = findByTokenKey(tokenInfosByTokenKey, tokenKey);
   const symbol = tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);
   const linkTokenKey = tokenInfo?.tokenKey || (symbol ? toTokenKey(normalizedTokenKey, symbol) : tokenKey);
-  const imagePath = getTokenImage(stripTokenKeySymbol(linkTokenKey));
+  const imagePath = getTokenImage(linkTokenKey);
 
   const decimals = tokenInfo?.decimals;
   const displayValue =

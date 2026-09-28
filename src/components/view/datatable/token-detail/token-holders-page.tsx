@@ -30,7 +30,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   const { getTokenMeta } = useTokenResourceMeta();
   const backendMeta = tokenData?.data ?? { decimals: 0, symbol: "" };
   const resolved = tokenData?.data?.path
-    ? getTokenMeta(tokenData.data.path, {
+    ? getTokenMeta(tokenData.data.tokenId || tokenData.data.path, {
         name: tokenData.data.name,
         symbol: tokenData.data.symbol,
         decimals: tokenData.data.decimals,

@@ -30,7 +30,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     return data.data.assets
       .filter(asset => asset.name && asset.symbol)
       .map((asset): AccountAssetViewModel => {
-        const resolved = getTokenMeta(asset.packagePath, {
+        const resolved = getTokenMeta(asset.tokenId || asset.packagePath, {
           name: asset.name,
           symbol: asset.symbol,
           decimals: asset.decimals,
