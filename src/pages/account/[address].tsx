@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 
-import AccountLayout from "@/layouts/account/AccountLayout";
+import AccountLayout, { AccountLayoutSkeleton } from "@/layouts/account/AccountLayout";
 import AccountAddressContainer from "@/containers/account/account-address-container/AccountAddressContainer";
 import AccountAssetsContainer from "@/containers/account/account-assets-container/AccountAssetsContainer";
 import AccountTransactionsContainer from "@/containers/account/account-transactions-container/AccountTransactionsContainer";
@@ -10,7 +10,6 @@ import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get
 import { useNetwork } from "@/common/hooks/use-network";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
-import LoadingPage from "@/components/view/loading/page";
 
 export default function Page() {
   const router = useRouter();
@@ -40,11 +39,7 @@ export default function Page() {
 
   // Do not mount account panels (or start their queries) for an unresolved or realm address.
   if (!router.isReady || !currentNetwork || (!isCustomNetwork && (!isFetchedAccount || realmDestination))) {
-    return (
-      <div className="inner-layout">
-        <LoadingPage />
-      </div>
-    );
+    return <AccountLayoutSkeleton />;
   }
 
   return <AccountPage address={address} />;

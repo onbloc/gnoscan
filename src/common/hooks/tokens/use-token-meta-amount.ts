@@ -2,9 +2,18 @@ import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-m
 import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
 import { isUgnot, toGNOTAmount } from "@/common/utils/native-token-utility";
 import { makeDisplayTokenAmount } from "@/common/utils/string-util";
-import { stripTokenKeySymbol, toBarePackagePath } from "@/common/utils/token.utility";
+import { stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { Amount } from "@/types/data-type";
+import axios from "axios";
 import React from "react";
+
+// react-query's default retry count.
+const TOKEN_META_MAX_RETRIES = 3;
+
+// A 404 means the token has no metadata (e.g. non GRC20 tokens), so retrying only delays
+// the fallback display. Other failures may be transient and keep the default retries.
+export const retryTokenMetaRequest = (failureCount: number, error: unknown) =>
+  !(axios.isAxiosError(error) && error.response?.status === 404) && failureCount < TOKEN_META_MAX_RETRIES;
 
 export function useTokenMetaAmount(amountInfo?: Amount) {
   const denom = amountInfo?.denom || null;
@@ -13,13 +22,20 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
   const isNativeDenom = !!denom && isUgnot(denom);
   const packagePath = denom ? stripTokenKeySymbol(denom) : denom;
 
-  const { tokenResourceMap, getTokenMeta } = useTokenResourceMeta();
-  const hasResourceMeta = !isNativeDenom && !!denom && !!tokenResourceMap[toBarePackagePath(denom)];
+  const { hasTokenResourceMeta, getTokenMeta } = useTokenResourceMeta();
+  const hasResourceMeta = !isNativeDenom && !!denom && hasTokenResourceMeta(denom);
   // The static resource list is the first-choice source; only hit the token-meta API
   // for tokens it doesn't cover.
   const skipTokenMetaFetch = isNativeDenom || hasResourceMeta;
 
-  const { data: tokenMeta, isLoading, isFetched } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : packagePath || "");
+  // Query by the full denom: a bare packagePath is ambiguous for multi-token (factory) realms.
+  const {
+    data: tokenMeta,
+    isLoading,
+    isFetched,
+  } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : denom || "", {
+    retry: retryTokenMetaRequest,
+  });
 
   const amount: Amount | null = React.useMemo(() => {
     if (!amountInfo) return null;

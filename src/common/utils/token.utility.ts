@@ -100,18 +100,66 @@ export function isWugnotPackagePath(packagePath: string): boolean {
   return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;
 }
 
+export interface ParsedTokenKey {
+  packagePath: string;
+  symbol: string;
+  tokenPath: string;
+}
+
+// "gno.land/r/pad.GDOG.0000002" -> { packagePath: "gno.land/r/pad", symbol: "GDOG", tokenPath: "gno.land/r/pad.GDOG" }
+export function parseTokenKey(tokenKey: string): ParsedTokenKey {
+  const prefix = tokenKey.slice(0, tokenKey.lastIndexOf("/") + 1);
+  const parts = stripNumericTokenIdSuffix(tokenKey.slice(prefix.length).split("."));
+  return {
+    packagePath: prefix + parts[0],
+    symbol: parts.length > 1 ? parts[parts.length - 1] : "",
+    tokenPath: prefix + parts.join("."),
+  };
+}
+
+export interface TokenResourceEntry {
+  name: string;
+  symbol: string;
+  decimals: number;
+  image?: string;
+  // Resource `token_path` ({packagePath}.{symbol}); identifies one token inside a multi-token realm.
+  tokenPath?: string;
+}
+
+/**
+ * Looks up a token-keyed map by exact key, then token path, then bare packagePath.
+ * A packagePath can host several tokens (e.g. grc20factory), so a key naming a symbol only
+ * falls back to the packagePath entry when that entry is the same token.
+ */
+export function findByTokenKey<T extends { symbol?: string; tokenPath?: string }>(
+  tokenMap: Record<string, T>,
+  tokenKey: string,
+): T | undefined {
+  if (!tokenKey) return undefined;
+
+  const { packagePath, symbol, tokenPath } = parseTokenKey(tokenKey);
+  const directEntry = tokenMap[tokenKey] || tokenMap[tokenPath];
+  if (directEntry) return directEntry;
+
+  const packageEntry = tokenMap[packagePath];
+  if (!packageEntry || !symbol) return packageEntry;
+
+  const entrySymbol = packageEntry.tokenPath ? parseTokenKey(packageEntry.tokenPath).symbol : packageEntry.symbol;
+  return !entrySymbol || entrySymbol.toLowerCase() === symbol.toLowerCase() ? packageEntry : undefined;
+}
+
 /**
  * The static gno-token-resource list is the first-choice source for a token's
  * name/symbol/decimals/image; the caller's own (backend/on-chain) data is only used as a
  * fallback for tokens the resource list doesn't know about. It's all-or-nothing per token -
  * fields aren't merged individually - so the result is never a mix of both sources.
  */
-export function resolveTokenMeta<T extends { name: string; symbol: string; decimals: number; image?: string }>(
+export function resolveTokenMeta<T extends TokenResourceEntry>(
   tokenResourceMap: Record<string, T>,
   tokenKey: string,
   fallback: TokenMetaFallback,
 ): ResolvedTokenMeta {
-  const resourceMeta = tokenResourceMap[tokenKey] || tokenResourceMap[toBarePackagePath(tokenKey)];
+  const resourceMeta = findByTokenKey(tokenResourceMap, tokenKey);
   const resolved = resourceMeta
     ? {
         name: resourceMeta.name,

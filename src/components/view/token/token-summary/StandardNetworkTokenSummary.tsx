@@ -45,7 +45,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
 
     if (!summaryData) return null;
 
-    const resolved = getTokenMeta(summaryData.path, {
+    const resolved = getTokenMeta(summaryData.tokenId || summaryData.path, {
       name: summaryData.name,
       symbol: summaryData.symbol,
       decimals: summaryData.decimals,

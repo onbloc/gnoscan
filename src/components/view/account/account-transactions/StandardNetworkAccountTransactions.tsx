@@ -2,7 +2,7 @@ import React from "react";
 
 import { useDetailTabScroll } from "@/common/hooks/detail-tabs/use-detail-tab-scroll";
 import DataListSection from "../../details-data-section/data-list-section";
-import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { ActivityDatatable } from "../../datatable/activity";
 import { useGetAccountDirectTransactions } from "@/common/react-query/account/api/use-get-account-direct-transactions";
 import { useGetAccountNativeTransfers } from "@/common/react-query/account/api/use-get-account-native-transfers";
@@ -11,10 +11,9 @@ import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.
 
 interface AccountTransactionsProps {
   address: string;
-  isDesktop: boolean;
 }
 
-const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTransactionsProps) => {
+const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
   const {
     data: directData,
     isFetched: isFetchedDirect,
@@ -50,7 +49,7 @@ const StandardNetworkAccountTransactions = ({ address, isDesktop }: AccountTrans
   );
 
   if (!isFetchedDirect) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountTransactionsSkeleton />;
   }
 
   return (

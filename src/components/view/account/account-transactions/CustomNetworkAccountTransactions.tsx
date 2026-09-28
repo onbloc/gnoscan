@@ -2,7 +2,7 @@ import React from "react";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import { AccountDetailDatatable } from "../../datatable";
-import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { useAccount } from "@/common/hooks/account/use-account";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
@@ -10,10 +10,9 @@ import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.
 
 interface AccountTransactionsProps {
   address: string;
-  isDesktop: boolean;
 }
 
-const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransactionsProps) => {
+const CustomNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
   const { isFetched: isFetchedUsername, isLoading: isLoadingUsername, getAddress } = useUsername();
 
   const bech32Address = React.useMemo(() => {
@@ -40,7 +39,7 @@ const CustomNetworkAccountTransactions = ({ address, isDesktop }: AccountTransac
   }, [accountTransactions]);
 
   if (isLoadingTransactions || !isFetchedAccountTransactions) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountTransactionsSkeleton tabNames={[ACCOUNT_DETAIL_TABS[0]]} />;
   }
 
   return (
