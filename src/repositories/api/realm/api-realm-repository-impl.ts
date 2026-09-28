@@ -20,7 +20,7 @@ import {
   GetRealmInternalTransactionsResponse,
 } from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
-import { makeQueryParameter } from "@/common/utils/string-util";
+import { makeEncodedQueryParameter, makeQueryParameter } from "@/common/utils/string-util";
 import { hasStorageDepositProperties, convertToStorageDeposit } from "@/common/utils/storage-deposit-util";
 import { CommonError } from "@/common/errors";
 import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
@@ -73,7 +73,7 @@ export class ApiRealmRepositoryImpl implements ApiRealmRepository {
     }
 
     const { path, ...queryParams } = params;
-    const requestParams = makeQueryParameter({ ...queryParams });
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
 
     return this.networkClient
       .get<APIResponse<GetRealmEventsResponse>>({

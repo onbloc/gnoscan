@@ -24,6 +24,7 @@ export const ActivityDetailWrapper = styled.div`
       gap: 16px;
       padding: 24px;
       border-radius: 10px;
+      overflow-wrap: anywhere;
     }
 
     &.hidden {

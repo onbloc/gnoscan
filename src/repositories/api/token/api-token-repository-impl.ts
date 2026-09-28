@@ -19,7 +19,7 @@ import {
   GetTokenMetaInternalTransactionsResponse,
   GetTokenEventsResponse,
 } from "./response";
-import { makeQueryParameter } from "@/common/utils/string-util";
+import { makeEncodedQueryParameter, makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
 
 interface APIResponse<T> {
@@ -152,7 +152,7 @@ export class ApiTokenRepositoryImpl implements ApiTokenRepository {
     }
 
     const { path, ...queryParams } = params;
-    const requestParams = makeQueryParameter({ ...queryParams });
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
 
     return this.networkClient
       .get<APIResponse<GetTokenEventsResponse>>({

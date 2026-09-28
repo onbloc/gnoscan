@@ -26,11 +26,32 @@ export const EventAttributes = ({ attributes }: Props) => {
   );
 
   return (
-    <Tooltip className="ellipsis" content={renderTooltip()}>
-      <SummaryText className="ellipsis">{summary}</SummaryText>
-    </Tooltip>
+    <AttributesCell>
+      <Tooltip className="ellipsis attributes-trigger" content={renderTooltip()}>
+        <SummaryText className="ellipsis">{summary}</SummaryText>
+      </Tooltip>
+    </AttributesCell>
   );
 };
+
+// Bound the tooltip trigger to the cell width so the summary truncates at the column edge.
+const AttributesCell = styled.div`
+  & {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+
+    .attributes-trigger {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .attributes-trigger .tooltip-button {
+      justify-content: flex-start;
+      min-width: 0;
+    }
+  }
+`;
 
 const SummaryText = styled.span`
   & {
