@@ -103,13 +103,16 @@ const AccountFrame = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Same frame as the loaded layout so the page does not jump while the address is classified.
+// Mirrors the loaded layout (address, assets, transactions) so the page does not jump
+// while the address is classified; renders no query-bearing panels.
 export const AccountLayoutSkeleton = () => {
   const { isDesktop } = useWindowSize();
 
   return (
     <AccountFrame>
       <SkeletonBar width={200} height={isDesktop ? 36 : 24} />
+      <AccountAddressSkeleton isDesktop={isDesktop} />
+      <AccountAddressSkeleton isDesktop={isDesktop} />
       <AccountAddressSkeleton isDesktop={isDesktop} />
     </AccountFrame>
   );
