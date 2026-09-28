@@ -9,6 +9,7 @@ import { makeDisplayNumber } from "@/common/utils/string-util";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import {
   decodeTransactionSafely,
+  findTransactionResult,
   makeSafeBase64Hash,
   makeTransactionMessageInfo,
 } from "@/common/utils/transaction.utility";
@@ -68,8 +69,7 @@ export const useTransaction = (hash: string) => {
       return null;
     }
 
-    const txIndex = transactions.findIndex((tx: any) => tx.hash === safetyHash);
-    return (blockResult.deliver_tx || []).find((_: any, index: number) => txIndex === index) || null;
+    return findTransactionResult(transactions, blockResult.deliver_tx, safetyHash);
   }, [transactions, blockResult, safetyHash]);
 
   const transactionItem: Transaction | null = useMemo(() => {
@@ -168,11 +168,12 @@ export const useTransaction = (hash: string) => {
       network,
       timeStamp,
       blockResult,
+      txResult,
       gas,
       transactionItem,
       transactionEvents,
     };
-  }, [network, timeStamp, blockResult, gas, transactionItem, transactionEvents]);
+  }, [network, timeStamp, blockResult, txResult, gas, transactionItem, transactionEvents]);
 
   return {
     transaction: transactionSummaryInfo,

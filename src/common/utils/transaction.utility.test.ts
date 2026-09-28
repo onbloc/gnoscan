@@ -3,6 +3,7 @@ import { decodeTxMessages } from "@gnolang/gno-js-client";
 import {
   base64HashToHex,
   decodeTransaction,
+  findTransactionResult,
   hexHashToBase64,
   isBase64Hash,
   isHash,
@@ -178,5 +179,29 @@ describe("parseTxHash", () => {
   it("passes malformed values through unchanged instead of mangling them", () => {
     expect(parseTxHash("/transactions/details?txhash=not-a-hash")).toBe("not-a-hash");
     expect(parseTxHash("/transactions/details?txhash=abc")).toBe("abc");
+  });
+});
+
+describe("findTransactionResult", () => {
+  const transactions = [{ hash: "tx-a" }, { hash: "tx-b" }, { hash: "tx-c" }];
+  const deliverTxs = [
+    { ResponseBase: { Error: null, Log: "ok" } },
+    { ResponseBase: { Error: { "@type": "/vm.VMError" }, Log: "failed b" } },
+    { ResponseBase: { Error: { "@type": "/std.OutOfGasError" }, Log: "failed c" } },
+  ];
+
+  it("returns only the result at the tx's own index", () => {
+    expect(findTransactionResult(transactions, deliverTxs, "tx-b")).toBe(deliverTxs[1]);
+    expect(findTransactionResult(transactions, deliverTxs, "tx-c")).toBe(deliverTxs[2]);
+  });
+
+  it("returns null when the tx isn't in the block", () => {
+    expect(findTransactionResult(transactions, deliverTxs, "tx-unknown")).toBeNull();
+  });
+
+  it("returns null when results are missing or shorter than the tx list", () => {
+    expect(findTransactionResult(transactions, null, "tx-a")).toBeNull();
+    expect(findTransactionResult(transactions, undefined, "tx-a")).toBeNull();
+    expect(findTransactionResult(transactions, deliverTxs.slice(0, 1), "tx-b")).toBeNull();
   });
 });
