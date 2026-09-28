@@ -30,9 +30,11 @@ interface TokenTransactionInfoProps {
 }
 
 const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurrentTab }: TokenTransactionInfoProps) => {
-  const { data: tokenMeta } = useGetTokenMetaByPath(tokenPath);
+  const { data: tokenMeta, isFetched: isFetchedTokenMeta } = useGetTokenMetaByPath(tokenPath);
   const realmPath = tokenMeta?.data?.path ?? "";
   const hostedTokenCount = tokenMeta?.data?.hostedTokenCount ?? 0;
+  // Token meta settled without a realm path (404 or error): the native query never runs, so show it as empty.
+  const isNativeUnavailable = isFetchedTokenMeta && !realmPath;
 
   const {
     data: directData,
@@ -120,7 +122,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
 
     return [
       { tabName: TOKEN_DETAIL_TABS[0], size: directData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[1], size: nativeData?.pages[0]?.page.totalCount },
+      { tabName: TOKEN_DETAIL_TABS[1], size: isNativeUnavailable ? 0 : nativeData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[2], size: transfersData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[3], size: internalData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[4], size: totalEventCount },
@@ -130,6 +132,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     isCustomNetwork,
     transactionsCount,
     directData,
+    isNativeUnavailable,
     nativeData,
     transfersData,
     internalData,
@@ -162,7 +165,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
           <ActivityDatatable
             variant="transfers"
             data={nativeTransfers}
-            isFetched={isFetchedNative}
+            isFetched={isFetchedNative || isNativeUnavailable}
             hasNextPage={hasNextPageNative}
             nextPage={fetchNextPageNative}
             moreLabel="View More Transfers"
