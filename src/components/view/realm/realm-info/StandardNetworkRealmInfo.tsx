@@ -9,11 +9,12 @@ import {
   useGetRealmInternalTransactionsByPath,
 } from "@/common/react-query/realm/api";
 import { debounce } from "@/common/utils/string-util";
+import { isOnlyStorageEventsHidden } from "@/common/utils/activity.utility";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
-import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
+import { ActivityEventsFilterBar, StorageHiddenNotice } from "../../datatable/event/ActivityEventsFilterBar";
 import { ActivityDatatable } from "../../datatable/activity";
 import { REALM_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 
@@ -83,15 +84,24 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     return RealmMapper.realmEventFromApiResponses(allItems);
   }, [eventData?.pages]);
 
+  const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
+  const onlyStorageEventsHidden = isOnlyStorageEventsHidden({
+    isFetched: isFetchedEventData,
+    totalEventCount,
+    visibleEventCount: realmEvents.length,
+    eventType,
+    includeStorage,
+  });
+
   const detailTabs = React.useMemo(
     () => [
       { tabName: REALM_DETAIL_TABS[0], size: directData?.pages[0]?.page.totalCount },
       { tabName: REALM_DETAIL_TABS[1], size: nativeData?.pages[0]?.page.totalCount },
       { tabName: REALM_DETAIL_TABS[2], size: tokenData?.pages[0]?.page.totalCount },
       { tabName: REALM_DETAIL_TABS[3], size: internalData?.pages[0]?.page.totalCount },
-      { tabName: REALM_DETAIL_TABS[4], size: eventCountData?.pages[0]?.page.totalCount },
+      { tabName: REALM_DETAIL_TABS[4], size: totalEventCount },
     ],
-    [directData, nativeData, tokenData, internalData, eventCountData],
+    [directData, nativeData, tokenData, internalData, totalEventCount],
   );
 
   if (!isFetchedDirect) return <TableSkeleton />;
@@ -146,6 +156,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
             includeStorage={includeStorage}
             onIncludeStorageChange={setIncludeStorage}
           />
+          {onlyStorageEventsHidden && <StorageHiddenNotice onShowStorage={() => setIncludeStorage(true)} />}
           <StandardNetworkEventDatatable
             variant="activity"
             isFetched={isFetchedEventData}

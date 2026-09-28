@@ -5,7 +5,7 @@ import { TokenDetailDatatable } from "../../datatable";
 import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-holders-page";
 import { ActivityDatatable } from "../../datatable/activity";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
-import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
+import { ActivityEventsFilterBar, StorageHiddenNotice } from "../../datatable/event/ActivityEventsFilterBar";
 import {
   useGetTokenHoldersByid,
   useGetTokenMetaByPath,
@@ -17,6 +17,7 @@ import {
 import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
+import { isOnlyStorageEventsHidden } from "@/common/utils/activity.utility";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import Text from "@/components/ui/text";
 import styled from "styled-components";
@@ -100,6 +101,15 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     return RealmMapper.realmEventFromApiResponses(allItems);
   }, [eventData?.pages]);
 
+  const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
+  const onlyStorageEventsHidden = isOnlyStorageEventsHidden({
+    isFetched: isFetchedEventData,
+    totalEventCount,
+    visibleEventCount: tokenEvents.length,
+    eventType,
+    includeStorage,
+  });
+
   const transactionsCount = directData?.pages[0]?.page.totalCount;
   const holdersCount = holdersData?.pages[0]?.page.totalCount;
 
@@ -113,7 +123,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
       { tabName: TOKEN_DETAIL_TABS[1], size: nativeData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[2], size: transfersData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[3], size: internalData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[4], size: eventCountData?.pages[0]?.page.totalCount },
+      { tabName: TOKEN_DETAIL_TABS[4], size: totalEventCount },
       { tabName: TOKEN_DETAIL_TABS[5], size: holdersCount },
     ];
   }, [
@@ -123,7 +133,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     nativeData,
     transfersData,
     internalData,
-    eventCountData,
+    totalEventCount,
     holdersCount,
   ]);
 
@@ -187,6 +197,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
             includeStorage={includeStorage}
             onIncludeStorageChange={setIncludeStorage}
           />
+          {onlyStorageEventsHidden && <StorageHiddenNotice onShowStorage={() => setIncludeStorage(true)} />}
           <StandardNetworkEventDatatable
             variant="activity"
             isFetched={isFetchedEventData}
