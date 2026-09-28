@@ -107,7 +107,7 @@ export const StandardNetworkEventDatatable = ({
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("blockHeight")
       .name("Block")
-      .width(isActivity ? 113 : 93)
+      .width(isActivity ? 110 : 93)
       .colorName("blue")
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -129,7 +129,7 @@ export const StandardNetworkEventDatatable = ({
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("attrs")
       .name("Attributes")
-      .width(443)
+      .width(446)
       .renderOption(attrs => <DatatableItem.EventAttributes attributes={attrs} />)
       .build();
   };
@@ -155,7 +155,7 @@ export const StandardNetworkEventDatatable = ({
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("time")
       .name("Time")
-      .width(isActivity ? 130 : 180)
+      .width(isActivity ? 120 : 180)
       .className("time")
       .renderOption((date, data) =>
         !!date ? <DatatableItem.Date date={date} /> : <DatatableItem.LazyDate blockHeight={data.blockHeight} />,
@@ -167,7 +167,7 @@ export const StandardNetworkEventDatatable = ({
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("id")
       .name("")
-      .width(isActivity ? 100 : 133)
+      .width(isActivity ? 110 : 133)
       .renderOption(id => (
         <DatatableItem.ToggleDetails active={activeEvents.includes(id)} onClick={() => toggleEventDetails(id)} />
       ))

@@ -54,18 +54,18 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       setExpandedRows(prev => (prev.includes(txHash) ? prev.filter(hash => hash !== txHash) : [...prev, txHash]));
     };
 
-    const createHeaderTxHash = () =>
+    const createHeaderTxHash = (width = 200) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("txHash")
         .name("Tx Hash")
-        .width(200)
+        .width(width)
         .colorName("blue")
         .renderOption((value, row) => (
           <DatatableItem.TxHash txHash={value} status={row.successYn ? "success" : "failure"} />
         ))
         .build();
 
-    const createHeaderFunction = (width = 190) =>
+    const createHeaderFunction = (width = 180) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("func")
         .name(variant === "internal" ? "Entry Function" : "Function")
@@ -85,11 +85,11 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
         })
         .build();
 
-    const createHeaderBlock = () =>
+    const createHeaderBlock = (width = 110) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("blockHeight")
         .name("Block")
-        .width(100)
+        .width(width)
         .colorName("blue")
         .renderOption(height => <DatatableItem.Block height={height} />)
         .build();
@@ -98,7 +98,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("callerAddress")
         .name("Caller")
-        .width(160)
+        .width(150)
         .colorName("blue")
         .renderOption(address => <DatatableItem.Account address={address} />)
         .build();
@@ -107,7 +107,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("amountsIn")
         .name("Amount (In)")
-        .width(163)
+        .width(148)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
@@ -115,7 +115,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("amountsOut")
         .name("Amount (Out)")
-        .width(163)
+        .width(148)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
@@ -123,7 +123,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("volume")
         .name("Volume")
-        .width(216)
+        .width(196)
         .renderOption(amounts => <DatatableItem.ActivityAmountStack amounts={amounts} />)
         .build();
 
@@ -139,25 +139,25 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("realmEvents")
         .name("Realm Events")
-        .width(266)
+        .width(180)
         .renderOption(events => <DatatableItem.RealmEventsSummary events={events} />)
         .build();
 
-    const createHeaderTime = () =>
+    const createHeaderTime = (width = 120) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("timestamp")
         .name("Time")
-        .width(130)
+        .width(width)
         .className("time")
         .renderOption(date => <DatatableItem.Date date={date} />)
         .build();
 
-    const createHeaderFee = () =>
+    const createHeaderFee = (width = 130) =>
       DatatableOption.Builder.builder<ActivityRow>()
         .key("fee")
         .name("Fee")
         .className("fee")
-        .width(110)
+        .width(width)
         .renderOption(({ value, denom }: { value: string; denom: string }) => (
           <DatatableItem.Amount {...getTokenAmount(denom, value)} />
         ))
@@ -167,7 +167,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("txHash")
         .name("")
-        .width(100)
+        .width(110)
         .renderOption(txHash => (
           <DatatableItem.ToggleDetails active={expandedRows.includes(txHash)} onClick={() => toggleRow(txHash)} />
         ))
@@ -177,10 +177,11 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       DatatableOption.Builder.builder<ActivityRow>()
         .key("nativeValue")
         .name("Native Value")
-        .width(156)
+        .width(146)
         .renderOption(amount => <DatatableItem.ActivityAmountStack amounts={amount ? [amount] : []} />)
         .build();
-    // Each variant's widths sum to the 1146px table min-width so columns stay evenly spaced.
+    // Shared columns keep one width across variants (Tx Hash 200, Block 110, Fee 130, Time 120, toggle 110);
+    // the rest is split among variable-length columns so each variant sums to the 1146px table min-width.
     switch (variant) {
       case "direct":
         return [
@@ -196,7 +197,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
       case "transfers":
         return [
           createHeaderTxHash(),
-          createHeaderFunction(180),
+          createHeaderFunction(),
           createHeaderBlock(),
           createHeaderAmountIn(),
           createHeaderAmountOut(),
@@ -216,13 +217,14 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
           createHeaderToggle(),
         ];
       case "internal":
+        // One column fewer: spread the spare width across all columns instead of padding Realm Events.
         return [
-          createHeaderTxHash(),
-          createHeaderFunction(240),
+          createHeaderTxHash(226),
+          createHeaderFunction(230),
           createHeaderRealmEvents(),
-          createHeaderBlock(),
-          createHeaderFee(),
-          createHeaderTime(),
+          createHeaderBlock(120),
+          createHeaderFee(145),
+          createHeaderTime(135),
           createHeaderToggle(),
         ];
       default:

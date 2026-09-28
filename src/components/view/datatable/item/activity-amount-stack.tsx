@@ -41,7 +41,7 @@ const StackWrapper = styled.div`
       display: flex;
       flex-direction: column;
       width: 100%;
-      align-items: center;
+      align-items: flex-start;
     }
 
     .amount-row:not(:last-child) {
