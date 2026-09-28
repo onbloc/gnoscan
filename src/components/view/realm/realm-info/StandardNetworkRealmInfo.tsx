@@ -9,6 +9,7 @@ import {
   useGetRealmInternalTransactionsByPath,
 } from "@/common/react-query/realm/api";
 import { debounce } from "@/common/utils/string-util";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { isOnlyStorageEventsHidden } from "@/common/utils/activity.utility";
 
 import DataListSection from "../../details-data-section/data-list-section";
@@ -50,10 +51,11 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     fetchNextPage: fetchNextPageInternal,
   } = useGetRealmInternalTransactionsByPath({ path });
 
-  const [eventTypeInput, setEventTypeInput] = React.useState("");
-  const [eventType, setEventType] = React.useState("");
-  const [includeStorage, setIncludeStorage] = React.useState(false);
-  const debouncedSetEventType = React.useMemo(() => debounce(setEventType, 300), []);
+  // Events filters are restored with the history entry, so back/forward keeps the loaded list.
+  const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`realm:${path}:eventTypeInput`, "");
+  const [eventType, setEventType] = useHistoryEntryState(`realm:${path}:eventType`, "");
+  const [includeStorage, setIncludeStorage] = useHistoryEntryState(`realm:${path}:includeStorage`, false);
+  const debouncedSetEventType = React.useMemo(() => debounce(setEventType, 300), [setEventType]);
 
   const handleEventTypeChange = (value: string) => {
     setEventTypeInput(value);

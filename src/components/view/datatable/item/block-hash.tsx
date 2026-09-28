@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
@@ -12,7 +13,7 @@ interface Props {
 export const BlockHash = ({ hash, height }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   return height ? (
-    <a href={getUrlWithNetwork(`/block/${height}`)}>{textEllipsis(toDisplayHash(hash ?? ""), 8)}</a>
+    <Link href={getUrlWithNetwork(`/block/${height}`)}>{textEllipsis(toDisplayHash(hash ?? ""), 8)}</Link>
   ) : (
     <span>-</span>
   );

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { useDetailTabScroll } from "@/common/hooks/detail-tabs/use-detail-tab-scroll";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 
 import TokenTransactionInfo from "@/components/view/token/token-transaction-info/TokenTranasctionInfo";
@@ -12,7 +12,7 @@ interface TokenTransactionInfoContainerProps {
 
 const TokenTransactionInfoContainer = ({ tokenId }: TokenTransactionInfoContainerProps) => {
   const { isCustomNetwork } = useNetworkProvider();
-  const [currentTab, setCurrentTab] = useDetailTabScroll<string>(tokenId, ACTIVITY_TAB.TRANSACTIONS);
+  const [currentTab, setCurrentTab] = useHistoryEntryState<string>(`token:${tokenId}:tab`, ACTIVITY_TAB.TRANSACTIONS);
 
   React.useEffect(() => {
     if (isCustomNetwork && currentTab !== ACTIVITY_TAB.TRANSACTIONS) {

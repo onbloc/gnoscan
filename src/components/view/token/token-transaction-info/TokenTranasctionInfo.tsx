@@ -17,6 +17,7 @@ import {
 import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { isOnlyStorageEventsHidden } from "@/common/utils/activity.utility";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import Text from "@/components/ui/text";
@@ -65,10 +66,11 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { enabled: !isCustomNetwork && !!tokenPath },
   );
 
-  const [eventTypeInput, setEventTypeInput] = React.useState("");
-  const [eventType, setEventType] = React.useState("");
-  const [includeStorage, setIncludeStorage] = React.useState(false);
-  const debouncedSetEventType = React.useMemo(() => debounce(setEventType, 300), []);
+  // Events filters are restored with the history entry, so back/forward keeps the loaded list.
+  const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`token:${tokenPath}:eventTypeInput`, "");
+  const [eventType, setEventType] = useHistoryEntryState(`token:${tokenPath}:eventType`, "");
+  const [includeStorage, setIncludeStorage] = useHistoryEntryState(`token:${tokenPath}:includeStorage`, false);
+  const debouncedSetEventType = React.useMemo(() => debounce(setEventType, 300), [setEventType]);
 
   const handleEventTypeChange = (value: string) => {
     setEventTypeInput(value);

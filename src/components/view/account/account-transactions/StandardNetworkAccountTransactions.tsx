@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useDetailTabScroll } from "@/common/hooks/detail-tabs/use-detail-tab-scroll";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import DataListSection from "../../details-data-section/data-list-section";
 import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { ActivityDatatable } from "../../datatable/activity";
@@ -37,7 +37,7 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
   const tokenTransfers = React.useMemo(() => tokenData?.pages.flatMap(page => page.items) ?? [], [tokenData]);
 
-  const [currentTab, setCurrentTab] = useDetailTabScroll<string>(address, ACTIVITY_TAB.TRANSACTIONS);
+  const [currentTab, setCurrentTab] = useHistoryEntryState<string>(`account:${address}:tab`, ACTIVITY_TAB.TRANSACTIONS);
 
   const detailTabs = React.useMemo(
     () => [
