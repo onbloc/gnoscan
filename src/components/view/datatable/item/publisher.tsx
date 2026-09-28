@@ -41,12 +41,12 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
 
   return address && address !== "genesis" ? (
     <Tooltip content={renderTooltip()}>
-      <PublisherLink
+      <a
         className="ellipsis"
         href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
       >
         {displayName}
-      </PublisherLink>
+      </a>
     </Tooltip>
   ) : (
     <>{displayName}</>
@@ -64,8 +64,4 @@ const TooltipWrapper = styled.span`
     word-break: keep-all;
     white-space: nowrap;
   }
-`;
-
-const PublisherLink = styled.a`
-  max-width: 128px;
 `;
