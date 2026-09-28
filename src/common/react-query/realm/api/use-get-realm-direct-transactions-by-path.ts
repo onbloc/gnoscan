@@ -25,6 +25,7 @@ export const useGetRealmDirectTransactionsByPath = (
     {
       ...options,
       getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
+      enabled: !!params.path && options?.enabled !== false,
     },
   );
 };
