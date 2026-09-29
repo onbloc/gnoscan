@@ -22,25 +22,3 @@ export function toDisplayAmount(
     tokenIds: amount.tokenIds,
   };
 }
-
-interface StorageOnlyEventsParams {
-  isFetched: boolean;
-  totalEventCount?: number;
-  visibleEventCount: number;
-  eventType: string;
-  includeStorage: boolean;
-}
-
-/**
- * True when the Events list is empty only because storage events are hidden:
- * no type filter applied, yet the unfiltered total (storage included) is non-zero.
- */
-export function isOnlyStorageEventsHidden({
-  isFetched,
-  totalEventCount,
-  visibleEventCount,
-  eventType,
-  includeStorage,
-}: StorageOnlyEventsParams): boolean {
-  return isFetched && !includeStorage && !eventType && visibleEventCount === 0 && (totalEventCount ?? 0) > 0;
-}
