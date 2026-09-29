@@ -22,6 +22,23 @@ function transaction(func: TransactionTableModel["func"]): TransactionTableModel
 }
 
 describe("transaction list representative function", () => {
+  it("skips an NFT SetApprovalForAll like an Approve", () => {
+    const result = BlockMapper.blockTransactionsFromApiResponse(
+      transaction([
+        call("SetApprovalForAll", "gno.land/r/gnoswap/gnft"),
+        call("StakeToken", "gno.land/r/gnoswap/staker"),
+      ]),
+    );
+    expect(result.functionName).toBe("StakeToken");
+  });
+
+  it("keeps wrapped GNOT deposit when only SetApprovalForAll surrounds it", () => {
+    const result = BlockMapper.blockTransactionsFromApiResponse(
+      transaction([call("SetApprovalForAll", "gno.land/r/gnoswap/gnft"), call("Deposit", WUGNOT_PACKAGE_PATH)]),
+    );
+    expect(result.functionName).toBe("Deposit");
+  });
+
   it("shows the action after approvals and a wrapped GNOT deposit without changing message order", () => {
     const functions = [
       call("Approve", "gno.land/r/demo/token"),
