@@ -18,7 +18,7 @@ interface DataListSectionProps {
 
 const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
   const desktop = isDesktop();
-  const { contentRef, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
+  const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
   return (
     <DetailsContainer desktop={desktop}>
       <div className="tab-area">
@@ -43,7 +43,9 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
           );
         })}
       </div>
-      <TabContent ref={contentRef}>{children}</TabContent>
+      <TabContent ref={contentRef} style={contentStyle}>
+        {children}
+      </TabContent>
     </DetailsContainer>
   );
 };
