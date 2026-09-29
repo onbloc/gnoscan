@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { useServiceProvider } from "../provider/use-service-provider";
-import { Blog, BlogDetail } from "@/types/data-type";
+import { Blog } from "@/types/data-type";
 
 export interface SimpleTransaction {
   success: boolean;

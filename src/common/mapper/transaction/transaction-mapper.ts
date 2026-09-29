@@ -19,7 +19,6 @@ export class TransactionMapper {
     return {
       network: response.network,
       timeStamp,
-      blockResult: "",
       gas,
       transactionItem: {
         success: response.success,
@@ -73,7 +72,6 @@ export class TransactionMapper {
     return {
       network: "",
       timeStamp: { time: "", passedTime: "" },
-      blockResult: "",
       gas: "",
       transactionItem: {
         success: false,

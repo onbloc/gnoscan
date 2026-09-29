@@ -9,6 +9,7 @@ import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
 import { decodeExtraTxMessage, EXTRA_MESSAGE_TYPES, MsgEnablePackage, MsgRejectPackage } from "./tx-proto-decoder";
 import { Tx } from "@/common/proto/vendor/tm2/tx";
+import { DeliverTx } from "@/common/clients/node-client";
 
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
@@ -361,12 +362,12 @@ export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): Storage
  */
 export function findTransactionResult(
   transactions: { hash: string }[],
-  deliverTxs: any[] | null | undefined,
+  deliverTxs: DeliverTx[],
   hash: string,
-): any | null {
+): DeliverTx | null {
   const txIndex = transactions.findIndex(tx => tx.hash === hash);
   if (txIndex < 0) {
     return null;
   }
-  return deliverTxs?.[txIndex] || null;
+  return deliverTxs[txIndex] || null;
 }

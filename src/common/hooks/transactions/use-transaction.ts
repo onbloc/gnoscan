@@ -167,13 +167,12 @@ export const useTransaction = (hash: string) => {
     return {
       network,
       timeStamp,
-      blockResult,
       txResult,
       gas,
       transactionItem,
       transactionEvents,
     };
-  }, [network, timeStamp, blockResult, txResult, gas, transactionItem, transactionEvents]);
+  }, [network, timeStamp, txResult, gas, transactionItem, transactionEvents]);
 
   return {
     transaction: transactionSummaryInfo,

@@ -2,21 +2,10 @@
 import { TimeStamp } from "@/common/utils/date-util";
 import { TxFee, TxSignature } from "@gnolang/tm2-js-client";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-
-export interface Board {
-  index: number;
-  path: string;
-  name: string;
-}
+import { DeliverTx } from "@/common/clients/node-client";
+import { TransactionContractModel } from "@/repositories/api/transaction/response";
 
 export interface Blog {
-  index: number;
-  title: string;
-  path: string;
-  date: string;
-}
-
-export interface BlogDetail {
   index: number;
   title: string;
   path: string;
@@ -62,7 +51,7 @@ export interface Amount {
   denom: string;
 }
 
-export interface TokenMeta {
+export interface TokenResourceMeta {
   id: string;
   name: string;
   denom?: string;
@@ -92,20 +81,7 @@ export interface TokenSummary {
   holders: number;
 }
 
-export interface Realm {
-  hash: string;
-  index: number;
-  success: boolean;
-  blockHeight: number;
-  packageName: string;
-  packagePath: string;
-  creator: string;
-  creatorName?: string;
-  creatorLabel?: string | null;
-  creatorLabelType?: ADDRESS_LABEL_TYPE | null;
-  functionCount: number;
-  totalCalls: number;
-  totalGasUsed: Amount;
+export interface Realm extends NewestRealm {
   storageUsage?: Amount;
   totalReleaseStorageUsage?: number;
   totalStorageUsage?: number;
@@ -140,11 +116,6 @@ export interface TokenInfo {
   denom: string;
   symbol: string;
   decimals: number;
-}
-
-export interface ValueWithDenomType {
-  value: string;
-  denom: string;
 }
 
 export interface Transaction {
@@ -190,14 +161,9 @@ export interface TokenHolder {
 }
 
 export interface TransactionContractInfo {
-  messages: any[];
+  messages: TransactionContractModel[];
   numOfMessage: number;
   rawContent: string;
-}
-
-export interface TransactionEvent {
-  summary: GnoEvent;
-  events: GnoEvent[];
 }
 
 export type NetTransferDirection = "received" | "sent";
@@ -247,11 +213,10 @@ export interface TransactionSummaryDetail {
 }
 
 export interface TransactionSummaryInfo {
-  network: any;
+  network: string;
   timeStamp: TimeStamp;
-  blockResult: any;
   // deliver_tx result of this tx only
-  txResult?: any;
+  txResult?: DeliverTx | null;
   gas: string;
   storageDeposit?: Amount;
   storageUsage?: number;

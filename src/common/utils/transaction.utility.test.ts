@@ -1,3 +1,4 @@
+import { DeliverTx } from "@/common/clients/node-client";
 import { Tx } from "@/common/proto/vendor/tm2/tx";
 import { decodeTxMessages } from "@gnolang/gno-js-client";
 import {
@@ -188,7 +189,7 @@ describe("findTransactionResult", () => {
     { ResponseBase: { Error: null, Log: "ok" } },
     { ResponseBase: { Error: { "@type": "/vm.VMError" }, Log: "failed b" } },
     { ResponseBase: { Error: { "@type": "/std.OutOfGasError" }, Log: "failed c" } },
-  ];
+  ] as unknown as DeliverTx[];
 
   it("returns only the result at the tx's own index", () => {
     expect(findTransactionResult(transactions, deliverTxs, "tx-b")).toBe(deliverTxs[1]);
@@ -199,9 +200,7 @@ describe("findTransactionResult", () => {
     expect(findTransactionResult(transactions, deliverTxs, "tx-unknown")).toBeNull();
   });
 
-  it("returns null when results are missing or shorter than the tx list", () => {
-    expect(findTransactionResult(transactions, null, "tx-a")).toBeNull();
-    expect(findTransactionResult(transactions, undefined, "tx-a")).toBeNull();
+  it("returns null when results are shorter than the tx list", () => {
     expect(findTransactionResult(transactions, deliverTxs.slice(0, 1), "tx-b")).toBeNull();
   });
 });
