@@ -30,7 +30,7 @@ const render = (events: ActivityEvent[]) => {
     </ThemeProvider>,
   );
   const part = (name: string) =>
-    (html.split(`data-part="${name}">`)[1] ?? "").split('<div data-part="')[0].replace(/<[^>]*>/g, "");
+    (html.split(`data-part="${name}">`)[1] ?? "").split("<div data-part=")[0].replace(/<[^>]*>/g, "");
   return { trigger: part("trigger"), tooltip: part("tooltip") };
 };
 
