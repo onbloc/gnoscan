@@ -6,7 +6,7 @@ function makeAsset(overrides: Partial<AccountAssetModel> = {}): AccountAssetMode
   return {
     address: "g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5",
     tokenType: "GRC20",
-    tokenId: "1",
+    tokenId: "gno.land/r/demo/gns.GNS.0000000",
     slug: "gns",
     packagePath: "gno.land/r/demo/gns",
     amount: "10550316077354",
@@ -42,6 +42,7 @@ describe("mapAccountAssetsToAmounts", () => {
   test("overrides wugnot's on-chain decimals: 0 with the display decimals", () => {
     const result = mapAccountAssetsToAmounts([
       makeAsset({
+        tokenId: "gno.land/r/gnoland/wugnot.wugnot.0000000",
         packagePath: "gno.land/r/gnoland/wugnot",
         amount: "2086817777530",
         name: "Wrapped GNOT",
@@ -51,6 +52,16 @@ describe("mapAccountAssetsToAmounts", () => {
     ]);
 
     expect(result).toEqual([{ value: "2086817.77753", denom: "wugnot" }]);
+  });
+
+  test("prefers the token resource list over the backend decimals and symbol", () => {
+    const result = mapAccountAssetsToAmounts([makeAsset()], (_, fallback) => ({
+      ...fallback,
+      symbol: "GNS2",
+      decimals: 3,
+    }));
+
+    expect(result).toEqual([{ value: "10550316077.354", denom: "GNS2" }]);
   });
 });
 

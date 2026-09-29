@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import { ActivityAmount } from "@/models/api/activity/activity-model";
 import { toDisplayAmount } from "@/common/utils/activity.utility";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { Amount } from "./amount";
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
 
 /** Renders a stack of activity amounts - accounts/realms can carry several distinct tokens per tx. */
 export const ActivityAmountStack = ({ amounts }: Props) => {
+  const { getTokenMeta } = useTokenResourceMeta();
+
   // Zero raw amounts show as a dash, like StandardNetworkAmount (a nonzero value that rounds to 0 still shows).
   const nonZeroAmounts = amounts.filter(amount => !new BigNumber(amount.value).isZero());
   if (!nonZeroAmounts.length) return <span>-</span>;
@@ -19,7 +22,13 @@ export const ActivityAmountStack = ({ amounts }: Props) => {
   return (
     <StackWrapper>
       {nonZeroAmounts.map((amount, index) => {
-        const display = toDisplayAmount(amount);
+        // Token resource list first, backend symbol/decimals as fallback (also applies the wugnot override).
+        const meta = getTokenMeta(amount.denom, {
+          name: amount.symbol,
+          symbol: amount.symbol,
+          decimals: amount.decimals,
+        });
+        const display = toDisplayAmount(amount, meta);
         return (
           <div className="amount-row" key={index}>
             <Amount value={display.value} denom={display.denom} />
