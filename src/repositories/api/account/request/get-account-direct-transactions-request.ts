@@ -1,4 +1,4 @@
-export interface GetAccountTransactionsRequest {
+export interface GetAccountDirectTransactionsRequest {
   address: string;
 
   cursor?: string;

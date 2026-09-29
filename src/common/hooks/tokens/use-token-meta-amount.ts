@@ -54,7 +54,14 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
       };
     }
 
-    return toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
+    // Raw fallback still goes through getTokenMeta so shared overrides (GNFT symbol, wugnot decimals) apply.
+    const raw = toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
+    if (!denom) return raw;
+    const resolved = getTokenMeta(denom, { name: "", symbol: raw.denom, decimals: 0 });
+    return {
+      denom: resolved.symbol || raw.denom,
+      value: resolved.decimals ? makeDisplayTokenAmount(amountInfo.value, resolved.decimals) : raw.value,
+    };
   }, [amountInfo, denom, hasResourceMeta, tokenMeta?.data, isNativeDenom, packagePath, getTokenMeta]);
 
   return {

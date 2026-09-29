@@ -23,12 +23,5 @@ export const StandardNetworkAmount = ({ data, maxSize = "p4", minSize = "body1" 
     return <SkeletonBar width={80} />;
   }
 
-  return (
-    <AmountText
-      value={amount?.value || "0"}
-      denom={amount?.denom || "".toUpperCase()}
-      maxSize={maxSize}
-      minSize={minSize}
-    />
-  );
+  return <AmountText value={amount?.value || "0"} denom={amount?.denom || ""} maxSize={maxSize} minSize={minSize} />;
 };

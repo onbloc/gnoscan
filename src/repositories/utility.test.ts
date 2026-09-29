@@ -2,6 +2,15 @@ import { getDefaultMessage, getDefaultMessageByBlockTransaction } from "./utilit
 import { WUGNOT_PACKAGE_PATH } from "@/common/values/constant-value";
 
 describe("custom-network transaction list selection", () => {
+  it("skips SetApprovalForAll like Approve in both message formats", () => {
+    const messages = [
+      { value: { func: "SetApprovalForAll", pkg_path: "gno.land/r/gnoswap/gnft" } },
+      { value: { func: "StakeToken", pkg_path: "gno.land/r/gnoswap/staker" } },
+    ];
+    expect(getDefaultMessage(messages).value.func).toBe("StakeToken");
+    expect(getDefaultMessageByBlockTransaction(messages.map(message => message.value)).func).toBe("StakeToken");
+  });
+
   it("skips preparation without reordering the messages used in transaction details", () => {
     const messages = [
       { value: { func: "Approve", pkg_path: "gno.land/r/demo/token" } },

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
@@ -41,12 +42,12 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
 
   return address && address !== "genesis" ? (
     <PublisherTooltip content={renderTooltip()}>
-      <a
+      <Link
         className="ellipsis"
         href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
       >
         {displayName}
-      </a>
+      </Link>
     </PublisherTooltip>
   ) : (
     <>{displayName}</>

@@ -27,7 +27,7 @@ export const convertAmountValue = (value: TokenValue, denom: TokenDenom): string
 };
 
 export const convertAmountDenom = (denom: TokenDenom): string => {
-  return isUgnot(denom) ? GNOTToken.symbol : denom.toUpperCase().trim();
+  return isUgnot(denom) ? GNOTToken.symbol : denom.trim();
 };
 
 export const isUgnot = (denom: TokenDenom): boolean => {

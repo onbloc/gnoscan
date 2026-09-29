@@ -24,7 +24,8 @@ it("renders the transactions panel frame in its loading state", () => {
   );
 
   expect(html).toContain("Transactions");
-  expect(html).toContain("Events");
+  expect(html).toContain("Native Transfers");
+  expect(html).toContain("Token Transfers");
   expect(html).toContain("Tx Hash");
   expect(html).toContain("table-loading");
   expect(html).not.toContain("No data to display");

@@ -1,7 +1,5 @@
-import { TransactionTableModel } from "@/models/api/common";
 import { RealmEventModel, RealmModel, RealmSummaryModel } from "@/models/api/realm/realm-model";
-import { GnoEvent, Realm, RealmSummary, Transaction } from "@/types/data-type";
-import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
+import { GnoEvent, Realm, RealmSummary } from "@/types/data-type";
 
 export class RealmMapper {
   public static realmListFromApiResponse(response: RealmModel): Realm {
@@ -51,34 +49,6 @@ export class RealmMapper {
       balance: response.balance,
       contractCalls: response.contractCallCount || 0,
       totalUsedFees: response.totalUsedFees,
-    };
-  }
-
-  public static realmTransactionFromApiResponses(responses: TransactionTableModel[]): Transaction[] {
-    return responses.map(response => this.realmTransactionFromApiResponse(response));
-  }
-
-  public static realmTransactionFromApiResponse(response: TransactionTableModel): Transaction {
-    const func = getRepresentativeTransactionFunction(response);
-    return {
-      amount: response.amount,
-      blockHeight: response.blockHeight,
-      fee: response.fee,
-      from: response.fromAddress,
-      fromName: response.fromName,
-      fromLabel: response.fromLabel,
-      fromLabelType: response.fromLabelType,
-      to: response.toAddress,
-      toName: response.toName,
-      toLabel: response.toLabel,
-      toLabelType: response.toLabelType,
-      time: response.timestamp,
-      numOfMessage: response.messageCount,
-      functionName: func?.funcType || "",
-      packagePath: func?.pkgPath || "",
-      type: func?.messageType || "",
-      hash: response.txHash,
-      success: response.successYn,
     };
   }
 

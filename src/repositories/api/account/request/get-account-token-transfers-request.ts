@@ -1,4 +1,4 @@
-export interface GetAccountEventsRequest {
+export interface GetAccountTokenTransfersRequest {
   address: string;
 
   cursor?: string;

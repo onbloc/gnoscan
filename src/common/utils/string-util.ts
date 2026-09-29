@@ -98,6 +98,19 @@ export function makeQueryParameter(data: {
   return "?" + params.join("&");
 }
 
+/** Like makeQueryParameter, but URL-encodes keys and values (use for free-form user input). */
+export function makeEncodedQueryParameter(data: {
+  [key in string]: string | number | bigint | boolean | null | undefined;
+}) {
+  const params = new URLSearchParams();
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) params.append(key, value.toString());
+  });
+
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
 export function isValidBlockHeight(value: string | string[] | undefined): boolean {
   const num = Number(value);
   return !Number.isNaN(num) && Number.isFinite(num) && num >= 0;

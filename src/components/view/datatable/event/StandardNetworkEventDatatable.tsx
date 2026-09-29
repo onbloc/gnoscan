@@ -12,11 +12,18 @@ import { GnoEvent } from "@/types/data-type";
 import { Button } from "@/components/ui/button";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 
+/**
+ * - "default": Block page events (Identifier, Tx Hash, Block, Event Name, Caller, Time).
+ * - "activity": Realm/Token Events tab (Identifier, Tx Hash, Event Type, Attributes, Block, Time).
+ */
+export type EventDatatableVariant = "default" | "activity";
+
 interface Props {
   isFetched: boolean;
   events: GnoEvent[];
   hasNextPage?: boolean;
   nextPage?: () => void;
+  variant?: EventDatatableVariant;
 }
 
 const TOOLTIP_TYPE = (
@@ -27,10 +34,18 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, nextPage }: Props) => {
+export const StandardNetworkEventDatatable = ({
+  isFetched,
+  events,
+  hasNextPage,
+  nextPage,
+  variant = "default",
+}: Props) => {
   const { breakpoint } = useWindowSize();
   const themeMode = useRecoilValue(themeState);
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
+  // Activity widths sum to the 1146px table min-width so columns stay evenly spaced.
+  const isActivity = variant === "activity";
 
   const loaded = useMemo(() => {
     return isFetched;
@@ -41,6 +56,18 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
   };
 
   const createHeaders = () => {
+    if (variant === "activity") {
+      return [
+        createHeaderEventId(),
+        createHeaderTxHash(),
+        createHeaderEventName(),
+        createHeaderAttributes(),
+        createHeaderBlock(),
+        createHeaderTime(),
+        createToggleDetails(),
+      ];
+    }
+
     return [
       createHeaderEventId(),
       createHeaderTxHash(),
@@ -56,7 +83,7 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("id")
       .name("Identifier")
-      .width(200)
+      .width(isActivity ? 190 : 200)
       .renderOption(id => <DatatableItem.EventId eventId={id} />)
       .build();
   };
@@ -76,7 +103,7 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("blockHeight")
       .name("Block")
-      .width(93)
+      .width(isActivity ? 110 : 93)
       .colorName("blue")
       .renderOption(height => <DatatableItem.Block height={height} />)
       .build();
@@ -85,12 +112,21 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
   const createHeaderEventName = () => {
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("type")
-      .name("Event Name")
+      .name(variant === "activity" ? "Event Type" : "Event Name")
       .width(160)
       .colorName("blue")
       .renderOption(eventType => {
         return <DatatableItem.EventName eventName={eventType} />;
       })
+      .build();
+  };
+
+  const createHeaderAttributes = () => {
+    return DatatableOption.Builder.builder<GnoEvent>()
+      .key("attrs")
+      .name("Attributes")
+      .width(256)
+      .renderOption(attrs => <DatatableItem.EventAttributes attributes={attrs} />)
       .build();
   };
 
@@ -115,7 +151,7 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("time")
       .name("Time")
-      .width(180)
+      .width(isActivity ? 120 : 180)
       .className("time")
       .renderOption((date, data) =>
         !!date ? <DatatableItem.Date date={date} /> : <DatatableItem.LazyDate blockHeight={data.blockHeight} />,
@@ -127,7 +163,7 @@ export const StandardNetworkEventDatatable = ({ isFetched, events, hasNextPage, 
     return DatatableOption.Builder.builder<GnoEvent>()
       .key("id")
       .name("")
-      .width(133)
+      .width(isActivity ? 110 : 133)
       .renderOption(id => (
         <DatatableItem.ToggleDetails active={activeEvents.includes(id)} onClick={() => toggleEventDetails(id)} />
       ))

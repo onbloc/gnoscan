@@ -94,3 +94,20 @@ it("keeps retrying transient failures up to the default limit", () => {
   expect(retryTokenMetaRequest(2, new AxiosError("Network Error"))).toBe(true);
   expect(retryTokenMetaRequest(3, httpError(500))).toBe(false);
 });
+
+it("applies shared overrides such as the GNFT symbol on the raw fallback", () => {
+  mockBackendMeta(undefined);
+  mockUseTokenResourceMeta.mockReturnValue({
+    hasTokenResourceMeta: () => false,
+    getTokenMeta: (key: string, fallback: { symbol: string }) =>
+      key.includes("gnoswap/gnft") ? { ...fallback, symbol: "GNFT" } : fallback,
+  } as never);
+
+  let result: ReturnType<typeof useTokenMetaAmount> | undefined;
+  const Probe = () => {
+    result = useTokenMetaAmount({ value: "1", denom: "gno.land/r/gnoswap/gnft.GNFT.0000000" });
+    return null;
+  };
+  renderToStaticMarkup(<Probe />);
+  expect(result?.amount).toEqual({ value: "1", denom: "GNFT" });
+});

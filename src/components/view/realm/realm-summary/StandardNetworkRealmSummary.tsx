@@ -4,6 +4,7 @@ import React from "react";
 import { css } from "styled-components";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useNetwork } from "@/common/hooks/use-network";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
@@ -117,10 +118,14 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     enabled: !!realmSummary?.realmAddress,
   });
 
+  const { getTokenMeta } = useTokenResourceMeta();
   const realmBalanceList: Amount[] = React.useMemo(() => {
     const nativeAmount = toGNOTAmount(nativeBalanceData?.value || "0", nativeBalanceData?.denom || GNOTToken.denom);
-    return sortAmountsByValueDesc([nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets)]);
-  }, [nativeBalanceData, accountData?.data?.assets]);
+    return sortAmountsByValueDesc([
+      nativeAmount,
+      ...mapAccountAssetsToAmounts(accountData?.data?.assets, getTokenMeta),
+    ]);
+  }, [nativeBalanceData, accountData?.data?.assets, getTokenMeta]);
 
   const realmTotalUsedFees: Amount | null = React.useMemo(() => {
     if (!realmSummary?.totalUsedFees) return null;
