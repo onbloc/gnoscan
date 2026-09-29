@@ -90,29 +90,3 @@ const FilterBarWrapper = styled.div`
     }
   }
 `;
-
-/** Shown when the hidden storage events are the only events left, so an empty list isn't mistaken for no activity. */
-export const StorageHiddenNotice = () => {
-  return (
-    <NoticeWrapper>
-      <Text type="p4" color="tertiary">
-        Only storage events match. They are hidden by default; turn on &quot;Show storage events&quot; to list them.
-      </Text>
-    </NoticeWrapper>
-  );
-};
-
-const NoticeWrapper = styled.div`
-  & {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 12px 16px;
-    margin-bottom: 12px;
-    background-color: ${({ theme }) => theme.colors.surface};
-    border-radius: 8px;
-  }
-`;

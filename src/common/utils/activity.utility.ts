@@ -22,26 +22,3 @@ export function toDisplayAmount(
     tokenIds: amount.tokenIds,
   };
 }
-
-interface StorageOnlyEventsParams {
-  // List query succeeded; a failed request is also "fetched" but proves nothing about storage.
-  isListSuccess: boolean;
-  totalEventCount?: number;
-  visibleEventCount: number;
-  eventType: string;
-  includeStorage: boolean;
-}
-
-/**
- * True when the Events list is empty only because storage events are hidden:
- * no type filter applied, yet the unfiltered total (storage included) is non-zero.
- */
-export function isOnlyStorageEventsHidden({
-  isListSuccess,
-  totalEventCount,
-  visibleEventCount,
-  eventType,
-  includeStorage,
-}: StorageOnlyEventsParams): boolean {
-  return isListSuccess && !includeStorage && !eventType && visibleEventCount === 0 && (totalEventCount ?? 0) > 0;
-}
