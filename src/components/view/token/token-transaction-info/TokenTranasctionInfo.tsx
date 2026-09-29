@@ -88,7 +88,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
 
   const handleEventTypeChange = (value: string) => {
     setEventTypeInput(value);
-    debouncedSetEventType(value);
+    debouncedSetEventType(value.trim());
   };
 
   const {

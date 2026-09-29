@@ -58,7 +58,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
 
   const handleEventTypeChange = (value: string) => {
     setEventTypeInput(value);
-    debouncedSetEventType(value);
+    debouncedSetEventType(value.trim());
   };
 
   const {
