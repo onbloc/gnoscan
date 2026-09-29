@@ -111,9 +111,10 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
   const tokenTransfers = React.useMemo(() => transfersData?.pages.flatMap(page => page.items) ?? [], [transfersData]);
+  // Guard against an API without the packagePath filter, which returns the global token list.
   const hostedTokens = React.useMemo(
-    () => hostedTokensData?.pages.flatMap(page => page.items) ?? [],
-    [hostedTokensData],
+    () => hostedTokensData?.pages.flatMap(page => page.items).filter(token => token.path === realmPath) ?? [],
+    [hostedTokensData, realmPath],
   );
   const internalTransactions = React.useMemo(
     () => internalData?.pages.flatMap(page => page.items) ?? [],
@@ -197,7 +198,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
                   </HostedTokenList>
                 )}
               </FactorySummary>
-              {hasNextHostedTokensPage && (
+              {hasNextHostedTokensPage && hostedTokens.length > 0 && (
                 <MoreHostedTokensButton type="button" onClick={() => fetchNextHostedTokensPage()}>
                   View More Tokens
                 </MoreHostedTokensButton>
