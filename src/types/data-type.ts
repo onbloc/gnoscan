@@ -51,7 +51,7 @@ export interface Amount {
   denom: string;
 }
 
-export interface TokenMeta {
+export interface TokenResourceMeta {
   id: string;
   name: string;
   denom?: string;
