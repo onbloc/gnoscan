@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import { TokenDetailDatatable } from "../../datatable";
@@ -13,8 +14,10 @@ import {
   useGetTokenMetaInternalTransactionsById,
   useGetTokenTransfersById,
   useGetTokenEventsById,
+  useGetTokens,
 } from "@/common/react-query/token/api";
 import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api";
+import { useNetwork } from "@/common/hooks/use-network";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
@@ -30,9 +33,11 @@ interface TokenTransactionInfoProps {
 }
 
 const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurrentTab }: TokenTransactionInfoProps) => {
+  const { getUrlWithNetwork } = useNetwork();
   const { data: tokenMeta, isFetched: isFetchedTokenMeta } = useGetTokenMetaByPath(tokenPath);
   const realmPath = tokenMeta?.data?.path ?? "";
   const hostedTokenCount = tokenMeta?.data?.hostedTokenCount ?? 0;
+  const isFactoryRealm = hostedTokenCount >= 2;
   // Token meta settled without a realm path (404 or error): the native query never runs, so show it as empty.
   const isNativeUnavailable = isFetchedTokenMeta && !realmPath;
 
@@ -64,6 +69,16 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { path: tokenPath },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
+  const {
+    data: hostedTokensData,
+    hasNextPage: hasNextHostedTokensPage,
+    fetchNextPage: fetchNextHostedTokensPage,
+  } = useGetTokens(
+    { packagePath: realmPath },
+    {
+      enabled: !isCustomNetwork && isFactoryRealm && !!realmPath && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS,
+    },
+  );
 
   // Events filters are restored with the history entry, so back/forward keeps the loaded list.
   const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`token:${tokenPath}:eventTypeInput`, "");
@@ -94,6 +109,10 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
   const tokenTransfers = React.useMemo(() => transfersData?.pages.flatMap(page => page.items) ?? [], [transfersData]);
+  const hostedTokens = React.useMemo(
+    () => hostedTokensData?.pages.flatMap(page => page.items) ?? [],
+    [hostedTokensData],
+  );
   const internalTransactions = React.useMemo(
     () => internalData?.pages.flatMap(page => page.items) ?? [],
     [internalData],
@@ -151,9 +170,29 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS && (
         <>
-          {hostedTokenCount >= 2 && (
+          {isFactoryRealm && (
             <FactoryNotice>
-              <Text type="p4" color="tertiary">{`This realm hosts ${hostedTokenCount} tokens.`}</Text>
+              <FactorySummary>
+                <Text type="p4" color="tertiary">{`This factory token hosts ${hostedTokenCount} tokens:`}</Text>
+                {hostedTokens.length > 0 && (
+                  <HostedTokenList aria-label="Hosted tokens">
+                    {hostedTokens.map(token => {
+                      const tokenKey = token.path && token.symbol ? `${token.path}.${token.symbol}` : token.path;
+
+                      return (
+                        <Link key={token.tokenId} href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
+                          {token.slug}
+                        </Link>
+                      );
+                    })}
+                  </HostedTokenList>
+                )}
+              </FactorySummary>
+              {hasNextHostedTokensPage && (
+                <MoreHostedTokensButton type="button" onClick={() => fetchNextHostedTokensPage()}>
+                  View More Tokens
+                </MoreHostedTokensButton>
+              )}
             </FactoryNotice>
           )}
           <ActivityDatatable
@@ -215,10 +254,45 @@ export default TokenTransactionInfo;
 const FactoryNotice = styled.div`
   & {
     display: flex;
+    flex-direction: column;
+    gap: 8px;
     width: 100%;
     padding: 12px 16px;
     margin-bottom: 12px;
     background-color: ${({ theme }) => theme.colors.surface};
     border-radius: 8px;
   }
+`;
+
+const HostedTokenList = styled.div`
+  ${({ theme }) => theme.fonts.p4};
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+
+  a {
+    ${({ theme }) => theme.fonts.p4};
+    color: ${({ theme }) => theme.colors.blue};
+    overflow-wrap: anywhere;
+
+    &:not(:last-child)::after {
+      color: ${({ theme }) => theme.colors.tertiary};
+      content: ",";
+      margin-right: 4px;
+    }
+  }
+`;
+
+const FactorySummary = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4px;
+  min-width: 0;
+`;
+
+const MoreHostedTokensButton = styled.button`
+  align-self: flex-start;
+  color: ${({ theme }) => theme.colors.blue};
+  background: none;
+  cursor: pointer;
 `;
