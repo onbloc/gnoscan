@@ -24,7 +24,8 @@ export function toDisplayAmount(
 }
 
 interface StorageOnlyEventsParams {
-  isFetched: boolean;
+  // List query succeeded; a failed request is also "fetched" but proves nothing about storage.
+  isListSuccess: boolean;
   totalEventCount?: number;
   visibleEventCount: number;
   eventType: string;
@@ -36,11 +37,11 @@ interface StorageOnlyEventsParams {
  * no type filter applied, yet the unfiltered total (storage included) is non-zero.
  */
 export function isOnlyStorageEventsHidden({
-  isFetched,
+  isListSuccess,
   totalEventCount,
   visibleEventCount,
   eventType,
   includeStorage,
 }: StorageOnlyEventsParams): boolean {
-  return isFetched && !includeStorage && !eventType && visibleEventCount === 0 && (totalEventCount ?? 0) > 0;
+  return isListSuccess && !includeStorage && !eventType && visibleEventCount === 0 && (totalEventCount ?? 0) > 0;
 }

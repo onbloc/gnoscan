@@ -95,6 +95,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const {
     data: eventData,
     isFetched: isFetchedEventData,
+    isSuccess: isSuccessEventData,
     hasNextPage: hasNextPageEventData,
     fetchNextPage: fetchNextPageEventData,
   } = useGetTokenEventsById(
@@ -126,7 +127,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
 
   const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
   const onlyStorageEventsHidden = isOnlyStorageEventsHidden({
-    isFetched: isFetchedEventData,
+    isListSuccess: isSuccessEventData,
     totalEventCount,
     visibleEventCount: tokenEvents.length,
     eventType,

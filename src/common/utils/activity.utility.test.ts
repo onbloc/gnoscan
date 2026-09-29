@@ -13,7 +13,7 @@ describe("toDisplayAmount", () => {
 });
 
 const base = {
-  isFetched: true,
+  isListSuccess: true,
   totalEventCount: 10,
   visibleEventCount: 0,
   eventType: "",
@@ -26,7 +26,7 @@ describe("isOnlyStorageEventsHidden", () => {
   });
 
   it.each([
-    ["the list is still loading", { isFetched: false }],
+    ["the list is still loading or failed", { isListSuccess: false }],
     ["storage events are already shown", { includeStorage: true }],
     ["an event type filter is applied", { eventType: "Transfer" }],
     ["non-storage events are visible", { visibleEventCount: 3 }],

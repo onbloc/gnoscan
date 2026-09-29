@@ -65,6 +65,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
   const {
     data: eventData,
     isFetched: isFetchedEventData,
+    isSuccess: isSuccessEventData,
     hasNextPage: hasNextPageEventData,
     fetchNextPage: fetchNextPageEventData,
   } = useGetRealmEventsByPath({ path, eventType: eventType || undefined, includeStorage });
@@ -88,7 +89,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
 
   const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
   const onlyStorageEventsHidden = isOnlyStorageEventsHidden({
-    isFetched: isFetchedEventData,
+    isListSuccess: isSuccessEventData,
     totalEventCount,
     visibleEventCount: realmEvents.length,
     eventType,
