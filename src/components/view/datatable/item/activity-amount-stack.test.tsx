@@ -59,3 +59,15 @@ it("prefers the token resource list decimals over the backend ones", () => {
   expect(renderText([bubble])).toBe("1,917.948BUBBLE");
   delete mockResourceMap["gno.land/r/demo/bubble"];
 });
+
+it("shows GNFT as its collection name with token ids", () => {
+  const gnft = (tokenIds: string[]): ActivityAmount => ({
+    denom: "gno.land/r/gnoswap/gnft.GNFT.0000000",
+    value: String(tokenIds.length),
+    decimals: 0,
+    symbol: "",
+    tokenIds,
+  });
+  expect(renderText([gnft(["313"])])).toBe("GNFT #313");
+  expect(renderText([gnft(["12", "40"])])).toBe("GNFT #12, #40");
+});

@@ -1,7 +1,12 @@
 import BigNumber from "bignumber.js";
 import { isBech32Address } from "./bech32.utility";
 import { GNO_NETWORK_PREFIXES } from "../values/gno.constant";
-import { WUGNOT_PACKAGE_PATH, WUGNOT_DISPLAY_DECIMALS } from "../values/constant-value";
+import {
+  GNFT_DISPLAY_SYMBOL,
+  GNFT_PACKAGE_PATH,
+  WUGNOT_PACKAGE_PATH,
+  WUGNOT_DISPLAY_DECIMALS,
+} from "../values/constant-value";
 
 export function parseTokenAmount(tokenAmount = "0", denomination = "ugnot"): number {
   const pattern = new RegExp(`^(\\d+)${denomination}$`);
@@ -100,6 +105,10 @@ export function isWugnotPackagePath(packagePath: string): boolean {
   return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;
 }
 
+export function isGnftPackagePath(packagePath: string): boolean {
+  return toBarePackagePath(packagePath) === GNFT_PACKAGE_PATH;
+}
+
 export interface ParsedTokenKey {
   packagePath: string;
   symbol: string;
@@ -173,6 +182,11 @@ export function resolveTokenMeta<T extends TokenResourceEntry>(
   // overrides regardless of which one (resource or fallback) resolved above.
   if (isWugnotPackagePath(tokenKey)) {
     return { ...resolved, decimals: WUGNOT_DISPLAY_DECIMALS };
+  }
+
+  // GNFT has no symbol in either source; show the collection name instead of the raw key.
+  if (isGnftPackagePath(tokenKey)) {
+    return { ...resolved, symbol: GNFT_DISPLAY_SYMBOL };
   }
 
   return resolved;

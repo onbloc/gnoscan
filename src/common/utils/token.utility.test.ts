@@ -217,6 +217,12 @@ describe("stripGnoLandPrefix", () => {
 });
 
 describe("resolveTokenMeta", () => {
+  it("names the GNFT collection even though neither source has a symbol", () => {
+    const fallback = { name: "", symbol: "", decimals: 0 };
+    expect(resolveTokenMeta({}, "gno.land/r/gnoswap/gnft.GNFT.0000000", fallback).symbol).toBe("GNFT");
+    expect(resolveTokenMeta({}, "gno.land/r/gnoswap/gnft", fallback).symbol).toBe("GNFT");
+  });
+
   const fallback = { name: "Backend Name", symbol: "BKD", decimals: 6, image: "backend.png" };
 
   it("uses the resource entry (all fields) when the token key matches directly", () => {

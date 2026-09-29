@@ -23,6 +23,11 @@ export const WUGNOT_PACKAGE_PATH = "gno.land/r/gnoland/wugnot";
 export const WUGNOT_DISPLAY_DECIMALS = 6;
 export const WUGNOT_DISPLAY_NAME = "wGNOT (Wrapped GNOT)";
 
+// Gnoswap position NFT: its collection key (gno.land/r/gnoswap/gnft.GNFT.0000000) carries no
+// symbol in activity data or the resource list, so it would otherwise render as the raw key.
+export const GNFT_PACKAGE_PATH = "gno.land/r/gnoswap/gnft";
+export const GNFT_DISPLAY_SYMBOL = "GNFT";
+
 export const BYTES_PER_KB = 1024 as const;
 
 export const BYTE_UNITS = {

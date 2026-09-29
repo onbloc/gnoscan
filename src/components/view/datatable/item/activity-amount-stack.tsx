@@ -1,6 +1,7 @@
 import React from "react";
 import BigNumber from "bignumber.js";
 import styled from "styled-components";
+import theme from "@/styles/theme";
 
 import { ActivityAmount } from "@/models/api/activity/activity-model";
 import { toDisplayAmount } from "@/common/utils/activity.utility";
@@ -29,12 +30,17 @@ export const ActivityAmountStack = ({ amounts }: Props) => {
           decimals: amount.decimals,
         });
         const display = toDisplayAmount(amount, meta);
+        // NFTs read as "{symbol} #id, #id" - the ids already convey the count.
+        if (display.tokenIds && display.tokenIds.length > 0) {
+          return (
+            <div className="amount-row" key={index}>
+              <span className="nft">{`${display.denom} #${display.tokenIds.join(", #")}`}</span>
+            </div>
+          );
+        }
         return (
           <div className="amount-row" key={index}>
             <Amount value={display.value} denom={display.denom} />
-            {display.tokenIds && display.tokenIds.length > 0 && (
-              <span className="token-ids">{`#${display.tokenIds.join(", #")}`}</span>
-            )}
           </div>
         );
       })}
@@ -61,8 +67,10 @@ const StackWrapper = styled.div`
       border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed50};
     }
 
-    .token-ids {
-      color: ${({ theme }) => theme.colors.tertiary};
+    .nft {
+      ${theme.fonts.p4};
+      color: ${({ theme }) => theme.colors.primary};
+    }) => theme.colors.tertiary};
       font-size: 11px;
     }
   }
