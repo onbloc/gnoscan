@@ -70,8 +70,6 @@ const StackWrapper = styled.div`
     .nft {
       ${theme.fonts.p4};
       color: ${({ theme }) => theme.colors.primary};
-    }) => theme.colors.tertiary};
-      font-size: 11px;
     }
   }
 `;
