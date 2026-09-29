@@ -37,6 +37,16 @@ describe("history entry state", () => {
     expect(readHistoryEntryState("realm:tab", "Transactions")).toBe("Transactions");
   });
 
+  it("writes to the originating entry after navigating away", () => {
+    setHistoryKey("realm-entry");
+    // A debounced write bound to the realm entry fires after the tx page is pushed.
+    setHistoryKey("tx-entry");
+    writeHistoryEntryState("realm:eventType", "Transfer", "realm-entry");
+    expect(readHistoryEntryState("realm:eventType", "")).toBe("");
+    setHistoryKey("realm-entry");
+    expect(readHistoryEntryState("realm:eventType", "")).toBe("Transfer");
+  });
+
   it("falls back when the history entry has no key", () => {
     setHistoryKey(undefined);
     writeHistoryEntryState("realm:includeStorage", true);
