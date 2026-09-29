@@ -1,3 +1,4 @@
+import { DeliverTx } from "@/common/clients/node-client";
 import { Tx } from "@/common/proto/vendor/tm2/tx";
 import { decodeTxMessages } from "@gnolang/gno-js-client";
 import {
@@ -188,7 +189,7 @@ describe("findTransactionResult", () => {
     { ResponseBase: { Error: null, Log: "ok" } },
     { ResponseBase: { Error: { "@type": "/vm.VMError" }, Log: "failed b" } },
     { ResponseBase: { Error: { "@type": "/std.OutOfGasError" }, Log: "failed c" } },
-  ];
+  ] as unknown as DeliverTx[];
 
   it("returns only the result at the tx's own index", () => {
     expect(findTransactionResult(transactions, deliverTxs, "tx-b")).toBe(deliverTxs[1]);

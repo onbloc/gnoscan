@@ -142,7 +142,7 @@ interface Endblock {
   Events: Event[] | null;
 }
 
-interface DeliverTx {
+export interface DeliverTx {
   ResponseBase: ResponseBase;
   GasWanted: string;
   GasUsed: string;
