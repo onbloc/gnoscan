@@ -40,11 +40,11 @@ describe("useTokenMeta getTokenAmount", () => {
   });
 
   it("applies the wugnot decimals override when neither list has it", () => {
-    expect(getAmount("gno.land/r/gnoland/wugnot", "5000000")).toEqual({ value: "5", denom: "WUGNOT" });
+    expect(getAmount("gno.land/r/gnoland/wugnot", "5000000")).toEqual({ value: "5", denom: "wugnot" });
   });
 
   it("shows unknown tokens as raw values", () => {
-    expect(getAmount("gno.land/r/demo/unknown", "12345")).toEqual({ value: "12345", denom: "UNKNOWN" });
+    expect(getAmount("gno.land/r/demo/unknown", "12345")).toEqual({ value: "12345", denom: "unknown" });
   });
 
   it("keeps native GNOT", () => {

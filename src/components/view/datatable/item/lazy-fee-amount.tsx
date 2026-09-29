@@ -49,5 +49,5 @@ export const LazyFeeAmount = ({
     return <SkeletonBar height={"20px"} />;
   }
 
-  return <AmountText value={amount.value} denom={amount.denom?.toUpperCase()} maxSize={maxSize} minSize={minSize} />;
+  return <AmountText value={amount.value} denom={amount.denom} maxSize={maxSize} minSize={minSize} />;
 };

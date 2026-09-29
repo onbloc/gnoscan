@@ -45,7 +45,7 @@ it("shows wugnot with GNOT decimals although the backend reports 0", () => {
     decimals: 0,
     symbol: "wugnot",
   };
-  expect(renderText([wugnot])).toBe("5WUGNOT");
+  expect(renderText([wugnot])).toBe("5wugnot");
 });
 
 it("prefers the token resource list decimals over the backend ones", () => {

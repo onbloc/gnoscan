@@ -50,7 +50,7 @@ export const useTokenMeta = () => {
       if (tokenInfo) return tokenInfo;
 
       const values = tokenId.split("/");
-      const namespace = values[values.length - 1].toUpperCase();
+      const namespace = values[values.length - 1];
       const resolved = getTokenMeta(tokenId, { name: namespace, symbol: namespace, decimals: 0 });
       return { name: resolved.name, denom: tokenId, symbol: resolved.symbol, decimals: resolved.decimals };
     },
