@@ -362,12 +362,12 @@ export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): Storage
  */
 export function findTransactionResult(
   transactions: { hash: string }[],
-  deliverTxs: DeliverTx[] | null | undefined,
+  deliverTxs: DeliverTx[],
   hash: string,
 ): DeliverTx | null {
   const txIndex = transactions.findIndex(tx => tx.hash === hash);
   if (txIndex < 0) {
     return null;
   }
-  return deliverTxs?.[txIndex] || null;
+  return deliverTxs[txIndex] || null;
 }

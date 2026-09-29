@@ -36,7 +36,7 @@ export class OnblocBlockRepository implements IBlockRepository {
 
     return this.nodeRPCClient
       .blockResults(height)
-      .then(result => result.results)
+      .then(({ results }) => ({ ...results, deliver_tx: results.deliver_tx ?? [] }))
       .catch(() => null);
   }
 

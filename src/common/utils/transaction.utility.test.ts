@@ -200,9 +200,7 @@ describe("findTransactionResult", () => {
     expect(findTransactionResult(transactions, deliverTxs, "tx-unknown")).toBeNull();
   });
 
-  it("returns null when results are missing or shorter than the tx list", () => {
-    expect(findTransactionResult(transactions, null, "tx-a")).toBeNull();
-    expect(findTransactionResult(transactions, undefined, "tx-a")).toBeNull();
+  it("returns null when results are shorter than the tx list", () => {
     expect(findTransactionResult(transactions, deliverTxs.slice(0, 1), "tx-b")).toBeNull();
   });
 });
