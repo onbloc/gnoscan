@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UseQueryOptions, useQuery } from "react-query";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { QUERY_KEY } from "./types";
@@ -20,14 +19,12 @@ async function fetchTokenMeta(url: string): Promise<TokenResourceMeta[]> {
 
   return fetch(url)
     .then(response => response.json())
-    .then(json =>
-      json?.map(
-        (data: any) =>
-          ({
-            ...data,
-            id: data?.denom || data?.pkg_path,
-          } || []),
-      ),
+    .then(
+      json =>
+        json?.map((data: Omit<TokenResourceMeta, "id">) => ({
+          ...data,
+          id: data?.denom || data?.pkg_path || "",
+        })) || [],
     )
     .catch(() => []);
 }
