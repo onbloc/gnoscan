@@ -1,14 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GnoEvent } from "@/types";
-import { decodeTxMessages, MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnolang/gno-js-client";
-import { base64ToUint8Array, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
+import {
+  decodeTxMessages,
+  MsgAddPackage,
+  MsgCall,
+  MsgEnablePackage,
+  MsgRejectPackage,
+  MsgRun,
+  MsgSend,
+} from "@gnolang/gno-js-client";
+import { base64ToUint8Array, Tx, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
 import crypto from "crypto";
 import { GNOTToken } from "../hooks/common/use-token-meta";
 import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
-import { decodeExtraTxMessage, EXTRA_MESSAGE_TYPES, MsgEnablePackage, MsgRejectPackage } from "./tx-proto-decoder";
-import { Tx } from "@/common/proto/vendor/tm2/tx";
+import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { DeliverTx } from "@/common/clients/node-client";
 
 export function decodeTransaction(tx: string) {
@@ -51,10 +58,6 @@ export function decodeTransactionSafely(tx: string) {
 function decodeTxMessagesSafely(rawMessages: any[]): any[] {
   return rawMessages.flatMap(rawMessage => {
     try {
-      const extra = decodeExtraTxMessage(rawMessage?.type_url, rawMessage?.value);
-      if (extra) {
-        return [extra];
-      }
       return decodeTxMessages([rawMessage]);
     } catch (error) {
       console.warn(`Keeping message with unsupported type "${rawMessage?.type_url}" as a placeholder:`, error);
@@ -260,7 +263,7 @@ export function makeTransactionMessageInfo(message: any) {
         },
       };
     }
-    case EXTRA_MESSAGE_TYPES.VM_ENABLE_PKG: {
+    case MESSAGE_TYPES.VM_ENABLE_PKG: {
       const msg = message as MsgEnablePackage;
 
       return {
@@ -274,7 +277,7 @@ export function makeTransactionMessageInfo(message: any) {
         },
       };
     }
-    case EXTRA_MESSAGE_TYPES.VM_REJECT_PKG: {
+    case MESSAGE_TYPES.VM_REJECT_PKG: {
       const msg = message as MsgRejectPackage;
 
       return {
