@@ -10,11 +10,12 @@ import {
 } from "@/common/react-query/realm/api";
 import { debounce } from "@/common/utils/string-util";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { isOnlyStorageEventsHidden } from "@/common/utils/activity.utility";
 
 import DataListSection from "../../details-data-section/data-list-section";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
-import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
+import { ActivityEventsFilterBar, StorageHiddenNotice } from "../../datatable/event/ActivityEventsFilterBar";
 import { ActivityDatatable } from "../../datatable/activity";
 import { REALM_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 
@@ -86,6 +87,13 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
   }, [eventData?.pages]);
 
   const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
+  const onlyStorageEventsHidden = isOnlyStorageEventsHidden({
+    isFetched: isFetchedEventData,
+    totalEventCount,
+    visibleEventCount: realmEvents.length,
+    eventType,
+    includeStorage,
+  });
 
   const detailTabs = React.useMemo(
     () => [
@@ -150,6 +158,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
             includeStorage={includeStorage}
             onIncludeStorageChange={setIncludeStorage}
           />
+          {onlyStorageEventsHidden && <StorageHiddenNotice />}
           <StandardNetworkEventDatatable
             variant="activity"
             isFetched={isFetchedEventData}

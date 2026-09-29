@@ -6,7 +6,7 @@ import { TokenDetailDatatable } from "../../datatable";
 import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-holders-page";
 import { ActivityDatatable } from "../../datatable/activity";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
-import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
+import { ActivityEventsFilterBar, StorageHiddenNotice } from "../../datatable/event/ActivityEventsFilterBar";
 import {
   useGetTokenHoldersByid,
   useGetTokenMetaByPath,
@@ -21,6 +21,7 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { isOnlyStorageEventsHidden } from "@/common/utils/activity.utility";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import Text from "@/components/ui/text";
 import styled from "styled-components";
@@ -124,6 +125,13 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   }, [eventData?.pages]);
 
   const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
+  const onlyStorageEventsHidden = isOnlyStorageEventsHidden({
+    isFetched: isFetchedEventData,
+    totalEventCount,
+    visibleEventCount: tokenEvents.length,
+    eventType,
+    includeStorage,
+  });
 
   const transactionsCount = directData?.pages[0]?.page.totalCount;
   const holdersCount = holdersData?.pages[0]?.page.totalCount;
@@ -233,6 +241,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
             includeStorage={includeStorage}
             onIncludeStorageChange={setIncludeStorage}
           />
+          {onlyStorageEventsHidden && <StorageHiddenNotice />}
           <StandardNetworkEventDatatable
             variant="activity"
             isFetched={isFetchedEventData}
