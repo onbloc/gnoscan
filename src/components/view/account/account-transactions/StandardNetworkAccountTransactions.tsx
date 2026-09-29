@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useTabScrollMemory } from "@/common/hooks/detail-tabs/use-tab-scroll-memory";
 import DataListSection from "../../details-data-section/data-list-section";
 import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { ActivityDatatable } from "../../datatable/activity";
@@ -38,6 +39,7 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
   const tokenTransfers = React.useMemo(() => tokenData?.pages.flatMap(page => page.items) ?? [], [tokenData]);
 
   const [currentTab, setCurrentTab] = useHistoryEntryState<string>(`account:${address}:tab`, ACTIVITY_TAB.TRANSACTIONS);
+  const switchTab = useTabScrollMemory(`account:${address}`, currentTab, setCurrentTab);
 
   const detailTabs = React.useMemo(
     () => [
@@ -53,7 +55,7 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
   }
 
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={switchTab}>
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <ActivityDatatable
           variant="direct"
