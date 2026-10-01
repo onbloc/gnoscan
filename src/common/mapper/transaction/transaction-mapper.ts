@@ -2,6 +2,7 @@ import { TransactionContractModel, TransactionSummary } from "@/repositories/api
 import { GnoEvent, Transaction, TransactionContractInfo, TransactionSummaryInfo } from "@/types/data-type";
 
 import { getTimeStamp } from "@/common/utils/date-util";
+import { tryOrDefault } from "@/common/utils/common.utility";
 import { formatGasString } from "@/common/utils/format/format-utils";
 import { base64HashToHex, decodeTransaction } from "@/common/utils/transaction.utility";
 import { parseTokenAmount } from "@/common/utils/token.utility";
@@ -18,7 +19,6 @@ export class TransactionMapper {
     return {
       network: response.network,
       timeStamp,
-      blockResult: "",
       gas,
       transactionItem: {
         success: response.success,
@@ -46,6 +46,7 @@ export class TransactionMapper {
       storageUsage: response.storageUsage,
       transactionEvents: [],
       hasApplicationError: response.hasApplicationError,
+      summary: response.summary,
     };
   }
 
@@ -58,12 +59,10 @@ export class TransactionMapper {
    * rather than filled in with placeholders.
    */
   public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo | null {
-    let decoded: ReturnType<typeof decodeTransaction>;
-    try {
-      decoded = decodeTransaction(rawTx);
-    } catch {
-      // Malformed raw tx bytes from the pending endpoint: treat as a miss so the
-      // caller keeps polling instead of showing a broken page.
+    // Malformed raw tx bytes from the pending endpoint fall back to null, so the
+    // caller treats it as a miss and keeps polling instead of showing a broken page.
+    const decoded = tryOrDefault<ReturnType<typeof decodeTransaction> | null>(() => decodeTransaction(rawTx), null);
+    if (!decoded) {
       return null;
     }
 
@@ -73,7 +72,6 @@ export class TransactionMapper {
     return {
       network: "",
       timeStamp: { time: "", passedTime: "" },
-      blockResult: "",
       gas: "",
       transactionItem: {
         success: false,
@@ -109,6 +107,11 @@ export class TransactionMapper {
       packagePath: response.realmPath,
       caller: response.caller,
       callerName: response.callerName,
+      callerLabel: response.callerLabel,
+      callerLabelType: response.callerLabelType,
+      originCaller: response.originCaller,
+      originCallerLabel: response.originCallerLabel,
+      originCallerLabelType: response.originCallerLabelType,
       functionName: response.function,
       type: response.eventName,
       attrs: response.emit.params,

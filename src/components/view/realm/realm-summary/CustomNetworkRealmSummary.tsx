@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
-import { Amount, Transaction } from "@/types/data-type";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useRealm } from "@/common/hooks/realms/use-realm";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -20,6 +19,7 @@ import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { RealmTotalContractCalls } from "../realm-total-contract-calls/RealmTotalContractCalls";
 import { RealmTotalUsedFeeAmount } from "../realm-total-used-fee-amount/RealmTotalUsedFeeAmount";
+import PublicFunctions from "@/components/ui/public-functions";
 
 interface RealmSummaryProps {
   path: string;
@@ -54,7 +54,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
     }
     const amount = getTokenAmount(GNOTToken.denom, summary.balance.value);
     return `${amount.value} ${amount.denom}`;
-  }, [getTokenAmount, summary?.balance]);
+  }, [getTokenAmount, summary]);
 
   if (!isFetched) return <TableSkeleton />;
 
@@ -115,7 +115,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {summary?.funcs?.map((v: string, index: number) => (
             <Badge key={index} type="blue">
               <Text type="p4" color="white">
@@ -123,7 +123,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Publisher</dt>

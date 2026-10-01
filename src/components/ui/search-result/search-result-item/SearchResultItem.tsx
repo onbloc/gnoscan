@@ -1,11 +1,10 @@
 import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
-import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { SearchResult } from "@/repositories/api/search/response";
 
-import { formatDisplayTokenPath } from "@/common/utils/token.utility";
+import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { toDisplayHash } from "@/common/utils/transaction.utility";
 import Text from "@/components/ui/text";
 import * as S from "./SearchResultItem.styles";
@@ -62,7 +61,7 @@ export const SearchResultItem = ({
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {formatDisplayTokenPath(item.title.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""), 4)}
+                {formatDisplayTokenPath(stripGnoLandPrefix(item.title), 4)}
                 <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
                   {` (${item.description || item.link})`}
                 </Text>
@@ -94,7 +93,7 @@ export const SearchResultItem = ({
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {formatDisplayTokenPath(item.title.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""), 4)}
+                {formatDisplayTokenPath(stripGnoLandPrefix(item.title), 4)}
               </Text>
             </S.FitContentAStyle>
           </S.List>

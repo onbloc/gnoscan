@@ -13,10 +13,13 @@ import { useUpdateTime } from "@/common/hooks/main/use-update-time";
 import { Publisher } from "../../datatable/item";
 import { useGetLatestBlogs } from "@/common/react-query/statistics";
 import { Blog } from "@/types/data-type";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 interface BlogWithPublisher extends Blog {
   publisher: string;
   publisherName?: string;
+  publisherLabel?: string | null;
+  publisherLabelType?: ADDRESS_LABEL_TYPE | null;
 }
 
 const ActiveLatestBlogs = () => {
@@ -39,6 +42,8 @@ const ActiveLatestBlogs = () => {
         path: item.url,
         publisher: item.publisher,
         publisherName: item.publisherName,
+        publisherLabel: item.publisherLabel,
+        publisherLabelType: item.publisherLabelType,
         date: "",
       };
     });
@@ -81,7 +86,13 @@ const ActiveLatestBlogs = () => {
                 </Link>
               </StyledTitleWrapper>
               <StyledText type="p4" width={colWidth.blogs[2]} color="blue">
-                <Publisher address={blog.publisher} username={blog.publisherName || ""} ellipsisNumber={4}></Publisher>
+                <Publisher
+                  address={blog.publisher}
+                  username={blog.publisherName || ""}
+                  label={blog.publisherLabel}
+                  labelType={blog.publisherLabelType}
+                  ellipsisNumber={4}
+                ></Publisher>
               </StyledText>
             </List>
           ))}

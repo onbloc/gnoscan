@@ -7,7 +7,12 @@ import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
 import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { parseTokenAmount } from "@/common/utils/token.utility";
-import { decodeTransaction, makeSafeBase64Hash, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
+import {
+  decodeTransactionSafely,
+  findTransactionResult,
+  makeSafeBase64Hash,
+  makeTransactionMessageInfo,
+} from "@/common/utils/transaction.utility";
 import { Transaction, TransactionSummaryInfo } from "@/types/data-type";
 import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
 
@@ -56,7 +61,7 @@ export const useTransaction = (hash: string) => {
     if (!block) {
       return [];
     }
-    return block.block.data.txs?.map(decodeTransaction);
+    return block.block.data.txs?.map(decodeTransactionSafely);
   }, [block]);
 
   const txResult = useMemo(() => {
@@ -64,8 +69,7 @@ export const useTransaction = (hash: string) => {
       return null;
     }
 
-    const txIndex = transactions.findIndex((tx: any) => tx.hash === safetyHash);
-    return (blockResult.deliver_tx || []).find((_: any, index: number) => txIndex === index) || null;
+    return findTransactionResult(transactions, blockResult.deliver_tx, safetyHash);
   }, [transactions, blockResult, safetyHash]);
 
   const transactionItem: Transaction | null = useMemo(() => {
@@ -163,12 +167,12 @@ export const useTransaction = (hash: string) => {
     return {
       network,
       timeStamp,
-      blockResult,
+      txResult,
       gas,
       transactionItem,
       transactionEvents,
     };
-  }, [network, timeStamp, blockResult, gas, transactionItem, transactionEvents]);
+  }, [network, timeStamp, txResult, gas, transactionItem, transactionEvents]);
 
   return {
     transaction: transactionSummaryInfo,

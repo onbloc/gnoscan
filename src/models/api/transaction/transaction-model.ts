@@ -1,5 +1,6 @@
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { Amount } from "@/types/data-type";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 export interface BaseTransactionModel {
   txHash: string;
@@ -10,7 +11,11 @@ export interface BaseTransactionModel {
   messageCount: number;
 
   fromAddress: string;
+  fromLabel?: string | null;
+  fromLabelType?: ADDRESS_LABEL_TYPE | null;
   toAddress: string;
+  toLabel?: string | null;
+  toLabelType?: ADDRESS_LABEL_TYPE | null;
 
   fee: Amount;
 

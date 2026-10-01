@@ -1,17 +1,23 @@
+import Link from "next/link";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 
 interface Props {
   username: string | undefined;
   address: string | undefined;
   ellipsisNumber?: number;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
 }
 
-export const Publisher = ({ address, username, ellipsisNumber = 8 }: Props) => {
+export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelType }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
 
   const renderTooltip = () => {
@@ -23,19 +29,26 @@ export const Publisher = ({ address, username, ellipsisNumber = 8 }: Props) => {
       return username;
     }
 
+    if (label) {
+      return stripGnoLandPrefix(label);
+    }
+
     if (!address) {
       return "-";
     }
 
     return textEllipsis(address ?? "", ellipsisNumber);
-  }, [address, username]);
+  }, [address, username, label, ellipsisNumber]);
 
   return address && address !== "genesis" ? (
-    <Tooltip content={renderTooltip()}>
-      <PublisherLink className="ellipsis" href={getUrlWithNetwork(`/account/${address}`)}>
+    <PublisherTooltip content={renderTooltip()}>
+      <Link
+        className="ellipsis"
+        href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
+      >
         {displayName}
-      </PublisherLink>
-    </Tooltip>
+      </Link>
+    </PublisherTooltip>
   ) : (
     <>{displayName}</>
   );
@@ -54,6 +67,11 @@ const TooltipWrapper = styled.span`
   }
 `;
 
-const PublisherLink = styled.a`
-  max-width: 128px;
+// Bound the tooltip to the column so long names get the CSS ellipsis
+const PublisherTooltip = styled(Tooltip)`
+  max-width: 100%;
+
+  a {
+    min-width: 0;
+  }
 `;

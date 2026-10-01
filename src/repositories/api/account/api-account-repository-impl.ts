@@ -1,12 +1,18 @@
 import { NetworkClient } from "@/common/clients/network-client";
 import { ApiAccountRepository } from "./api-account-repository";
 
-import { GetAccountEventsRequest, GetAccountsRequest, GetAccountTransactionsRequest } from "./request";
 import {
-  GetAccountEventsResponse,
+  GetAccountDirectTransactionsRequest,
+  GetAccountNativeTransfersRequest,
+  GetAccountTokenTransfersRequest,
+  GetAccountsRequest,
+} from "./request";
+import {
+  GetAccountDirectTransactionsResponse,
+  GetAccountNativeTransfersResponse,
   GetAccountResponse,
+  GetAccountTokenTransfersResponse,
   GetAccountsResponse,
-  GetAccountTransactionsResponse,
 } from "./response";
 import { makeQueryParameter } from "@/common/utils/string-util";
 import { CommonError } from "@/common/errors";
@@ -51,7 +57,9 @@ export class ApiAccountRepositoryImpl implements ApiAccountRepository {
       });
   }
 
-  getAccountEvents(params: GetAccountEventsRequest): Promise<GetAccountEventsResponse> {
+  getAccountDirectTransactions(
+    params: GetAccountDirectTransactionsRequest,
+  ): Promise<GetAccountDirectTransactionsResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -60,15 +68,15 @@ export class ApiAccountRepositoryImpl implements ApiAccountRepository {
     const requestParams = makeQueryParameter(queryParams);
 
     return this.networkClient
-      .get<APIResponse<GetAccountEventsResponse>>({
-        url: `accounts/${address}/events${requestParams}`,
+      .get<APIResponse<GetAccountDirectTransactionsResponse>>({
+        url: `accounts/${address}/direct-transactions${requestParams}`,
       })
       .then(result => {
         return result.data?.data;
       });
   }
 
-  getAccountTransactions(params: GetAccountTransactionsRequest): Promise<GetAccountTransactionsResponse> {
+  getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse> {
     if (!this.networkClient) {
       throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
     }
@@ -77,8 +85,25 @@ export class ApiAccountRepositoryImpl implements ApiAccountRepository {
     const requestParams = makeQueryParameter(queryParams);
 
     return this.networkClient
-      .get<APIResponse<GetAccountTransactionsResponse>>({
-        url: `accounts/${address}/transactions${requestParams}`,
+      .get<APIResponse<GetAccountNativeTransfersResponse>>({
+        url: `accounts/${address}/native-transfers${requestParams}`,
+      })
+      .then(result => {
+        return result.data?.data;
+      });
+  }
+
+  getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse> {
+    if (!this.networkClient) {
+      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
+    }
+
+    const { address, ...queryParams } = params;
+    const requestParams = makeQueryParameter(queryParams);
+
+    return this.networkClient
+      .get<APIResponse<GetAccountTokenTransfersResponse>>({
+        url: `accounts/${address}/token-transfers${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

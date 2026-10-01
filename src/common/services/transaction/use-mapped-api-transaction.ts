@@ -11,7 +11,6 @@ export const INITIAL_TRANSACTION_SUMMARY_STATE: TransactionSummaryInfo = {
     time: "-",
     passedTime: "-",
   },
-  blockResult: "",
   gas: "",
   transactionEvents: [],
   transactionItem: null,

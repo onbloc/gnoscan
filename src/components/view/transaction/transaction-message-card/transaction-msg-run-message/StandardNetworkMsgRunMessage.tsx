@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
@@ -56,10 +55,12 @@ const StandardNetworkMsgRunMessage = ({
           addressName={message.callerName}
           copyText={message.caller || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.callerLabel}
+          labelType={message.callerLabelType}
         />
       </Field>
 
-      <Field label="Files" isDesktop={isDesktop}>
+      <Field label="Files" isDesktop={isDesktop} className="top-aligned" contentClassName="files-wrapper">
         <BadgeList items={message?.files} />
         {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
       </Field>
@@ -69,6 +70,7 @@ const StandardNetworkMsgRunMessage = ({
           items={calledFunctions}
           linkUrl={"/realms/details?path="}
           getUrlWithNetwork={getUrlWithNetwork}
+          visibleRealmStatus
         />
       </Field>
 

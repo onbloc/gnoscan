@@ -1,4 +1,4 @@
-import { Amount } from "@/types/data-type";
+import { Amount, TransactionSummaryDetail } from "@/types/data-type";
 
 export interface TransactionSummary {
   blockHeight: number;
@@ -20,6 +20,7 @@ export interface TransactionSummary {
   errorLog: string;
   hasApplicationError: boolean;
   txIndex: number;
+  summary: TransactionSummaryDetail | null;
 }
 
 export interface GetTransactionResponse {

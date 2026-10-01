@@ -3,6 +3,7 @@ import theme from "@/styles/theme";
 import React from "react";
 import styled from "styled-components";
 import Text from "@/components/ui/text";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 interface Props {
   type: string;
   func: string;
@@ -15,11 +16,7 @@ export const Type = ({ type, func, packagePath, msgNum }: Props) => {
     return (
       <TooltipWrapper>
         <span className="title">{type}</span>
-        {packagePath && packagePath !== null ? (
-          <span className="info">{packagePath.replace("gno.land", "")}</span>
-        ) : (
-          <></>
-        )}
+        {packagePath && packagePath !== null ? <span className="info">{stripGnoLandPrefix(packagePath)}</span> : <></>}
       </TooltipWrapper>
     );
   };

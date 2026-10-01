@@ -15,12 +15,13 @@ import { useGetRealmFunctionsQuery, useGetRealmTransactionsQuery } from "@/commo
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { useUpdateTime } from "@/common/hooks/main/use-update-time";
 import { useLatestRealms } from "@/common/hooks/realms/use-latest-realms";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 function makeDisplayRealmPath(path: string, length = 11) {
   if (!path) {
     return "";
   }
-  const displayPath = path.replace("gno.land", "");
+  const displayPath = stripGnoLandPrefix(path);
   return displayPath.length > length ? displayPath.substring(0, length) + "..." : displayPath;
 }
 

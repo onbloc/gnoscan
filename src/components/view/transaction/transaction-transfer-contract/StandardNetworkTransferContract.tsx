@@ -50,6 +50,7 @@ const StandardNetworkTransactionTransferContract = ({
               maxSize="p4"
               value={amount?.value || "0"}
               denom={amount?.denom || GNOTToken.symbol}
+              wrap={false}
             />
           </Badge>
         </dd>

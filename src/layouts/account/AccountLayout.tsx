@@ -10,9 +10,12 @@ import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import AccountAddressSkeleton from "@/components/view/account/account-address/AccountAddressSkeleton";
+import AccountTransactionsSkeleton from "@/components/view/account/account-transactions/AccountTransactionsSkeleton";
 
 export interface ValidatorInfo {
   name: string;
+  operationAddress: string | null;
   proposalId: string | null;
 }
 
@@ -76,20 +79,43 @@ const AccountLayout = ({
     );
 
   return (
+    <AccountFrame>
+      {isLoadingPageTitle ? (
+        <SkeletonBar width={200} height={isDesktop ? 36 : 24} />
+      ) : (
+        <PageTitle type={isDesktop ? "h2" : "p2"} title={pageTitle} />
+      )}
+      {accountAddress}
+      {accountAssets}
+      {accountTransactions}
+    </AccountFrame>
+  );
+};
+
+const AccountFrame = ({ children }: { children: React.ReactNode }) => {
+  const { breakpoint } = useWindowSize();
+
+  return (
     <S.Container breakpoint={breakpoint}>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
-          {isLoadingPageTitle ? (
-            <SkeletonBar width={200} height={isDesktop ? 36 : 24} />
-          ) : (
-            <PageTitle type={isDesktop ? "h2" : "p2"} title={pageTitle} />
-          )}
-          {accountAddress}
-          {accountAssets}
-          {accountTransactions}
-        </S.Wrapper>
+        <S.Wrapper breakpoint={breakpoint}>{children}</S.Wrapper>
       </S.InnerLayout>
     </S.Container>
+  );
+};
+
+// Mirrors the loaded layout (address, assets, transactions) so the page does not jump
+// while the address is classified; renders no query-bearing panels.
+export const AccountLayoutSkeleton = () => {
+  const { isDesktop } = useWindowSize();
+
+  return (
+    <AccountFrame>
+      <SkeletonBar width={200} height={isDesktop ? 36 : 24} />
+      <AccountAddressSkeleton isDesktop={isDesktop} />
+      <AccountAddressSkeleton isDesktop={isDesktop} />
+      <AccountTransactionsSkeleton />
+    </AccountFrame>
   );
 };
 

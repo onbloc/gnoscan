@@ -1,5 +1,5 @@
 import { BlockInfo } from "@gnolang/tm2-js-client";
-import { HttpRPCClient, RPCClient, RPCResponse, makeRPCRequest } from "../rpc-client";
+import { FallbackRPCClient, HttpRPCClient, RPCClient, RPCResponse, makeRPCRequest } from "../rpc-client";
 import {
   NodeClient,
   NodeResponseABCIInfo,
@@ -30,9 +30,14 @@ export class NodeRPCClient implements NodeClient {
   private rpcClient: RPCClient;
   private chainId: string;
 
-  constructor(rpcUrl: string, chainId?: string) {
+  constructor(rpcUrl: string, chainId?: string, fallbackRpcUrl?: string | null) {
     const currentRPCUrl = makeRPCUrl(rpcUrl);
-    this.rpcClient = new HttpRPCClient(currentRPCUrl.httpUrl);
+    const currentFallbackRPCUrl = fallbackRpcUrl ? makeRPCUrl(fallbackRpcUrl) : null;
+
+    // Without a fallback endpoint there is nothing to rotate to, so keep the plain client.
+    this.rpcClient = currentFallbackRPCUrl
+      ? new FallbackRPCClient(currentRPCUrl.httpUrl, currentFallbackRPCUrl.httpUrl)
+      : new HttpRPCClient(currentRPCUrl.httpUrl);
     this.chainId = chainId || "";
   }
 

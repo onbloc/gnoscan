@@ -9,6 +9,7 @@ import { useTotalGasInfo } from "@/common/hooks/main/use-total-gas-info";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { dateToStr } from "@/common/utils/date-util";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
@@ -40,7 +41,7 @@ export const MainRealmTotalGasShare = () => {
       [key in string]: { value: number; rate: number }[];
     }>((accum, current) => {
       const currentLabel = transactionRealmGasInfo.displayRealms.includes(current)
-        ? current.replace("gno.land", "")
+        ? stripGnoLandPrefix(current)
         : "rest";
       accum[currentLabel] = labels.map(date => {
         const totalGas = dateTotalGas[date];

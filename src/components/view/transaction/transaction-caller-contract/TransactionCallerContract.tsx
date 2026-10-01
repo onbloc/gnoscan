@@ -21,15 +21,22 @@ export const TransactionCallerContract = ({
   isDesktop,
   getUrlWithNetwork,
 }: TransactionCallerContractProps) => {
-  const caller = React.useMemo(() => {
-    return message?.caller || message?.creator;
+  const { label, caller } = React.useMemo(() => {
+    switch (message?.["@type"]) {
+      case "/vm.m_enable_pkg":
+        return { label: "Approver", caller: message?.approver };
+      case "/vm.m_reject_pkg":
+        return { label: "Sender", caller: message?.sender };
+      default:
+        return { label: "Caller", caller: message?.caller || message?.creator };
+    }
   }, [message]);
 
   if (!message) return <></>;
 
   return (
     <DLWrap desktop={isDesktop} key={v1()}>
-      <dt>Caller</dt>
+      <dt>{label}</dt>
       <dd>
         <Badge>
           <Link href={getUrlWithNetwork(`/account/${caller || "-"}`)} passHref>

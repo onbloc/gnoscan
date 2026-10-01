@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
@@ -93,7 +92,14 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
       .name("From")
       .width(170)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.Account address={data.from} addressName={data.fromName} />)
+      .renderOption((_, data) => (
+        <DatatableItem.Account
+          address={data.from}
+          addressName={data.fromName}
+          label={data.fromLabel}
+          labelType={data.fromLabelType}
+        />
+      ))
       .build();
   };
 

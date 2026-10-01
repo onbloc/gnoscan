@@ -67,9 +67,9 @@ export const TransactionAddPackageContract = ({
       </DLWrap>
 
       {hasFiles && (
-        <DLWrap desktop={isDesktop} key={v1()}>
+        <DLWrap desktop={isDesktop} key={v1()} className="top-aligned">
           <dt>Files</dt>
-          <dd>
+          <dd className="files-wrapper">
             <BadgeList items={files?.map(file => file.name) || []} />
             {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
           </dd>

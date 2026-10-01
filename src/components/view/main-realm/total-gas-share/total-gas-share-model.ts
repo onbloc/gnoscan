@@ -1,5 +1,6 @@
-import { ValueWithDenomType } from "@/types/data-type";
+import { Amount } from "@/types/data-type";
 import BigNumber from "bignumber.js";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 interface TotalGasShareData {
   date: string;
@@ -22,7 +23,7 @@ export class TotalGasShareModel {
   constructor(
     responseDatas: Array<{
       date: string;
-      daily_total_fee: ValueWithDenomType;
+      daily_total_fee: Amount;
       packages: Array<{
         path: string;
         daily_fee: number;
@@ -115,7 +116,7 @@ export class TotalGasShareModel {
     packages,
   }: {
     date: string;
-    daily_total_fee: ValueWithDenomType;
+    daily_total_fee: Amount;
     packages: Array<{
       path: string;
       daily_fee: number;
@@ -125,7 +126,7 @@ export class TotalGasShareModel {
     return packages.map(item => {
       return {
         date: date ?? "",
-        packagePath: `${item.path}`.replace("gno.land", ""),
+        packagePath: stripGnoLandPrefix(`${item.path}`),
         packageDailyFee: BigNumber(item.daily_fee || 0).toNumber(),
         totalDailyFee: BigNumber(daily_total_fee.value || 0).toNumber(),
         percent: BigNumber(item.percent || 0).toNumber(),

@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import BigNumber from "bignumber.js";
 import { useRecoilValue } from "recoil";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
@@ -132,6 +133,8 @@ export const CustomNetworkTransactionListTable = ({
       .renderOption((_, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
+        ) : new BigNumber(data.amount.value).isZero() ? (
+          <span>-</span>
         ) : (
           <DatatableItem.Amount {...getTokenAmount(data.amount.denom, data.amount.value)} />
         ),

@@ -14,6 +14,7 @@ import { EventDatatable } from "@/components/view/datatable/event";
 import DataListSection from "@/components/view/details-data-section/data-list-section";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
+import TransactionTopSummary from "../../transaction-message-summary/TransactionTopSummary";
 
 interface TransactionInfoProps {
   txHash: string;
@@ -110,13 +111,21 @@ const StandardNetworkTransactionInfo = ({
             getTokenAmount={getTokenAmount}
           />
         ) : (
-          <StandardNetworkTransactionContractDetails
-            transactionItem={txContracts}
-            rawTransaction={transactionItem}
-            isDesktop={isDesktop}
-            getUrlWithNetwork={getUrlWithNetwork}
-            storageDepositInfo={storageDepositInfo}
-          />
+          <>
+            <TransactionTopSummary
+              messages={txContracts.messages}
+              numOfMessage={txContracts.numOfMessage}
+              summary={apiTransaction?.summary}
+              isDesktop={isDesktop}
+            />
+            <StandardNetworkTransactionContractDetails
+              transactionItem={txContracts}
+              rawTransaction={transactionItem}
+              isDesktop={isDesktop}
+              getUrlWithNetwork={getUrlWithNetwork}
+              storageDepositInfo={storageDepositInfo}
+            />
+          </>
         ))}
       {currentTab === "Events" && !isPending && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
     </DataListSection>

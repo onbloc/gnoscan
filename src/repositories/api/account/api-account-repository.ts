@@ -1,9 +1,15 @@
-import { GetAccountEventsRequest, GetAccountsRequest, GetAccountTransactionsRequest } from "./request";
 import {
-  GetAccountEventsResponse,
+  GetAccountDirectTransactionsRequest,
+  GetAccountNativeTransfersRequest,
+  GetAccountTokenTransfersRequest,
+  GetAccountsRequest,
+} from "./request";
+import {
+  GetAccountDirectTransactionsResponse,
+  GetAccountNativeTransfersResponse,
   GetAccountResponse,
+  GetAccountTokenTransfersResponse,
   GetAccountsResponse,
-  GetAccountTransactionsResponse,
 } from "./response";
 
 export interface ApiAccountRepository {
@@ -11,7 +17,11 @@ export interface ApiAccountRepository {
 
   getAccounts(params: GetAccountsRequest): Promise<GetAccountsResponse>;
 
-  getAccountEvents(params: GetAccountEventsRequest): Promise<GetAccountEventsResponse>;
+  getAccountDirectTransactions(
+    params: GetAccountDirectTransactionsRequest,
+  ): Promise<GetAccountDirectTransactionsResponse>;
 
-  getAccountTransactions(params: GetAccountTransactionsRequest): Promise<GetAccountTransactionsResponse>;
+  getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse>;
+
+  getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse>;
 }

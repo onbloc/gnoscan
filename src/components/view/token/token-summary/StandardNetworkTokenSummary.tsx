@@ -2,13 +2,16 @@ import Link from "next/link";
 import React from "react";
 
 import { useGetTokenById } from "@/common/react-query/token/api";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { TokenSummary } from "@/types/data-type";
 
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { useNetwork } from "@/common/hooks/use-network";
-import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { formatTokenDecimal, isWugnotPackagePath } from "@/common/utils/token.utility";
+import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
@@ -17,6 +20,7 @@ import Tooltip from "@/components/ui/tooltip";
 import DataSection from "@/components/view/details-data-section";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import * as S from "./TokenSummary.styles";
+import PublicFunctions from "@/components/ui/public-functions";
 
 interface TokenSummaryProps {
   tokenId: string;
@@ -34,26 +38,35 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetTokenById(tokenId);
+  const { getTokenMeta } = useTokenResourceMeta();
 
   const tokenSummary: TokenSummary | null = React.useMemo(() => {
     const summaryData = data?.data;
 
     if (!summaryData) return null;
 
-    return {
-      tokenId: summaryData.tokenId,
-      slug: summaryData.slug,
+    const resolved = getTokenMeta(summaryData.tokenId || summaryData.path, {
       name: summaryData.name,
       symbol: summaryData.symbol,
       decimals: summaryData.decimals,
+    });
+
+    return {
+      tokenId: summaryData.tokenId,
+      slug: summaryData.slug,
+      name: isWugnotPackagePath(summaryData.path) ? WUGNOT_DISPLAY_NAME : resolved.name,
+      symbol: resolved.symbol,
+      decimals: resolved.decimals,
       packagePath: summaryData.path,
       owner: summaryData.owner,
       ownerName: summaryData.ownerName,
+      ownerLabel: summaryData.ownerLabel,
+      ownerLabelType: summaryData.ownerLabelType,
       functions: summaryData.funcTypesList,
-      totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, summaryData.decimals)),
+      totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, resolved.decimals)),
       holders: summaryData.holders,
     };
-  }, [data?.data]);
+  }, [data?.data, getTokenMeta]);
 
   const files = React.useMemo(() => {
     const sourceFiles = data?.data?.sourceFiles;
@@ -130,7 +143,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
             <Badge type="blue" key={index}>
               <Text type="p4" color="white">
@@ -138,7 +151,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Owner</dt>
@@ -146,13 +159,31 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
           <Badge>
             {tokenSummary?.owner && tokenSummary?.owner === "genesis" ? (
               <Text type="p4" color="blue" className="ellipsis">
-                {tokenSummary?.ownerName || tokenSummary?.owner || ""}
+                {getAddressDisplayText({
+                  address: tokenSummary?.owner,
+                  name: tokenSummary?.ownerName,
+                  label: tokenSummary?.ownerLabel,
+                }) || ""}
               </Text>
             ) : (
               <FitContentSpan>
-                <Link href={getUrlWithNetwork(`/account/${tokenSummary?.owner}`)} passHref>
+                <Link
+                  href={getUrlWithNetwork(
+                    getAddressLinkPath({
+                      address: tokenSummary?.owner,
+                      name: tokenSummary?.ownerName,
+                      label: tokenSummary?.ownerLabel,
+                      labelType: tokenSummary?.ownerLabelType,
+                    }),
+                  )}
+                  passHref
+                >
                   <Text type="p4" color="blue" className="ellipsis">
-                    {tokenSummary?.ownerName || tokenSummary?.owner || ""}
+                    {getAddressDisplayText({
+                      address: tokenSummary?.owner,
+                      name: tokenSummary?.ownerName,
+                      label: tokenSummary?.ownerLabel,
+                    }) || ""}
                   </Text>
                 </Link>
               </FitContentSpan>

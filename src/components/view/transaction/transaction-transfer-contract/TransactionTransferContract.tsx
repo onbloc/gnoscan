@@ -45,6 +45,7 @@ const TransactionTransferContract = ({
               minSize="body2"
               maxSize="p4"
               {...getTokenAmount(GNOTToken.denom, parseTokenAmount(message?.amount || "0ugnot"))}
+              wrap={false}
             />
           </Badge>
         </dd>

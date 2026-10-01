@@ -1,9 +1,19 @@
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
 import { isUgnot, toGNOTAmount } from "@/common/utils/native-token-utility";
 import { makeDisplayTokenAmount } from "@/common/utils/string-util";
 import { stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { Amount } from "@/types/data-type";
+import axios from "axios";
 import React from "react";
+
+// react-query's default retry count.
+const TOKEN_META_MAX_RETRIES = 3;
+
+// A 404 means the token has no metadata (e.g. non GRC20 tokens), so retrying only delays
+// the fallback display. Other failures may be transient and keep the default retries.
+export const retryTokenMetaRequest = (failureCount: number, error: unknown) =>
+  !(axios.isAxiosError(error) && error.response?.status === 404) && failureCount < TOKEN_META_MAX_RETRIES;
 
 export function useTokenMetaAmount(amountInfo?: Amount) {
   const denom = amountInfo?.denom || null;
@@ -12,24 +22,51 @@ export function useTokenMetaAmount(amountInfo?: Amount) {
   const isNativeDenom = !!denom && isUgnot(denom);
   const packagePath = denom ? stripTokenKeySymbol(denom) : denom;
 
-  const { data: tokenMeta, isLoading, isFetched } = useGetTokenMetaByPath(isNativeDenom ? "" : packagePath || "");
+  const { hasTokenResourceMeta, getTokenMeta } = useTokenResourceMeta();
+  const hasResourceMeta = !isNativeDenom && !!denom && hasTokenResourceMeta(denom);
+  // The static resource list is the first-choice source; only hit the token-meta API
+  // for tokens it doesn't cover.
+  const skipTokenMetaFetch = isNativeDenom || hasResourceMeta;
+
+  // Query by the full denom: a bare packagePath is ambiguous for multi-token (factory) realms.
+  const {
+    data: tokenMeta,
+    isLoading,
+    isFetched,
+  } = useGetTokenMetaByPath(skipTokenMetaFetch ? "" : denom || "", {
+    retry: retryTokenMetaRequest,
+  });
 
   const amount: Amount | null = React.useMemo(() => {
     if (!amountInfo) return null;
+    if (isNativeDenom) return toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
 
-    if (!isNativeDenom && tokenMeta?.data && tokenMeta.data.decimals !== undefined) {
+    const backendMeta =
+      tokenMeta?.data && tokenMeta.data.decimals !== undefined
+        ? { name: "", symbol: tokenMeta.data.symbol || amountInfo.denom, decimals: tokenMeta.data.decimals }
+        : undefined;
+
+    if (denom && (hasResourceMeta || backendMeta)) {
+      const resolved = getTokenMeta(denom, backendMeta || { name: "", symbol: amountInfo.denom, decimals: 0 });
       return {
-        denom: tokenMeta.data?.symbol || amountInfo.denom,
-        value: makeDisplayTokenAmount(amountInfo.value, tokenMeta.data.decimals),
+        denom: resolved.symbol || amountInfo.denom,
+        value: makeDisplayTokenAmount(amountInfo.value, resolved.decimals),
       };
     }
 
-    return toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
-  }, [amountInfo, tokenMeta?.data, isNativeDenom, packagePath]);
+    // Raw fallback still goes through getTokenMeta so shared overrides (GNFT symbol, wugnot decimals) apply.
+    const raw = toGNOTAmount(amountInfo.value, packagePath || amountInfo.denom);
+    if (!denom) return raw;
+    const resolved = getTokenMeta(denom, { name: "", symbol: raw.denom, decimals: 0 });
+    return {
+      denom: resolved.symbol || raw.denom,
+      value: resolved.decimals ? makeDisplayTokenAmount(amountInfo.value, resolved.decimals) : raw.value,
+    };
+  }, [amountInfo, denom, hasResourceMeta, tokenMeta?.data, isNativeDenom, packagePath, getTokenMeta]);
 
   return {
     amount,
-    isLoading: isNativeDenom ? false : isLoading,
-    isFetched: isNativeDenom ? true : isFetched,
+    isLoading: skipTokenMetaFetch ? false : isLoading,
+    isFetched: skipTokenMetaFetch ? true : isFetched,
   };
 }

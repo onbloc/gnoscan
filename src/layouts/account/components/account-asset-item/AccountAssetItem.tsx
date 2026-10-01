@@ -5,8 +5,7 @@ import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { Amount } from "@/types/data-type";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useNetwork } from "@/common/hooks/use-network";
-import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
-import { formatDisplayTokenPath } from "@/common/utils/token.utility";
+import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { resolveAccountAssetLogoUrl } from "./account-asset-item.utility";
 
 import * as S from "./AccountAssetItem.styles";
@@ -61,7 +60,7 @@ const AccountAssetItem = ({
 
   const displayTokenPath = React.useMemo(() => {
     if (!tokenPath) return null;
-    return formatDisplayTokenPath(tokenPath.replace(GNO_NETWORK_PREFIXES.GNO_LAND, ""));
+    return formatDisplayTokenPath(stripGnoLandPrefix(tokenPath));
   }, [tokenPath]);
 
   const tokenKey = React.useMemo(() => {

@@ -4,3 +4,5 @@ export { default as StandardNetworkMsgCallMessage } from "./transaction-msg-call
 export { default as StandardNetworkMsgRunMessage } from "./transaction-msg-run-message/StandardNetworkMsgRunMessage";
 export { default as StandardNetworkCreateSessionMessage } from "./transaction-create-session-message/StandardNetworkCreateSessionMessage";
 export { default as StandardNetworkRevokeSessionMessage } from "./transaction-revoke-session-message/StandardNetworkRevokeSessionMessage";
+export { default as StandardNetworkEnablePackageMessage } from "./transaction-enable-package-message/StandardNetworkEnablePackageMessage";
+export { default as StandardNetworkRejectPackageMessage } from "./transaction-reject-package-message/StandardNetworkRejectPackageMessage";

@@ -10,6 +10,7 @@ export type EventParser = (
     transactionHash: string;
     time: string;
     caller: string;
+    originCaller: string;
   },
 ) => GnoEvent;
 
@@ -54,6 +55,7 @@ const parseUnknownEvent = (
     transactionHash: string;
     time: string;
     caller: string;
+    originCaller: string;
   },
 ): GnoEvent => ({
   ...baseInfo,
@@ -87,6 +89,8 @@ export const parseTransactionEvent = (
     transactionHash,
     time: blockTime,
     caller,
+    // Custom networks only surface the top-level tx caller, so it doubles as the origin caller.
+    originCaller: caller,
   };
 
   const eventType = event["@type"] as EventType;

@@ -1,21 +1,75 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GnoEvent } from "@/types";
-import { decodeTxMessages, MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnolang/gno-js-client";
-import { base64ToUint8Array, Tx } from "@gnolang/tm2-js-client";
+import {
+  decodeTxMessages,
+  MsgAddPackage,
+  MsgCall,
+  MsgEnablePackage,
+  MsgRejectPackage,
+  MsgRun,
+  MsgSend,
+} from "@gnolang/gno-js-client";
+import { base64ToUint8Array, Tx, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
 import crypto from "crypto";
 import { GNOTToken } from "../hooks/common/use-token-meta";
+import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
+import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
+import { DeliverTx } from "@/common/clients/node-client";
+
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
   const hash = makeHash(txBytes);
   const decodedTx = Tx.decode(txBytes);
-  const messages = decodeTxMessages(decodedTx.messages) as any[];
+  const messages = decodeTxMessagesSafely(decodedTx.messages);
   return {
     ...decodedTx,
     hash,
     messages,
   };
+}
+
+const EMPTY_DECODED_TRANSACTION = {
+  hash: "",
+  messages: [] as any[],
+  memo: "",
+  fee: undefined,
+  signatures: [] as any[],
+};
+
+/**
+ * Same as `decodeTransaction`, but never throws: falls back to an empty
+ * transaction shape if the raw tx can't be decoded at all (e.g. a protobuf-level
+ * encoding change), so one bad tx can't break rendering of a whole block/list.
+ */
+export function decodeTransactionSafely(tx: string) {
+  return tryOrDefault(() => decodeTransaction(tx), EMPTY_DECODED_TRANSACTION);
+}
+
+/**
+ * Decodes each raw message individually so an unsupported/unknown message type
+ * (e.g. a new chain message the client library doesn't know yet) doesn't fail
+ * decoding for the entire transaction. An undecodable message is kept as an
+ * "unsupported" placeholder that keeps its raw payload (base64) so message
+ * counts and raw content stay accurate; `makeTransactionMessageInfo` already renders any
+ * unrecognized "@type" as blank.
+ */
+function decodeTxMessagesSafely(rawMessages: any[]): any[] {
+  return rawMessages.flatMap(rawMessage => {
+    try {
+      return decodeTxMessages([rawMessage]);
+    } catch (error) {
+      console.warn(`Keeping message with unsupported type "${rawMessage?.type_url}" as a placeholder:`, error);
+      return [
+        {
+          "@type": rawMessage?.type_url,
+          value: rawMessage?.value ? uint8ArrayToBase64(rawMessage.value) : "",
+          unsupported: true,
+        },
+      ];
+    }
+  });
 }
 
 const HASH_BYTE_LENGTH = 32;
@@ -113,6 +167,10 @@ export function makeHexByBase64(base64Hash: string) {
 }
 
 export function makeTransactionMessageInfo(message: any) {
+  if (!message) {
+    return null;
+  }
+
   switch (message["@type"]) {
     case "/vm.m_call": {
       const msg = message as MsgCall;
@@ -205,6 +263,34 @@ export function makeTransactionMessageInfo(message: any) {
         },
       };
     }
+    case MESSAGE_TYPES.VM_ENABLE_PKG: {
+      const msg = message as MsgEnablePackage;
+
+      return {
+        type: message["@type"],
+        packagePath: msg.pkg_path,
+        functionName: "EnablePkg",
+        from: msg.approver,
+        amount: {
+          value: "0",
+          denom: GNOTToken.denom,
+        },
+      };
+    }
+    case MESSAGE_TYPES.VM_REJECT_PKG: {
+      const msg = message as MsgRejectPackage;
+
+      return {
+        type: message["@type"],
+        packagePath: msg.pkg_path,
+        functionName: "RejectPkg",
+        from: msg.sender,
+        amount: {
+          value: "0",
+          denom: GNOTToken.denom,
+        },
+      };
+    }
     default:
       return null;
   }
@@ -271,4 +357,20 @@ export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): Storage
     deposit: finalDepositValue,
     storage: finalStorageValue,
   };
+}
+
+/**
+ * Returns the deliver_tx result of the given tx. block_results.deliver_tx is
+ * ordered the same as the block's txs, so the tx's index maps to its result.
+ */
+export function findTransactionResult(
+  transactions: { hash: string }[],
+  deliverTxs: DeliverTx[],
+  hash: string,
+): DeliverTx | null {
+  const txIndex = transactions.findIndex(tx => tx.hash === hash);
+  if (txIndex < 0) {
+    return null;
+  }
+  return deliverTxs[txIndex] || null;
 }

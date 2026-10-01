@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
 import { useRecoilValue } from "recoil";
@@ -86,6 +85,7 @@ export const StandardNetworkRealmListTable = ({
     return DatatableOption.Builder.builder<Realm>()
       .key("blockHeight")
       .name("Block")
+      .sort()
       .width(121)
       .colorName("blue")
       .renderOption(height => <DatatableItem.Block height={height} />)
@@ -98,7 +98,14 @@ export const StandardNetworkRealmListTable = ({
       .name("Publisher")
       .width(202)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.Publisher address={data.creator} username={data.creatorName} />)
+      .renderOption((_, data) => (
+        <DatatableItem.Publisher
+          address={data.creator}
+          username={data.creatorName}
+          label={data.creatorLabel}
+          labelType={data.creatorLabelType}
+        />
+      ))
       .build();
   };
 

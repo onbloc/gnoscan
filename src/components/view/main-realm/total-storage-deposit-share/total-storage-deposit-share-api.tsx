@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/loading";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { dateToStr } from "@/common/utils/date-util";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { useGetTotalDailyRealmStorageDeposit } from "@/common/react-query/statistics";
 import { StorageDepositInfo } from "@/repositories/api/statistics/response";
 
@@ -46,7 +47,7 @@ export const MainTotalStorageDepositShareApi = () => {
     });
 
     return sortedPackages.reduce<Record<string, Array<{ value: number; rate: number }>>>((accum, packagePath) => {
-      const currentLabel = packagePath === "rest" ? "rest" : packagePath.replace("gno.land", "");
+      const currentLabel = packagePath === "rest" ? "rest" : stripGnoLandPrefix(packagePath);
 
       accum[currentLabel] = labels.map(date => {
         const dateData = data[date];

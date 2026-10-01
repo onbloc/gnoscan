@@ -6,6 +6,7 @@ import { makeDisplayNumber } from "@/common/utils/string-util";
 import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString, safeString } from "@/common/utils/format/format-utils";
 import { TransactionTableModel } from "@/models/api/common";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 export class BlockMapper {
   public static blockListFromApiResponses(responses: BlockModel[]): Block[] {
@@ -65,6 +66,11 @@ export class BlockMapper {
       transactionHash: response.txHash,
       caller: response.caller,
       callerName: response.callerName,
+      callerLabel: response.callerLabel,
+      callerLabelType: response.callerLabelType,
+      originCaller: response.originCaller,
+      originCallerLabel: response.originCallerLabel,
+      originCallerLabelType: response.originCallerLabelType,
       type: response.eventName,
       packagePath: response.realmPath,
       functionName: response.function,
@@ -78,18 +84,23 @@ export class BlockMapper {
   }
 
   public static blockTransactionsFromApiResponse(response: TransactionTableModel): Transaction {
+    const func = getRepresentativeTransactionFunction(response);
     return {
       hash: response.txHash,
       success: response.successYn,
       numOfMessage: response.messageCount,
-      type: response.func[0].messageType,
-      packagePath: response.func[0].pkgPath,
-      functionName: response.func[0].funcType,
+      type: func?.messageType || "",
+      packagePath: func?.pkgPath || "",
+      functionName: func?.funcType || "",
       blockHeight: response.blockHeight,
       from: response.fromAddress,
       fromName: response.fromName,
+      fromLabel: response.fromLabel,
+      fromLabelType: response.fromLabelType,
       to: response.toAddress,
       toName: response.toName,
+      toLabel: response.toLabel,
+      toLabelType: response.toLabelType,
       amount: response.amount,
       amountOut: { denom: "", value: "" },
       time: response.timestamp,

@@ -1,10 +1,9 @@
-import { useGetTokenMetaQuery } from "@/common/react-query/meta";
 import { useGetGRC20Tokens } from "@/common/react-query/realm";
-import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 import { stripTokenKeySymbol } from "@/common/utils/token.utility";
 import { Amount, TokenInfo } from "@/types/data-type";
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo } from "react";
+import { useTokenResourceMeta } from "./use-token-resource-meta";
 
 export const GNOTToken: TokenInfo = {
   name: "Gno.land",
@@ -15,7 +14,7 @@ export const GNOTToken: TokenInfo = {
 
 export const useTokenMeta = () => {
   const { data: grc20Infos = [], isFetched: isFetchedGRC20Tokens } = useGetGRC20Tokens();
-  const { data: tokenMetas = [], isFetched: isFetchedTokenMeta } = useGetTokenMetaQuery();
+  const { isFetched: isFetchedTokenMeta, getTokenMeta, getTokenImage } = useTokenResourceMeta();
 
   const tokenMap = useMemo(() => {
     const defaultTokenMap: { [key in string]: TokenInfo } = {
@@ -23,11 +22,16 @@ export const useTokenMeta = () => {
     };
     const grc20TokenMap =
       grc20Infos?.reduce<{ [key in string]: TokenInfo }>((accum, current) => {
-        accum[current.packagePath] = {
+        const resolved = getTokenMeta(current.packagePath, {
           name: current.name,
-          denom: current.packagePath,
           symbol: current.symbol,
           decimals: current.decimals,
+        });
+        accum[current.packagePath] = {
+          name: resolved.name,
+          denom: current.packagePath,
+          symbol: resolved.symbol,
+          decimals: resolved.decimals,
         };
         return accum;
       }, {}) || {};
@@ -36,68 +40,37 @@ export const useTokenMeta = () => {
       ...defaultTokenMap,
       ...grc20TokenMap,
     };
-  }, [grc20Infos]);
+  }, [grc20Infos, getTokenMeta]);
 
-  const tokenImageMap = useMemo(() => {
-    return (
-      tokenMetas?.reduce<{ [key in string]: string }>((accum, current) => {
-        accum[current.id] = current.image;
-        return accum;
-      }, {}) || {}
-    );
-  }, [tokenMetas]);
-
+  // Same order everywhere: token resource list -> backend GRC20 list -> raw value (decimals 0).
+  // Tokens missing from the backend list still go through getTokenMeta (resource + wugnot override).
   const getTokenInfo = useCallback(
-    (tokenId: string): TokenInfo | undefined => {
+    (tokenId: string): TokenInfo => {
       const tokenInfo = tokenMap[tokenId] || tokenMap[stripTokenKeySymbol(tokenId)];
-      if (!tokenInfo) {
-        const values = tokenId.split("/");
-        const namespace = values[values.length - 1].toUpperCase();
-        return {
-          name: namespace,
-          denom: namespace,
-          symbol: namespace,
-          decimals: 6,
-        };
-      }
-      return tokenInfo;
+      if (tokenInfo) return tokenInfo;
+
+      const values = tokenId.split("/");
+      const namespace = values[values.length - 1];
+      const resolved = getTokenMeta(tokenId, { name: namespace, symbol: namespace, decimals: 0 });
+      return { name: resolved.name, denom: tokenId, symbol: resolved.symbol, decimals: resolved.decimals };
     },
-    [tokenMap],
+    [tokenMap, getTokenMeta],
   );
 
   const getTokenAmount = useCallback(
     (tokenId: string, amountRaw: string | number): Amount => {
-      const tokenInfo = tokenMap[tokenId] || tokenMap[stripTokenKeySymbol(tokenId)];
-      if (!tokenInfo) {
-        const values = tokenId.split("/");
-        return {
-          value: `${amountRaw}`.toString(),
-          denom: values[values.length - 1],
-        };
-      }
+      const tokenInfo = getTokenInfo(tokenId);
+      const value = BigNumber(amountRaw);
       return {
-        value: BigNumber(amountRaw)
-          .shiftedBy(tokenInfo.decimals * -1)
-          .toString(),
+        value: value.isNaN() ? `${amountRaw}` : value.shiftedBy(tokenInfo.decimals * -1).toString(),
         denom: tokenInfo.symbol,
       };
     },
-    [tokenMap],
-  );
-
-  const getTokenImage = useCallback(
-    (tokenId: string): string | undefined => {
-      if (!tokenImageMap[tokenId]) {
-        return undefined;
-      }
-      return `${GNO_TOKEN_RESOURCE_BASE_URI}${tokenImageMap[tokenId]}`;
-    },
-    [tokenImageMap],
+    [getTokenInfo],
   );
 
   return {
     tokenMap,
-    tokenImageMap,
     isFetchedGRC20Tokens,
     isFetchedTokenMeta,
     getTokenInfo,

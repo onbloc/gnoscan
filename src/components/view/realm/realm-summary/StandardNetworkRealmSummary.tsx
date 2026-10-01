@@ -1,32 +1,43 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React from "react";
+import { css } from "styled-components";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useNetwork } from "@/common/hooks/use-network";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
+import { useGetNativeTokenBalance } from "@/common/react-query/account";
+import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { makeTemplate } from "@/common/utils/template.utils";
+import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { Amount, RealmSummary } from "@/types/data-type";
+
+import { mapAccountAssetsToAmounts, sortAmountsByValueDesc } from "./realm-balance.utility";
 
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import Badge from "@/components/ui/badge";
 import { DLWrap, FitContentA, FitContentSpan, LinkWrapper } from "@/components/ui/detail-page-common-styles";
+import FloatingTooltip from "@/components/ui/floating-tooltip";
+import IconInfo from "@/components/ui/icon-info";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
 import Tooltip from "@/components/ui/tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
-import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
-import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
+import PublicFunctions from "@/components/ui/public-functions";
 
 const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
   ssr: false,
@@ -54,31 +65,74 @@ const TOOLTIP_BALANCE = (
 
 const TOOLTIP_STORAGE_DEPOSIT = <>Total amount of GNOT deposited for storage in real time.</>;
 
+const notYetEnabledBadgeStyle = css`
+  background-color: #ff4d4f;
+
+  .not-yet-enabled-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .not-yet-enabled-tooltip {
+    width: 16px;
+    height: 16px;
+    line-height: 0;
+  }
+`;
+
+const NotYetEnabledBadge = () => (
+  <Badge margin="0" cssExtend={notYetEnabledBadgeStyle}>
+    <span className="not-yet-enabled-content">
+      <Text type="p4" color="white" fontWeight={400}>
+        Not Yet Enabled
+      </Text>
+      <FloatingTooltip
+        content={TOOLTIP_NOT_YET_ENABLED}
+        className="not-yet-enabled-tooltip"
+        ariaLabel="Show not yet enabled details"
+      >
+        <IconInfo size={16} fill="#ffffff" />
+      </FloatingTooltip>
+    </span>
+  </Badge>
+);
+
 const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
   const { gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
-  const { data: storageDepositData, isFetched: isFetchedStorageDepositData } = useGetRealmStorageDepositByPath(path);
+  const { data: storageDepositData } = useGetRealmStorageDepositByPath(path);
+  const realmResponseData = realmData?.data;
 
   const realmSummary: RealmSummary | null = React.useMemo(() => {
-    if (!realmData?.data) return null;
+    if (!realmResponseData) return null;
 
-    return RealmMapper.realmSummaryFromApiResponse(realmData.data);
-  }, [realmData?.data]);
+    return RealmMapper.realmSummaryFromApiResponse(realmResponseData);
+  }, [realmResponseData]);
 
-  const realmBalance: Amount | null = React.useMemo(() => {
-    if (!realmSummary?.balance) return null;
+  const { data: nativeBalanceData } = useGetNativeTokenBalance(realmSummary?.realmAddress || "", {
+    enabled: !!realmSummary?.realmAddress,
+  });
+  const { data: accountData } = useGetAccountByAddress(realmSummary?.realmAddress || "", {
+    enabled: !!realmSummary?.realmAddress,
+  });
 
-    const data = realmSummary.balance;
-    return toGNOTAmount(data.value, data.denom);
-  }, [realmSummary?.balance]);
+  const { getTokenMeta } = useTokenResourceMeta();
+  const realmBalanceList: Amount[] = React.useMemo(() => {
+    const nativeAmount = toGNOTAmount(nativeBalanceData?.value || "0", nativeBalanceData?.denom || GNOTToken.denom);
+    return sortAmountsByValueDesc([
+      nativeAmount,
+      ...mapAccountAssetsToAmounts(accountData?.data?.assets, getTokenMeta),
+    ]);
+  }, [nativeBalanceData, accountData?.data?.assets, getTokenMeta]);
 
   const realmTotalUsedFees: Amount | null = React.useMemo(() => {
     if (!realmSummary?.totalUsedFees) return null;
 
     const data = realmSummary.totalUsedFees;
     return toGNOTAmount(data?.value, data?.denom);
-  }, [realmSummary?.totalUsedFees]);
+  }, [realmSummary]);
 
   const displayStorageDepositAmount: Amount = React.useMemo(() => {
     if (!storageDepositData)
@@ -115,6 +169,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
     return formatDisplayBlockHeight(realmSummary?.blockPublished);
   }, [realmSummary?.blockPublished]);
 
+  const isRealmNotEnabled = realmSummary?.isEnableYn === "N";
+
   if (!isFetchedRealmData) return <TableSkeleton />;
 
   return (
@@ -135,7 +191,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           </div>
         </dt>
         <dd className="path-wrapper">
-          <Badge>
+          <Badge margin="0">
             <Text type="p4" color="reverse" className="ellipsis">
               {formatDisplayPackagePath(realmSummary?.path)}
             </Text>
@@ -150,6 +206,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               <IconCopy className="svg-icon" />
             </Tooltip>
           </Badge>
+
+          {isRealmNotEnabled && <NotYetEnabledBadge />}
 
           <NonMobile>
             {hasGnoWebUrl && (
@@ -185,7 +243,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
-        <dd className="function-wrapper">
+        <PublicFunctions>
           {realmSummary?.funcs?.map((v: string, index: number) => (
             <Badge key={index} type="blue">
               <Text type="p4" color="white">
@@ -193,7 +251,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
               </Text>
             </Badge>
           ))}
-        </dd>
+        </PublicFunctions>
       </DLWrap>
       <DLWrap desktop={isDesktop}>
         <dt>Publisher</dt>
@@ -202,14 +260,32 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             {realmSummary?.publisherAddress === "genesis" ? (
               <FitContentA>
                 <Text type="p4" color="blue" className="ellipsis">
-                  {realmSummary?.publisherName || realmSummary?.publisherAddress || ""}
+                  {getAddressDisplayText({
+                    address: realmSummary?.publisherAddress,
+                    name: realmSummary?.publisherName,
+                    label: realmSummary?.publisherLabel,
+                  }) || ""}
                 </Text>
               </FitContentA>
             ) : (
               <FitContentSpan>
-                <Link href={getUrlWithNetwork(`/account/${realmSummary?.publisherAddress}`)} passHref>
+                <Link
+                  href={getUrlWithNetwork(
+                    getAddressLinkPath({
+                      address: realmSummary?.publisherAddress,
+                      name: realmSummary?.publisherName,
+                      label: realmSummary?.publisherLabel,
+                      labelType: realmSummary?.publisherLabelType,
+                    }),
+                  )}
+                  passHref
+                >
                   <Text type="p4" color="blue" className="ellipsis">
-                    {realmSummary?.publisherName || realmSummary?.publisherAddress || ""}
+                    {getAddressDisplayText({
+                      address: realmSummary?.publisherAddress,
+                      name: realmSummary?.publisherName,
+                      label: realmSummary?.publisherLabel,
+                    }) || ""}
                   </Text>
                 </Link>
               </FitContentSpan>
@@ -248,15 +324,12 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             </Tooltip>
           </div>
         </dt>
-        <dd>
-          <Badge>
-            <AmountText
-              minSize="body1"
-              maxSize="p4"
-              value={realmBalance?.value || "0"}
-              denom={realmBalance?.denom || GNOTToken.symbol}
-            />
-          </Badge>
+        <dd className="function-wrapper">
+          {realmBalanceList.map((amount, index) => (
+            <Badge key={`${amount.denom}-${index}`}>
+              <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
+            </Badge>
+          ))}
         </dd>
       </DLWrap>
       <DLWrap desktop={isDesktop}>

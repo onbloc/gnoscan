@@ -17,16 +17,36 @@ export const DetailsContainer = styled.div<StyleProps>`
   .tab-area {
     display: flex;
     flex-direction: row;
-    gap: 32px;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 16px;
+
+    @media (max-width: 1279px) {
+      width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+
+      ::-webkit-scrollbar {
+        width: 0px;
+        height: 0px;
+        display: none;
+      }
+    }
 
     .tab-item {
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: 10px;
       justify-content: center;
       cursor: pointer;
 
+      @media (max-width: 1279px) {
+        flex-shrink: 0;
+      }
+
       .badge {
+        ${mixins.flexbox("row", "center", "center")};
         width: fit-content;
         min-width: 28px;
         height: 28px;
@@ -60,6 +80,13 @@ export const DLWrap = styled.dl<StyleProps>`
   &:last-of-type {
     padding-bottom: 0px;
   }
+  &.top-aligned {
+    align-items: flex-start;
+
+    dt {
+      padding-top: 4px;
+    }
+  }
   &.multiple-badges {
     padding-top: ${({ desktop }) => (desktop ? "0px" : "12px")};
     .badge {
@@ -76,34 +103,44 @@ export const DLWrap = styled.dl<StyleProps>`
     width: 100%;
     display: block;
 
-    &.function-wrapper {
-      line-height: 40px;
-
-      .link {
-        padding: 0;
-        transition: 0.2s;
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.6;
-        }
-      }
-
-      .tooltip {
-        display: block;
-        width: 100%;
-        height: 100%;
-
-        .tooltip-button {
-          padding: 4px 16px;
-        }
-      }
-    }
-
     &.path-wrapper {
       display: flex;
       flex-direction: row;
       gap: 15px;
+      margin-top: ${({ desktop }) => (desktop ? "0" : "12px")};
+
+      > .badge {
+        margin-top: 0;
+      }
+
+      @media (max-width: 767px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        > .badge:first-child {
+          margin: 0;
+          width: fit-content;
+          max-width: 100%;
+          min-width: 0;
+        }
+
+        > .badge:not(:first-child),
+        > a,
+        > button {
+          margin: 0;
+          width: fit-content;
+          max-width: 100%;
+        }
+      }
+    }
+
+    &.files-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      min-width: 0;
     }
   }
 

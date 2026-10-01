@@ -3,7 +3,7 @@ import { toBech32Address } from "@/common/utils/bech32.utility";
 import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
 import { parseTokenAmount } from "@/common/utils/token.utility";
-import { decodeTransaction, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
+import { decodeTransactionSafely, makeTransactionMessageInfo } from "@/common/utils/transaction.utility";
 import { getDefaultMessageByBlockTransaction } from "@/repositories/utility";
 import { BlockSummaryInfo, GnoEvent, Transaction } from "@/types/data-type";
 import BigNumber from "bignumber.js";
@@ -49,7 +49,7 @@ export const useBlock = (height: number) => {
     if (!block) {
       return [];
     }
-    return block.block.data.txs?.map(decodeTransaction);
+    return block.block.data.txs?.map(decodeTransactionSafely);
   }, [block]);
 
   const transactionItems: Transaction[] = useMemo(() => {
@@ -57,13 +57,14 @@ export const useBlock = (height: number) => {
       return [];
     }
     return transactions?.map((transaction, index) => {
-      const result = (blockResult.deliver_tx || []).find((_, resultIndex) => index === resultIndex);
+      const result = blockResult.deliver_tx[index];
+      const success = !!result && !result.ResponseBase?.Error;
       const defaultMessage = makeTransactionMessageInfo(getDefaultMessageByBlockTransaction(transaction.messages));
       const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
 
       return {
         hash: transaction.hash,
-        success: !result?.ResponseBase?.Error,
+        success,
         numOfMessage: transaction.messages.length,
         type: defaultMessage?.type || "",
         packagePath: defaultMessage?.packagePath || "",
@@ -91,7 +92,7 @@ export const useBlock = (height: number) => {
   const numberOfTransactions = useMemo(() => makeDisplayNumberWithDefault(block?.block.header.num_txs), [block]);
 
   const transactionGasInfo = useMemo(() => {
-    if (!blockResult?.deliver_tx) {
+    if (!blockResult) {
       return {
         gasWanted: 0,
         gasUsed: 0,
@@ -139,33 +140,33 @@ export const useBlock = (height: number) => {
       return [];
     }
 
-    return (
-      (blockResult?.deliver_tx
-        ?.flatMap(
-          (result, index) =>
-            result?.ResponseBase?.Events?.map((event, eventIndex) => {
-              if (!block?.block.data.txs || !block?.block.data.txs?.[index]) {
-                return null;
-              }
+    return blockResult.deliver_tx
+      .flatMap(
+        (result, index) =>
+          result?.ResponseBase?.Events?.map((event, eventIndex) => {
+            if (!block?.block.data.txs || !block?.block.data.txs?.[index]) {
+              return null;
+            }
 
-              const transaction = decodeTransaction(block?.block.data.txs?.[index]);
-              const eventId = transaction.hash + "_" + index + "_" + eventIndex;
-              const caller = transaction?.messages?.[0]?.caller || "";
-              return {
-                id: eventId,
-                transactionHash: transaction.hash,
-                blockHeight: blockHeight || 0,
-                type: event.type,
-                packagePath: event.pkg_path,
-                functionName: event.func,
-                attrs: event.attrs,
-                time: block.block.header.time,
-                caller,
-              };
-            }) || [],
-        )
-        .filter(event => !!event) as GnoEvent[]) || []
-    );
+            const transaction = decodeTransactionSafely(block?.block.data.txs?.[index]);
+            const eventId = transaction.hash + "_" + index + "_" + eventIndex;
+            const caller = transaction?.messages?.[0]?.caller || "";
+            return {
+              id: eventId,
+              transactionHash: transaction.hash,
+              blockHeight: blockHeight || 0,
+              type: event.type,
+              packagePath: event.pkg_path,
+              functionName: event.func,
+              attrs: event.attrs,
+              time: block.block.header.time,
+              caller,
+              // No separate origin-caller concept for custom networks - the tx's top-level caller stands in.
+              originCaller: caller,
+            };
+          }) || [],
+      )
+      .filter(event => !!event) as GnoEvent[];
   }, [block?.block.data.txs, blockResult]);
 
   const isErrorBlock = useMemo(() => {

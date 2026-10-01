@@ -9,6 +9,7 @@ import { DatatableItem } from "..";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { useGetTokenHoldersByid, useGetTokenById } from "@/common/react-query/token/api";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { TokenHolderModel } from "@/models/api/token/token-holder-model";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
@@ -26,7 +27,17 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   const { breakpoint } = useWindowSize();
 
   const { data: tokenData } = useGetTokenById(path);
-  const { decimals, symbol } = tokenData?.data ?? { decimals: 0, symbol: "" };
+  const { getTokenMeta } = useTokenResourceMeta();
+  const backendMeta = tokenData?.data ?? { decimals: 0, symbol: "" };
+  const resolved = tokenData?.data?.path
+    ? getTokenMeta(tokenData.data.tokenId || tokenData.data.path, {
+        name: tokenData.data.name,
+        symbol: tokenData.data.symbol,
+        decimals: tokenData.data.decimals,
+      })
+    : undefined;
+  const decimals = resolved?.decimals ?? backendMeta.decimals;
+  const symbol = resolved?.symbol ?? backendMeta.symbol;
 
   const { data, isFetched: isFetchedHolders, hasNextPage, fetchNextPage } = useGetTokenHoldersByid({ path });
 
@@ -40,6 +51,8 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
         rank: index + 1,
         address: item.address,
         nameTag: item.nameTag,
+        label: item.label,
+        labelType: item.labelType,
         balance: {
           value: formatTokenDecimal(item.balance, decimals),
           denom: symbol,
@@ -76,7 +89,9 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
       .name("Address")
       .width(275)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.CallerCopy caller={data.address} />)
+      .renderOption((_, data) => (
+        <DatatableItem.CallerCopy caller={data.address} label={data.label} labelType={data.labelType} />
+      ))
       .build();
   };
 

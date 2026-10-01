@@ -24,8 +24,7 @@ export const useGetNativeTokenBalance = (address: string, options?: UseQueryOpti
       return accountRepository
         .getNativeTokensBalances(address)
         .then(result => {
-          const nativeValue = result.split(",");
-          const amountValue = parseTokenAmount(nativeValue?.[0] || "").toString();
+          const amountValue = parseTokenAmount(result || "0", GNOTToken.denom).toString();
           return {
             value: amountValue,
             denom: GNOTToken.denom,

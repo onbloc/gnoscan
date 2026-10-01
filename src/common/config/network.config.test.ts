@@ -11,18 +11,21 @@ describe("Network configuration", () => {
     delete process.env.NEXT_PUBLIC_NETWORK1_CHAIN_ID;
     delete process.env.NEXT_PUBLIC_NETWORK1_API_URL;
     delete process.env.NEXT_PUBLIC_NETWORK1_RPC_URL;
+    delete process.env.NEXT_PUBLIC_NETWORK1_FALLBACK_RPC_URL;
     delete process.env.NEXT_PUBLIC_NETWORK1_INDEXER_URL;
     delete process.env.NEXT_PUBLIC_NETWORK1_GNO_WEB_URL;
     delete process.env.NEXT_PUBLIC_NETWORK2_NAME;
     delete process.env.NEXT_PUBLIC_NETWORK2_CHAIN_ID;
     delete process.env.NEXT_PUBLIC_NETWORK2_API_URL;
     delete process.env.NEXT_PUBLIC_NETWORK2_RPC_URL;
+    delete process.env.NEXT_PUBLIC_NETWORK2_FALLBACK_RPC_URL;
     delete process.env.NEXT_PUBLIC_NETWORK2_INDEXER_URL;
     delete process.env.NEXT_PUBLIC_NETWORK2_GNO_WEB_URL;
     delete process.env.NEXT_PUBLIC_NETWORK3_NAME;
     delete process.env.NEXT_PUBLIC_NETWORK3_CHAIN_ID;
     delete process.env.NEXT_PUBLIC_NETWORK3_API_URL;
     delete process.env.NEXT_PUBLIC_NETWORK3_RPC_URL;
+    delete process.env.NEXT_PUBLIC_NETWORK3_FALLBACK_RPC_URL;
     delete process.env.NEXT_PUBLIC_NETWORK3_INDEXER_URL;
     delete process.env.NEXT_PUBLIC_NETWORK3_GNO_WEB_URL;
     delete process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID;
@@ -59,6 +62,7 @@ describe("Network configuration", () => {
         chainId: "test-chain-1",
         apiUrl: "https://api.test1.com",
         rpcUrl: "https://rpc.test1.com",
+        fallbackRpcUrl: null,
         indexerUrl: "https://indexer.test1.com",
         gnoWebUrl: "https://gno.test1.com",
       });
@@ -67,9 +71,37 @@ describe("Network configuration", () => {
         chainId: "test-chain-2",
         apiUrl: "https://api.test2.com",
         rpcUrl: "https://rpc.test2.com",
+        fallbackRpcUrl: null,
         indexerUrl: "https://indexer.test2.com",
         gnoWebUrl: "https://gno.test2.com",
       });
+    });
+
+    it("should include the fallback RPC URL when it is set", () => {
+      process.env.NEXT_PUBLIC_NETWORK1_NAME = "Test Network 1";
+      process.env.NEXT_PUBLIC_NETWORK1_CHAIN_ID = "test-chain-1";
+      process.env.NEXT_PUBLIC_NETWORK1_API_URL = "https://api.test1.com";
+      process.env.NEXT_PUBLIC_NETWORK1_RPC_URL = "https://rpc.test1.com";
+      process.env.NEXT_PUBLIC_NETWORK1_FALLBACK_RPC_URL = "https://fallback-rpc.test1.com";
+      process.env.NEXT_PUBLIC_NETWORK1_INDEXER_URL = "https://indexer.test1.com";
+
+      const networks = getNetworksFromEnv();
+
+      expect(networks.length).toBe(1);
+      expect(networks[0].fallbackRpcUrl).toBe("https://fallback-rpc.test1.com");
+    });
+
+    it("should register the network without a fallback RPC URL when it is unset", () => {
+      process.env.NEXT_PUBLIC_NETWORK1_NAME = "Test Network 1";
+      process.env.NEXT_PUBLIC_NETWORK1_CHAIN_ID = "test-chain-1";
+      process.env.NEXT_PUBLIC_NETWORK1_API_URL = "https://api.test1.com";
+      process.env.NEXT_PUBLIC_NETWORK1_RPC_URL = "https://rpc.test1.com";
+      process.env.NEXT_PUBLIC_NETWORK1_INDEXER_URL = "https://indexer.test1.com";
+
+      const networks = getNetworksFromEnv();
+
+      expect(networks.length).toBe(1);
+      expect(networks[0].fallbackRpcUrl).toBeNull();
     });
 
     it("should not include network if required environment variables are missing", () => {
@@ -97,6 +129,7 @@ describe("Network configuration", () => {
         chainId: "test-chain-1",
         apiUrl: "https://api.test1.com",
         rpcUrl: "https://rpc.test1.com",
+        fallbackRpcUrl: null,
         indexerUrl: "https://indexer.test1.com",
         gnoWebUrl: "https://gno.test1.com",
       });
@@ -133,6 +166,7 @@ describe("Network configuration", () => {
         chainId: "test-chain-3",
         apiUrl: "https://api.test3.com",
         rpcUrl: "https://rpc.test3.com",
+        fallbackRpcUrl: null,
         indexerUrl: "https://indexer.test3.com",
         gnoWebUrl: "https://gno.test3.com",
       });

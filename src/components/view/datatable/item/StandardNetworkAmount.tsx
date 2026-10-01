@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
 import { FontsType } from "@/styles";
 import { Amount } from "@/types/data-type";
@@ -14,16 +15,13 @@ interface Props {
 export const StandardNetworkAmount = ({ data, maxSize = "p4", minSize = "body1" }: Props) => {
   const { amount, isLoading } = useTokenMetaAmount(data);
 
+  if (new BigNumber(data?.value).isZero()) {
+    return <span>-</span>;
+  }
+
   if (isLoading) {
     return <SkeletonBar width={80} />;
   }
 
-  return (
-    <AmountText
-      value={amount?.value || "0"}
-      denom={amount?.denom || "".toUpperCase()}
-      maxSize={maxSize}
-      minSize={minSize}
-    />
-  );
+  return <AmountText value={amount?.value || "0"} denom={amount?.denom || ""} maxSize={maxSize} minSize={minSize} />;
 };

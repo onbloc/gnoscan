@@ -74,6 +74,10 @@ export const TransactionContractDetails: React.FC<{
         return message["@type"];
       case "/vm.m_run":
         return "MsgRun";
+      case "/vm.m_enable_pkg":
+        return "EnablePkg";
+      case "/vm.m_reject_pkg":
+        return "RejectPkg";
       default:
         return message["@type"];
     }

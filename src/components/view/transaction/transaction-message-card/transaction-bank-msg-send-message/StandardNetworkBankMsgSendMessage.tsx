@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
@@ -42,6 +41,8 @@ const StandardNetworkBankMsgSendMessage = ({
           addressName={message.fromName}
           copyText={message.from || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.fromLabel}
+          labelType={message.fromLabelType}
         />
       </Field>
 
@@ -51,6 +52,8 @@ const StandardNetworkBankMsgSendMessage = ({
           addressName={message.toName}
           copyText={message.to || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.toLabel}
+          labelType={message.toLabelType}
         />
       </Field>
     </>

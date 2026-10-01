@@ -12,8 +12,8 @@ const RealmListContainer = () => {
   const { isCustomNetwork } = useNetworkProvider();
 
   const [sortOption, setSortOption] = React.useState<RealmListSortOption>({
-    field: "none",
-    order: "none",
+    field: "totalCalls",
+    order: "desc",
   });
 
   return isCustomNetwork ? (

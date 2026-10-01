@@ -54,6 +54,8 @@ const StandardNetworkCreateSessionMessage = ({
           addressName={message.creatorName}
           copyText={message.creator || ""}
           getUrlWithNetwork={getUrlWithNetwork}
+          label={message.creatorLabel}
+          labelType={message.creatorLabelType}
         />
       </Field>
 

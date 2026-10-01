@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import BigNumber from "bignumber.js";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import styled from "styled-components";
 import { Button } from "@/components/ui/button";
@@ -94,6 +95,8 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
       .renderOption((amount: Amount, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
+        ) : new BigNumber(amount?.value).isZero() ? (
+          <span>-</span>
         ) : (
           <DatatableItem.Amount {...getTokenAmount(amount?.denom || "", amount?.value || 0)} />
         ),
@@ -109,6 +112,8 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
       .renderOption((amount: Amount, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
+        ) : new BigNumber(amount?.value).isZero() ? (
+          <span>-</span>
         ) : (
           <DatatableItem.Amount {...getTokenAmount(amount?.denom || "", amount?.value || 0)} />
         ),

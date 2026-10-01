@@ -36,7 +36,7 @@ export class ChainRepository implements IChainRepository {
     if (chainId === ChainType.STAGING) {
       return ValidatorStagingData;
     }
-    if (chainId === ChainType.GNOLAND1) {
+    if (chainId === ChainType.GNOLAND) {
       return ValidatorGnoland1Data;
     }
     return [];

@@ -90,6 +90,7 @@ export const CustomNetworkRealmListTable = ({
     return DatatableOption.Builder.builder()
       .key("blockHeight")
       .name("Block")
+      .sort()
       .width(121)
       .colorName("blue")
       .renderOption(height => <DatatableItem.Block height={height} />)

@@ -9,6 +9,7 @@ import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { useTotalGasInfoApi } from "@/common/hooks/main/use-total-gas-info-api";
 import { dateToStr } from "@/common/utils/date-util";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { useGetTotalGasShare } from "@/common/react-query/statistics";
 import { DailyPackages, PackageInfo } from "@/repositories/api/statistics/response";
 
@@ -47,7 +48,7 @@ export const MainRealmTotalGasShareApi = () => {
     });
 
     return sortedPackages.reduce<Record<string, Array<{ value: number; rate: number }>>>((accum, packagePath) => {
-      const currentLabel = packagePath === "rest" ? "rest" : packagePath.replace("gno.land", "");
+      const currentLabel = packagePath === "rest" ? "rest" : stripGnoLandPrefix(packagePath);
 
       accum[currentLabel] = labels.map(date => {
         const dateData = data[date];

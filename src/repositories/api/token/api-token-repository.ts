@@ -1,10 +1,20 @@
-import { GetTokenHoldersRequest, GetTokensRequestParameters, GetTokenTransactionsRequest } from "./request";
+import {
+  GetTokenHoldersRequest,
+  GetTokensRequestParameters,
+  GetTokenTransfersRequest,
+  GetTokenMetaTransactionsRequest,
+  GetTokenMetaInternalTransactionsRequest,
+  GetTokenEventsRequest,
+} from "./request";
 import {
   GetTokenHoldersResponse,
   GetTokenMetaByPathResponse,
   GetTokenResponse,
   GetTokensResponse,
-  GetTokenTransactionsResponse,
+  GetTokenTransfersResponse,
+  GetTokenMetaTransactionsResponse,
+  GetTokenMetaInternalTransactionsResponse,
+  GetTokenEventsResponse,
 } from "./response";
 
 export interface ApiTokenRepository {
@@ -12,9 +22,17 @@ export interface ApiTokenRepository {
 
   getToken(tokenId: string): Promise<GetTokenResponse>;
 
-  getTokenTransactions(params: GetTokenTransactionsRequest): Promise<GetTokenTransactionsResponse>;
+  getTokenTransfers(params: GetTokenTransfersRequest): Promise<GetTokenTransfersResponse>;
 
   getTokenHolders(params: GetTokenHoldersRequest): Promise<GetTokenHoldersResponse>;
 
   getTokenMetaByPath(path: string): Promise<GetTokenMetaByPathResponse>;
+
+  getTokenMetaTransactions(params: GetTokenMetaTransactionsRequest): Promise<GetTokenMetaTransactionsResponse>;
+
+  getTokenMetaInternalTransactions(
+    params: GetTokenMetaInternalTransactionsRequest,
+  ): Promise<GetTokenMetaInternalTransactionsResponse>;
+
+  getTokenEvents(params: GetTokenEventsRequest): Promise<GetTokenEventsResponse>;
 }
