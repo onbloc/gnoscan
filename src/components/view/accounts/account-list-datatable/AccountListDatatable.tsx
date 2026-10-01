@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import BigNumber from "bignumber.js";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 
@@ -137,12 +136,7 @@ const createHeaderBalance = () => {
     .key("balance")
     .name("Balance")
     .width(220)
-    .renderOption((balance: { value: string; denom: string }) => {
-      const amount = new BigNumber(balance?.value);
-      if (!amount.isFinite() || amount.isZero()) return <span>-</span>;
-
-      return <DatatableItem.Amount value={balance.value} denom={balance.denom} />;
-    })
+    .renderOption(balance => <DatatableItem.StandardNetworkAmount data={balance} />)
     .build();
 };
 
