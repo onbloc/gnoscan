@@ -5,11 +5,12 @@ import { innerLayoutCss } from "@/styles/css/inner-layout";
 export const Container = styled.main`
   width: 100%;
   flex: 1;
-  padding: 40px 0;
+  padding: 39px 0;
 `;
 
 export const InnerLayout = styled.div`
   ${innerLayoutCss}
+  max-width: 1278px;
 `;
 
 export const Wrapper = styled.div`

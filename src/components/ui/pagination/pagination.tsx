@@ -21,12 +21,24 @@ export const Pagination = ({ page, totalPages, onChangePage }: PaginationProps) 
 
   return (
     <Wrapper>
+      <ArrowButton aria-label="First page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(1)}>
+        <DoubleArrow className="icon-arrow-left">
+          <IconArrow />
+          <IconArrow />
+        </DoubleArrow>
+      </ArrowButton>
       <ArrowButton aria-label="Previous page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(page - 1)}>
-        <IconArrow className="icon-arrow-right" />
+        <IconArrow className="icon-arrow-left" />
       </ArrowButton>
       <PageText>{`Page ${page} of ${totalPages}`}</PageText>
       <ArrowButton aria-label="Next page" disabled={!hasNext} onClick={() => hasNext && onChangePage(page + 1)}>
-        <IconArrow className="icon-arrow-left" />
+        <IconArrow />
+      </ArrowButton>
+      <ArrowButton aria-label="Last page" disabled={!hasNext} onClick={() => hasNext && onChangePage(totalPages)}>
+        <DoubleArrow>
+          <IconArrow />
+          <IconArrow />
+        </DoubleArrow>
       </ArrowButton>
     </Wrapper>
   );
@@ -36,7 +48,8 @@ const Wrapper = styled.div`
   ${mixins.flexbox("row", "center", "center", false)};
   gap: 12px;
   width: 100%;
-  padding: 10px 0;
+  height: 66px;
+  padding: 10px 24px;
 `;
 
 const PageText = styled.span`
@@ -49,6 +62,7 @@ const ArrowButton = styled.button<{ disabled?: boolean }>`
   ${mixins.flexbox("row", "center", "center")};
   width: 30px;
   height: 30px;
+  padding: 7px;
   border-radius: 4px;
   border: none;
   background-color: ${({ theme }) => theme.colors.surface};
@@ -59,8 +73,25 @@ const ArrowButton = styled.button<{ disabled?: boolean }>`
   svg {
     fill: ${({ theme }) => theme.colors.reverse};
 
-    &.icon-arrow-right {
+    &.icon-arrow-left {
       transform: rotate(180deg);
+    }
+  }
+`;
+
+const DoubleArrow = styled.span`
+  display: flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 10px;
+    height: 16px;
+
+    + svg {
+      margin-left: -6px;
     }
   }
 `;

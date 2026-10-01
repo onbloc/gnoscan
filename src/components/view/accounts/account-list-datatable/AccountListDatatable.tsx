@@ -148,8 +148,11 @@ const Container = styled.div`
   width: 100%;
   height: auto;
   align-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: ${({ theme }) => theme.colors.base};
 
-  & > div {
-    padding: 0;
+  & > div:first-child {
+    padding: 24px 24px 0;
   }
 `;
