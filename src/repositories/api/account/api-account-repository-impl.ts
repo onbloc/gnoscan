@@ -50,7 +50,7 @@ export class ApiAccountRepositoryImpl implements ApiAccountRepository {
 
     return this.networkClient
       .get<APIResponse<GetAccountsResponse>>({
-        url: `accounts${requestParams}`,
+        url: `native/holders${requestParams}`,
       })
       .then(result => {
         return result.data?.data;

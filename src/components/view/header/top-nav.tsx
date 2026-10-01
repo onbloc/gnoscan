@@ -34,16 +34,16 @@ interface EntryProps {
 
 export const navItems = [
   {
+    name: "Home",
+    path: "/",
+  },
+  {
     name: "Blocks",
     path: "/blocks",
   },
   {
     name: "Transactions",
     path: "/transactions",
-  },
-  {
-    name: "Validators",
-    path: "/validators",
   },
   {
     name: "Realms",

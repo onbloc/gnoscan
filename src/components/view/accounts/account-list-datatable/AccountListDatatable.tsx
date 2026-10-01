@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import BigNumber from "bignumber.js";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 
@@ -10,13 +11,12 @@ import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton
 import { themeState } from "@/states";
 import { useGetAccounts } from "@/common/react-query/account/api/use-get-accounts";
 import { AccountListItemModel } from "@/models/api/account/account-list-item-model";
-import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
 
-const GNOT_DECIMALS = 6;
-const GNOT_SYMBOL = "GNOT";
 const MAX_PAGE = Math.ceil(MAX_ACCOUNTS_LIST_SIZE / ACCOUNTS_LIST_PAGE_SIZE);
 
 interface AccountListDatatableProps {
@@ -26,8 +26,13 @@ interface AccountListDatatableProps {
 export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatableProps) => {
   const themeMode = useRecoilValue(themeState);
   const [page, setPage] = React.useState(1);
+  const [cursors, setCursors] = React.useState<string[]>([""]);
+  const cursor = cursors[page - 1] ?? "";
 
-  const { data, isFetched } = useGetAccounts({ page, limit: ACCOUNTS_LIST_PAGE_SIZE }, { enabled: !isCustomNetwork });
+  const { data, isFetched } = useGetAccounts(
+    { denom: "ugnot", cursor, limit: ACCOUNTS_LIST_PAGE_SIZE },
+    { enabled: !isCustomNetwork },
+  );
 
   const accounts: AccountListItem[] = React.useMemo(() => {
     if (!data?.items) return [];
@@ -37,24 +42,30 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         rank: (page - 1) * ACCOUNTS_LIST_PAGE_SIZE + index + 1,
         address: item.address,
         nameTag: item.nameTag,
-        balance: {
-          value: formatTokenDecimal(item.balance, GNOT_DECIMALS),
-          denom: GNOT_SYMBOL,
-        },
+        label: item.label,
+        labelType: item.labelType,
+        balance: toGNOTAmount(item.balance, GNOTToken.denom),
         percentage: item.percentage,
         txCount: item.txCount,
       };
     });
   }, [data?.items, page]);
 
-  // The accounts list is a full rich-list ranking; only the top MAX_ACCOUNTS_LIST_SIZE
-  // entries are ever meant to be browsable, so totalPages is capped here regardless of
-  // what the backend reports.
-  const totalPages = Math.min(data?.page?.totalPages ?? 1, MAX_PAGE);
+  const handleChangePage = (nextPage: number) => {
+    if (nextPage === 1 || nextPage < page) {
+      setPage(Math.max(1, nextPage));
+      return;
+    }
 
-  React.useEffect(() => {
-    setPage(current => Math.max(1, Math.min(current, totalPages)));
-  }, [totalPages]);
+    if (nextPage !== page + 1 || !data?.page.hasNext || !data.page.cursor) return;
+
+    setCursors(current => {
+      const next = [...current];
+      next[page] = data.page.cursor || "";
+      return next;
+    });
+    setPage(nextPage);
+  };
 
   if (isCustomNetwork) {
     return <Datatable headers={createHeaders().map(item => ({ ...item, themeMode }))} datas={[]} supported={false} />;
@@ -69,7 +80,13 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         headers={createHeaders().map(item => ({ ...item, themeMode }))}
         datas={accounts}
       />
-      <Pagination page={page} totalPages={totalPages} onChangePage={setPage} />
+      <Pagination
+        page={page}
+        totalPages={MAX_PAGE}
+        hasNext={data?.page.hasNext}
+        allowLastPage={false}
+        onChangePage={handleChangePage}
+      />
     </Container>
   );
 };
@@ -100,7 +117,9 @@ const createHeaderAddress = () => {
     .name("Address")
     .width(245)
     .colorName("blue")
-    .renderOption((_, data) => <DatatableItem.CallerCopy caller={data.address} />)
+    .renderOption((_, data) => (
+      <DatatableItem.CallerCopy caller={data.address} label={data.label} labelType={data.labelType} />
+    ))
     .build();
 };
 
@@ -109,7 +128,7 @@ const createHeaderNameTag = () => {
     .key("nameTag")
     .name("Name Tag")
     .width(270)
-    .renderOption(nameTag => <span>{nameTag || ""}</span>)
+    .renderOption(nameTag => <span>{nameTag || "-"}</span>)
     .build();
 };
 
@@ -118,9 +137,12 @@ const createHeaderBalance = () => {
     .key("balance")
     .name("Balance")
     .width(220)
-    .renderOption((balance: { value: string; denom: string }) => (
-      <DatatableItem.Amount value={balance.value} denom={balance.denom} />
-    ))
+    .renderOption((balance: { value: string; denom: string }) => {
+      const amount = new BigNumber(balance?.value);
+      if (!amount.isFinite() || amount.isZero()) return <span>-</span>;
+
+      return <DatatableItem.Amount value={balance.value} denom={balance.denom} />;
+    })
     .build();
 };
 

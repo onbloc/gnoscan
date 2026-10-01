@@ -9,15 +9,18 @@ interface PaginationProps {
   page: number;
   totalPages: number;
   onChangePage: (page: number) => void;
+  hasNext?: boolean;
+  allowLastPage?: boolean;
 }
 
-export const Pagination = ({ page, totalPages, onChangePage }: PaginationProps) => {
+export const Pagination = ({ page, totalPages, onChangePage, hasNext, allowLastPage = true }: PaginationProps) => {
   if (totalPages <= 1) {
     return null;
   }
 
   const hasPrev = page > 1;
-  const hasNext = page < totalPages;
+  const canGoNext = page < totalPages && (hasNext ?? true);
+  const canGoLast = allowLastPage && canGoNext;
 
   return (
     <Wrapper>
@@ -31,10 +34,10 @@ export const Pagination = ({ page, totalPages, onChangePage }: PaginationProps) 
         <IconArrow className="icon-arrow-left" />
       </ArrowButton>
       <PageText>{`Page ${page} of ${totalPages}`}</PageText>
-      <ArrowButton aria-label="Next page" disabled={!hasNext} onClick={() => hasNext && onChangePage(page + 1)}>
+      <ArrowButton aria-label="Next page" disabled={!canGoNext} onClick={() => canGoNext && onChangePage(page + 1)}>
         <IconArrow />
       </ArrowButton>
-      <ArrowButton aria-label="Last page" disabled={!hasNext} onClick={() => hasNext && onChangePage(totalPages)}>
+      <ArrowButton aria-label="Last page" disabled={!canGoLast} onClick={() => canGoLast && onChangePage(totalPages)}>
         <DoubleArrow>
           <IconArrow />
           <IconArrow />

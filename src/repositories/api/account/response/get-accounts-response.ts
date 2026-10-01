@@ -3,8 +3,7 @@ import { AccountListItemModel } from "@/models/api/account/account-list-item-mod
 export interface GetAccountsResponse {
   items: AccountListItemModel[];
   page: {
-    page: number;
-    totalPages: number;
-    totalCount: number;
+    cursor?: string;
+    hasNext: boolean;
   };
 }
