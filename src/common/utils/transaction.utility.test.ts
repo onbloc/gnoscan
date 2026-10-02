@@ -162,6 +162,11 @@ describe("parseTxHash", () => {
     expect(parseTxHash("/transactions/details?txhash=not-a-hash")).toBe("not-a-hash");
     expect(parseTxHash("/transactions/details?txhash=abc")).toBe("abc");
   });
+
+  it("ignores the URL hash that selects a detail tab", () => {
+    expect(parseTxHash(`/transactions/details?txhash=${HEX_HASH}#events`)).toBe(HEX_HASH);
+    expect(parseTxHash(`/transactions/details?txhash=${HEX_HASH}&chainId=test#events`)).toBe(HEX_HASH);
+  });
 });
 
 describe("findTransactionResult", () => {

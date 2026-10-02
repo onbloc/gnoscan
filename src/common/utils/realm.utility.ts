@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const GRC20_FUNCTIONS = ["TotalSupply", "BalanceOf", "Transfer", "Allowance", "Approve", "TransferFrom"];
 
 export function parseGRC20InfoByFile(file: string): {
@@ -108,7 +107,8 @@ export function parseRealmPath(url: string) {
   if (!url.includes("path=")) {
     return "";
   }
-  const params = url.split("path=");
+  // Drop the URL hash (e.g. "#events" selecting a detail tab) before reading the param.
+  const params = url.split("#")[0].split("path=");
   if (params.length < 2) return "";
 
   const realmPath = params[1].split("&")[0];

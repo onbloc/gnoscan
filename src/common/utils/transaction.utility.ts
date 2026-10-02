@@ -307,7 +307,8 @@ export function parseTxHash(url: string) {
   if (!url.includes("txhash=")) {
     return "";
   }
-  const params = url.split("txhash=");
+  // Drop the URL hash (e.g. "#events" selecting a detail tab) before reading the param.
+  const params = url.split("#")[0].split("txhash=");
   if (params.length < 2) return "";
 
   const txHash = params[1].split("&")[0];

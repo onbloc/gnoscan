@@ -5,7 +5,7 @@ import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
 import { isDesktop } from "@/common/hooks/use-media";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useSteadyTabSwitch } from "@/common/hooks/detail-tabs/use-steady-tab-switch";
-import { findTabByHash, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
+import { getHashTabToApply, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
 
 interface DataListSectionProps {
   children: React.ReactNode;
@@ -21,22 +21,32 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
   const desktop = isDesktop();
   const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
 
-  // Opens the tab named in the URL hash. Tabs can appear after data loads, so this
-  // retries on tab changes until the hash matches one.
-  const tabNamesKey = tabs.map(tab => tab.tabName).join("|");
-  const hashAppliedRef = React.useRef(false);
+  // Opens the tab named in the URL hash. Runs after every render because tabs can appear
+  // after data loads and a reused section can move to another URL; each URL applies once.
+  const lastHandledUrlRef = React.useRef<string | null>(null);
+  // Editing only the hash in the address bar neither reloads the page nor re-renders it
+  // (Next.js ignores hash-only popstate), so re-render on hashchange to apply it.
+  const [, rerenderOnHashChange] = React.useReducer((count: number) => count + 1, 0);
   React.useEffect(() => {
-    if (hashAppliedRef.current) return;
-    const hashTab = findTabByHash(window.location.hash, tabNamesKey.split("|"));
+    window.addEventListener("hashchange", rerenderOnHashChange);
+    return () => window.removeEventListener("hashchange", rerenderOnHashChange);
+  }, []);
+  React.useEffect(() => {
+    const { pathname, search, hash } = window.location;
+    const url = `${pathname}${search}${hash}`;
+    const hashTab = getHashTabToApply(
+      url,
+      lastHandledUrlRef.current,
+      tabs.map(tab => tab.tabName),
+    );
     if (!hashTab) return;
-    hashAppliedRef.current = true;
+    lastHandledUrlRef.current = url;
     if (hashTab !== currentTab) setCurrentTab(hashTab);
-  }, [tabNamesKey, currentTab, setCurrentTab]);
+  });
 
   const onClickTab = (tabName: string) => {
-    hashAppliedRef.current = true;
     selectTab(tabName);
-    writeTabHash(tabName);
+    lastHandledUrlRef.current = writeTabHash(tabName);
   };
 
   return (
