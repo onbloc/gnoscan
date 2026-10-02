@@ -5,7 +5,7 @@ import * as S from "./AccountsLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import Tooltip from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import IconInfo from "@/assets/svgs/icon-info.svg";
+import IconAccountsInfo from "@/assets/svgs/icon-accounts-info.svg";
 
 interface AccountsLayoutProps {
   accountList: React.ReactNode;
@@ -20,7 +20,7 @@ const AccountsLayout = ({ accountList }: AccountsLayoutProps) => {
             <PageTitle title="Accounts" type="h2" />
             <Tooltip content="Showing the top 1,000 accounts by GNOT balance" width={210}>
               <InfoButton>
-                <IconInfo />
+                <IconAccountsInfo />
               </InfoButton>
             </Tooltip>
           </TitleRow>
@@ -45,12 +45,6 @@ const InfoButton = styled(Button)`
   border: 0;
   border-radius: 50%;
   background-color: ${({ theme }) => (theme.colors.base === "#121212" ? "#1a1a1a" : theme.colors.select)};
-
-  svg {
-    width: 9px;
-    height: 10px;
-    color: ${({ theme }) => theme.colors.primary};
-  }
 `;
 
 export default AccountsLayout;
