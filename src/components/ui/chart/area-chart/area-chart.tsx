@@ -3,13 +3,21 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
 import { AreaChartTooltip } from "./tooltip";
-import theme from "@/styles/theme";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
 import styled from "styled-components";
 import BigNumber from "bignumber.js";
 import { formatAddress } from "@/common/utils";
+import {
+  createBaseChartOptions,
+  createExternalTooltipPlugins,
+  createValueAxisStyle,
+  getActiveTooltipElement,
+  getChartPalette,
+  tooltipAnchorStyle,
+  useHideTooltipOnScroll,
+} from "../chart-common";
 interface AreaChartProps {
   labels: Array<string>;
   datas: { [key in string]: Array<{ value: number; rate: number }> };
@@ -40,12 +48,7 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
     value: [] as any,
   });
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleTooltipVisible);
-    return () => {
-      window.removeEventListener("scroll", handleTooltipVisible);
-    };
-  }, [tooltipRef]);
+  useHideTooltipOnScroll(tooltipRef);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -68,30 +71,14 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
     [excludedDatasets],
   );
 
-  const handleTooltipVisible = () => {
-    if (tooltipRef.current) {
-      tooltipRef.current.style.opacity = "0";
-    }
-  };
-
-  const getThemePallet = () => {
-    return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
-  };
-
   const renderExternalTooltip = (context: { chart: Chart<"line">; tooltip: TooltipModel<"line"> }) => {
     const { chart, tooltip } = context;
-
-    if (!tooltipRef.current) {
+    const currentTooltip = getActiveTooltipElement(tooltipRef, tooltip);
+    if (!currentTooltip) {
       return;
     }
-
-    const currentTooltip = tooltipRef.current;
 
     const tooltipModel = tooltip;
-    if (tooltipModel.opacity === 0) {
-      currentTooltip.style.opacity = "0";
-      return;
-    }
 
     if (tooltip.title[0] !== currentValue.title) {
       setCurrentValue({
@@ -116,13 +103,12 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
   };
 
   const createChartOption = (): ChartOptions<"line"> => {
-    const themePallet = getThemePallet();
+    const themePallet = getChartPalette(themeMode);
     return {
-      responsive: true,
-      maintainAspectRatio: false,
-      aspectRatio: 2,
+      ...createBaseChartOptions(),
       scales: {
         yAxis: {
+          ...createValueAxisStyle(themePallet),
           ticks: {
             color: themePallet.tertiary,
             count: 5,
@@ -130,12 +116,6 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
               if (index === 0) return "";
               return BigNumber(tickValue).shiftedBy(-6).toString();
             },
-          },
-          grid: {
-            color: themePallet.dimmed50,
-          },
-          border: {
-            dash: [4, 2],
           },
         },
         xAxis: {
@@ -160,24 +140,7 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
           },
         },
       },
-      interaction: {
-        mode: "index",
-        intersect: false,
-      },
-      plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          enabled: false,
-          position: "average",
-          displayColors: false,
-          external: renderExternalTooltip,
-        },
-        title: {
-          display: false,
-        },
-      },
+      plugins: createExternalTooltipPlugins(renderExternalTooltip),
     };
   };
 
@@ -185,7 +148,7 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
     labels: Array<string>,
     datasets: { [key in string]: Array<{ value: number; rate: number }> },
   ): ChartData<"line"> => {
-    const themePallet = getThemePallet();
+    const themePallet = getChartPalette(themeMode);
     if (!chartRef.current || !labels || !datasets) {
       return { labels: [], datasets: [] };
     }
@@ -308,10 +271,7 @@ const Wrapper = styled.div`
   }
 
   .tooltip-container {
-    position: absolute;
-    display: flex;
-    width: fit-content;
-    height: fit-content;
+    ${tooltipAnchorStyle};
     z-index: ${zindex.chart};
     pointer-events: none;
   }
