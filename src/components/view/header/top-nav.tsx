@@ -42,20 +42,20 @@ export const navItems = [
     path: "/transactions",
   },
   {
-    name: "Realms",
-    path: "/realms",
-  },
-  {
-    name: "Validators",
-    path: "/validators",
-  },
-  {
     name: "Accounts",
     path: "/accounts",
   },
   {
+    name: "Realms",
+    path: "/realms",
+  },
+  {
     name: "Tokens",
     path: "/tokens",
+  },
+  {
+    name: "Validators",
+    path: "/validators",
   },
 ];
 
