@@ -24,10 +24,14 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
   const themeMode = useRecoilValue(themeState);
   const [page, setPage] = React.useState(1);
 
-  const { data, isFetched } = useGetAccounts(
+  const { data, isFetched, isPreviousData } = useGetAccounts(
     { denom: "ugnot", page, limit: ACCOUNTS_LIST_PAGE_SIZE },
     { enabled: !isCustomNetwork },
   );
+
+  // Page of the rows currently shown (lags behind `page` while the next page loads)
+  const [dataPage, setDataPage] = React.useState(page);
+  if (data && !isPreviousData && dataPage !== page) setDataPage(page);
 
   const totalPages = Math.max(1, Math.ceil((data?.page.totalCount ?? 0) / ACCOUNTS_LIST_PAGE_SIZE));
 
@@ -36,7 +40,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
 
     return data.items.map((item: AccountListItemModel, index: number): AccountListItem => {
       return {
-        rank: (page - 1) * ACCOUNTS_LIST_PAGE_SIZE + index + 1,
+        rank: (dataPage - 1) * ACCOUNTS_LIST_PAGE_SIZE + index + 1,
         address: item.address,
         nameTag: item.nameTag,
         label: item.label,
@@ -46,7 +50,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         txCount: item.txCount,
       };
     });
-  }, [data?.items, page]);
+  }, [data?.items, dataPage]);
 
   const handleChangePage = (nextPage: number) => {
     setPage(Math.min(Math.max(nextPage, 1), totalPages));
@@ -56,15 +60,12 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
     return <Datatable headers={createHeaders().map(item => ({ ...item, themeMode }))} datas={[]} supported={false} />;
   }
 
-  if (!isFetched) return <TableSkeleton />;
+  // Show skeleton only on initial load; keep previous rows while paging
+  if (!isFetched && !isPreviousData) return <TableSkeleton />;
 
   return (
     <Container>
-      <Datatable
-        loading={!isFetched}
-        headers={createHeaders().map(item => ({ ...item, themeMode }))}
-        datas={accounts}
-      />
+      <Datatable headers={createHeaders().map(item => ({ ...item, themeMode }))} datas={accounts} />
       <Pagination
         page={page}
         totalPages={totalPages}
