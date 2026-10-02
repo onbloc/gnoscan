@@ -136,7 +136,7 @@ const TooltipContainer = styled.div<{ light: boolean }>`
       display: flex;
       flex-direction: row;
       flex-shrink: 0;
-      width: 90px;
+      min-width: 90px;
       font-size: 10px;
       justify-content: center;
 
