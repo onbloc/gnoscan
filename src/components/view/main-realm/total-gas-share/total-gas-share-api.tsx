@@ -7,11 +7,11 @@ import theme from "@/styles/theme";
 import { Spinner } from "@/components/ui/loading";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { useTotalGasInfoApi } from "@/common/hooks/main/use-total-gas-info-api";
 import { dateToStr } from "@/common/utils/date-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { useGetTotalGasShare } from "@/common/react-query/statistics";
-import { DailyPackages, PackageInfo } from "@/repositories/api/statistics/response";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { PackageInfo } from "@/repositories/api/statistics/response";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
@@ -19,7 +19,9 @@ const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.
 
 export const MainRealmTotalGasShareApi = () => {
   const [period, setPeriod] = useState<7 | 30>(7);
-  const { data, isFetched } = useGetTotalGasShare({ range: period });
+  const query = useGetTotalGasShare({ range: period });
+  const { data } = query;
+  const isFetched = data !== undefined;
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -85,7 +87,7 @@ export const MainRealmTotalGasShareApi = () => {
     <Wrapper>
       <div className="title-wrapper">
         <Text className="title" type="h6" color="primary">
-          {"Total Fee Share by Realm in GNOT"}
+          Total Fee Share by Realm in GNOT
         </Text>
         <div className="period-selector">
           <span className={period === 7 ? "active" : ""} onClick={() => onClickPeriod(7)}>
@@ -96,15 +98,23 @@ export const MainRealmTotalGasShareApi = () => {
           </span>
         </div>
       </div>
-      {isFetched ? (
-        <AreaChart
-          labels={labels}
-          datas={transactionGasData}
-          colors={["#2090F3", "#786AEC", "#FDD15C", "#617BE3", "#30BDD2", "#83CFAA"]}
-        />
-      ) : (
-        <Spinner position="center" />
-      )}
+      <StatisticsQueryState query={query}>
+        {!isFetched ? (
+          <Spinner position="center" />
+        ) : Object.keys(transactionGasData).length === 0 ? (
+          <EmptyStateWrapper>
+            <Text type="p4" color="tertiary">
+              {"No statistics for this period."}
+            </Text>
+          </EmptyStateWrapper>
+        ) : (
+          <AreaChart
+            labels={labels}
+            datas={transactionGasData}
+            colors={["#2090F3", "#786AEC", "#FDD15C", "#617BE3", "#30BDD2", "#83CFAA"]}
+          />
+        )}
+      </StatisticsQueryState>
     </Wrapper>
   );
 };
@@ -163,4 +173,12 @@ const Wrapper = styled.div`
       }
     }
   }
+`;
+
+const EmptyStateWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
 `;

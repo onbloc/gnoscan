@@ -11,10 +11,13 @@ import { formatBytes } from "@/common/utils/format/format-utils";
 import { BYTE_UNITS } from "@/common/values/constant-value";
 import { useGetStorageDeposit } from "@/common/react-query/statistics/use-get-storage-deposit";
 import { DEFAULT_TOTAL_STORAGE_DEPOSIT_INFO } from "@/common/values/default-object/summary/total-storage-deposit-info";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 export const StorageDepositCard = () => {
   const { data: storagePrice, isFetched: isFetchedStoragePrice } = useGetStoragePrice();
-  const { data: storageDeposit, isFetched: isFetchedStorageDeposit } = useGetStorageDeposit();
+  const storageDepositQuery = useGetStorageDeposit();
+  const { data: storageDeposit } = storageDepositQuery;
+  const isFetchedStorageDeposit = storageDeposit !== undefined;
 
   const totalStorageDepositInfo: TotalStorageDeposit = React.useMemo(() => {
     if (!storageDeposit?.data) return DEFAULT_TOTAL_STORAGE_DEPOSIT_INFO;
@@ -45,43 +48,46 @@ export const StorageDepositCard = () => {
 
   return (
     <>
-      <FetchedComp
-        skeletonWidth={130}
-        skeletonheight={28}
-        skeletonMargin="10px 0px 24px"
-        isFetched={isFetchedStorageDeposit}
-        renderComp={
-          <Text type="h3" color="primary" margin="10px 0px 24px">
-            {makeDisplayNumber(displayStorageDeposit.value)}
-            <Text type="p4" display="inline-block" color="primary">
-              &nbsp;{displayStorageDeposit.denom}
+      <StatisticsQueryState query={storageDepositQuery}>
+        <FetchedComp
+          skeletonWidth={130}
+          skeletonheight={28}
+          skeletonMargin="10px 0px 24px"
+          isFetched={isFetchedStorageDeposit}
+          renderComp={
+            <Text type="h3" color="primary" margin="10px 0px 24px">
+              {makeDisplayNumber(displayStorageDeposit.value)}
+              <Text type="p4" display="inline-block" color="primary">
+                &nbsp;{displayStorageDeposit.denom}
+              </Text>
             </Text>
-          </Text>
-        }
-      />
-      <DataBoxContainer>
-        <BundleDl>
-          <dt>
-            <Text type="p4" color="tertiary">
-              Data in Use
-            </Text>
-          </dt>
-          <dd>
-            <FetchedComp
-              skeletonWidth={60}
-              isFetched={isFetchedStorageDeposit}
-              renderComp={
-                <Text type="p4" color="primary">
-                  {formattedBytesData.value}
-                  <Text type="body1" display="inline-block" color="primary">
-                    &nbsp;{formattedBytesData.unit}
+          }
+        />
+        <DataBoxContainer>
+          <BundleDl>
+            <dt>
+              <Text type="p4" color="tertiary">
+                Data in Use
+              </Text>
+            </dt>
+            <dd>
+              <FetchedComp
+                skeletonWidth={60}
+                isFetched={isFetchedStorageDeposit}
+                renderComp={
+                  <Text type="p4" color="primary">
+                    {formattedBytesData.value}
+                    <Text type="body1" display="inline-block" color="primary">
+                      &nbsp;{formattedBytesData.unit}
+                    </Text>
                   </Text>
-                </Text>
-              }
-            />
-          </dd>
-        </BundleDl>
-        <hr />
+                }
+              />
+            </dd>
+          </BundleDl>
+        </DataBoxContainer>
+      </StatisticsQueryState>
+      <DataBoxContainer style={{ marginTop: "10px" }}>
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">

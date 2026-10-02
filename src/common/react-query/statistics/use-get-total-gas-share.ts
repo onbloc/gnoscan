@@ -6,6 +6,7 @@ import { GetTotalFeeShareRequest } from "@/repositories/api/statistics/request";
 import { GetTotalFeeShareResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { retryStatisticsQuery } from "./statistics-query-policy";
 
 export const useGetTotalGasShare = (
   request: GetTotalFeeShareRequest,
@@ -18,6 +19,6 @@ export const useGetTotalGasShare = (
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getTotalGasShare(request),
-    options,
+    { retry: retryStatisticsQuery, ...options },
   );
 };

@@ -5,9 +5,12 @@ import { useGetSummaryBlocks } from "@/common/react-query/statistics";
 import { SummaryBlockInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { DEFAULT_SUMMARY_BLOCK_INFO } from "@/common/values/default-object/summary";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 export const StandardNetworkBlockCard = () => {
-  const { data, isFetched } = useGetSummaryBlocks();
+  const summaryBlocksQuery = useGetSummaryBlocks();
+  const { data } = summaryBlocksQuery;
+  const isFetched = data !== undefined;
 
   const summaryInfo: SummaryBlockInfo = React.useMemo(() => {
     if (!data?.data) return DEFAULT_SUMMARY_BLOCK_INFO;
@@ -19,7 +22,7 @@ export const StandardNetworkBlockCard = () => {
   }, [data?.data]);
 
   return (
-    <>
+    <StatisticsQueryState query={summaryBlocksQuery}>
       <FetchedComp
         skeletonWidth={130}
         skeletonheight={28}
@@ -70,6 +73,6 @@ export const StandardNetworkBlockCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
-    </>
+    </StatisticsQueryState>
   );
 };

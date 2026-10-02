@@ -10,6 +10,7 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { dateToStr } from "@/common/utils/date-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { useGetTotalDailyRealmStorageDeposit } from "@/common/react-query/statistics";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 import { StorageDepositInfo } from "@/repositories/api/statistics/response";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
@@ -18,7 +19,9 @@ const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.
 
 export const MainTotalStorageDepositShareApi = () => {
   const [period, setPeriod] = useState<7 | 30>(7);
-  const { data: data, isFetched } = useGetTotalDailyRealmStorageDeposit({ range: period });
+  const query = useGetTotalDailyRealmStorageDeposit({ range: period });
+  const { data } = query;
+  const isFetched = data !== undefined;
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -98,15 +101,23 @@ export const MainTotalStorageDepositShareApi = () => {
           </span>
         </div>
       </div>
-      {isFetched ? (
-        <AreaChart
-          labels={labels}
-          datas={transactionGasData}
-          colors={["#2090F3", "#786AEC", "#FDD15C", "#617BE3", "#30BDD2", "#83CFAA"]}
-        />
-      ) : (
-        <Spinner position="center" />
-      )}
+      <StatisticsQueryState query={query}>
+        {!isFetched ? (
+          <Spinner position="center" />
+        ) : Object.keys(transactionGasData).length === 0 ? (
+          <EmptyStateWrapper>
+            <Text type="p4" color="tertiary">
+              {"No statistics for this period."}
+            </Text>
+          </EmptyStateWrapper>
+        ) : (
+          <AreaChart
+            labels={labels}
+            datas={transactionGasData}
+            colors={["#2090F3", "#786AEC", "#FDD15C", "#617BE3", "#30BDD2", "#83CFAA"]}
+          />
+        )}
+      </StatisticsQueryState>
     </Wrapper>
   );
 };
@@ -165,4 +176,12 @@ const Wrapper = styled.div`
       }
     }
   }
+`;
+
+const EmptyStateWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
 `;
