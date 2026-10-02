@@ -5,6 +5,7 @@ import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
 import { isDesktop } from "@/common/hooks/use-media";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useSteadyTabSwitch } from "@/common/hooks/detail-tabs/use-steady-tab-switch";
+import { getHashTabToApply, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
 
 interface DataListSectionProps {
   children: React.ReactNode;
@@ -19,13 +20,45 @@ interface DataListSectionProps {
 const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
   const desktop = isDesktop();
   const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
+
+  const lastHandledUrlRef = React.useRef<string | null>(null);
+  // Next.js does not re-render when only the hash changes.
+  const [, rerenderOnHashChange] = React.useReducer((count: number) => count + 1, 0);
+  React.useEffect(() => {
+    window.addEventListener("hashchange", rerenderOnHashChange);
+    return () => window.removeEventListener("hashchange", rerenderOnHashChange);
+  }, []);
+  // A new setter means a new state scope (e.g. a route param that was empty before the router was ready).
+  // Must run before the effect below.
+  React.useEffect(() => {
+    lastHandledUrlRef.current = null;
+  }, [setCurrentTab]);
+  // Opens the tab named in the URL hash once per URL. Checked on every render because tabs can load late.
+  React.useEffect(() => {
+    const { pathname, search, hash } = window.location;
+    const url = `${pathname}${search}${hash}`;
+    const hashTab = getHashTabToApply(
+      url,
+      lastHandledUrlRef.current,
+      tabs.map(tab => tab.tabName),
+    );
+    if (!hashTab) return;
+    lastHandledUrlRef.current = url;
+    if (hashTab !== currentTab) setCurrentTab(hashTab);
+  });
+
+  const onClickTab = (tabName: string) => {
+    selectTab(tabName);
+    lastHandledUrlRef.current = writeTabHash(tabName);
+  };
+
   return (
     <DetailsContainer desktop={desktop}>
       <div className="tab-area">
         {tabs.map((tab, index) => {
           const isSelected = currentTab === tab.tabName;
           return (
-            <div className="tab-item" key={index} onClick={() => selectTab(tab.tabName)}>
+            <div className="tab-item" key={index} onClick={() => onClickTab(tab.tabName)}>
               <Text
                 type={desktop ? (isSelected ? "h4" : "h6") : isSelected ? "h6" : "h7"}
                 color={isSelected ? "primary" : "tertiary"}
