@@ -5,6 +5,7 @@ import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
 import { isDesktop } from "@/common/hooks/use-media";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useSteadyTabSwitch } from "@/common/hooks/detail-tabs/use-steady-tab-switch";
+import { findTabByHash, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
 
 interface DataListSectionProps {
   children: React.ReactNode;
@@ -19,13 +20,32 @@ interface DataListSectionProps {
 const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
   const desktop = isDesktop();
   const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
+
+  // Opens the tab named in the URL hash. Tabs can appear after data loads, so this
+  // retries on tab changes until the hash matches one.
+  const tabNamesKey = tabs.map(tab => tab.tabName).join("|");
+  const hashAppliedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (hashAppliedRef.current) return;
+    const hashTab = findTabByHash(window.location.hash, tabNamesKey.split("|"));
+    if (!hashTab) return;
+    hashAppliedRef.current = true;
+    if (hashTab !== currentTab) setCurrentTab(hashTab);
+  }, [tabNamesKey, currentTab, setCurrentTab]);
+
+  const onClickTab = (tabName: string) => {
+    hashAppliedRef.current = true;
+    selectTab(tabName);
+    writeTabHash(tabName);
+  };
+
   return (
     <DetailsContainer desktop={desktop}>
       <div className="tab-area">
         {tabs.map((tab, index) => {
           const isSelected = currentTab === tab.tabName;
           return (
-            <div className="tab-item" key={index} onClick={() => selectTab(tab.tabName)}>
+            <div className="tab-item" key={index} onClick={() => onClickTab(tab.tabName)}>
               <Text
                 type={desktop ? (isSelected ? "h4" : "h6") : isSelected ? "h6" : "h7"}
                 color={isSelected ? "primary" : "tertiary"}
