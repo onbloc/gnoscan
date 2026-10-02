@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { useRecoilValue } from "recoil";
-import styled from "styled-components";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import { Button } from "@/components/ui/button";
-import theme from "@/styles/theme";
-import { themeState } from "@/states";
+import { ViewMoreButton } from "@/components/ui/button";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { ActivityRow } from "@/models/api/activity/activity-model";
 import { DatatableItem } from "..";
+import { FlushTableContainer } from "../datatable.styles";
 import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 /**
@@ -41,7 +38,6 @@ const TOOLTIP_TYPE = (
 );
 
 export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextPage, moreLabel }: Props) => {
-  const themeMode = useRecoilValue(themeState);
   const { breakpoint } = useWindowSize();
   const { getTokenAmount } = useTokenMeta();
 
@@ -211,43 +207,11 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
   }, [variant, getTokenAmount]);
 
   return (
-    <Container>
-      <Datatable loading={!isFetched} headers={headers.map(item => ({ ...item, themeMode }))} datas={data} />
-      {hasNextPage && nextPage ? (
-        <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
-          {moreLabel}
-        </Button>
-      ) : (
-        <React.Fragment />
+    <FlushTableContainer>
+      <Datatable loading={!isFetched} headers={headers} datas={data} />
+      {hasNextPage && nextPage && (
+        <ViewMoreButton variant="table" breakpoint={breakpoint} text={moreLabel} onClick={() => nextPage()} />
       )}
-    </Container>
+    </FlushTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-
-    & > div {
-      padding: 0;
-    }
-
-    .more-button {
-      width: 100%;
-      padding: 16px;
-      color: ${({ theme }) => theme.colors.primary};
-      background-color: ${({ theme }) => theme.colors.surface};
-      ${theme.fonts.p4}
-      font-weight: 600;
-      margin-top: 24px;
-
-      &.desktop {
-        width: 344px;
-      }
-    }
-  }
-`;

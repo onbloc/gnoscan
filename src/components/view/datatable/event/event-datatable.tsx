@@ -2,16 +2,13 @@
 
 import React, { useCallback, useMemo, useState } from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import styled from "styled-components";
-import theme from "@/styles/theme";
 import { DatatableItem } from "..";
+import { FlushTableContainer } from "../datatable.styles";
 import { EventDetail } from "./event-detail";
-import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
 import { GnoEvent } from "@/types/data-type";
 import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
 import { eachMedia } from "@/common/hooks/use-media";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 
 interface Props {
   isFetched: boolean;
@@ -28,7 +25,6 @@ const TOOLTIP_TYPE = (
 
 export const EventDatatable = ({ isFetched, events }: Props) => {
   const media = eachMedia();
-  const themeMode = useRecoilValue(themeState);
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   const [page, setPage] = useState(0);
 
@@ -161,54 +157,14 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
   );
 
   return (
-    <Container>
-      <Datatable
-        loading={!loaded}
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={filteredEvents}
-        renderDetails={renderDetails}
-      />
+    <FlushTableContainer>
+      <Datatable loading={!loaded} headers={createHeaders()} datas={filteredEvents} renderDetails={renderDetails} />
 
       {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${media}`} radius={"4px"} onClick={nextPage}>
-            {"View More Events"}
-          </Button>
+          <ViewMoreButton variant="table" breakpoint={media} text="View More Events" onClick={nextPage} />
         </div>
       )}
-    </Container>
+    </FlushTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-
-    & > div {
-      padding: 0;
-    }
-
-    .more-button {
-      width: 100%;
-      padding: 16px;
-      color: ${({ theme }) => theme.colors.primary};
-      background-color: ${({ theme }) => theme.colors.surface};
-      ${theme.fonts.p4}
-      font-weight: 600;
-      margin-top: 24px;
-
-      &.desktop {
-        width: 344px;
-      }
-    }
-  }
-`;
