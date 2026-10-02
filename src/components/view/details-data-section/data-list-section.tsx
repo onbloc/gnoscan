@@ -21,7 +21,6 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
   const desktop = isDesktop();
   const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
 
-  // Opens the tab named in the URL hash once per URL. Checked on every render because tabs can load late.
   const lastHandledUrlRef = React.useRef<string | null>(null);
   // Next.js does not re-render when only the hash changes.
   const [, rerenderOnHashChange] = React.useReducer((count: number) => count + 1, 0);
@@ -34,6 +33,7 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
   React.useEffect(() => {
     lastHandledUrlRef.current = null;
   }, [setCurrentTab]);
+  // Opens the tab named in the URL hash once per URL. Checked on every render because tabs can load late.
   React.useEffect(() => {
     const { pathname, search, hash } = window.location;
     const url = `${pathname}${search}${hash}`;
