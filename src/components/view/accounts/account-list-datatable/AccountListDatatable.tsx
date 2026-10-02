@@ -12,11 +12,9 @@ import { useGetAccounts } from "@/common/react-query/account/api/use-get-account
 import { AccountListItemModel } from "@/models/api/account/account-list-item-model";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
+import { ACCOUNTS_LIST_PAGE_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
-
-const MAX_PAGE = Math.ceil(MAX_ACCOUNTS_LIST_SIZE / ACCOUNTS_LIST_PAGE_SIZE);
 
 interface AccountListDatatableProps {
   isCustomNetwork: boolean;
@@ -25,13 +23,13 @@ interface AccountListDatatableProps {
 export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatableProps) => {
   const themeMode = useRecoilValue(themeState);
   const [page, setPage] = React.useState(1);
-  const [cursors, setCursors] = React.useState<string[]>([""]);
-  const cursor = cursors[page - 1] ?? "";
 
   const { data, isFetched } = useGetAccounts(
-    { denom: "ugnot", cursor, limit: ACCOUNTS_LIST_PAGE_SIZE },
+    { denom: "ugnot", page, limit: ACCOUNTS_LIST_PAGE_SIZE },
     { enabled: !isCustomNetwork },
   );
+
+  const totalPages = Math.max(1, Math.ceil((data?.page.totalCount ?? 0) / ACCOUNTS_LIST_PAGE_SIZE));
 
   const accounts: AccountListItem[] = React.useMemo(() => {
     if (!data?.items) return [];
@@ -51,19 +49,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
   }, [data?.items, page]);
 
   const handleChangePage = (nextPage: number) => {
-    if (nextPage === 1 || nextPage < page) {
-      setPage(Math.max(1, nextPage));
-      return;
-    }
-
-    if (nextPage !== page + 1 || !data?.page.hasNext || !data.page.cursor) return;
-
-    setCursors(current => {
-      const next = [...current];
-      next[page] = data.page.cursor || "";
-      return next;
-    });
-    setPage(nextPage);
+    setPage(Math.min(Math.max(nextPage, 1), totalPages));
   };
 
   if (isCustomNetwork) {
@@ -81,9 +67,10 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
       />
       <Pagination
         page={page}
-        totalPages={MAX_PAGE}
+        totalPages={totalPages}
         hasNext={data?.page.hasNext}
-        allowLastPage={false}
+        hideFirstPageButtonWhenDisabled
+        hideLastPageButtonWhenCurrent
         onChangePage={handleChangePage}
       />
     </Container>
@@ -127,7 +114,7 @@ const createHeaderNameTag = () => {
     .key("nameTag")
     .name("Name Tag")
     .width(270)
-    .renderOption(nameTag => <span>{nameTag || "-"}</span>)
+    .renderOption(nameTag => <span>{nameTag || ""}</span>)
     .build();
 };
 
@@ -170,5 +157,11 @@ const Container = styled.div`
 
   & > div:first-child {
     padding: 24px 24px 0;
+
+    .scroll-wrapper > div:first-child > div {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      line-height: 16px;
+    }
   }
 `;

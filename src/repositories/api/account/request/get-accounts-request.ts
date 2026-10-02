@@ -1,7 +1,5 @@
 export interface GetAccountsRequest {
   denom?: string;
-
-  cursor?: string;
-
+  page?: number;
   limit?: number;
 }

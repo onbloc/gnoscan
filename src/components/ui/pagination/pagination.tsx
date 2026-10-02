@@ -3,7 +3,8 @@ import styled from "styled-components";
 
 import mixins from "@/styles/mixins";
 import theme from "@/styles/theme";
-import IconArrow from "@/assets/svgs/icon-arrow.svg";
+import IconFirstPage from "@/assets/svgs/icon-pagination-first.svg";
+import IconPreviousPage from "@/assets/svgs/icon-pagination-previous.svg";
 
 interface PaginationProps {
   page: number;
@@ -11,9 +12,19 @@ interface PaginationProps {
   onChangePage: (page: number) => void;
   hasNext?: boolean;
   allowLastPage?: boolean;
+  hideFirstPageButtonWhenDisabled?: boolean;
+  hideLastPageButtonWhenCurrent?: boolean;
 }
 
-export const Pagination = ({ page, totalPages, onChangePage, hasNext, allowLastPage = true }: PaginationProps) => {
+export const Pagination = ({
+  page,
+  totalPages,
+  onChangePage,
+  hasNext,
+  allowLastPage = true,
+  hideFirstPageButtonWhenDisabled = false,
+  hideLastPageButtonWhenCurrent = false,
+}: PaginationProps) => {
   if (totalPages <= 1) {
     return null;
   }
@@ -24,25 +35,23 @@ export const Pagination = ({ page, totalPages, onChangePage, hasNext, allowLastP
 
   return (
     <Wrapper>
-      <ArrowButton aria-label="First page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(1)}>
-        <DoubleArrow className="icon-arrow-left">
-          <IconArrow />
-          <IconArrow />
-        </DoubleArrow>
-      </ArrowButton>
+      {!(hideFirstPageButtonWhenDisabled && !hasPrev) && (
+        <ArrowButton aria-label="First page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(1)}>
+          <IconFirstPage />
+        </ArrowButton>
+      )}
       <ArrowButton aria-label="Previous page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(page - 1)}>
-        <IconArrow className="icon-arrow-left" />
+        <IconPreviousPage />
       </ArrowButton>
       <PageText>{`Page ${page} of ${totalPages}`}</PageText>
       <ArrowButton aria-label="Next page" disabled={!canGoNext} onClick={() => canGoNext && onChangePage(page + 1)}>
-        <IconArrow />
+        <IconPreviousPage className="icon-arrow-right" />
       </ArrowButton>
-      <ArrowButton aria-label="Last page" disabled={!canGoLast} onClick={() => canGoLast && onChangePage(totalPages)}>
-        <DoubleArrow>
-          <IconArrow />
-          <IconArrow />
-        </DoubleArrow>
-      </ArrowButton>
+      {!(hideLastPageButtonWhenCurrent && page === totalPages) && (
+        <ArrowButton aria-label="Last page" disabled={!canGoLast} onClick={() => canGoLast && onChangePage(totalPages)}>
+          <IconFirstPage className="icon-arrow-right" />
+        </ArrowButton>
+      )}
     </Wrapper>
   );
 };
@@ -74,27 +83,15 @@ const ArrowButton = styled.button<{ disabled?: boolean }>`
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
   svg {
-    fill: ${({ theme }) => theme.colors.reverse};
-
-    &.icon-arrow-left {
-      transform: rotate(180deg);
-    }
-  }
-`;
-
-const DoubleArrow = styled.span`
-  display: flex;
-  width: 16px;
-  height: 16px;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    width: 10px;
+    width: 16px;
     height: 16px;
 
-    + svg {
-      margin-left: -6px;
+    path {
+      stroke: ${({ theme }) => theme.colors.reverse};
+    }
+
+    &.icon-arrow-right {
+      transform: rotate(180deg);
     }
   }
 `;

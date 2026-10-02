@@ -34,10 +34,6 @@ interface EntryProps {
 
 export const navItems = [
   {
-    name: "Home",
-    path: "/",
-  },
-  {
     name: "Blocks",
     path: "/blocks",
   },
