@@ -14,6 +14,7 @@ import { v1 } from "uuid";
 import Text from "@/components/ui/text";
 import { zindex } from "@/common/values/z-index";
 import { useNetwork } from "@/common/hooks/use-network";
+import { media } from "@/common/values/ui.constant";
 
 interface LinkStyleProps {
   current: boolean;
@@ -108,6 +109,10 @@ const Nav = styled.nav`
   gap: 48px;
   margin-top: 32px;
   ${mixins.positionCenter()};
+
+  ${media.MOBILE} {
+    gap: 36px;
+  }
 `;
 
 const StyledA = styled.a<LinkStyleProps>`
