@@ -4,9 +4,10 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { AccountListDatatable } from "@/components/view/accounts/account-list-datatable/AccountListDatatable";
 
 const AccountListContainer = () => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { currentNetwork, isCustomNetwork } = useNetworkProvider();
 
-  return <AccountListDatatable isCustomNetwork={isCustomNetwork} />;
+  // Remount on network change to reset page and avoid showing previous network rows
+  return <AccountListDatatable key={currentNetwork?.chainId} isCustomNetwork={isCustomNetwork} />;
 };
 
 export default AccountListContainer;
