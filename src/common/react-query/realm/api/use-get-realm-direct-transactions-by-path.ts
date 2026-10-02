@@ -17,14 +17,13 @@ export const useGetRealmDirectTransactionsByPath = (
     [QUERY_KEY.getRealmDirectTransactionsByPath, params],
     apiRealmRepository,
     API_REPOSITORY_KEY.REALM_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getRealmDirectTransactions({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
       ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       enabled: !!params.path && options?.enabled !== false,
     },
   );

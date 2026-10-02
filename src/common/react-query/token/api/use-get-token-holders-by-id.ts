@@ -27,14 +27,11 @@ export const useGetTokenHoldersByid = (
     [QUERY_KEY.getTokenHoldersById, params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getTokenHolders({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
-    {
-      ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
-    },
+    options,
   );
 };

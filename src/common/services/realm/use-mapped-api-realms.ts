@@ -30,31 +30,16 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
     hasNextPage,
   } = useGetRealms(params);
 
-  const [realms, setRealms] = React.useState<Realm[]>([]);
-  const [isDataReady, setIsDataReady] = React.useState(false);
-
-  React.useEffect(() => {
-    if (apiData?.pages) {
-      setIsDataReady(false);
-
-      const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = RealmMapper.realmListFromApiResponses(allItems);
-
-      setRealms(mappedBlocksData);
-      setIsDataReady(true);
-    } else {
-      setRealms([]);
-      setIsDataReady(true);
-    }
-  }, [apiData?.pages]);
-
-  const isLoading = isApiLoading || !isDataReady;
-  const isFetched = isApiFetched && isDataReady;
+  const pages = apiData?.pages;
+  const realms = React.useMemo<Realm[]>(
+    () => (pages ? RealmMapper.realmListFromApiResponses(pages.flatMap(page => page.items)) : []),
+    [pages],
+  );
 
   return {
     data: realms,
-    isFetched,
-    isLoading,
+    isFetched: isApiFetched,
+    isLoading: isApiLoading,
     isError: isApiError,
     fetchNextPage,
     hasNextPage,

@@ -30,14 +30,13 @@ export const useGetRealmEventsByPath = (
     [QUERY_KEY.getRealmEventsByPath, params],
     apiRealmRepository,
     API_REPOSITORY_KEY.REALM_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getRealmEvents({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
       ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       enabled: !!params.path && options?.enabled !== false,
     },
   );

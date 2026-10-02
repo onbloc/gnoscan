@@ -31,34 +31,19 @@ export const useMappedApiBlockTransactions = (params: GetBlockTransactionsReques
 
   const { data: countData } = useGetBlockTransactionsCount(params.blockHeight);
 
-  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
-  const [isDataReady, setIsDataReady] = React.useState(false);
-
-  React.useEffect(() => {
-    if (apiData?.pages) {
-      setIsDataReady(false);
-
-      const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = BlockMapper.blockTransactionsFromApiResponses(allItems);
-
-      setTransactions(mappedBlocksData);
-      setIsDataReady(true);
-    } else {
-      setTransactions([]);
-      setIsDataReady(true);
-    }
-  }, [apiData?.pages]);
-
-  const isLoading = isApiLoading || !isDataReady;
-  const isFetched = isApiFetched && isDataReady;
+  const pages = apiData?.pages;
+  const transactions = React.useMemo<Transaction[]>(
+    () => (pages ? BlockMapper.blockTransactionsFromApiResponses(pages.flatMap(page => page.items)) : []),
+    [pages],
+  );
 
   const totalCount = countData?.totalCount;
 
   return {
     data: transactions,
     totalCount,
-    isFetched,
-    isLoading,
+    isFetched: isApiFetched,
+    isLoading: isApiLoading,
     isError: isApiError,
     fetchNextPage,
     hasNextPage,
