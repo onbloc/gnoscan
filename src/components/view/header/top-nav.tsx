@@ -46,6 +46,10 @@ export const navItems = [
     path: "/realms",
   },
   {
+    name: "Validators",
+    path: "/validators",
+  },
+  {
     name: "Accounts",
     path: "/accounts",
   },
@@ -140,6 +144,7 @@ const Wrapper = styled.div<EntryProps>`
   .sub-search {
     width: 396px;
     margin-left: 64px;
+    margin-right: 32px;
   }
 `;
 
