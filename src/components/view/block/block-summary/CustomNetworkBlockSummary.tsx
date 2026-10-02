@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import Link from "next/link";
 import { TxFee, TxSignature } from "@gnolang/tm2-js-client";
@@ -9,7 +8,8 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useGetValidatorNames } from "@/common/hooks/common/use-get-validator-names";
 
 import DataSection from "../../details-data-section";
-import { DateDiffText, DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
+import { Field } from "@/components/ui/detail-field";
+import { DateDiffText, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
@@ -37,55 +37,37 @@ const CustomNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryProps
 
   return (
     <DataSection title="Summary">
-      <DLWrap desktop={isDesktop}>
-        <dt>Timestamp</dt>
-        <dd>
-          <Badge>
-            <Text type="p4" color="inherit" className="ellipsis">
-              {block.timeStamp.time}
-            </Text>
-            <DateDiffText>{block.timeStamp.passedTime}</DateDiffText>
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Network</dt>
-        <dd>
-          <Badge>{block.network}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Height</dt>
-        <dd>
-          <Badge>{block.blockHeightStr}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Transactions</dt>
-        <dd>
-          <Badge>{block.numberOfTransactions}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Gas&nbsp;(Used/Wanted)</dt>
-        <dd>
-          <Badge>{block?.gas}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop} multipleBadgeGap="24px">
-        <dt>Proposer</dt>
-        <dd>
-          <Badge>
-            <FitContentSpan>
-              <Link href={getUrlWithNetwork(`/account/${block?.proposerAddress}`)} passHref>
-                <Text type="p4" color="blue" className="ellipsis">
-                  {proposerDisplayName}
-                </Text>
-              </Link>
-            </FitContentSpan>
-          </Badge>
-        </dd>
-      </DLWrap>
+      <Field label="Timestamp" isDesktop={isDesktop}>
+        <Badge>
+          <Text type="p4" color="inherit" className="ellipsis">
+            {block.timeStamp.time}
+          </Text>
+          <DateDiffText>{block.timeStamp.passedTime}</DateDiffText>
+        </Badge>
+      </Field>
+      <Field label="Network" isDesktop={isDesktop}>
+        <Badge>{block.network}</Badge>
+      </Field>
+      <Field label="Height" isDesktop={isDesktop}>
+        <Badge>{block.blockHeightStr}</Badge>
+      </Field>
+      <Field label="Transactions" isDesktop={isDesktop}>
+        <Badge>{block.numberOfTransactions}</Badge>
+      </Field>
+      <Field label="Gas&nbsp;(Used/Wanted)" isDesktop={isDesktop}>
+        <Badge>{block?.gas}</Badge>
+      </Field>
+      <Field label="Proposer" isDesktop={isDesktop} multipleBadgeGap="24px">
+        <Badge>
+          <FitContentSpan>
+            <Link href={getUrlWithNetwork(`/account/${block?.proposerAddress}`)} passHref>
+              <Text type="p4" color="blue" className="ellipsis">
+                {proposerDisplayName}
+              </Text>
+            </Link>
+          </FitContentSpan>
+        </Badge>
+      </Field>
     </DataSection>
   );
 };

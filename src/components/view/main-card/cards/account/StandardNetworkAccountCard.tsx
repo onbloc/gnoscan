@@ -1,8 +1,6 @@
 import React from "react";
 import Text from "@/components/ui/text";
-import IconInfo from "@/assets/svgs/icon-info.svg";
-import { Button } from "@/components/ui/button";
-import Tooltip from "@/components/ui/tooltip";
+import { InfoTooltip } from "@/components/ui/tooltip/info-tooltip";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetSummaryAccounts } from "@/common/react-query/statistics";
@@ -59,11 +57,7 @@ export const StandardNetworkAccountCard = () => {
             <Text type="p4" color="tertiary">
               Total&nbsp;Users
             </Text>
-            <Tooltip content="Number of accounts registered as a user on /r/demo/users.">
-              <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                <IconInfo className="svg-info" />
-              </Button>
-            </Tooltip>
+            <InfoTooltip content="Number of accounts registered as a user on /r/demo/users." />
           </dt>
           <dd>
             <FetchedComp

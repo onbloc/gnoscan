@@ -7,15 +7,8 @@ import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import ShowLog from "@/components/ui/show-log";
-import {
-  AddressLink,
-  AmountBadge,
-  BadgeList,
-  BadgeText,
-  Field,
-  FieldWithTooltip,
-  PkgPathLink,
-} from "@/components/view/transaction/common";
+import { AddressLink, AmountBadge, BadgeText, Field, FieldWithTooltip } from "@/components/ui/detail-field";
+import { BadgeList, PkgPathLink } from "@/components/view/transaction/common";
 import { Amount } from "@/types";
 
 const StandardNetworkAddPackageMessage = ({

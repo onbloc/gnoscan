@@ -6,13 +6,13 @@ import { v1 } from "uuid";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 
-import * as S from "./TransactionTransferContract.styles";
 import Text from "@/components/ui/text";
 import { Amount } from "@/types/data-type";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
+import { AddressTextBox } from "@/components/ui/detail-field";
 import { AmountText } from "@/components/ui/text/amount-text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 
 interface TransactionTransferContractProps {
   message: any;
@@ -54,16 +54,14 @@ const TransactionTransferContract = ({
         <dt>{"From"}</dt>
         <dd>
           <Badge>
-            <S.AddressTextBox>
+            <AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
                 <Link href={getUrlWithNetwork(`/account/${fromAddress}`)} passHref>
                   <FitContentSpan>{fromAddress}</FitContentSpan>
                 </Link>
               </Text>
-              <Tooltip content="Copied!" trigger="click" copyText={fromAddress} className="address-tooltip">
-                <S.StyledIconCopy />
-              </Tooltip>
-            </S.AddressTextBox>
+              <CopyTooltip variant="address" copyText={fromAddress} />
+            </AddressTextBox>
           </Badge>
         </dd>
       </DLWrap>
@@ -71,16 +69,14 @@ const TransactionTransferContract = ({
         <dt>{"To"}</dt>
         <dd>
           <Badge>
-            <S.AddressTextBox>
+            <AddressTextBox>
               <Text type="p4" color="blue" className="ellipsis">
                 <Link href={getUrlWithNetwork(`/account/${toAddress}`)} passHref>
                   <FitContentSpan>{toAddress}</FitContentSpan>
                 </Link>
               </Text>
-              <Tooltip content="Copied!" trigger="click" copyText={toAddress} className="address-tooltip">
-                <S.StyledIconCopy />
-              </Tooltip>
-            </S.AddressTextBox>
+              <CopyTooltip variant="address" copyText={toAddress} />
+            </AddressTextBox>
           </Badge>
         </dd>
       </DLWrap>

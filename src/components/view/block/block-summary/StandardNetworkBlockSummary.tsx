@@ -1,18 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import Link from "next/link";
 
 import DataSection from "../../details-data-section";
-import { DateDiffText, DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
+import { Field } from "@/components/ui/detail-field";
+import { DateDiffText, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { useMappedApiBlock } from "@/common/services/block/use-mapped-api-block";
 import { useNetwork } from "@/common/hooks/use-network";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { toDisplayHash } from "@/common/utils/transaction.utility";
-import { StyledIconCopy } from "./Block.styles";
 
 interface BlockSummaryProps {
   isDesktop: boolean;
@@ -43,85 +42,53 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
 
   return (
     <DataSection title="Summary">
-      <DLWrap desktop={isDesktop}>
-        <dt>Block Hash</dt>
-        <dd>
-          <Badge>
-            <Text type="p4" color="inherit" className="ellipsis">
-              {blockHash || "-"}
-            </Text>
-            {blockHash && (
-              <Tooltip content="Copied!" trigger="click" copyText={blockHash}>
-                <StyledIconCopy className="svg-icon" />
-              </Tooltip>
-            )}
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Block Hash (base64)</dt>
-        <dd>
-          <Badge>
-            <Text type="p4" color="inherit" className="ellipsis">
-              {data.hashBase64 || "-"}
-            </Text>
-            {data.hashBase64 && (
-              <Tooltip content="Copied!" trigger="click" copyText={data.hashBase64}>
-                <StyledIconCopy className="svg-icon" />
-              </Tooltip>
-            )}
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Timestamp</dt>
-        <dd>
-          <Badge>
-            <Text type="p4" color="inherit" className="ellipsis">
-              {data.timeStamp.time}
-            </Text>
-            <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Network</dt>
-        <dd>
-          <Badge>{data.network || "-"}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Height</dt>
-        <dd>
-          <Badge>{displayBlockHeight}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Transactions</dt>
-        <dd>
-          <Badge>{data.numberOfTransactions}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Gas&nbsp;(Used/Wanted)</dt>
-        <dd>
-          <Badge>{data.gas}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop} multipleBadgeGap="24px">
-        <dt>Proposer</dt>
-        <dd>
-          <Badge>
-            <FitContentSpan>
-              <Link href={getUrlWithNetwork(`/account/${data.proposerAddress}`)} passHref>
-                <Text type="p4" color="blue" className="ellipsis">
-                  {proposerDisplayName}
-                </Text>
-              </Link>
-            </FitContentSpan>
-          </Badge>
-        </dd>
-      </DLWrap>
+      <Field label="Block Hash" isDesktop={isDesktop}>
+        <Badge>
+          <Text type="p4" color="inherit" className="ellipsis">
+            {blockHash || "-"}
+          </Text>
+          {blockHash && <CopyTooltip copyText={blockHash} />}
+        </Badge>
+      </Field>
+      <Field label="Block Hash (base64)" isDesktop={isDesktop}>
+        <Badge>
+          <Text type="p4" color="inherit" className="ellipsis">
+            {data.hashBase64 || "-"}
+          </Text>
+          {data.hashBase64 && <CopyTooltip copyText={data.hashBase64} />}
+        </Badge>
+      </Field>
+      <Field label="Timestamp" isDesktop={isDesktop}>
+        <Badge>
+          <Text type="p4" color="inherit" className="ellipsis">
+            {data.timeStamp.time}
+          </Text>
+          <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
+        </Badge>
+      </Field>
+      <Field label="Network" isDesktop={isDesktop}>
+        <Badge>{data.network || "-"}</Badge>
+      </Field>
+      <Field label="Height" isDesktop={isDesktop}>
+        <Badge>{displayBlockHeight}</Badge>
+      </Field>
+      <Field label="Transactions" isDesktop={isDesktop}>
+        <Badge>{data.numberOfTransactions}</Badge>
+      </Field>
+      <Field label="Gas&nbsp;(Used/Wanted)" isDesktop={isDesktop}>
+        <Badge>{data.gas}</Badge>
+      </Field>
+      <Field label="Proposer" isDesktop={isDesktop} multipleBadgeGap="24px">
+        <Badge>
+          <FitContentSpan>
+            <Link href={getUrlWithNetwork(`/account/${data.proposerAddress}`)} passHref>
+              <Text type="p4" color="blue" className="ellipsis">
+                {proposerDisplayName}
+              </Text>
+            </Link>
+          </FitContentSpan>
+        </Badge>
+      </Field>
     </DataSection>
   );
 };

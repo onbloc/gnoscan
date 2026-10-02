@@ -1,11 +1,9 @@
 "use client";
 
-import IconInfo from "@/assets/svgs/icon-info.svg";
-import { Button } from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
+import { InfoTooltip } from "@/components/ui/tooltip/info-tooltip";
 import mixins from "@/styles/mixins";
 import React from "react";
 import styled from "styled-components";
@@ -30,11 +28,7 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
       <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply
-          <Tooltip width={229} content="Total GNOT supply at Genesis.">
-            <Button width="16px" height="16px" radius="50%" bgColor="base">
-              <IconInfo className="svg-info" />
-            </Button>
-          </Tooltip>
+          <InfoTooltip width={229} content="Total GNOT supply at Genesis." bgColor="base" />
         </Text>
         {isCustomNetwork ? <CustomNetworkSupplyCard /> : <StandardNetworkSupplyCard />}
       </StyledCard>
@@ -55,11 +49,7 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
           <>
             <Text type="h5" color="primary" className="title-info">
               Total&nbsp;Accounts
-              <Tooltip content="Total number of accounts included in at least 1 transaction.">
-                <Button width="16px" height="16px" radius="50%" bgColor="base">
-                  <IconInfo className="svg-info" />
-                </Button>
-              </Tooltip>
+              <InfoTooltip content="Total number of accounts included in at least 1 transaction." bgColor="base" />
             </Text>
             <CustomNetworkAccountCard />
           </>
@@ -67,11 +57,7 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
           <>
             <Text type="h5" color="primary" className="title-info">
               Storage&nbsp;Deposit
-              <Tooltip content="Total amount of GNOT deposited for storage in real time.">
-                <Button width="16px" height="16px" radius="50%" bgColor="base">
-                  <IconInfo className="svg-info" />
-                </Button>
-              </Tooltip>
+              <InfoTooltip content="Total amount of GNOT deposited for storage in real time." bgColor="base" />
             </Text>
             <StorageDepositCard />
           </>
