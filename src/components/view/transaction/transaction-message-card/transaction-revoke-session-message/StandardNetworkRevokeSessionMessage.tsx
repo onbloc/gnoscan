@@ -2,7 +2,7 @@ import { getTransactionMessageType } from "@/common/utils/message.utility";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
-import { AddressLink, BadgeText, Field } from "@/components/view/transaction/common";
+import { AddressLink, BadgeText, Field } from "@/components/ui/detail-field";
 
 const StandardNetworkRevokeSessionMessage = ({
   isDesktop,

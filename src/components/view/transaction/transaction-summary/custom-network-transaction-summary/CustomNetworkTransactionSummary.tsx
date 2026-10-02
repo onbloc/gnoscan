@@ -4,13 +4,13 @@ import Link from "next/link";
 import { TransactionSummaryInfo } from "@/types/data-type";
 
 import DataSection from "@/components/view/details-data-section";
-import { DateDiffText, DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
+import { Field } from "@/components/ui/detail-field";
+import { DateDiffText, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { AmountText } from "@/components/ui/text/amount-text";
 import ShowLog from "@/components/ui/show-log";
-import { StyledIconCopy } from "../Transaction.styles";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 interface TransactionSummaryProps {
@@ -52,85 +52,59 @@ const CustomNetworkTransactionSummary = ({
   return (
     transactionSummaryInfo.transactionItem && (
       <DataSection title="Summary">
-        <DLWrap desktop={isDesktop}>
-          <dt>Status</dt>
-          <dd>
-            <Badge type={transactionSummaryInfo.transactionItem.success ? "green" : "failed"}>
-              <Text type="p4" color="white">
-                {transactionSummaryInfo.transactionItem.success ? "Success" : displayTxErrorInfo}
-              </Text>
-            </Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Timestamp</dt>
-          <dd>
-            <Badge>
-              <Text type="p4" color="inherit" className="ellipsis">
-                {transactionSummaryInfo.timeStamp.time}
-              </Text>
-              <DateDiffText>{transactionSummaryInfo.timeStamp.passedTime}</DateDiffText>
-            </Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Tx Hash</dt>
-          <dd>
-            <Badge>
-              <Text type="p4" color="inherit" className="ellipsis">
-                {txHash}
-              </Text>
-              <Tooltip content="Copied!" trigger="click" copyText={txHash}>
-                <StyledIconCopy className="svg-icon" />
-              </Tooltip>
-            </Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Network</dt>
-          <dd>
-            <Badge>{transactionSummaryInfo.network}</Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Block</dt>
-          <dd>
-            <Badge>
-              <Link href={getUrlWithNetwork(`/block/${transactionSummaryInfo.transactionItem.blockHeight}`)} passHref>
-                <FitContentSpan>
-                  <Text type="p4" color="blue">
-                    {transactionSummaryInfo.transactionItem.blockHeight}
-                  </Text>
-                </FitContentSpan>
-              </Link>
-            </Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Transaction Fee</dt>
-          <dd>
-            <Badge>
-              <AmountText
-                minSize="body2"
-                maxSize="p4"
-                value={transactionSummaryInfo.transactionItem.fee.value}
-                denom={transactionSummaryInfo.transactionItem.fee.denom}
-              />
-            </Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Gas (Used/Wanted)</dt>
-          <dd>
-            <Badge>{transactionSummaryInfo.gas}</Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Memo</dt>
-          <dd>
-            <Badge>{transactionSummaryInfo.transactionItem.memo}</Badge>
-          </dd>
-        </DLWrap>
+        <Field label="Status" isDesktop={isDesktop}>
+          <Badge type={transactionSummaryInfo.transactionItem.success ? "green" : "failed"}>
+            <Text type="p4" color="white">
+              {transactionSummaryInfo.transactionItem.success ? "Success" : displayTxErrorInfo}
+            </Text>
+          </Badge>
+        </Field>
+        <Field label="Timestamp" isDesktop={isDesktop}>
+          <Badge>
+            <Text type="p4" color="inherit" className="ellipsis">
+              {transactionSummaryInfo.timeStamp.time}
+            </Text>
+            <DateDiffText>{transactionSummaryInfo.timeStamp.passedTime}</DateDiffText>
+          </Badge>
+        </Field>
+        <Field label="Tx Hash" isDesktop={isDesktop}>
+          <Badge>
+            <Text type="p4" color="inherit" className="ellipsis">
+              {txHash}
+            </Text>
+            <CopyTooltip copyText={txHash} />
+          </Badge>
+        </Field>
+        <Field label="Network" isDesktop={isDesktop}>
+          <Badge>{transactionSummaryInfo.network}</Badge>
+        </Field>
+        <Field label="Block" isDesktop={isDesktop}>
+          <Badge>
+            <Link href={getUrlWithNetwork(`/block/${transactionSummaryInfo.transactionItem.blockHeight}`)} passHref>
+              <FitContentSpan>
+                <Text type="p4" color="blue">
+                  {transactionSummaryInfo.transactionItem.blockHeight}
+                </Text>
+              </FitContentSpan>
+            </Link>
+          </Badge>
+        </Field>
+        <Field label="Transaction Fee" isDesktop={isDesktop}>
+          <Badge>
+            <AmountText
+              minSize="body2"
+              maxSize="p4"
+              value={transactionSummaryInfo.transactionItem.fee.value}
+              denom={transactionSummaryInfo.transactionItem.fee.denom}
+            />
+          </Badge>
+        </Field>
+        <Field label="Gas (Used/Wanted)" isDesktop={isDesktop}>
+          <Badge>{transactionSummaryInfo.gas}</Badge>
+        </Field>
+        <Field label="Memo" isDesktop={isDesktop}>
+          <Badge>{transactionSummaryInfo.transactionItem.memo}</Badge>
+        </Field>
         {!transactionSummaryInfo.transactionItem.success && (
           <ShowLog isTabLog={false} logData={blockResultLog || ""} btnTextType="Error Logs" />
         )}

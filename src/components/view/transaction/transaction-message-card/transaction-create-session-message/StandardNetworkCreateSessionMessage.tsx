@@ -7,7 +7,8 @@ import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
 import { Amount } from "@/types/data-type";
 
-import { AddressLink, AmountBadge, BadgeList, BadgeText, Field } from "@/components/view/transaction/common";
+import { AddressLink, AmountBadge, BadgeText, Field } from "@/components/ui/detail-field";
+import { BadgeList } from "@/components/view/transaction/common";
 
 const StandardNetworkCreateSessionMessage = ({
   isDesktop,

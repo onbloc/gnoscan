@@ -7,7 +7,6 @@ import { isBech32Address } from "@/common/utils/bech32.utility";
 
 import * as S from "./AccountAddress.styles";
 import Text from "@/components/ui/text";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
 import { Username } from "@/components/ui/username/Username";
 
@@ -54,9 +53,7 @@ const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Account
           <S.ContentWrapper isDesktop={isDesktop}>
             <S.Content type="p4" color="primary">
               {address}
-              <S.CopyTooltip content="Copied!" trigger="click" copyText={address || ""}>
-                <IconCopy />
-              </S.CopyTooltip>
+              <S.CopyTooltip variant="plain" copyText={address || ""} />
               {hasUsername && <Username username={userName} userUrl={userUrl} />}
             </S.Content>
           </S.ContentWrapper>
