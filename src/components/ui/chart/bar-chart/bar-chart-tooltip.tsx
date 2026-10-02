@@ -29,8 +29,8 @@ const TooltipContainer = styled.div<{ light: boolean }>`
   & {
     display: flex;
     flex-direction: column;
-    width: 156px;
-    height: 84px;
+    min-width: 156px;
+    min-height: 84px;
     background-color: ${({ light }) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
     padding: 16px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
