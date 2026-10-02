@@ -21,16 +21,19 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
   const desktop = isDesktop();
   const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
 
-  // Opens the tab named in the URL hash. Runs after every render because tabs can appear
-  // after data loads and a reused section can move to another URL; each URL applies once.
+  // Opens the tab named in the URL hash once per URL. Checked on every render because tabs can load late.
   const lastHandledUrlRef = React.useRef<string | null>(null);
-  // Editing only the hash in the address bar neither reloads the page nor re-renders it
-  // (Next.js ignores hash-only popstate), so re-render on hashchange to apply it.
+  // Next.js does not re-render when only the hash changes.
   const [, rerenderOnHashChange] = React.useReducer((count: number) => count + 1, 0);
   React.useEffect(() => {
     window.addEventListener("hashchange", rerenderOnHashChange);
     return () => window.removeEventListener("hashchange", rerenderOnHashChange);
   }, []);
+  // A new setter means a new state scope (e.g. a route param that was empty before the router was ready).
+  // Must run before the effect below.
+  React.useEffect(() => {
+    lastHandledUrlRef.current = null;
+  }, [setCurrentTab]);
   React.useEffect(() => {
     const { pathname, search, hash } = window.location;
     const url = `${pathname}${search}${hash}`;

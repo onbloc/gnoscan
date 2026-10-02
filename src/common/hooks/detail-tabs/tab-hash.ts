@@ -10,11 +10,7 @@ export function findTabByHash(hash: string, tabNames: string[]): string | null {
   return tabNames.find(tabName => toTabHash(tabName) === target) ?? null;
 }
 
-/**
- * The tab to open for `url`, or null when this URL was already handled (applied or
- * written by a click) or its hash matches no shown tab yet. Keyed by URL rather than
- * a flag so a section reused across pages (token A -> token B) still follows the hash.
- */
+/** The tab to open for `url`, or null when the URL was already handled or its hash matches no shown tab. */
 export function getHashTabToApply(url: string, lastHandledUrl: string | null, tabNames: string[]): string | null {
   if (url === lastHandledUrl) return null;
   const hashIndex = url.indexOf("#");
@@ -22,9 +18,8 @@ export function getHashTabToApply(url: string, lastHandledUrl: string | null, ta
 }
 
 /**
- * Mirrors the selected tab into the URL hash without adding a history entry and returns the new URL.
- * Keeps history.state so Next.js and useHistoryEntryState still see the same entry key, and updates
- * its `as` because Next.js restores the URL from it on Back/Forward.
+ * Writes the tab into the URL hash without a new history entry and returns the URL.
+ * Keeps the Next.js entry key and updates `as`, which Next.js restores on Back/Forward.
  */
 export function writeTabHash(tabName: string): string {
   const url = `${window.location.pathname}${window.location.search}#${toTabHash(tabName)}`;
