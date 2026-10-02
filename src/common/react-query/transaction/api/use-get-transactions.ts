@@ -35,14 +35,13 @@ export const useGetTransactions = (
     [QUERY_KEY.getTransactions, params],
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getTransactions({
         ...params,
         limit: DEFAULT_LIST_ITEMS_SIZE,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
       staleTime: DEFAULT_LIST_ITEMS_STALE_TIME,
       ...options,

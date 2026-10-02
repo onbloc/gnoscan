@@ -15,6 +15,37 @@ import { NewestRealm, Transaction } from "@/types/data-type";
 import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
 import { QUERY_KEY } from "./types";
 
+const REALM_LIST_CACHE_TIME = 10 * 60 * 1000;
+
+const mapRealmPackageTransactions = (transactions: any[] | null): NewestRealm[] => {
+  if (!transactions) {
+    return [];
+  }
+
+  return transactions.flatMap((tx: any) =>
+    tx.messages.map(
+      (message: any): NewestRealm => ({
+        hash: tx.hash,
+        index: tx.index,
+        success: tx.success,
+        blockHeight: tx.block_height,
+        packageName: message.value.package.name,
+        packagePath: message.value.package.path,
+        creator: message.value.creator,
+        functionCount: 0,
+        totalCalls: 0,
+        totalGasUsed: {
+          value: "0",
+          denom: "GNOT",
+        },
+      }),
+    ),
+  );
+};
+
+const sortRealmsByBlockHeightDesc = (realms: any) =>
+  realms.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight);
+
 export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
   const { currentNetwork } = useNetworkProvider();
   const { realmRepository } = useServiceProvider();
@@ -25,37 +56,15 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
       if (!realmRepository) {
         return [];
       }
-      const result = await realmRepository.getRealms();
-      if (!result) {
-        return [];
-      }
-
-      return result.flatMap((transaction: any) => {
-        const tx = transaction;
-        return tx.messages.map((message: any) => ({
-          hash: tx.hash,
-          index: tx.index,
-          success: tx.success,
-          blockHeight: tx.block_height,
-          packageName: message.value.package.name,
-          packagePath: message.value.package.path,
-          creator: message.value.creator,
-          functionCount: 0,
-          totalCalls: 0,
-          totalGasUsed: {
-            value: "0",
-            denom: "GNOT",
-          },
-        }));
-      });
+      return mapRealmPackageTransactions(await realmRepository.getRealms());
     },
-    select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
+    select: sortRealmsByBlockHeightDesc,
     enabled: !!realmRepository,
     ...options,
     retry: 1,
     keepPreviousData: true,
-    cacheTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
+    cacheTime: REALM_LIST_CACHE_TIME,
+    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 
@@ -69,41 +78,15 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
       if (!realmRepository) {
         return [];
       }
-      const result = await realmRepository.getLatestRealms();
-      if (!result) {
-        return [];
-      }
-
-      return (
-        result?.flatMap((transaction: any) => {
-          const tx = transaction;
-          return tx.messages.map(
-            (message: any): NewestRealm => ({
-              hash: tx.hash,
-              index: tx.index,
-              success: tx.success,
-              blockHeight: tx.block_height,
-              packageName: message.value.package.name,
-              packagePath: message.value.package.path,
-              creator: message.value.creator,
-              functionCount: 0,
-              totalCalls: 0,
-              totalGasUsed: {
-                value: "0",
-                denom: "GNOT",
-              },
-            }),
-          );
-        }) || []
-      );
+      return mapRealmPackageTransactions(await realmRepository.getLatestRealms());
     },
-    select: data => data.sort((item1: any, item2: any) => item2.blockHeight - item1.blockHeight),
+    select: sortRealmsByBlockHeightDesc,
     retry: 1,
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
-    cacheTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
+    cacheTime: REALM_LIST_CACHE_TIME,
+    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 
@@ -518,8 +501,8 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
-    cacheTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
+    cacheTime: REALM_LIST_CACHE_TIME,
+    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 

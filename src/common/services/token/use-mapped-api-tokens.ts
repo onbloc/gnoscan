@@ -31,47 +31,36 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
     hasNextPage,
   } = useGetTokens(params);
 
-  const [tokens, setTokens] = React.useState<GRC20InfoWithLogo[]>([]);
-  const [isDataReady, setIsDataReady] = React.useState(false);
-
   const { getTokenMeta } = useTokenResourceMeta();
 
-  React.useEffect(() => {
-    if (apiData?.pages) {
-      setIsDataReady(false);
-
-      const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = TokenMapper.fromApiResponses(allItems).map(token => {
-        const resolved = getTokenMeta(token.tokenId || token.packagePath, {
-          name: token.name,
-          symbol: token.symbol,
-          decimals: token.decimals,
-          image: token.logoUrl,
-        });
-        return {
-          ...token,
-          name: resolved.name,
-          symbol: resolved.symbol,
-          decimals: resolved.decimals,
-          logoUrl: resolved.image || "",
-        };
-      });
-
-      setTokens(mappedBlocksData);
-      setIsDataReady(true);
-    } else {
-      setTokens([]);
-      setIsDataReady(true);
+  const pages = apiData?.pages;
+  const tokens = React.useMemo<GRC20InfoWithLogo[]>(() => {
+    if (!pages) {
+      return [];
     }
-  }, [apiData?.pages, getTokenMeta]);
 
-  const isLoading = isApiLoading || !isDataReady;
-  const isFetched = isApiFetched && isDataReady;
+    const allItems = pages.flatMap(page => page.items);
+    return TokenMapper.fromApiResponses(allItems).map(token => {
+      const resolved = getTokenMeta(token.tokenId || token.packagePath, {
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        image: token.logoUrl,
+      });
+      return {
+        ...token,
+        name: resolved.name,
+        symbol: resolved.symbol,
+        decimals: resolved.decimals,
+        logoUrl: resolved.image || "",
+      };
+    });
+  }, [pages, getTokenMeta]);
 
   return {
     data: tokens,
-    isFetched,
-    isLoading,
+    isFetched: isApiFetched,
+    isLoading: isApiLoading,
     isError: isApiError,
     fetchNextPage,
     hasNextPage,

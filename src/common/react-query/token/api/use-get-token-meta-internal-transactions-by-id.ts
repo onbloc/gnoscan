@@ -21,14 +21,11 @@ export const useGetTokenMetaInternalTransactionsById = (
     [QUERY_KEY.getTokenMetaInternalTransactionsById, params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getTokenMetaInternalTransactions({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
-    {
-      ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
-    },
+    options,
   );
 };

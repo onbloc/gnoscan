@@ -31,14 +31,13 @@ export const useGetTransactionContractsByHeight = (
     [QUERY_KEY.getTransactionContractsByHash, params],
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getTransactionContracts({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
       ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       enabled: (options?.enabled ?? true) && !!params.txHash,
     },
   );
