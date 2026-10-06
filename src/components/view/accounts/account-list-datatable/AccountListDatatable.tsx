@@ -8,7 +8,6 @@ import { DatatableItem } from "@/components/view/datatable";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { useGetAccounts } from "@/common/react-query/account/api/use-get-accounts";
 import { AccountListItemModel } from "@/models/api/account/account-list-item-model";
-import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
@@ -45,7 +44,8 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         nameTag: getAddressNameTag(item),
         label: item.label,
         labelType: item.labelType,
-        balance: toGNOTAmount(item.balance, GNOTToken.denom),
+        // Keep the raw ugnot denom: StandardNetworkAmount converts it without a token-meta lookup.
+        balance: { value: item.balance, denom: GNOTToken.denom },
         percentage: item.percentage,
         txCount: item.txCount,
       };
