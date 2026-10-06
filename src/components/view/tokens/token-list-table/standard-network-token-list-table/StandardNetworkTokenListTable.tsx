@@ -1,18 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
-import { useRecoilValue } from "recoil";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { themeState } from "@/states";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { TokenListSortOption } from "@/common/types/token";
 
-import * as S from "./StandardNetworkTokenListTable.styles";
+import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../../datatable";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
@@ -45,7 +42,6 @@ export const StandardNetworkTokenListTable = ({
   sortOption,
   setSortOption,
 }: TokenListTableProps) => {
-  const themeMode = useRecoilValue(themeState);
   const { indexerQueryClient } = useNetworkProvider();
 
   const createHeaders = () => {
@@ -119,28 +115,24 @@ export const StandardNetworkTokenListTable = ({
   if (!isFetched) return <TableSkeleton />;
 
   return (
-    <S.Container>
+    <CardTableContainer>
       <Datatable
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
+        headers={createHeaders()}
         datas={data}
         sortOption={sortOption}
         setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
-      {hasNextPage ? (
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
-            {"View More Tokens"}
-          </Button>
+          <ViewMoreButton
+            variant="table"
+            breakpoint={breakpoint}
+            text="View More Tokens"
+            onClick={() => fetchNextPage()}
+          />
         </div>
-      ) : (
-        <></>
       )}
-    </S.Container>
+    </CardTableContainer>
   );
 };

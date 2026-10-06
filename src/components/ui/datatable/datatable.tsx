@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { useRecoilValue } from "recoil";
+import { themeState } from "@/states/theme";
 import { DatatableData, DatatableHeader } from ".";
 import IconTableLoading from "@/assets/svgs/icon-table-loading.svg";
 import { zindex } from "@/common/values/z-index";
@@ -27,6 +29,8 @@ export const Datatable = <T extends { [key in string]: any }>({
   renderDetails,
 }: Props<T>) => {
   const datatableRef = useRef<HTMLDivElement>(null);
+  const themeMode = useRecoilValue(themeState);
+  const themedHeaders = headers.map(header => ({ ...header, themeMode }));
 
   useEffect(() => {
     onHandleHideTooltips();
@@ -43,14 +47,14 @@ export const Datatable = <T extends { [key in string]: any }>({
   return (
     <Container maxWidth={maxWidth} ref={datatableRef}>
       <div className="scroll-wrapper">
-        <DatatableHeader.HeaderRow headers={headers} sortOption={sortOption} setSortOption={setSortOption} />
+        <DatatableHeader.HeaderRow headers={themedHeaders} sortOption={sortOption} setSortOption={setSortOption} />
         {loading && (
           <div className="loading-wrapper">
             <IconTableLoading />
           </div>
         )}
         {!loading && datas && datas?.length > 0 && (
-          <DatatableData.DataList headers={headers} datas={datas || []} renderDetails={renderDetails} />
+          <DatatableData.DataList headers={themedHeaders} datas={datas || []} renderDetails={renderDetails} />
         )}
         {!loading && !datas?.length && supported && (
           <div className="no-content-wrapper">

@@ -1,26 +1,21 @@
 "use client";
 
 import React from "react";
-import { useRecoilValue } from "recoil";
-import styled from "styled-components";
 
 import { numberWithCommas } from "@/common/utils";
-import { themeState } from "@/states";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import theme from "@/styles/theme";
 import { formatDate } from "@/common/utils/date-util";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "..";
+import { CardTableContainer } from "../datatable.styles";
 import { Block } from "@/types/data-type";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 
 interface BlockDatatableProps {
   breakpoint: DEVICE_TYPE;
   data: Block[];
-  isFetched: boolean;
   isError: boolean;
-  isLoading: boolean;
   hasNextPage: boolean | undefined;
 
   fetchNextPage: () => void;
@@ -33,8 +28,6 @@ export const StandardNetworkBlockDatatable = ({
   hasNextPage,
   fetchNextPage,
 }: BlockDatatableProps) => {
-  const themeMode = useRecoilValue(themeState);
-
   const createHeaders = () => {
     return [
       createHeaderBlockHash(),
@@ -109,62 +102,19 @@ export const StandardNetworkBlockDatatable = ({
   };
 
   return (
-    <Container>
-      <Datatable
-        supported={!isError}
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={data}
-      />
+    <CardTableContainer>
+      <Datatable supported={!isError} headers={createHeaders()} datas={data} />
 
-      {hasNextPage ? (
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
-            {"View More Blocks"}
-          </Button>
+          <ViewMoreButton
+            variant="table"
+            breakpoint={breakpoint}
+            text="View More Blocks"
+            onClick={() => fetchNextPage()}
+          />
         </div>
-      ) : (
-        <></>
       )}
-    </Container>
+    </CardTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-    background-color: ${({ theme }) => theme.colors.base};
-    padding-bottom: 24px;
-    border-radius: 10px;
-
-    .button-wrapper {
-      display: flex;
-      width: 100%;
-      height: auto;
-      margin-top: 4px;
-      padding: 0 20px;
-      justify-content: center;
-
-      .more-button {
-        width: 100%;
-        padding: 16px;
-        color: ${({ theme }) => theme.colors.primary};
-        background-color: ${({ theme }) => theme.colors.surface};
-        ${theme.fonts.p4}
-        font-weight: 600;
-
-        &.desktop {
-          width: 344px;
-        }
-      }
-    }
-  }
-`;

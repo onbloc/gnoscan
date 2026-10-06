@@ -16,9 +16,7 @@ const CustomNetworkBlocksContainer = () => {
     <BlockDatatable
       breakpoint={breakpoint}
       data={blocks}
-      isFetched={isFetched}
       isError={isError}
-      isLoading={isLoading}
       hasNextPage={hasNextPage}
       fetchNextPage={fetchNextPage}
     />
