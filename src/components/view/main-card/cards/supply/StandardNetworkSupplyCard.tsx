@@ -14,6 +14,7 @@ export const StandardNetworkSupplyCard = () => {
   const price = market?.current_price;
   const priceChange = market?.price_change_percentage_24h;
   const circulatingSupply = market?.circulating_supply;
+  const priceChangeColor = priceChange != null && priceChange >= 0 ? "green" : "failed";
 
   return (
     <>
@@ -23,16 +24,14 @@ export const StandardNetworkSupplyCard = () => {
         skeletonMargin="10px 0px 24px"
         isFetched={isMarketFetched}
         renderComp={
-          <Text type="h3" color="primary" margin="10px 0px 24px">
+          <Text type="h3" color="primary" display="flex" margin="10px 0px 24px" style={{ alignItems: "center" }}>
             {price != null ? formatPrice(price) : "-"}
             {priceChange != null && (
-              <Text
-                type="body2"
-                display="inline-block"
-                color={priceChange >= 0 ? "green" : "failed"}
-                margin="0px 0px 0px 6px"
-              >
-                <b>{formatPriceChange(priceChange)}</b> (24h)
+              <Text type="body2" color={priceChangeColor} margin="0px 0px 0px 6px">
+                <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor}>
+                  {formatPriceChange(priceChange)}
+                </Text>{" "}
+                (24h)
               </Text>
             )}
           </Text>

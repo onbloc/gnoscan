@@ -123,7 +123,7 @@ export const Wrapper = styled(SectionGrid)`
     display: flex;
   }
   .icon-link {
-    stroke: ${({ theme }) => theme.colors.reverse};
+    stroke: ${({ theme }) => theme.colors.tertiary};
   }
 `;
 
