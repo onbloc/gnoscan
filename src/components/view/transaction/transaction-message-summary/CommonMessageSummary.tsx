@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { getTransactionMessageType } from "@/common/utils/message.utility";
+import { getSummaryCaller, getTransactionMessageType } from "@/common/utils/message.utility";
 import Text from "@/components/ui/text";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { SUMMARY_LINE_HEIGHT, SummaryLine, TransferAddress } from "./transfer-render";
@@ -31,7 +31,7 @@ const CommonMessageSummary = ({ messages, embedded = false }: Props) => {
           <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
             by
           </Text>
-          <TransferAddress address={getSummaryCaller(message)} />
+          <TransferAddress {...getSummaryCaller(message)} />
         </SummaryLine>
       ))}
     </Wrapper>
@@ -41,10 +41,6 @@ const CommonMessageSummary = ({ messages, embedded = false }: Props) => {
 function getSummaryFunctionName(message: TransactionContractModel): string {
   const [calledFunction] = message.calledFunctions ?? [];
   return calledFunction?.method || getTransactionMessageType(message);
-}
-
-function getSummaryCaller(message: TransactionContractModel): string {
-  return message.caller || message.from || message.creator || "";
 }
 
 const Wrapper = styled.div<{ $embedded: boolean }>`

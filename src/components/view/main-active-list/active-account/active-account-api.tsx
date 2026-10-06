@@ -13,6 +13,7 @@ import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { truncateDashboardUsername } from "@/common/utils/common.utility";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
@@ -43,7 +44,7 @@ const ActiveAccountApi = () => {
 
   const getDisplayUsername = useCallback((address: string, addressName?: string | null, label?: string | null) => {
     if (addressName) return truncateDashboardUsername(addressName);
-    if (label) return truncateDashboardUsername(label);
+    if (label) return truncateDashboardUsername(stripGnoLandPrefix(label));
     return textEllipsis(address);
   }, []);
 

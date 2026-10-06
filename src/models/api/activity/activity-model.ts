@@ -1,3 +1,5 @@
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+
 /**
  * A single fungible or non-fungible amount carried by an activity row.
  *
@@ -18,7 +20,11 @@ export type ActivityTransferSource = "MsgSend" | "internal" | "token";
 
 export interface ActivityTransfer {
   fromAddress: string;
+  fromLabel?: string | null;
+  fromLabelType?: ADDRESS_LABEL_TYPE | null;
   toAddress: string;
+  toLabel?: string | null;
+  toLabelType?: ADDRESS_LABEL_TYPE | null;
   amount: ActivityAmount;
   source: ActivityTransferSource;
   // Event index within the tx: for a message-only synthetic transfer (no backing
@@ -66,6 +72,8 @@ export interface ActivityRow {
   fee: { value: string; denom: string };
 
   callerAddress: string;
+  callerLabel?: string | null;
+  callerLabelType?: ADDRESS_LABEL_TYPE | null;
 
   nativeValue: ActivityAmount;
 
