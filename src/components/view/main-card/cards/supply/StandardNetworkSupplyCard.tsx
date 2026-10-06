@@ -1,8 +1,6 @@
 import React from "react";
 import Text from "@/components/ui/text";
-import IconInfo from "@/assets/svgs/icon-info.svg";
-import { Button } from "@/components/ui/button";
-import Tooltip from "@/components/ui/tooltip";
+import { InfoTooltip } from "@/components/ui/tooltip/info-tooltip";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetSummarySupply } from "@/common/react-query/statistics";
 import { SummaryGnotSupplyInfo } from "@/types/data-type";
@@ -43,11 +41,7 @@ export const StandardNetworkSupplyCard = () => {
             <Text type="p4" color="tertiary">
               Airdrop Supply
             </Text>
-            <Tooltip width={215} content="Total GNOTs to be airdropped to Cosmos and AtomOne holders.">
-              <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                <IconInfo className="svg-info" />
-              </Button>
-            </Tooltip>
+            <InfoTooltip width={215} content="Total GNOTs to be airdropped to Cosmos and AtomOne holders." />
           </dt>
           <dd>
             <FetchedComp
@@ -67,11 +61,7 @@ export const StandardNetworkSupplyCard = () => {
             <Text type="p4" color="tertiary">
               Airdrop&nbsp;Holders
             </Text>
-            <Tooltip content="Total number of holders receiving 1 GNOT or more.">
-              <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                <IconInfo className="svg-info" />
-              </Button>
-            </Tooltip>
+            <InfoTooltip content="Total number of holders receiving 1 GNOT or more." />
           </dt>
           <dd>
             <FetchedComp

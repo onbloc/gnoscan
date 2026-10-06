@@ -5,7 +5,6 @@ import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { ValidatorInfo } from "@/layouts/account/AccountLayout";
 
-import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
 import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import { Divider } from "@/components/ui/divider/Divider";
@@ -49,9 +48,7 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
           <S.ContentWrapper isDesktop={isDesktop}>
             <S.Content type="p4" color="primary">
               {address}
-              <S.CopyTooltip content="Copied!" trigger="click" copyText={address || ""}>
-                <IconCopy />
-              </S.CopyTooltip>
+              <S.CopyTooltip variant="plain" copyText={address || ""} />
             </S.Content>
             {validatorInfo?.name && (
               <>

@@ -5,8 +5,7 @@ import { useQueries } from "react-query";
 import BigNumber from "bignumber.js";
 
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import GNOTIcon from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
@@ -229,9 +228,7 @@ export const TransferAddress = ({
           </Text>
         </Link>
       )}
-      <Tooltip content="Copied!" trigger="click" copyText={address || label || ""}>
-        <IconCopy className="copy-icon" />
-      </Tooltip>
+      <CopyTooltip variant="plain" iconClassName="copy-icon" copyText={address || label || ""} />
     </AddressChip>
   );
 };

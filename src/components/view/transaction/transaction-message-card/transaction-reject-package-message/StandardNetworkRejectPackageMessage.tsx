@@ -2,7 +2,8 @@ import { getTransactionMessageType } from "@/common/utils/message.utility";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
-import { AddressLink, BadgeText, Field, FieldWithTooltip, PkgPathLink } from "@/components/view/transaction/common";
+import { AddressLink, BadgeText, Field, FieldWithTooltip } from "@/components/ui/detail-field";
+import { PkgPathLink } from "@/components/view/transaction/common";
 
 const StandardNetworkRejectPackageMessage = ({
   isDesktop,

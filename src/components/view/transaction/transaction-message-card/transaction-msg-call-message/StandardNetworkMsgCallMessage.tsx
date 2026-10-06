@@ -9,15 +9,8 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { useTokenMetaAmount } from "@/common/hooks/tokens/use-token-meta-amount";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
-import {
-  AddressLink,
-  AmountBadge,
-  BadgeList,
-  BadgeText,
-  Field,
-  FieldWithTooltip,
-  PkgPathLink,
-} from "@/components/view/transaction/common";
+import { AddressLink, AmountBadge, BadgeText, Field, FieldWithTooltip } from "@/components/ui/detail-field";
+import { BadgeList, PkgPathLink } from "@/components/view/transaction/common";
 import { Amount } from "@/types";
 
 const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionContractMessagesProps) => {

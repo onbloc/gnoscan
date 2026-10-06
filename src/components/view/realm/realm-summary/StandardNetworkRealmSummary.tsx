@@ -12,7 +12,7 @@ import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
-import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
@@ -20,13 +20,12 @@ import { Amount, RealmSummary } from "@/types/data-type";
 
 import { mapAccountAssetsToAmounts, sortAmountsByValueDesc } from "./realm-balance.utility";
 
-import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
 import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { GNO_NETWORK_PREFIXES } from "@/common/values/gno.constant";
 import Badge from "@/components/ui/badge";
+import { AddressDisplayLink, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap, FitContentA, FitContentSpan, LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import FloatingTooltip from "@/components/ui/floating-tooltip";
 import IconInfo from "@/components/ui/icon-info";
@@ -34,7 +33,7 @@ import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
 import PublicFunctions from "@/components/ui/public-functions";
@@ -175,72 +174,45 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
 
   return (
     <DataSection title="Summary">
-      <DLWrap desktop={isDesktop}>
-        <dt>Name</dt>
-        <dd>
-          <Badge>{realmSummary?.name}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>
-          Path
-          <div className="tooltip-wrapper">
-            <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-              <IconTooltip />
-            </Tooltip>
-          </div>
-        </dt>
-        <dd className="path-wrapper">
-          <Badge margin="0">
-            <Text type="p4" color="reverse" className="ellipsis">
-              {formatDisplayPackagePath(realmSummary?.path)}
-            </Text>
+      <Field label="Name" isDesktop={isDesktop}>
+        <Badge>{realmSummary?.name}</Badge>
+      </Field>
+      <FieldWithTooltip
+        label="Path"
+        tooltipContent={TOOLTIP_PACKAGE_PATH}
+        isDesktop={isDesktop}
+        contentClassName="path-wrapper"
+      >
+        <Badge margin="0">
+          <Text type="p4" color="reverse" className="ellipsis">
+            {formatDisplayPackagePath(realmSummary?.path)}
+          </Text>
 
-            <Tooltip
-              className="path-copy-tooltip"
-              content="Copied!"
-              trigger="click"
-              copyText={realmSummary?.path}
-              width={85}
-            >
-              <IconCopy className="svg-icon" />
-            </Tooltip>
-          </Badge>
+          <CopyTooltip variant="path" copyText={realmSummary?.path} />
+        </Badge>
 
-          {isRealmNotEnabled && <NotYetEnabledBadge />}
+        {isRealmNotEnabled && <NotYetEnabledBadge />}
 
-          <NonMobile>
-            {hasGnoWebUrl && (
-              <LinkWrapper onClick={moveGnoWeb}>
-                <Text type="p4" className="ellipsis">
-                  Go to Gnoweb
-                </Text>
-                <IconLink className="icon-link" />
-              </LinkWrapper>
-            )}
-          </NonMobile>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Realm Address</dt>
-        <dd>
-          <Badge>
-            <Text type="p4" color="reverse" className="ellipsis">
-              {realmSummary?.realmAddress || ""}
-            </Text>
+        <NonMobile>
+          {hasGnoWebUrl && (
+            <LinkWrapper onClick={moveGnoWeb}>
+              <Text type="p4" className="ellipsis">
+                Go to Gnoweb
+              </Text>
+              <IconLink className="icon-link" />
+            </LinkWrapper>
+          )}
+        </NonMobile>
+      </FieldWithTooltip>
+      <Field label="Realm Address" isDesktop={isDesktop}>
+        <Badge>
+          <Text type="p4" color="reverse" className="ellipsis">
+            {realmSummary?.realmAddress || ""}
+          </Text>
 
-            <Tooltip
-              className="path-copy-tooltip"
-              content="Copied!"
-              trigger="click"
-              copyText={realmSummary?.realmAddress || ""}
-              width={85}
-            >
-              <IconCopy className="svg-icon" />
-            </Tooltip>
-          </Badge>
-        </dd>
-      </DLWrap>
+          <CopyTooltip variant="path" copyText={realmSummary?.realmAddress || ""} />
+        </Badge>
+      </Field>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
         <PublicFunctions>
@@ -253,127 +225,86 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           ))}
         </PublicFunctions>
       </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Publisher</dt>
-        <dd>
-          <Badge>
-            {realmSummary?.publisherAddress === "genesis" ? (
-              <FitContentA>
-                <Text type="p4" color="blue" className="ellipsis">
-                  {getAddressDisplayText({
-                    address: realmSummary?.publisherAddress,
-                    name: realmSummary?.publisherName,
-                    label: realmSummary?.publisherLabel,
-                  }) || ""}
-                </Text>
-              </FitContentA>
-            ) : (
+      <Field label="Publisher" isDesktop={isDesktop}>
+        <Badge>
+          {realmSummary?.publisherAddress === "genesis" ? (
+            <FitContentA>
+              <Text type="p4" color="blue" className="ellipsis">
+                {getAddressDisplayText({
+                  address: realmSummary?.publisherAddress,
+                  name: realmSummary?.publisherName,
+                  label: realmSummary?.publisherLabel,
+                }) || ""}
+              </Text>
+            </FitContentA>
+          ) : (
+            <AddressDisplayLink
+              address={realmSummary?.publisherAddress}
+              name={realmSummary?.publisherName}
+              label={realmSummary?.publisherLabel}
+              labelType={realmSummary?.publisherLabelType}
+              getUrlWithNetwork={getUrlWithNetwork}
+            />
+          )}
+        </Badge>
+      </Field>
+      <Field label="Block Published" isDesktop={isDesktop}>
+        <Badge>
+          {realmSummary?.blockPublished == null ? (
+            <FitContentA>
+              <Text type="p4" color="blue" className="ellipsis">
+                {"-"}
+              </Text>
+            </FitContentA>
+          ) : (
+            <Link href={getUrlWithNetwork(`/block/${realmSummary?.blockPublished}`)} passHref>
               <FitContentSpan>
-                <Link
-                  href={getUrlWithNetwork(
-                    getAddressLinkPath({
-                      address: realmSummary?.publisherAddress,
-                      name: realmSummary?.publisherName,
-                      label: realmSummary?.publisherLabel,
-                      labelType: realmSummary?.publisherLabelType,
-                    }),
-                  )}
-                  passHref
-                >
-                  <Text type="p4" color="blue" className="ellipsis">
-                    {getAddressDisplayText({
-                      address: realmSummary?.publisherAddress,
-                      name: realmSummary?.publisherName,
-                      label: realmSummary?.publisherLabel,
-                    }) || ""}
-                  </Text>
-                </Link>
-              </FitContentSpan>
-            )}
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Block Published</dt>
-        <dd>
-          <Badge>
-            {realmSummary?.blockPublished == null ? (
-              <FitContentA>
-                <Text type="p4" color="blue" className="ellipsis">
-                  {"-"}
+                <Text type="p4" color="blue">
+                  {displayBlockPublished}
                 </Text>
-              </FitContentA>
-            ) : (
-              <Link href={getUrlWithNetwork(`/block/${realmSummary?.blockPublished}`)} passHref>
-                <FitContentSpan>
-                  <Text type="p4" color="blue">
-                    {displayBlockPublished}
-                  </Text>
-                </FitContentSpan>
-              </Link>
-            )}
+              </FitContentSpan>
+            </Link>
+          )}
+        </Badge>
+      </Field>
+      <FieldWithTooltip
+        label="Balance"
+        tooltipContent={TOOLTIP_BALANCE}
+        isDesktop={isDesktop}
+        contentClassName="function-wrapper"
+      >
+        {realmBalanceList.map((amount, index) => (
+          <Badge key={`${amount.denom}-${index}`}>
+            <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
           </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>
-          Balance
-          <div className="tooltip-wrapper">
-            <Tooltip content={TOOLTIP_BALANCE}>
-              <IconTooltip />
-            </Tooltip>
-          </div>
-        </dt>
-        <dd className="function-wrapper">
-          {realmBalanceList.map((amount, index) => (
-            <Badge key={`${amount.denom}-${index}`}>
-              <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
-            </Badge>
-          ))}
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Total Calls</dt>
-        <dd>
-          <Badge>{realmSummary?.contractCalls || 0}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Total Fees Used</dt>
-        <dd>
-          <Badge>
-            <AmountText
-              minSize="body1"
-              maxSize="p4"
-              value={realmTotalUsedFees?.value || "0"}
-              denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
-            />
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>
-          Storage Deposit
-          <div className="tooltip-wrapper">
-            <Tooltip content={TOOLTIP_STORAGE_DEPOSIT}>
-              <IconTooltip />
-            </Tooltip>
-          </div>
-        </dt>
-        <dd>
-          <Badge>
-            <StorageDepositText
-              minSize="body1"
-              maxSize="p4"
-              value={displayStorageDepositAmount.value}
-              denom={displayStorageDepositAmount.denom}
-              sizeInBytes={storageDepositData?.storage || 0}
-              visibleStorageSize={true}
-              visibleTooltip={false}
-            />
-          </Badge>
-        </dd>
-      </DLWrap>
+        ))}
+      </FieldWithTooltip>
+      <Field label="Total Calls" isDesktop={isDesktop}>
+        <Badge>{realmSummary?.contractCalls || 0}</Badge>
+      </Field>
+      <Field label="Total Fees Used" isDesktop={isDesktop}>
+        <Badge>
+          <AmountText
+            minSize="body1"
+            maxSize="p4"
+            value={realmTotalUsedFees?.value || "0"}
+            denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
+          />
+        </Badge>
+      </Field>
+      <FieldWithTooltip label="Storage Deposit" tooltipContent={TOOLTIP_STORAGE_DEPOSIT} isDesktop={isDesktop}>
+        <Badge>
+          <StorageDepositText
+            minSize="body1"
+            maxSize="p4"
+            value={displayStorageDepositAmount.value}
+            denom={displayStorageDepositAmount.denom}
+            sizeInBytes={storageDepositData?.storage || 0}
+            visibleStorageSize={true}
+            visibleTooltip={false}
+          />
+        </Badge>
+      </FieldWithTooltip>
       {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} btnTextType="Realms" />}
     </DataSection>
   );

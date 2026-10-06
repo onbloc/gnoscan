@@ -8,11 +8,10 @@ import * as S from "./TokenSummary.styles";
 import Text from "@/components/ui/text";
 import Badge from "@/components/ui/badge";
 import DataSection from "@/components/view/details-data-section";
+import { Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import ShowLog from "@/components/ui/show-log";
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { useToken } from "@/common/hooks/tokens/use-token";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
@@ -51,58 +50,28 @@ const CustomNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps) 
 
   return (
     <DataSection title="Summary">
-      <DLWrap desktop={isDesktop}>
-        <dt>Name</dt>
-        <dd>
-          <Badge>{summaryData.name}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Symbol</dt>
-        <dd>
-          <Badge>{summaryData.symbol}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Total Supply</dt>
-        <dd>
-          <Badge>{displayTotalSupply}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Decimals</dt>
-        <dd>
-          <Badge>{summaryData.decimals}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>
-          Path
-          <div className="tooltip-wrapper">
-            <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-              <IconTooltip />
-            </Tooltip>
-          </div>
-        </dt>
-        <dd>
-          <Badge>
-            <Text type="p4" color="blue" className="username-text">
-              <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${summaryData.packagePath}`)}>
-                {formatDisplayPackagePath(summaryData.packagePath)}
-              </S.StyledA>
-            </Text>
-            <Tooltip
-              className="path-copy-tooltip"
-              content="Copied!"
-              trigger="click"
-              copyText={summaryData.packagePath}
-              width={85}
-            >
-              <IconCopy className="svg-icon" />
-            </Tooltip>
-          </Badge>
-        </dd>
-      </DLWrap>
+      <Field label="Name" isDesktop={isDesktop}>
+        <Badge>{summaryData.name}</Badge>
+      </Field>
+      <Field label="Symbol" isDesktop={isDesktop}>
+        <Badge>{summaryData.symbol}</Badge>
+      </Field>
+      <Field label="Total Supply" isDesktop={isDesktop}>
+        <Badge>{displayTotalSupply}</Badge>
+      </Field>
+      <Field label="Decimals" isDesktop={isDesktop}>
+        <Badge>{summaryData.decimals}</Badge>
+      </Field>
+      <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+        <Badge>
+          <Text type="p4" color="blue" className="username-text">
+            <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${summaryData.packagePath}`)}>
+              {formatDisplayPackagePath(summaryData.packagePath)}
+            </S.StyledA>
+          </Text>
+          <CopyTooltip variant="path" copyText={summaryData.packagePath} />
+        </Badge>
+      </FieldWithTooltip>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
         <PublicFunctions>
@@ -115,32 +84,26 @@ const CustomNetworkTokenSummary = ({ tokenPath, isDesktop }: TokenSummaryProps) 
           ))}
         </PublicFunctions>
       </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Owner</dt>
-        <dd>
-          <Badge>
-            {summaryData.owner && summaryData.owner === "genesis" ? (
-              <Text type="p4" color="blue" className="ellipsis">
-                {summaryData.owner}
-              </Text>
-            ) : (
-              <FitContentSpan>
-                <Link href={getUrlWithNetwork(`/account/${summaryData.owner}`)} passHref>
-                  <Text type="p4" color="blue" className="ellipsis">
-                    {getName(summaryData.owner) || summaryData.owner}
-                  </Text>
-                </Link>
-              </FitContentSpan>
-            )}
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Holders</dt>
-        <dd>
-          <Badge>{summaryData.holders}</Badge>
-        </dd>
-      </DLWrap>
+      <Field label="Owner" isDesktop={isDesktop}>
+        <Badge>
+          {summaryData.owner && summaryData.owner === "genesis" ? (
+            <Text type="p4" color="blue" className="ellipsis">
+              {summaryData.owner}
+            </Text>
+          ) : (
+            <FitContentSpan>
+              <Link href={getUrlWithNetwork(`/account/${summaryData.owner}`)} passHref>
+                <Text type="p4" color="blue" className="ellipsis">
+                  {getName(summaryData.owner) || summaryData.owner}
+                </Text>
+              </Link>
+            </FitContentSpan>
+          )}
+        </Badge>
+      </Field>
+      <Field label="Holders" isDesktop={isDesktop}>
+        <Badge>{summaryData.holders}</Badge>
+      </Field>
       {files && <ShowLog isTabLog={true} files={files} btnTextType="Logs" />}
     </DataSection>
   );

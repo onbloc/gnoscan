@@ -8,12 +8,11 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { useGetRealmTransactionsQuery } from "@/common/react-query/realm";
 
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
 import DataSection from "../../details-data-section";
 import { DLWrap, FitContentA, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
-import Tooltip from "@/components/ui/tooltip";
+import { Field, FieldWithTooltip } from "@/components/ui/detail-field";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import Text from "@/components/ui/text";
 import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
@@ -60,59 +59,32 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
 
   return (
     <DataSection title="Summary">
-      <DLWrap desktop={isDesktop}>
-        <dt>Name</dt>
-        <dd>
-          <Badge>{summary?.name}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>
-          Path
-          <div className="tooltip-wrapper">
-            <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-              <IconTooltip />
-            </Tooltip>
-          </div>
-        </dt>
-        <dd className="path-wrapper">
-          <Badge>
-            <Text type="p4" color="reverse" className="ellipsis">
-              {formatDisplayPackagePath(summary?.path)}
-            </Text>
+      <Field label="Name" isDesktop={isDesktop}>
+        <Badge>{summary?.name}</Badge>
+      </Field>
+      <FieldWithTooltip
+        label="Path"
+        tooltipContent={TOOLTIP_PACKAGE_PATH}
+        isDesktop={isDesktop}
+        contentClassName="path-wrapper"
+      >
+        <Badge>
+          <Text type="p4" color="reverse" className="ellipsis">
+            {formatDisplayPackagePath(summary?.path)}
+          </Text>
 
-            <Tooltip
-              className="path-copy-tooltip"
-              content="Copied!"
-              trigger="click"
-              copyText={summary?.path}
-              width={85}
-            >
-              <IconCopy className="svg-icon" />
-            </Tooltip>
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Realm Address</dt>
-        <dd>
-          <Badge>
-            <Text type="p4" color="reverse" className="ellipsis">
-              {summary?.realmAddress || ""}
-            </Text>
+          <CopyTooltip variant="path" copyText={summary?.path} />
+        </Badge>
+      </FieldWithTooltip>
+      <Field label="Realm Address" isDesktop={isDesktop}>
+        <Badge>
+          <Text type="p4" color="reverse" className="ellipsis">
+            {summary?.realmAddress || ""}
+          </Text>
 
-            <Tooltip
-              className="path-copy-tooltip"
-              content="Copied!"
-              trigger="click"
-              copyText={summary?.realmAddress || ""}
-              width={85}
-            >
-              <IconCopy className="svg-icon" />
-            </Tooltip>
-          </Badge>
-        </dd>
-      </DLWrap>
+          <CopyTooltip variant="path" copyText={summary?.realmAddress || ""} />
+        </Badge>
+      </Field>
       <DLWrap desktop={isDesktop}>
         <dt>Public Functions</dt>
         <PublicFunctions>
@@ -125,79 +97,57 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
           ))}
         </PublicFunctions>
       </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Publisher</dt>
-        <dd>
-          <Badge>
-            {summary?.publisherAddress === "genesis" ? (
-              <FitContentA>
+      <Field label="Publisher" isDesktop={isDesktop}>
+        <Badge>
+          {summary?.publisherAddress === "genesis" ? (
+            <FitContentA>
+              <Text type="p4" color="blue" className="ellipsis">
+                {summary?.publisherAddress}
+              </Text>
+            </FitContentA>
+          ) : (
+            <FitContentSpan>
+              <Link href={getUrlWithNetwork(`/account/${summary?.publisherAddress}`)} passHref>
                 <Text type="p4" color="blue" className="ellipsis">
-                  {summary?.publisherAddress}
+                  {getName(summary?.publisherAddress || "") || summary?.publisherAddress}
                 </Text>
-              </FitContentA>
-            ) : (
-              <FitContentSpan>
-                <Link href={getUrlWithNetwork(`/account/${summary?.publisherAddress}`)} passHref>
-                  <Text type="p4" color="blue" className="ellipsis">
-                    {getName(summary?.publisherAddress || "") || summary?.publisherAddress}
-                  </Text>
-                </Link>
-              </FitContentSpan>
-            )}
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Block Published</dt>
-        <dd>
-          <Badge>
-            {summary?.blockPublished === 0 ? (
-              <FitContentA>
-                <Text type="p4" color="blue" className="ellipsis">
-                  {"-"}
-                </Text>
-              </FitContentA>
-            ) : (
-              <Link href={getUrlWithNetwork(`/block/${summary?.blockPublished}`)} passHref>
-                <FitContentSpan>
-                  <Text type="p4" color="blue">
-                    {summary?.blockPublished}
-                  </Text>
-                </FitContentSpan>
               </Link>
-            )}
-          </Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>
-          Balance
-          <div className="tooltip-wrapper">
-            <Tooltip content={TOOLTIP_BALANCE}>
-              <IconTooltip />
-            </Tooltip>
-          </div>
-        </dt>
-        <dd>
-          <Badge>{balanceStr}</Badge>
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Total Calls</dt>
-        <dd>
-          <RealmTotalContractCalls realmTransactions={realmTransactions} isFetched={isFetchedRealmTransactions} />
-        </dd>
-      </DLWrap>
-      <DLWrap desktop={isDesktop}>
-        <dt>Total Fees Used</dt>
-        <dd>
-          <RealmTotalUsedFeeAmount
-            realmTransactions={realmTransactions}
-            isFetched={isFetchedRealmTransactions}
-            getTokenAmount={getTokenAmount}
-          />
-        </dd>
-      </DLWrap>
+            </FitContentSpan>
+          )}
+        </Badge>
+      </Field>
+      <Field label="Block Published" isDesktop={isDesktop}>
+        <Badge>
+          {summary?.blockPublished === 0 ? (
+            <FitContentA>
+              <Text type="p4" color="blue" className="ellipsis">
+                {"-"}
+              </Text>
+            </FitContentA>
+          ) : (
+            <Link href={getUrlWithNetwork(`/block/${summary?.blockPublished}`)} passHref>
+              <FitContentSpan>
+                <Text type="p4" color="blue">
+                  {summary?.blockPublished}
+                </Text>
+              </FitContentSpan>
+            </Link>
+          )}
+        </Badge>
+      </Field>
+      <FieldWithTooltip label="Balance" tooltipContent={TOOLTIP_BALANCE} isDesktop={isDesktop}>
+        <Badge>{balanceStr}</Badge>
+      </FieldWithTooltip>
+      <Field label="Total Calls" isDesktop={isDesktop}>
+        <RealmTotalContractCalls realmTransactions={realmTransactions} isFetched={isFetchedRealmTransactions} />
+      </Field>
+      <Field label="Total Fees Used" isDesktop={isDesktop}>
+        <RealmTotalUsedFeeAmount
+          realmTransactions={realmTransactions}
+          isFetched={isFetchedRealmTransactions}
+          getTokenAmount={getTokenAmount}
+        />
+      </Field>
       {summary?.files && <ShowLog isTabLog={true} files={summary?.files} btnTextType="Realms" />}
     </DataSection>
   );

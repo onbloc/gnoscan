@@ -5,7 +5,8 @@ import { v1 } from "uuid";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
-import { AmountBadge, BadgeList } from "../common";
+import { AmountBadge } from "@/components/ui/detail-field";
+import { BadgeList } from "../common";
 
 interface TransactionMsgRunContractProps {
   message: any;
