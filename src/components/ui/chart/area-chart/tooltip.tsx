@@ -131,7 +131,7 @@ const TooltipContainer = styled(ChartTooltipContainer)`
       display: flex;
       flex-direction: row;
       flex-shrink: 0;
-      width: 90px;
+      min-width: 90px;
       font-size: 10px;
       justify-content: center;
 

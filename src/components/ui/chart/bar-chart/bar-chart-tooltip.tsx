@@ -28,8 +28,8 @@ export const BarChartTooltip = ({ themeMode, title, value, isDenom }: TooltipPro
 
 const TooltipContainer = styled(ChartTooltipContainer)`
   & {
-    width: 156px;
-    height: 84px;
+    min-width: 156px;
+    min-height: 84px;
 
     .tooltip-header {
       color: ${({ light }) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
 import { AreaChartTooltip } from "./tooltip";
@@ -48,7 +48,25 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
     value: [] as any,
   });
 
+  const anchorRef = useRef({ caretX: 0, chartLeft: 0, chartRight: 0 });
+
   useHideTooltipOnScroll(tooltipRef);
+
+  // Centers the tooltip on the caret and keeps it within the chart using its rendered width.
+  const positionTooltip = () => {
+    const tooltipElement = tooltipRef.current;
+    const { caretX, chartLeft, chartRight } = anchorRef.current;
+    if (!tooltipElement || chartRight <= chartLeft) {
+      return;
+    }
+
+    const { width } = tooltipElement.getBoundingClientRect();
+    const left = Math.min(chartLeft + caretX - width / 2, chartRight - width);
+    tooltipElement.style.left = Math.max(left, chartLeft) + "px";
+  };
+
+  // Runs after new content renders and before paint, so the clamp uses the updated width.
+  useLayoutEffect(positionTooltip, [currentValue]);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -89,17 +107,12 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
 
     currentTooltip.style.opacity = "1";
 
-    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
     currentTooltip.style.position = "fixed";
     currentTooltip.style.top = position.bottom - position.height - tooltip.height + "px";
 
-    const left = tooltipModel.caretX - position.width / 2;
-    if (left + tooltipRect.width > position.width) {
-      currentTooltip.style.marginRight = "0";
-    } else {
-      currentTooltip.style.marginLeft = left + "px";
-    }
+    anchorRef.current = { caretX: tooltipModel.caretX, chartLeft: position.left, chartRight: position.right };
+    positionTooltip();
   };
 
   const createChartOption = (): ChartOptions<"line"> => {

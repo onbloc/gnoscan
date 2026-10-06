@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
 import { BarChartTooltip } from "./bar-chart-tooltip";
@@ -33,7 +33,25 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
     value: "",
   });
 
+  const anchorRef = useRef({ left: 0, chartWidth: 0 });
+
   useHideTooltipOnScroll(tooltipRef);
+
+  // Measures the tooltip as currently rendered so a wider value is clamped by its real width.
+  const positionTooltip = () => {
+    const tooltipElement = tooltipRef.current;
+    const { left, chartWidth } = anchorRef.current;
+    if (!tooltipElement || !chartWidth) {
+      return;
+    }
+
+    const { width } = tooltipElement.getBoundingClientRect();
+    const leftLimit = chartWidth - width + 20;
+    tooltipElement.style.left = (left + width > chartWidth ? leftLimit : left) + "px";
+  };
+
+  // Runs after a new value renders and before paint, so the clamp uses the updated width.
+  useLayoutEffect(positionTooltip, [currentValue]);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -60,18 +78,12 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
 
     currentTooltip.style.opacity = "1";
 
-    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
     currentTooltip.style.position = "absolute";
     currentTooltip.style.marginTop = -position.height + "px";
 
-    const left = tooltipModel.caretX - tooltipModel.width / 2;
-    const leftLimit = position.width - tooltipRect.width + 20;
-    if (left + tooltipRect.width > position.width) {
-      currentTooltip.style.left = leftLimit + "px";
-    } else {
-      currentTooltip.style.left = left + "px";
-    }
+    anchorRef.current = { left: tooltipModel.caretX - tooltipModel.width / 2, chartWidth: position.width };
+    positionTooltip();
   };
 
   const createChartOption = (): ChartOptions<"bar"> => {
