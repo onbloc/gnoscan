@@ -1,4 +1,3 @@
-import { NetworkClient } from "@/common/clients/network-client";
 import { ApiBlockRepository } from "./api-block-repository";
 
 import { GetBlockEventsRequest, GetBlocksRequestParameters, GetBlockTransactionsRequest } from "./request";
@@ -9,94 +8,28 @@ import {
   GetBlockTransactionsResponse,
   GetBlockTransactionsCountResponse,
 } from "./response";
-import { makeQueryParameter } from "@/common/utils/string-util";
-import { CommonError } from "@/common/errors/common/common-error";
+import { ApiRepository } from "../api-repository";
 
-interface APIResponse<T> {
-  data: T;
-}
-
-export class ApiBlockRepositoryImpl implements ApiBlockRepository {
-  private networkClient: NetworkClient | null;
-  constructor(networkClient: NetworkClient | null) {
-    this.networkClient = networkClient;
-  }
-
+export class ApiBlockRepositoryImpl extends ApiRepository implements ApiBlockRepository {
   getBlocks(params: GetBlocksRequestParameters): Promise<GetBlocksResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    const requestParams = makeQueryParameter({ ...params });
-
-    return this.networkClient
-      .get<APIResponse<GetBlocksResponse>>({
-        url: `/blocks${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetBlocksResponse>("/blocks", { ...params });
   }
 
   getBlock(height: string): Promise<GetBlockResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetBlockResponse>>({
-        url: `blocks/${height}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetBlockResponse>(`blocks/${height}`);
   }
 
   getBlockEvents(params: GetBlockEventsRequest): Promise<GetBlockEventsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
     const { blockHeight, ...queryParams } = params;
-    const requestParams = makeQueryParameter(queryParams);
-
-    return this.networkClient
-      .get<APIResponse<GetBlockEventsResponse>>({
-        url: `blocks/${blockHeight}/events${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetBlockEventsResponse>(`blocks/${blockHeight}/events`, queryParams);
   }
 
   getBlockTransactions(params: GetBlockTransactionsRequest): Promise<GetBlockTransactionsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
     const { blockHeight, ...queryParams } = params;
-    const requestParams = makeQueryParameter(queryParams);
-
-    return this.networkClient
-      .get<APIResponse<GetBlockTransactionsResponse>>({
-        url: `blocks/${blockHeight}/transactions${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetBlockTransactionsResponse>(`blocks/${blockHeight}/transactions`, queryParams);
   }
 
   getBlockTransactionsCount(height: string): Promise<GetBlockTransactionsCountResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetBlockTransactionsCountResponse>>({
-        url: `blocks/${height}/transactions/count`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetBlockTransactionsCountResponse>(`blocks/${height}/transactions/count`);
   }
 }

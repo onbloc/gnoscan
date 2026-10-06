@@ -1,45 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { NetworkClient } from "@/common/clients/network-client";
 import { ApiSearchRepository } from "./api-search-repository";
 
 import { GetSearchResponse, GetSearchAutocompleteResponse } from "./response";
-import { CommonError } from "@/common/errors/common/common-error";
+import { ApiRepository } from "../api-repository";
 
-interface APIResponse<T> {
-  data: T;
-}
-
-export class ApiSearchRepositoryImpl implements ApiSearchRepository {
-  private networkClient: NetworkClient | null;
-  constructor(networkClient: NetworkClient | null) {
-    this.networkClient = networkClient;
-  }
-
+export class ApiSearchRepositoryImpl extends ApiRepository implements ApiSearchRepository {
   getSearch(keyword: string): Promise<GetSearchResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetSearchResponse>>({
-        url: `/search?param=${encodeURIComponent(keyword)}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetSearchResponse>(`/search?param=${encodeURIComponent(keyword)}`);
   }
 
   getSearchAutocomplete(keyword: string): Promise<GetSearchAutocompleteResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<any>>({
-        url: `/search/autocomplete?query=${keyword}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetSearchAutocompleteResponse>(`/search/autocomplete?query=${keyword}`);
   }
 }
