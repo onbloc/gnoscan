@@ -633,7 +633,7 @@ function renderDeploy(action: TransactionAction): React.ReactNode | null {
       <Verb>Deploy</Verb>
       <RealmLink pkgPath={packageName.assetType}>{packageName.value}</RealmLink>
       <Verb>by</Verb>
-      <TransferAddress address={creator.value} />
+      <TransferAddress address={creator.value} label={creator.label} labelType={creator.labelType} />
     </>
   );
 }
