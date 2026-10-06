@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRecoilValue } from "recoil";
-import Link from "next/link";
 import styled from "styled-components";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -16,11 +15,6 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
-import Tooltip from "@/components/ui/tooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
-import { useNetwork } from "@/common/hooks/use-network";
-import { textEllipsis } from "@/common/utils/string-util";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 
 interface AccountListDatatableProps {
   isCustomNetwork: boolean;
@@ -112,7 +106,9 @@ const createHeaderAddress = () => {
     .name("Address")
     .width(245)
     .colorName("blue")
-    .renderOption((_, data) => <AddressCopy address={data.address} label={data.label} labelType={data.labelType} />)
+    .renderOption((_, data) => (
+      <DatatableItem.AddressCopy address={data.address} label={data.label} labelType={data.labelType} />
+    ))
     .build();
 };
 
@@ -121,7 +117,7 @@ const createHeaderNameTag = () => {
     .key("nameTag")
     .name("Name Tag")
     .width(270)
-    .renderOption(nameTag => <span>{nameTag || ""}</span>)
+    .renderOption(nameTag => <span>{nameTag || "-"}</span>)
     .build();
 };
 
@@ -151,35 +147,6 @@ const createHeaderTxCount = () => {
     .renderOption(txCount => <span>{txCount.toLocaleString()}</span>)
     .build();
 };
-
-const ADDRESS_ELLIPSIS_LENGTH = 8;
-
-// Shortened address with full-address hover tooltip and copy icon
-const AddressCopy = ({ address, label, labelType }: Pick<AccountListItem, "address" | "label" | "labelType">) => {
-  const { getUrlWithNetwork } = useNetwork();
-  return (
-    <AddressWrapper>
-      <Tooltip content={address}>
-        <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
-          {textEllipsis(address, ADDRESS_ELLIPSIS_LENGTH)}
-        </Link>
-      </Tooltip>
-      <Tooltip content="Copied!" trigger="click" copyText={address} width={85}>
-        <IconCopy className="svg-icon" />
-      </Tooltip>
-    </AddressWrapper>
-  );
-};
-
-const AddressWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-
-  .svg-icon {
-    stroke: ${({ theme }) => theme.colors.primary};
-  }
-`;
 
 const Container = styled.div`
   display: flex;
