@@ -1,10 +1,4 @@
-import {
-  ADDRESS_LABEL_TYPE,
-  ADDRESS_NAME_TAG,
-  MAINNET_ADDRESS_NAME_TAGS,
-  MAINNET_DEX_REALM_PREFIX,
-} from "@/common/values/address-label.constant";
-import { GNOLAND_CHAIN_ID } from "@/common/values/constant-value";
+import { ADDRESS_LABEL_TAG, ADDRESS_LABEL_TAG_TEXT, ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 interface AddressLabelInfo {
@@ -34,24 +28,15 @@ export function getAddressLinkPath({ address, name, label, labelType }: AddressL
 }
 
 interface AddressNameTagInfo {
-  address?: string | null;
   nameTag?: string | null;
-  label?: string | null;
-  labelType?: ADDRESS_LABEL_TYPE | null;
-  chainId?: string | null;
+  labelTag?: ADDRESS_LABEL_TAG | null;
 }
 
-// Priority: curated mainnet name tag, then the backend nameTag. Curated tags apply on mainnet only.
-export function getAddressNameTag({ address, nameTag, label, labelType, chainId }: AddressNameTagInfo): string | null {
-  if (chainId === GNOLAND_CHAIN_ID) {
-    // Own-key check so inherited keys (e.g. "constructor") never match.
-    if (address && Object.prototype.hasOwnProperty.call(MAINNET_ADDRESS_NAME_TAGS, address)) {
-      return MAINNET_ADDRESS_NAME_TAGS[address];
-    }
-
-    if (labelType === ADDRESS_LABEL_TYPE.REALM && label?.startsWith(MAINNET_DEX_REALM_PREFIX)) {
-      return ADDRESS_NAME_TAG.DEX;
-    }
+// Priority: curated label tag (backend code mapped to display text), then the on-chain nameTag.
+// Unknown tag codes fall through so a raw code is never shown.
+export function getAddressNameTag({ nameTag, labelTag }: AddressNameTagInfo): string | null {
+  if (labelTag && Object.prototype.hasOwnProperty.call(ADDRESS_LABEL_TAG_TEXT, labelTag)) {
+    return ADDRESS_LABEL_TAG_TEXT[labelTag];
   }
 
   return nameTag || null;

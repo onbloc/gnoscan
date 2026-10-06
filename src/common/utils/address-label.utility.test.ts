@@ -1,6 +1,5 @@
 import { getAddressDisplayText, getAddressLinkPath, getAddressNameTag } from "./address-label.utility";
-import { ADDRESS_LABEL_TYPE, ADDRESS_NAME_TAG } from "@/common/values/address-label.constant";
-import { GNOLAND_CHAIN_ID, STAGING_CHAIN_ID } from "@/common/values/constant-value";
+import { ADDRESS_LABEL_TAG, ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 describe("getAddressDisplayText", () => {
   it("prefers a resolved name over a label or the raw address", () => {
@@ -65,56 +64,28 @@ describe("getAddressLinkPath", () => {
 });
 
 describe("getAddressNameTag", () => {
-  const CORE_TREASURY = "g1shmvjxkvx9kgnrta5rzwcpdqszy4pkfvv9qjz9";
-  const KRAKEN = "g15zetuthld0er5jrm3xtx3u4ucssjvd3ylmvce3";
-
-  it("uses the curated name tag on mainnet over the backend nameTag", () => {
-    expect(getAddressNameTag({ address: CORE_TREASURY, nameTag: "alice", chainId: GNOLAND_CHAIN_ID })).toBe(
-      ADDRESS_NAME_TAG.TREASURY,
-    );
-    expect(getAddressNameTag({ address: KRAKEN, chainId: GNOLAND_CHAIN_ID })).toBe(ADDRESS_NAME_TAG.CEX);
+  it.each([
+    [ADDRESS_LABEL_TAG.TREASURY, "Treasury"],
+    [ADDRESS_LABEL_TAG.INVESTORS, "Investors"],
+    [ADDRESS_LABEL_TAG.TEAM, "Company/Team"],
+    [ADDRESS_LABEL_TAG.CEX, "Exchange (CEX)"],
+    [ADDRESS_LABEL_TAG.DEX, "Exchange (DEX)"],
+  ])("maps labelTag %s to %s", (labelTag, text) => {
+    expect(getAddressNameTag({ labelTag })).toBe(text);
   });
 
-  it("tags gnoswap realms as DEX on mainnet", () => {
-    expect(
-      getAddressNameTag({
-        address: "g1abc",
-        label: "gno.land/r/gnoswap/v1/router",
-        labelType: ADDRESS_LABEL_TYPE.REALM,
-        chainId: GNOLAND_CHAIN_ID,
-      }),
-    ).toBe(ADDRESS_NAME_TAG.DEX);
+  it("prefers the labelTag over the on-chain nameTag", () => {
+    expect(getAddressNameTag({ labelTag: ADDRESS_LABEL_TAG.CEX, nameTag: "alice" })).toBe("Exchange (CEX)");
   });
 
-  it("does not tag a non-realm label or a lookalike path as DEX", () => {
-    const base = { address: "g1abc", chainId: GNOLAND_CHAIN_ID };
-    expect(
-      getAddressNameTag({ ...base, label: "gno.land/r/gnoswap/router", labelType: ADDRESS_LABEL_TYPE.ENTITY }),
-    ).toBeNull();
-    expect(
-      getAddressNameTag({ ...base, label: "gno.land/r/gnoswapx/router", labelType: ADDRESS_LABEL_TYPE.REALM }),
-    ).toBeNull();
-  });
-
-  it("falls back to the backend nameTag, else null", () => {
-    expect(getAddressNameTag({ address: "g1abc", nameTag: "alice", chainId: GNOLAND_CHAIN_ID })).toBe("alice");
-    expect(getAddressNameTag({ address: "g1abc", nameTag: "", chainId: GNOLAND_CHAIN_ID })).toBeNull();
+  it("falls back to the nameTag, else null", () => {
+    expect(getAddressNameTag({ nameTag: "alice" })).toBe("alice");
+    expect(getAddressNameTag({ labelTag: null, nameTag: "" })).toBeNull();
     expect(getAddressNameTag({})).toBeNull();
   });
 
-  it("ignores curated tags outside mainnet", () => {
-    expect(getAddressNameTag({ address: CORE_TREASURY, nameTag: "alice", chainId: STAGING_CHAIN_ID })).toBe("alice");
-    expect(
-      getAddressNameTag({
-        address: "g1abc",
-        label: "gno.land/r/gnoswap/router",
-        labelType: ADDRESS_LABEL_TYPE.REALM,
-        chainId: STAGING_CHAIN_ID,
-      }),
-    ).toBeNull();
-  });
-
-  it("does not match inherited object keys", () => {
-    expect(getAddressNameTag({ address: "constructor", chainId: GNOLAND_CHAIN_ID })).toBeNull();
+  it("ignores unknown tag codes, including inherited object keys", () => {
+    expect(getAddressNameTag({ labelTag: "unknown" as ADDRESS_LABEL_TAG, nameTag: "alice" })).toBe("alice");
+    expect(getAddressNameTag({ labelTag: "constructor" as ADDRESS_LABEL_TAG })).toBeNull();
   });
 });
