@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React from "react";
 import Link from "next/link";
 
 import { css } from "styled-components";
@@ -6,84 +6,17 @@ import { css } from "styled-components";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { PaletteKeyType } from "@/styles";
-import { Amount } from "@/types/data-type";
-import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
-import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
-import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
-import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 import * as S from "./TransactionMessageFields.styles";
 import Badge from "@/components/ui/badge";
+import { AddressTextBox, BadgeText } from "@/components/ui/detail-field";
 import FloatingTooltip from "@/components/ui/floating-tooltip";
 import IconInfo from "@/components/ui/icon-info";
 import Text from "@/components/ui/text";
-import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
+import { FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Tooltip from "@/components/ui/tooltip";
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
-import { AmountText } from "@/components/ui/text/amount-text";
-import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
-import { StorageDeposit } from "@/models/storage-deposit-model";
-import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-
-interface FieldProps {
-  label: string;
-  children: React.ReactNode;
-  isDesktop: boolean;
-  className?: string;
-  contentClassName?: string;
-}
-
-export const Field: React.FC<FieldProps> = ({ label, children, isDesktop, className, contentClassName }) => (
-  <DLWrap desktop={isDesktop} className={className}>
-    <dt>{label}</dt>
-    <dd className={contentClassName}>{children}</dd>
-  </DLWrap>
-);
-
-interface FieldWithTooltipProps extends FieldProps {
-  tooltipContent: React.ReactNode | string;
-}
-
-export const FieldWithTooltip: React.FC<FieldWithTooltipProps> = ({ label, tooltipContent, children, isDesktop }) => (
-  <DLWrap desktop={isDesktop}>
-    <dt>
-      {label}
-      <div className="tooltip-wrapper">
-        <Tooltip content={tooltipContent}>
-          <IconTooltip />
-        </Tooltip>
-      </div>
-    </dt>
-    <dd>{children}</dd>
-  </DLWrap>
-);
-
-interface BadgeTextProps {
-  type?: PaletteKeyType;
-  color?: string;
-  children: React.ReactNode;
-}
-
-const badgeStyles: CSSProperties = {
-  wordBreak: "break-all",
-  maxHeight: 300,
-  overflow: "auto",
-  marginRight: 0,
-};
-
-const badgeTextStyles: CSSProperties = {
-  whiteSpace: "normal",
-  height: "100%",
-};
-
-export const BadgeText: React.FC<BadgeTextProps> = ({ type, color = "primary", children }) => (
-  <Badge type={type} style={badgeStyles} cssExtend={scrollbarStyle}>
-    <Text type="p4" color={color || "primary"} style={badgeTextStyles}>
-      {children}
-    </Text>
-  </Badge>
-);
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 
 interface HoverBadgeTextProps {
   type?: PaletteKeyType;
@@ -151,44 +84,6 @@ export const HoverBadgeText: React.FC<HoverBadgeTextProps> = ({
   );
 };
 
-interface AddressLinkProps {
-  address: string;
-  addressName: string;
-  copyText: string;
-  getUrlWithNetwork: (uri: string) => string;
-  label?: string | null;
-  labelType?: ADDRESS_LABEL_TYPE | null;
-}
-
-export const AddressLink: React.FC<AddressLinkProps> = ({
-  address,
-  addressName,
-  copyText,
-  getUrlWithNetwork,
-  label,
-  labelType,
-}) => {
-  const displayAccount = React.useMemo(() => {
-    if (!address) return "-";
-    return getAddressDisplayText({ address, name: addressName, label });
-  }, [address, addressName, label]);
-
-  return (
-    <Badge>
-      <S.AddressTextBox>
-        <Text type="p4" color="blue" className="ellipsis">
-          <Link href={getUrlWithNetwork(getAddressLinkPath({ address, name: addressName, label, labelType }))} passHref>
-            <FitContentSpan>{displayAccount}</FitContentSpan>
-          </Link>
-        </Text>
-        <Tooltip content="Copied!" trigger="click" copyText={copyText} className="address-tooltip">
-          <S.StyledIconCopy />
-        </Tooltip>
-      </S.AddressTextBox>
-    </Badge>
-  );
-};
-
 interface PkgPathLinkProps {
   path: string;
   getUrlWithNetwork: (uri: string) => string;
@@ -245,16 +140,14 @@ export const PkgPathLink: React.FC<PkgPathLinkProps> = ({
   return (
     <S.PackagePathWrapper>
       <Badge>
-        <S.AddressTextBox>
+        <AddressTextBox>
           <Text type="p4" color="blue" className="ellipsis">
             <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
               <FitContentSpan>{displayPkgPath}</FitContentSpan>
             </Link>
           </Text>
-          <Tooltip content="Copied!" trigger="click" copyText={path} className="address-tooltip">
-            <S.StyledIconCopy />
-          </Tooltip>
-        </S.AddressTextBox>
+          <CopyTooltip variant="address" copyText={path} />
+        </AddressTextBox>
       </Badge>
       {isRealmNotEnabled && <NotYetEnabledBadge />}
     </S.PackagePathWrapper>
@@ -332,46 +225,5 @@ const HoverBadgeItem = ({
       </HoverBadgeText>
       {isRealmNotEnabled && <NotYetEnabledBadge />}
     </S.PackagePathWrapper>
-  );
-};
-
-export const AmountBadge = ({ amount }: { amount: Amount | null }) => {
-  if (!amount) return <BadgeText>-</BadgeText>;
-  return (
-    <BadgeText>
-      <AmountText minSize="body2" maxSize="p4" value={amount.value || "0"} denom={amount.denom || ""} wrap={false} />
-    </BadgeText>
-  );
-};
-
-export const StorageDepositAmountBadge = ({
-  storageDeposit,
-  visibleStorageSize,
-  visibleTooltip,
-}: {
-  storageDeposit?: StorageDeposit | null;
-  visibleStorageSize?: boolean;
-  visibleTooltip?: boolean;
-}) => {
-  const displayStorageDepositData: Amount | null = React.useMemo(() => {
-    if (!storageDeposit) return null;
-
-    const converted = toGNOTAmount(storageDeposit.deposit, GNOTToken.denom);
-    return converted;
-  }, [storageDeposit]);
-
-  if (!displayStorageDepositData) return <BadgeText>-</BadgeText>;
-
-  return (
-    <BadgeText>
-      <StorageDepositText
-        minSize="body2"
-        maxSize="p4"
-        {...toGNOTAmount(displayStorageDepositData.value, displayStorageDepositData.denom)}
-        sizeInBytes={storageDeposit?.storage || 0}
-        visibleStorageSize={visibleStorageSize}
-        visibleTooltip={visibleTooltip}
-      />
-    </BadgeText>
   );
 };

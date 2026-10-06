@@ -2,13 +2,13 @@ import React from "react";
 import Link from "next/link";
 
 import DataSection from "@/components/view/details-data-section";
+import { Field, FieldWithTooltip, StorageDepositAmountBadge } from "@/components/ui/detail-field";
 import { DateDiffText, DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { AmountText } from "@/components/ui/text/amount-text";
 import ShowLog from "@/components/ui/show-log";
-import { StyledIconCopy } from "../Transaction.styles";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
 import { Amount } from "@/types/data-type";
@@ -18,9 +18,7 @@ import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { toDisplayHash } from "@/common/utils/transaction.utility";
 import TransactionSuccessWarningTooltip from "@/components/ui/tooltip/transaction-success-warning-tooltip/TransactionSuccessWarningTooltip";
 import { StorageDeposit } from "@/models/storage-deposit-model";
-import { StorageDepositAmountBadge } from "../../common/TransactionMessageFields";
 import { DEFAULT_TX_STORAGE_DEPOSIT } from "@/common/values/default-object/transaction";
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 
 interface TransactionSummaryProps {
   isDesktop: boolean;
@@ -91,116 +89,74 @@ const StandardNetworkTransactionSummary = ({
           </dd>
         </DLWrap>
         {!isPending && (
-          <DLWrap desktop={isDesktop}>
-            <dt>Timestamp</dt>
-            <dd>
-              <Badge>
-                <Text type="p4" color="inherit" className="ellipsis">
-                  {data.timeStamp.time}
-                </Text>
-                <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
-              </Badge>
-            </dd>
-          </DLWrap>
-        )}
-        <DLWrap desktop={isDesktop}>
-          <dt>Tx Hash</dt>
-          <dd>
+          <Field label="Timestamp" isDesktop={isDesktop}>
             <Badge>
               <Text type="p4" color="inherit" className="ellipsis">
-                {txHashDisplay || "-"}
+                {data.timeStamp.time}
               </Text>
-              {txHashDisplay && (
-                <Tooltip content="Copied!" trigger="click" copyText={txHashDisplay}>
-                  <StyledIconCopy className="svg-icon" />
-                </Tooltip>
-              )}
+              <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
             </Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>Tx Hash (base64)</dt>
-          <dd>
+          </Field>
+        )}
+        <Field label="Tx Hash" isDesktop={isDesktop}>
+          <Badge>
+            <Text type="p4" color="inherit" className="ellipsis">
+              {txHashDisplay || "-"}
+            </Text>
+            {txHashDisplay && <CopyTooltip copyText={txHashDisplay} />}
+          </Badge>
+        </Field>
+        <Field label="Tx Hash (base64)" isDesktop={isDesktop}>
+          <Badge>
+            <Text type="p4" color="inherit" className="ellipsis">
+              {data.transactionItem.hashBase64 || "-"}
+            </Text>
+            {data.transactionItem.hashBase64 && <CopyTooltip copyText={data.transactionItem.hashBase64} />}
+          </Badge>
+        </Field>
+        {!isPending && (
+          <Field label="Network" isDesktop={isDesktop}>
+            <Badge>{data.network}</Badge>
+          </Field>
+        )}
+        {!isPending && (
+          <Field label="Block" isDesktop={isDesktop}>
             <Badge>
-              <Text type="p4" color="inherit" className="ellipsis">
-                {data.transactionItem.hashBase64 || "-"}
-              </Text>
-              {data.transactionItem.hashBase64 && (
-                <Tooltip content="Copied!" trigger="click" copyText={data.transactionItem.hashBase64}>
-                  <StyledIconCopy className="svg-icon" />
-                </Tooltip>
-              )}
+              <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
+                <FitContentSpan>
+                  <Text type="p4" color="blue">
+                    {displayBlockHeight}
+                  </Text>
+                </FitContentSpan>
+              </Link>
             </Badge>
-          </dd>
-        </DLWrap>
-        {!isPending && (
-          <DLWrap desktop={isDesktop}>
-            <dt>Network</dt>
-            <dd>
-              <Badge>{data.network}</Badge>
-            </dd>
-          </DLWrap>
+          </Field>
         )}
+        <Field label="Transaction Fee" isDesktop={isDesktop}>
+          <Badge>
+            <AmountText
+              minSize="body2"
+              maxSize="p4"
+              value={transactionFee?.value || "0"}
+              denom={transactionFee?.denom || GNOTToken.symbol}
+            />
+          </Badge>
+        </Field>
+        <Field label={isPending ? "Gas Wanted" : "Gas (Used/Wanted)"} isDesktop={isDesktop}>
+          <Badge>{isPending ? data.transactionItem.gasWanted ?? "-" : data.gas}</Badge>
+        </Field>
         {!isPending && (
-          <DLWrap desktop={isDesktop}>
-            <dt>Block</dt>
-            <dd>
-              <Badge>
-                <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
-                  <FitContentSpan>
-                    <Text type="p4" color="blue">
-                      {displayBlockHeight}
-                    </Text>
-                  </FitContentSpan>
-                </Link>
-              </Badge>
-            </dd>
-          </DLWrap>
+          <FieldWithTooltip label="Storage Deposit" tooltipContent={TOOLTIP_STORAGE_DEPOSIT} isDesktop={isDesktop}>
+            <StorageDepositAmountBadge
+              storageDeposit={displayStorageDeposit}
+              visibleStorageSize={true}
+              visibleTooltip={false}
+            />
+          </FieldWithTooltip>
         )}
-        <DLWrap desktop={isDesktop}>
-          <dt>Transaction Fee</dt>
-          <dd>
-            <Badge>
-              <AmountText
-                minSize="body2"
-                maxSize="p4"
-                value={transactionFee?.value || "0"}
-                denom={transactionFee?.denom || GNOTToken.symbol}
-              />
-            </Badge>
-          </dd>
-        </DLWrap>
-        <DLWrap desktop={isDesktop}>
-          <dt>{isPending ? "Gas Wanted" : "Gas (Used/Wanted)"}</dt>
-          <dd>
-            <Badge>{isPending ? data.transactionItem.gasWanted ?? "-" : data.gas}</Badge>
-          </dd>
-        </DLWrap>
-        {!isPending && (
-          <DLWrap desktop={isDesktop}>
-            <dt>
-              Storage Deposit
-              <div className="tooltip-wrapper">
-                <Tooltip content={TOOLTIP_STORAGE_DEPOSIT}>
-                  <IconTooltip />
-                </Tooltip>
-              </div>
-            </dt>
-            <dd>
-              <StorageDepositAmountBadge
-                storageDeposit={displayStorageDeposit}
-                visibleStorageSize={true}
-                visibleTooltip={false}
-              />
-            </dd>
-          </DLWrap>
-        )}
-        <DLWrap desktop={isDesktop}>
-          <dt>Memo</dt>
-          <dd>
-            <Badge>{data.transactionItem.memo || "-"}</Badge>
-          </dd>
-        </DLWrap>
+        <Field label="Memo" isDesktop={isDesktop}>
+          <Badge>{data.transactionItem.memo || "-"}</Badge>
+        </Field>
         {!isPending && !data.transactionItem.success && (
           <ShowLog isTabLog={false} logData={blockResultLog || ""} btnTextType="Error Logs" />
         )}

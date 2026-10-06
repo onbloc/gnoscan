@@ -6,12 +6,12 @@ import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type";
 
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import Badge from "@/components/ui/badge";
-import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
+import { Field, FieldWithTooltip } from "@/components/ui/detail-field";
+import { FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { TransactionAddPackageContract } from "../transaction-add-package-contract/TransactionAddPackageContract";
 import { TransactionCallerContract } from "../transaction-caller-contract/TransactionCallerContract";
 import { TransactionMsgRunContract } from "../transaction-msg-run-contract/TransactionMsgRunContract";
@@ -131,68 +131,43 @@ export const TransactionContractDetails: React.FC<{
           )}
           {isBankMsgSend(message) && (
             <>
-              <DLWrap desktop={isDesktop}>
-                <dt>Name</dt>
-                <dd>
-                  <Badge>
-                    <Text type="p4" color="primary">
-                      {message["@type"] ||
-                        message?.package?.name ||
-                        tokenMap?.[message?.pkg_path]?.name ||
-                        message.func ||
-                        "-"}
-                    </Text>
-                  </Badge>
-                </dd>
-              </DLWrap>
-              <DLWrap desktop={isDesktop}>
-                <dt>
-                  Path
-                  <div className="tooltip-wrapper">
-                    <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-                      <IconTooltip />
-                    </Tooltip>
-                  </div>
-                </dt>
-                <dd>
-                  <Badge>
-                    <Text type="p4" color="blue" className="ellipsis">
-                      <Link
-                        href={getUrlWithNetwork(
-                          `/realms/details?path=${message?.package?.path || message?.pkg_path || "-"}`,
-                        )}
-                        passHref
-                      >
-                        <FitContentSpan>
-                          {formatDisplayPackagePath(
-                            message?.pkg_path || message?.package?.path || message?.func || "-",
-                          )}
-                        </FitContentSpan>
-                      </Link>
-                    </Text>
-                    <Tooltip
-                      content="Copied!"
-                      trigger="click"
-                      copyText={message?.pkg_path || message?.package?.path || "-"}
-                      className="address-tooltip"
+              <Field label="Name" isDesktop={isDesktop}>
+                <Badge>
+                  <Text type="p4" color="primary">
+                    {message["@type"] ||
+                      message?.package?.name ||
+                      tokenMap?.[message?.pkg_path]?.name ||
+                      message.func ||
+                      "-"}
+                  </Text>
+                </Badge>
+              </Field>
+              <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+                <Badge>
+                  <Text type="p4" color="blue" className="ellipsis">
+                    <Link
+                      href={getUrlWithNetwork(
+                        `/realms/details?path=${message?.package?.path || message?.pkg_path || "-"}`,
+                      )}
+                      passHref
                     >
-                      <S.StyledIconCopy />
-                    </Tooltip>
-                  </Badge>
-                </dd>
-              </DLWrap>
+                      <FitContentSpan>
+                        {formatDisplayPackagePath(message?.pkg_path || message?.package?.path || message?.func || "-")}
+                      </FitContentSpan>
+                    </Link>
+                  </Text>
+                  <CopyTooltip variant="address" copyText={message?.pkg_path || message?.package?.path || "-"} />
+                </Badge>
+              </FieldWithTooltip>
             </>
           )}
-          <DLWrap desktop={isDesktop}>
-            <dt>Function</dt>
-            <dd>
-              <Badge type="blue">
-                <Text type="p4" color="white">
-                  {getContractType(message)}
-                </Text>
-              </Badge>
-            </dd>
-          </DLWrap>
+          <Field label="Function" isDesktop={isDesktop}>
+            <Badge type="blue">
+              <Text type="p4" color="white">
+                {getContractType(message)}
+              </Text>
+            </Badge>
+          </Field>
 
           {isVmCall(message) && message?.func === "Transfer" && (
             <TransactionTransferContract

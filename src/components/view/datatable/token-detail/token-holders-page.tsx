@@ -3,11 +3,8 @@
 
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import styled from "styled-components";
-import theme from "@/styles/theme";
 import { DatatableItem } from "..";
-import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
+import { FlushTableContainer } from "../datatable.styles";
 import { useGetTokenHoldersByid, useGetTokenById } from "@/common/react-query/token/api";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useWindowSize } from "@/common/hooks/use-window-size";
@@ -17,14 +14,13 @@ import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 import { TokenHolder } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 
 interface Props {
   path: string[] | any;
 }
 
 export const TokenHoldersDatatablePage = ({ path }: Props) => {
-  const themeMode = useRecoilValue(themeState);
   const { breakpoint } = useWindowSize();
 
   const { data: tokenData } = useGetTokenById(path);
@@ -126,52 +122,16 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   };
 
   return (
-    <Container>
-      <Datatable
-        loading={!isFetchedHolders}
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={tokenHolders as TokenHolder[]}
-      />
-      {hasNextPage ? (
-        <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
-          {"View More Holders"}
-        </Button>
-      ) : (
-        <></>
+    <FlushTableContainer>
+      <Datatable loading={!isFetchedHolders} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
+      {hasNextPage && (
+        <ViewMoreButton
+          variant="table"
+          breakpoint={breakpoint}
+          text="View More Holders"
+          onClick={() => fetchNextPage()}
+        />
       )}
-    </Container>
+    </FlushTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-
-    & > div {
-      padding: 0;
-    }
-
-    .more-button {
-      width: 100%;
-      padding: 16px;
-      color: ${({ theme }) => theme.colors.primary};
-      background-color: ${({ theme }) => theme.colors.surface};
-      ${theme.fonts.p4}
-      font-weight: 600;
-      margin-top: 24px;
-
-      &.desktop {
-        width: 344px;
-      }
-    }
-  }
-`;

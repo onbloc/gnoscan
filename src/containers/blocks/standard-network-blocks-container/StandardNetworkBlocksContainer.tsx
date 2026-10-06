@@ -17,9 +17,7 @@ const StandardNetworkBlocksContainer = () => {
     <StandardNetworkBlockDatatable
       breakpoint={breakpoint}
       data={data}
-      isFetched={isFetched}
       isError={isError}
-      isLoading={isLoading}
       hasNextPage={hasNextPage}
       fetchNextPage={fetchNextPage}
     />

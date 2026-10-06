@@ -6,7 +6,7 @@ import { Amount } from "@/types/data-type";
 import { getTransactionMessageType } from "@/common/utils/message.utility";
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
-import { Field, BadgeText, AddressLink, AmountBadge } from "@/components/view/transaction/common";
+import { Field, BadgeText, AddressLink, AmountBadge } from "@/components/ui/detail-field";
 
 const StandardNetworkBankMsgSendMessage = ({
   isDesktop,

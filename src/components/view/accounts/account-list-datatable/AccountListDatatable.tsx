@@ -1,13 +1,11 @@
 "use client";
 
 import React from "react";
-import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
-import { themeState } from "@/states";
 import { useGetAccounts } from "@/common/react-query/account/api/use-get-accounts";
 import { AccountListItemModel } from "@/models/api/account/account-list-item-model";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
@@ -22,7 +20,6 @@ interface AccountListDatatableProps {
 }
 
 export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatableProps) => {
-  const themeMode = useRecoilValue(themeState);
   const [page, setPage] = React.useState(1);
 
   const { data, isFetched, isPreviousData } = useGetAccounts(
@@ -60,7 +57,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
   };
 
   if (isCustomNetwork) {
-    return <Datatable headers={createHeaders().map(item => ({ ...item, themeMode }))} datas={[]} supported={false} />;
+    return <Datatable headers={createHeaders()} datas={[]} supported={false} />;
   }
 
   // Show skeleton only on initial load; keep previous rows while paging
@@ -68,7 +65,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
 
   return (
     <Container>
-      <Datatable headers={createHeaders().map(item => ({ ...item, themeMode }))} datas={accounts} />
+      <Datatable headers={createHeaders()} datas={accounts} />
       <Pagination
         page={page}
         totalPages={totalPages}

@@ -5,7 +5,7 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { SkeletonBoxStyle } from "@/components/ui/loading";
 
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip as SharedCopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 
 export const Card = styled.div<{ isDesktop: boolean }>`
   display: flex;
@@ -70,7 +70,7 @@ export const Content = styled(Text)`
   word-break: break-all;
 `;
 
-export const CopyTooltip = styled(Tooltip)`
+export const CopyTooltip = styled(SharedCopyTooltip)`
   display: inline-flex;
   height: 20px;
   justify-content: center;

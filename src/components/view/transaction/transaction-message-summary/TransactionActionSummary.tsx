@@ -2,8 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { GNOSWAP_APP_BASE_URL } from "@/common/values/constant-value";
 import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
 import { formatTokenDecimal, stripGnoLandPrefix } from "@/common/utils/token.utility";
@@ -151,9 +150,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
 const RealmChip = ({ pkgPath, children }: { pkgPath: string; children: React.ReactNode }) => (
   <AddressChip>
     <RealmLink pkgPath={pkgPath}>{children}</RealmLink>
-    <Tooltip content="Copied!" trigger="click" copyText={toBech32AddressByPackagePath("g", pkgPath)}>
-      <IconCopy className="copy-icon" />
-    </Tooltip>
+    <CopyTooltip variant="plain" iconClassName="copy-icon" copyText={toBech32AddressByPackagePath("g", pkgPath)} />
   </AddressChip>
 );
 
