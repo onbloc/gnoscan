@@ -30,31 +30,16 @@ export const useMappedApiBlocks = (params?: GetBlocksRequestParameters) => {
     hasNextPage,
   } = useGetBlocks(params);
 
-  const [blocks, setBlocks] = React.useState<Block[]>([]);
-  const [isDataReady, setIsDataReady] = React.useState(false);
-
-  React.useEffect(() => {
-    if (apiData?.pages) {
-      setIsDataReady(false);
-
-      const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = BlockMapper.blockListFromApiResponses(allItems);
-
-      setBlocks(mappedBlocksData);
-      setIsDataReady(true);
-    } else {
-      setBlocks([]);
-      setIsDataReady(true);
-    }
-  }, [apiData?.pages]);
-
-  const isLoading = isApiLoading || !isDataReady;
-  const isFetched = isApiFetched && isDataReady;
+  const pages = apiData?.pages;
+  const blocks = React.useMemo<Block[]>(
+    () => (pages ? BlockMapper.blockListFromApiResponses(pages.flatMap(page => page.items)) : []),
+    [pages],
+  );
 
   return {
     data: blocks,
-    isFetched,
-    isLoading,
+    isFetched: isApiFetched,
+    isLoading: isApiLoading,
     isError: isApiError,
     fetchNextPage,
     hasNextPage,

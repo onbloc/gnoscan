@@ -35,14 +35,13 @@ export const useGetTokens = (
     [QUERY_KEY.getTokens, params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getTokens({
         ...params,
         limit: DEFAULT_LIST_ITEMS_SIZE,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
       staleTime: DEFAULT_LIST_ITEMS_STALE_TIME,
       ...options,

@@ -17,13 +17,12 @@ export const useGetAccountNativeTransfers = (
     [QUERY_KEY.getAccountNativeTransfers, params],
     apiAccountRepository,
     API_REPOSITORY_KEY.ACCOUNT_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getAccountNativeTransfers({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       ...options,
       enabled: !!params.address && options?.enabled !== false,
     },

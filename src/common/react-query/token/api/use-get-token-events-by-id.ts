@@ -17,14 +17,11 @@ export const useGetTokenEventsById = (
     [QUERY_KEY.getTokenEventsById, params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getTokenEvents({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
-    {
-      ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
-    },
+    options,
   );
 };
