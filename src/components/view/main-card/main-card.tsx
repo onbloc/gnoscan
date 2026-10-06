@@ -10,6 +10,7 @@ import mixins from "@/styles/mixins";
 import React from "react";
 import styled from "styled-components";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { SectionGrid } from "@/components/view/common/section-grid/SectionGrid.styles";
 import { CustomNetworkSupplyCard } from "./cards/supply/CustomNetworkSupplyCard";
 import { StandardNetworkSupplyCard } from "./cards/supply/StandardNetworkSupplyCard";
 import { CustomNetworkBlockCard } from "./cards/block/CustomNetworkBlockCard";
@@ -101,20 +102,12 @@ export const FetchedComp = ({
   );
 };
 
-export const Wrapper = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto;
-  grid-gap: 32px;
-  grid-template-columns: repeat(4, 1fr);
+export const Wrapper = styled(SectionGrid)`
+  &.desktop {
+    grid-template-columns: repeat(4, 1fr);
+  }
   &.tablet {
     grid-template-columns: 1fr 1fr;
-    grid-gap: 16px;
-  }
-  &.mobile {
-    grid-template-columns: 1fr;
-    grid-gap: 16px;
   }
   .title-info {
     ${mixins.flexbox("row", "center", "flex-start")};

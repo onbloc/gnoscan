@@ -13,6 +13,7 @@ import {
   AddressChip,
   RealmLink,
   SUMMARY_LINE_HEIGHT,
+  SummaryLine,
   TokenDisplayInfo,
   TransferAddress,
   getTokenSymbol,
@@ -42,14 +43,14 @@ const TransactionActionSummary = ({ actions, types, positionOwnerAddress, embedd
   return (
     <Wrapper $embedded={embedded}>
       {displayActions.map((action, index) => (
-        <ActionLine key={index}>
+        <SummaryLine key={index}>
           {numbered && (
             <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
               {`${index + 1}.`}
             </Text>
           )}
           {renderActionSentence(action, tokenInfosByTokenKey, actions, positionOwnerAddress)}
-        </ActionLine>
+        </SummaryLine>
       ))}
     </Wrapper>
   );
@@ -899,13 +900,6 @@ const Wrapper = styled.div<{ $embedded: boolean }>`
   width: 100%;
   margin-top: ${({ $embedded }) => ($embedded ? "0px" : "16px")};
   padding-bottom: ${({ $embedded }) => ($embedded ? "0px" : "16px")};
-`;
-
-const ActionLine = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
 `;
 
 export default TransactionActionSummary;
