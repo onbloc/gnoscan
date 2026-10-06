@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 import Link from "next/link";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useQueries } from "react-query";
 import BigNumber from "bignumber.js";
 
@@ -107,11 +107,37 @@ export const useGrc20TokenInfos = (items: Grc20AmountLeg[]): Record<string, Toke
 
 const isGrc20AssetType = (assetType: string) => assetType.includes("/");
 
-// The summary line's 18px/500 text uses a 28px line-height per Figma - a one-off value,
-// not one of the app's shared text tokens (closest, p2, uses 26px) - so it's applied as
-// an inline override rather than added to the theme for this single call site's sake.
+/**
+ * Line height for the summary line's 18px/500 text, set to 28px per Figma.
+ *
+ * @remarks
+ * The value is not one of the app's shared text tokens (the closest, p2, uses 26px), so it
+ * is applied as an inline override instead of being added to the theme for a single call site.
+ */
 export const SUMMARY_LINE_HEIGHT: CSSProperties = { lineHeight: "28px" };
 const COMPACT_TRANSFER_LINE_HEIGHT: CSSProperties = { lineHeight: "20px" };
+
+/**
+ * Flex layout for a single summary sentence.
+ *
+ * @remarks
+ * Below desktop a long sentence wraps, so the row gap is dropped to keep its wrapped rows
+ * reading as one sentence. The parent's gap still separates sentences.
+ */
+export const summaryLineCss = css`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  @media (max-width: 1279px) {
+    row-gap: 0;
+  }
+`;
+
+export const SummaryLine = styled.div`
+  ${summaryLineCss}
+`;
 
 export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
   const tokenKeys = React.useMemo(() => {
@@ -153,8 +179,13 @@ export const getTransferSummaryLines = (
   return summary.transfers;
 };
 
-// Same symbol resolution TokenAmountDisplay uses (registry lookup, else the last "."-segment
-// of the token path) - exported for callers that need just the symbol, not a full amount.
+/**
+ * Resolves a token symbol the same way TokenAmountDisplay does: the registry entry, or else
+ * the last "." segment of the token path.
+ *
+ * @remarks
+ * Exported for callers that need only the symbol, not a full amount.
+ */
 export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<string, TokenDisplayInfo>): string {
   const tokenInfo = findByTokenKey(tokenInfosByTokenKey, tokenKey);
   return tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);

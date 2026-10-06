@@ -7,7 +7,7 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import Tooltip from "@/components/ui/tooltip";
+import { EllipsisTooltip } from "@/components/ui/tooltip";
 
 interface Props {
   username: string | undefined;
@@ -41,14 +41,14 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
   }, [address, username, label, ellipsisNumber]);
 
   return address && address !== "genesis" ? (
-    <PublisherTooltip content={renderTooltip()}>
+    <EllipsisTooltip content={renderTooltip()}>
       <Link
         className="ellipsis"
         href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
       >
         {displayName}
       </Link>
-    </PublisherTooltip>
+    </EllipsisTooltip>
   ) : (
     <>{displayName}</>
   );
@@ -64,14 +64,5 @@ const TooltipWrapper = styled.span`
     align-items: center;
     word-break: keep-all;
     white-space: nowrap;
-  }
-`;
-
-// Bound the tooltip to the column so long names get the CSS ellipsis
-const PublisherTooltip = styled(Tooltip)`
-  max-width: 100%;
-
-  a {
-    min-width: 0;
   }
 `;

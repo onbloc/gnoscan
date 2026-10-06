@@ -42,8 +42,8 @@ export const navItems = [
     path: "/transactions",
   },
   {
-    name: "Validators",
-    path: "/validators",
+    name: "Accounts",
+    path: "/accounts",
   },
   {
     name: "Realms",
@@ -52,6 +52,10 @@ export const navItems = [
   {
     name: "Tokens",
     path: "/tokens",
+  },
+  {
+    name: "Validators",
+    path: "/validators",
   },
 ];
 
@@ -134,12 +138,14 @@ const Wrapper = styled.div<EntryProps>`
     fill: ${({ entry }) => (entry ? theme.darkTheme.reverse : theme.lightTheme.reverse)};
   }
   .logo-icon {
+    flex-shrink: 0;
     cursor: pointer;
     margin-right: ${({ isDesktop }) => !isDesktop && "auto"};
   }
   .sub-search {
     width: 396px;
     margin-left: 64px;
+    margin-right: 32px;
   }
 `;
 

@@ -15,4 +15,3 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 
 export * from "./area-chart";
 export * from "./bar-chart";
-export * from "./stacked-bar-chart";

@@ -5,7 +5,13 @@ import Text from "@/components/ui/text";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import { SUMMARY_ASSET_TYPES, TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
+import {
+  SUMMARY_ASSET_TYPES,
+  summaryLineCss,
+  TransferAddress,
+  TransferAmount,
+  useGrc20TokenInfos,
+} from "./transfer-render";
 
 type TransferView = "all" | "net";
 const GNOSWAP_EMISSION_PACKAGE_PATH = "gno.land/r/gnoswap/emission";
@@ -263,10 +269,7 @@ const List = styled.ul<{ $embedded: boolean }>`
   gap: 6px;
 
   li {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
+    ${summaryLineCss}
     ${({ theme }) => theme.fonts.p4};
   }
 `;
