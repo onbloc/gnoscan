@@ -1,4 +1,4 @@
-import { makeEncodedQueryParameter } from "./string-util";
+import { makeCompactNumber, makeEncodedQueryParameter } from "./string-util";
 
 describe("makeEncodedQueryParameter", () => {
   it("returns an empty string when every value is missing", () => {
@@ -14,5 +14,13 @@ describe("makeEncodedQueryParameter", () => {
     expect(params.get("eventType")).toBe("Transfer#x&limit=5");
     expect(params.get("includeStorage")).toBe("false");
     expect(params.has("limit")).toBe(false);
+  });
+});
+
+describe("makeCompactNumber", () => {
+  it("abbreviates supply amounts", () => {
+    expect(makeCompactNumber(197320000)).toBe("197.32M");
+    expect(makeCompactNumber("1333000221")).toBe("1.333B");
+    expect(makeCompactNumber("not a number")).toBe("0");
   });
 });

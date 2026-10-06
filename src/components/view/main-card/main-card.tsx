@@ -17,6 +17,9 @@ import { CustomNetworkTxsCard } from "./cards/transaction/CustomNetworkTransacti
 import { StandardNetworkTxsCard } from "./cards/transaction/StandardNetworkTransactionsCard";
 import { StorageDepositCard } from "./cards/deposit/StorageDepositCard";
 import { CustomNetworkAccountCard } from "./cards/account/CustomNetworkAccountCard";
+import IconLink from "@/assets/svgs/icon-link.svg";
+
+const GNOT_MARKET_PAGE_URL = "https://coinmarketcap.com/currencies/gno-land/";
 
 interface MainCardProps {
   breakpoint: DEVICE_TYPE;
@@ -27,11 +30,25 @@ const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
   return (
     <Wrapper className={breakpoint}>
       <StyledCard>
-        <Text type="h5" color="primary" className="title-info">
-          GNOT&nbsp;Supply
-          <InfoTooltip width={229} content="Total GNOT supply at Genesis." bgColor="base" />
-        </Text>
-        {isCustomNetwork ? <CustomNetworkSupplyCard /> : <StandardNetworkSupplyCard />}
+        {isCustomNetwork ? (
+          <>
+            <Text type="h5" color="primary" className="title-info">
+              GNOT&nbsp;Supply
+              <InfoTooltip width={229} content="Total GNOT supply at Genesis." bgColor="base" />
+            </Text>
+            <CustomNetworkSupplyCard />
+          </>
+        ) : (
+          <>
+            <Text type="h5" color="primary" className="title-info">
+              GNOT&nbsp;Price
+              <a href={GNOT_MARKET_PAGE_URL} target="_blank" rel="noreferrer" aria-label="View GNOT on CoinMarketCap">
+                <IconLink className="icon-link" />
+              </a>
+            </Text>
+            <StandardNetworkSupplyCard />
+          </>
+        )}
       </StyledCard>
       <StyledCard>
         <Text type="h5" color="primary">
@@ -101,6 +118,12 @@ export const Wrapper = styled(SectionGrid)`
   }
   .svg-info {
     fill: ${({ theme }) => theme.colors.reverse};
+  }
+  .title-info a {
+    display: flex;
+  }
+  .icon-link {
+    stroke: ${({ theme }) => theme.colors.reverse};
   }
 `;
 

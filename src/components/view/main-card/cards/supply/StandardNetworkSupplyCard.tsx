@@ -1,23 +1,19 @@
 import React from "react";
 import Text from "@/components/ui/text";
-import { InfoTooltip } from "@/components/ui/tooltip/info-tooltip";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
-import { useGetSummarySupply } from "@/common/react-query/statistics";
-import { SummaryGnotSupplyInfo } from "@/types/data-type";
-import { makeDisplayNumber } from "@/common/utils/string-util";
-import { DEFAULT_SUMMARY_GNOT_SUPPLY_INFO } from "@/common/values/default-object/summary";
+import { useGetGnotMarket, useGetSummarySupply } from "@/common/react-query/statistics";
+import { makeCompactNumber } from "@/common/utils/string-util";
+
+const formatPrice = (price: number) => `$${price.toFixed(4)}`;
+
+const formatPriceChange = (change: number) => `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
 
 export const StandardNetworkSupplyCard = () => {
-  const { data, isFetched } = useGetSummarySupply();
-
-  const supplyInfo: SummaryGnotSupplyInfo = React.useMemo(() => {
-    if (!data?.data) return DEFAULT_SUMMARY_GNOT_SUPPLY_INFO;
-    return {
-      airdropHolder: String(data.data.airdropHolders),
-      airdropSupplyAmount: data.data.airdropSupply,
-      totalSupplyAmount: data.data.total,
-    };
-  }, [data?.data]);
+  const { data: supply, isFetched: isSupplyFetched } = useGetSummarySupply();
+  const { data: market, isFetched: isMarketFetched } = useGetGnotMarket();
+  const price = market?.current_price;
+  const priceChange = market?.price_change_percentage_24h;
+  const circulatingSupply = market?.circulating_supply;
 
   return (
     <>
@@ -25,31 +21,38 @@ export const StandardNetworkSupplyCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={isFetched}
+        isFetched={isMarketFetched}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
-            {makeDisplayNumber(supplyInfo.totalSupplyAmount)}
-            <Text type="p4" display="inline-block" color="primary">
-              &nbsp;GNOT
-            </Text>
+            {price != null ? formatPrice(price) : "-"}
+            {priceChange != null && (
+              <Text
+                type="body2"
+                display="inline-block"
+                color={priceChange >= 0 ? "green" : "failed"}
+                margin="0px 0px 0px 6px"
+              >
+                <b>{formatPriceChange(priceChange)}</b> (24h)
+              </Text>
+            )}
           </Text>
         }
       />
       <DataBoxContainer>
         <BundleDl>
           <dt>
+            {/* GNOT circulating in the market, as reported by CoinGecko. Unlike Max Supply, it excludes locked or unreleased tokens. */}
             <Text type="p4" color="tertiary">
-              Airdrop Supply
+              Circ.&nbsp;Supply
             </Text>
-            <InfoTooltip width={215} content="Total GNOTs to be airdropped to Cosmos and AtomOne holders." />
           </dt>
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetched}
+              isFetched={isMarketFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber(supplyInfo.airdropSupplyAmount)}
+                  {circulatingSupply != null ? `${makeCompactNumber(circulatingSupply)} GNOT` : "-"}
                 </Text>
               }
             />
@@ -59,17 +62,16 @@ export const StandardNetworkSupplyCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Airdrop&nbsp;Holders
+              Max&nbsp;Supply
             </Text>
-            <InfoTooltip content="Total number of holders receiving 1 GNOT or more." />
           </dt>
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetched}
+              isFetched={isSupplyFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber(supplyInfo.airdropHolder)}
+                  {supply?.data ? `${makeCompactNumber(supply.data.total)} GNOT` : "-"}
                 </Text>
               }
             />
