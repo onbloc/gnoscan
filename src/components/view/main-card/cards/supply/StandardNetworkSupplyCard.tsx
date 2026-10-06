@@ -8,9 +8,12 @@ import { useGetSummarySupply } from "@/common/react-query/statistics";
 import { SummaryGnotSupplyInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { DEFAULT_SUMMARY_GNOT_SUPPLY_INFO } from "@/common/values/default-object/summary";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 export const StandardNetworkSupplyCard = () => {
-  const { data, isFetched } = useGetSummarySupply();
+  const summarySupplyQuery = useGetSummarySupply();
+  const { data } = summarySupplyQuery;
+  const isFetched = data !== undefined;
 
   const supplyInfo: SummaryGnotSupplyInfo = React.useMemo(() => {
     if (!data?.data) return DEFAULT_SUMMARY_GNOT_SUPPLY_INFO;
@@ -22,7 +25,7 @@ export const StandardNetworkSupplyCard = () => {
   }, [data?.data]);
 
   return (
-    <>
+    <StatisticsQueryState query={summarySupplyQuery}>
       <FetchedComp
         skeletonWidth={130}
         skeletonheight={28}
@@ -86,6 +89,6 @@ export const StandardNetworkSupplyCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
-    </>
+    </StatisticsQueryState>
   );
 };
