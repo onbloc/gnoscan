@@ -30,6 +30,9 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
     return data.data.name;
   }, [data?.data.name]);
 
+  // Curated display name (e.g. "Kraken #1"); replaces the name tag in this header.
+  const label = data?.data?.label || null;
+
   const handleValidatorLinkClick = React.useCallback(() => {
     const url = `${gnoWebUrl}/r/gnops/valopers:${validatorInfo?.operationAddress}`;
     window.open(url, "_blank", "noopener,noreferrer");
@@ -49,6 +52,7 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
           <S.ContentWrapper isDesktop={isDesktop}>
             <S.Content type="p4" color="primary">
               {address}
+              {label && ` (${label})`}
               <S.CopyTooltip content="Copied!" trigger="click" copyText={address || ""}>
                 <IconCopy />
               </S.CopyTooltip>
@@ -64,7 +68,7 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
                 </LinkWrapper>
               </>
             )}
-            {!validatorInfo && username && <Username username={username} />}
+            {!validatorInfo && !label && username && <Username username={username} />}
           </S.ContentWrapper>
         </S.AccountWrapper>
       </S.Box>

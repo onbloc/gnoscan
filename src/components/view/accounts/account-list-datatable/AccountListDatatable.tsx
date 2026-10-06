@@ -15,6 +15,8 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 interface AccountListDatatableProps {
   isCustomNetwork: boolean;
@@ -22,6 +24,8 @@ interface AccountListDatatableProps {
 
 export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatableProps) => {
   const themeMode = useRecoilValue(themeState);
+  const { currentNetwork } = useNetworkProvider();
+  const chainId = currentNetwork?.chainId;
   const [page, setPage] = React.useState(1);
 
   const { data, isFetched, isPreviousData } = useGetAccounts(
@@ -44,7 +48,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
       return {
         rank: (dataPage - 1) * ACCOUNTS_LIST_PAGE_SIZE + index + 1,
         address: item.address,
-        nameTag: item.nameTag,
+        nameTag: getAddressNameTag({ ...item, chainId }),
         label: item.label,
         labelType: item.labelType,
         balance: toGNOTAmount(item.balance, GNOTToken.denom),
@@ -52,7 +56,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         txCount: item.txCount,
       };
     });
-  }, [data?.items, dataPage]);
+  }, [data?.items, dataPage, chainId]);
 
   const handleChangePage = (nextPage: number) => {
     setPage(Math.min(Math.max(nextPage, 1), totalPages));

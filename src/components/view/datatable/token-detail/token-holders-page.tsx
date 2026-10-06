@@ -13,6 +13,8 @@ import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-m
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { TokenHolderModel } from "@/models/api/token/token-holder-model";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 import { TokenHolder } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
@@ -25,6 +27,8 @@ interface Props {
 export const TokenHoldersDatatablePage = ({ path }: Props) => {
   const themeMode = useRecoilValue(themeState);
   const { breakpoint } = useWindowSize();
+  const { currentNetwork } = useNetworkProvider();
+  const chainId = currentNetwork?.chainId;
 
   const { data: tokenData } = useGetTokenById(path);
   const { getTokenMeta } = useTokenResourceMeta();
@@ -50,7 +54,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
       return {
         rank: index + 1,
         address: item.address,
-        nameTag: item.nameTag,
+        nameTag: getAddressNameTag({ ...item, chainId }),
         label: item.label,
         labelType: item.labelType,
         balance: {
@@ -60,7 +64,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
         percentage: item.percentage,
       };
     });
-  }, [data?.pages, decimals, symbol]);
+  }, [data?.pages, decimals, symbol, chainId]);
 
   if (!isFetchedHolders) return <TableSkeleton />;
 
