@@ -6,7 +6,7 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import Tooltip from "@/components/ui/tooltip";
+import Tooltip, { EllipsisTooltip } from "@/components/ui/tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 
@@ -23,12 +23,12 @@ export const AddressCopy = ({ address, label, labelType }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   return (
     <AddressWrapper>
-      <Tooltip content={address}>
-        <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
+      <EllipsisTooltip content={address}>
+        <Link className="ellipsis" href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
           {label ? stripGnoLandPrefix(label) : textEllipsis(address, ADDRESS_ELLIPSIS_LENGTH)}
         </Link>
-      </Tooltip>
-      <Tooltip content="Copied!" trigger="click" copyText={address} width={85}>
+      </EllipsisTooltip>
+      <Tooltip className="copy-tooltip" content="Copied!" trigger="click" copyText={address} width={85}>
         <IconCopy className="svg-icon" />
       </Tooltip>
     </AddressWrapper>
@@ -39,6 +39,11 @@ const AddressWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
+  min-width: 0;
+
+  .copy-tooltip {
+    flex-shrink: 0;
+  }
 
   .svg-icon {
     stroke: ${({ theme }) => theme.colors.primary};

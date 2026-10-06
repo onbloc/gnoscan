@@ -120,4 +120,15 @@ const TooltipWrapper = styled.div`
   text-align: center;
 `;
 
+// Bound the tooltip to its container so long text gets the CSS ellipsis
+export const EllipsisTooltip = styled(Tooltip)`
+  max-width: 100%;
+  min-width: 0;
+
+  .tooltip-button,
+  a {
+    min-width: 0;
+  }
+`;
+
 export default Tooltip;
