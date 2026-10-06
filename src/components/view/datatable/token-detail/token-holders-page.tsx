@@ -86,7 +86,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
       .width(275)
       .colorName("blue")
       .renderOption((_, data) => (
-        <DatatableItem.CallerCopy caller={data.address} label={data.label} labelType={data.labelType} />
+        <DatatableItem.AddressCopy address={data.address} label={data.label} labelType={data.labelType} />
       ))
       .build();
   };

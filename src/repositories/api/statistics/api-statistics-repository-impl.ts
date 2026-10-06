@@ -2,7 +2,6 @@ import { NetworkClient } from "@/common/clients/network-client";
 import { NodeRPCClient } from "@/common/clients/node-client";
 import { ApiStatisticsRepository } from "./api-statistics-repository";
 
-import { CommonError } from "@/common/errors";
 import { GetTotalFeeShareRequest, GetTotalRealmStorageDepositRequest } from "./request";
 import {
   GetLatestBlogsResponse,
@@ -19,205 +18,66 @@ import {
   GetTotalFeeShareResponse,
   GetTotalRealmStorageDepositResponse,
 } from "./response";
-import { makeQueryParameter } from "@/common/utils/string-util";
+import { ApiRepository } from "../api-repository";
 
-interface APIResponse<T> {
-  data: T;
-}
-
-export class ApiStatisticsRepositoryImpl implements ApiStatisticsRepository {
-  private networkClient: NetworkClient | null;
+export class ApiStatisticsRepositoryImpl extends ApiRepository implements ApiStatisticsRepository {
   private nodeClient: NodeRPCClient | null;
   constructor(networkClient: NetworkClient | null, nodeClient: NodeRPCClient | null) {
-    this.networkClient = networkClient;
+    super(networkClient);
     this.nodeClient = nodeClient;
   }
 
   getLatestBlogs(): Promise<GetLatestBlogsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetLatestBlogsResponse>>({
-        url: "/stats/latest-blogs",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetLatestBlogsResponse>("/stats/latest-blogs");
   }
 
   getMonthlyActiveAccounts(): Promise<GetMonthlyActiveAccountsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetMonthlyActiveAccountsResponse>>({
-        url: "/stats/monthly-active-accounts",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetMonthlyActiveAccountsResponse>("/stats/monthly-active-accounts");
   }
 
   getNewestRealms(): Promise<GetNewestRealmsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetNewestRealmsResponse>>({
-        url: "/stats/newest-realms",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetNewestRealmsResponse>("/stats/newest-realms");
   }
 
   getSummaryAccounts(): Promise<GetSummaryAccountsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetSummaryAccountsResponse>>({
-        url: "/stats/summary/accounts",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetSummaryAccountsResponse>("/stats/summary/accounts");
   }
 
   getSummaryBlocks(): Promise<GetSummaryBlocksResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetSummaryBlocksResponse>>({
-        url: "/stats/summary/blocks",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetSummaryBlocksResponse>("/stats/summary/blocks");
   }
 
   getSummarySupply(): Promise<GetSummarySupplyResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetSummarySupplyResponse>>({
-        url: "/stats/summary/supply",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetSummarySupplyResponse>("/stats/summary/supply");
   }
 
   getSummaryTransactions(): Promise<GetSummaryTransactionsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetSummaryTransactionsResponse>>({
-        url: "/stats/summary/transactions",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetSummaryTransactionsResponse>("/stats/summary/transactions");
   }
 
   getTotalDailyFees(): Promise<GetTotalDailyFeesResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetTotalDailyFeesResponse>>({
-        url: "/stats/total-daily-fees",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetTotalDailyFeesResponse>("/stats/total-daily-fees");
   }
 
   getTotalDailyTransactions(): Promise<GetTotalDailyTransactionsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetTotalDailyTransactionsResponse>>({
-        url: "/stats/total-daily-transactions",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetTotalDailyTransactionsResponse>("/stats/total-daily-transactions");
   }
 
   getTotalDailyStorageDeposit(): Promise<GetTotalDailyStorageDepositResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetTotalDailyStorageDepositResponse>>({
-        url: "/stats/total-daily-storage-deposit",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetTotalDailyStorageDepositResponse>("/stats/total-daily-storage-deposit");
   }
 
   getTotalGasShare(params: GetTotalFeeShareRequest): Promise<GetTotalFeeShareResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    const requestParams = makeQueryParameter({ ...params });
-
-    return this.networkClient
-      .get<APIResponse<GetTotalFeeShareResponse>>({
-        url: `/stats/total-gas-share${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetTotalFeeShareResponse>("/stats/total-gas-share", { ...params });
   }
 
   getStorageDeposit(): Promise<GetStorageDepositResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetStorageDepositResponse>>({
-        url: "/stats/summary/storage-deposit",
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetStorageDepositResponse>("/stats/summary/storage-deposit");
   }
 
   getTotalDailyRealmStorageDeposit(
     params: GetTotalRealmStorageDepositRequest,
   ): Promise<GetTotalRealmStorageDepositResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    const requestParams = makeQueryParameter({ ...params });
-
-    return this.networkClient
-      .get<APIResponse<GetTotalRealmStorageDepositResponse>>({
-        url: `/stats/total-daily-realm-storage-deposit${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetTotalRealmStorageDepositResponse>("/stats/total-daily-realm-storage-deposit", { ...params });
   }
 }

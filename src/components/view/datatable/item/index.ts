@@ -19,6 +19,7 @@ export * from "./has-link";
 export * from "./pkg-path";
 export * from "./publisher";
 export * from "./caller-copy";
+export * from "./address-copy";
 export * from "./lazy-total-supply";
 export * from "./lazy-holders";
 export * from "./lazy-functions";
