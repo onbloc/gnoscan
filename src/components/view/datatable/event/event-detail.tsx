@@ -5,7 +5,7 @@ import { GnoEvent } from "@/types/data-type";
 import Text from "@/components/ui/text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { useNetwork } from "@/common/hooks/use-network";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 
 export const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ visible, event }) => {
   const { getUrlWithNetwork } = useNetwork();
@@ -40,7 +40,7 @@ export const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ v
                     )}
                     passHref
                   >
-                    {event.originCallerLabel || event.originCaller}
+                    {getAddressDisplayText({ address: event.originCaller, label: event.originCallerLabel })}
                   </Link>
                   <CopyTooltip variant="path" copyText={event.originCaller || ""} />
                 </Text>

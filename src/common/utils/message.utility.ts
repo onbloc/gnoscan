@@ -1,4 +1,5 @@
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { MESSAGE_TYPES, TRANSACTION_FUNCTION_TYPES } from "../values/message-types.constant";
 
 export function getTransactionMessageType(message: TransactionContractModel): string {
@@ -20,4 +21,19 @@ export function getTransactionMessageType(message: TransactionContractModel): st
   }
 
   return messageTypeMap[message.messageType] || message.messageType;
+}
+
+// Caller with its label, from the first present of caller / from / creator.
+export function getSummaryCaller(message: TransactionContractModel): {
+  address: string;
+  label?: string | null;
+  labelType?: ADDRESS_LABEL_TYPE | null;
+} {
+  if (message.caller)
+    return { address: message.caller, label: message.callerLabel, labelType: message.callerLabelType };
+  if (message.from) return { address: message.from, label: message.fromLabel, labelType: message.fromLabelType };
+  if (message.creator) {
+    return { address: message.creator, label: message.creatorLabel, labelType: message.creatorLabelType };
+  }
+  return { address: "" };
 }

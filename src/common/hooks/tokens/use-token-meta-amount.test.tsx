@@ -2,12 +2,12 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-token-meta-by-path";
-import { toGNOTAmount } from "@/common/utils/native-token-utility";
+import { isUgnot, toGNOTAmount } from "@/common/utils/native-token-utility";
 import { AxiosError, AxiosResponse } from "axios";
 import { retryTokenMetaRequest, useTokenMetaAmount } from "./use-token-meta-amount";
 
 jest.mock("@/common/utils/native-token-utility", () => ({
-  isUgnot: () => false,
+  isUgnot: jest.fn(() => false),
   toGNOTAmount: jest.fn((value: string, denom: string) => ({ value, denom: denom.toUpperCase() })),
 }));
 jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
@@ -20,12 +20,14 @@ jest.mock("@/common/react-query/token/api/use-get-token-meta-by-path", () => ({
 const mockUseTokenResourceMeta = jest.mocked(useTokenResourceMeta);
 const mockUseGetTokenMetaByPath = jest.mocked(useGetTokenMetaByPath);
 const mockToGNOTAmount = jest.mocked(toGNOTAmount);
+const mockIsUgnot = jest.mocked(isUgnot);
 
 const DENOM = "gno.land/r/g1abc/bubble";
 
 beforeEach(() => {
   mockUseGetTokenMetaByPath.mockReset();
   mockToGNOTAmount.mockClear();
+  mockIsUgnot.mockReturnValue(false);
   // No static resource entry: getTokenMeta echoes the backend fallback it is given.
   mockUseTokenResourceMeta.mockReturnValue({
     hasTokenResourceMeta: () => false,
@@ -79,6 +81,22 @@ it("uses the static resource list without calling the token meta API", () => {
   } as never);
 
   expect(renderAmount()).toEqual({ value: "300,000,000", denom: "BBL" });
+  expect(mockUseGetTokenMetaByPath).toHaveBeenCalledWith("", { retry: retryTokenMetaRequest });
+});
+
+it("converts a native ugnot amount without calling the token meta API", () => {
+  mockBackendMeta();
+  mockIsUgnot.mockReturnValue(true);
+
+  let result: ReturnType<typeof useTokenMetaAmount> | undefined;
+  const Probe = () => {
+    result = useTokenMetaAmount({ value: "332000000", denom: "ugnot" });
+    return null;
+  };
+  renderToStaticMarkup(<Probe />);
+
+  expect(result).toEqual({ amount: { value: "332000000", denom: "UGNOT" }, isLoading: false, isFetched: true });
+  expect(mockToGNOTAmount).toHaveBeenCalledWith("332000000", "ugnot");
   expect(mockUseGetTokenMetaByPath).toHaveBeenCalledWith("", { retry: retryTokenMetaRequest });
 });
 

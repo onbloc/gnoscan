@@ -70,7 +70,7 @@ const StandardNetworkActiveNewest = () => {
 
   const getDisplayName = React.useCallback((address: string, addressName?: string, label?: string | null) => {
     if (addressName) return truncateDashboardUsername(addressName);
-    if (label) return truncateDashboardUsername(label);
+    if (label) return truncateDashboardUsername(stripGnoLandPrefix(label));
     return textEllipsis(address);
   }, []);
 
