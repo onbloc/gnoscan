@@ -10,6 +10,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { MainTotalTransactionApi } from "./total-transaction/total-transaction-api";
 import { MainTotalDailyFeeApi } from "./total-daily-fee/total-daily-fee-api";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { SectionGrid, sectionChartCardStyle } from "@/components/view/common/section-grid/SectionGrid.styles";
 import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacked-bar-chart2";
 import { useGetStoragePrice, useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
@@ -99,21 +100,11 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
   );
 };
 
-const Wrapper = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto;
-  grid-gap: 16px;
-
-  & .title {
-    width: 100%;
-    margin-bottom: 16px;
-  }
+const Wrapper = styled(SectionGrid)`
+  ${sectionChartCardStyle}
 
   &.desktop {
     grid-template-columns: 1fr;
-    grid-gap: 32px;
     .card-1 {
       grid-column: 1;
       grid-row: 1;
@@ -128,17 +119,6 @@ const Wrapper = styled.div`
       grid-column: 1;
       grid-row: 3;
     }
-  }
-
-  &.tablet {
-    grid-template-columns: 1fr;
-  }
-  &.mobile {
-    grid-template-columns: 1fr;
-  }
-
-  & > div {
-    overflow: hidden;
   }
 `;
 

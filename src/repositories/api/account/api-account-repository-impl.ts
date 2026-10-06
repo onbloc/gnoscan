@@ -1,4 +1,3 @@
-import { NetworkClient } from "@/common/clients/network-client";
 import { ApiAccountRepository } from "./api-account-repository";
 
 import {
@@ -14,99 +13,31 @@ import {
   GetAccountTokenTransfersResponse,
   GetAccountsResponse,
 } from "./response";
-import { makeQueryParameter } from "@/common/utils/string-util";
-import { CommonError } from "@/common/errors";
+import { ApiRepository } from "../api-repository";
 
-interface APIResponse<T> {
-  data: T;
-}
-
-export class ApiAccountRepositoryImpl implements ApiAccountRepository {
-  private networkClient: NetworkClient | null;
-  constructor(networkClient: NetworkClient | null) {
-    this.networkClient = networkClient;
-  }
-
+export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccountRepository {
   getAccount(address: string): Promise<GetAccountResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetAccountResponse>>({
-        url: `accounts/${address}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetAccountResponse>(`accounts/${address}`);
   }
 
   getAccounts(params: GetAccountsRequest): Promise<GetAccountsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    const requestParams = makeQueryParameter({ ...params });
-
-    return this.networkClient
-      .get<APIResponse<GetAccountsResponse>>({
-        url: `native/holders${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetAccountsResponse>("native/holders", { ...params });
   }
 
   getAccountDirectTransactions(
     params: GetAccountDirectTransactionsRequest,
   ): Promise<GetAccountDirectTransactionsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
     const { address, ...queryParams } = params;
-    const requestParams = makeQueryParameter(queryParams);
-
-    return this.networkClient
-      .get<APIResponse<GetAccountDirectTransactionsResponse>>({
-        url: `accounts/${address}/direct-transactions${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetAccountDirectTransactionsResponse>(`accounts/${address}/direct-transactions`, queryParams);
   }
 
   getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
     const { address, ...queryParams } = params;
-    const requestParams = makeQueryParameter(queryParams);
-
-    return this.networkClient
-      .get<APIResponse<GetAccountNativeTransfersResponse>>({
-        url: `accounts/${address}/native-transfers${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetAccountNativeTransfersResponse>(`accounts/${address}/native-transfers`, queryParams);
   }
 
   getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
     const { address, ...queryParams } = params;
-    const requestParams = makeQueryParameter(queryParams);
-
-    return this.networkClient
-      .get<APIResponse<GetAccountTokenTransfersResponse>>({
-        url: `accounts/${address}/token-transfers${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetAccountTokenTransfersResponse>(`accounts/${address}/token-transfers`, queryParams);
   }
 }

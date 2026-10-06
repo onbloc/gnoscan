@@ -4,6 +4,7 @@ import styled from "styled-components";
 import theme from "@/styles/theme";
 import BigNumber from "bignumber.js";
 import { makeAreaGraphDisplayLabel } from "./area-chart";
+import { ChartTooltipContainer } from "../chart-common";
 
 interface TooltipProps {
   activeElements: Array<ActiveElement>;
@@ -109,15 +110,9 @@ export const AreaChartTooltip = ({ title, activeElements, datas, themeMode, char
   );
 };
 
-const TooltipContainer = styled.div<{ light: boolean }>`
+const TooltipContainer = styled(ChartTooltipContainer)`
   & {
-    display: flex;
-    flex-direction: column;
     min-width: 260px;
-    background-color: ${({ light }) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
-    padding: 16px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 8px;
 
     span {
       display: inline-flex;

@@ -12,7 +12,7 @@ import { useGetAccounts } from "@/common/react-query/account/api/use-get-account
 import { AccountListItemModel } from "@/models/api/account/account-list-item-model";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { ACCOUNTS_LIST_PAGE_SIZE } from "@/common/values/query.constant";
+import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
 
@@ -33,7 +33,9 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
   const [dataPage, setDataPage] = React.useState(page);
   if (data && !isPreviousData && dataPage !== page) setDataPage(page);
 
-  const totalPages = Math.max(1, Math.ceil((data?.page.totalCount ?? 0) / ACCOUNTS_LIST_PAGE_SIZE));
+  // Cap at top MAX_ACCOUNTS_LIST_SIZE accounts
+  const totalCount = Math.min(data?.page.totalCount ?? 0, MAX_ACCOUNTS_LIST_SIZE);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ACCOUNTS_LIST_PAGE_SIZE));
 
   const accounts: AccountListItem[] = React.useMemo(() => {
     if (!data?.items) return [];
@@ -105,7 +107,7 @@ const createHeaderAddress = () => {
     .width(245)
     .colorName("blue")
     .renderOption((_, data) => (
-      <DatatableItem.CallerCopy caller={data.address} label={data.label} labelType={data.labelType} />
+      <DatatableItem.AddressCopy address={data.address} label={data.label} labelType={data.labelType} />
     ))
     .build();
 };
@@ -115,7 +117,7 @@ const createHeaderNameTag = () => {
     .key("nameTag")
     .name("Name Tag")
     .width(270)
-    .renderOption(nameTag => <span>{nameTag || ""}</span>)
+    .renderOption(nameTag => <span>{nameTag || "-"}</span>)
     .build();
 };
 

@@ -2,6 +2,7 @@ import theme, { Palette } from "@/styles/theme";
 import React from "react";
 import styled from "styled-components";
 import { AmountText } from "../../text/amount-text";
+import { ChartTooltipContainer } from "../chart-common";
 
 interface TooltipProps {
   title: string;
@@ -25,16 +26,10 @@ export const BarChartTooltip = ({ themeMode, title, value, isDenom }: TooltipPro
   );
 };
 
-const TooltipContainer = styled.div<{ light: boolean }>`
+const TooltipContainer = styled(ChartTooltipContainer)`
   & {
-    display: flex;
-    flex-direction: column;
     min-width: 156px;
     min-height: 84px;
-    background-color: ${({ light }) => (light ? theme.lightTheme.base : theme.darkTheme.base)};
-    padding: 16px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 8px;
 
     .tooltip-header {
       color: ${({ light }) => (light ? theme.lightTheme.tertiary : theme.darkTheme.tertiary)};
