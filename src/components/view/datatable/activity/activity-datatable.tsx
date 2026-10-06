@@ -88,7 +88,9 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
         .name("Caller")
         .width(width)
         .colorName("blue")
-        .renderOption(address => <DatatableItem.Account address={address} />)
+        .renderOption((address, data) => (
+          <DatatableItem.Account address={address} label={data.callerLabel} labelType={data.callerLabelType} />
+        ))
         .build();
 
     const createHeaderAmountIn = (width: number) =>
