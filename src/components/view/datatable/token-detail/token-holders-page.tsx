@@ -10,6 +10,7 @@ import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-m
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { TokenHolderModel } from "@/models/api/token/token-holder-model";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 import { TokenHolder } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
@@ -46,7 +47,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
       return {
         rank: index + 1,
         address: item.address,
-        nameTag: item.nameTag,
+        nameTag: getAddressNameTag(item),
         label: item.label,
         labelType: item.labelType,
         balance: {
