@@ -2,14 +2,11 @@
 
 import React, { useCallback, useMemo, useState } from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import styled from "styled-components";
-import theme from "@/styles/theme";
 import { DatatableItem } from "..";
+import { FlushTableContainer } from "../datatable.styles";
 import { EventDetail } from "./event-detail";
-import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
 import { GnoEvent } from "@/types/data-type";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 
 /**
@@ -42,7 +39,6 @@ export const StandardNetworkEventDatatable = ({
   variant = "default",
 }: Props) => {
   const { breakpoint } = useWindowSize();
-  const themeMode = useRecoilValue(themeState);
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   // Activity widths sum to the 1146px table min-width so columns stay evenly spaced.
   const isActivity = variant === "activity";
@@ -178,54 +174,12 @@ export const StandardNetworkEventDatatable = ({
   );
 
   return (
-    <Container>
-      <Datatable
-        loading={!loaded}
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={events}
-        renderDetails={renderDetails}
-      />
+    <FlushTableContainer>
+      <Datatable loading={!loaded} headers={createHeaders()} datas={events} renderDetails={renderDetails} />
 
-      {hasNextPage ? (
-        <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={nextPage}>
-          {"View More Events"}
-        </Button>
-      ) : (
-        <React.Fragment />
+      {hasNextPage && (
+        <ViewMoreButton variant="table" breakpoint={breakpoint} text="View More Events" onClick={() => nextPage?.()} />
       )}
-    </Container>
+    </FlushTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-
-    & > div {
-      padding: 0;
-    }
-
-    .more-button {
-      width: 100%;
-      padding: 16px;
-      color: ${({ theme }) => theme.colors.primary};
-      background-color: ${({ theme }) => theme.colors.surface};
-      ${theme.fonts.p4}
-      font-weight: 600;
-      margin-top: 24px;
-
-      &.desktop {
-        width: 344px;
-      }
-    }
-  }
-`;

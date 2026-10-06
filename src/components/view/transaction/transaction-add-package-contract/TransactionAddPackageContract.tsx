@@ -9,7 +9,8 @@ import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-style
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
-import { AmountBadge, BadgeList } from "../common";
+import { AmountBadge } from "@/components/ui/detail-field";
+import { BadgeList } from "../common";
 
 interface TransactionAddPackageContractProps {
   message: any;

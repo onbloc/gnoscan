@@ -3,8 +3,7 @@ import styled from "styled-components";
 import Link from "next/link";
 import { GnoEvent } from "@/types/data-type";
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { useNetwork } from "@/common/hooks/use-network";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 
@@ -23,15 +22,7 @@ export const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ v
                   <Link href={getUrlWithNetwork(`/realms/details?path=${event.packagePath}`)} passHref>
                     {event.packagePath}
                   </Link>
-                  <Tooltip
-                    className="path-copy-tooltip"
-                    content="Copied!"
-                    trigger="click"
-                    copyText={event.packagePath}
-                    width={85}
-                  >
-                    <IconCopy className="svg-icon" />
-                  </Tooltip>
+                  <CopyTooltip variant="path" copyText={event.packagePath} />
                 </Text>
               </Text>
             </div>
@@ -51,15 +42,7 @@ export const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ v
                   >
                     {event.originCallerLabel || event.originCaller}
                   </Link>
-                  <Tooltip
-                    className="path-copy-tooltip"
-                    content="Copied!"
-                    trigger="click"
-                    copyText={event.originCaller || ""}
-                    width={85}
-                  >
-                    <IconCopy className="svg-icon" />
-                  </Tooltip>
+                  <CopyTooltip variant="path" copyText={event.originCaller || ""} />
                 </Text>
               </Text>
             </div>
