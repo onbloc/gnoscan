@@ -14,6 +14,7 @@ import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
 import Tooltip from "@/components/ui/tooltip";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
+import { GENESIS_VESTING_END, formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
 import IconLock from "@/assets/svgs/icon-lock.svg";
 
 interface AccountListDatatableProps {
@@ -50,9 +51,7 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         balance: { value: item.balance, denom: GNOTToken.denom },
         percentage: item.percentage,
         txCount: item.txCount,
-        // `isVesting` is the current API contract. Keep the end-time fallback
-        // for the list response that carries its genesis vesting timestamp.
-        isVesting: item.isVesting || item.vestingEndTime != null,
+        isVesting: item.isVesting === true,
         vestingEndTime: item.vestingEndTime,
       };
     });
@@ -132,16 +131,16 @@ const createHeaderBalance = () => {
     .width(220)
     .renderOption((balance, data) => (
       <BalanceCell>
-        {data.isVesting && <VestingLock />}
+        {data.isVesting && <VestingLock vestingEndTime={data.vestingEndTime} />}
         <DatatableItem.StandardNetworkAmount data={balance} />
       </BalanceCell>
     ))
     .build();
 };
 
-const VestingLock = () => {
+const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string | number | null }) => {
   return (
-    <Tooltip content={<VestingTooltipContent />}>
+    <Tooltip content={<VestingTooltipContent vestingEndTime={vestingEndTime} />}>
       <span aria-label="Vesting account">
         <IconLock />
       </span>
@@ -149,11 +148,12 @@ const VestingLock = () => {
   );
 };
 
-const VestingTooltipContent = () => (
+const VestingTooltipContent = ({ vestingEndTime }: { vestingEndTime?: string | number | null }) => (
   <VestingTooltipText>
     This account&apos;s genesis balance is subject to vesting.
     <br />
-    Tokens vest over 24 months: Jan 1, 2026 – Jan 1, 2028.
+    Tokens vest over 24 months: Jan 1, 2026 –{" "}
+    {formatVestingDate(parseVestingTime(vestingEndTime) ?? GENESIS_VESTING_END)}.
   </VestingTooltipText>
 );
 
