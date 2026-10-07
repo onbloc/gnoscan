@@ -14,6 +14,7 @@ import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountVestingAsset from "./AccountVestingAsset";
+import { splitAssetColumns } from "./account-assets.utility";
 import * as S from "./AccountAssets.styles";
 
 interface AccountAssetsProps {
@@ -71,19 +72,32 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     />
   );
 
+  const [leftColumnAssets, rightColumnAssets] = splitAssetColumns(grc20TokenAssets);
+
+  const nativeTokenAsset = (
+    <NativeTokenAsset address={address} vesting={data?.data.vesting} breakpoint={breakpoint} isDesktop={isDesktop} />
+  );
+
   return (
     <S.Card breakpoint={breakpoint}>
       <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary">
         Assets
       </Text>
       <S.GridLayout breakpoint={breakpoint}>
-        <NativeTokenAsset
-          address={address}
-          vesting={data?.data.vesting}
-          breakpoint={breakpoint}
-          isDesktop={isDesktop}
-        />
-        {grc20TokenAssets.map(renderGrc20Asset)}
+        {breakpoint === DEVICE_TYPE.DESKTOP ? (
+          <>
+            <S.AssetColumn>
+              {nativeTokenAsset}
+              {leftColumnAssets.map(renderGrc20Asset)}
+            </S.AssetColumn>
+            <S.AssetColumn>{rightColumnAssets.map(renderGrc20Asset)}</S.AssetColumn>
+          </>
+        ) : (
+          <>
+            {nativeTokenAsset}
+            {grc20TokenAssets.map(renderGrc20Asset)}
+          </>
+        )}
       </S.GridLayout>
     </S.Card>
   );
