@@ -4,7 +4,7 @@ export interface AccountAssetModel {
   address: string;
   label?: string | null;
   labelType?: ADDRESS_LABEL_TYPE | null;
-  tokenType: "Native" | "GRC20";
+  tokenType: "Native" | "GRC20" | "GRC721";
   tokenId: string;
   slug: string;
   packagePath: string;

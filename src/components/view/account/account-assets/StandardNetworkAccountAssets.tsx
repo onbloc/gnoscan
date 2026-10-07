@@ -14,7 +14,7 @@ import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountVestingAsset from "./AccountVestingAsset";
-import { splitAssetColumns } from "./account-assets.utility";
+import { isDisplayableAsset, splitAssetColumns } from "./account-assets.utility";
 import * as S from "./AccountAssets.styles";
 
 interface AccountAssetsProps {
@@ -31,7 +31,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     if (!data?.data) return [];
 
     return data.data.assets
-      .filter(asset => asset.name && asset.symbol)
+      .filter(asset => isDisplayableAsset(asset))
       .map((asset): AccountAssetViewModel => {
         const resolved = getTokenMeta(asset.tokenId || asset.packagePath, {
           name: asset.name,
