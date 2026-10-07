@@ -25,6 +25,13 @@ export const GridLayout = styled.div<{ breakpoint: DEVICE_TYPE }>`
   grid-gap: 16px;
 `;
 
+export const AssetColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+`;
+
 export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
   display: flex;
   align-items: center;

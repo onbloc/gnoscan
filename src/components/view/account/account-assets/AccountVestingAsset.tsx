@@ -61,7 +61,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
           </Text>
         </S.TokenInfo>
         <S.Balance>
-          <AmountText minSize="p4" maxSize="p3" color="tertiary" {...total} wrap={false} />
+          <AmountText minSize="p4" maxSize="p3" {...total} wrap={false} />
           <S.Chevron $isExpanded={isExpanded}>
             <IconChevron />
           </S.Chevron>

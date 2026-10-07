@@ -57,34 +57,46 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
   }
 
+  const renderGrc20Asset = (grc20TokenAsset: AccountAssetViewModel) => (
+    <AccountAssetItem
+      key={`asset-token-${grc20TokenAsset.tokenId}`}
+      amount={grc20TokenAsset.amount}
+      name={grc20TokenAsset.name}
+      showTokenPathLink={true}
+      tokenPath={grc20TokenAsset.packagePath}
+      logoUrl={grc20TokenAsset.logoUrl}
+      breakpoint={breakpoint}
+      isDesktop={isDesktop}
+      isFetched={isFetched}
+    />
+  );
+
+  const nativeTokenAsset = (
+    <NativeTokenAsset address={address} vesting={data?.data.vesting} breakpoint={breakpoint} isDesktop={isDesktop} />
+  );
+
   return (
     <S.Card breakpoint={breakpoint}>
       <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary">
         Assets
       </Text>
       <S.GridLayout breakpoint={breakpoint}>
-        <NativeTokenAsset
-          address={address}
-          vesting={data?.data.vesting}
-          breakpoint={breakpoint}
-          isDesktop={isDesktop}
-        />
-        {isFetched &&
-          grc20TokenAssets.map((grc20TokenAsset: AccountAssetViewModel) => {
-            return (
-              <AccountAssetItem
-                key={`asset-token-${grc20TokenAsset.tokenId}`}
-                amount={grc20TokenAsset.amount}
-                name={grc20TokenAsset.name}
-                showTokenPathLink={true}
-                tokenPath={grc20TokenAsset.packagePath}
-                logoUrl={grc20TokenAsset.logoUrl}
-                breakpoint={breakpoint}
-                isDesktop={isDesktop}
-                isFetched={isFetched}
-              />
-            );
-          })}
+        {breakpoint === DEVICE_TYPE.DESKTOP ? (
+          <>
+            <S.AssetColumn>
+              {nativeTokenAsset}
+              {grc20TokenAssets.filter((_, index) => index % 2 === 1).map(renderGrc20Asset)}
+            </S.AssetColumn>
+            <S.AssetColumn>
+              {grc20TokenAssets.filter((_, index) => index % 2 === 0).map(renderGrc20Asset)}
+            </S.AssetColumn>
+          </>
+        ) : (
+          <>
+            {nativeTokenAsset}
+            {grc20TokenAssets.map(renderGrc20Asset)}
+          </>
+        )}
       </S.GridLayout>
     </S.Card>
   );
