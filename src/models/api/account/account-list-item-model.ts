@@ -9,4 +9,6 @@ export interface AccountListItemModel {
   balance: string;
   percentage: number;
   txCount: number;
+  isVesting?: boolean;
+  vestingEndTime?: string | number | null;
 }

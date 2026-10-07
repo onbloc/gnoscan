@@ -12,7 +12,9 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
+import Tooltip from "@/components/ui/tooltip";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
+import IconLock from "@/assets/svgs/icon-lock.svg";
 
 interface AccountListDatatableProps {
   isCustomNetwork: boolean;
@@ -48,6 +50,10 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         balance: { value: item.balance, denom: GNOTToken.denom },
         percentage: item.percentage,
         txCount: item.txCount,
+        // `isVesting` is the current API contract. Keep the end-time fallback
+        // for the list response that carries its genesis vesting timestamp.
+        isVesting: item.isVesting || item.vestingEndTime != null,
+        vestingEndTime: item.vestingEndTime,
       };
     });
   }, [data?.items, dataPage]);
@@ -124,8 +130,42 @@ const createHeaderBalance = () => {
     .key("balance")
     .name("Balance")
     .width(220)
-    .renderOption(balance => <DatatableItem.StandardNetworkAmount data={balance} />)
+    .renderOption((balance, data) => (
+      <BalanceCell>
+        {data.isVesting && <VestingLock vestingEndTime={data.vestingEndTime} />}
+        <DatatableItem.StandardNetworkAmount data={balance} />
+      </BalanceCell>
+    ))
     .build();
+};
+
+const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string | number | null }) => {
+  const date = parseVestingEndTime(vestingEndTime);
+  const content = date
+    ? `Vested until ${new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(date)}`
+    : "Vesting account";
+
+  return (
+    <Tooltip content={content}>
+      <span aria-label={content}>
+        <IconLock />
+      </span>
+    </Tooltip>
+  );
+};
+
+const parseVestingEndTime = (value?: string | number | null) => {
+  if (value == null) return null;
+
+  const unixSeconds = typeof value === "number" ? value : /^\d+$/.test(value) ? Number(value) : null;
+  const date = unixSeconds == null ? new Date(value) : new Date(unixSeconds * 1000);
+
+  return Number.isNaN(date.getTime()) ? null : date;
 };
 
 const createHeaderPercentage = () => {
@@ -165,4 +205,10 @@ const Container = styled.div`
       line-height: 16px;
     }
   }
+`;
+
+const BalanceCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;

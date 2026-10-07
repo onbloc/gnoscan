@@ -169,6 +169,8 @@ export interface AccountListItem {
   balance: Amount;
   percentage: number;
   txCount: number;
+  isVesting?: boolean;
+  vestingEndTime?: string | number | null;
 }
 
 export interface TransactionContractInfo {
