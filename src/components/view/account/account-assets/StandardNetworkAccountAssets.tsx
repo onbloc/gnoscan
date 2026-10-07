@@ -6,12 +6,16 @@ import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-m
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { AccountAssetViewModel } from "@/types/account";
+import { AccountVestingModel } from "@/repositories/api/account/response";
 
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import AccountVestingAsset from "./AccountVestingAsset";
+import AccountAssetGrid from "./AccountAssetGrid";
+import { isDisplayableAsset } from "./account-assets.utility";
 import * as S from "./AccountAssets.styles";
 
 interface AccountAssetsProps {
@@ -28,7 +32,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     if (!data?.data) return [];
 
     return data.data.assets
-      .filter(asset => asset.name && asset.symbol)
+      .filter(asset => isDisplayableAsset(asset))
       .map((asset): AccountAssetViewModel => {
         const resolved = getTokenMeta(asset.tokenId || asset.packagePath, {
           name: asset.name,
@@ -55,35 +59,44 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     return <AccountAddressSkeleton isDesktop={isDesktop} />;
   }
 
+  const renderGrc20Asset = (grc20TokenAsset: AccountAssetViewModel) => (
+    <AccountAssetItem
+      key={`asset-token-${grc20TokenAsset.tokenId}`}
+      amount={grc20TokenAsset.amount}
+      name={grc20TokenAsset.name}
+      showTokenPathLink={true}
+      tokenPath={grc20TokenAsset.packagePath}
+      logoUrl={grc20TokenAsset.logoUrl}
+      breakpoint={breakpoint}
+      isDesktop={isDesktop}
+      isFetched={isFetched}
+    />
+  );
+
   return (
     <S.Card breakpoint={breakpoint}>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary">
+      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
         Assets
       </Text>
-      <S.GridLayout breakpoint={breakpoint}>
-        <NativeTokenAsset address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
-        {isFetched &&
-          grc20TokenAssets.map((grc20TokenAsset: AccountAssetViewModel) => {
-            return (
-              <AccountAssetItem
-                key={`asset-token-${grc20TokenAsset.tokenId}`}
-                amount={grc20TokenAsset.amount}
-                name={grc20TokenAsset.name}
-                showTokenPathLink={true}
-                tokenPath={grc20TokenAsset.packagePath}
-                logoUrl={grc20TokenAsset.logoUrl}
-                breakpoint={breakpoint}
-                isDesktop={isDesktop}
-                isFetched={isFetched}
-              />
-            );
-          })}
-      </S.GridLayout>
+      <AccountAssetGrid breakpoint={breakpoint}>
+        <NativeTokenAsset
+          address={address}
+          vesting={data?.data.vesting}
+          breakpoint={breakpoint}
+          isDesktop={isDesktop}
+        />
+        {grc20TokenAssets.map(renderGrc20Asset)}
+      </AccountAssetGrid>
     </S.Card>
   );
 };
 
-const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
+const NativeTokenAsset = ({
+  address,
+  vesting,
+  breakpoint,
+  isDesktop,
+}: AccountAssetsProps & { vesting?: AccountVestingModel }) => {
   const { data, isFetched } = useGetNativeTokenBalance(address);
 
   // Native denoms (e.g. ugnot) are not served by the token-meta API. Let
@@ -101,6 +114,10 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
       name: GNOTToken.name,
     };
   }, [data?.value]);
+
+  if (vesting) {
+    return <AccountVestingAsset vesting={vesting} breakpoint={breakpoint} isDesktop={isDesktop} />;
+  }
 
   return (
     <AccountAssetItem

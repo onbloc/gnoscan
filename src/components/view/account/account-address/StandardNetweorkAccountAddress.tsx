@@ -45,13 +45,13 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
 
   return (
     <S.Card isDesktop={isDesktop}>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary">
+      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
         Address
       </Text>
       <S.Box isDesktop={isDesktop}>
         <S.AccountWrapper>
           <S.ContentWrapper isDesktop={isDesktop}>
-            <S.Content type="p4" color="primary">
+            <S.Content type={isDesktop ? "p3" : "p4"} color="primary">
               {address}
               {label && ` (${label})`}
               <S.CopyTooltip variant="plain" copyText={address || ""} />

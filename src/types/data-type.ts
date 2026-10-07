@@ -169,6 +169,9 @@ export interface AccountListItem {
   balance: Amount;
   percentage: number;
   txCount: number;
+  isVesting?: boolean;
+  // RFC3339; omitted without a vesting schedule
+  vestingEndTime?: string;
 }
 
 export interface TransactionContractInfo {

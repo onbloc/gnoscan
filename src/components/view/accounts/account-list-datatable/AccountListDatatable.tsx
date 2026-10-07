@@ -12,7 +12,10 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
+import Tooltip from "@/components/ui/tooltip";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
+import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
+import IconLock from "@/assets/svgs/icon-lock.svg";
 
 interface AccountListDatatableProps {
   isCustomNetwork: boolean;
@@ -48,6 +51,8 @@ export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatablePr
         balance: { value: item.balance, denom: GNOTToken.denom },
         percentage: item.percentage,
         txCount: item.txCount,
+        isVesting: item.isVesting === true,
+        vestingEndTime: item.vestingEndTime,
       };
     });
   }, [data?.items, dataPage]);
@@ -124,8 +129,39 @@ const createHeaderBalance = () => {
     .key("balance")
     .name("Balance")
     .width(220)
-    .renderOption(balance => <DatatableItem.StandardNetworkAmount data={balance} />)
+    .renderOption((balance, data) => (
+      <BalanceCell>
+        {data.isVesting && <VestingLock vestingEndTime={data.vestingEndTime} />}
+        <DatatableItem.StandardNetworkAmount data={balance} />
+      </BalanceCell>
+    ))
     .build();
+};
+
+const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string }) => {
+  return (
+    <Tooltip content={<VestingTooltipContent vestingEndTime={vestingEndTime} />} openOnFocus>
+      <VestingLockButton type="button" aria-label="Vesting account">
+        <IconLock aria-hidden="true" />
+      </VestingLockButton>
+    </Tooltip>
+  );
+};
+
+const VestingTooltipContent = ({ vestingEndTime }: { vestingEndTime?: string }) => {
+  const endDate = parseVestingTime(vestingEndTime);
+
+  return (
+    <VestingTooltipText>
+      This account&apos;s genesis balance is subject to vesting.
+      {endDate && (
+        <>
+          <br />
+          Tokens vest over 24 months: Sep 12, 2026 – {formatVestingDate(endDate)}.
+        </>
+      )}
+    </VestingTooltipText>
+  );
 };
 
 const createHeaderPercentage = () => {
@@ -159,10 +195,44 @@ const Container = styled.div`
   & > div:first-child {
     padding: 24px 24px 0;
 
+    .scroll-wrapper > div:first-child {
+      border-color: ${({ theme }) => theme.colors.dimmed100};
+
+      > div {
+        color: ${({ theme }) => theme.colors.primary};
+        opacity: 0.8;
+      }
+    }
+
     .scroll-wrapper > div:first-child > div {
       padding-top: 12px;
       padding-bottom: 12px;
       line-height: 16px;
     }
   }
+`;
+
+const BalanceCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const VestingLockButton = styled.button`
+  display: flex;
+  border-radius: 2px;
+  cursor: default;
+
+  &:focus-visible {
+    outline: 1px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const VestingTooltipText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.tertiary};
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
 `;

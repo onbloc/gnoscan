@@ -106,7 +106,7 @@ const AccountAssetItem = ({
         </S.TokenName>
       </S.TokenInfo>
 
-      <AmountText minSize="p4" maxSize="p3" {...getTokenAmount(amount.denom, amount.value)} />
+      <AmountText minSize="p4" maxSize="p3" color="tertiary" {...getTokenAmount(amount.denom, amount.value)} />
     </S.Box>
   );
 };
