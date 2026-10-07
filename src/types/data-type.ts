@@ -170,7 +170,8 @@ export interface AccountListItem {
   percentage: number;
   txCount: number;
   isVesting?: boolean;
-  vestingEndTime?: string | number | null;
+  // RFC3339; omitted without a vesting schedule
+  vestingEndTime?: string;
 }
 
 export interface TransactionContractInfo {

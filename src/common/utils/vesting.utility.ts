@@ -1,18 +1,8 @@
-// Fallback genesis vesting end (UTC) when the API omits it
-export const GENESIS_VESTING_END = new Date(Date.UTC(2028, 0, 1));
+// Parses an RFC3339 vesting time from the API
+export const parseVestingTime = (value?: string | null): Date | null => {
+  if (!value) return null;
 
-const MAX_TIMESTAMP_MS = 8.64e15;
-
-// Accepts ISO strings or unix seconds (number or numeric string)
-export const parseVestingTime = (value?: string | number | null): Date | null => {
-  if (value == null || value === "") return null;
-
-  const unixSeconds = typeof value === "number" ? value : /^\d+$/.test(value) ? Number(value) : null;
-  if (unixSeconds != null && !(Number.isFinite(unixSeconds) && Math.abs(unixSeconds * 1000) <= MAX_TIMESTAMP_MS)) {
-    return null;
-  }
-
-  const date = unixSeconds == null ? new Date(value) : new Date(unixSeconds * 1000);
+  const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 };
 

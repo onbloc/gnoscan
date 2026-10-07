@@ -14,7 +14,7 @@ import { AccountListItem } from "@/types/data-type";
 import { Pagination } from "@/components/ui/pagination";
 import Tooltip from "@/components/ui/tooltip";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
-import { GENESIS_VESTING_END, formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
+import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
 import IconLock from "@/assets/svgs/icon-lock.svg";
 
 interface AccountListDatatableProps {
@@ -138,7 +138,7 @@ const createHeaderBalance = () => {
     .build();
 };
 
-const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string | number | null }) => {
+const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string }) => {
   return (
     <Tooltip content={<VestingTooltipContent vestingEndTime={vestingEndTime} />}>
       <span aria-label="Vesting account">
@@ -148,14 +148,21 @@ const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string | number | nu
   );
 };
 
-const VestingTooltipContent = ({ vestingEndTime }: { vestingEndTime?: string | number | null }) => (
-  <VestingTooltipText>
-    This account&apos;s genesis balance is subject to vesting.
-    <br />
-    Tokens vest over 24 months: Jan 1, 2026 –{" "}
-    {formatVestingDate(parseVestingTime(vestingEndTime) ?? GENESIS_VESTING_END)}.
-  </VestingTooltipText>
-);
+const VestingTooltipContent = ({ vestingEndTime }: { vestingEndTime?: string }) => {
+  const endDate = parseVestingTime(vestingEndTime);
+
+  return (
+    <VestingTooltipText>
+      This account&apos;s genesis balance is subject to vesting.
+      {endDate && (
+        <>
+          <br />
+          Tokens vest over 24 months: Sep 12, 2026 – {formatVestingDate(endDate)}.
+        </>
+      )}
+    </VestingTooltipText>
+  );
+};
 
 const createHeaderPercentage = () => {
   return DatatableOption.Builder.builder<AccountListItem>()
