@@ -7,6 +7,7 @@ import { AmountText } from "@/components/ui/text/amount-text";
 import Text from "@/components/ui/text";
 
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
+import IconChevron from "@/assets/svgs/icon-chevron.svg";
 import { resolveAccountAssetLogoUrl } from "@/layouts/account/components/account-asset-item/account-asset-item.utility";
 import * as S from "./AccountVestingAsset.styles";
 
@@ -29,6 +30,7 @@ const formatEndDate = (endTime: string) => {
 };
 
 const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingAssetProps) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
   const { getTokenAmount, getTokenImage, getTokenInfo } = useTokenMeta();
   const token = getTokenInfo(GNOTToken.denom);
   const logoUrl = resolveAccountAssetLogoUrl(undefined, GNOTToken.denom, getTokenImage);
@@ -40,7 +42,12 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
 
   return (
     <S.Box breakpoint={breakpoint}>
-      <S.Header>
+      <S.HeaderButton
+        type="button"
+        aria-expanded={isExpanded}
+        aria-label={`${token.name} vesting details`}
+        onClick={() => setIsExpanded(expanded => !expanded)}
+      >
         <S.TokenInfo>
           <S.LogoWrapper>
             {logoUrl ? (
@@ -53,26 +60,35 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
             {token.name}
           </Text>
         </S.TokenInfo>
-        <AmountText minSize="p4" maxSize="p3" {...total} wrap={false} />
-      </S.Header>
+        <S.Balance>
+          <AmountText minSize="p4" maxSize="p3" color="tertiary" {...total} wrap={false} />
+          <S.Chevron $isExpanded={isExpanded}>
+            <IconChevron />
+          </S.Chevron>
+        </S.Balance>
+      </S.HeaderButton>
 
-      <S.Divider />
-      <S.Details>
-        <VestingRow label="Spendable" amount={available} />
-        <VestingRow label="Total Vesting Amount" amount={originalVesting} />
-        <VestingRow label="Locked · Vesting" amount={locked} />
-      </S.Details>
-      <S.ProgressTrack aria-label={`${progress.toFixed(1)}% vested`}>
-        <S.ProgressValue $progress={progress} />
-      </S.ProgressTrack>
-      <S.ProgressSummary>
-        <Text type="body1" color="tertiary">
-          Vested until {formatEndDate(vesting.endTime)}
-        </Text>
-        <Text type="body1" color="green">
-          {progress.toFixed(1)}% Vested
-        </Text>
-      </S.ProgressSummary>
+      {isExpanded && (
+        <>
+          <S.Divider />
+          <S.Details>
+            <VestingRow label="Spendable" amount={available} />
+            <VestingRow label="Total Vesting Amount" amount={originalVesting} />
+            <VestingRow label="Locked · Vesting" amount={locked} />
+          </S.Details>
+          <S.ProgressTrack aria-label={`${progress.toFixed(1)}% vested`}>
+            <S.ProgressValue $progress={progress} />
+          </S.ProgressTrack>
+          <S.ProgressSummary>
+            <Text type="body1" color="tertiary">
+              Vested until {formatEndDate(vesting.endTime)}
+            </Text>
+            <Text type="body1" color="green">
+              {progress.toFixed(1)}% Vested
+            </Text>
+          </S.ProgressSummary>
+        </>
+      )}
     </S.Box>
   );
 };

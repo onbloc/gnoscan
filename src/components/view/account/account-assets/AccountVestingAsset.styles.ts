@@ -13,11 +13,34 @@ export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
   border-radius: 4px;
 `;
 
-export const Header = styled.div`
+export const HeaderButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   gap: 16px;
+`;
+
+export const Balance = styled.div`
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const Chevron = styled.span<{ $isExpanded: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(${({ $isExpanded }) => ($isExpanded ? "0deg" : "180deg")});
+  transition: transform 150ms ease;
 `;
 
 export const TokenInfo = styled.div`

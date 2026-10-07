@@ -132,41 +132,30 @@ const createHeaderBalance = () => {
     .width(220)
     .renderOption((balance, data) => (
       <BalanceCell>
-        {data.isVesting && <VestingLock vestingEndTime={data.vestingEndTime} />}
+        {data.isVesting && <VestingLock />}
         <DatatableItem.StandardNetworkAmount data={balance} />
       </BalanceCell>
     ))
     .build();
 };
 
-const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string | number | null }) => {
-  const date = parseVestingEndTime(vestingEndTime);
-  const content = date
-    ? `Vested until ${new Intl.DateTimeFormat("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-        timeZone: "UTC",
-      }).format(date)}`
-    : "Vesting account";
-
+const VestingLock = () => {
   return (
-    <Tooltip content={content}>
-      <span aria-label={content}>
+    <Tooltip content={<VestingTooltipContent />}>
+      <span aria-label="Vesting account">
         <IconLock />
       </span>
     </Tooltip>
   );
 };
 
-const parseVestingEndTime = (value?: string | number | null) => {
-  if (value == null) return null;
-
-  const unixSeconds = typeof value === "number" ? value : /^\d+$/.test(value) ? Number(value) : null;
-  const date = unixSeconds == null ? new Date(value) : new Date(unixSeconds * 1000);
-
-  return Number.isNaN(date.getTime()) ? null : date;
-};
+const VestingTooltipContent = () => (
+  <VestingTooltipText>
+    This account&apos;s genesis balance is subject to vesting.
+    <br />
+    Tokens vest over 24 months: Jan 1, 2026 – Jan 1, 2028.
+  </VestingTooltipText>
+);
 
 const createHeaderPercentage = () => {
   return DatatableOption.Builder.builder<AccountListItem>()
@@ -211,4 +200,12 @@ const BalanceCell = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+`;
+
+const VestingTooltipText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.tertiary};
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
 `;
