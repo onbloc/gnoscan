@@ -80,7 +80,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
 
   return (
     <S.Card breakpoint={breakpoint}>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary">
+      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
         Assets
       </Text>
       <S.GridLayout breakpoint={breakpoint}>
