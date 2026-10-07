@@ -4,6 +4,7 @@ export * from "./get-newest-realms-response";
 export * from "./get-summary-accounts-response";
 export * from "./get-summary-blocks-response";
 export * from "./get-summary-supply-response";
+export * from "./get-gnot-price-response";
 export * from "./get-summary-transactions-response";
 export * from "./get-total-daily-fees-response";
 export * from "./get-total-daily-transactions-response";

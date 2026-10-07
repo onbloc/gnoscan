@@ -1,19 +1,20 @@
 import React from "react";
 import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
-import { useGetGnotMarket, useGetSummarySupply } from "@/common/react-query/statistics";
+import { useGetGnotPrice, useGetSummarySupply } from "@/common/react-query/statistics";
 import { makeCompactNumber } from "@/common/utils/string-util";
 
-const formatPrice = (price: number) => `$${price.toFixed(4)}`;
+const formatPrice = (price: string) => `$${Number(price).toFixed(4)}`;
 
 const formatPriceChange = (change: number) => `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
 
 export const StandardNetworkSupplyCard = () => {
   const { data: supply, isFetched: isSupplyFetched } = useGetSummarySupply();
-  const { data: market, isFetched: isMarketFetched } = useGetGnotMarket();
-  const price = market?.current_price;
-  const priceChange = market?.price_change_percentage_24h;
-  const circulatingSupply = market?.circulating_supply;
+  const { data: market, isFetched: isMarketFetched } = useGetGnotPrice();
+  // An unpriced asset comes back with an empty price, which must not render as $0.0000.
+  const price = market?.data.price || null;
+  const priceChange = market?.data.changeRateOneDay;
+  const circulatingSupply = market?.data.circulatingSupply;
   const priceChangeColor = priceChange != null && priceChange >= 0 ? "green" : "failed";
 
   return (
@@ -40,7 +41,7 @@ export const StandardNetworkSupplyCard = () => {
       <DataBoxContainer>
         <BundleDl>
           <dt>
-            {/* GNOT circulating in the market, as reported by CoinGecko. Unlike Max Supply, it excludes locked or unreleased tokens. */}
+            {/* Circulating supply as self reported to CoinMarketCap. It is not derived from on-chain vesting, so it can lag the amount actually unlocked. */}
             <Text type="p4" color="tertiary">
               Circ.&nbsp;Supply
             </Text>
