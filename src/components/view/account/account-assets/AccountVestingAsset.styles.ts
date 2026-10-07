@@ -50,6 +50,10 @@ export const Balance = styled.div`
   flex: 0 0 auto;
   align-items: center;
   gap: 6px;
+
+  .vesting-lock path {
+    stroke: ${({ theme }) => theme.colors.tertiary};
+  }
 `;
 
 export const ExpandableContent = styled.div<{ $isExpanded: boolean }>`
@@ -89,7 +93,7 @@ export const LogoWrapper = styled.div`
 
 export const Divider = styled.div`
   height: 1px;
-  background-color: #33363c;
+  background-color: ${({ theme }) => theme.colors.vestingTrack};
 `;
 
 export const Details = styled.div`
@@ -109,14 +113,14 @@ export const ProgressTrack = styled.div<{ $disabled?: boolean }>`
   width: 100%;
   height: 8px;
   overflow: hidden;
-  background-color: ${({ theme, $disabled }) => ($disabled ? theme.colors.pantone : "#33363c")};
+  background-color: ${({ theme, $disabled }) => ($disabled ? theme.colors.pantone : theme.colors.vestingTrack)};
   border-radius: 999px;
 `;
 
 export const ProgressValue = styled.div<{ $progress: number }>`
   width: ${({ $progress }) => $progress}%;
   height: 100%;
-  background-color: #3edb9c;
+  background-color: ${({ theme }) => theme.colors.vestingProgress};
   border-radius: inherit;
 `;
 

@@ -54,7 +54,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
           </Text>
         </S.TokenInfo>
         <S.Balance>
-          <IconLockAsset aria-hidden="true" />
+          <IconLockAsset className="vesting-lock" aria-hidden="true" />
           <AmountText minSize="p4" maxSize="p3" color="tertiary" {...total} wrap={false} />
           <S.Chevron $isExpanded={isExpanded}>
             <IconChevron />
@@ -77,11 +77,11 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
             {!isDelayed && <S.ProgressValue $progress={progress} />}
           </S.ProgressTrack>
           <S.ProgressSummary>
-            <Text type="body1" color="tertiary" style={{ color: "#9BA0A8", fontFamily: "Inter, sans-serif" }}>
+            <Text type="body1" color="vestingMuted" style={{ fontFamily: "Inter, sans-serif" }}>
               {isDelayed ? `Unlocks on ${endDateText} (cliff)` : `Vested until ${endDateText}`}
             </Text>
             {!isDelayed && (
-              <Text type="body1" color="green" style={{ color: "#3EDB9C", fontFamily: "Inter, sans-serif" }}>
+              <Text type="body1" color="vestingProgress" style={{ fontFamily: "Inter, sans-serif" }}>
                 {progress.toFixed(1)}% Vested
               </Text>
             )}
@@ -94,7 +94,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
 
 const VestingRow = ({ label, amount }: { label: string; amount: { value: string; denom: string } }) => (
   <S.DetailRow>
-    <Text type="p4" color="tertiary" style={{ color: "#9BA0A8" }}>
+    <Text type="p4" color="vestingMuted">
       {label}
     </Text>
     <AmountText minSize="body1" maxSize="p4" {...amount} wrap={false} />

@@ -8,6 +8,9 @@ const lightTheme: Palette = {
   failed: "#FF4D4F",
   blue: "#2090F3",
   green: "#00C59A",
+  vestingMuted: "#999999",
+  vestingTrack: "rgba(0, 0, 0, 0.1)",
+  vestingProgress: "#00C59A",
   pending: "#9BA9BE",
   white: "#FFFFFF",
   reverse: "#000000",
@@ -40,6 +43,9 @@ const darkTheme: Palette = {
   failed: "#FF4D4F",
   blue: "#2090F3",
   green: "#00C59A",
+  vestingMuted: "#9BA0A8",
+  vestingTrack: "#33363C",
+  vestingProgress: "#3EDB9C",
   pending: "#9BA9BE",
   white: "#FFFFFF",
   reverse: "#FFFFFF",
@@ -167,6 +173,9 @@ export type PaletteKeyType =
   | "failed"
   | "blue"
   | "green"
+  | "vestingMuted"
+  | "vestingTrack"
+  | "vestingProgress"
   | "pending"
   | "white"
   | "reverse"
