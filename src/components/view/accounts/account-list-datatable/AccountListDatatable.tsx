@@ -140,10 +140,10 @@ const createHeaderBalance = () => {
 
 const VestingLock = ({ vestingEndTime }: { vestingEndTime?: string }) => {
   return (
-    <Tooltip content={<VestingTooltipContent vestingEndTime={vestingEndTime} />}>
-      <span aria-label="Vesting account">
-        <IconLock />
-      </span>
+    <Tooltip content={<VestingTooltipContent vestingEndTime={vestingEndTime} />} openOnFocus>
+      <VestingLockButton type="button" aria-label="Vesting account">
+        <IconLock aria-hidden="true" />
+      </VestingLockButton>
     </Tooltip>
   );
 };
@@ -207,6 +207,17 @@ const BalanceCell = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+`;
+
+const VestingLockButton = styled.button`
+  display: flex;
+  border-radius: 2px;
+  cursor: default;
+
+  &:focus-visible {
+    outline: 1px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
 `;
 
 const VestingTooltipText = styled.p`

@@ -18,6 +18,8 @@ interface TooltipProps {
   copyText?: string;
   contentWidth?: string;
   visible?: boolean;
+  // Also open on keyboard focus (hover trigger only)
+  openOnFocus?: boolean;
 }
 
 const Tooltip = ({
@@ -28,6 +30,7 @@ const Tooltip = ({
   width,
   copyText = "",
   visible = true,
+  openOnFocus = false,
 }: TooltipProps) => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const themeMode = useRecoilValue(themeState);
@@ -85,7 +88,7 @@ const Tooltip = ({
       ) : (
         <AntdTooltip
           zIndex={zindex.tooltip}
-          trigger="hover"
+          trigger={openOnFocus ? ["hover", "focus"] : "hover"}
           overlayInnerStyle={getTooltipStyle(width, 16)}
           color={getCurrentTheme().base}
           title={<TooltipWrapper>{content}</TooltipWrapper>}

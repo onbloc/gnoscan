@@ -2,7 +2,9 @@ import styled from "styled-components";
 
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
+// Spans the full grid row so expanding it never leaves gaps beside it
 export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
+  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 0;
