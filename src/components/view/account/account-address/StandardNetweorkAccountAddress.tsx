@@ -60,7 +60,7 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
               <>
                 <Divider size={1} length={18} orientation="vertical" />
                 <LinkWrapper onClick={handleValidatorLinkClick} rel="noreferrer">
-                  <Text type="p4" color="primary">
+                  <Text type="p4" color="blue">
                     {validatorInfo.name}
                   </Text>
                   {gnoWebUrl && <IconLink />}
