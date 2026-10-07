@@ -6,7 +6,6 @@ import * as S from "./TokenLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 
 interface TokenLayoutProps {
-  tokenId: string;
   tokenSummary: React.ReactNode;
   tokenTransactionInfo: React.ReactNode;
 }
