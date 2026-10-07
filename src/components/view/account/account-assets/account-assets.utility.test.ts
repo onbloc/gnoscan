@@ -1,5 +1,5 @@
 import { AccountAssetModel } from "@/repositories/api/account/response";
-import { isDisplayableAsset, splitAssetColumns } from "./account-assets.utility";
+import { ASSET_GRID_GAP, getAssetGridColumn, getAssetGridRowSpan, isDisplayableAsset } from "./account-assets.utility";
 
 const asset = (overrides: Partial<AccountAssetModel>) =>
   ({ tokenType: "GRC20", name: "Gnoswap", symbol: "GNS", ...overrides } as AccountAssetModel);
@@ -19,20 +19,20 @@ describe("isDisplayableAsset", () => {
   });
 });
 
-describe("splitAssetColumns", () => {
-  it("returns empty columns for no assets", () => {
-    expect(splitAssetColumns([])).toEqual([[], []]);
+describe("getAssetGridColumn", () => {
+  it("alternates columns in row-major order", () => {
+    // Grid rows: [native, a0], [a1, a2]
+    expect([0, 1, 2, 3].map(getAssetGridColumn)).toEqual([1, 2, 1, 2]);
+  });
+});
+
+describe("getAssetGridRowSpan", () => {
+  it("spans the rounded-up height plus the gap", () => {
+    expect(getAssetGridRowSpan(72)).toBe(72 + ASSET_GRID_GAP);
+    expect(getAssetGridRowSpan(72.2)).toBe(73 + ASSET_GRID_GAP);
   });
 
-  it("places the first asset beside the native token", () => {
-    expect(splitAssetColumns(["a0"])).toEqual([[], ["a0"]]);
-  });
-
-  it("keeps the 2-column grid row order", () => {
-    // Grid rows: [native, a0], [a1, a2], [a3, a4]
-    expect(splitAssetColumns(["a0", "a1", "a2", "a3", "a4"])).toEqual([
-      ["a1", "a3"],
-      ["a0", "a2", "a4"],
-    ]);
+  it("spans at least one row for empty cells", () => {
+    expect(getAssetGridRowSpan(0)).toBe(1 + ASSET_GRID_GAP);
   });
 });

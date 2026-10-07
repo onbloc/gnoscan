@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
 import Text from "@/components/ui/text";
+import { ASSET_GRID_GAP } from "./account-assets.utility";
 
 export const Card = styled.div<{ breakpoint: DEVICE_TYPE }>`
   display: flex;
@@ -25,10 +26,21 @@ export const GridLayout = styled.div<{ breakpoint: DEVICE_TYPE }>`
   grid-gap: 16px;
 `;
 
-export const AssetColumn = styled.div`
+// Masonry via 1px rows: each cell spans its measured height, so expanding one
+// cell only shifts its own column while the DOM stays row-major
+export const MasonryGrid = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1px;
+  grid-auto-flow: row dense;
+  column-gap: ${ASSET_GRID_GAP}px;
+  align-items: start;
+  margin-bottom: -${ASSET_GRID_GAP}px;
+`;
+
+export const GridCell = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 16px;
   min-width: 0;
 `;
 
