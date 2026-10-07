@@ -6,12 +6,14 @@ import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-m
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { AccountAssetViewModel } from "@/types/account";
+import { AccountVestingModel } from "@/repositories/api/account/response";
 
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
+import AccountVestingAsset from "./AccountVestingAsset";
 import * as S from "./AccountAssets.styles";
 
 interface AccountAssetsProps {
@@ -61,7 +63,12 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
         Assets
       </Text>
       <S.GridLayout breakpoint={breakpoint}>
-        <NativeTokenAsset address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
+        <NativeTokenAsset
+          address={address}
+          vesting={data?.data.vesting}
+          breakpoint={breakpoint}
+          isDesktop={isDesktop}
+        />
         {isFetched &&
           grc20TokenAssets.map((grc20TokenAsset: AccountAssetViewModel) => {
             return (
@@ -83,7 +90,12 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
   );
 };
 
-const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
+const NativeTokenAsset = ({
+  address,
+  vesting,
+  breakpoint,
+  isDesktop,
+}: AccountAssetsProps & { vesting?: AccountVestingModel }) => {
   const { data, isFetched } = useGetNativeTokenBalance(address);
 
   // Native denoms (e.g. ugnot) are not served by the token-meta API. Let
@@ -101,6 +113,10 @@ const NativeTokenAsset = ({ address, breakpoint, isDesktop }: AccountAssetsProps
       name: GNOTToken.name,
     };
   }, [data?.value]);
+
+  if (vesting) {
+    return <AccountVestingAsset vesting={vesting} breakpoint={breakpoint} isDesktop={isDesktop} />;
+  }
 
   return (
     <AccountAssetItem
