@@ -14,6 +14,7 @@ import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountVestingAsset from "./AccountVestingAsset";
+import { splitAssetColumns } from "./account-assets.utility";
 import * as S from "./AccountAssets.styles";
 
 interface AccountAssetsProps {
@@ -71,6 +72,8 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
     />
   );
 
+  const [leftColumnAssets, rightColumnAssets] = splitAssetColumns(grc20TokenAssets);
+
   const nativeTokenAsset = (
     <NativeTokenAsset address={address} vesting={data?.data.vesting} breakpoint={breakpoint} isDesktop={isDesktop} />
   );
@@ -85,11 +88,9 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
           <>
             <S.AssetColumn>
               {nativeTokenAsset}
-              {grc20TokenAssets.filter((_, index) => index % 2 === 1).map(renderGrc20Asset)}
+              {leftColumnAssets.map(renderGrc20Asset)}
             </S.AssetColumn>
-            <S.AssetColumn>
-              {grc20TokenAssets.filter((_, index) => index % 2 === 0).map(renderGrc20Asset)}
-            </S.AssetColumn>
+            <S.AssetColumn>{rightColumnAssets.map(renderGrc20Asset)}</S.AssetColumn>
           </>
         ) : (
           <>

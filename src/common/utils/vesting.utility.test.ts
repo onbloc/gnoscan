@@ -28,4 +28,10 @@ describe("formatVestingDate", () => {
     expect(formatVestingDate(GENESIS_VESTING_END)).toBe("Jan 1, 2028");
     expect(formatVestingDate(new Date("2027-07-01T00:00:00Z"))).toBe("Jul 1, 2027");
   });
+
+  it("supports the long month format used on the account detail", () => {
+    // Detail API sends RFC3339 end times
+    const endDate = parseVestingTime("2027-12-31T23:59:59Z");
+    expect(endDate && formatVestingDate(endDate, "long")).toBe("December 31, 2027");
+  });
 });

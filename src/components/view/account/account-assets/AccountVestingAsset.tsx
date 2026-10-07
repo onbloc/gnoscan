@@ -3,6 +3,7 @@ import React from "react";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { AccountVestingModel } from "@/repositories/api/account/response";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
 import { AmountText } from "@/components/ui/text/amount-text";
 import Text from "@/components/ui/text";
 
@@ -17,18 +18,6 @@ interface AccountVestingAssetProps {
   isDesktop: boolean;
 }
 
-const formatEndDate = (endTime: string) => {
-  const date = new Date(endTime);
-  if (Number.isNaN(date.getTime())) return "-";
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(date);
-};
-
 const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingAssetProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { getTokenAmount, getTokenImage, getTokenInfo } = useTokenMeta();
@@ -39,6 +28,8 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
   const originalVesting = getTokenAmount(GNOTToken.denom, vesting.originalVesting);
   const locked = getTokenAmount(GNOTToken.denom, vesting.locked);
   const progress = Math.min(100, Math.max(0, vesting.progress * 100));
+  const endDate = parseVestingTime(vesting.endTime);
+  const endDateText = endDate ? formatVestingDate(endDate, "long") : "-";
   const isDelayed = vesting.type === "delayed";
 
   return (
@@ -85,9 +76,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
           </S.ProgressTrack>
           <S.ProgressSummary>
             <Text type="body1" color="tertiary">
-              {isDelayed
-                ? `Unlocks on ${formatEndDate(vesting.endTime)} (cliff)`
-                : `Vested until ${formatEndDate(vesting.endTime)}`}
+              {isDelayed ? `Unlocks on ${endDateText} (cliff)` : `Vested until ${endDateText}`}
             </Text>
             {!isDelayed && (
               <Text type="body1" color="green">

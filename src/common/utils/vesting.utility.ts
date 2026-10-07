@@ -16,5 +16,5 @@ export const parseVestingTime = (value?: string | number | null): Date | null =>
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
-export const formatVestingDate = (date: Date) =>
-  new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(date);
+export const formatVestingDate = (date: Date, month: "short" | "long" = "short") =>
+  new Intl.DateTimeFormat("en-US", { month, day: "numeric", year: "numeric", timeZone: "UTC" }).format(date);
