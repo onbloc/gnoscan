@@ -39,6 +39,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
   const originalVesting = getTokenAmount(GNOTToken.denom, vesting.originalVesting);
   const locked = getTokenAmount(GNOTToken.denom, vesting.locked);
   const progress = Math.min(100, Math.max(0, vesting.progress * 100));
+  const isDelayed = vesting.type === "delayed";
 
   return (
     <S.Box breakpoint={breakpoint}>
@@ -68,27 +69,34 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
         </S.Balance>
       </S.HeaderButton>
 
-      {isExpanded && (
-        <>
+      <S.ExpandableContent $isExpanded={isExpanded} aria-hidden={!isExpanded}>
+        <S.ExpandableInner>
           <S.Divider />
           <S.Details>
             <VestingRow label="Spendable" amount={available} />
             <VestingRow label="Total Vesting Amount" amount={originalVesting} />
             <VestingRow label="Locked · Vesting" amount={locked} />
           </S.Details>
-          <S.ProgressTrack aria-label={`${progress.toFixed(1)}% vested`}>
-            <S.ProgressValue $progress={progress} />
+          <S.ProgressTrack
+            $disabled={isDelayed}
+            aria-label={isDelayed ? "Cliff vesting schedule" : `${progress.toFixed(1)}% vested`}
+          >
+            {!isDelayed && <S.ProgressValue $progress={progress} />}
           </S.ProgressTrack>
           <S.ProgressSummary>
             <Text type="body1" color="tertiary">
-              Vested until {formatEndDate(vesting.endTime)}
+              {isDelayed
+                ? `Unlocks on ${formatEndDate(vesting.endTime)} (cliff)`
+                : `Vested until ${formatEndDate(vesting.endTime)}`}
             </Text>
-            <Text type="body1" color="green">
-              {progress.toFixed(1)}% Vested
-            </Text>
+            {!isDelayed && (
+              <Text type="body1" color="green">
+                {progress.toFixed(1)}% Vested
+              </Text>
+            )}
           </S.ProgressSummary>
-        </>
-      )}
+        </S.ExpandableInner>
+      </S.ExpandableContent>
     </S.Box>
   );
 };
