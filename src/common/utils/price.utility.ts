@@ -9,7 +9,6 @@ export const GNOT_FEED_ASSET_ID = "gno-land";
 
 const GNOT_DENOM = "ugnot";
 const GNOSWAP_PROVIDER = "gnoswap";
-const MIN_DISPLAY_USD = new BigNumber("0.01");
 const USD_FORMAT: BigNumber.Format = { decimalSeparator: ".", groupSeparator: ",", groupSize: 3 };
 
 /** Price (USD decimal string) keyed by bare package path, "ugnot", or feed slug. */
@@ -53,18 +52,18 @@ export function getUsdValue(amount: BigNumber.Value, price: BigNumber.Value): Bi
   return value.isFinite() ? value : null;
 }
 
-/** "$1,234.56" (2 decimals, rounded down); non-zero values under a cent render as "<$0.01". */
+/** "$1,234.56": up to 2 decimals, rounded down, trailing zeros trimmed ("$1", "$1.1", sub-cent -> "$0"). */
 export function formatUsd(value: BigNumber.Value | null | undefined): string | null {
   if (value === null || value === undefined) return null;
 
   const usd = new BigNumber(value);
   if (!usd.isFinite()) return null;
 
-  const sign = usd.isNegative() ? "-" : "";
-  const abs = usd.abs();
-  if (!abs.isZero() && abs.lt(MIN_DISPLAY_USD)) return `${sign}<$0.01`;
+  // lt(0) rather than isNegative() so a truncated -0 renders as "$0".
+  const truncated = usd.decimalPlaces(2, BigNumber.ROUND_DOWN);
+  const sign = truncated.lt(0) ? "-" : "";
 
-  return `${sign}$${abs.toFormat(2, BigNumber.ROUND_DOWN, USD_FORMAT)}`;
+  return `${sign}$${truncated.abs().toFormat(USD_FORMAT)}`;
 }
 
 /** Formatted USD value of a token amount, or null when the token has no price. */

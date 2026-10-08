@@ -98,24 +98,30 @@ describe("getUsdValue", () => {
 });
 
 describe("formatUsd", () => {
-  it("formats with two decimals and thousands separators", () => {
+  it("formats with up to two decimals and thousands separators", () => {
     expect(formatUsd("12.32")).toBe("$12.32");
-    expect(formatUsd("1234567.8")).toBe("$1,234,567.80");
-    expect(formatUsd(new BigNumber(3))).toBe("$3.00");
+    expect(formatUsd("1234567.89")).toBe("$1,234,567.89");
+  });
+
+  it("trims trailing zeros", () => {
+    expect(formatUsd("1.00")).toBe("$1");
+    expect(formatUsd("1.10")).toBe("$1.1");
+    expect(formatUsd("1.004")).toBe("$1");
+    expect(formatUsd(new BigNumber(3))).toBe("$3");
   });
 
   it("rounds down past two decimals", () => {
     expect(formatUsd("1.129")).toBe("$1.12");
   });
 
-  it("shows sub-cent values as <$0.01 and zero as $0.00", () => {
-    expect(formatUsd("0.009")).toBe("<$0.01");
-    expect(formatUsd("0")).toBe("$0.00");
+  it("truncates sub-cent values to $0", () => {
+    expect(formatUsd("0.009")).toBe("$0");
+    expect(formatUsd("0")).toBe("$0");
   });
 
   it("keeps the sign of negative values", () => {
-    expect(formatUsd("-1.5")).toBe("-$1.50");
-    expect(formatUsd("-0.001")).toBe("-<$0.01");
+    expect(formatUsd("-1.5")).toBe("-$1.5");
+    expect(formatUsd("-0.001")).toBe("$0");
   });
 
   it("returns null for missing or invalid values", () => {
