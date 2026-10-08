@@ -103,7 +103,7 @@ const Wrapper = styled.footer<ModProps>`
   background-color: ${({ theme }) => theme.colors.base};
   margin-top: auto;
   padding: 24px 18px;
-  // Render both footers on the server and let CSS pick one so the footer does not pop in after hydration.
+  // CSS picks the footer so the server HTML matches the hydrated page.
   @media ${({ isDesktop }) => (isDesktop ? "(max-width: 1279px)" : "(min-width: 1280px)")} {
     display: none;
   }

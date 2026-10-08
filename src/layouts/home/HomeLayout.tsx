@@ -16,9 +16,7 @@ interface HomeLayoutProps {
 const HomeLayout = ({ mainCard, mainActiveList, mainRealm, mainTransactionNews }: HomeLayoutProps) => {
   const { breakpoint } = useWindowSize();
   const { currentNetwork, indexerQueryClient } = useNetworkProvider();
-  // The network resolves after hydration, so keep the sections (as skeletons) until it is known
-  // and hide them only when the resolved network has no indexer. Otherwise the server HTML ends
-  // after the first section and everything below, including the footer, jumps once they mount.
+  // The network resolves after hydration. Hide the sections only once it has no indexer.
   const showIndexerSections = !currentNetwork || Boolean(indexerQueryClient);
 
   return (

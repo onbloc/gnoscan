@@ -131,7 +131,7 @@ const Wrapper = styled.div<EntryProps>`
     flex-shrink: 0;
     cursor: pointer;
   }
-  // Switch layouts in CSS so the server HTML already matches the hydrated header.
+  // CSS picks the layout so the server HTML matches the hydrated header.
   .desktop-only,
   .not-desktop {
     display: contents;
