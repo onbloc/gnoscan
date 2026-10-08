@@ -83,7 +83,7 @@ export const StandardNetworkSupplyCard = () => {
               isFetched={isSupplyFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {supply?.data ? makeCompactNumber(supply.data.total).replace(".", ",") : "-"}
+                  {supply?.data ? `${makeCompactNumber(supply.data.total).replace(".", ",")} GNOT` : "-"}
                 </Text>
               }
             />
