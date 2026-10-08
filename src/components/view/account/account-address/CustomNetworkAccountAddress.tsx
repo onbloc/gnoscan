@@ -57,9 +57,4 @@ const CustomNetworkAccountAddress = ({ address }: AccountAddressProps) => {
   );
 };
 
-interface UsernameDependentComponentProps {
-  userName: string | null;
-  userUrl: string | null;
-}
-
 export default CustomNetworkAccountAddress;
