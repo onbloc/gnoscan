@@ -27,6 +27,7 @@ export interface NetworkData {
 interface StyleProps {
   entry?: boolean;
   toggle?: boolean;
+  menuOpen?: boolean;
   ref?: any;
 }
 
@@ -42,7 +43,15 @@ interface ConnectionErrorState {
   customIndexerUrl: boolean;
 }
 
-const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
+const Network = ({
+  entry,
+  menuOpen,
+  chains,
+  toggle,
+  toggleHandler,
+  networkSettingHandler,
+  setToggle,
+}: NetworkProps) => {
   const { currentNetwork, nodeRPCClient } = useNetworkProvider();
   const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
 
@@ -61,8 +70,8 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
   const isReverseColor = useMemo(() => {
     const isHome = pathname === "" || pathname === "/";
-    return isHome && isLight;
-  }, [pathname, isLight]);
+    return isHome && isLight && !menuOpen;
+  }, [pathname, isLight, menuOpen]);
 
   const availCustomConnect = useMemo(() => {
     if (connectionErrors.customRpcUrl || connectionErrors.customIndexerUrl || !customRpcUrl) {
@@ -128,7 +137,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
   }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
   return (
-    <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
+    <NetworkButton entry={entry} menuOpen={menuOpen} onClick={toggleHandler} ref={ref}>
       <NetworkInfoWrapper>
         {isReverseColor || isDark ? (
           <GnoscanSymbol className="svg-icon" />
@@ -215,7 +224,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 const NetworkButton = styled.button<StyleProps>`
   position: relative;
   display: flex;
-  background-color: ${({ entry }) => (entry ? theme.lightTheme.reverse : theme.lightTheme.base)};
+  // The button stays above the open mobile menu, so it takes the menu background then.
+  background-color: ${({ entry, menuOpen, theme: currentTheme }) =>
+    menuOpen ? currentTheme.colors.base : entry ? theme.lightTheme.reverse : theme.lightTheme.base};
   width: fit-content;
   height: 44px;
   border-radius: 12px;

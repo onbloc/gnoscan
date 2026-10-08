@@ -109,6 +109,7 @@ export const TopNav = () => {
 
       <Network
         entry={entry}
+        menuOpen={open}
         chains={chains}
         toggle={toggle}
         toggleHandler={toggleHandler}
