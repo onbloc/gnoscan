@@ -9,7 +9,7 @@ interface UsdValueTextProps {
   tokenKey: string;
   // Display units (decimals already applied).
   amount: BigNumber.Value;
-  // Defaults to a 4px gap after the preceding amount.
+  // Defaults to the detail summary gap after the preceding amount: one 12px space (~3px) per Figma.
   margin?: CSSProperties["margin"];
   // Defaults match detail summary fields (P4, primary); override to match surrounding text.
   type?: FontsType;
@@ -23,7 +23,7 @@ interface UsdValueTextProps {
 export const UsdValueText = ({
   tokenKey,
   amount,
-  margin = "0 0 0 4px",
+  margin = "0 0 0 3px",
   type = "p4",
   color = "primary",
   fontWeight,

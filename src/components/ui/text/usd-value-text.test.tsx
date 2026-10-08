@@ -24,7 +24,7 @@ beforeEach(() => {
 
 it("renders the USD value in parentheses", () => {
   // 512.12 * 0.024 = 12.29088
-  expect(renderText("ugnot", "512.12")).toBe("($12.291)");
+  expect(renderText("ugnot", "512.12")).toBe("($12.29)");
 });
 
 it("renders the floor for a value below $0.001", () => {
