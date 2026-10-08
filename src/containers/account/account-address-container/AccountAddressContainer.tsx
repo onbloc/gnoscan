@@ -17,7 +17,7 @@ const AccountAddressContainer = ({ address, validatorInfo }: AccountAddressConta
   const { isCustomNetwork } = useNetworkProvider();
 
   return isCustomNetwork ? (
-    <CustomNetworkAccountAddress breakpoint={breakpoint} isDesktop={isDesktop} address={address} />
+    <CustomNetworkAccountAddress isDesktop={isDesktop} address={address} />
   ) : (
     <StandardNetworkAccountAddress
       breakpoint={breakpoint}

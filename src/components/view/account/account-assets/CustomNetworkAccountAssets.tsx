@@ -51,7 +51,7 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
   }
 
   return (
-    <S.Card breakpoint={breakpoint}>
+    <S.Card>
       <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
         Assets
       </Text>
@@ -63,7 +63,6 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
                 key={`asset-token-${tokenAsset.amount.denom}`}
                 amount={tokenAsset.amount}
                 logoUrl={tokenAsset.logoUrl}
-                breakpoint={breakpoint}
                 isDesktop={isDesktop}
                 isFetched={isFetchedAssets}
               />

@@ -17,7 +17,7 @@ interface BlockLayoutProps {
 }
 
 const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
+  const { isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const { block, isFetched: isFetchedRpcData, isErrorBlock: isErrorRpcData } = useBlock(blockHeight);
@@ -44,21 +44,21 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
   if (isCustomNetwork && isFetchedRpcData && isErrorRpcData)
     return (
       <S.InnerLayout>
-        <NotFound keyword={`${blockHeight}`} breakpoint={breakpoint} />
+        <NotFound keyword={`${blockHeight}`} />
       </S.InnerLayout>
     );
 
   if (!isCustomNetwork && isFetchedApiData && (isErrorApiData || !apiBlock?.data))
     return (
       <S.InnerLayout>
-        <NotFound keyword={`${blockHeight}`} breakpoint={breakpoint} />
+        <NotFound keyword={`${blockHeight}`} />
       </S.InnerLayout>
     );
 
   return (
-    <S.Container breakpoint={breakpoint}>
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
+        <S.Wrapper>
           <S.TitleWrapper isDesktop={isDesktop}>
             <PageTitle type={isDesktop ? "h2" : "p2"} title={`Block #${blockHeight}`} />
             <TitleOption {...titleOptionProps} />

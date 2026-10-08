@@ -3,7 +3,6 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -21,20 +20,13 @@ const TOOLTIP_PACAKGE_PATH = (
 );
 
 interface TokenListTableProps {
-  breakpoint: DEVICE_TYPE;
   tokens: GRC20Info[] | GRC20InfoWithLogo[];
   hasNextPage: boolean;
   isFetched: boolean;
   nextPage: () => void;
 }
 
-export const CustomNetworkTokenListTable = ({
-  breakpoint,
-  tokens,
-  hasNextPage,
-  isFetched,
-  nextPage,
-}: TokenListTableProps) => {
+export const CustomNetworkTokenListTable = ({ tokens, hasNextPage, isFetched, nextPage }: TokenListTableProps) => {
   const { indexerQueryClient } = useNetworkProvider();
 
   const createHeaders = () => {
@@ -117,7 +109,7 @@ export const CustomNetworkTokenListTable = ({
       <Datatable headers={createHeaders()} datas={tokens} supported={!!indexerQueryClient} />
       {hasNextPage && (
         <div className="button-wrapper">
-          <ViewMoreButton variant="table" breakpoint={breakpoint} text="View More Tokens" onClick={() => nextPage()} />
+          <ViewMoreButton variant="table" text="View More Tokens" onClick={() => nextPage()} />
         </div>
       )}
     </CardTableContainer>

@@ -76,14 +76,13 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
       showTokenPathLink={true}
       tokenPath={grc20TokenAsset.packagePath}
       logoUrl={grc20TokenAsset.logoUrl}
-      breakpoint={breakpoint}
       isDesktop={isDesktop}
       isFetched={isFetched}
     />
   );
 
   return (
-    <S.Card breakpoint={breakpoint}>
+    <S.Card>
       <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
         Assets
       </Text>
@@ -94,7 +93,6 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
               balance={nativeBalance?.value}
               isFetched={isFetchedNativeBalance}
               vesting={vesting}
-              breakpoint={breakpoint}
               isDesktop={isDesktop}
             />
           )}
@@ -113,9 +111,8 @@ const NativeTokenAsset = ({
   balance,
   isFetched,
   vesting,
-  breakpoint,
   isDesktop,
-}: Omit<AccountAssetsProps, "address"> & {
+}: Omit<AccountAssetsProps, "address" | "breakpoint"> & {
   balance?: string;
   isFetched: boolean;
   vesting?: AccountVestingModel;
@@ -137,7 +134,7 @@ const NativeTokenAsset = ({
   }, [balance]);
 
   if (vesting) {
-    return <AccountVestingAsset vesting={vesting} breakpoint={breakpoint} isDesktop={isDesktop} />;
+    return <AccountVestingAsset vesting={vesting} isDesktop={isDesktop} />;
   }
 
   return (
@@ -146,7 +143,6 @@ const NativeTokenAsset = ({
       amount={nativeTokenAsset.amount}
       name={nativeTokenAsset.name}
       logoUrl={nativeTokenAsset.logoUrl}
-      breakpoint={breakpoint}
       isDesktop={isDesktop}
       isFetched={isFetched}
     />

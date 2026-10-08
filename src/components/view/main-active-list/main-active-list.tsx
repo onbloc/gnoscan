@@ -10,7 +10,6 @@ import { PaletteKeyType } from "@/styles";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import ActiveAccountApi from "./active-account/active-account-api";
 import ActiveLatestBlogs from "./active-latest-blogs/active-latest-blogs";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { SectionGrid } from "@/components/view/common/section-grid/SectionGrid.styles";
 import StandardNetworkActiveNewest from "./active-newest/StandardNetworkActiveNewest";
 
@@ -33,15 +32,11 @@ export const colWidth = {
   newest: ["52px", "101px", "101px", "101px", "101px", "102px"],
 };
 
-interface MainActiveListProps {
-  breakpoint: DEVICE_TYPE;
-}
-
-const MainActiveList = ({ breakpoint }: MainActiveListProps) => {
+const MainActiveList = () => {
   const { isCustomNetwork } = useNetworkProvider();
 
   return (
-    <Wrapper className={breakpoint}>
+    <Wrapper>
       {isCustomNetwork ? (
         <React.Fragment>
           <ActiveAccount />

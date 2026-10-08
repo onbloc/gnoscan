@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { media } from "@/common/values/ui.constant";
 
 export const Wrapper = styled.div`
   & {
@@ -53,7 +54,7 @@ export const Wrapper = styled.div`
     }
   }
 
-  &.desktop {
+  ${media.DESKTOP} {
     height: calc(100vh - 80px - 80px);
 
     .info-area {

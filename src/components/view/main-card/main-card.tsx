@@ -7,7 +7,7 @@ import { InfoTooltip } from "@/components/ui/tooltip/info-tooltip";
 import mixins from "@/styles/mixins";
 import React from "react";
 import styled from "styled-components";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 import { SectionGrid } from "@/components/view/common/section-grid/SectionGrid.styles";
 import { CustomNetworkSupplyCard } from "./cards/supply/CustomNetworkSupplyCard";
 import { StandardNetworkSupplyCard } from "./cards/supply/StandardNetworkSupplyCard";
@@ -19,13 +19,12 @@ import { StorageDepositCard } from "./cards/deposit/StorageDepositCard";
 import { CustomNetworkAccountCard } from "./cards/account/CustomNetworkAccountCard";
 
 interface MainCardProps {
-  breakpoint: DEVICE_TYPE;
   isCustomNetwork: boolean;
 }
 
-const MainCard = ({ breakpoint, isCustomNetwork }: MainCardProps) => {
+const MainCard = ({ isCustomNetwork }: MainCardProps) => {
   return (
-    <Wrapper className={breakpoint}>
+    <Wrapper>
       <StyledCard>
         <Text type="h5" color="primary" className="title-info">
           GNOT&nbsp;Supply
@@ -89,10 +88,10 @@ export const FetchedComp = ({
 };
 
 export const Wrapper = styled(SectionGrid)`
-  &.desktop {
+  ${media.DESKTOP} {
     grid-template-columns: repeat(4, 1fr);
   }
-  &.tablet {
+  ${media.TABLET} {
     grid-template-columns: 1fr 1fr;
   }
   .title-info {

@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { DEVICE_TYPE, media } from "@/common/values/ui.constant";
 
 import Text from "@/components/ui/text";
 import { ASSET_GRID_GAP } from "./account-assets.utility";
 
-export const Card = styled.div<{ breakpoint: DEVICE_TYPE }>`
+export const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -15,7 +15,11 @@ export const Card = styled.div<{ breakpoint: DEVICE_TYPE }>`
   background-color: ${({ theme }) => theme.colors.base};
   border-radius: 10px;
   width: 100%;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "24px" : "16px")};
+  padding: 16px;
+
+  ${media.DESKTOP} {
+    padding: 24px;
+  }
 `;
 
 export const GridLayout = styled.div<{ breakpoint: DEVICE_TYPE }>`
@@ -44,16 +48,20 @@ export const GridCell = styled.div`
   min-width: 0;
 `;
 
-export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
+export const Box = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   width: 100%;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "16px 24px" : "12px 16px")};
+  padding: 12px 16px;
 
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 4px;
+
+  ${media.DESKTOP} {
+    padding: 16px 24px;
+  }
 `;
 
 export const TokenInfo = styled.div`

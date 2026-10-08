@@ -16,7 +16,7 @@ interface TransactionLayoutProps {
 }
 
 const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: TransactionLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
+  const { isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const { isFetched: isFetchedRpc, isError: isErrorRpc } = useTransaction(txHash);
@@ -27,14 +27,14 @@ const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: Tran
   if (showNotFound)
     return (
       <S.InnerLayout>
-        <NotFound keyword={txHash} breakpoint={breakpoint} />
+        <NotFound keyword={txHash} />
       </S.InnerLayout>
     );
 
   return (
-    <S.Container breakpoint={breakpoint}>
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
+        <S.Wrapper>
           <PageTitle type={isDesktop ? "h2" : "p2"} title="Transaction Details" />
           {transactionSummary}
           {transactionInfo}

@@ -11,12 +11,12 @@ interface RealmLayoutProps {
 }
 
 const RealmLayout = ({ realmSummary, realmInfo }: RealmLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
+  const { isDesktop } = useWindowSize();
 
   return (
-    <S.Container breakpoint={breakpoint}>
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
+        <S.Wrapper>
           <PageTitle type={isDesktop ? "h2" : "p2"} title="Realm Details" />
           {realmSummary}
           {realmInfo}

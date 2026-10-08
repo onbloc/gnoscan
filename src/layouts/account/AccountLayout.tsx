@@ -38,7 +38,7 @@ const AccountLayout = ({
   accountAssets,
   accountTransactions,
 }: AccountLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
+  const { isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const { getAddress } = useUsername();
@@ -74,7 +74,7 @@ const AccountLayout = ({
   if (hasErrorCustomNetwork || hasErrorStandardNetwork)
     return (
       <S.InnerLayout>
-        <NotFound keyword={address} breakpoint={breakpoint} />
+        <NotFound keyword={address} />
       </S.InnerLayout>
     );
 
@@ -93,12 +93,10 @@ const AccountLayout = ({
 };
 
 const AccountFrame = ({ children }: { children: React.ReactNode }) => {
-  const { breakpoint } = useWindowSize();
-
   return (
-    <S.Container breakpoint={breakpoint}>
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>{children}</S.Wrapper>
+        <S.Wrapper>{children}</S.Wrapper>
       </S.InnerLayout>
     </S.Container>
   );

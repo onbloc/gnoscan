@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { Amount } from "@/types/data-type";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useNetwork } from "@/common/hooks/use-network";
 import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { resolveAccountAssetLogoUrl } from "./account-asset-item.utility";
@@ -29,7 +28,6 @@ interface AccountAssetItemProps {
   // Price lookup key when amount.denom is a display symbol rather than the token key (e.g. tokenId).
   priceTokenKey?: string;
   showTokenPathLink?: boolean;
-  breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
   isFetched: boolean;
 }
@@ -41,7 +39,6 @@ const AccountAssetItem = ({
   tokenPath,
   priceTokenKey,
   showTokenPathLink,
-  breakpoint,
   isDesktop,
   isFetched,
 }: AccountAssetItemProps) => {
@@ -78,7 +75,7 @@ const AccountAssetItem = ({
 
   if (!isFetched) {
     return (
-      <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
+      <S.Box key={`token-asset-${amount.denom}`}>
         <S.TokenInfo>
           <S.LogoWrapper>
             <SkeletonBar aria-label="Loading TokenImage" width={40} height={40} borderRadius={"100%"} />
@@ -95,7 +92,7 @@ const AccountAssetItem = ({
   }
 
   return (
-    <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
+    <S.Box key={`token-asset-${amount.denom}`}>
       <S.TokenInfo>
         <S.LogoWrapper>{tokenLogoImage}</S.LogoWrapper>
 

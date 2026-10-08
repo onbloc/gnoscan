@@ -2,7 +2,6 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import theme from "@/styles/theme";
 import AccountAssetItem from "./AccountAssetItem";
 
@@ -30,7 +29,6 @@ jest.mock("@/common/react-query/price", () => ({
 }));
 
 const baseProps = {
-  breakpoint: DEVICE_TYPE.DESKTOP,
   isDesktop: true,
   isFetched: true,
 };

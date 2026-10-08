@@ -1,26 +1,30 @@
 import styled from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 
 import { innerLayoutCss } from "@/styles/css/inner-layout";
 
-export const Container = styled.main<{ breakpoint: DEVICE_TYPE }>`
+export const Container = styled.main`
   width: 100%;
   flex: 1;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "40px 16px" : "24px 0px")};
+  padding: 24px 0px;
+
+  ${media.DESKTOP} {
+    padding: 40px 16px;
+  }
 `;
 
 export const InnerLayout = styled.div`
   ${innerLayoutCss}
 `;
 
-export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
+export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "24px" : "16px")};
+  gap: 16px;
 
   width: 100%;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "24px" : "16px")};
+  padding: 16px;
   border-radius: 10px;
 
   background-color: ${({ theme }) => theme.colors.surface};
@@ -31,5 +35,10 @@ export const Wrapper = styled.div<{ breakpoint: DEVICE_TYPE }>`
     height: 28px;
     justify-content: center;
     align-items: center;
+  }
+
+  ${media.DESKTOP} {
+    gap: 24px;
+    padding: 24px;
   }
 `;

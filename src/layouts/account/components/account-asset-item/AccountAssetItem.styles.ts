@@ -1,19 +1,23 @@
 import styled from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 
 import Text from "@/components/ui/text";
 
-export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
+export const Box = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   width: 100%;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "16px 24px" : "12px 16px")};
+  padding: 12px 16px;
 
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 4px;
+
+  ${media.DESKTOP} {
+    padding: 16px 24px;
+  }
 `;
 
 export const TokenInfo = styled.div`

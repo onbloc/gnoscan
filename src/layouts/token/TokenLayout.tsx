@@ -11,12 +11,12 @@ interface TokenLayoutProps {
 }
 
 const TokenLayout = ({ tokenSummary, tokenTransactionInfo }: TokenLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
+  const { isDesktop } = useWindowSize();
 
   return (
-    <S.Container breakpoint={breakpoint}>
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
+        <S.Wrapper>
           <PageTitle title="Token Details" type={isDesktop ? "h2" : "p2"} />
           {tokenSummary}
           {tokenTransactionInfo}

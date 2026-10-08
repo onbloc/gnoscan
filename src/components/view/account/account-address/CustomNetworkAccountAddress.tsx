@@ -1,7 +1,6 @@
 import React from "react";
 
 import { useNetwork } from "@/common/hooks/use-network";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
 
@@ -11,12 +10,11 @@ import AccountAddressSkeleton from "./AccountAddressSkeleton";
 import { Username } from "@/components/ui/username/Username";
 
 interface AccountAddressProps {
-  breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
   address: string;
 }
 
-const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: AccountAddressProps) => {
+const CustomNetworkAccountAddress = ({ isDesktop, address }: AccountAddressProps) => {
   const { currentNetwork } = useNetwork();
 
   const { isFetched: isFetchedUsername, isLoading: isLoadingUsername, getName, getAddress, getUserUrl } = useUsername();
@@ -64,7 +62,6 @@ const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Account
 };
 
 interface UsernameDependentComponentProps {
-  breakpoint: DEVICE_TYPE;
   userName: string | null;
   userUrl: string | null;
 }
