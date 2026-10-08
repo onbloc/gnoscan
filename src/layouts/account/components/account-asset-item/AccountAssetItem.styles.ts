@@ -10,6 +10,7 @@ export const Box = styled.div`
   justify-content: space-between;
 
   width: 100%;
+  min-width: 0;
   padding: 12px 16px;
 
   background-color: ${({ theme }) => theme.colors.surface};
@@ -32,9 +33,6 @@ export const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background-color: ${({ theme }) => theme.colors.base};
-  border-radius: 50%;
   flex: 0 0 40px;
 
   .logo-icon {
@@ -47,7 +45,9 @@ export const LogoWrapper = styled.div`
 `;
 
 export const TokenName = styled(Text)`
+  overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export const TokenDetails = styled.div`
