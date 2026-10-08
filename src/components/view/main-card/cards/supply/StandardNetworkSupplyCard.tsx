@@ -25,10 +25,22 @@ export const StandardNetworkSupplyCard = () => {
         skeletonMargin="10px 0px 24px"
         isFetched={isMarketFetched}
         renderComp={
-          <Text type="h3" color="primary" display="flex" margin="10px 0px 24px" style={{ alignItems: "center" }}>
+          <Text
+            type="h3"
+            color="primary"
+            display="flex"
+            margin="10px 0px 24px"
+            fontWeight={600}
+            style={{ alignItems: "center" }}
+          >
             {price != null ? formatPrice(price) : "-"}
             {priceChange != null && (
-              <Text type="body2" color={priceChangeColor} margin="0px 0px 0px 6px">
+              <Text
+                type="body2"
+                color={priceChangeColor}
+                margin="0px 0px 0px 6px"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
                 <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor}>
                   {formatPriceChange(priceChange)}
                 </Text>{" "}
