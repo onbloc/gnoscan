@@ -190,8 +190,9 @@ export const StorageDepositAmountBadge = ({
   return (
     <BadgeText>
       <StorageDepositText
-        minSize="body2"
+        minSize="body1"
         maxSize="p4"
+        denomSize="body1"
         {...toGNOTAmount(displayStorageDepositData.value, displayStorageDepositData.denom)}
         sizeInBytes={storageDeposit?.storage || 0}
         visibleStorageSize={visibleStorageSize}

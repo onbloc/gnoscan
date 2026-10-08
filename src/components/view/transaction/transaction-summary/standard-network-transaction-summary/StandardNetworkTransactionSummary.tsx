@@ -136,8 +136,9 @@ const StandardNetworkTransactionSummary = ({
         <Field label="Transaction Fee" isDesktop={isDesktop}>
           <Badge>
             <AmountText
-              minSize="body2"
+              minSize="body1"
               maxSize="p4"
+              denomSize="body2"
               value={transactionFee?.value || "0"}
               denom={transactionFee?.denom || GNOTToken.symbol}
             />

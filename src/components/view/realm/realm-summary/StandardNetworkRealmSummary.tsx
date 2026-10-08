@@ -277,7 +277,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
       >
         {realmBalanceList.map((amount, index) => (
           <Badge key={`${amount.denom}-${index}`}>
-            <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
+            <AmountText minSize="body1" maxSize="p4" denomSize="body2" value={amount.value} denom={amount.denom} />
             <UsdValueText tokenKey={amount.tokenKey} amount={amount.value} />
           </Badge>
         ))}
@@ -290,6 +290,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           <AmountText
             minSize="body1"
             maxSize="p4"
+            denomSize="body2"
             value={realmTotalUsedFees?.value || "0"}
             denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
           />
@@ -301,6 +302,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           <StorageDepositText
             minSize="body1"
             maxSize="p4"
+            denomSize="body1"
             value={displayStorageDepositAmount.value}
             denom={displayStorageDepositAmount.denom}
             sizeInBytes={storageDepositData?.storage || 0}

@@ -260,17 +260,26 @@ export const RealmLink = ({
   );
 };
 
-// USD value after the token chip, styled like the sentence verb ("Transfer", "Approve").
-// SummaryLine's flex gap provides the spacing.
-const SummaryUsdValue = ({ tokenKey, amount }: { tokenKey: string; amount: string }) => (
+// USD value after the token chip. Use the existing summary price color in both
+// the compact transfer lists and top summary sentences.
+// The parent line's flex gap provides the spacing.
+const SummaryUsdValue = ({
+  tokenKey,
+  amount,
+  compact = false,
+}: {
+  tokenKey: string;
+  amount: string;
+  compact?: boolean;
+}) => (
   <UsdValueText
     tokenKey={tokenKey}
     amount={amount}
-    type="p2"
+    type={compact ? "p4" : "p2"}
     color="tertiary"
     fontWeight={400}
     margin="0"
-    style={SUMMARY_LINE_HEIGHT}
+    style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
   />
 );
 
@@ -328,7 +337,7 @@ const TokenAmountDisplay = ({
             <UnknownToken className="token-icon" width="16" height="16" />
           )}
         </TokenChip>
-        {!compact && <SummaryUsdValue tokenKey={tokenKey} amount={displayAmount.value} />}
+        <SummaryUsdValue tokenKey={tokenKey} amount={displayAmount.value} compact={compact} />
       </>
     );
   }
@@ -373,7 +382,7 @@ const TokenAmountDisplay = ({
           )}
         </TokenChip>
       </Link>
-      {!compact && <SummaryUsdValue tokenKey={tokenKey} amount={displayValue} />}
+      <SummaryUsdValue tokenKey={tokenKey} amount={displayValue} compact={compact} />
     </>
   );
 };
