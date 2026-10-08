@@ -13,7 +13,7 @@ import { searchState, themeState } from "@/states";
 import mixins from "@/styles/mixins";
 import theme from "@/styles/theme";
 import Link from "next/link";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { SubMenu } from "./sub-menu";
@@ -59,6 +59,14 @@ export const TopNav = () => {
   const [toggle, setToggle] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
+
+  // The mobile menu is portaled outside the header, so close it (and release its scroll lock) on desktop.
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1280px)");
+    const closeOnDesktop = (e: MediaQueryListEvent) => e.matches && setOpen(false);
+    desktopQuery.addEventListener("change", closeOnDesktop);
+    return () => desktopQuery.removeEventListener("change", closeOnDesktop);
+  }, []);
   const navigateToHomeHandler = () => router.push("/");
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
 
