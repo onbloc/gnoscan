@@ -57,7 +57,7 @@ export const DetailsContainer = styled.div<StyleProps>`
         border-radius: 14px;
         background-color: ${({ theme }) => theme.colors.surface};
 
-        @media (max-width: 1279px) {
+        ${media.NOT_DESKTOP} {
           min-width: 24px;
           height: 24px;
         }

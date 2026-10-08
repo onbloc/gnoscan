@@ -62,7 +62,7 @@ export const BtmNav = () => {
           </StretchOut>
         </Wrapper>
       ) : (
-        <Wrapper className="not-desktop" isMain={entry}>
+        <Wrapper className="hide-desktop" isMain={entry}>
           <SubInput value={value} onChange={onChange} clearValue={clearValue} />
         </Wrapper>
       )}
@@ -76,11 +76,6 @@ const Wrapper = styled.div<{ isMain: boolean }>`
   height: ${({ isMain }) => (isMain ? "256px" : "64px")};
   padding: ${({ isMain }) => !isMain && "8px 0px 16px"};
   width: 100%;
-  &.not-desktop {
-    @media (min-width: 1280px) {
-      display: none;
-    }
-  }
   .main-search {
     width: 100%;
     max-width: 910px;

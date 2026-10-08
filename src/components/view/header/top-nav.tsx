@@ -16,6 +16,7 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
+import { DEVICE_SIZE_THRESHOLDS, media } from "@/common/values/ui.constant";
 import { SubMenu } from "./sub-menu";
 
 interface EntryProps {
@@ -62,7 +63,7 @@ export const TopNav = () => {
 
   // The mobile menu is portaled outside the header, so close it (and release its scroll lock) on desktop.
   useEffect(() => {
-    const desktopQuery = window.matchMedia("(min-width: 1280px)");
+    const desktopQuery = window.matchMedia(`(min-width: ${DEVICE_SIZE_THRESHOLDS.DESKTOP}px)`);
     const closeOnDesktop = (e: MediaQueryListEvent) => e.matches && setOpen(false);
     desktopQuery.addEventListener("change", closeOnDesktop);
     return () => desktopQuery.removeEventListener("change", closeOnDesktop);
@@ -92,7 +93,7 @@ export const TopNav = () => {
       ) : (
         <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
       )}
-      <div className="desktop-only">
+      <div className="only-desktop">
         {!isMain && (
           <SubInput className="sub-search" value={value} onChange={onChange} clearValue={() => setValue("")} />
         )}
@@ -115,7 +116,7 @@ export const TopNav = () => {
         networkSettingHandler={networkSettingHandler}
         setToggle={setToggle}
       />
-      <div className="not-desktop">
+      <div className="hide-desktop">
         <SubMenu
           entry={entry}
           open={open}
@@ -140,19 +141,11 @@ const Wrapper = styled.div<EntryProps>`
     cursor: pointer;
   }
   // CSS picks the layout so the server HTML matches the hydrated header.
-  .desktop-only,
-  .not-desktop {
+  .only-desktop,
+  .hide-desktop {
     display: contents;
   }
-  @media (min-width: 1280px) {
-    .not-desktop {
-      display: none;
-    }
-  }
-  @media (max-width: 1279px) {
-    .desktop-only {
-      display: none;
-    }
+  ${media.NOT_DESKTOP} {
     .logo-icon {
       margin-right: auto;
     }
