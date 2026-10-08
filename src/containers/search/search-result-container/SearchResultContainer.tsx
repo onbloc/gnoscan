@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
-
 import NotFound from "@/components/view/search/not-found/NotFound";
 
 interface SearchResultContainerProps {
@@ -9,9 +7,7 @@ interface SearchResultContainerProps {
 }
 
 const SearchResultContainer = ({ keyword }: SearchResultContainerProps) => {
-  const { breakpoint } = useWindowSize();
-
-  return <NotFound keyword={keyword} breakpoint={breakpoint} />;
+  return <NotFound keyword={keyword} />;
 };
 
 export default SearchResultContainer;

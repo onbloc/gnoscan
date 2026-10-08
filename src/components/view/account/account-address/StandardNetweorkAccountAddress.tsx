@@ -3,7 +3,6 @@ import React from "react";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { ValidatorInfo } from "@/layouts/account/AccountLayout";
 
 import IconLink from "@/assets/svgs/icon-link.svg";
@@ -15,13 +14,11 @@ import * as S from "./AccountAddress.styles";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
 
 interface AccountAddressProps {
-  breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
   address: string;
   validatorInfo?: ValidatorInfo | null;
 }
 
-const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: AccountAddressProps) => {
+const StandardNetworkAccountAddress = ({ address, validatorInfo }: AccountAddressProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
   const { gnoWebUrl } = useNetwork();
 
@@ -40,18 +37,16 @@ const StandardNetworkAccountAddress = ({ isDesktop, address, validatorInfo }: Ac
   }, [gnoWebUrl, validatorInfo?.operationAddress]);
 
   if (isLoading || !isFetched) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountAddressSkeleton />;
   }
 
   return (
-    <S.Card isDesktop={isDesktop}>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
-        Address
-      </Text>
-      <S.Box isDesktop={isDesktop}>
+    <S.Card>
+      <S.CardTitle aria-label="title">Address</S.CardTitle>
+      <S.Box>
         <S.AccountWrapper>
-          <S.ContentWrapper isDesktop={isDesktop}>
-            <S.Content type={isDesktop ? "p3" : "p4"} color="primary">
+          <S.ContentWrapper>
+            <S.Content type="p4" desktopType="p3" color="primary">
               {address}
               {label && ` (${label})`}
               <S.CopyTooltip variant="plain" copyText={address || ""} />

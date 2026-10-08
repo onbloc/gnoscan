@@ -2,7 +2,6 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import theme from "@/styles/theme";
 import AccountVestingAsset from "./AccountVestingAsset";
 
@@ -46,7 +45,7 @@ describe("AccountVestingAsset", () => {
 
     const markup = renderToStaticMarkup(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-        <AccountVestingAsset vesting={vesting} breakpoint={DEVICE_TYPE.DESKTOP} isDesktop={true} />
+        <AccountVestingAsset vesting={vesting} />
       </ThemeProvider>,
     ).replace(/<[^>]*>/g, "");
 
@@ -59,7 +58,7 @@ describe("AccountVestingAsset", () => {
 
     const markup = renderToStaticMarkup(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-        <AccountVestingAsset vesting={vesting} breakpoint={DEVICE_TYPE.DESKTOP} isDesktop={true} />
+        <AccountVestingAsset vesting={vesting} />
       </ThemeProvider>,
     ).replace(/<[^>]*>/g, "");
 

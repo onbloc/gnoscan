@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { ViewMoreButton } from "@/components/ui/button";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { ActivityRow } from "@/models/api/activity/activity-model";
 import { DatatableItem } from "..";
@@ -38,7 +37,6 @@ const TOOLTIP_TYPE = (
 );
 
 export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextPage, moreLabel }: Props) => {
-  const { breakpoint } = useWindowSize();
   const { getTokenAmount } = useTokenMeta();
 
   const headers = useMemo(() => {
@@ -211,9 +209,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
   return (
     <FlushTableContainer>
       <Datatable loading={!isFetched} headers={headers} datas={data} />
-      {hasNextPage && nextPage && (
-        <ViewMoreButton variant="table" breakpoint={breakpoint} text={moreLabel} onClick={() => nextPage()} />
-      )}
+      {hasNextPage && nextPage && <ViewMoreButton variant="table" text={moreLabel} onClick={() => nextPage()} />}
     </FlushTableContainer>
   );
 };

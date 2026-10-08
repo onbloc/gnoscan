@@ -1,7 +1,6 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 
 import * as S from "./HomeLayout.styles";
 import IndexerClientConnectionFailureNotice from "./components/indexer-client-connection-failure-notice/IndexerClientConnectionFailureNotice";
@@ -14,14 +13,13 @@ interface HomeLayoutProps {
 }
 
 const HomeLayout = ({ mainCard, mainActiveList, mainRealm, mainTransactionNews }: HomeLayoutProps) => {
-  const { breakpoint } = useWindowSize();
   const { currentNetwork, indexerQueryClient } = useNetworkProvider();
   // The network resolves after hydration. Hide the sections only once it has no indexer.
   const showIndexerSections = !currentNetwork || Boolean(indexerQueryClient);
 
   return (
-    <S.Container breakpoint={breakpoint}>
-      <S.Wrapper breakpoint={breakpoint}>
+    <S.Container>
+      <S.Wrapper>
         {mainCard}
         {showIndexerSections && (
           <IndexerDependentComponents

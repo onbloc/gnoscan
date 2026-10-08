@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from "react";
 import Link from "next/link";
 import BigNumber from "bignumber.js";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { getLocalDateString } from "@/common/utils/date-util";
 import { useGetMonthlyActiveAccounts } from "@/common/react-query/statistics";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -10,7 +9,6 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ActiveAccountModel } from "@/repositories/api/statistics/response";
 import { textEllipsis } from "@/common/utils/string-util";
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { truncateDashboardUsername } from "@/common/utils/common.utility";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
@@ -23,7 +21,6 @@ import FetchedSkeleton from "../fetched-skeleton";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 
 const ActiveAccountApi = () => {
-  const { breakpoint } = useWindowSize();
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetMonthlyActiveAccounts();
@@ -52,8 +49,8 @@ const ActiveAccountApi = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Monthly Active Accounts
-        {breakpoint !== DEVICE_TYPE.MOBILE && loaded && (
-          <Text type="body1" color="tertiary">
+        {loaded && (
+          <Text className="hide-mobile" type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
@@ -97,8 +94,8 @@ const ActiveAccountApi = () => {
       ) : (
         <FetchedSkeleton />
       )}
-      {breakpoint === DEVICE_TYPE.MOBILE && loaded && (
-        <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
+      {loaded && (
+        <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}

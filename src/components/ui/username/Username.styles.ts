@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 import Text from "@/components/ui/text";
 
 const flexStyle = css`
@@ -9,15 +9,18 @@ const flexStyle = css`
   gap: 5px;
 `;
 
-export const ContentWrapper = styled.div<{ isDesktop: boolean }>`
+export const ContentWrapper = styled.div`
   ${flexStyle};
-  gap: ${({ isDesktop }) => (isDesktop ? "20px" : "10px")};
+  gap: 10px;
   a {
     ${flexStyle}
   }
+  ${media.DESKTOP} {
+    gap: 20px;
+  }
 `;
 
-export const Username = styled(Text)<{ breakpoint: DEVICE_TYPE }>`
+export const Username = styled(Text)`
   position: relative;
   display: flex;
   align-items: center;

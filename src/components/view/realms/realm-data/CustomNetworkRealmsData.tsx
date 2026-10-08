@@ -4,16 +4,14 @@ import { useRealms } from "@/common/hooks/realms/use-realms";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { RealmListSortOption } from "@/common/types/realm";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { CustomNetworkRealmListTable } from "../realm-list-table/custom-network-realm-list-table/CustomNetworkRealmListTable";
 
 interface CustomNetworkRealmsDataProps {
-  breakpoint: DEVICE_TYPE;
   sortOption: RealmListSortOption;
   setSortOption: (sortOption: RealmListSortOption) => void;
 }
 
-const CustomNetworkRealmsData = ({ breakpoint, sortOption, setSortOption }: CustomNetworkRealmsDataProps) => {
+const CustomNetworkRealmsData = ({ sortOption, setSortOption }: CustomNetworkRealmsDataProps) => {
   const { isFetched: isFetchedUsername, getName } = useUsername();
 
   const {
@@ -27,7 +25,6 @@ const CustomNetworkRealmsData = ({ breakpoint, sortOption, setSortOption }: Cust
 
   return (
     <CustomNetworkRealmListTable
-      breakpoint={breakpoint}
       sortOption={sortOption}
       setSortOption={setSortOption}
       realms={realms}

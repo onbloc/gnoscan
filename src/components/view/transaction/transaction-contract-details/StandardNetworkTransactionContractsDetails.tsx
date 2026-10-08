@@ -27,10 +27,9 @@ import * as S from "./TransactionContractDetails.styles";
 export const StandardNetworkTransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
   rawTransaction: Transaction | null;
-  isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
   storageDepositInfo?: StorageDeposit | null;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, rawTransaction }) => {
+}> = ({ transactionItem, getUrlWithNetwork, rawTransaction }) => {
   const messages: TransactionContractModel[] = React.useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
@@ -84,25 +83,16 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           )}
 
           {message.messageType === MESSAGE_TYPES.BANK_MSG_SEND && (
-            <StandardNetworkBankMsgSendMessage
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
+            <StandardNetworkBankMsgSendMessage message={message} getUrlWithNetwork={getUrlWithNetwork} />
           )}
 
           {message.messageType === MESSAGE_TYPES.VM_CALL && (
-            <StandardNetworkMsgCallMessage
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
+            <StandardNetworkMsgCallMessage message={message} getUrlWithNetwork={getUrlWithNetwork} />
           )}
 
           {message.messageType === MESSAGE_TYPES.VM_ADDPKG && (
             <StandardNetworkAddPackageMessage
               message={message}
-              isDesktop={isDesktop}
               files={getMessageFiles(i) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
@@ -111,43 +101,26 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           {message.messageType === MESSAGE_TYPES.VM_RUN && (
             <StandardNetworkMsgRunMessage
               message={message}
-              isDesktop={isDesktop}
               files={getMessageFiles(i) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
 
           {message.messageType === MESSAGE_TYPES.AUTH_CREATE_SESSION && (
-            <StandardNetworkCreateSessionMessage
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
+            <StandardNetworkCreateSessionMessage message={message} getUrlWithNetwork={getUrlWithNetwork} />
           )}
 
           {(message.messageType === MESSAGE_TYPES.AUTH_REVOKE_SESSION ||
             message.messageType === MESSAGE_TYPES.AUTH_REVOKE_ALL_SESSIONS) && (
-            <StandardNetworkRevokeSessionMessage
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
+            <StandardNetworkRevokeSessionMessage message={message} getUrlWithNetwork={getUrlWithNetwork} />
           )}
 
           {isEnablePackageMessageType(message.messageType) && (
-            <StandardNetworkEnablePackageMessage
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
+            <StandardNetworkEnablePackageMessage message={message} getUrlWithNetwork={getUrlWithNetwork} />
           )}
 
           {isRejectPackageMessageType(message.messageType) && (
-            <StandardNetworkRejectPackageMessage
-              message={message}
-              isDesktop={isDesktop}
-              getUrlWithNetwork={getUrlWithNetwork}
-            />
+            <StandardNetworkRejectPackageMessage message={message} getUrlWithNetwork={getUrlWithNetwork} />
           )}
         </S.ContractListBox>
       ))}

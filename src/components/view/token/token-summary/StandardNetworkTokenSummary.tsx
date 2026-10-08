@@ -22,7 +22,6 @@ import PublicFunctions from "@/components/ui/public-functions";
 
 interface TokenSummaryProps {
   tokenId: string;
-  isDesktop: boolean;
 }
 
 const TOOLTIP_PACKAGE_PATH = (
@@ -32,7 +31,7 @@ const TOOLTIP_PACKAGE_PATH = (
   </>
 );
 
-const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) => {
+const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetTokenById(tokenId);
@@ -87,19 +86,19 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
 
   return (
     <DataSection title="Summary">
-      <Field label="Name" isDesktop={isDesktop}>
+      <Field label="Name">
         <Badge>{tokenSummary?.name}</Badge>
       </Field>
-      <Field label="Symbol" isDesktop={isDesktop}>
+      <Field label="Symbol">
         <Badge>{tokenSummary?.symbol}</Badge>
       </Field>
-      <Field label="Total Supply" isDesktop={isDesktop}>
+      <Field label="Total Supply">
         <Badge>{makeDisplayNumber(tokenSummary?.totalSupply || 0)}</Badge>
       </Field>
-      <Field label="Decimals" isDesktop={isDesktop}>
+      <Field label="Decimals">
         <Badge>{tokenSummary?.decimals}</Badge>
       </Field>
-      <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+      <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <Badge>
           <Text type="p4" color="blue" className="username-text">
             <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${tokenSummary?.packagePath}`)}>
@@ -109,7 +108,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
           <CopyTooltip variant="path" copyText={tokenSummary?.packagePath} />
         </Badge>
       </FieldWithTooltip>
-      <DLWrap desktop={isDesktop}>
+      <DLWrap>
         <dt>Public Functions</dt>
         <PublicFunctions>
           {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
@@ -121,7 +120,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
           ))}
         </PublicFunctions>
       </DLWrap>
-      <Field label="Owner" isDesktop={isDesktop}>
+      <Field label="Owner">
         <Badge>
           {tokenSummary?.owner && tokenSummary?.owner === "genesis" ? (
             <Text type="p4" color="blue" className="ellipsis">
@@ -142,7 +141,7 @@ const StandardNetworkTokenSummary = ({ tokenId, isDesktop }: TokenSummaryProps) 
           )}
         </Badge>
       </Field>
-      <Field label="Holders" isDesktop={isDesktop}>
+      <Field label="Holders">
         <Badge>{makeDisplayNumber(tokenSummary?.holders || 0)}</Badge>
       </Field>
       {files && files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Logs" />}

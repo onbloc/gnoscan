@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useUsername } from "@/common/hooks/account/use-username";
@@ -38,7 +37,6 @@ function mapDisplayFunctionName(type: string, functionName: string) {
 }
 
 interface CustomNetworkTransactionListTableProps {
-  breakpoint: DEVICE_TYPE;
   transactions: Transaction[];
   hasNextPage: boolean;
   isFetched: boolean;
@@ -47,7 +45,6 @@ interface CustomNetworkTransactionListTableProps {
 }
 
 export const CustomNetworkTransactionListTable = ({
-  breakpoint,
   transactions,
   hasNextPage,
   nextPage,
@@ -166,12 +163,7 @@ export const CustomNetworkTransactionListTable = ({
       <Datatable headers={createHeaders()} datas={transactions as TransactionWithTime[]} />
       {hasNextPage && (
         <div className="button-wrapper">
-          <ViewMoreButton
-            variant="table"
-            breakpoint={breakpoint}
-            text="View More Transactions"
-            onClick={() => nextPage()}
-          />
+          <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />
         </div>
       )}
     </CardTableContainer>

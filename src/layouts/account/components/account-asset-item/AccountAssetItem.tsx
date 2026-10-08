@@ -1,10 +1,8 @@
 import React from "react";
-import dynamic from "next/dynamic";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { Amount } from "@/types/data-type";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useNetwork } from "@/common/hooks/use-network";
 import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { resolveAccountAssetLogoUrl } from "./account-asset-item.utility";
@@ -17,10 +15,6 @@ import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import Text from "@/components/ui/text";
 import IconLink from "@/assets/svgs/icon-link.svg";
 
-const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
-  ssr: false,
-});
-
 interface AccountAssetItemProps {
   amount: Amount;
   name?: string;
@@ -29,8 +23,6 @@ interface AccountAssetItemProps {
   // Price lookup key when amount.denom is a display symbol rather than the token key (e.g. tokenId).
   priceTokenKey?: string;
   showTokenPathLink?: boolean;
-  breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
   isFetched: boolean;
 }
 
@@ -41,8 +33,6 @@ const AccountAssetItem = ({
   tokenPath,
   priceTokenKey,
   showTokenPathLink,
-  breakpoint,
-  isDesktop,
   isFetched,
 }: AccountAssetItemProps) => {
   const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
@@ -78,13 +68,13 @@ const AccountAssetItem = ({
 
   if (!isFetched) {
     return (
-      <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
+      <S.Box key={`token-asset-${amount.denom}`}>
         <S.TokenInfo>
           <S.LogoWrapper>
             <SkeletonBar aria-label="Loading TokenImage" width={40} height={40} borderRadius={"100%"} />
           </S.LogoWrapper>
 
-          <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
+          <S.TokenName type="p4" desktopType="p3" color="primary">
             <SkeletonBar width="100%" height={20} />
           </S.TokenName>
         </S.TokenInfo>
@@ -95,21 +85,19 @@ const AccountAssetItem = ({
   }
 
   return (
-    <S.Box key={`token-asset-${amount.denom}`} breakpoint={breakpoint}>
+    <S.Box key={`token-asset-${amount.denom}`}>
       <S.TokenInfo>
         <S.LogoWrapper>{tokenLogoImage}</S.LogoWrapper>
 
-        <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
+        <S.TokenName type="p4" desktopType="p3" color="primary">
           {name || getTokenInfo(amount.denom)?.name || ""}
           {shouldShowTokenPathLink && (
-            <NonMobile>
-              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
-                <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
-                  {displayTokenPath}
-                </Text>
-                <IconLink className="icon-link" />
-              </LinkWrapper>
-            </NonMobile>
+            <LinkWrapper className="hide-mobile" target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
+              <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
+                {displayTokenPath}
+              </Text>
+              <IconLink className="icon-link" />
+            </LinkWrapper>
           )}
         </S.TokenName>
       </S.TokenInfo>
@@ -117,7 +105,7 @@ const AccountAssetItem = ({
         {isLoadingPrice ? (
           <SkeletonBar width={80} height={20} />
         ) : (
-          <Text type={isDesktop ? "p3" : "p4"} color="primary">
+          <Text type="p4" desktopType="p3" color="primary">
             {usdValue || "-"}
           </Text>
         )}

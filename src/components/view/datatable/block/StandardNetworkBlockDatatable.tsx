@@ -3,7 +3,6 @@
 import React from "react";
 
 import { numberWithCommas } from "@/common/utils";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { formatDate } from "@/common/utils/date-util";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -13,7 +12,6 @@ import { Block } from "@/types/data-type";
 import { ViewMoreButton } from "@/components/ui/button";
 
 interface BlockDatatableProps {
-  breakpoint: DEVICE_TYPE;
   data: Block[];
   isError: boolean;
   hasNextPage: boolean | undefined;
@@ -21,13 +19,7 @@ interface BlockDatatableProps {
   fetchNextPage: () => void;
 }
 
-export const StandardNetworkBlockDatatable = ({
-  breakpoint,
-  data,
-  isError,
-  hasNextPage,
-  fetchNextPage,
-}: BlockDatatableProps) => {
+export const StandardNetworkBlockDatatable = ({ data, isError, hasNextPage, fetchNextPage }: BlockDatatableProps) => {
   const createHeaders = () => {
     return [
       createHeaderBlockHash(),
@@ -107,12 +99,7 @@ export const StandardNetworkBlockDatatable = ({
 
       {hasNextPage && (
         <div className="button-wrapper">
-          <ViewMoreButton
-            variant="table"
-            breakpoint={breakpoint}
-            text="View More Blocks"
-            onClick={() => fetchNextPage()}
-          />
+          <ViewMoreButton variant="table" text="View More Blocks" onClick={() => fetchNextPage()} />
         </div>
       )}
     </CardTableContainer>

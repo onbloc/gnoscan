@@ -9,18 +9,14 @@ import { MainTotalDailyFee } from ".";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { MainTotalTransactionApi } from "./total-transaction/total-transaction-api";
 import { MainTotalDailyFeeApi } from "./total-daily-fee/total-daily-fee-api";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 import { SectionGrid, sectionChartCardStyle } from "@/components/view/common/section-grid/SectionGrid.styles";
 import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacked-bar-chart2";
 import { useGetStoragePrice, useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
-interface MainTransactionNewsProps {
-  breakpoint: DEVICE_TYPE;
-}
-
-const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
+const MainTransactionNews = () => {
   const { isCustomNetwork } = useNetworkProvider();
   const { data } = useGetTotalDailyStroageDeposit();
 
@@ -75,7 +71,7 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
   }, [labels, data, storagePrice]);
 
   return (
-    <Wrapper className={breakpoint}>
+    <Wrapper>
       <Card height="274px" className="card-1">
         <Text className="title" type="h6" color="primary">
           {"Total Storage Deposit"}
@@ -103,7 +99,7 @@ const MainTransactionNews = ({ breakpoint }: MainTransactionNewsProps) => {
 const Wrapper = styled(SectionGrid)`
   ${sectionChartCardStyle}
 
-  &.desktop {
+  ${media.DESKTOP} {
     grid-template-columns: 1fr;
     .card-1 {
       grid-column: 1;

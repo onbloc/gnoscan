@@ -5,7 +5,7 @@ import theme from "@/styles/theme";
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import Search from "@/assets/svgs/icon-search.svg";
-import { isDesktop } from "@/common/hooks/use-media";
+import { media } from "@/common/values/ui.constant";
 import SearchResult from "../search-result";
 import { useRouter } from "@/common/hooks/common/use-router";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -34,7 +34,6 @@ export const MainInput = ({
   const { isCustomNetwork } = useNetworkProvider();
   const { apiSearchRepository } = useServiceProvider();
   const { getUrlWithNetwork } = useNetwork();
-  const desktop = isDesktop();
   const router = useRouter();
 
   useEffect(() => {
@@ -60,7 +59,7 @@ export const MainInput = ({
   };
 
   return (
-    <Wrapper isDesktop={desktop} className={className}>
+    <Wrapper className={className}>
       <Input value={value} onChange={onChange} onKeyDown={onKeyDownInput} type="text" placeholder={placeholder} />
       <Button onClick={onClickSearchButton} aria-label="Search">
         <Search className="search-icon" />
@@ -70,7 +69,7 @@ export const MainInput = ({
   );
 };
 
-const Wrapper = styled.div<{ isDesktop: boolean }>`
+const Wrapper = styled.div`
   ${mixins.flexbox("row", "center", "space-between")};
   position: relative;
   background-color: ${theme.darkTheme.dimmed200};
@@ -78,9 +77,12 @@ const Wrapper = styled.div<{ isDesktop: boolean }>`
   border-radius: 17px;
   height: 68px;
   width: 100%;
-  ${({ isDesktop, theme }) => (isDesktop ? theme.fonts.p2 : theme.fonts.p4)};
+  ${({ theme }) => theme.fonts.p4};
   .search-icon {
     stroke: ${({ theme }) => theme.colors.white};
+  }
+  ${media.DESKTOP} {
+    ${({ theme }) => theme.fonts.p2};
   }
 `;
 

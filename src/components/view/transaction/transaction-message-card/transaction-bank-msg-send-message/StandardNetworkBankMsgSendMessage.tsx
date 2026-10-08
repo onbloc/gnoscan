@@ -8,11 +8,7 @@ import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
 import { Field, BadgeText, AddressLink, AmountBadge } from "@/components/ui/detail-field";
 
-const StandardNetworkBankMsgSendMessage = ({
-  isDesktop,
-  message,
-  getUrlWithNetwork,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkBankMsgSendMessage = ({ message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const amount: Amount | null = React.useMemo(() => {
     if (!message?.amount) return null;
 
@@ -21,21 +17,21 @@ const StandardNetworkBankMsgSendMessage = ({
 
   return (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{MESSAGE_TYPES.BANK_MSG_SEND}</BadgeText>
       </Field>
 
-      <Field label="Function" isDesktop={isDesktop}>
+      <Field label="Function">
         <BadgeText type="blue" color="white">
           {getTransactionMessageType(message) || "-"}
         </BadgeText>
       </Field>
 
-      <Field label="Amount" isDesktop={isDesktop}>
+      <Field label="Amount">
         <AmountBadge amount={amount} />
       </Field>
 
-      <Field label="From" isDesktop={isDesktop}>
+      <Field label="From">
         <AddressLink
           address={message.from || ""}
           addressName={message.fromName}
@@ -46,7 +42,7 @@ const StandardNetworkBankMsgSendMessage = ({
         />
       </Field>
 
-      <Field label="To" isDesktop={isDesktop}>
+      <Field label="To">
         <AddressLink
           address={message.to || ""}
           addressName={message.toName}

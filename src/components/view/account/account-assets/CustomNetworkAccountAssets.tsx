@@ -7,18 +7,17 @@ import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { AccountAssetViewModel } from "@/types/account";
 import { Amount } from "@/types/data-type";
 
-import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import * as S from "./AccountAssets.styles";
+import { CardTitle } from "../account-address/AccountAddress.styles";
 
 interface AccountAssetsProps {
   address: string;
   breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
 }
 
-const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
+const CustomNetworkAccountAssets = ({ address, breakpoint }: AccountAssetsProps) => {
   const { isFetched: isFetchedUsername, isLoading: isLoadingUsername, getAddress } = useUsername();
 
   const bech32Address = React.useMemo(() => {
@@ -47,14 +46,12 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
   const isFetched = isFetchedUsername && isFetchedAssets;
 
   if (isLoading || !isFetched) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountAddressSkeleton />;
   }
 
   return (
-    <S.Card breakpoint={breakpoint}>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
-        Assets
-      </Text>
+    <S.Card>
+      <CardTitle aria-label="title">Assets</CardTitle>
       <S.GridLayout breakpoint={breakpoint}>
         {isFetchedAssets &&
           tokenAssets.map((tokenAsset: AccountAssetViewModel) => {
@@ -63,8 +60,6 @@ const CustomNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountA
                 key={`asset-token-${tokenAsset.amount.denom}`}
                 amount={tokenAsset.amount}
                 logoUrl={tokenAsset.logoUrl}
-                breakpoint={breakpoint}
-                isDesktop={isDesktop}
                 isFetched={isFetchedAssets}
               />
             );

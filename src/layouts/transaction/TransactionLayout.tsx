@@ -1,6 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
 
@@ -16,7 +15,6 @@ interface TransactionLayoutProps {
 }
 
 const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: TransactionLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const { isFetched: isFetchedRpc, isError: isErrorRpc } = useTransaction(txHash);
@@ -27,15 +25,15 @@ const TransactionLayout = ({ txHash, transactionInfo, transactionSummary }: Tran
   if (showNotFound)
     return (
       <S.InnerLayout>
-        <NotFound keyword={txHash} breakpoint={breakpoint} />
+        <NotFound keyword={txHash} />
       </S.InnerLayout>
     );
 
   return (
-    <S.Container breakpoint={breakpoint}>
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
-          <PageTitle type={isDesktop ? "h2" : "p2"} title="Transaction Details" />
+        <S.Wrapper>
+          <PageTitle type="p2" desktopType="h2" title="Transaction Details" />
           {transactionSummary}
           {transactionInfo}
         </S.Wrapper>

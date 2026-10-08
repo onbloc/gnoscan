@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Text from "@/components/ui/text";
 import mixins from "@/styles/mixins";
-import { eachMedia } from "@/common/hooks/use-media";
+import { media } from "@/common/values/ui.constant";
 import { Button } from "./button";
 
 interface ViewMoreButtonProps {
@@ -11,8 +11,6 @@ interface ViewMoreButtonProps {
   text?: string;
   // "table" renders the paging button shown below datatables
   variant?: "default" | "table";
-  // Overrides the detected media for callers that already track the breakpoint
-  breakpoint?: string;
 }
 
 export const ViewMoreButton = ({
@@ -20,21 +18,17 @@ export const ViewMoreButton = ({
   disabled = false,
   text = "View More Transactions",
   variant = "default",
-  breakpoint,
 }: ViewMoreButtonProps) => {
-  const media = eachMedia();
-  const width = (breakpoint ?? media) === "desktop" ? "344px" : "100%";
-
   if (variant === "table") {
     return (
-      <TableWrapper className="view-more-button" onClick={onClick} disabled={disabled} width={width}>
+      <TableWrapper className="view-more-button" onClick={onClick} disabled={disabled} fullWidth>
         {text}
       </TableWrapper>
     );
   }
 
   return (
-    <Wrapper onClick={onClick} disabled={disabled} width={width} height="52px">
+    <Wrapper onClick={onClick} disabled={disabled} fullWidth height="52px">
       <Text type="h7" color="reverse">
         {text}
       </Text>
@@ -51,13 +45,18 @@ const Wrapper = styled(Button)`
     opacity: 0.6;
     color: ${({ theme }) => theme.colors.dimmed200};
   }
+  ${media.DESKTOP} {
+    width: 344px;
+  }
 `;
 
-// <object> keeps the width prop assignable to Button's union props
-const TableWrapper = styled(Button)<object>`
+const TableWrapper = styled(Button)`
   padding: 16px;
   color: ${({ theme }) => theme.colors.primary};
   background-color: ${({ theme }) => theme.colors.surface};
   ${({ theme }) => theme.fonts.p4};
   font-weight: 600;
+  ${media.DESKTOP} {
+    width: 344px;
+  }
 `;

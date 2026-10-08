@@ -9,7 +9,6 @@ import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { useDebounce } from "@/common/hooks/use-debounce";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useGetSearch } from "@/common/react-query/search/api/use-get-search";
 import { SearchResult } from "@/repositories/api/search/response";
 import { SEARCH_TYPE_TITLES } from "@/common/values/search.constant";
@@ -21,14 +20,12 @@ import { SearchResultItem } from "./search-result-item/SearchResultItem";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 
 interface StyleProps {
-  desktop?: boolean;
   isMain?: boolean;
   ref?: any;
 }
 
 const StandardNetworkSearchResult = () => {
   const { route } = useRouter();
-  const { isDesktop } = useWindowSize();
 
   const [open, setOpen] = useState(false);
   const [keyword, setKeyword] = useRecoilState(searchState);
@@ -76,7 +73,7 @@ const StandardNetworkSearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper desktop={isDesktop} isMain={isMain} ref={ref}>
+        <Wrapper isMain={isMain} ref={ref}>
           {isLoadingSearch ? (
             <Text type={isMain ? "p4" : "body1"} color="tertiary">
               Loading...

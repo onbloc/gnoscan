@@ -1,4 +1,4 @@
-import { isDesktop } from "@/common/hooks/use-media";
+import { media } from "@/common/values/ui.constant";
 import mixins from "@/styles/mixins";
 import { useState } from "react";
 import styled, { css } from "styled-components";
@@ -15,11 +15,9 @@ interface TabsProps {
 interface StyleProps {
   hasRadius?: boolean;
   active?: boolean;
-  desktop?: boolean;
 }
 
 const Tabs = ({ files }: TabsProps) => {
-  const desktop = isDesktop();
   const [index, setIndex] = useState(0);
 
   return (
@@ -31,7 +29,7 @@ const Tabs = ({ files }: TabsProps) => {
           </List>
         ))}
       </ul>
-      <Content hasRadius={index === 0} desktop={desktop}>
+      <Content hasRadius={index === 0}>
         <Text type="p4" color="primary" className="inner-content">
           {files[index].body}
         </Text>
@@ -71,16 +69,22 @@ const List = styled.li<StyleProps>`
 
 const Content = styled.div<StyleProps>`
   width: 100%;
-  height: ${({ desktop }) => (desktop ? "508px" : "290px")};
+  height: 290px;
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 10px;
   border-top-left-radius: 0px;
   overflow: hidden;
   .inner-content {
-    padding: ${({ desktop }) => (desktop ? "24px" : "16px")};
+    padding: 16px;
     overflow: auto;
     width: 100%;
     height: auto;
+  }
+  ${media.DESKTOP} {
+    height: 508px;
+    .inner-content {
+      padding: 24px;
+    }
   }
 `;
 

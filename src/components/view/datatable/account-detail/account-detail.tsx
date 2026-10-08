@@ -6,7 +6,6 @@ import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { ViewMoreButton } from "@/components/ui/button";
 import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
-import { eachMedia } from "@/common/hooks/use-media";
 import { Amount, Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 
@@ -27,8 +26,6 @@ const TOOLTIP_TYPE = (
 );
 
 export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, nextPage }: Props) => {
-  const media = eachMedia();
-
   const { getTokenAmount } = useTokenMeta();
 
   const createHeaders = () => {
@@ -142,9 +139,7 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
   return (
     <FlushTableContainer>
       <Datatable loading={!isFetched} headers={createHeaders()} datas={data || []} />
-      {hasNextPage && (
-        <ViewMoreButton variant="table" breakpoint={media} text="View More Transactions" onClick={() => nextPage()} />
-      )}
+      {hasNextPage && <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />}
     </FlushTableContainer>
   );
 };

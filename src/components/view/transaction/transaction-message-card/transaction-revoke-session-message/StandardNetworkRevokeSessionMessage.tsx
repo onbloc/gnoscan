@@ -4,11 +4,7 @@ import { TransactionContractMessagesProps } from "@/models/api/transaction";
 
 import { AddressLink, BadgeText, Field } from "@/components/ui/detail-field";
 
-const StandardNetworkRevokeSessionMessage = ({
-  isDesktop,
-  message,
-  getUrlWithNetwork,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkRevokeSessionMessage = ({ message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const session = message.session;
 
   // Both `revoke_session` and `revoke_all_sessions` share this card; the
@@ -17,17 +13,17 @@ const StandardNetworkRevokeSessionMessage = ({
 
   return (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{message.messageType}</BadgeText>
       </Field>
 
-      <Field label="Function" isDesktop={isDesktop}>
+      <Field label="Function">
         <BadgeText type="blue" color="white">
           {getTransactionMessageType(message) || "-"}
         </BadgeText>
       </Field>
 
-      <Field label="Creator" isDesktop={isDesktop}>
+      <Field label="Creator">
         <AddressLink
           address={message.creator || ""}
           addressName={message.creatorName}
@@ -39,7 +35,7 @@ const StandardNetworkRevokeSessionMessage = ({
       </Field>
 
       {!isRevokeAllSessions && (
-        <Field label="Session Key" isDesktop={isDesktop}>
+        <Field label="Session Key">
           <BadgeText>{session?.sessionKey || "-"}</BadgeText>
         </Field>
       )}

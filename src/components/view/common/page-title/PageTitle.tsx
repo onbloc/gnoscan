@@ -8,11 +8,12 @@ import Text from "@/components/ui/text";
 interface PageTitleProps {
   title: string;
   type: FontsType;
+  desktopType?: FontsType;
 }
 
-export const PageTitle = ({ title, type }: PageTitleProps) => {
+export const PageTitle = ({ title, type, desktopType }: PageTitleProps) => {
   return (
-    <Title type={type} color="primary">
+    <Title type={type} desktopType={desktopType} color="primary">
       {title}
     </Title>
   );
