@@ -31,6 +31,7 @@ interface StyleProps {
 }
 
 interface NetworkProps extends StyleProps {
+  inMenu?: boolean;
   chains: ChainModel[];
   toggleHandler: () => void;
   networkSettingHandler: (chainId: string) => void;
@@ -42,7 +43,7 @@ interface ConnectionErrorState {
   customIndexerUrl: boolean;
 }
 
-const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
+const Network = ({ entry, inMenu, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
   const { currentNetwork, nodeRPCClient } = useNetworkProvider();
   const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
 
@@ -61,8 +62,8 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
   const isReverseColor = useMemo(() => {
     const isHome = pathname === "" || pathname === "/";
-    return isHome && isLight;
-  }, [pathname, isLight]);
+    return isHome && isLight && !inMenu;
+  }, [pathname, isLight, inMenu]);
 
   const availCustomConnect = useMemo(() => {
     if (connectionErrors.customRpcUrl || connectionErrors.customIndexerUrl || !customRpcUrl) {

@@ -56,7 +56,6 @@ export const TopNav = () => {
   const isMain = router.route === "/";
   const entry = router.route === "/" || (router.route !== "/" && themeMode === "dark");
   const [value, setValue] = useRecoilState(searchState);
-  const [toggle, setToggle] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
 
@@ -68,10 +67,8 @@ export const TopNav = () => {
     return () => desktopQuery.removeEventListener("change", closeOnDesktop);
   }, []);
   const navigateToHomeHandler = () => router.push("/");
-  const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
 
-  const { chains } = useNetworkProvider();
-  const { changeNetwork, getUrlWithNetwork } = useNetwork();
+  const { getUrlWithNetwork } = useNetwork();
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,11 +76,6 @@ export const TopNav = () => {
     },
     [value],
   );
-
-  const networkSettingHandler = useCallback((chainId: string) => {
-    changeNetwork(chainId);
-    setToggle(false);
-  }, []);
 
   return (
     <Wrapper entry={entry}>
@@ -107,14 +99,7 @@ export const TopNav = () => {
         </Nav>
       </div>
 
-      <Network
-        entry={entry}
-        chains={chains}
-        toggle={toggle}
-        toggleHandler={toggleHandler}
-        networkSettingHandler={networkSettingHandler}
-        setToggle={setToggle}
-      />
+      <HeaderNetwork entry={entry} />
       <div className="not-desktop">
         <SubMenu
           entry={entry}
@@ -122,9 +107,36 @@ export const TopNav = () => {
           onClick={toggleMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
+          network={<HeaderNetwork entry={themeMode === "dark"} inMenu />}
         />
       </div>
     </Wrapper>
+  );
+};
+
+// Each instance keeps its own dropdown state, so the copy inside the mobile menu works independently.
+const HeaderNetwork = ({ entry, inMenu }: { entry: boolean; inMenu?: boolean }) => {
+  const [toggle, setToggle] = useState<boolean>(false);
+  const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), []);
+
+  const { chains } = useNetworkProvider();
+  const { changeNetwork } = useNetwork();
+
+  const networkSettingHandler = useCallback((chainId: string) => {
+    changeNetwork(chainId);
+    setToggle(false);
+  }, []);
+
+  return (
+    <Network
+      entry={entry}
+      inMenu={inMenu}
+      chains={chains}
+      toggle={toggle}
+      toggleHandler={toggleHandler}
+      networkSettingHandler={networkSettingHandler}
+      setToggle={setToggle}
+    />
   );
 };
 

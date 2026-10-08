@@ -12,7 +12,6 @@ import { navItems } from "./top-nav";
 import Link from "next/link";
 import { v1 } from "uuid";
 import Text from "@/components/ui/text";
-import { zindex } from "@/common/values/z-index";
 import { useNetwork } from "@/common/hooks/use-network";
 import { media } from "@/common/values/ui.constant";
 
@@ -27,6 +26,7 @@ interface SubMenuProps {
   selector?: string;
   darkMode?: boolean;
   currentPath: string;
+  network?: React.ReactNode;
 }
 
 export const SubMenu: React.FC<SubMenuProps> = ({
@@ -36,6 +36,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
   selector = "modal-root",
   darkMode,
   currentPath,
+  network,
 }) => {
   const { getUrlWithNetwork } = useNetwork();
   useLayoutEffect(() => {
@@ -57,6 +58,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
         <Container open={open}>
           <TopHeader>
             {darkMode ? <GnoscanLogo /> : <GnoscanLogoLight />}
+            {network}
             <CloseButton onClick={onClick}>
               <CloseIcon className="close-icon" />
             </CloseButton>
@@ -86,9 +88,10 @@ const Container = styled.div<{ open: boolean }>`
   right: ${({ open }) => (open ? "0px" : "100%")};
   width: 100%;
   height: 100%;
-  z-index: ${zindex.modal};
+  // Covers the header network button (z-index 99) so the copy in TopHeader slides in with the menu.
+  z-index: 100;
   transition: all 0.4s ease-out;
-  padding: 20px 24px 20px;
+  padding: 0px 18px 20px;
   overflow: hidden;
 
   ${media.DESKTOP} {
@@ -103,9 +106,16 @@ const MenuButton = styled.button<{ entry: boolean }>`
   }
 `;
 
+// Matches the top nav layout so the menu header lines up with the page header.
 const TopHeader = styled.div`
-  ${mixins.flexbox("row", "center", "space-between")};
+  ${mixins.flexbox("row", "center", "flex-end")};
   width: 100%;
+  height: 80px;
+  flex-shrink: 0;
+  gap: 16px;
+  & > svg:first-child {
+    margin-right: auto;
+  }
 `;
 
 const Nav = styled.nav`
