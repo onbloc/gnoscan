@@ -9,7 +9,8 @@ import { buildTokenPriceMap, formatTokenUsd, getTokenPrice } from "@/common/util
  * Works for a single token or a list: call the getters per token.
  */
 export const useTokenPrice = () => {
-  const { data, isFetched } = useGetPrices();
+  // isLoading: first fetch in flight. Stays false when the query is disabled (no API client) or failed.
+  const { data, isLoading } = useGetPrices();
 
   const priceMap = useMemo(() => buildTokenPriceMap(data?.items), [data]);
 
@@ -21,5 +22,5 @@ export const useTokenPrice = () => {
     [priceMap],
   );
 
-  return { priceMap, isFetched, getPrice, getUsdDisplay };
+  return { priceMap, isLoading, getPrice, getUsdDisplay };
 };

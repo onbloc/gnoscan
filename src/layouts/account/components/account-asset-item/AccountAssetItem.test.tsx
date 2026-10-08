@@ -9,7 +9,7 @@ import AccountAssetItem from "./AccountAssetItem";
 jest.mock("@/assets/svgs/icon-unknown-token.svg", () => "svg");
 jest.mock("@/assets/svgs/icon-link.svg", () => "svg");
 
-const mockPrices = { data: undefined as unknown };
+const mockPrices = { data: undefined as unknown, isLoading: false };
 
 // Mirrors useTokenMeta: ugnot is shifted by 6 decimals, symbols of already-shifted GRC20 amounts pass through.
 jest.mock("@/common/hooks/common/use-token-meta", () => ({
@@ -43,6 +43,7 @@ const render = (element: React.ReactElement) =>
   ).replace(/<[^>]*>/g, "");
 
 beforeEach(() => {
+  mockPrices.isLoading = false;
   mockPrices.data = {
     items: [
       { assetId: "gno.land/r/gnoland/wugnot.wugnot", provider: "gnoswap", price: "0.024", status: "fresh" },
@@ -72,12 +73,23 @@ describe("AccountAssetItem", () => {
     expect(markup).toContain("$50.00");
   });
 
-  it("renders no fiat value for an unpriced token", () => {
+  it("renders a dash instead of a fiat value for an unpriced token", () => {
     const markup = render(
       <AccountAssetItem {...baseProps} amount={{ value: "100", denom: "FOO" }} priceTokenKey="gno.land/r/demo/foo" />,
     );
 
     expect(markup).not.toContain("$");
-    expect(markup).toContain("100");
+    expect(markup).toContain("-100");
+  });
+
+  it("renders neither a fiat value nor a dash while prices load", () => {
+    mockPrices.data = undefined;
+    mockPrices.isLoading = true;
+
+    const markup = render(<AccountAssetItem {...baseProps} amount={{ value: "512120000", denom: "ugnot" }} />);
+
+    expect(markup).not.toContain("$");
+    expect(markup).not.toContain("-512.12");
+    expect(markup).toContain("512.12");
   });
 });

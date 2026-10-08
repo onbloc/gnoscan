@@ -56,7 +56,7 @@ describe("AccountVestingAsset", () => {
     expect(markup.indexOf("$12.29")).toBeLessThan(markup.indexOf("512.12"));
   });
 
-  it("renders a dash when the fiat value is unavailable", () => {
+  it("renders a dash instead of a fiat value when the token is unpriced", () => {
     mockPrices.data = { items: [] };
 
     const markup = renderToStaticMarkup(
@@ -65,6 +65,7 @@ describe("AccountVestingAsset", () => {
       </ThemeProvider>,
     ).replace(/<[^>]*>/g, "");
 
-    expect(markup).toContain("-");
+    expect(markup).not.toContain("$");
+    expect(markup).toContain("-512.12");
   });
 });

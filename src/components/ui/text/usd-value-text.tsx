@@ -19,7 +19,7 @@ interface UsdValueTextProps {
   className?: string;
 }
 
-/** Renders "($12.32)"; renders nothing when the token has no price. */
+/** Renders "($12.32)"; renders nothing for a zero amount or when the token has no price. */
 export const UsdValueText = ({
   tokenKey,
   amount,
@@ -31,7 +31,7 @@ export const UsdValueText = ({
   className,
 }: UsdValueTextProps) => {
   const { getUsdDisplay } = useTokenPrice();
-  const usd = getUsdDisplay(tokenKey, amount);
+  const usd = BigNumber(amount).isZero() ? null : getUsdDisplay(tokenKey, amount);
 
   if (!usd) return null;
 

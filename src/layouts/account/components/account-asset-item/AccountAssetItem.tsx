@@ -47,7 +47,7 @@ const AccountAssetItem = ({
 }: AccountAssetItemProps) => {
   const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
   const { getUrlWithNetwork } = useNetwork();
-  const { getUsdDisplay } = useTokenPrice();
+  const { getUsdDisplay, isLoading: isLoadingPrice } = useTokenPrice();
 
   const tokenLogoUrl = React.useMemo(() => {
     return resolveAccountAssetLogoUrl(logoUrl, amount.denom, getTokenImage);
@@ -114,9 +114,13 @@ const AccountAssetItem = ({
         </S.TokenName>
       </S.TokenInfo>
       <S.AmountInfo>
-        <Text type={isDesktop ? "p3" : "p4"} color="primary">
-          {usdValue || "-"}
-        </Text>
+        {isLoadingPrice ? (
+          <SkeletonBar width={80} height={20} />
+        ) : (
+          <Text type={isDesktop ? "p3" : "p4"} color="primary">
+            {usdValue || "-"}
+          </Text>
+        )}
         <AmountText minSize="body1" maxSize="p4" {...tokenAmount} denom={` ${tokenAmount.denom}`} />
       </S.AmountInfo>
     </S.Box>

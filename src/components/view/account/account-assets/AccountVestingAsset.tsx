@@ -6,6 +6,7 @@ import { AccountVestingModel } from "@/repositories/api/account/response";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import Text from "@/components/ui/text";
 
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
@@ -23,7 +24,7 @@ interface AccountVestingAssetProps {
 const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingAssetProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { getTokenAmount, getTokenImage, getTokenInfo } = useTokenMeta();
-  const { getUsdDisplay } = useTokenPrice();
+  const { getUsdDisplay, isLoading: isLoadingPrice } = useTokenPrice();
   const token = getTokenInfo(GNOTToken.denom);
   const logoUrl = resolveAccountAssetLogoUrl(undefined, GNOTToken.denom, getTokenImage);
   const total = getTokenAmount(GNOTToken.denom, vesting.total);
@@ -58,9 +59,13 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
         </S.TokenInfo>
         <S.Balance>
           <S.AmountInfo>
-            <Text type={isDesktop ? "p3" : "p4"} color="primary">
-              {usdValue || "-"}
-            </Text>
+            {isLoadingPrice ? (
+              <SkeletonBar width={80} height={20} />
+            ) : (
+              <Text type={isDesktop ? "p3" : "p4"} color="primary">
+                {usdValue || "-"}
+              </Text>
+            )}
             <S.Quantity>
               <IconLockAsset className="vesting-lock" aria-hidden="true" />
               <AmountText

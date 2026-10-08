@@ -31,6 +31,10 @@ it("renders nothing for an unpriced token", () => {
   expect(renderText("gno.land/r/demo/foo", "1")).toBe("");
 });
 
+it("renders nothing for a zero amount", () => {
+  expect(renderText("ugnot", "0")).toBe("");
+});
+
 it("renders nothing before prices load", () => {
   mockPrices.data = undefined;
   expect(renderText("ugnot", "1")).toBe("");
