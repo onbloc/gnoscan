@@ -115,7 +115,7 @@ const AccountAssetItem = ({
         <Text type={isDesktop ? "p3" : "p4"} color="primary">
           {usdValue || "-"}
         </Text>
-        <AmountText minSize="body1" maxSize="p4" color="tertiary" {...tokenAmount} denom={` ${tokenAmount.denom}`} />
+        <AmountText minSize="body1" maxSize="p4" {...tokenAmount} denom={` ${tokenAmount.denom}`} />
       </S.AmountInfo>
     </S.Box>
   );
