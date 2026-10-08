@@ -11,7 +11,6 @@ import * as S from "./AccountAssetItem.styles";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
-import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import Text from "@/components/ui/text";
 import IconLink from "@/assets/svgs/icon-link.svg";
 
@@ -20,6 +19,7 @@ interface AccountAssetItemProps {
   name?: string;
   logoUrl?: string | null;
   tokenPath?: string;
+  secondaryLabel?: string;
   // Price lookup key when amount.denom is a display symbol rather than the token key (e.g. tokenId).
   priceTokenKey?: string;
   showTokenPathLink?: boolean;
@@ -31,6 +31,7 @@ const AccountAssetItem = ({
   name,
   logoUrl,
   tokenPath,
+  secondaryLabel,
   priceTokenKey,
   showTokenPathLink,
   isFetched,
@@ -89,17 +90,24 @@ const AccountAssetItem = ({
       <S.TokenInfo>
         <S.LogoWrapper>{tokenLogoImage}</S.LogoWrapper>
 
-        <S.TokenName type="p4" desktopType="p3" color="primary">
-          {name || getTokenInfo(amount.denom)?.name || ""}
+        <S.TokenDetails>
+          <S.TokenName type="p4" desktopType="p3" color="primary">
+            {name || getTokenInfo(amount.denom)?.name || ""}
+          </S.TokenName>
+          {secondaryLabel && (
+            <Text type="p4" color="gray300" style={{ lineHeight: "24px" }}>
+              {secondaryLabel}
+            </Text>
+          )}
           {shouldShowTokenPathLink && (
-            <LinkWrapper className="hide-mobile" target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
-              <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
+            <S.TokenPathLink className="hide-mobile" target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
+              <Text type="p4" color="gray300" className="ellipsis" style={{ lineHeight: "24px" }}>
                 {displayTokenPath}
               </Text>
               <IconLink className="icon-link" />
-            </LinkWrapper>
+            </S.TokenPathLink>
           )}
-        </S.TokenName>
+        </S.TokenDetails>
       </S.TokenInfo>
       <S.AmountInfo>
         {isLoadingPrice ? (
@@ -109,7 +117,7 @@ const AccountAssetItem = ({
             {usdValue || "-"}
           </Text>
         )}
-        <AmountText minSize="body1" maxSize="p4" {...tokenAmount} />
+        <AmountText minSize="body1" maxSize="p4" lineHeight="24px" wrap={false} {...tokenAmount} />
       </S.AmountInfo>
     </S.Box>
   );

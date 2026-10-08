@@ -49,8 +49,9 @@ describe("AccountVestingAsset", () => {
       </ThemeProvider>,
     ).replace(/<[^>]*>/g, "");
 
-    expect(markup).toContain("$12.291");
-    expect(markup.indexOf("$12.291")).toBeLessThan(markup.indexOf("512.12"));
+    expect(markup).toContain("$12.29");
+    expect(markup.indexOf("$12.29")).toBeLessThan(markup.indexOf("512.12"));
+    expect(markup).toContain("Gno.landGNOT");
   });
 
   it("renders a dash instead of a fiat value when the token is unpriced", () => {

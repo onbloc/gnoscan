@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { getSummaryCaller, getTransactionMessageType } from "@/common/utils/message.utility";
 import Text from "@/components/ui/text";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
-import { SUMMARY_LINE_HEIGHT, SummaryLine, TransferAddress } from "./transfer-render";
+import { SUMMARY_FONT_WEIGHT, SUMMARY_LINE_HEIGHT, SummaryLine, TransferAddress } from "./transfer-render";
 
 interface Props {
   messages: TransactionContractModel[];
@@ -21,14 +21,14 @@ const CommonMessageSummary = ({ messages, embedded = false }: Props) => {
       {messages.map((message, index) => (
         <SummaryLine key={`${message.messageType}-${message.pkgPath}-${message.funcType}-${index}`}>
           {numbered && (
-            <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+            <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
               {`${index + 1}.`}
             </Text>
           )}
-          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
             {getSummaryFunctionName(message)}
           </Text>
-          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
             by
           </Text>
           <TransferAddress {...getSummaryCaller(message)} />

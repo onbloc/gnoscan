@@ -23,8 +23,10 @@ export const Card = styled.div`
 
 export const GridLayout = styled.div<{ breakpoint: DEVICE_TYPE }>`
   width: 100%;
+  max-width: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "1146px" : "none")};
   display: grid;
-  grid-template-columns: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "repeat(2, 1fr)" : "1fr")};
+  grid-template-columns: ${({ breakpoint }) =>
+    breakpoint === DEVICE_TYPE.DESKTOP ? "repeat(2, minmax(0, 1fr))" : "minmax(0, 1fr)"};
   grid-template-rows: auto;
   grid-gap: 16px;
 `;
@@ -33,6 +35,7 @@ export const GridLayout = styled.div<{ breakpoint: DEVICE_TYPE }>`
 // cell only shifts its own column while the DOM stays row-major
 export const MasonryGrid = styled.div`
   width: 100%;
+  max-width: 1146px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: 1px;

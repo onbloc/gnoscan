@@ -11,6 +11,7 @@ import {
   ActionAmount,
   AddressChip,
   RealmLink,
+  SUMMARY_FONT_WEIGHT,
   SUMMARY_LINE_HEIGHT,
   SummaryLine,
   TokenDisplayInfo,
@@ -44,7 +45,7 @@ const TransactionActionSummary = ({ actions, types, positionOwnerAddress, embedd
       {displayActions.map((action, index) => (
         <SummaryLine key={index}>
           {numbered && (
-            <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+            <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
               {`${index + 1}.`}
             </Text>
           )}
@@ -64,7 +65,13 @@ const amountOutAssets = (assets: ActionAsset[]) => assets.filter(asset => asset.
 // same as any other Plain, not something a user could click through.
 const Ref = ({ label, value, href }: { label?: string; value: string; href?: string }) => {
   const text = (
-    <Text type="p2" color={href ? "blue" : "primary"} fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
+    <Text
+      type="p2"
+      color={href ? "blue" : "primary"}
+      fontWeight={SUMMARY_FONT_WEIGHT}
+      display="contents"
+      style={SUMMARY_LINE_HEIGHT}
+    >
       {label ? `${label} #${value}` : `#${value}`}
     </Text>
   );
@@ -93,7 +100,7 @@ const positionHref = (pool: ActionAsset | undefined, position: ActionAsset, owne
   pool ? gnoswapPositionUrl(pool.value, position.value, ownerAddress) : undefined;
 
 const Verb = ({ children }: { children: React.ReactNode }) => (
-  <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+  <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
     {children}
   </Text>
 );
@@ -113,14 +120,20 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
         <Text
           type="p2"
           color={href ? "blue" : "primary"}
-          fontWeight={500}
+          fontWeight={SUMMARY_FONT_WEIGHT}
           display="contents"
           style={SUMMARY_LINE_HEIGHT}
         >
           {pairLabel}
         </Text>
       )}
-      <Text type="p2" color={href ? "blue" : "primary"} fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
+      <Text
+        type="p2"
+        color={href ? "blue" : "primary"}
+        fontWeight={SUMMARY_FONT_WEIGHT}
+        display="contents"
+        style={SUMMARY_LINE_HEIGHT}
+      >
         {pairLabel ? ` ${feeLabel}` : feeLabel}
       </Text>
     </>
@@ -136,7 +149,7 @@ const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: stri
       ) : (
         text
       )}
-      <Text type="p2" color="primary" fontWeight={400} display="contents" style={SUMMARY_LINE_HEIGHT}>
+      <Text type="p2" color="primary" fontWeight={SUMMARY_FONT_WEIGHT} display="contents" style={SUMMARY_LINE_HEIGHT}>
         pool
       </Text>
     </>

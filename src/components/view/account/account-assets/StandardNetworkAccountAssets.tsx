@@ -137,6 +137,7 @@ const NativeTokenAsset = ({
       key={`asset-token-${nativeTokenAsset.amount.denom}`}
       amount={nativeTokenAsset.amount}
       name={nativeTokenAsset.name}
+      secondaryLabel={GNOTToken.symbol}
       logoUrl={nativeTokenAsset.logoUrl}
       isFetched={isFetched}
     />

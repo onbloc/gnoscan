@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { AssetTransfer } from "@/types/data-type";
 import {
+  SUMMARY_FONT_WEIGHT,
   SUMMARY_LINE_HEIGHT,
   SummaryLine,
   TransferAddress,
@@ -25,15 +26,15 @@ const TransferSummaryLine = ({ transfers, embedded = false }: Props) => {
       {transfers.map((transfer, index) => (
         <SummaryLine key={`${transfer.assetType}-${transfer.from}-${transfer.to}-${transfer.amount.denom}-${index}`}>
           {numbered && (
-            <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+            <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
               {`${index + 1}.`}
             </Text>
           )}
-          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
             Transfer
           </Text>
           <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
-          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
             to
           </Text>
           <TransferAddress address={transfer.to} label={transfer.toLabel} labelType={transfer.toLabelType} />

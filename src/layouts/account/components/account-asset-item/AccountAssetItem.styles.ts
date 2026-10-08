@@ -10,6 +10,7 @@ export const Box = styled.div`
   justify-content: space-between;
 
   width: 100%;
+  min-width: 0;
   padding: 12px 16px;
 
   background-color: ${({ theme }) => theme.colors.surface};
@@ -23,17 +24,16 @@ export const Box = styled.div`
 export const TokenInfo = styled.div`
   display: flex;
   align-items: center;
-  jutify-content: center;
+  justify-content: center;
   gap: 16px;
+  min-width: 0;
 `;
 
 export const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background-color ${({ theme }) => theme.colors.base}:
-  border-radius: 50%;
+  flex: 0 0 40px;
 
   .logo-icon {
     fill: ${({ theme }) => theme.colors.primary};
@@ -45,10 +45,41 @@ export const LogoWrapper = styled.div`
 `;
 
 export const TokenName = styled(Text)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+export const TokenDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+`;
+
+export const TokenPathLink = styled.a`
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 5px;
+  min-width: 0;
+  width: fit-content;
+  max-width: 100%;
+  color: ${({ theme }) => theme.colors.gray300};
+  transition: opacity 0.2s;
+
+  :hover {
+    opacity: 0.6;
+  }
+
+  .icon-link {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+
+    * {
+      stroke: ${({ theme }) => theme.colors.gray300};
+    }
+  }
 `;
 
 export const AmountInfo = styled.div`
@@ -56,5 +87,5 @@ export const AmountInfo = styled.div`
   flex: 0 0 auto;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  justify-content: center;
 `;

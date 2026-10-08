@@ -71,15 +71,18 @@ export function getUsdValue(amount: BigNumber.Value, price: BigNumber.Value): Bi
   return value.isFinite() ? value : null;
 }
 
-const USD_DECIMALS = 3;
+// Decimal places shown below $1 and from $1 up; both truncate (round down).
+const USD_DECIMALS_BELOW_ONE = 3;
+const USD_DECIMALS_FROM_ONE = 2;
 const MIN_DISPLAY_USD = new BigNumber("0.001");
 // Non-breaking space keeps "<" and the amount on one line when the text wraps.
 const BELOW_MIN_DISPLAY_USD = "<\u00A0$0.001";
 
 /**
- * "$1,234.567": fixed to three decimals and rounded half up. Values are never negative
- * (prices and amounts are non-negative), so no sign handling.
- * Values above zero but below $0.001 render as "< $0.001" instead of rounding to zero.
+ * Truncates (never rounds up) and drops trailing zeros: below $1 keeps three decimals
+ * ("$0.012", "$0.5"), from $1 up keeps two decimals with thousands separators ("$1,234.56", "$1").
+ * Values above zero but below $0.001 render as "< $0.001" instead of a long fraction.
+ * Values are never negative (prices and amounts are non-negative), so no sign handling.
  */
 export function formatUsd(value: BigNumber.Value | null | undefined): string | null {
   if (value === null || value === undefined) return null;
@@ -88,7 +91,8 @@ export function formatUsd(value: BigNumber.Value | null | undefined): string | n
   if (!usd.isFinite()) return null;
   if (usd.gt(0) && usd.lt(MIN_DISPLAY_USD)) return BELOW_MIN_DISPLAY_USD;
 
-  return `$${usd.toFormat(USD_DECIMALS, BigNumber.ROUND_HALF_UP, USD_FORMAT)}`;
+  const decimals = usd.lt(1) ? USD_DECIMALS_BELOW_ONE : USD_DECIMALS_FROM_ONE;
+  return `$${usd.decimalPlaces(decimals, BigNumber.ROUND_DOWN).toFormat(USD_FORMAT)}`;
 }
 
 /** Formatted USD value of a token amount, or null when the token has no price. */
