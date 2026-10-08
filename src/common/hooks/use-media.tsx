@@ -1,40 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-
-interface Props {
-  children: React.ReactNode;
-}
-
-export const Mobile: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const isMobile = useMediaQuery({ maxWidth: 767 });
-
-  if (!isMobile) {
-    return <React.Fragment />;
-  }
-
-  return <React.Fragment>{children}</React.Fragment>;
-};
-
-export const NonMobile: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const isMobile = useMediaQuery({ minWidth: 767 });
-  return <>{isMobile && children}</>;
-};
-
-export const Tablet = ({ children }: Props) => {
-  const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1279 });
-  return <>{isTablet && children}</>;
-};
-
-export const Desktop = ({ children }: Props) => {
-  const isDesktop = useMediaQuery({ minWidth: 1280 });
-  return <>{isDesktop && children}</>;
-};
-
-export const NotDesktop = ({ children }: Props) => {
-  const isDesktop = useMediaQuery({ minWidth: 1280 });
-  return <>{!isDesktop && children}</>;
-};
 
 export const isDesktop = () => {
   const [isDesktop, setIsDesktop] = useState(true);

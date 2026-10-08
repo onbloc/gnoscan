@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import React from "react";
 import { css } from "styled-components";
@@ -39,10 +38,6 @@ import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
 import PublicFunctions from "@/components/ui/public-functions";
-
-const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
-  ssr: false,
-});
 
 interface RealmSummaryProps {
   path: string;
@@ -194,16 +189,14 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
 
         {isRealmNotEnabled && <NotYetEnabledBadge />}
 
-        <NonMobile>
-          {hasGnoWebUrl && (
-            <LinkWrapper onClick={moveGnoWeb}>
-              <Text type="p4" className="ellipsis">
-                Go to Gnoweb
-              </Text>
-              <IconLink className="icon-link" />
-            </LinkWrapper>
-          )}
-        </NonMobile>
+        {hasGnoWebUrl && (
+          <LinkWrapper className="hide-mobile" onClick={moveGnoWeb}>
+            <Text type="p4" className="ellipsis">
+              Go to Gnoweb
+            </Text>
+            <IconLink className="icon-link" />
+          </LinkWrapper>
+        )}
       </FieldWithTooltip>
       <Field label="Realm Address" isDesktop={isDesktop}>
         <Badge>

@@ -1,5 +1,4 @@
 import React from "react";
-import dynamic from "next/dynamic";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
@@ -15,10 +14,6 @@ import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import Text from "@/components/ui/text";
 import IconLink from "@/assets/svgs/icon-link.svg";
-
-const NonMobile = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NonMobile), {
-  ssr: false,
-});
 
 interface AccountAssetItemProps {
   amount: Amount;
@@ -99,14 +94,12 @@ const AccountAssetItem = ({
         <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
           {name || getTokenInfo(amount.denom)?.name || ""}
           {shouldShowTokenPathLink && (
-            <NonMobile>
-              <LinkWrapper target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
-                <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
-                  {displayTokenPath}
-                </Text>
-                <IconLink className="icon-link" />
-              </LinkWrapper>
-            </NonMobile>
+            <LinkWrapper className="hide-mobile" target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
+              <Text type="p4" style={{ fontSize: 12 }} className="ellipsis">
+                {displayTokenPath}
+              </Text>
+              <IconLink className="icon-link" />
+            </LinkWrapper>
           )}
         </S.TokenName>
       </S.TokenInfo>
