@@ -71,17 +71,24 @@ export function getUsdValue(amount: BigNumber.Value, price: BigNumber.Value): Bi
   return value.isFinite() ? value : null;
 }
 
-/** "$1,234.56": fixed to two decimals and rounded half up, matching Etherscan's value and fee display. */
+const USD_DECIMALS = 3;
+const MIN_DISPLAY_USD = new BigNumber("0.001");
+// Non-breaking space keeps "<" and the amount on one line when the text wraps.
+const BELOW_MIN_DISPLAY_USD = "<\u00A0$0.001";
+
+/**
+ * "$1,234.567": fixed to three decimals and rounded half up. Values are never negative
+ * (prices and amounts are non-negative), so no sign handling.
+ * Values above zero but below $0.001 render as "< $0.001" instead of rounding to zero.
+ */
 export function formatUsd(value: BigNumber.Value | null | undefined): string | null {
   if (value === null || value === undefined) return null;
 
   const usd = new BigNumber(value);
   if (!usd.isFinite()) return null;
+  if (usd.gt(0) && usd.lt(MIN_DISPLAY_USD)) return BELOW_MIN_DISPLAY_USD;
 
-  const rounded = usd.decimalPlaces(2, BigNumber.ROUND_HALF_UP);
-  const sign = rounded.lt(0) ? "-" : "";
-
-  return `${sign}$${rounded.abs().toFormat(2, BigNumber.ROUND_HALF_UP, USD_FORMAT)}`;
+  return `$${usd.toFormat(USD_DECIMALS, BigNumber.ROUND_HALF_UP, USD_FORMAT)}`;
 }
 
 /** Formatted USD value of a token amount, or null when the token has no price. */

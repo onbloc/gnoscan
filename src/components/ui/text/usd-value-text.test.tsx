@@ -14,7 +14,9 @@ const renderText = (tokenKey: string, amount: string) =>
     <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
       <UsdValueText tokenKey={tokenKey} amount={amount} />
     </ThemeProvider>,
-  ).replace(/<[^>]*>/g, "");
+  )
+    .replace(/<[^>]*>/g, "")
+    .replace(/&lt;/g, "<");
 
 beforeEach(() => {
   mockPrices.data = { ugnot: { price: "0.024" } };
@@ -22,7 +24,12 @@ beforeEach(() => {
 
 it("renders the USD value in parentheses", () => {
   // 512.12 * 0.024 = 12.29088
-  expect(renderText("ugnot", "512.12")).toBe("($12.29)");
+  expect(renderText("ugnot", "512.12")).toBe("($12.291)");
+});
+
+it("renders the floor for a value below $0.001", () => {
+  // 0.01 * 0.024 = 0.00024
+  expect(renderText("ugnot", "0.01")).toBe("(<\u00A0$0.001)");
 });
 
 it("renders nothing for an unpriced token", () => {
