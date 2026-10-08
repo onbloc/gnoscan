@@ -49,11 +49,14 @@ beforeEach(() => {
 
 describe("AccountAssetItem", () => {
   it("prices a native balance given in base units by its display amount", () => {
-    const markup = render(<AccountAssetItem {...baseProps} amount={{ value: "512120000", denom: "ugnot" }} />);
+    const markup = render(
+      <AccountAssetItem {...baseProps} amount={{ value: "512120000", denom: "ugnot" }} secondaryLabel="GNOT" />,
+    );
 
     // 512.12 GNOT * 0.024 = 12.29088
     expect(markup).toContain("$12.29");
     expect(markup.indexOf("$12.29")).toBeLessThan(markup.indexOf("512.12"));
+    expect(markup).toContain("GNOT");
   });
 
   it("prices a GRC20 balance by its tokenId", () => {

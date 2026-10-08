@@ -52,8 +52,6 @@ export const HeaderButton = styled.button`
 export const Balance = styled.div`
   display: flex;
   flex: 0 0 auto;
-  align-items: center;
-  gap: 6px;
 
   .vesting-lock path {
     stroke: ${({ theme }) => theme.colors.tertiary};
@@ -64,7 +62,6 @@ export const AmountInfo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
 `;
 
 export const Quantity = styled.div`
@@ -94,6 +91,13 @@ export const TokenInfo = styled.div`
   align-items: center;
   min-width: 0;
   gap: 16px;
+`;
+
+export const TokenDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 `;
 
 export const LogoWrapper = styled.div`

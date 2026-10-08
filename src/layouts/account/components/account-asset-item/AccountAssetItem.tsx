@@ -19,6 +19,7 @@ interface AccountAssetItemProps {
   name?: string;
   logoUrl?: string | null;
   tokenPath?: string;
+  secondaryLabel?: string;
   // Price lookup key when amount.denom is a display symbol rather than the token key (e.g. tokenId).
   priceTokenKey?: string;
   showTokenPathLink?: boolean;
@@ -30,6 +31,7 @@ const AccountAssetItem = ({
   name,
   logoUrl,
   tokenPath,
+  secondaryLabel,
   priceTokenKey,
   showTokenPathLink,
   isFetched,
@@ -92,9 +94,14 @@ const AccountAssetItem = ({
           <S.TokenName type="p4" desktopType="p3" color="primary">
             {name || getTokenInfo(amount.denom)?.name || ""}
           </S.TokenName>
+          {secondaryLabel && (
+            <Text type="p4" color="gray300" style={{ lineHeight: "24px" }}>
+              {secondaryLabel}
+            </Text>
+          )}
           {shouldShowTokenPathLink && (
             <S.TokenPathLink className="hide-mobile" target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
-              <Text type="p4" color="gray300" className="ellipsis">
+              <Text type="p4" color="gray300" className="ellipsis" style={{ lineHeight: "24px" }}>
                 {displayTokenPath}
               </Text>
               <IconLink className="icon-link" />

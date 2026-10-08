@@ -50,9 +50,14 @@ const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
               <UnknownToken aria-label="Unknown token image" width="40" height="40" />
             )}
           </S.LogoWrapper>
-          <Text type="p4" desktopType="p3" color="primary">
-            {token.name}
-          </Text>
+          <S.TokenDetails>
+            <Text type="p4" desktopType="p3" color="primary">
+              {token.name}
+            </Text>
+            <Text type="p4" color="gray300" style={{ lineHeight: "24px" }}>
+              {GNOTToken.symbol}
+            </Text>
+          </S.TokenDetails>
         </S.TokenInfo>
         <S.Balance>
           <S.AmountInfo>
@@ -65,12 +70,12 @@ const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
             )}
             <S.Quantity>
               <IconLockAsset className="vesting-lock" aria-hidden="true" />
-              <AmountText minSize="body1" maxSize="p4" color="tertiary" {...total} wrap={false} />
+              <AmountText minSize="body1" maxSize="p4" color="tertiary" lineHeight="24px" {...total} wrap={false} />
+              <S.Chevron $isExpanded={isExpanded}>
+                <IconChevron />
+              </S.Chevron>
             </S.Quantity>
           </S.AmountInfo>
-          <S.Chevron $isExpanded={isExpanded}>
-            <IconChevron />
-          </S.Chevron>
         </S.Balance>
       </S.HeaderButton>
 
