@@ -24,16 +24,12 @@ const GNS = asset({ assetId: "gno.land/r/gnoswap/gns.GNS", price: "0.0175" });
 const FEED_GNOT = asset({ assetId: "gno-land", provider: "coinmarketcap", price: "0.08" });
 
 describe("buildTokenPriceMap", () => {
-  it("keys gnoswap token paths by bare package path", () => {
-    expect(buildTokenPriceMap([GNS])).toEqual({ "gno.land/r/gnoswap/gns": "0.0175" });
-  });
-
   it("falls back to the wugnot price for ugnot", () => {
-    expect(buildTokenPriceMap([WUGNOT]).ugnot).toBe("0.0699");
+    expect(getTokenPrice(buildTokenPriceMap([WUGNOT]), "ugnot")).toBe("0.0699");
   });
 
   it("prefers the feed GNOT price over wugnot", () => {
-    expect(buildTokenPriceMap([WUGNOT, FEED_GNOT]).ugnot).toBe("0.08");
+    expect(getTokenPrice(buildTokenPriceMap([WUGNOT, FEED_GNOT]), "ugnot")).toBe("0.08");
   });
 
   it("skips unavailable, empty, negative and non-numeric prices", () => {
@@ -47,11 +43,13 @@ describe("buildTokenPriceMap", () => {
   });
 
   it("keeps stale prices", () => {
-    expect(buildTokenPriceMap([{ ...GNS, status: "stale" }])["gno.land/r/gnoswap/gns"]).toBe("0.0175");
+    expect(getTokenPrice(buildTokenPriceMap([{ ...GNS, status: "stale" }]), "gno.land/r/gnoswap/gns")).toBe("0.0175");
   });
 
   it("keeps the first priced entry for a duplicated key", () => {
-    expect(buildTokenPriceMap([GNS, { ...GNS, price: "9" }])["gno.land/r/gnoswap/gns"]).toBe("0.0175");
+    expect(getTokenPrice(buildTokenPriceMap([GNS, { ...GNS, price: "9" }]), "gno.land/r/gnoswap/gns.GNS")).toBe(
+      "0.0175",
+    );
   });
 
   it("handles a missing list", () => {
@@ -62,10 +60,20 @@ describe("buildTokenPriceMap", () => {
 describe("getTokenPrice", () => {
   const priceMap = buildTokenPriceMap([WUGNOT, GNS]);
 
-  it("resolves package paths, token paths and helper-routed token keys", () => {
+  it("resolves package paths, token paths and tokenIds", () => {
     expect(getTokenPrice(priceMap, "gno.land/r/gnoswap/gns")).toBe("0.0175");
     expect(getTokenPrice(priceMap, "gno.land/r/gnoswap/gns.GNS")).toBe("0.0175");
     expect(getTokenPrice(priceMap, "gno.land/r/gnoswap/gns.GNS.0000001")).toBe("0.0175");
+    expect(getTokenPrice(priceMap, "gno.land/r/gnoland/wugnot.wugnot.0000000")).toBe("0.0699");
+  });
+
+  it("keeps tokens of a multi-token package apart", () => {
+    const factoryMap = buildTokenPriceMap([
+      asset({ assetId: "gno.land/r/demo/grc20factory.FOO", price: "1" }),
+      asset({ assetId: "gno.land/r/demo/grc20factory.BAR", price: "2" }),
+    ]);
+    expect(getTokenPrice(factoryMap, "gno.land/r/demo/grc20factory.BAR.0000003")).toBe("2");
+    expect(getTokenPrice(factoryMap, "gno.land/r/demo/grc20factory.BAZ")).toBeNull();
   });
 
   it("resolves ugnot case-insensitively", () => {
