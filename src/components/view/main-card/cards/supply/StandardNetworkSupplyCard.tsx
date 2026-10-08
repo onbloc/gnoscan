@@ -38,7 +38,7 @@ export const StandardNetworkSupplyCard = () => {
               <Text
                 type="body2"
                 color={priceChangeColor}
-                margin="0px 0px 0px 6px"
+                margin="2px 0px 0px 6px"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor}>
@@ -83,7 +83,7 @@ export const StandardNetworkSupplyCard = () => {
               isFetched={isSupplyFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {supply?.data ? `${makeCompactNumber(supply.data.total)} GNOT` : "-"}
+                  {supply?.data ? makeCompactNumber(supply.data.total).replace(".", ",") : "-"}
                 </Text>
               }
             />
