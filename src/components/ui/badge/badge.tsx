@@ -1,4 +1,4 @@
-import { isDesktop } from "@/common/hooks/use-media";
+import { media } from "@/common/values/ui.constant";
 import { PaletteKeyType } from "@/styles";
 import mixins from "@/styles/mixins";
 import React, { CSSProperties } from "react";
@@ -10,7 +10,6 @@ type BadgeProps = {
   padding?: CSSProperties["padding"];
   margin?: CSSProperties["margin"];
   className?: string;
-  desktop?: boolean;
   onClick?: () => void;
   style?: CSSProperties;
 };
@@ -21,12 +20,10 @@ interface ExtendedCSSProps {
 
 const Badge = (props: BadgeProps & ExtendedCSSProps) => {
   const { cssExtend, ...restProps } = props;
-  const desktop = isDesktop();
   return (
     <BadgeWrapper
       {...restProps}
       className={props.className ? `badge ${props.className}` : "badge"}
-      desktop={desktop}
       onClick={props.onClick}
       $cssExtend={cssExtend}
     >
@@ -46,10 +43,18 @@ const BadgeWrapper = styled.div<StyledBadgeProps>`
   min-height: 28px;
   background-color: ${({ type, theme }) => (type ? theme.colors[type] : theme.colors.surface)};
   padding: ${({ padding }) => (padding ? padding : "4px 16px")};
-  margin-right: ${({ desktop, margin }) => (desktop && !margin ? "15px" : "10px")};
+  margin-right: 10px;
   border-radius: 4px;
-  margin-top: ${({ desktop, margin }) => !desktop && !margin && "12px"};
-  ${({ margin }) => margin && `margin: ${margin};`};
+  ${({ margin }) =>
+    margin
+      ? `margin: ${margin};`
+      : css`
+          margin-top: 12px;
+          ${media.DESKTOP} {
+            margin-top: 0;
+            margin-right: 15px;
+          }
+        `};
 
   ${({ $cssExtend }) => $cssExtend};
 `;

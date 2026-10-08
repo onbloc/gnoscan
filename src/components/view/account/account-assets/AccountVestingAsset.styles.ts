@@ -1,16 +1,20 @@
 import styled from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 
-export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
+export const Box = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0;
   width: 100%;
   min-width: 0;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "16px 24px" : "12px 16px")};
+  padding: 12px 16px;
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 4px;
+
+  ${media.DESKTOP} {
+    padding: 16px 24px;
+  }
 `;
 
 export const Chevron = styled.span<{ $isExpanded: boolean }>`

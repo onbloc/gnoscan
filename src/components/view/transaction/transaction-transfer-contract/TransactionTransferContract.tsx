@@ -16,13 +16,11 @@ import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 
 interface TransactionTransferContractProps {
   message: any;
-  isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
   getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
 }
 
 const TransactionTransferContract = ({
-  isDesktop,
   message,
   getUrlWithNetwork,
   getTokenAmount,
@@ -37,7 +35,7 @@ const TransactionTransferContract = ({
 
   return (
     <>
-      <DLWrap desktop={isDesktop}>
+      <DLWrap>
         <dt>Amount</dt>
         <dd>
           <Badge>
@@ -50,7 +48,7 @@ const TransactionTransferContract = ({
           </Badge>
         </dd>
       </DLWrap>
-      <DLWrap desktop={isDesktop} key={v1()}>
+      <DLWrap key={v1()}>
         <dt>{"From"}</dt>
         <dd>
           <Badge>
@@ -65,7 +63,7 @@ const TransactionTransferContract = ({
           </Badge>
         </dd>
       </DLWrap>
-      <DLWrap desktop={isDesktop} key={v1()}>
+      <DLWrap key={v1()}>
         <dt>{"To"}</dt>
         <dd>
           <Badge>

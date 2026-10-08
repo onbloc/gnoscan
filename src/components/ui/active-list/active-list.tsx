@@ -1,4 +1,3 @@
-import { eachMedia } from "@/common/hooks/use-media";
 import React, { useState } from "react";
 import styled, { CSSProperties } from "styled-components";
 import mixins from "@/styles/mixins";
@@ -15,7 +14,6 @@ interface ActiveListProps {
 const hasTooltipTitle = ["Unique Users"];
 
 const ActiveList = ({ title, colWidth, children }: ActiveListProps) => {
-  const media = eachMedia();
   const { scrollVisible, onFocusIn, onFocusOut } = useScrollbar();
 
   return (
@@ -25,7 +23,8 @@ const ActiveList = ({ title, colWidth, children }: ActiveListProps) => {
           {title.map((v: string, i: number) => (
             <StyledText
               key={v1()}
-              type={media === "desktop" ? "p4" : "body1"}
+              type="body1"
+              desktopType="p4"
               width={colWidth[i]}
               color="tertiary"
               gap={hasTooltipTitle.includes(v) ? "8px" : "0px"}

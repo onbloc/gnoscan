@@ -3,7 +3,6 @@ import React from "react";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { AccountVestingModel } from "@/repositories/api/account/response";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
@@ -17,11 +16,9 @@ import * as S from "./AccountVestingAsset.styles";
 
 interface AccountVestingAssetProps {
   vesting: AccountVestingModel;
-  breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
 }
 
-const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingAssetProps) => {
+const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { getTokenAmount, getTokenImage, getTokenInfo } = useTokenMeta();
   const { getUsdDisplay, isLoading: isLoadingPrice } = useTokenPrice();
@@ -38,7 +35,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
   const usdValue = getUsdDisplay(GNOTToken.denom, total.value);
 
   return (
-    <S.Box breakpoint={breakpoint}>
+    <S.Box>
       <S.HeaderButton
         type="button"
         aria-expanded={isExpanded}
@@ -53,7 +50,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
               <UnknownToken aria-label="Unknown token image" width="40" height="40" />
             )}
           </S.LogoWrapper>
-          <Text type={isDesktop ? "p3" : "p4"} color="primary">
+          <Text type="p4" desktopType="p3" color="primary">
             {token.name}
           </Text>
         </S.TokenInfo>
@@ -62,7 +59,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
             {isLoadingPrice ? (
               <SkeletonBar width={80} height={20} />
             ) : (
-              <Text type={isDesktop ? "p3" : "p4"} color="primary">
+              <Text type="p4" desktopType="p3" color="primary">
                 {usdValue || "-"}
               </Text>
             )}

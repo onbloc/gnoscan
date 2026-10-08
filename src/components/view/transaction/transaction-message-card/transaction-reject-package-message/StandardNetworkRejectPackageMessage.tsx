@@ -5,28 +5,24 @@ import { TransactionContractMessagesProps } from "@/models/api/transaction";
 import { AddressLink, BadgeText, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { PkgPathLink } from "@/components/view/transaction/common";
 
-const StandardNetworkRejectPackageMessage = ({
-  isDesktop,
-  message,
-  getUrlWithNetwork,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkRejectPackageMessage = ({ message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   return (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{message.messageType}</BadgeText>
       </Field>
 
-      <Field label="Function" isDesktop={isDesktop}>
+      <Field label="Function">
         <BadgeText type="blue" color="white">
           {getTransactionMessageType(message) || "-"}
         </BadgeText>
       </Field>
 
-      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} isEllipsis={false} />
       </FieldWithTooltip>
 
-      <Field label="Sender" isDesktop={isDesktop}>
+      <Field label="Sender">
         <AddressLink
           address={message.caller || ""}
           addressName={message.callerName}

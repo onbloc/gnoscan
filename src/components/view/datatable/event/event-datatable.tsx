@@ -7,7 +7,6 @@ import { FlushTableContainer } from "../datatable.styles";
 import { EventDetail } from "./event-detail";
 import { GnoEvent } from "@/types/data-type";
 import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
-import { eachMedia } from "@/common/hooks/use-media";
 import { ViewMoreButton } from "@/components/ui/button";
 
 interface Props {
@@ -24,7 +23,6 @@ const TOOLTIP_TYPE = (
 );
 
 export const EventDatatable = ({ isFetched, events }: Props) => {
-  const media = eachMedia();
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   const [page, setPage] = useState(0);
 
@@ -162,7 +160,7 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
 
       {hasNextPage && (
         <div className="button-wrapper">
-          <ViewMoreButton variant="table" breakpoint={media} text="View More Events" onClick={nextPage} />
+          <ViewMoreButton variant="table" text="View More Events" onClick={nextPage} />
         </div>
       )}
     </FlushTableContainer>

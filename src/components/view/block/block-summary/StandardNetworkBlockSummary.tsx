@@ -14,11 +14,10 @@ import { formatDisplayBlockHeight } from "@/common/utils/block.utility";
 import { toDisplayHash } from "@/common/utils/transaction.utility";
 
 interface BlockSummaryProps {
-  isDesktop: boolean;
   blockHeight: number;
 }
 
-const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryProps) => {
+const StandardNetworkBlockSummary = ({ blockHeight }: BlockSummaryProps) => {
   const { data, isFetched } = useMappedApiBlock(String(blockHeight));
   const { getUrlWithNetwork } = useNetwork();
 
@@ -42,7 +41,7 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
 
   return (
     <DataSection title="Summary">
-      <Field label="Block Hash" isDesktop={isDesktop}>
+      <Field label="Block Hash">
         <Badge>
           <Text type="p4" color="inherit" className="ellipsis">
             {blockHash || "-"}
@@ -50,7 +49,7 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
           {blockHash && <CopyTooltip copyText={blockHash} />}
         </Badge>
       </Field>
-      <Field label="Block Hash (base64)" isDesktop={isDesktop}>
+      <Field label="Block Hash (base64)">
         <Badge>
           <Text type="p4" color="inherit" className="ellipsis">
             {data.hashBase64 || "-"}
@@ -58,7 +57,7 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
           {data.hashBase64 && <CopyTooltip copyText={data.hashBase64} />}
         </Badge>
       </Field>
-      <Field label="Timestamp" isDesktop={isDesktop}>
+      <Field label="Timestamp">
         <Badge>
           <Text type="p4" color="inherit" className="ellipsis">
             {data.timeStamp.time}
@@ -66,19 +65,19 @@ const StandardNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryPro
           <DateDiffText>{data.timeStamp.passedTime}</DateDiffText>
         </Badge>
       </Field>
-      <Field label="Network" isDesktop={isDesktop}>
+      <Field label="Network">
         <Badge>{data.network || "-"}</Badge>
       </Field>
-      <Field label="Height" isDesktop={isDesktop}>
+      <Field label="Height">
         <Badge>{displayBlockHeight}</Badge>
       </Field>
-      <Field label="Transactions" isDesktop={isDesktop}>
+      <Field label="Transactions">
         <Badge>{data.numberOfTransactions}</Badge>
       </Field>
-      <Field label="Gas&nbsp;(Used/Wanted)" isDesktop={isDesktop}>
+      <Field label="Gas&nbsp;(Used/Wanted)">
         <Badge>{data.gas}</Badge>
       </Field>
-      <Field label="Proposer" isDesktop={isDesktop} multipleBadgeGap="24px">
+      <Field label="Proposer" multipleBadgeGap="24px">
         <Badge>
           <FitContentSpan>
             <Link href={getUrlWithNetwork(`/account/${data.proposerAddress}`)} passHref>

@@ -25,21 +25,13 @@ import * as S from "./DetailField.styles";
 interface FieldProps {
   label: React.ReactNode;
   children: React.ReactNode;
-  isDesktop: boolean;
   className?: string;
   contentClassName?: string;
   multipleBadgeGap?: string;
 }
 
-export const Field: React.FC<FieldProps> = ({
-  label,
-  children,
-  isDesktop,
-  className,
-  contentClassName,
-  multipleBadgeGap,
-}) => (
-  <DLWrap desktop={isDesktop} className={className} multipleBadgeGap={multipleBadgeGap}>
+export const Field: React.FC<FieldProps> = ({ label, children, className, contentClassName, multipleBadgeGap }) => (
+  <DLWrap className={className} multipleBadgeGap={multipleBadgeGap}>
     <dt>{label}</dt>
     <dd className={contentClassName}>{children}</dd>
   </DLWrap>
@@ -53,12 +45,11 @@ export const FieldWithTooltip: React.FC<FieldWithTooltipProps> = ({
   label,
   tooltipContent,
   children,
-  isDesktop,
   className,
   contentClassName,
   multipleBadgeGap,
 }) => (
-  <DLWrap desktop={isDesktop} className={className} multipleBadgeGap={multipleBadgeGap}>
+  <DLWrap className={className} multipleBadgeGap={multipleBadgeGap}>
     <dt>
       {label}
       <div className="tooltip-wrapper">

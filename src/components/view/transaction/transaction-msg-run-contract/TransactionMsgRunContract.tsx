@@ -10,12 +10,11 @@ import { BadgeList } from "../common";
 
 interface TransactionMsgRunContractProps {
   message: any;
-  isDesktop: boolean;
   files?: { name: string; body: string }[] | null;
   getUrlWithNetwork: (uri: string) => string;
 }
 
-export const TransactionMsgRunContract = ({ message, isDesktop, files = [] }: TransactionMsgRunContractProps) => {
+export const TransactionMsgRunContract = ({ message, files = [] }: TransactionMsgRunContractProps) => {
   const send = React.useMemo(() => {
     if (!message?.send) return null;
     return toGNOTAmount(message.send.value, message.send.denom);
@@ -37,7 +36,7 @@ export const TransactionMsgRunContract = ({ message, isDesktop, files = [] }: Tr
   return (
     <>
       {hasFiles && (
-        <DLWrap desktop={isDesktop} key={v1()} className="top-aligned">
+        <DLWrap key={v1()} className="top-aligned">
           <dt>Files</dt>
           <dd className="files-wrapper">
             <BadgeList items={files?.map(file => file.name) || []} />
@@ -45,13 +44,13 @@ export const TransactionMsgRunContract = ({ message, isDesktop, files = [] }: Tr
           </dd>
         </DLWrap>
       )}
-      <DLWrap desktop={isDesktop} key={v1()}>
+      <DLWrap key={v1()}>
         <dt>Send</dt>
         <dd>
           <AmountBadge amount={send} />
         </dd>
       </DLWrap>
-      <DLWrap desktop={isDesktop} key={v1()}>
+      <DLWrap key={v1()}>
         <dt>Max Deposit</dt>
         <dd>
           <AmountBadge amount={maxDeposit} />

@@ -10,11 +10,7 @@ import { Amount } from "@/types/data-type";
 import { AddressLink, AmountBadge, BadgeText, Field } from "@/components/ui/detail-field";
 import { BadgeList } from "@/components/view/transaction/common";
 
-const StandardNetworkCreateSessionMessage = ({
-  isDesktop,
-  message,
-  getUrlWithNetwork,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkCreateSessionMessage = ({ message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const session = message.session;
 
   const spendLimit: Amount | null = React.useMemo(() => {
@@ -39,17 +35,17 @@ const StandardNetworkCreateSessionMessage = ({
 
   return (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{MESSAGE_TYPES.AUTH_CREATE_SESSION}</BadgeText>
       </Field>
 
-      <Field label="Function" isDesktop={isDesktop}>
+      <Field label="Function">
         <BadgeText type="blue" color="white">
           {getTransactionMessageType(message) || "-"}
         </BadgeText>
       </Field>
 
-      <Field label="Creator" isDesktop={isDesktop}>
+      <Field label="Creator">
         <AddressLink
           address={message.creator || ""}
           addressName={message.creatorName}
@@ -60,23 +56,23 @@ const StandardNetworkCreateSessionMessage = ({
         />
       </Field>
 
-      <Field label="Session Key" isDesktop={isDesktop}>
+      <Field label="Session Key">
         <BadgeText>{session?.sessionKey || "-"}</BadgeText>
       </Field>
 
-      <Field label="Spend Limit" isDesktop={isDesktop}>
+      <Field label="Spend Limit">
         <AmountBadge amount={spendLimit} />
       </Field>
 
-      <Field label="Spend Period" isDesktop={isDesktop}>
+      <Field label="Spend Period">
         <BadgeText>{spendPeriod}</BadgeText>
       </Field>
 
-      <Field label="Expires At" isDesktop={isDesktop}>
+      <Field label="Expires At">
         <BadgeText>{expiresAt}</BadgeText>
       </Field>
 
-      <Field label="Allow Paths" isDesktop={isDesktop}>
+      <Field label="Allow Paths">
         <BadgeList items={session?.allowPaths ?? []} />
       </Field>
     </>

@@ -3,7 +3,6 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { RealmListSortOption } from "@/common/types/realm";
 import { Realm } from "@/types/data-type";
 
@@ -21,7 +20,6 @@ const TOOLTIP_PATH = (
 );
 
 interface RealmListTableProps {
-  breakpoint: DEVICE_TYPE;
   sortOption: RealmListSortOption;
   realms: Realm[];
   isFetched: boolean;
@@ -34,7 +32,6 @@ interface RealmListTableProps {
 }
 
 export const CustomNetworkRealmListTable = ({
-  breakpoint,
   sortOption,
   setSortOption,
   realms,
@@ -149,12 +146,7 @@ export const CustomNetworkRealmListTable = ({
 
       {hasNextPage && (
         <div className="button-wrapper">
-          <ViewMoreButton
-            variant="table"
-            breakpoint={breakpoint}
-            text="View More Realms"
-            onClick={() => fetchNextPage()}
-          />
+          <ViewMoreButton variant="table" text="View More Realms" onClick={() => fetchNextPage()} />
         </div>
       )}
     </CardTableContainer>

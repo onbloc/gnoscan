@@ -22,7 +22,6 @@ import { StorageDeposit } from "@/models/storage-deposit-model";
 import { DEFAULT_TX_STORAGE_DEPOSIT } from "@/common/values/default-object/transaction";
 
 interface TransactionSummaryProps {
-  isDesktop: boolean;
   txHash: string;
   txErrorType: string;
   blockResultLog: string | null;
@@ -34,7 +33,6 @@ const TOOLTIP_STORAGE_DEPOSIT = (
 );
 
 const StandardNetworkTransactionSummary = ({
-  isDesktop,
   txHash,
   txErrorType,
   blockResultLog,
@@ -78,7 +76,7 @@ const StandardNetworkTransactionSummary = ({
   return (
     data?.transactionItem && (
       <DataSection title="Summary">
-        <DLWrap desktop={isDesktop}>
+        <DLWrap>
           <dt>Status</dt>
           <dd style={{ display: "flex" }}>
             <Badge type={isPending ? "pending" : data.transactionItem.success ? "green" : "failed"}>
@@ -90,7 +88,7 @@ const StandardNetworkTransactionSummary = ({
           </dd>
         </DLWrap>
         {!isPending && (
-          <Field label="Timestamp" isDesktop={isDesktop}>
+          <Field label="Timestamp">
             <Badge>
               <Text type="p4" color="inherit" className="ellipsis">
                 {data.timeStamp.time}
@@ -99,7 +97,7 @@ const StandardNetworkTransactionSummary = ({
             </Badge>
           </Field>
         )}
-        <Field label="Tx Hash" isDesktop={isDesktop}>
+        <Field label="Tx Hash">
           <Badge>
             <Text type="p4" color="inherit" className="ellipsis">
               {txHashDisplay || "-"}
@@ -107,7 +105,7 @@ const StandardNetworkTransactionSummary = ({
             {txHashDisplay && <CopyTooltip copyText={txHashDisplay} />}
           </Badge>
         </Field>
-        <Field label="Tx Hash (base64)" isDesktop={isDesktop}>
+        <Field label="Tx Hash (base64)">
           <Badge>
             <Text type="p4" color="inherit" className="ellipsis">
               {data.transactionItem.hashBase64 || "-"}
@@ -116,12 +114,12 @@ const StandardNetworkTransactionSummary = ({
           </Badge>
         </Field>
         {!isPending && (
-          <Field label="Network" isDesktop={isDesktop}>
+          <Field label="Network">
             <Badge>{data.network}</Badge>
           </Field>
         )}
         {!isPending && (
-          <Field label="Block" isDesktop={isDesktop}>
+          <Field label="Block">
             <Badge>
               <Link href={getUrlWithNetwork(`/block/${data.transactionItem.blockHeight}`)} passHref>
                 <FitContentSpan>
@@ -133,7 +131,7 @@ const StandardNetworkTransactionSummary = ({
             </Badge>
           </Field>
         )}
-        <Field label="Transaction Fee" isDesktop={isDesktop}>
+        <Field label="Transaction Fee">
           <Badge>
             <AmountText
               minSize="body1"
@@ -145,11 +143,11 @@ const StandardNetworkTransactionSummary = ({
             <UsdValueText tokenKey={GNOTToken.denom} amount={transactionFee?.value || "0"} />
           </Badge>
         </Field>
-        <Field label={isPending ? "Gas Wanted" : "Gas (Used/Wanted)"} isDesktop={isDesktop}>
+        <Field label={isPending ? "Gas Wanted" : "Gas (Used/Wanted)"}>
           <Badge>{isPending ? data.transactionItem.gasWanted ?? "-" : data.gas}</Badge>
         </Field>
         {!isPending && (
-          <FieldWithTooltip label="Storage Deposit" tooltipContent={TOOLTIP_STORAGE_DEPOSIT} isDesktop={isDesktop}>
+          <FieldWithTooltip label="Storage Deposit" tooltipContent={TOOLTIP_STORAGE_DEPOSIT}>
             <StorageDepositAmountBadge
               storageDeposit={displayStorageDeposit}
               visibleStorageSize={true}
@@ -157,7 +155,7 @@ const StandardNetworkTransactionSummary = ({
             />
           </FieldWithTooltip>
         )}
-        <Field label="Memo" isDesktop={isDesktop}>
+        <Field label="Memo">
           <Badge>{data.transactionItem.memo || "-"}</Badge>
         </Field>
         {!isPending && !data.transactionItem.success && (

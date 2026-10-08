@@ -7,7 +7,6 @@ import { FlushTableContainer } from "../datatable.styles";
 import { EventDetail } from "./event-detail";
 import { GnoEvent } from "@/types/data-type";
 import { ViewMoreButton } from "@/components/ui/button";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 
 /**
  * - "default": Block page events (Identifier, Tx Hash, Block, Event Name, Caller, Time).
@@ -38,7 +37,6 @@ export const StandardNetworkEventDatatable = ({
   nextPage,
   variant = "default",
 }: Props) => {
-  const { breakpoint } = useWindowSize();
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   // Activity widths sum to the 1146px table min-width so columns stay evenly spaced.
   const isActivity = variant === "activity";
@@ -177,9 +175,7 @@ export const StandardNetworkEventDatatable = ({
     <FlushTableContainer>
       <Datatable loading={!loaded} headers={createHeaders()} datas={events} renderDetails={renderDetails} />
 
-      {hasNextPage && (
-        <ViewMoreButton variant="table" breakpoint={breakpoint} text="View More Events" onClick={() => nextPage?.()} />
-      )}
+      {hasNextPage && <ViewMoreButton variant="table" text="View More Events" onClick={() => nextPage?.()} />}
     </FlushTableContainer>
   );
 };

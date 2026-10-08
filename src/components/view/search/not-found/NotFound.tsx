@@ -4,7 +4,6 @@ import React from "react";
 
 import { useRouter } from "@/common/hooks/common/use-router";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
 import * as S from "./NotFound.styles";
 import BackgroundSearchNotFound from "@/assets/svgs/bg-search-not-found.svg";
@@ -13,10 +12,9 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   keyword?: string;
-  breakpoint?: DEVICE_TYPE;
 }
 
-const NotFound = ({ keyword, breakpoint }: Props) => {
+const NotFound = ({ keyword }: Props) => {
   const { isDark } = useThemeMode();
   const { replace } = useRouter();
 
@@ -25,7 +23,7 @@ const NotFound = ({ keyword, breakpoint }: Props) => {
   };
 
   return (
-    <S.Wrapper className={breakpoint}>
+    <S.Wrapper>
       <div className="info-area">
         <p className="title">{"Search not found"}</p>
         <div className="description">
@@ -39,9 +37,7 @@ const NotFound = ({ keyword, breakpoint }: Props) => {
           {"Back to Home"}
         </Button>
       </div>
-      {breakpoint === DEVICE_TYPE.DESKTOP && (
-        <div className="asset-area">{isDark ? <BackgroundSearchNotFound /> : <BackgroundSearchNotFoundLight />}</div>
-      )}
+      <div className="asset-area">{isDark ? <BackgroundSearchNotFound /> : <BackgroundSearchNotFoundLight />}</div>
     </S.Wrapper>
   );
 };

@@ -12,7 +12,6 @@ import { BadgeList, PkgPathLink } from "@/components/view/transaction/common";
 import { Amount } from "@/types";
 
 const StandardNetworkAddPackageMessage = ({
-  isDesktop,
   message,
   files = [],
   getUrlWithNetwork,
@@ -31,15 +30,15 @@ const StandardNetworkAddPackageMessage = ({
 
   return (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{MESSAGE_TYPES.VM_ADDPKG}</BadgeText>
       </Field>
 
-      <Field label="Pkg Name" isDesktop={isDesktop}>
+      <Field label="Pkg Name">
         <BadgeText>{message.name}</BadgeText>
       </Field>
 
-      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <PkgPathLink
           path={message.pkgPath}
           getUrlWithNetwork={getUrlWithNetwork}
@@ -48,7 +47,7 @@ const StandardNetworkAddPackageMessage = ({
         />
       </FieldWithTooltip>
 
-      <Field label="Creator" isDesktop={isDesktop}>
+      <Field label="Creator">
         <AddressLink
           address={message.creator || ""}
           addressName={message.creatorName}
@@ -59,16 +58,16 @@ const StandardNetworkAddPackageMessage = ({
         />
       </Field>
 
-      <Field label="Files" isDesktop={isDesktop} className="top-aligned" contentClassName="files-wrapper">
+      <Field label="Files" className="top-aligned" contentClassName="files-wrapper">
         <BadgeList items={message?.files} />
         {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
       </Field>
 
-      <Field label="Send" isDesktop={isDesktop}>
+      <Field label="Send">
         <AmountBadge amount={send} />
       </Field>
 
-      <Field label="Max_Deposit" isDesktop={isDesktop}>
+      <Field label="Max_Deposit">
         <AmountBadge amount={maxDeposit} />
       </Field>
     </>

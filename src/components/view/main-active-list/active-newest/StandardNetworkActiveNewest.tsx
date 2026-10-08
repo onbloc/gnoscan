@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useUpdateTime } from "@/common/hooks/main/use-update-time";
 import { useGetNewestRealms } from "@/common/react-query/statistics";
-import { useWindowSize } from "@/common/hooks/use-window-size";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getLocalDateString } from "@/common/utils/date-util";
 import { NewestRealm } from "@/types/data-type";
@@ -28,7 +26,6 @@ function makeDisplayRealmPath(path: string, length = 11) {
 }
 
 const StandardNetworkActiveNewest = () => {
-  const { breakpoint } = useWindowSize();
   const { isFetched: isFetchedUpdatedAt } = useUpdateTime();
   const { getUrlWithNetwork } = useNetwork();
 
@@ -78,8 +75,8 @@ const StandardNetworkActiveNewest = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Newest Realms
-        {breakpoint !== DEVICE_TYPE.MOBILE && isFetched && isFetchedUpdatedAt && (
-          <Text type="body1" color="tertiary">
+        {isFetched && isFetchedUpdatedAt && (
+          <Text className="hide-mobile" type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
@@ -134,8 +131,8 @@ const StandardNetworkActiveNewest = () => {
       ) : (
         <FetchedSkeleton />
       )}
-      {breakpoint === DEVICE_TYPE.MOBILE && isFetched && (
-        <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
+      {isFetched && (
+        <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}

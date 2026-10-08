@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { mapDisplayFunctionName } from "@/common/utils/format/format-utils";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
@@ -24,7 +23,6 @@ const TOOLTIP_TYPE = (
 );
 
 interface StandardNetworkTransactionListTableProps {
-  breakpoint: DEVICE_TYPE;
   transactions: TransactionModel[];
   hasNextPage?: boolean;
   isFetched: boolean;
@@ -33,7 +31,6 @@ interface StandardNetworkTransactionListTableProps {
 }
 
 export const StandardNetworkTransactionListTable = ({
-  breakpoint,
   transactions,
   hasNextPage,
   nextPage,
@@ -169,12 +166,7 @@ export const StandardNetworkTransactionListTable = ({
       <Datatable headers={createHeaders()} datas={transactions} />
       {hasNextPage && (
         <div className="button-wrapper">
-          <ViewMoreButton
-            variant="table"
-            breakpoint={breakpoint}
-            text="View More Transactions"
-            onClick={() => nextPage()}
-          />
+          <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />
         </div>
       )}
     </CardTableContainer>

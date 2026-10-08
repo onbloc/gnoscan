@@ -12,31 +12,27 @@ import { PkgPathLink } from "@/components/view/transaction/common";
 const ARG_INDEX_PKG_HASH = 0;
 const ARG_INDEX_PKG_HEIGHT = 1;
 
-const StandardNetworkEnablePackageMessage = ({
-  isDesktop,
-  message,
-  getUrlWithNetwork,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkEnablePackageMessage = ({ message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const pkgHash = message.args?.[ARG_INDEX_PKG_HASH] || "-";
   const pkgHeight = message.args?.[ARG_INDEX_PKG_HEIGHT] || "-";
 
   return (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{message.messageType}</BadgeText>
       </Field>
 
-      <Field label="Function" isDesktop={isDesktop}>
+      <Field label="Function">
         <BadgeText type="blue" color="white">
           {getTransactionMessageType(message) || "-"}
         </BadgeText>
       </Field>
 
-      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} isEllipsis={false} />
       </FieldWithTooltip>
 
-      <Field label="Approver" isDesktop={isDesktop}>
+      <Field label="Approver">
         <AddressLink
           address={message.caller || ""}
           addressName={message.callerName}
@@ -47,11 +43,11 @@ const StandardNetworkEnablePackageMessage = ({
         />
       </Field>
 
-      <Field label="Pkg Hash" isDesktop={isDesktop}>
+      <Field label="Pkg Hash">
         <BadgeText>{pkgHash}</BadgeText>
       </Field>
 
-      <Field label="Pkg Height" isDesktop={isDesktop}>
+      <Field label="Pkg Height">
         <BadgeText>{pkgHeight}</BadgeText>
       </Field>
     </>

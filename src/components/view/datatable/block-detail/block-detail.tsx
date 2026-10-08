@@ -7,7 +7,6 @@ import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
 import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 
 interface Props {
   transactions: Transaction[];
@@ -25,7 +24,6 @@ const TOOLTIP_TYPE = (
 );
 
 export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nextPage }: Props) => {
-  const { breakpoint } = useWindowSize();
   const { getTokenAmount } = useTokenMeta();
 
   const loaded = useMemo(() => {
@@ -143,14 +141,7 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
   return (
     <FlushTableContainer>
       <Datatable loading={!loaded} headers={createHeaders()} datas={transactions} />
-      {hasNextPage && (
-        <ViewMoreButton
-          variant="table"
-          breakpoint={breakpoint}
-          text="View More Transactions"
-          onClick={() => nextPage()}
-        />
-      )}
+      {hasNextPage && <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />}
     </FlushTableContainer>
   );
 };

@@ -1,15 +1,10 @@
 import React from "react";
 
 import { useGetTransactions } from "@/common/react-query/transaction/api";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
 import { StandardNetworkTransactionListTable } from "../transaction-list-table/standard-network/StandardNetworkTransactionListTable";
 
-interface StandardNetworkTransactionDataProps {
-  breakpoint: DEVICE_TYPE;
-}
-
-const StandardNetworkTransactionData = ({ breakpoint }: StandardNetworkTransactionDataProps) => {
+const StandardNetworkTransactionData = () => {
   const { data, hasNextPage, isFetched, isLoading, fetchNextPage } = useGetTransactions();
 
   const transactionListData = React.useMemo(() => {
@@ -22,7 +17,6 @@ const StandardNetworkTransactionData = ({ breakpoint }: StandardNetworkTransacti
 
   return (
     <StandardNetworkTransactionListTable
-      breakpoint={breakpoint}
       transactions={transactionListData}
       hasNextPage={hasNextPage}
       isFetched={isFetched}

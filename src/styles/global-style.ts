@@ -1,6 +1,7 @@
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
+import { media } from "@/common/values/ui.constant";
 
 export const GlobalStyle = createGlobalStyle`
   ${reset}
@@ -76,5 +77,26 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
     border: none;
   };
-  
+
+  // CSS picks the variant so the server HTML matches the hydrated page.
+  ${media.MOBILE} {
+    .hide-mobile {
+      display: none !important;
+    }
+  }
+  ${media.NOT_MOBILE} {
+    .only-mobile {
+      display: none !important;
+    }
+  }
+  ${media.NOT_DESKTOP} {
+    .only-desktop {
+      display: none !important;
+    }
+  }
+  ${media.DESKTOP} {
+    .hide-desktop {
+      display: none !important;
+    }
+  }
 `;

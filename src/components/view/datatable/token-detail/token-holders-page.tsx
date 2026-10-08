@@ -7,7 +7,6 @@ import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
 import { useGetTokenHoldersByid, useGetTokenById } from "@/common/react-query/token/api";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { TokenHolderModel } from "@/models/api/token/token-holder-model";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
@@ -21,8 +20,6 @@ interface Props {
 }
 
 export const TokenHoldersDatatablePage = ({ path }: Props) => {
-  const { breakpoint } = useWindowSize();
-
   const { data: tokenData } = useGetTokenById(path);
   const { getTokenMeta } = useTokenResourceMeta();
   const backendMeta = tokenData?.data ?? { decimals: 0, symbol: "" };
@@ -124,14 +121,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   return (
     <FlushTableContainer>
       <Datatable loading={!isFetchedHolders} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
-      {hasNextPage && (
-        <ViewMoreButton
-          variant="table"
-          breakpoint={breakpoint}
-          text="View More Holders"
-          onClick={() => fetchNextPage()}
-        />
-      )}
+      {hasNextPage && <ViewMoreButton variant="table" text="View More Holders" onClick={() => fetchNextPage()} />}
     </FlushTableContainer>
   );
 };

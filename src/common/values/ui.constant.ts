@@ -22,4 +22,6 @@ export const media = {
     DEVICE_SIZE_THRESHOLDS.DESKTOP - 1
   }px)`,
   MOBILE: `@media (max-width: ${DEVICE_SIZE_THRESHOLDS.TABLET - 1}px)`,
+  NOT_DESKTOP: `@media (max-width: ${DEVICE_SIZE_THRESHOLDS.DESKTOP - 1}px)`,
+  NOT_MOBILE: `@media (min-width: ${DEVICE_SIZE_THRESHOLDS.TABLET}px)`,
 };

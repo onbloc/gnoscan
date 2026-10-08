@@ -5,7 +5,6 @@ import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { ViewMoreButton } from "@/components/ui/button";
 import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
-import { eachMedia } from "@/common/hooks/use-media";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { Transaction } from "@/types/data-type";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
@@ -27,7 +26,6 @@ const TOOLTIP_TYPE = (
 );
 
 export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, nextPage }: Props) => {
-  const media = eachMedia();
   const { getTokenAmount } = useTokenMeta();
 
   const createHeaders = () => {
@@ -138,9 +136,7 @@ export const RealmDetailDatatable = ({ pkgPath, data, isFetched, hasNextPage, ne
     <FlushTableContainer>
       <Datatable loading={!isFetched} headers={createHeaders()} datas={data} />
 
-      {hasNextPage && (
-        <ViewMoreButton variant="table" breakpoint={media} text="View More Transactions" onClick={() => nextPage()} />
-      )}
+      {hasNextPage && <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />}
     </FlushTableContainer>
   );
 };
