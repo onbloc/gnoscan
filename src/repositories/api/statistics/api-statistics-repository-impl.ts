@@ -11,6 +11,7 @@ import {
   GetSummaryAccountsResponse,
   GetSummaryBlocksResponse,
   GetSummarySupplyResponse,
+  GetGnotPriceResponse,
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
   GetTotalDailyStorageDepositResponse,
@@ -49,6 +50,10 @@ export class ApiStatisticsRepositoryImpl extends ApiRepository implements ApiSta
 
   getSummarySupply(): Promise<GetSummarySupplyResponse> {
     return this.get<GetSummarySupplyResponse>("/stats/summary/supply");
+  }
+
+  getGnotPrice(): Promise<GetGnotPriceResponse> {
+    return this.get<GetGnotPriceResponse>("/prices/gno-land");
   }
 
   getSummaryTransactions(): Promise<GetSummaryTransactionsResponse> {
