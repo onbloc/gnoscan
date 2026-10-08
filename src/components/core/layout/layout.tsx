@@ -9,15 +9,19 @@ import useLoading from "@/common/hooks/use-loading";
 import { CustomThemeProvider } from "./CustomThemeProvider";
 import { useGetLatestBlockHeightIntervalQuery } from "@/common/react-query/block/queries";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  const { isCustomNetwork } = useNetworkProvider();
+
   useLoading();
 
   useTokenMeta();
-  useGetLatestBlockHeightIntervalQuery();
+  // Only custom network views read the live block height, standard network views use the API.
+  useGetLatestBlockHeightIntervalQuery({ enabled: isCustomNetwork });
 
   return (
     <CustomThemeProvider>
