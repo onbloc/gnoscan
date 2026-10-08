@@ -116,6 +116,8 @@ const isGrc20AssetType = (assetType: string) => assetType.includes("/");
  * is applied as an inline override instead of being added to the theme for a single call site.
  */
 export const SUMMARY_LINE_HEIGHT: CSSProperties = { lineHeight: "28px" };
+// Every word of the 18px summary sentence is Roboto Medium per Figma.
+export const SUMMARY_FONT_WEIGHT = 500;
 const COMPACT_TRANSFER_LINE_HEIGHT: CSSProperties = { lineHeight: "20px" };
 
 /**
@@ -136,8 +138,10 @@ export const summaryLineCss = css`
   }
 `;
 
+// Figma separates the words of the 18px sentence with a single space (4.47px in 18px Roboto).
 export const SummaryLine = styled.div`
   ${summaryLineCss}
+  column-gap: 4.47px;
 `;
 
 export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
@@ -210,7 +214,7 @@ export const TransferAddress = ({
 
   if (!address && !label) {
     return (
-      <Text type={textType} color="primary" fontWeight={400} style={textStyle}>
+      <Text type={textType} color="primary" fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT} style={textStyle}>
         -
       </Text>
     );
@@ -224,7 +228,13 @@ export const TransferAddress = ({
         </RealmLink>
       ) : (
         <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
-          <Text type={textType} color="blue" fontWeight={400} display="contents" style={textStyle}>
+          <Text
+            type={textType}
+            color="blue"
+            fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT}
+            display="contents"
+            style={textStyle}
+          >
             {label || textEllipsis(address, 6)}
           </Text>
         </Link>
@@ -250,7 +260,7 @@ export const RealmLink = ({
       <Text
         type={compact ? "p4" : "p2"}
         color="blue"
-        fontWeight={400}
+        fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT}
         display="contents"
         style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
       >
@@ -277,7 +287,7 @@ const SummaryUsdValue = ({
     amount={amount}
     type={compact ? "p4" : "p2"}
     color="tertiary"
-    fontWeight={400}
+    fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT}
     margin="0"
     style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
   />
