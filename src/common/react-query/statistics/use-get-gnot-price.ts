@@ -14,6 +14,6 @@ export const useGetGnotPrice = (options?: UseQueryOptions<GetGnotPriceResponse, 
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getGnotPrice(),
-    { staleTime: 60_000, refetchInterval: 60_000, ...options },
+    { staleTime: 60_000, refetchInterval: 60_000, retry: 1, ...options },
   );
 };
