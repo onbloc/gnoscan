@@ -25,9 +25,10 @@ describe("mapAccountAssetsToAmounts", () => {
     expect(result).toEqual([{ value: "10550316.077354", denom: "GNS", tokenKey: "gno.land/r/demo/gns.GNS.0000000" }]);
   });
 
-  test("filters out native entries and assets missing name/symbol", () => {
+  test("filters out native entries, zero balances and assets missing name/symbol", () => {
     const result = mapAccountAssetsToAmounts([
       makeAsset({ tokenType: "Native" }),
+      makeAsset({ amount: "0" }),
       makeAsset({ name: "" }),
       makeAsset({ symbol: "" }),
     ]);

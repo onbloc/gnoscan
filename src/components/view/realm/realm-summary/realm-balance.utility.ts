@@ -7,6 +7,7 @@ import {
   TokenMetaFallback,
 } from "@/common/utils/token.utility";
 import { AccountAssetModel } from "@/repositories/api/account/response";
+import { isDisplayableAsset } from "@/components/view/account/account-assets/account-assets.utility";
 import { Amount } from "@/types/data-type";
 
 // Amount plus the token key (denom/path) it came from, for price lookups.
@@ -23,7 +24,7 @@ type TokenMetaResolver = (tokenKey: string, fallback: TokenMetaFallback) => Reso
 // Without the resource list, the backend values are used (plus resolveTokenMeta's wugnot override).
 const resolveWithoutResource: TokenMetaResolver = (tokenKey, fallback) => resolveTokenMeta({}, tokenKey, fallback);
 
-// GRC20 holdings only - the native GNOT balance is fetched separately (RPC) and combined by the caller.
+// Non-zero GRC20 holdings only - the native GNOT balance is fetched separately (RPC) and combined by the caller.
 // Pass useTokenResourceMeta().getTokenMeta so the token resource list wins over the backend values.
 export function mapAccountAssetsToAmounts(
   assets: AccountAssetModel[] | undefined,
@@ -31,19 +32,17 @@ export function mapAccountAssetsToAmounts(
 ): TokenAmount[] {
   if (!assets) return [];
 
-  return assets
-    .filter(asset => asset.tokenType === "GRC20" && asset.name && asset.symbol)
-    .map(asset => {
-      const tokenKey = asset.tokenId || asset.packagePath;
-      const resolved = getTokenMeta(tokenKey, {
-        name: asset.name,
-        symbol: asset.symbol,
-        decimals: asset.decimals,
-      });
-      return {
-        value: formatTokenDecimal(asset.amount, resolved.decimals),
-        denom: resolved.symbol || asset.symbol,
-        tokenKey,
-      };
+  return assets.filter(isDisplayableAsset).map(asset => {
+    const tokenKey = asset.tokenId || asset.packagePath;
+    const resolved = getTokenMeta(tokenKey, {
+      name: asset.name,
+      symbol: asset.symbol,
+      decimals: asset.decimals,
     });
+    return {
+      value: formatTokenDecimal(asset.amount, resolved.decimals),
+      denom: resolved.symbol || asset.symbol,
+      tokenKey,
+    };
+  });
 }

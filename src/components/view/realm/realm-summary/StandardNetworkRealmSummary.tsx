@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React from "react";
@@ -122,10 +123,8 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
   const realmBalanceList: TokenAmount[] = React.useMemo(() => {
     const nativeDenom = nativeBalanceData?.denom || GNOTToken.denom;
     const nativeAmount = { ...toGNOTAmount(nativeBalanceData?.value || "0", nativeDenom), tokenKey: nativeDenom };
-    return sortAmountsByValueDesc([
-      nativeAmount,
-      ...mapAccountAssetsToAmounts(accountData?.data?.assets, getTokenMeta),
-    ]);
+    const amounts = [nativeAmount, ...mapAccountAssetsToAmounts(accountData?.data?.assets, getTokenMeta)];
+    return sortAmountsByValueDesc(amounts.filter(amount => !BigNumber(amount.value).isZero()));
   }, [nativeBalanceData, accountData?.data?.assets, getTokenMeta]);
 
   const realmTotalUsedFees: Amount | null = React.useMemo(() => {
@@ -275,12 +274,16 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
         isDesktop={isDesktop}
         contentClassName="function-wrapper"
       >
-        {realmBalanceList.map((amount, index) => (
-          <Badge key={`${amount.denom}-${index}`}>
-            <AmountText minSize="body1" maxSize="p4" denomSize="body2" value={amount.value} denom={amount.denom} />
-            <UsdValueText tokenKey={amount.tokenKey} amount={amount.value} />
-          </Badge>
-        ))}
+        {realmBalanceList.length > 0 ? (
+          realmBalanceList.map((amount, index) => (
+            <Badge key={`${amount.denom}-${index}`}>
+              <AmountText minSize="body1" maxSize="p4" denomSize="body2" value={amount.value} denom={amount.denom} />
+              <UsdValueText tokenKey={amount.tokenKey} amount={amount.value} />
+            </Badge>
+          ))
+        ) : (
+          <Badge>-</Badge>
+        )}
       </FieldWithTooltip>
       <Field label="Total Calls" isDesktop={isDesktop}>
         <Badge>{realmSummary?.contractCalls || 0}</Badge>
