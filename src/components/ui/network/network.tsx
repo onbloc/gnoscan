@@ -193,7 +193,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                   }
                 }}
                 placeholder="Tx Indexer URL (Optional)"
-                aria-label="Tx Indexer URL"
+                aria-label="Tx Indexer URL (Optional)"
               />
               <div
                 className={availCustomConnect ? "connect active" : "connect"}
