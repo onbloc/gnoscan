@@ -68,14 +68,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
             )}
             <S.Quantity>
               <IconLockAsset className="vesting-lock" aria-hidden="true" />
-              <AmountText
-                minSize="body1"
-                maxSize="p4"
-                color="tertiary"
-                {...total}
-                denom={` ${total.denom}`}
-                wrap={false}
-              />
+              <AmountText minSize="body1" maxSize="p4" color="tertiary" {...total} wrap={false} />
             </S.Quantity>
           </S.AmountInfo>
           <S.Chevron $isExpanded={isExpanded}>

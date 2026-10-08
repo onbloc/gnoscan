@@ -45,10 +45,8 @@ const render = (element: React.ReactElement) =>
 beforeEach(() => {
   mockPrices.isLoading = false;
   mockPrices.data = {
-    items: [
-      { assetId: "gno.land/r/gnoland/wugnot.wugnot", provider: "gnoswap", price: "0.024", status: "fresh" },
-      { assetId: "gno.land/r/gnoswap/gns.GNS", provider: "gnoswap", price: "0.5", status: "fresh" },
-    ],
+    ugnot: { price: "0.024" },
+    "gno.land/r/gnoswap/gns.GNS": { price: "0.5", tokenPath: "gno.land/r/gnoswap/gns.GNS" },
   };
 });
 

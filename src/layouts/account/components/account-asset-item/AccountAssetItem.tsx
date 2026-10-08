@@ -121,7 +121,7 @@ const AccountAssetItem = ({
             {usdValue || "-"}
           </Text>
         )}
-        <AmountText minSize="body1" maxSize="p4" {...tokenAmount} denom={` ${tokenAmount.denom}`} />
+        <AmountText minSize="body1" maxSize="p4" {...tokenAmount} />
       </S.AmountInfo>
     </S.Box>
   );

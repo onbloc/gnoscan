@@ -42,9 +42,7 @@ const vesting = {
 
 describe("AccountVestingAsset", () => {
   it("renders the fiat value above the locked token quantity", () => {
-    mockPrices.data = {
-      items: [{ assetId: "gno.land/r/gnoland/wugnot.wugnot", provider: "gnoswap", price: "0.024", status: "fresh" }],
-    };
+    mockPrices.data = { ugnot: { price: "0.024" } };
 
     const markup = renderToStaticMarkup(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
@@ -57,7 +55,7 @@ describe("AccountVestingAsset", () => {
   });
 
   it("renders a dash instead of a fiat value when the token is unpriced", () => {
-    mockPrices.data = { items: [] };
+    mockPrices.data = {};
 
     const markup = renderToStaticMarkup(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>

@@ -17,9 +17,7 @@ const renderText = (tokenKey: string, amount: string) =>
   ).replace(/<[^>]*>/g, "");
 
 beforeEach(() => {
-  mockPrices.data = {
-    items: [{ assetId: "gno.land/r/gnoland/wugnot.wugnot", provider: "gnoswap", price: "0.024", status: "fresh" }],
-  };
+  mockPrices.data = { ugnot: { price: "0.024" } };
 });
 
 it("renders the USD value in parentheses", () => {

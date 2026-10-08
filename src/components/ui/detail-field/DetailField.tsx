@@ -171,12 +171,10 @@ export const StorageDepositAmountBadge = ({
   storageDeposit,
   visibleStorageSize,
   visibleTooltip,
-  visibleUsd = false,
 }: {
   storageDeposit?: StorageDeposit | null;
   visibleStorageSize?: boolean;
   visibleTooltip?: boolean;
-  visibleUsd?: boolean;
 }) => {
   const displayStorageDepositData: Amount | null = React.useMemo(() => {
     if (!storageDeposit) return null;
@@ -199,9 +197,7 @@ export const StorageDepositAmountBadge = ({
         visibleTooltip={visibleTooltip}
       />
       {/* abs: released deposits render as "+X GNOT", so the USD value stays unsigned too. */}
-      {visibleUsd && (
-        <UsdValueText tokenKey={GNOTToken.denom} amount={BigNumber(displayStorageDepositData.value).abs()} />
-      )}
+      <UsdValueText tokenKey={GNOTToken.denom} amount={BigNumber(displayStorageDepositData.value).abs()} />
     </BadgeText>
   );
 };

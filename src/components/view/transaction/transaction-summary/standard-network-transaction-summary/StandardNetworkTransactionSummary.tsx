@@ -154,7 +154,6 @@ const StandardNetworkTransactionSummary = ({
               storageDeposit={displayStorageDeposit}
               visibleStorageSize={true}
               visibleTooltip={false}
-              visibleUsd
             />
           </FieldWithTooltip>
         )}
