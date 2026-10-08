@@ -4,7 +4,6 @@ import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
 import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import { useRouter } from "@/common/hooks/common/use-router";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { isDesktop } from "@/common/hooks/use-media";
 import { useNetwork } from "@/common/hooks/use-network";
 import { debounce } from "@/common/utils/string-util";
 import { SubInput } from "@/components/ui/input";
@@ -13,23 +12,15 @@ import Text from "@/components/ui/text";
 import { searchState, themeState } from "@/states";
 import mixins from "@/styles/mixins";
 import theme from "@/styles/theme";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { SubMenu } from "./sub-menu";
 
-const Desktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.Desktop), {
-  ssr: false,
-});
-const NotDesktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NotDesktop), {
-  ssr: false,
-});
 interface EntryProps {
   entry?: boolean;
   darkMode?: boolean;
-  isDesktop?: boolean;
 }
 
 export const navItems = [
@@ -67,7 +58,6 @@ export const TopNav = () => {
   const [value, setValue] = useRecoilState(searchState);
   const [toggle, setToggle] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
-  const desktop = isDesktop();
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
   const navigateToHomeHandler = () => router.push("/");
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
@@ -88,13 +78,13 @@ export const TopNav = () => {
   }, []);
 
   return (
-    <Wrapper isDesktop={desktop} entry={entry}>
+    <Wrapper entry={entry}>
       {entry ? (
         <GnoscanLogo className="logo-icon" onClick={navigateToHomeHandler} />
       ) : (
         <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
       )}
-      <Desktop>
+      <div className="desktop-only">
         {!isMain && (
           <SubInput className="sub-search" value={value} onChange={onChange} clearValue={() => setValue("")} />
         )}
@@ -107,7 +97,7 @@ export const TopNav = () => {
             </Link>
           ))}
         </Nav>
-      </Desktop>
+      </div>
 
       <Network
         entry={entry}
@@ -117,7 +107,7 @@ export const TopNav = () => {
         networkSettingHandler={networkSettingHandler}
         setToggle={setToggle}
       />
-      <NotDesktop>
+      <div className="not-desktop">
         <SubMenu
           entry={entry}
           open={open}
@@ -125,7 +115,7 @@ export const TopNav = () => {
           darkMode={themeMode === "dark"}
           currentPath={router.route}
         />
-      </NotDesktop>
+      </div>
     </Wrapper>
   );
 };
@@ -140,7 +130,24 @@ const Wrapper = styled.div<EntryProps>`
   .logo-icon {
     flex-shrink: 0;
     cursor: pointer;
-    margin-right: ${({ isDesktop }) => !isDesktop && "auto"};
+  }
+  // Switch layouts in CSS so the server HTML already matches the hydrated header.
+  .desktop-only,
+  .not-desktop {
+    display: contents;
+  }
+  @media (min-width: 1280px) {
+    .not-desktop {
+      display: none;
+    }
+  }
+  @media (max-width: 1279px) {
+    .desktop-only {
+      display: none;
+    }
+    .logo-icon {
+      margin-right: auto;
+    }
   }
   .sub-search {
     width: 396px;
