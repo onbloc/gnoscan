@@ -57,7 +57,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
         <Container open={open}>
           <TopHeader>
             {darkMode ? <GnoscanLogo /> : <GnoscanLogoLight />}
-            <CloseButton onClick={onClick}>
+            <CloseButton onClick={onClick} aria-label="Close menu">
               <CloseIcon className="close-icon" />
             </CloseButton>
           </TopHeader>
