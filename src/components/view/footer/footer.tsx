@@ -62,10 +62,10 @@ const Community = () => (
     <Text type="body1" desktopType="p4" color="tertiary" className="hr-text">
       Community:
     </Text>
-    <SNS href="https://twitter.com/gnoscan" target="_blank">
+    <SNS href="https://twitter.com/gnoscan" target="_blank" aria-label="Twitter">
       <Twitter className="svg-icon" />
     </SNS>
-    <SNS href="https://discord.gg/Bhgkr7hMEz" target="_blank">
+    <SNS href="https://discord.gg/Bhgkr7hMEz" target="_blank" aria-label="Discord">
       <Discord className="svg-icon" />
     </SNS>
     <DarkModeToggle className="f-toggle" />
