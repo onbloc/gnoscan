@@ -106,20 +106,26 @@ describe("getUsdValue", () => {
 });
 
 describe("formatUsd", () => {
-  it("formats with three decimals and thousands separators", () => {
-    expect(formatUsd("12.32")).toBe("$12.320");
-    expect(formatUsd("1234567.8")).toBe("$1,234,567.800");
+  it("truncates to two decimals with thousands separators from $1 up", () => {
+    expect(formatUsd("12.32")).toBe("$12.32");
+    expect(formatUsd("1.1295")).toBe("$1.12");
+    expect(formatUsd("1.999")).toBe("$1.99");
+    expect(formatUsd("1234.5678")).toBe("$1,234.56");
+    expect(formatUsd("1234567.8")).toBe("$1,234,567.8");
   });
 
-  it("keeps trailing zeros", () => {
-    expect(formatUsd("1.0004")).toBe("$1.000");
-    expect(formatUsd(new BigNumber(3))).toBe("$3.000");
-    expect(formatUsd("0")).toBe("$0.000");
+  it("truncates to three significant digits below $1", () => {
+    expect(formatUsd("0.123456")).toBe("$0.123");
+    expect(formatUsd("0.012349")).toBe("$0.0123");
+    expect(formatUsd("0.0015")).toBe("$0.0015");
+    expect(formatUsd("0.9999")).toBe("$0.999");
   });
 
-  it("rounds half up past three decimals", () => {
-    expect(formatUsd("1.1295")).toBe("$1.130");
-    expect(formatUsd("0.0015")).toBe("$0.002");
+  it("drops trailing zeros", () => {
+    expect(formatUsd("0.5")).toBe("$0.5");
+    expect(formatUsd("1.0004")).toBe("$1");
+    expect(formatUsd(new BigNumber(3))).toBe("$3");
+    expect(formatUsd("0")).toBe("$0");
   });
 
   it("shows the $0.001 floor for values above zero but below it", () => {
@@ -141,7 +147,7 @@ describe("formatTokenUsd", () => {
 
   it("formats a priced token amount", () => {
     // 512.12 * 0.0699 = 35.797188
-    expect(formatTokenUsd(priceMap, "ugnot", "512.12")).toBe("$35.797");
+    expect(formatTokenUsd(priceMap, "ugnot", "512.12")).toBe("$35.79");
   });
 
   it("returns null for an unpriced token", () => {
