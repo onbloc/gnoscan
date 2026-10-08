@@ -8,6 +8,7 @@ import Badge from "@/components/ui/badge";
 import Text from "@/components/ui/text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { UsdValueText } from "@/components/ui/text/usd-value-text";
 import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
@@ -135,11 +136,13 @@ const StandardNetworkTransactionSummary = ({
         <Field label="Transaction Fee" isDesktop={isDesktop}>
           <Badge>
             <AmountText
-              minSize="body2"
+              minSize="body1"
               maxSize="p4"
+              denomSize="body2"
               value={transactionFee?.value || "0"}
               denom={transactionFee?.denom || GNOTToken.symbol}
             />
+            <UsdValueText tokenKey={GNOTToken.denom} amount={transactionFee?.value || "0"} />
           </Badge>
         </Field>
         <Field label={isPending ? "Gas Wanted" : "Gas (Used/Wanted)"} isDesktop={isDesktop}>

@@ -1,4 +1,5 @@
 import React, { CSSProperties } from "react";
+import BigNumber from "bignumber.js";
 import Link from "next/link";
 
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
@@ -16,6 +17,7 @@ import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-style
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
+import { UsdValueText } from "@/components/ui/text/usd-value-text";
 import Tooltip from "@/components/ui/tooltip";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import * as S from "./DetailField.styles";
@@ -186,13 +188,16 @@ export const StorageDepositAmountBadge = ({
   return (
     <BadgeText>
       <StorageDepositText
-        minSize="body2"
+        minSize="body1"
         maxSize="p4"
+        denomSize="body1"
         {...toGNOTAmount(displayStorageDepositData.value, displayStorageDepositData.denom)}
         sizeInBytes={storageDeposit?.storage || 0}
         visibleStorageSize={visibleStorageSize}
         visibleTooltip={visibleTooltip}
       />
+      {/* abs: released deposits render as "+X GNOT", so the USD value stays unsigned too. */}
+      <UsdValueText tokenKey={GNOTToken.denom} amount={BigNumber(displayStorageDepositData.value).abs()} />
     </BadgeText>
   );
 };

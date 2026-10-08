@@ -2,6 +2,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { Amount } from "@/types/data-type";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -25,6 +26,8 @@ interface AccountAssetItemProps {
   name?: string;
   logoUrl?: string | null;
   tokenPath?: string;
+  // Price lookup key when amount.denom is a display symbol rather than the token key (e.g. tokenId).
+  priceTokenKey?: string;
   showTokenPathLink?: boolean;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
@@ -36,6 +39,7 @@ const AccountAssetItem = ({
   name,
   logoUrl,
   tokenPath,
+  priceTokenKey,
   showTokenPathLink,
   breakpoint,
   isDesktop,
@@ -43,6 +47,7 @@ const AccountAssetItem = ({
 }: AccountAssetItemProps) => {
   const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
   const { getUrlWithNetwork } = useNetwork();
+  const { getUsdDisplay, isLoading: isLoadingPrice } = useTokenPrice();
 
   const tokenLogoUrl = React.useMemo(() => {
     return resolveAccountAssetLogoUrl(logoUrl, amount.denom, getTokenImage);
@@ -67,6 +72,9 @@ const AccountAssetItem = ({
     if (!tokenPath) return tokenPath;
     return amount.denom ? `${tokenPath}.${amount.denom}` : tokenPath;
   }, [tokenPath, amount.denom]);
+  // amount.value is in base units for denom-keyed assets (e.g. ugnot); price the display amount.
+  const tokenAmount = getTokenAmount(amount.denom, amount.value);
+  const usdValue = getUsdDisplay(priceTokenKey || amount.denom, tokenAmount.value);
 
   if (!isFetched) {
     return (
@@ -105,8 +113,16 @@ const AccountAssetItem = ({
           )}
         </S.TokenName>
       </S.TokenInfo>
-
-      <AmountText minSize="p4" maxSize="p3" color="tertiary" {...getTokenAmount(amount.denom, amount.value)} />
+      <S.AmountInfo>
+        {isLoadingPrice ? (
+          <SkeletonBar width={80} height={20} />
+        ) : (
+          <Text type={isDesktop ? "p3" : "p4"} color="primary">
+            {usdValue || "-"}
+          </Text>
+        )}
+        <AmountText minSize="body1" maxSize="p4" {...tokenAmount} />
+      </S.AmountInfo>
     </S.Box>
   );
 };
