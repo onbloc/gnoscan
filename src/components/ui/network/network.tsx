@@ -182,6 +182,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                   }
                 }}
                 placeholder="RPC URL"
+                aria-label="RPC URL"
               />
               <input
                 className={`custom-input ${connectionErrors.customIndexerUrl ? "error" : ""}`}
@@ -194,6 +195,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                   }
                 }}
                 placeholder="Tx Indexer URL (Optional)"
+                aria-label="Tx Indexer URL"
               />
               <div
                 className={availCustomConnect ? "connect active" : "connect"}

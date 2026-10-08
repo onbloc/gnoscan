@@ -118,6 +118,7 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "Source" }: Show
                     color="primary"
                     className={scrollVisible ? "scroll-visible" : ""}
                     value={files[index].body}
+                    aria-label={files[index].name}
                     showLog={showLog}
                     onFocus={onFocusIn}
                     onBlur={onFocusOut}
@@ -141,6 +142,7 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "Source" }: Show
                     color="primary"
                     className={scrollVisible ? "scroll-visible" : ""}
                     value={logData}
+                    aria-label={btnTextType}
                     showLog={showLog}
                     onFocus={onFocusIn}
                     onBlur={onFocusOut}
@@ -161,6 +163,7 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "Source" }: Show
                 color="primary"
                 className="scroll-visible"
                 value={logData}
+                aria-label={btnTextType}
                 showLog={showLog}
                 onFocus={onFocusIn}
                 onBlur={onFocusOut}
