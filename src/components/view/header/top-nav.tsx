@@ -81,10 +81,14 @@ export const TopNav = () => {
     [value],
   );
 
-  const networkSettingHandler = useCallback((chainId: string) => {
-    changeNetwork(chainId);
-    setToggle(false);
-  }, []);
+  // Depend on changeNetwork so it reads the provider's chains, not the initial chains.json default.
+  const networkSettingHandler = useCallback(
+    (chainId: string) => {
+      changeNetwork(chainId);
+      setToggle(false);
+    },
+    [changeNetwork],
+  );
 
   return (
     <Wrapper entry={entry}>
