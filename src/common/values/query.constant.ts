@@ -26,7 +26,7 @@ export const RPC_REPOSITORY_KEY = {
 export type RPC_REPOSITORY_KEY = ValuesType<typeof RPC_REPOSITORY_KEY>;
 
 export const DASHBOARD_DATA_REFETCHING_INTERVAL = 5000;
-export const PRICES_REFETCH_INTERVAL = 30_000;
+export const PRICES_REFETCH_INTERVAL = 10_000;
 export const DEFAULT_LIST_ITEMS_SIZE = 40 as const;
 export const ACCOUNTS_LIST_PAGE_SIZE = 100 as const;
 export const MAX_ACCOUNTS_LIST_SIZE = 1_000 as const;
