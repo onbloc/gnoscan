@@ -29,7 +29,6 @@ jest.mock("@/common/react-query/price", () => ({
 }));
 
 const baseProps = {
-  isDesktop: true,
   isFetched: true,
 };
 

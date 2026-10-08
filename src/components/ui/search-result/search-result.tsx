@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { isDesktop } from "@/common/hooks/use-media";
 import useSearchQuery from "@/common/hooks/use-search-query";
 import { searchState } from "@/states";
 import mixins from "@/styles/mixins";
@@ -19,7 +18,6 @@ import { ValuesType } from "utility-types";
 import { useNetwork } from "@/common/hooks/use-network";
 
 interface StyleProps {
-  desktop?: boolean;
   isMain?: boolean;
   ref?: any;
 }
@@ -39,7 +37,6 @@ export const SEARCH_TITLE = {
 export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
 const SearchResult = () => {
-  const desktop = isDesktop();
   const [keyword, setKeyword] = useRecoilState(searchState);
   const { route } = useRouter();
   const isMain = route === "/";
@@ -63,7 +60,7 @@ const SearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper desktop={desktop} isMain={isMain} ref={ref}>
+        <Wrapper isMain={isMain} ref={ref}>
           {result && Object.keys(result).length !== 0 ? (
             Object.keys(result).map(searchTitle => (
               <Section key={v1()}>

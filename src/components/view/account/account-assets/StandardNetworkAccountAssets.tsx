@@ -10,21 +10,21 @@ import { AccountVestingModel } from "@/repositories/api/account/response";
 
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
-import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountVestingAsset from "./AccountVestingAsset";
 import AccountAssetGrid from "./AccountAssetGrid";
 import { isDisplayableAsset } from "./account-assets.utility";
+import Text from "@/components/ui/text";
 import * as S from "./AccountAssets.styles";
+import { CardTitle } from "../account-address/AccountAddress.styles";
 
 interface AccountAssetsProps {
   address: string;
   breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
 }
 
-const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
+const StandardNetworkAccountAssets = ({ address, breakpoint }: AccountAssetsProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
   const { data: nativeBalance, isFetched: isFetchedNativeBalance } = useGetNativeTokenBalance(address);
   const { getTokenMeta } = useTokenResourceMeta();
@@ -57,7 +57,7 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
   }, [data?.data, getTokenMeta]);
 
   if (isLoading || !isFetched) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountAddressSkeleton />;
   }
 
   const vesting = data?.data.vesting;
@@ -76,16 +76,13 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
       showTokenPathLink={true}
       tokenPath={grc20TokenAsset.packagePath}
       logoUrl={grc20TokenAsset.logoUrl}
-      isDesktop={isDesktop}
       isFetched={isFetched}
     />
   );
 
   return (
     <S.Card>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
-        Assets
-      </Text>
+      <CardTitle aria-label="title">Assets</CardTitle>
       {hasAssets ? (
         <AccountAssetGrid breakpoint={breakpoint}>
           {showNativeAsset && (
@@ -93,7 +90,6 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
               balance={nativeBalance?.value}
               isFetched={isFetchedNativeBalance}
               vesting={vesting}
-              isDesktop={isDesktop}
             />
           )}
           {grc20TokenAssets.map(renderGrc20Asset)}
@@ -111,7 +107,6 @@ const NativeTokenAsset = ({
   balance,
   isFetched,
   vesting,
-  isDesktop,
 }: Omit<AccountAssetsProps, "address" | "breakpoint"> & {
   balance?: string;
   isFetched: boolean;
@@ -134,7 +129,7 @@ const NativeTokenAsset = ({
   }, [balance]);
 
   if (vesting) {
-    return <AccountVestingAsset vesting={vesting} isDesktop={isDesktop} />;
+    return <AccountVestingAsset vesting={vesting} />;
   }
 
   return (
@@ -143,7 +138,6 @@ const NativeTokenAsset = ({
       amount={nativeTokenAsset.amount}
       name={nativeTokenAsset.name}
       logoUrl={nativeTokenAsset.logoUrl}
-      isDesktop={isDesktop}
       isFetched={isFetched}
     />
   );

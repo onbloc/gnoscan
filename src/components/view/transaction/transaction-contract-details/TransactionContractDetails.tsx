@@ -27,11 +27,10 @@ const TOOLTIP_PACKAGE_PATH = (
 
 export const TransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
-  isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
   getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
   getName?: (address: string) => string;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, getTokenAmount }) => {
+}> = ({ transactionItem, getUrlWithNetwork, getTokenAmount }) => {
   const { tokenMap } = useTokenMeta();
 
   const messages = React.useMemo(() => {
@@ -131,7 +130,7 @@ export const TransactionContractDetails: React.FC<{
           )}
           {isBankMsgSend(message) && (
             <>
-              <Field label="Name" isDesktop={isDesktop}>
+              <Field label="Name">
                 <Badge>
                   <Text type="p4" color="primary">
                     {message["@type"] ||
@@ -142,7 +141,7 @@ export const TransactionContractDetails: React.FC<{
                   </Text>
                 </Badge>
               </Field>
-              <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+              <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
                 <Badge>
                   <Text type="p4" color="blue" className="ellipsis">
                     <Link
@@ -161,7 +160,7 @@ export const TransactionContractDetails: React.FC<{
               </FieldWithTooltip>
             </>
           )}
-          <Field label="Function" isDesktop={isDesktop}>
+          <Field label="Function">
             <Badge type="blue">
               <Text type="p4" color="white">
                 {getContractType(message)}
@@ -172,7 +171,6 @@ export const TransactionContractDetails: React.FC<{
           {isVmCall(message) && message?.func === "Transfer" && (
             <TransactionTransferContract
               message={message}
-              isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
               getTokenAmount={getTokenAmount}
             />
@@ -180,7 +178,6 @@ export const TransactionContractDetails: React.FC<{
           {isBankMsgSend(message) && (
             <TransactionTransferContract
               message={message}
-              isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
               getTokenAmount={getTokenAmount}
             />
@@ -188,18 +185,14 @@ export const TransactionContractDetails: React.FC<{
           {isVmAddPkg(message) && (
             <TransactionAddPackageContract
               message={message}
-              isDesktop={isDesktop}
               files={getMessageFiles(message) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
-          {hasCaller(message) && (
-            <TransactionCallerContract message={message} isDesktop={isDesktop} getUrlWithNetwork={getUrlWithNetwork} />
-          )}
+          {hasCaller(message) && <TransactionCallerContract message={message} getUrlWithNetwork={getUrlWithNetwork} />}
           {isVmRun(message) && (
             <TransactionMsgRunContract
               message={message}
-              isDesktop={isDesktop}
               files={getMessageFiles(message) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />

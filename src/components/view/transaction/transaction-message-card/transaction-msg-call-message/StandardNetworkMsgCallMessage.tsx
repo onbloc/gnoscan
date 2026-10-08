@@ -13,7 +13,7 @@ import { AddressLink, AmountBadge, BadgeText, Field, FieldWithTooltip } from "@/
 import { BadgeList, PkgPathLink } from "@/components/view/transaction/common";
 import { Amount } from "@/types";
 
-const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
+const StandardNetworkMsgCallMessage = ({ message, getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const { amount, isFetched, isLoading } = useTokenMetaAmount(message?.amount);
 
   const maxDeposit: Amount | null = React.useMemo(() => {
@@ -26,21 +26,21 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
 
   const commonFields = (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{MESSAGE_TYPES.VM_CALL}</BadgeText>
       </Field>
 
-      <Field label="Function" isDesktop={isDesktop}>
+      <Field label="Function">
         <BadgeText type="blue" color="white">
           {getTransactionMessageType(message)}
         </BadgeText>
       </Field>
 
-      <Field label="Pkg Name" isDesktop={isDesktop}>
+      <Field label="Pkg Name">
         <BadgeText>{message.pkgName || "-"}</BadgeText>
       </Field>
 
-      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH} isDesktop={isDesktop}>
+      <FieldWithTooltip label="Pkg Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <PkgPathLink path={message.pkgPath || "-"} getUrlWithNetwork={getUrlWithNetwork} visibleRealmStatus />
       </FieldWithTooltip>
     </>
@@ -48,12 +48,12 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
 
   const transferFields = (
     <>
-      <Field label="Amount" isDesktop={isDesktop}>
+      <Field label="Amount">
         {isLoading && <SkeletonBar width={80} />}
         {!isLoading && isFetched && <AmountBadge amount={amount} />}
       </Field>
 
-      <Field label="Caller (From)" isDesktop={isDesktop}>
+      <Field label="Caller (From)">
         <AddressLink
           address={message.from || ""}
           addressName={message.fromName}
@@ -64,7 +64,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
         />
       </Field>
 
-      <Field label="To" isDesktop={isDesktop}>
+      <Field label="To">
         <AddressLink
           address={message.to || ""}
           addressName={message.toName}
@@ -79,7 +79,7 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
 
   const msgCallFields = (
     <>
-      <Field label="Caller" isDesktop={isDesktop}>
+      <Field label="Caller">
         <AddressLink
           address={message.caller || ""}
           addressName={message.callerName}
@@ -90,16 +90,16 @@ const StandardNetworkMsgCallMessage = ({ isDesktop, message, getUrlWithNetwork }
         />
       </Field>
 
-      <Field label="Arguments" isDesktop={isDesktop}>
+      <Field label="Arguments">
         <BadgeList items={message?.args} />
       </Field>
 
-      <Field label="Send" isDesktop={isDesktop}>
+      <Field label="Send">
         <AmountBadge amount={message?.send} />
       </Field>
 
       {maxDeposit && (
-        <Field label="Max_Deposit" isDesktop={isDesktop}>
+        <Field label="Max_Deposit">
           <AmountBadge amount={maxDeposit} />
         </Field>
       )}

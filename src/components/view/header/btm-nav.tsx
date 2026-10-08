@@ -10,19 +10,18 @@ import mixins from "@/styles/mixins";
 import Text from "@/components/ui/text";
 import { MainInput, SubInput } from "@/components/ui/input";
 import { debounce } from "@/common/utils/string-util";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { RiseIn, StretchOut } from "@/components/ui/animation/Animation";
 import { FontsType } from "@/styles";
 import { zindex } from "@/common/values/z-index";
 
 interface TextStyleProps {
   type: FontsType;
+  desktopType: FontsType;
   color: string;
   textAlign: CSSProperties["textAlign"];
 }
 
 export const BtmNav = () => {
-  const { isDesktop } = useWindowSize();
   const router = useRouter();
   const entry = router.route === "/";
   const [value, setValue] = useRecoilState(searchState);
@@ -39,7 +38,8 @@ export const BtmNav = () => {
   };
 
   const textStyleProps: TextStyleProps = {
-    type: isDesktop ? "h1" : "h2",
+    type: "h2",
+    desktopType: "h1",
     color: "white",
     textAlign: "center",
   };

@@ -16,10 +16,9 @@ import * as S from "./AccountVestingAsset.styles";
 
 interface AccountVestingAssetProps {
   vesting: AccountVestingModel;
-  isDesktop: boolean;
 }
 
-const AccountVestingAsset = ({ vesting, isDesktop }: AccountVestingAssetProps) => {
+const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { getTokenAmount, getTokenImage, getTokenInfo } = useTokenMeta();
   const { getUsdDisplay, isLoading: isLoadingPrice } = useTokenPrice();
@@ -51,7 +50,7 @@ const AccountVestingAsset = ({ vesting, isDesktop }: AccountVestingAssetProps) =
               <UnknownToken aria-label="Unknown token image" width="40" height="40" />
             )}
           </S.LogoWrapper>
-          <Text type={isDesktop ? "p3" : "p4"} color="primary">
+          <Text type="p4" desktopType="p3" color="primary">
             {token.name}
           </Text>
         </S.TokenInfo>
@@ -60,7 +59,7 @@ const AccountVestingAsset = ({ vesting, isDesktop }: AccountVestingAssetProps) =
             {isLoadingPrice ? (
               <SkeletonBar width={80} height={20} />
             ) : (
-              <Text type={isDesktop ? "p3" : "p4"} color="primary">
+              <Text type="p4" desktopType="p3" color="primary">
                 {usdValue || "-"}
               </Text>
             )}

@@ -16,13 +16,17 @@ export const InnerLayout = styled.div`
   ${innerLayoutCss}
 `;
 
-export const TitleWrapper = styled.div<{ isDesktop: boolean }>`
+export const TitleWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: ${({ isDesktop }) => (isDesktop ? "flex-start" : "space-between")};
+  justify-content: space-between;
   gap: 16px;
 
   width: 100%;
+
+  ${media.DESKTOP} {
+    justify-content: flex-start;
+  }
 `;
 
 export const Wrapper = styled.div`

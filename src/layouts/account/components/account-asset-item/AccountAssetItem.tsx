@@ -23,7 +23,6 @@ interface AccountAssetItemProps {
   // Price lookup key when amount.denom is a display symbol rather than the token key (e.g. tokenId).
   priceTokenKey?: string;
   showTokenPathLink?: boolean;
-  isDesktop: boolean;
   isFetched: boolean;
 }
 
@@ -34,7 +33,6 @@ const AccountAssetItem = ({
   tokenPath,
   priceTokenKey,
   showTokenPathLink,
-  isDesktop,
   isFetched,
 }: AccountAssetItemProps) => {
   const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
@@ -76,7 +74,7 @@ const AccountAssetItem = ({
             <SkeletonBar aria-label="Loading TokenImage" width={40} height={40} borderRadius={"100%"} />
           </S.LogoWrapper>
 
-          <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
+          <S.TokenName type="p4" desktopType="p3" color="primary">
             <SkeletonBar width="100%" height={20} />
           </S.TokenName>
         </S.TokenInfo>
@@ -91,7 +89,7 @@ const AccountAssetItem = ({
       <S.TokenInfo>
         <S.LogoWrapper>{tokenLogoImage}</S.LogoWrapper>
 
-        <S.TokenName type={isDesktop ? "p3" : "p4"} color="primary">
+        <S.TokenName type="p4" desktopType="p3" color="primary">
           {name || getTokenInfo(amount.denom)?.name || ""}
           {shouldShowTokenPathLink && (
             <LinkWrapper className="hide-mobile" target="_blank" href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
@@ -107,7 +105,7 @@ const AccountAssetItem = ({
         {isLoadingPrice ? (
           <SkeletonBar width={80} height={20} />
         ) : (
-          <Text type={isDesktop ? "p3" : "p4"} color="primary">
+          <Text type="p4" desktopType="p3" color="primary">
             {usdValue || "-"}
           </Text>
         )}

@@ -41,7 +41,6 @@ import PublicFunctions from "@/components/ui/public-functions";
 
 interface RealmSummaryProps {
   path: string;
-  isDesktop: boolean;
 }
 
 const TOOLTIP_PACKAGE_PATH = (
@@ -94,7 +93,7 @@ const NotYetEnabledBadge = () => (
   </Badge>
 );
 
-const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
+const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
   const { gnoWebUrl, getUrlWithNetwork } = useNetwork();
 
   const { data: realmData, isFetched: isFetchedRealmData } = useGetRealmByPath(path);
@@ -170,15 +169,10 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
 
   return (
     <DataSection title="Summary">
-      <Field label="Name" isDesktop={isDesktop}>
+      <Field label="Name">
         <Badge>{realmSummary?.name}</Badge>
       </Field>
-      <FieldWithTooltip
-        label="Path"
-        tooltipContent={TOOLTIP_PACKAGE_PATH}
-        isDesktop={isDesktop}
-        contentClassName="path-wrapper"
-      >
+      <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} contentClassName="path-wrapper">
         <Badge margin="0">
           <Text type="p4" color="reverse" className="ellipsis">
             {formatDisplayPackagePath(realmSummary?.path)}
@@ -198,7 +192,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           </LinkWrapper>
         )}
       </FieldWithTooltip>
-      <Field label="Realm Address" isDesktop={isDesktop}>
+      <Field label="Realm Address">
         <Badge>
           <Text type="p4" color="reverse" className="ellipsis">
             {realmSummary?.realmAddress || ""}
@@ -207,7 +201,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           <CopyTooltip variant="path" copyText={realmSummary?.realmAddress || ""} />
         </Badge>
       </Field>
-      <DLWrap desktop={isDesktop}>
+      <DLWrap>
         <dt>Public Functions</dt>
         <PublicFunctions>
           {realmSummary?.funcs?.map((v: string, index: number) => (
@@ -219,7 +213,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           ))}
         </PublicFunctions>
       </DLWrap>
-      <Field label="Publisher" isDesktop={isDesktop}>
+      <Field label="Publisher">
         <Badge>
           {realmSummary?.publisherAddress === "genesis" ? (
             <FitContentA>
@@ -242,7 +236,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           )}
         </Badge>
       </Field>
-      <Field label="Block Published" isDesktop={isDesktop}>
+      <Field label="Block Published">
         <Badge>
           {realmSummary?.blockPublished == null ? (
             <FitContentA>
@@ -264,7 +258,6 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
       <FieldWithTooltip
         label="Balance"
         tooltipContent={TOOLTIP_BALANCE}
-        isDesktop={isDesktop}
         contentClassName="function-wrapper"
       >
         {realmBalanceList.length > 0 ? (
@@ -278,10 +271,10 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           <Badge>-</Badge>
         )}
       </FieldWithTooltip>
-      <Field label="Total Calls" isDesktop={isDesktop}>
+      <Field label="Total Calls">
         <Badge>{realmSummary?.contractCalls || 0}</Badge>
       </Field>
-      <Field label="Total Fees Used" isDesktop={isDesktop}>
+      <Field label="Total Fees Used">
         <Badge>
           <AmountText
             minSize="body1"
@@ -293,7 +286,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
           <UsdValueText tokenKey={GNOTToken.denom} amount={realmTotalUsedFees?.value || "0"} />
         </Badge>
       </Field>
-      <FieldWithTooltip label="Storage Deposit" tooltipContent={TOOLTIP_STORAGE_DEPOSIT} isDesktop={isDesktop}>
+      <FieldWithTooltip label="Storage Deposit" tooltipContent={TOOLTIP_STORAGE_DEPOSIT}>
         <Badge>
           <StorageDepositText
             minSize="body1"

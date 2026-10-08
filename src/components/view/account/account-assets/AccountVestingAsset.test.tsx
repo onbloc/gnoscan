@@ -45,7 +45,7 @@ describe("AccountVestingAsset", () => {
 
     const markup = renderToStaticMarkup(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-        <AccountVestingAsset vesting={vesting} isDesktop={true} />
+        <AccountVestingAsset vesting={vesting} />
       </ThemeProvider>,
     ).replace(/<[^>]*>/g, "");
 
@@ -58,7 +58,7 @@ describe("AccountVestingAsset", () => {
 
     const markup = renderToStaticMarkup(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-        <AccountVestingAsset vesting={vesting} isDesktop={true} />
+        <AccountVestingAsset vesting={vesting} />
       </ThemeProvider>,
     ).replace(/<[^>]*>/g, "");
 

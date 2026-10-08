@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
-
 import * as S from "./Realmlayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 
@@ -11,13 +9,11 @@ interface RealmLayoutProps {
 }
 
 const RealmLayout = ({ realmSummary, realmInfo }: RealmLayoutProps) => {
-  const { isDesktop } = useWindowSize();
-
   return (
     <S.Container>
       <S.InnerLayout>
         <S.Wrapper>
-          <PageTitle type={isDesktop ? "h2" : "p2"} title="Realm Details" />
+          <PageTitle type="p2" desktopType="h2" title="Realm Details" />
           {realmSummary}
           {realmInfo}
         </S.Wrapper>

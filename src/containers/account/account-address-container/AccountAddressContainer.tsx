@@ -1,6 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
 import CustomNetworkAccountAddress from "@/components/view/account/account-address/CustomNetworkAccountAddress";
@@ -13,18 +12,12 @@ interface AccountAddressContainerProps {
 }
 
 const AccountAddressContainer = ({ address, validatorInfo }: AccountAddressContainerProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   return isCustomNetwork ? (
-    <CustomNetworkAccountAddress isDesktop={isDesktop} address={address} />
+    <CustomNetworkAccountAddress address={address} />
   ) : (
-    <StandardNetworkAccountAddress
-      breakpoint={breakpoint}
-      isDesktop={isDesktop}
-      address={address}
-      validatorInfo={validatorInfo}
-    />
+    <StandardNetworkAccountAddress address={address} validatorInfo={validatorInfo} />
   );
 };
 

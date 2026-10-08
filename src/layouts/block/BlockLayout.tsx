@@ -1,7 +1,6 @@
 import React from "react";
 
 import { useBlock } from "@/common/hooks/blocks/use-block";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import TitleOption from "@/components/view/common/title-option/TitleOption";
 
@@ -17,7 +16,6 @@ interface BlockLayoutProps {
 }
 
 const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps) => {
-  const { isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const { block, isFetched: isFetchedRpcData, isErrorBlock: isErrorRpcData } = useBlock(blockHeight);
@@ -59,8 +57,8 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
     <S.Container>
       <S.InnerLayout>
         <S.Wrapper>
-          <S.TitleWrapper isDesktop={isDesktop}>
-            <PageTitle type={isDesktop ? "h2" : "p2"} title={`Block #${blockHeight}`} />
+          <S.TitleWrapper>
+            <PageTitle type="p2" desktopType="h2" title={`Block #${blockHeight}`} />
             <TitleOption {...titleOptionProps} />
           </S.TitleWrapper>
           {blockSummary}

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { media } from "@/common/values/ui.constant";
 
 import { innerLayoutCss } from "@/styles/css/inner-layout";
+import { SkeletonBoxStyle } from "@/components/ui/loading";
 
 export const Container = styled.main`
   width: 100%;
@@ -40,5 +41,16 @@ export const Wrapper = styled.div`
   ${media.DESKTOP} {
     gap: 24px;
     padding: 24px;
+  }
+`;
+
+// Page title placeholder, as tall as the p2 title below desktop and the h2 title from desktop up
+export const TitleSkeleton = styled(SkeletonBoxStyle)`
+  width: 200px;
+  height: 24px;
+  border-radius: 0;
+
+  ${media.DESKTOP} {
+    height: 36px;
   }
 `;
