@@ -114,10 +114,10 @@ describe("formatUsd", () => {
     expect(formatUsd("1234567.8")).toBe("$1,234,567.8");
   });
 
-  it("truncates to three significant digits below $1", () => {
+  it("truncates to three decimals below $1", () => {
     expect(formatUsd("0.123456")).toBe("$0.123");
-    expect(formatUsd("0.012349")).toBe("$0.0123");
-    expect(formatUsd("0.0015")).toBe("$0.0015");
+    expect(formatUsd("0.012349")).toBe("$0.012");
+    expect(formatUsd("0.0025793")).toBe("$0.002");
     expect(formatUsd("0.9999")).toBe("$0.999");
   });
 
