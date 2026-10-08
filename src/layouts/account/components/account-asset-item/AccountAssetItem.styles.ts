@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 
 import Text from "@/components/ui/text";
-import { AmountText } from "@/components/ui/text/amount-text";
 
 export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
   display: flex;
@@ -46,4 +45,12 @@ export const TokenName = styled(Text)`
   align-items: center;
   justify-content: center;
   gap: 8px;
+`;
+
+export const AmountInfo = styled.div`
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 `;

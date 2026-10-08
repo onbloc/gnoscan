@@ -56,6 +56,19 @@ export const Balance = styled.div`
   }
 `;
 
+export const AmountInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+`;
+
+export const Quantity = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
 export const ExpandableContent = styled.div<{ $isExpanded: boolean }>`
   display: grid;
   grid-template-rows: ${({ $isExpanded }) => ($isExpanded ? "1fr" : "0fr")};

@@ -1,6 +1,7 @@
 import React from "react";
 
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { AccountVestingModel } from "@/repositories/api/account/response";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
@@ -22,6 +23,7 @@ interface AccountVestingAssetProps {
 const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingAssetProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { getTokenAmount, getTokenImage, getTokenInfo } = useTokenMeta();
+  const { getUsdDisplay } = useTokenPrice();
   const token = getTokenInfo(GNOTToken.denom);
   const logoUrl = resolveAccountAssetLogoUrl(undefined, GNOTToken.denom, getTokenImage);
   const total = getTokenAmount(GNOTToken.denom, vesting.total);
@@ -32,6 +34,7 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
   const endDate = parseVestingTime(vesting.endTime);
   const endDateText = endDate ? formatVestingDate(endDate, "long") : "-";
   const isDelayed = vesting.type === "delayed";
+  const usdValue = getUsdDisplay(GNOTToken.denom, total.value);
 
   return (
     <S.Box breakpoint={breakpoint}>
@@ -54,8 +57,22 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
           </Text>
         </S.TokenInfo>
         <S.Balance>
-          <IconLockAsset className="vesting-lock" aria-hidden="true" />
-          <AmountText minSize="p4" maxSize="p3" color="tertiary" {...total} wrap={false} />
+          <S.AmountInfo>
+            <Text type={isDesktop ? "p3" : "p4"} color="primary">
+              {usdValue || "-"}
+            </Text>
+            <S.Quantity>
+              <IconLockAsset className="vesting-lock" aria-hidden="true" />
+              <AmountText
+                minSize="body1"
+                maxSize="p4"
+                color="tertiary"
+                {...total}
+                denom={` ${total.denom}`}
+                wrap={false}
+              />
+            </S.Quantity>
+          </S.AmountInfo>
           <S.Chevron $isExpanded={isExpanded}>
             <IconChevron />
           </S.Chevron>

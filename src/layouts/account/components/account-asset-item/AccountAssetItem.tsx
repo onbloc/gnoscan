@@ -2,6 +2,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { Amount } from "@/types/data-type";
 import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -25,6 +26,7 @@ interface AccountAssetItemProps {
   name?: string;
   logoUrl?: string | null;
   tokenPath?: string;
+  priceTokenKey?: string;
   showTokenPathLink?: boolean;
   breakpoint: DEVICE_TYPE;
   isDesktop: boolean;
@@ -36,6 +38,7 @@ const AccountAssetItem = ({
   name,
   logoUrl,
   tokenPath,
+  priceTokenKey,
   showTokenPathLink,
   breakpoint,
   isDesktop,
@@ -43,6 +46,7 @@ const AccountAssetItem = ({
 }: AccountAssetItemProps) => {
   const { getTokenImage, getTokenAmount, getTokenInfo } = useTokenMeta();
   const { getUrlWithNetwork } = useNetwork();
+  const { getUsdDisplay } = useTokenPrice();
 
   const tokenLogoUrl = React.useMemo(() => {
     return resolveAccountAssetLogoUrl(logoUrl, amount.denom, getTokenImage);
@@ -67,6 +71,8 @@ const AccountAssetItem = ({
     if (!tokenPath) return tokenPath;
     return amount.denom ? `${tokenPath}.${amount.denom}` : tokenPath;
   }, [tokenPath, amount.denom]);
+  const usdValue = getUsdDisplay(priceTokenKey || tokenPath || amount.denom, amount.value);
+  const tokenAmount = getTokenAmount(amount.denom, amount.value);
 
   if (!isFetched) {
     return (
@@ -105,8 +111,12 @@ const AccountAssetItem = ({
           )}
         </S.TokenName>
       </S.TokenInfo>
-
-      <AmountText minSize="p4" maxSize="p3" color="tertiary" {...getTokenAmount(amount.denom, amount.value)} />
+      <S.AmountInfo>
+        <Text type={isDesktop ? "p3" : "p4"} color="primary">
+          {usdValue || "-"}
+        </Text>
+        <AmountText minSize="body1" maxSize="p4" color="tertiary" {...tokenAmount} denom={` ${tokenAmount.denom}`} />
+      </S.AmountInfo>
     </S.Box>
   );
 };

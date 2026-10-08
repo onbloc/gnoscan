@@ -124,6 +124,7 @@ const NativeTokenAsset = ({
       key={`asset-token-${nativeTokenAsset.amount.denom}`}
       amount={nativeTokenAsset.amount}
       name={nativeTokenAsset.name}
+      priceTokenKey={GNOTToken.denom}
       logoUrl={nativeTokenAsset.logoUrl}
       breakpoint={breakpoint}
       isDesktop={isDesktop}
