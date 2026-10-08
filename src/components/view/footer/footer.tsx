@@ -3,7 +3,6 @@
 import mixins from "@/styles/mixins";
 import React from "react";
 import styled, { css } from "styled-components";
-import dynamic from "next/dynamic";
 import { DarkModeToggle } from "@/components/ui/button";
 import Discord from "@/assets/svgs/icon-discord.svg";
 import Twitter from "@/assets/svgs/icon-x.svg";
@@ -12,13 +11,6 @@ import GnoscanSymbolLight from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import Text from "@/components/ui/text";
 import { v1 } from "uuid";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
-
-const Desktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.Desktop), {
-  ssr: false,
-});
-const NotDesktop = dynamic(() => import("@/common/hooks/use-media").then(mod => mod.NotDesktop), {
-  ssr: false,
-});
 
 interface ModProps {
   isDesktop: boolean;
@@ -86,26 +78,22 @@ const Community = ({ isDesktop }: ModProps) => (
 export const Footer = () => {
   return (
     <>
-      <Desktop>
-        <Wrapper isDesktop={true}>
-          <div className="inner-layout">
-            <Definition isDesktop={true} />
-            <Copyright isDesktop={true} />
-            <Terms isDesktop={true} />
-            <Community isDesktop={true} />
-          </div>
-        </Wrapper>
-      </Desktop>
-      <NotDesktop>
-        <Wrapper isDesktop={false}>
-          <div className="inner-layout">
-            <Copyright isDesktop={false} />
-            <Terms isDesktop={false} />
-            <Community isDesktop={false} />
-            <Definition isDesktop={false} />
-          </div>
-        </Wrapper>
-      </NotDesktop>
+      <Wrapper isDesktop={true}>
+        <div className="inner-layout">
+          <Definition isDesktop={true} />
+          <Copyright isDesktop={true} />
+          <Terms isDesktop={true} />
+          <Community isDesktop={true} />
+        </div>
+      </Wrapper>
+      <Wrapper isDesktop={false}>
+        <div className="inner-layout">
+          <Copyright isDesktop={false} />
+          <Terms isDesktop={false} />
+          <Community isDesktop={false} />
+          <Definition isDesktop={false} />
+        </div>
+      </Wrapper>
     </>
   );
 };
@@ -115,6 +103,10 @@ const Wrapper = styled.footer<ModProps>`
   background-color: ${({ theme }) => theme.colors.base};
   margin-top: auto;
   padding: 24px 18px;
+  // Render both footers on the server and let CSS pick one so the footer does not pop in after hydration.
+  @media ${({ isDesktop }) => (isDesktop ? "(max-width: 1279px)" : "(min-width: 1280px)")} {
+    display: none;
+  }
   ${({ isDesktop }) =>
     isDesktop
       ? css`
