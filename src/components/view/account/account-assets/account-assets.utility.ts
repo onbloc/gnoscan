@@ -1,10 +1,12 @@
+import BigNumber from "bignumber.js";
+
 import { AccountAssetModel } from "@/repositories/api/account/response";
 
 export const ASSET_GRID_GAP = 16;
 
-// GRC721 (NFT) holdings are not shown in the token asset list yet
+// NFT holdings and zero-balance GRC20 assets are not shown in the token asset list.
 export const isDisplayableAsset = (asset: AccountAssetModel) =>
-  asset.tokenType !== "GRC721" && !!asset.name && !!asset.symbol;
+  asset.tokenType === "GRC20" && !!asset.name && !!asset.symbol && !new BigNumber(asset.amount).isZero();
 
 // Row-major placement in the 2-column desktop grid: [native, a0], [a1, a2], ...
 export const getAssetGridColumn = (index: number) => (index % 2) + 1;
