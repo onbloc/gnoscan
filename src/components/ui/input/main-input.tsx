@@ -60,8 +60,15 @@ export const MainInput = ({
 
   return (
     <Wrapper className={className}>
-      <Input value={value} onChange={onChange} onKeyDown={onKeyDownInput} type="text" placeholder={placeholder} />
-      <Button onClick={onClickSearchButton}>
+      <Input
+        value={value}
+        onChange={onChange}
+        onKeyDown={onKeyDownInput}
+        type="text"
+        placeholder={placeholder}
+        aria-label="Search"
+      />
+      <Button onClick={onClickSearchButton} aria-label="Search">
         <Search className="search-icon" />
       </Button>
       {isCustomNetwork ? <SearchResult /> : <StandardNetworkSearchResult />}

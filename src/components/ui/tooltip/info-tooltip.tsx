@@ -14,7 +14,7 @@ interface InfoTooltipProps {
 
 export const InfoTooltip = ({ content, width, bgColor = "surface", iconClassName = "svg-info" }: InfoTooltipProps) => (
   <Tooltip width={width} content={content}>
-    <Button width="16px" height="16px" radius="50%" bgColor={bgColor}>
+    <Button width="16px" height="16px" radius="50%" bgColor={bgColor} aria-label="More information">
       <IconInfo className={iconClassName} />
     </Button>
   </Tooltip>
