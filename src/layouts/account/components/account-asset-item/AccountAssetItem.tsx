@@ -26,6 +26,7 @@ interface AccountAssetItemProps {
   name?: string;
   logoUrl?: string | null;
   tokenPath?: string;
+  // Price lookup key when amount.denom is a display symbol rather than the token key (e.g. tokenId).
   priceTokenKey?: string;
   showTokenPathLink?: boolean;
   breakpoint: DEVICE_TYPE;
@@ -71,8 +72,9 @@ const AccountAssetItem = ({
     if (!tokenPath) return tokenPath;
     return amount.denom ? `${tokenPath}.${amount.denom}` : tokenPath;
   }, [tokenPath, amount.denom]);
-  const usdValue = getUsdDisplay(priceTokenKey || tokenPath || amount.denom, amount.value);
+  // amount.value is in base units for denom-keyed assets (e.g. ugnot); price the display amount.
   const tokenAmount = getTokenAmount(amount.denom, amount.value);
+  const usdValue = getUsdDisplay(priceTokenKey || amount.denom, tokenAmount.value);
 
   if (!isFetched) {
     return (
