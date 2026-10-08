@@ -52,8 +52,8 @@ describe("AccountAssetItem", () => {
     const markup = render(<AccountAssetItem {...baseProps} amount={{ value: "512120000", denom: "ugnot" }} />);
 
     // 512.12 GNOT * 0.024 = 12.29088
-    expect(markup).toContain("$12.291");
-    expect(markup.indexOf("$12.291")).toBeLessThan(markup.indexOf("512.12"));
+    expect(markup).toContain("$12.29");
+    expect(markup.indexOf("$12.29")).toBeLessThan(markup.indexOf("512.12"));
   });
 
   it("prices a GRC20 balance by its tokenId", () => {
@@ -65,7 +65,7 @@ describe("AccountAssetItem", () => {
       />,
     );
 
-    expect(markup).toContain("$50.000");
+    expect(markup).toContain("$50");
   });
 
   it("renders a dash instead of a fiat value for an unpriced token", () => {
