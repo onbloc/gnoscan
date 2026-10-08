@@ -112,12 +112,12 @@ const Wrapper = styled.footer`
 // Last on mobile, first on desktop.
 const DefinitionWrapper = styled.div`
   ${mixins.flexbox("row", "center", "center")};
-  order: 1;
-  margin-top: auto;
   gap: 6px;
+  ${media.NOT_DESKTOP} {
+    order: 1;
+    margin-top: auto;
+  }
   ${media.DESKTOP} {
-    order: 0;
-    margin-top: 0;
     margin-right: auto;
   }
 `;
@@ -132,7 +132,6 @@ const Hr = css`
 
 const FTextWrapper = styled.div`
   ${mixins.flexbox("row", "center", "center", false)};
-  margin: 16px auto 24px;
   .hr-text {
     margin: 0px 9px;
     ${mixins.flexbox("row", "center", "center", false)};
@@ -141,14 +140,11 @@ const FTextWrapper = styled.div`
     :before {
       ${Hr};
     }
-    &:first-of-type:before {
-      display: none;
-    }
   }
-  ${media.DESKTOP} {
-    margin: 0;
+  ${media.NOT_DESKTOP} {
+    margin: 16px auto 24px;
     .hr-text:first-of-type:before {
-      display: block;
+      display: none;
     }
   }
 `;
