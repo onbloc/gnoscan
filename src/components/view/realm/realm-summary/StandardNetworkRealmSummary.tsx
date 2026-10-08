@@ -18,7 +18,7 @@ import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constan
 import { GNOWEB_REALM_TEMPLATE } from "@/common/values/url.constant";
 import { Amount, RealmSummary } from "@/types/data-type";
 
-import { mapAccountAssetsToAmounts, sortAmountsByValueDesc } from "./realm-balance.utility";
+import { mapAccountAssetsToAmounts, sortAmountsByValueDesc, TokenAmount } from "./realm-balance.utility";
 
 import IconLink from "@/assets/svgs/icon-link.svg";
 import { useGetRealmStorageDepositByPath } from "@/common/react-query/realm/api/use-get-realm-storage-deposit-by-path";
@@ -33,6 +33,7 @@ import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
+import { UsdValueText } from "@/components/ui/text/usd-value-text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import DataSection from "../../details-data-section";
@@ -118,8 +119,9 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
   });
 
   const { getTokenMeta } = useTokenResourceMeta();
-  const realmBalanceList: Amount[] = React.useMemo(() => {
-    const nativeAmount = toGNOTAmount(nativeBalanceData?.value || "0", nativeBalanceData?.denom || GNOTToken.denom);
+  const realmBalanceList: TokenAmount[] = React.useMemo(() => {
+    const nativeDenom = nativeBalanceData?.denom || GNOTToken.denom;
+    const nativeAmount = { ...toGNOTAmount(nativeBalanceData?.value || "0", nativeDenom), tokenKey: nativeDenom };
     return sortAmountsByValueDesc([
       nativeAmount,
       ...mapAccountAssetsToAmounts(accountData?.data?.assets, getTokenMeta),
@@ -276,6 +278,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
         {realmBalanceList.map((amount, index) => (
           <Badge key={`${amount.denom}-${index}`}>
             <AmountText minSize="body1" maxSize="p4" value={amount.value} denom={amount.denom} />
+            <UsdValueText tokenKey={amount.tokenKey} amount={amount.value} />
           </Badge>
         ))}
       </FieldWithTooltip>
@@ -290,6 +293,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             value={realmTotalUsedFees?.value || "0"}
             denom={realmTotalUsedFees?.denom || GNOTToken.symbol}
           />
+          <UsdValueText tokenKey={GNOTToken.denom} amount={realmTotalUsedFees?.value || "0"} />
         </Badge>
       </Field>
       <FieldWithTooltip label="Storage Deposit" tooltipContent={TOOLTIP_STORAGE_DEPOSIT} isDesktop={isDesktop}>
@@ -303,6 +307,7 @@ const StandardNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => 
             visibleStorageSize={true}
             visibleTooltip={false}
           />
+          <UsdValueText tokenKey={GNOTToken.denom} amount={displayStorageDepositAmount.value} />
         </Badge>
       </FieldWithTooltip>
       {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} btnTextType="Realms" />}

@@ -22,7 +22,7 @@ describe("mapAccountAssetsToAmounts", () => {
   test("shifts the raw amount by decimals and keeps the symbol as-is", () => {
     const result = mapAccountAssetsToAmounts([makeAsset()]);
 
-    expect(result).toEqual([{ value: "10550316.077354", denom: "GNS" }]);
+    expect(result).toEqual([{ value: "10550316.077354", denom: "GNS", tokenKey: "gno.land/r/demo/gns.GNS.0000000" }]);
   });
 
   test("filters out native entries and assets missing name/symbol", () => {
@@ -51,7 +51,9 @@ describe("mapAccountAssetsToAmounts", () => {
       }),
     ]);
 
-    expect(result).toEqual([{ value: "2086817.77753", denom: "wugnot" }]);
+    expect(result).toEqual([
+      { value: "2086817.77753", denom: "wugnot", tokenKey: "gno.land/r/gnoland/wugnot.wugnot.0000000" },
+    ]);
   });
 
   test("prefers the token resource list over the backend decimals and symbol", () => {
@@ -61,7 +63,7 @@ describe("mapAccountAssetsToAmounts", () => {
       decimals: 3,
     }));
 
-    expect(result).toEqual([{ value: "10550316077.354", denom: "GNS2" }]);
+    expect(result).toEqual([{ value: "10550316077.354", denom: "GNS2", tokenKey: "gno.land/r/demo/gns.GNS.0000000" }]);
   });
 });
 

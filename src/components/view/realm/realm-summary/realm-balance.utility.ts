@@ -9,9 +9,12 @@ import {
 import { AccountAssetModel } from "@/repositories/api/account/response";
 import { Amount } from "@/types/data-type";
 
+// Amount plus the token key (denom/path) it came from, for price lookups.
+export type TokenAmount = Amount & { tokenKey: string };
+
 // Highest amount first, across denoms - purely by numeric value, since each Amount's value is
 // already in its own display units (decimal-shifted).
-export function sortAmountsByValueDesc(amounts: Amount[]): Amount[] {
+export function sortAmountsByValueDesc<T extends Amount>(amounts: T[]): T[] {
   return [...amounts].sort((a, b) => new BigNumber(b.value).comparedTo(new BigNumber(a.value)));
 }
 
@@ -25,13 +28,14 @@ const resolveWithoutResource: TokenMetaResolver = (tokenKey, fallback) => resolv
 export function mapAccountAssetsToAmounts(
   assets: AccountAssetModel[] | undefined,
   getTokenMeta: TokenMetaResolver = resolveWithoutResource,
-): Amount[] {
+): TokenAmount[] {
   if (!assets) return [];
 
   return assets
     .filter(asset => asset.tokenType === "GRC20" && asset.name && asset.symbol)
     .map(asset => {
-      const resolved = getTokenMeta(asset.tokenId || asset.packagePath, {
+      const tokenKey = asset.tokenId || asset.packagePath;
+      const resolved = getTokenMeta(tokenKey, {
         name: asset.name,
         symbol: asset.symbol,
         decimals: asset.decimals,
@@ -39,6 +43,7 @@ export function mapAccountAssetsToAmounts(
       return {
         value: formatTokenDecimal(asset.amount, resolved.decimals),
         denom: resolved.symbol || asset.symbol,
+        tokenKey,
       };
     });
 }
