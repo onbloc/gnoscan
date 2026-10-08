@@ -194,7 +194,7 @@ const ShowLogsWrap = styled.div<StyleProps>`
   margin-top: ${({ showLog }) => (showLog ? "24px" : "8px")};
 `;
 
-// Open log height, taller from the desktop breakpoint up
+// Open log height, taller on desktop
 const logHeight = (height: string, desktopHeight: string) => css<StyleProps>`
   height: ${({ showLog }) => (showLog ? height : "0px")};
   ${media.DESKTOP} {

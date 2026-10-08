@@ -6,7 +6,7 @@ import { media } from "@/common/values/ui.constant";
 export interface TextProps extends React.ComponentPropsWithoutRef<"div"> {
   className?: string;
   type: FontsType;
-  // Font applied from the desktop breakpoint up, so the size is decided in CSS instead of after hydration
+  // Font from the desktop breakpoint up, set in CSS so it matches the server HTML
   desktopType?: FontsType;
   display?: CSSProperties["display"];
   textAlign?: CSSProperties["textAlign"];

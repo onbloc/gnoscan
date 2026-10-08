@@ -44,7 +44,7 @@ export const Wrapper = styled.div`
   }
 `;
 
-// Page title placeholder, as tall as the p2 title below desktop and the h2 title from desktop up
+// Same height as PageTitle (p2, h2 on desktop)
 export const TitleSkeleton = styled(SkeletonBoxStyle)`
   width: 200px;
   height: 24px;

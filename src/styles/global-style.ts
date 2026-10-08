@@ -77,7 +77,7 @@ export const GlobalStyle = createGlobalStyle`
     border: none;
   };
 
-  // Render mobile and desktop variants together and let CSS pick one, so server HTML matches the hydrated page.
+  // CSS picks the variant so the server HTML matches the hydrated page.
   @media (max-width: 767px) {
     .hide-mobile {
       display: none !important;
