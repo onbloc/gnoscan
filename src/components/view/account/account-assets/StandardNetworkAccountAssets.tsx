@@ -10,22 +10,23 @@ import { AccountVestingModel } from "@/repositories/api/account/response";
 
 import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
-import Text from "@/components/ui/text";
 import AccountAssetItem from "@/layouts/account/components/account-asset-item/AccountAssetItem";
 import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountVestingAsset from "./AccountVestingAsset";
 import AccountAssetGrid from "./AccountAssetGrid";
 import { isDisplayableAsset } from "./account-assets.utility";
+import Text from "@/components/ui/text";
 import * as S from "./AccountAssets.styles";
+import { CardTitle } from "../account-address/AccountAddress.styles";
 
 interface AccountAssetsProps {
   address: string;
   breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
 }
 
-const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: AccountAssetsProps) => {
+const StandardNetworkAccountAssets = ({ address, breakpoint }: AccountAssetsProps) => {
   const { data, isLoading, isFetched } = useGetAccountByAddress(address);
+  const { data: nativeBalance, isFetched: isFetchedNativeBalance } = useGetNativeTokenBalance(address);
   const { getTokenMeta } = useTokenResourceMeta();
 
   const grc20TokenAssets: AccountAssetViewModel[] = React.useMemo(() => {
@@ -56,49 +57,61 @@ const StandardNetworkAccountAssets = ({ address, breakpoint, isDesktop }: Accoun
   }, [data?.data, getTokenMeta]);
 
   if (isLoading || !isFetched) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountAddressSkeleton />;
   }
+
+  const vesting = data?.data.vesting;
+  // Zero balances are hidden; keep the native card while its balance loads so it can show its skeleton.
+  const showNativeAsset = vesting
+    ? !new BigNumber(vesting.total).isZero()
+    : !isFetchedNativeBalance || !new BigNumber(nativeBalance?.value || 0).isZero();
+  const hasAssets = showNativeAsset || grc20TokenAssets.length > 0;
 
   const renderGrc20Asset = (grc20TokenAsset: AccountAssetViewModel) => (
     <AccountAssetItem
       key={`asset-token-${grc20TokenAsset.tokenId}`}
       amount={grc20TokenAsset.amount}
       name={grc20TokenAsset.name}
+      priceTokenKey={grc20TokenAsset.tokenId || grc20TokenAsset.packagePath}
       showTokenPathLink={true}
       tokenPath={grc20TokenAsset.packagePath}
       logoUrl={grc20TokenAsset.logoUrl}
-      breakpoint={breakpoint}
-      isDesktop={isDesktop}
       isFetched={isFetched}
     />
   );
 
   return (
-    <S.Card breakpoint={breakpoint}>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary" fontWeight={isDesktop ? 600 : undefined}>
-        Assets
-      </Text>
-      <AccountAssetGrid breakpoint={breakpoint}>
-        <NativeTokenAsset
-          address={address}
-          vesting={data?.data.vesting}
-          breakpoint={breakpoint}
-          isDesktop={isDesktop}
-        />
-        {grc20TokenAssets.map(renderGrc20Asset)}
-      </AccountAssetGrid>
+    <S.Card>
+      <CardTitle aria-label="title">Assets</CardTitle>
+      {hasAssets ? (
+        <AccountAssetGrid breakpoint={breakpoint}>
+          {showNativeAsset && (
+            <NativeTokenAsset
+              balance={nativeBalance?.value}
+              isFetched={isFetchedNativeBalance}
+              vesting={vesting}
+            />
+          )}
+          {grc20TokenAssets.map(renderGrc20Asset)}
+        </AccountAssetGrid>
+      ) : (
+        <Text type="p4" color="tertiary">
+          No data to display
+        </Text>
+      )}
     </S.Card>
   );
 };
 
 const NativeTokenAsset = ({
-  address,
+  balance,
+  isFetched,
   vesting,
-  breakpoint,
-  isDesktop,
-}: AccountAssetsProps & { vesting?: AccountVestingModel }) => {
-  const { data, isFetched } = useGetNativeTokenBalance(address);
-
+}: Omit<AccountAssetsProps, "address" | "breakpoint"> & {
+  balance?: string;
+  isFetched: boolean;
+  vesting?: AccountVestingModel;
+}) => {
   // Native denoms (e.g. ugnot) are not served by the token-meta API. Let
   // AccountAssetItem fall back to gno-token-resource via useTokenMeta for logo.
   const nativeTokenAsset: AccountAssetViewModel = React.useMemo(() => {
@@ -106,17 +119,17 @@ const NativeTokenAsset = ({
       tokenId: "",
       slug: "",
       amount: {
-        value: BigNumber(data?.value || 0).toString(),
+        value: BigNumber(balance || 0).toString(),
         denom: GNOTToken.denom,
       },
       packagePath: "",
       logoUrl: "",
       name: GNOTToken.name,
     };
-  }, [data?.value]);
+  }, [balance]);
 
   if (vesting) {
-    return <AccountVestingAsset vesting={vesting} breakpoint={breakpoint} isDesktop={isDesktop} />;
+    return <AccountVestingAsset vesting={vesting} />;
   }
 
   return (
@@ -124,9 +137,8 @@ const NativeTokenAsset = ({
       key={`asset-token-${nativeTokenAsset.amount.denom}`}
       amount={nativeTokenAsset.amount}
       name={nativeTokenAsset.name}
+      secondaryLabel={GNOTToken.symbol}
       logoUrl={nativeTokenAsset.logoUrl}
-      breakpoint={breakpoint}
-      isDesktop={isDesktop}
       isFetched={isFetched}
     />
   );

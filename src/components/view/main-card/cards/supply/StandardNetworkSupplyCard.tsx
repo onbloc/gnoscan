@@ -1,23 +1,21 @@
 import React from "react";
 import Text from "@/components/ui/text";
-import { InfoTooltip } from "@/components/ui/tooltip/info-tooltip";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
-import { useGetSummarySupply } from "@/common/react-query/statistics";
-import { SummaryGnotSupplyInfo } from "@/types/data-type";
-import { makeDisplayNumber } from "@/common/utils/string-util";
-import { DEFAULT_SUMMARY_GNOT_SUPPLY_INFO } from "@/common/values/default-object/summary";
+import { useGetGnotPrice, useGetSummarySupply } from "@/common/react-query/statistics";
+import { makeCompactNumber } from "@/common/utils/string-util";
+
+const formatPrice = (price: string) => `$${Number(price).toFixed(4)}`;
+
+const formatPriceChange = (change: number) => `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
 
 export const StandardNetworkSupplyCard = () => {
-  const { data, isFetched } = useGetSummarySupply();
-
-  const supplyInfo: SummaryGnotSupplyInfo = React.useMemo(() => {
-    if (!data?.data) return DEFAULT_SUMMARY_GNOT_SUPPLY_INFO;
-    return {
-      airdropHolder: String(data.data.airdropHolders),
-      airdropSupplyAmount: data.data.airdropSupply,
-      totalSupplyAmount: data.data.total,
-    };
-  }, [data?.data]);
+  const { data: supply, isFetched: isSupplyFetched } = useGetSummarySupply();
+  const { data: market, isFetched: isMarketFetched } = useGetGnotPrice();
+  // An unpriced asset comes back with an empty price, which must not render as $0.0000.
+  const price = market?.data.price || null;
+  const priceChange = market?.data.changeRateOneDay;
+  const circulatingSupply = market?.data.circulatingSupply;
+  const priceChangeColor = priceChange != null && priceChange >= 0 ? "green" : "failed";
 
   return (
     <>
@@ -25,31 +23,48 @@ export const StandardNetworkSupplyCard = () => {
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
-        isFetched={isFetched}
+        isFetched={isMarketFetched}
         renderComp={
-          <Text type="h3" color="primary" margin="10px 0px 24px">
-            {makeDisplayNumber(supplyInfo.totalSupplyAmount)}
-            <Text type="p4" display="inline-block" color="primary">
-              &nbsp;GNOT
-            </Text>
+          <Text
+            type="h3"
+            color="primary"
+            display="flex"
+            margin="10px 0px 24px"
+            fontWeight={600}
+            style={{ alignItems: "center" }}
+          >
+            {price != null ? formatPrice(price) : "-"}
+            {priceChange != null && (
+              <Text
+                type="body2"
+                color={priceChangeColor}
+                margin="2px 0px 0px 6px"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor}>
+                  {formatPriceChange(priceChange)}
+                </Text>{" "}
+                (24h)
+              </Text>
+            )}
           </Text>
         }
       />
       <DataBoxContainer>
         <BundleDl>
           <dt>
+            {/* Circulating supply as self reported to CoinMarketCap. It is not derived from on-chain vesting, so it can lag the amount actually unlocked. */}
             <Text type="p4" color="tertiary">
-              Airdrop Supply
+              Circ.&nbsp;Supply
             </Text>
-            <InfoTooltip width={215} content="Total GNOTs to be airdropped to Cosmos and AtomOne holders." />
           </dt>
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetched}
+              isFetched={isMarketFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber(supplyInfo.airdropSupplyAmount)}
+                  {circulatingSupply != null ? `${makeCompactNumber(circulatingSupply)} GNOT` : "-"}
                 </Text>
               }
             />
@@ -59,17 +74,16 @@ export const StandardNetworkSupplyCard = () => {
         <BundleDl>
           <dt>
             <Text type="p4" color="tertiary">
-              Airdrop&nbsp;Holders
+              Max&nbsp;Supply
             </Text>
-            <InfoTooltip content="Total number of holders receiving 1 GNOT or more." />
           </dt>
           <dd>
             <FetchedComp
               skeletonWidth={60}
-              isFetched={isFetched}
+              isFetched={isSupplyFetched}
               renderComp={
                 <Text type="p4" color="primary">
-                  {makeDisplayNumber(supplyInfo.airdropHolder)}
+                  {supply?.data ? `${makeCompactNumber(supply.data.total).replace(".", ",")} GNOT` : "-"}
                 </Text>
               }
             />

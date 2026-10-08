@@ -14,7 +14,6 @@ import ShowLog from "@/components/ui/show-log";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 interface TransactionSummaryProps {
-  isDesktop: boolean;
   txHash: string;
   transactionSummaryInfo: TransactionSummaryInfo;
   txErrorType: string;
@@ -23,7 +22,6 @@ interface TransactionSummaryProps {
 }
 
 const CustomNetworkTransactionSummary = ({
-  isDesktop,
   txHash,
   transactionSummaryInfo,
   txErrorType,
@@ -52,14 +50,14 @@ const CustomNetworkTransactionSummary = ({
   return (
     transactionSummaryInfo.transactionItem && (
       <DataSection title="Summary">
-        <Field label="Status" isDesktop={isDesktop}>
+        <Field label="Status">
           <Badge type={transactionSummaryInfo.transactionItem.success ? "green" : "failed"}>
             <Text type="p4" color="white">
               {transactionSummaryInfo.transactionItem.success ? "Success" : displayTxErrorInfo}
             </Text>
           </Badge>
         </Field>
-        <Field label="Timestamp" isDesktop={isDesktop}>
+        <Field label="Timestamp">
           <Badge>
             <Text type="p4" color="inherit" className="ellipsis">
               {transactionSummaryInfo.timeStamp.time}
@@ -67,7 +65,7 @@ const CustomNetworkTransactionSummary = ({
             <DateDiffText>{transactionSummaryInfo.timeStamp.passedTime}</DateDiffText>
           </Badge>
         </Field>
-        <Field label="Tx Hash" isDesktop={isDesktop}>
+        <Field label="Tx Hash">
           <Badge>
             <Text type="p4" color="inherit" className="ellipsis">
               {txHash}
@@ -75,10 +73,10 @@ const CustomNetworkTransactionSummary = ({
             <CopyTooltip copyText={txHash} />
           </Badge>
         </Field>
-        <Field label="Network" isDesktop={isDesktop}>
+        <Field label="Network">
           <Badge>{transactionSummaryInfo.network}</Badge>
         </Field>
-        <Field label="Block" isDesktop={isDesktop}>
+        <Field label="Block">
           <Badge>
             <Link href={getUrlWithNetwork(`/block/${transactionSummaryInfo.transactionItem.blockHeight}`)} passHref>
               <FitContentSpan>
@@ -89,7 +87,7 @@ const CustomNetworkTransactionSummary = ({
             </Link>
           </Badge>
         </Field>
-        <Field label="Transaction Fee" isDesktop={isDesktop}>
+        <Field label="Transaction Fee">
           <Badge>
             <AmountText
               minSize="body2"
@@ -99,10 +97,10 @@ const CustomNetworkTransactionSummary = ({
             />
           </Badge>
         </Field>
-        <Field label="Gas (Used/Wanted)" isDesktop={isDesktop}>
+        <Field label="Gas (Used/Wanted)">
           <Badge>{transactionSummaryInfo.gas}</Badge>
         </Field>
-        <Field label="Memo" isDesktop={isDesktop}>
+        <Field label="Memo">
           <Badge>{transactionSummaryInfo.transactionItem.memo}</Badge>
         </Field>
         {!transactionSummaryInfo.transactionItem.success && (

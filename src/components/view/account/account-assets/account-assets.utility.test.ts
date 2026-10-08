@@ -2,7 +2,7 @@ import { AccountAssetModel } from "@/repositories/api/account/response";
 import { ASSET_GRID_GAP, getAssetGridColumn, getAssetGridRowSpan, isDisplayableAsset } from "./account-assets.utility";
 
 const asset = (overrides: Partial<AccountAssetModel>) =>
-  ({ tokenType: "GRC20", name: "Gnoswap", symbol: "GNS", ...overrides } as AccountAssetModel);
+  ({ tokenType: "GRC20", amount: "1", name: "Gnoswap", symbol: "GNS", ...overrides } as AccountAssetModel);
 
 describe("isDisplayableAsset", () => {
   it("shows named GRC20 tokens", () => {
@@ -11,6 +11,11 @@ describe("isDisplayableAsset", () => {
 
   it("hides GRC721 (NFT) holdings", () => {
     expect(isDisplayableAsset(asset({ tokenType: "GRC721", name: "GNOSWAP NFT", symbol: "GNFT" }))).toBe(false);
+  });
+
+  it("hides zero-balance GRC20 tokens", () => {
+    expect(isDisplayableAsset(asset({ amount: "0" }))).toBe(false);
+    expect(isDisplayableAsset(asset({ amount: "0.000000" }))).toBe(false);
   });
 
   it("hides assets without name or symbol", () => {

@@ -1,10 +1,11 @@
 import React from "react";
 
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { AccountVestingModel } from "@/repositories/api/account/response";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import Text from "@/components/ui/text";
 
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
@@ -15,13 +16,12 @@ import * as S from "./AccountVestingAsset.styles";
 
 interface AccountVestingAssetProps {
   vesting: AccountVestingModel;
-  breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
 }
 
-const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingAssetProps) => {
+const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { getTokenAmount, getTokenImage, getTokenInfo } = useTokenMeta();
+  const { getUsdDisplay, isLoading: isLoadingPrice } = useTokenPrice();
   const token = getTokenInfo(GNOTToken.denom);
   const logoUrl = resolveAccountAssetLogoUrl(undefined, GNOTToken.denom, getTokenImage);
   const total = getTokenAmount(GNOTToken.denom, vesting.total);
@@ -32,9 +32,10 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
   const endDate = parseVestingTime(vesting.endTime);
   const endDateText = endDate ? formatVestingDate(endDate, "long") : "-";
   const isDelayed = vesting.type === "delayed";
+  const usdValue = getUsdDisplay(GNOTToken.denom, total.value);
 
   return (
-    <S.Box breakpoint={breakpoint}>
+    <S.Box>
       <S.HeaderButton
         type="button"
         aria-expanded={isExpanded}
@@ -49,16 +50,32 @@ const AccountVestingAsset = ({ vesting, breakpoint, isDesktop }: AccountVestingA
               <UnknownToken aria-label="Unknown token image" width="40" height="40" />
             )}
           </S.LogoWrapper>
-          <Text type={isDesktop ? "p3" : "p4"} color="primary">
-            {token.name}
-          </Text>
+          <S.TokenDetails>
+            <Text type="p4" desktopType="p3" color="primary">
+              {token.name}
+            </Text>
+            <Text type="p4" color="gray300" style={{ lineHeight: "24px" }}>
+              {GNOTToken.symbol}
+            </Text>
+          </S.TokenDetails>
         </S.TokenInfo>
         <S.Balance>
-          <IconLockAsset className="vesting-lock" aria-hidden="true" />
-          <AmountText minSize="p4" maxSize="p3" color="tertiary" {...total} wrap={false} />
-          <S.Chevron $isExpanded={isExpanded}>
-            <IconChevron />
-          </S.Chevron>
+          <S.AmountInfo>
+            {isLoadingPrice ? (
+              <SkeletonBar width={80} height={20} />
+            ) : (
+              <Text type="p4" desktopType="p3" color="primary">
+                {usdValue || "-"}
+              </Text>
+            )}
+            <S.Quantity>
+              <IconLockAsset className="vesting-lock" aria-hidden="true" />
+              <AmountText minSize="body1" maxSize="p4" color="tertiary" lineHeight="24px" {...total} wrap={false} />
+              <S.Chevron $isExpanded={isExpanded}>
+                <IconChevron />
+              </S.Chevron>
+            </S.Quantity>
+          </S.AmountInfo>
         </S.Balance>
       </S.HeaderButton>
 

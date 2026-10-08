@@ -24,6 +24,11 @@ export function makeDisplayNumber(amount: string | number): string {
   return BigNumber(amount).toFormat();
 }
 
+export function makeCompactNumber(amount: string | number): string {
+  if (BigNumber(amount).isNaN()) return "0";
+  return Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 3 }).format(Number(amount));
+}
+
 export function makeDisplayTokenAmount(amount: string | number, decimals = 6): string {
   return BigNumber(amount)
     .shiftedBy(decimals * -1)

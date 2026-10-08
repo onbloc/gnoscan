@@ -11,7 +11,6 @@ import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton
 interface TransactionInfoProps {
   txHash: string;
   currentTab: string;
-  isDesktop: boolean;
   setCurrentTab: (tab: string) => void;
   getUrlWithNetwork: (uri: string) => string;
   getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
@@ -19,7 +18,6 @@ interface TransactionInfoProps {
 
 const CustomNetworkTransactionInfo = ({
   txHash,
-  isDesktop,
   currentTab,
   setCurrentTab,
   getUrlWithNetwork,
@@ -47,7 +45,6 @@ const CustomNetworkTransactionInfo = ({
       {currentTab === "Messages" && (
         <TransactionContractDetails
           transactionItem={transactionItem}
-          isDesktop={isDesktop}
           getUrlWithNetwork={getUrlWithNetwork}
           getTokenAmount={getTokenAmount}
           // getName={getName}

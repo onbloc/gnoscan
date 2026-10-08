@@ -15,11 +15,10 @@ import Text from "@/components/ui/text";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 interface BlockSummaryProps {
-  isDesktop: boolean;
   blockHeight: number;
 }
 
-const CustomNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryProps) => {
+const CustomNetworkBlockSummary = ({ blockHeight }: BlockSummaryProps) => {
   const { block, isFetched } = useBlock(blockHeight);
   const { getUrlWithNetwork } = useNetwork();
   const { validatorInfos } = useGetValidatorNames();
@@ -37,7 +36,7 @@ const CustomNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryProps
 
   return (
     <DataSection title="Summary">
-      <Field label="Timestamp" isDesktop={isDesktop}>
+      <Field label="Timestamp">
         <Badge>
           <Text type="p4" color="inherit" className="ellipsis">
             {block.timeStamp.time}
@@ -45,19 +44,19 @@ const CustomNetworkBlockSummary = ({ isDesktop, blockHeight }: BlockSummaryProps
           <DateDiffText>{block.timeStamp.passedTime}</DateDiffText>
         </Badge>
       </Field>
-      <Field label="Network" isDesktop={isDesktop}>
+      <Field label="Network">
         <Badge>{block.network}</Badge>
       </Field>
-      <Field label="Height" isDesktop={isDesktop}>
+      <Field label="Height">
         <Badge>{block.blockHeightStr}</Badge>
       </Field>
-      <Field label="Transactions" isDesktop={isDesktop}>
+      <Field label="Transactions">
         <Badge>{block.numberOfTransactions}</Badge>
       </Field>
-      <Field label="Gas&nbsp;(Used/Wanted)" isDesktop={isDesktop}>
+      <Field label="Gas&nbsp;(Used/Wanted)">
         <Badge>{block?.gas}</Badge>
       </Field>
-      <Field label="Proposer" isDesktop={isDesktop} multipleBadgeGap="24px">
+      <Field label="Proposer" multipleBadgeGap="24px">
         <Badge>
           <FitContentSpan>
             <Link href={getUrlWithNetwork(`/account/${block?.proposerAddress}`)} passHref>

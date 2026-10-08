@@ -2,7 +2,6 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { TokenListSortOption } from "@/common/types/token";
 
@@ -22,7 +21,6 @@ const TOOLTIP_PACAKGE_PATH = (
 );
 
 interface TokenListTableProps {
-  breakpoint: DEVICE_TYPE;
   data: GRC20InfoWithLogo[];
   hasNextPage?: boolean;
   isFetched: boolean;
@@ -34,7 +32,6 @@ interface TokenListTableProps {
 }
 
 export const StandardNetworkTokenListTable = ({
-  breakpoint,
   data,
   hasNextPage,
   isFetched,
@@ -125,12 +122,7 @@ export const StandardNetworkTokenListTable = ({
       />
       {hasNextPage && (
         <div className="button-wrapper">
-          <ViewMoreButton
-            variant="table"
-            breakpoint={breakpoint}
-            text="View More Tokens"
-            onClick={() => fetchNextPage()}
-          />
+          <ViewMoreButton variant="table" text="View More Tokens" onClick={() => fetchNextPage()} />
         </div>
       )}
     </CardTableContainer>

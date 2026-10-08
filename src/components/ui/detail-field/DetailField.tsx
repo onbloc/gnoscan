@@ -1,4 +1,5 @@
 import React, { CSSProperties } from "react";
+import BigNumber from "bignumber.js";
 import Link from "next/link";
 
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
@@ -16,6 +17,7 @@ import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-style
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
+import { UsdValueText } from "@/components/ui/text/usd-value-text";
 import Tooltip from "@/components/ui/tooltip";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import * as S from "./DetailField.styles";
@@ -23,21 +25,13 @@ import * as S from "./DetailField.styles";
 interface FieldProps {
   label: React.ReactNode;
   children: React.ReactNode;
-  isDesktop: boolean;
   className?: string;
   contentClassName?: string;
   multipleBadgeGap?: string;
 }
 
-export const Field: React.FC<FieldProps> = ({
-  label,
-  children,
-  isDesktop,
-  className,
-  contentClassName,
-  multipleBadgeGap,
-}) => (
-  <DLWrap desktop={isDesktop} className={className} multipleBadgeGap={multipleBadgeGap}>
+export const Field: React.FC<FieldProps> = ({ label, children, className, contentClassName, multipleBadgeGap }) => (
+  <DLWrap className={className} multipleBadgeGap={multipleBadgeGap}>
     <dt>{label}</dt>
     <dd className={contentClassName}>{children}</dd>
   </DLWrap>
@@ -51,12 +45,11 @@ export const FieldWithTooltip: React.FC<FieldWithTooltipProps> = ({
   label,
   tooltipContent,
   children,
-  isDesktop,
   className,
   contentClassName,
   multipleBadgeGap,
 }) => (
-  <DLWrap desktop={isDesktop} className={className} multipleBadgeGap={multipleBadgeGap}>
+  <DLWrap className={className} multipleBadgeGap={multipleBadgeGap}>
     <dt>
       {label}
       <div className="tooltip-wrapper">
@@ -186,13 +179,16 @@ export const StorageDepositAmountBadge = ({
   return (
     <BadgeText>
       <StorageDepositText
-        minSize="body2"
+        minSize="body1"
         maxSize="p4"
+        denomSize="body1"
         {...toGNOTAmount(displayStorageDepositData.value, displayStorageDepositData.denom)}
         sizeInBytes={storageDeposit?.storage || 0}
         visibleStorageSize={visibleStorageSize}
         visibleTooltip={visibleTooltip}
       />
+      {/* abs: released deposits render as "+X GNOT", so the USD value stays unsigned too. */}
+      <UsdValueText tokenKey={GNOTToken.denom} amount={BigNumber(displayStorageDepositData.value).abs()} />
     </BadgeText>
   );
 };

@@ -47,6 +47,7 @@ export enum QUERY_KEY {
   getSummaryAccounts = "api_get_summary_accounts",
   getSummaryBlocks = "api_get_summary_blocks",
   getSummarySupply = "api_get_summary_supply",
+  getGnotPrice = "api_get_gnot_price",
   getSummaryTransactions = "api_get_summary_transactions",
   getTotalDailyFees = "api_get_total_daily_fees",
   getTotalDailyTransactions = "api_get_total_daily_transactions",
@@ -65,4 +66,7 @@ export enum QUERY_KEY {
   getValidators = "api_get_validators",
   getValidatorCommits = "api_get_validator_commits",
   getValidatorByAddress = "api_get_validator_by_address",
+
+  // price
+  getPrices = "api_get_prices",
 }

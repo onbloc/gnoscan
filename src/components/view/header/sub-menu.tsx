@@ -90,6 +90,10 @@ const Container = styled.div<{ open: boolean }>`
   transition: all 0.4s ease-out;
   padding: 20px 24px 20px;
   overflow: hidden;
+
+  ${media.DESKTOP} {
+    display: none;
+  }
 `;
 
 const MenuButton = styled.button<{ entry: boolean }>`

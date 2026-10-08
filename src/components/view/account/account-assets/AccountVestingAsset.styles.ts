@@ -1,16 +1,20 @@
 import styled from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 
-export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
+export const Box = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0;
   width: 100%;
   min-width: 0;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "16px 24px" : "12px 16px")};
+  padding: 12px 16px;
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 4px;
+
+  ${media.DESKTOP} {
+    padding: 16px 24px;
+  }
 `;
 
 export const Chevron = styled.span<{ $isExpanded: boolean }>`
@@ -48,12 +52,22 @@ export const HeaderButton = styled.button`
 export const Balance = styled.div`
   display: flex;
   flex: 0 0 auto;
-  align-items: center;
-  gap: 6px;
 
   .vesting-lock path {
     stroke: ${({ theme }) => theme.colors.tertiary};
   }
+`;
+
+export const AmountInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+`;
+
+export const Quantity = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 export const ExpandableContent = styled.div<{ $isExpanded: boolean }>`
@@ -77,6 +91,13 @@ export const TokenInfo = styled.div`
   align-items: center;
   min-width: 0;
   gap: 16px;
+`;
+
+export const TokenDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 `;
 
 export const LogoWrapper = styled.div`

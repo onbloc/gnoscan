@@ -10,17 +10,12 @@ import Tooltip from "@/components/ui/tooltip";
 
 interface TransactionCallerContractProps {
   message: any;
-  isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
 }
 
 const ellipsisTextKey = ["Caller"];
 
-export const TransactionCallerContract = ({
-  message,
-  isDesktop,
-  getUrlWithNetwork,
-}: TransactionCallerContractProps) => {
+export const TransactionCallerContract = ({ message, getUrlWithNetwork }: TransactionCallerContractProps) => {
   const { label, caller } = React.useMemo(() => {
     switch (message?.["@type"]) {
       case "/vm.m_enable_pkg":
@@ -35,7 +30,7 @@ export const TransactionCallerContract = ({
   if (!message) return <></>;
 
   return (
-    <DLWrap desktop={isDesktop} key={v1()}>
+    <DLWrap key={v1()}>
       <dt>{label}</dt>
       <dd>
         <Badge>

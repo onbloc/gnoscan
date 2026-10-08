@@ -17,6 +17,7 @@ import LoadingSpinner from "../loading-spinner/LoadingSpinner";
 import { NodeRPCClient } from "@/common/clients/node-client";
 import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { sleep } from "@/common/utils/common.utility";
+import { getDefaultChain } from "@/common/config/network.config";
 
 export interface NetworkData {
   all: string[];
@@ -135,7 +136,8 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
           <GnoscanSymbolLight className="svg-icon" />
         )}
         <Text type="h7" color={isReverseColor ? "white" : "primary"}>
-          {currentNetwork?.name || ""}
+          {/* Default network until it resolves after hydration, so the button keeps its width */}
+          {(currentNetwork ?? getDefaultChain(chains))?.name || ""}
         </Text>
       </NetworkInfoWrapper>
       <NetworkList toggle={toggle} entry={entry}>

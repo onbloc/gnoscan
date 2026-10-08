@@ -7,6 +7,7 @@ import {
   GetSummaryAccountsResponse,
   GetSummaryBlocksResponse,
   GetSummarySupplyResponse,
+  GetGnotPriceResponse,
   GetSummaryTransactionsResponse,
   GetTotalDailyFeesResponse,
   GetTotalDailyStorageDepositResponse,
@@ -27,6 +28,8 @@ export interface ApiStatisticsRepository {
   getSummaryBlocks(): Promise<GetSummaryBlocksResponse>;
 
   getSummarySupply(): Promise<GetSummarySupplyResponse>;
+
+  getGnotPrice(): Promise<GetGnotPriceResponse>;
 
   getSummaryTransactions(): Promise<GetSummaryTransactionsResponse>;
 

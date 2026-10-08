@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
-import { isDesktop } from "@/common/hooks/use-media";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useSteadyTabSwitch } from "@/common/hooks/detail-tabs/use-steady-tab-switch";
 import { getHashTabToApply, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
@@ -18,7 +17,6 @@ interface DataListSectionProps {
 }
 
 const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
-  const desktop = isDesktop();
   const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
 
   const lastHandledUrlRef = React.useRef<string | null>(null);
@@ -53,20 +51,21 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
   };
 
   return (
-    <DetailsContainer desktop={desktop}>
+    <DetailsContainer>
       <div className="tab-area">
         {tabs.map((tab, index) => {
           const isSelected = currentTab === tab.tabName;
           return (
             <div className="tab-item" key={index} onClick={() => onClickTab(tab.tabName)}>
               <Text
-                type={desktop ? (isSelected ? "h4" : "h6") : isSelected ? "h6" : "h7"}
+                type={isSelected ? "h6" : "h7"}
+                desktopType={isSelected ? "h4" : "h6"}
                 color={isSelected ? "primary" : "tertiary"}
               >
                 {tab.tabName}
               </Text>
               {tab.size !== undefined && (
-                <div className={desktop ? "badge" : "badge small"}>
+                <div className="badge">
                   <Text type={"p4"} color={"primary"}>
                     {makeDisplayNumber(tab.size)}
                   </Text>

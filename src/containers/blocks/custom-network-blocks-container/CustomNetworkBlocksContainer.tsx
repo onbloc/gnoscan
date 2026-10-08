@@ -1,26 +1,16 @@
 import React from "react";
 
 import { useBlocks } from "@/common/hooks/blocks/use-blocks";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 
 import { BlockDatatable } from "@/components/view/datatable";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 const CustomNetworkBlocksContainer = () => {
-  const { breakpoint } = useWindowSize();
   const { data: blocks, isFetched, fetchNextPage, hasNextPage, isError, isLoading } = useBlocks();
 
   if (isLoading || !isFetched) return <TableSkeleton />;
 
-  return (
-    <BlockDatatable
-      breakpoint={breakpoint}
-      data={blocks}
-      isError={isError}
-      hasNextPage={hasNextPage}
-      fetchNextPage={fetchNextPage}
-    />
-  );
+  return <BlockDatatable data={blocks} isError={isError} hasNextPage={hasNextPage} fetchNextPage={fetchNextPage} />;
 };
 
 export default CustomNetworkBlocksContainer;

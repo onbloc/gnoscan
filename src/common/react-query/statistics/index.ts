@@ -11,3 +11,4 @@ export * from "./use-get-total-gas-share";
 export * from "./use-get-storage-price";
 export * from "./use-get-total-daily-realm-storage-deposit";
 export * from "./use-get-total-daily-storage-deposit";
+export * from "./use-get-gnot-price";

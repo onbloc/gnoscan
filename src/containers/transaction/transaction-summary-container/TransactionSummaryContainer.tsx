@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
-
 import { useNetwork } from "@/common/hooks/use-network";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
@@ -14,7 +12,6 @@ interface TransactionSummaryContainerProps {
 }
 
 const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProps) => {
-  const { isDesktop } = useWindowSize();
   const { getUrlWithNetwork } = useNetwork();
   const { isCustomNetwork } = useNetworkProvider();
 
@@ -43,7 +40,6 @@ const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProp
       transactionSummaryInfo={transaction}
       txErrorType={txErrorType}
       isFetchedTxRpcData={isFetchedTxRpcData}
-      isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
     />
   ) : (
@@ -51,7 +47,6 @@ const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProp
       txHash={txHash}
       blockResultLog={blockResultLog}
       txErrorType={txErrorType}
-      isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
     />
   );

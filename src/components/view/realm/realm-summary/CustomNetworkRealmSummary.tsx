@@ -22,7 +22,6 @@ import PublicFunctions from "@/components/ui/public-functions";
 
 interface RealmSummaryProps {
   path: string;
-  isDesktop: boolean;
 }
 
 const TOOLTIP_PACKAGE_PATH = (
@@ -40,7 +39,7 @@ const TOOLTIP_BALANCE = (
   </>
 );
 
-const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
+const CustomNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
   const { summary, isFetched } = useRealm(path);
   const { data: realmTransactions, isFetched: isFetchedRealmTransactions } = useGetRealmTransactionsQuery(path);
   const { getUrlWithNetwork } = useNetwork();
@@ -59,15 +58,10 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
 
   return (
     <DataSection title="Summary">
-      <Field label="Name" isDesktop={isDesktop}>
+      <Field label="Name">
         <Badge>{summary?.name}</Badge>
       </Field>
-      <FieldWithTooltip
-        label="Path"
-        tooltipContent={TOOLTIP_PACKAGE_PATH}
-        isDesktop={isDesktop}
-        contentClassName="path-wrapper"
-      >
+      <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} contentClassName="path-wrapper">
         <Badge>
           <Text type="p4" color="reverse" className="ellipsis">
             {formatDisplayPackagePath(summary?.path)}
@@ -76,7 +70,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
           <CopyTooltip variant="path" copyText={summary?.path} />
         </Badge>
       </FieldWithTooltip>
-      <Field label="Realm Address" isDesktop={isDesktop}>
+      <Field label="Realm Address">
         <Badge>
           <Text type="p4" color="reverse" className="ellipsis">
             {summary?.realmAddress || ""}
@@ -85,7 +79,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
           <CopyTooltip variant="path" copyText={summary?.realmAddress || ""} />
         </Badge>
       </Field>
-      <DLWrap desktop={isDesktop}>
+      <DLWrap>
         <dt>Public Functions</dt>
         <PublicFunctions>
           {summary?.funcs?.map((v: string, index: number) => (
@@ -97,7 +91,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
           ))}
         </PublicFunctions>
       </DLWrap>
-      <Field label="Publisher" isDesktop={isDesktop}>
+      <Field label="Publisher">
         <Badge>
           {summary?.publisherAddress === "genesis" ? (
             <FitContentA>
@@ -116,7 +110,7 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
           )}
         </Badge>
       </Field>
-      <Field label="Block Published" isDesktop={isDesktop}>
+      <Field label="Block Published">
         <Badge>
           {summary?.blockPublished === 0 ? (
             <FitContentA>
@@ -135,13 +129,13 @@ const CustomNetworkRealmSummary = ({ path, isDesktop }: RealmSummaryProps) => {
           )}
         </Badge>
       </Field>
-      <FieldWithTooltip label="Balance" tooltipContent={TOOLTIP_BALANCE} isDesktop={isDesktop}>
+      <FieldWithTooltip label="Balance" tooltipContent={TOOLTIP_BALANCE}>
         <Badge>{balanceStr}</Badge>
       </FieldWithTooltip>
-      <Field label="Total Calls" isDesktop={isDesktop}>
+      <Field label="Total Calls">
         <RealmTotalContractCalls realmTransactions={realmTransactions} isFetched={isFetchedRealmTransactions} />
       </Field>
-      <Field label="Total Fees Used" isDesktop={isDesktop}>
+      <Field label="Total Fees Used">
         <RealmTotalUsedFeeAmount
           realmTransactions={realmTransactions}
           isFetched={isFetchedRealmTransactions}
