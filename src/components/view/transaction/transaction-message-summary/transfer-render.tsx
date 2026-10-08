@@ -9,6 +9,7 @@ import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import GNOTIcon from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { UsdValueText } from "@/components/ui/text/usd-value-text";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -259,6 +260,20 @@ export const RealmLink = ({
   );
 };
 
+// USD value after the token chip, styled like the sentence verb ("Transfer", "Approve").
+// SummaryLine's flex gap provides the spacing.
+const SummaryUsdValue = ({ tokenKey, amount }: { tokenKey: string; amount: string }) => (
+  <UsdValueText
+    tokenKey={tokenKey}
+    amount={amount}
+    type="p2"
+    color="tertiary"
+    fontWeight={400}
+    margin="0"
+    style={SUMMARY_LINE_HEIGHT}
+  />
+);
+
 interface TokenAmountDisplayProps {
   tokenKey: string;
   rawValue: string;
@@ -313,6 +328,7 @@ const TokenAmountDisplay = ({
             <UnknownToken className="token-icon" width="16" height="16" />
           )}
         </TokenChip>
+        {!compact && <SummaryUsdValue tokenKey={tokenKey} amount={displayAmount.value} />}
       </>
     );
   }
@@ -357,6 +373,7 @@ const TokenAmountDisplay = ({
           )}
         </TokenChip>
       </Link>
+      {!compact && <SummaryUsdValue tokenKey={tokenKey} amount={displayValue} />}
     </>
   );
 };
