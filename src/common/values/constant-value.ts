@@ -20,6 +20,8 @@ export const STAGING_CHAIN_ID = "staging";
 // end), so it can't be fixed by picking a different data source - it should actually
 // display as 6, 1:1 with ugnot.
 export const WUGNOT_PACKAGE_PATH = "gno.land/r/gnoland/wugnot";
+// The API indexes GRC20 tokens only from this registry's register events, so every API token is registered here.
+export const GRC20_REGISTRY_PATH = "gno.land/r/nt/grc20reg";
 export const WUGNOT_DISPLAY_DECIMALS = 6;
 export const WUGNOT_DISPLAY_NAME = "wGNOT (Wrapped GNOT)";
 

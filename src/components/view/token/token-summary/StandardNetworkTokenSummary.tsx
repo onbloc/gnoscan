@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useGetTokenById } from "@/common/react-query/token/api";
+import { useGetTokenById, useGetTokenTransfersById } from "@/common/react-query/token/api";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { TokenSummary } from "@/types/data-type";
@@ -11,7 +11,7 @@ import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { formatUsd, formatUsdWhole, getUsdValue } from "@/common/utils/price.utility";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
-import { WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
+import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
 import { AddressDisplayLink, Field } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
@@ -33,6 +33,9 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { data, isFetched } = useGetTokenById(tokenId);
   const { getTokenMeta } = useTokenResourceMeta();
   const { getPriceEntry } = useTokenPrice();
+  // Same query as the Token Transfers tab, so the count comes from the shared cache.
+  const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
+  const transferCount = transfersData?.pages[0]?.page.totalCount;
 
   const tokenSummary: TokenSummary | null = React.useMemo(() => {
     const summaryData = data?.data;
@@ -123,9 +126,9 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
         <Field label="Holders">
           <Badge>{makeDisplayNumber(tokenSummary?.holders || 0)}</Badge>
         </Field>
-        {/* ponytail: the API has no transfer count for the token realm yet, so this shows "-" until it does. */}
+        {/* Counts transactions that moved this token, the same total as the Token Transfers tab. */}
         <Field label="Transfers">
-          <Badge>-</Badge>
+          <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
         </Field>
         <Field label="Path">
           <Badge>
@@ -137,9 +140,15 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
             <CopyTooltip variant="path" copyText={tokenSummary?.packagePath} />
           </Badge>
         </Field>
-        {/* ponytail: the API does not report grc20reg registration yet, so this shows "-" until it does. */}
         <Field label="Registered">
-          <Badge>-</Badge>
+          <Badge>
+            <Text type="p4" color="blue" className="username-text">
+              <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${GRC20_REGISTRY_PATH}`)}>
+                {formatDisplayPackagePath(GRC20_REGISTRY_PATH)}
+              </S.StyledA>
+            </Text>
+            <CopyTooltip variant="path" copyText={GRC20_REGISTRY_PATH} />
+          </Badge>
         </Field>
         <Field label="Creator">
           <Badge>

@@ -12,6 +12,7 @@ import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { GRC20_REGISTRY_PATH } from "@/common/values/constant-value";
 import { formatUsd, formatUsdWhole, getUsdValue } from "@/common/utils/price.utility";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
@@ -148,13 +149,13 @@ export const StandardNetworkTokenListTable = ({
       .build();
   };
 
-  // ponytail: the API does not report grc20reg registration yet, so this shows "-" until it does.
   const createHeaderRegistered = () => {
     return DatatableOption.Builder.builder()
       .key("registered")
       .name("Registered")
       .width(100)
-      .renderOption(() => <>-</>)
+      .colorName("blue")
+      .renderOption(() => <DatatableItem.RealmPackage packagePath={GRC20_REGISTRY_PATH} maxWidth={68} />)
       .build();
   };
 
