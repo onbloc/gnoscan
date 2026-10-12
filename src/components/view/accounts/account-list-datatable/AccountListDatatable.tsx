@@ -197,11 +197,6 @@ const Container = styled.div`
 
     .scroll-wrapper > div:first-child {
       border-color: ${({ theme }) => theme.colors.dimmed100};
-
-      > div {
-        color: ${({ theme }) => theme.colors.primary};
-        opacity: 0.8;
-      }
     }
 
     .scroll-wrapper > div:first-child > div {
