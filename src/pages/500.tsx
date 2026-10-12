@@ -29,7 +29,7 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 80px - 80px);
+  height: 100%;
   min-height: 300px;
   color: ${({ theme }) => theme.colors.reverse};
 
