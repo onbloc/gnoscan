@@ -13,8 +13,12 @@ Thank you for considering contributing to GnoScan! We value and appreciate your 
 
 **Branch Policy**
 - Start contribution branches from `develop` and target `develop` when opening pull requests.
-- The GitHub default branch (`main`) is not the contribution base. Do not target `main` unless a maintainer explicitly requests it.
+- `develop` is the default branch and deploys to the dev environment. `main` is the release candidate branch; do not target `main` unless a maintainer explicitly requests it.
 - Before submitting, verify that the PR base is `develop` and the commit list and diff contain only the intended changes.
+
+**Release**
+- Production is deployed only by the `release` workflow, run from `main` by maintainers. It creates a `prd-vX.Y.Z` tag, publishes release notes since the previous `prd-v*` tag, and deploys that commit to Vercel Production.
+- Add the `skip-changelog` label to pull requests that should not appear in release notes.
 
 **Pull Request Language**
 Write pull request titles and descriptions in English.
