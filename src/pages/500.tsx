@@ -1,34 +1,26 @@
 import React from "react";
-import { NextPageContext } from "next";
 import styled from "styled-components";
 
 import Error404Layout from "@/layouts/error/error-404/Error404Layout";
 
-interface ErrorPageProps {
-  statusCode?: number;
-}
-
 /**
- * Replaces the Next.js default error page, whose text color follows the OS color scheme instead of the app theme.
+ * Replaces the Next.js default 500 page, whose text color follows the OS color scheme instead of the app theme.
+ * It is generated at build time, so it renders even when the request that failed cannot be rendered again.
  */
-const ErrorPage = ({ statusCode }: ErrorPageProps) => {
+const InternalServerErrorPage = () => {
   return (
     <Error404Layout
       notFound={
         <Wrapper>
-          {statusCode && <h1>{statusCode}</h1>}
-          <h2>{statusCode === 500 ? "Internal Server Error." : "An unexpected error has occurred."}</h2>
+          <h1>500</h1>
+          <h2>Internal Server Error.</h2>
         </Wrapper>
       }
     />
   );
 };
 
-ErrorPage.getInitialProps = ({ res, err }: NextPageContext): ErrorPageProps => ({
-  statusCode: res?.statusCode ?? err?.statusCode ?? 404,
-});
-
-export default ErrorPage;
+export default InternalServerErrorPage;
 
 /**
  * Matches the layout of the Next.js default error page.
