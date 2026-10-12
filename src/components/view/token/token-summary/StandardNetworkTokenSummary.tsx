@@ -13,7 +13,7 @@ import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
-import { AddressDisplayLink, Field } from "@/components/ui/detail-field";
+import { AddressLink, Field } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
@@ -89,108 +89,102 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const marketCap = priceEntry ? formatUsdWhole(getUsdValue(tokenSummary?.totalSupply ?? 0, priceEntry.price)) : null;
 
   return (
-    <S.SummarySection>
-      <DataSection title="Summary">
-        <Field label="Name">
-          <Badge>{tokenSummary?.name}</Badge>
-        </Field>
-        <Field label="Symbol">
-          <Badge>{tokenSummary?.symbol}</Badge>
-        </Field>
-        <Field
-          label={
-            <span>
-              Market Cap <S.Divider>|</S.Divider> Price
-            </span>
-          }
-        >
+    <DataSection title="Summary">
+      <Field label="Name">
+        <Badge>{tokenSummary?.name}</Badge>
+      </Field>
+      <Field label="Symbol">
+        <Badge>{tokenSummary?.symbol}</Badge>
+      </Field>
+      <Field
+        label={
+          <span>
+            Market Cap <S.Divider>|</S.Divider> Price
+          </span>
+        }
+      >
+        <Badge>
+          {price ? (
+            <S.PriceText>
+              <span>
+                {marketCap ?? "-"} <S.Divider>|</S.Divider> {price}
+              </span>
+              <PriceChangeText change={priceEntry?.changeRateOneDay} />
+            </S.PriceText>
+          ) : (
+            "-"
+          )}
+        </Badge>
+      </Field>
+      <Field label="Total Supply">
+        <Badge>{makeDisplayNumber(tokenSummary?.totalSupply || 0)}</Badge>
+      </Field>
+      <Field label="Decimals">
+        <Badge>{tokenSummary?.decimals}</Badge>
+      </Field>
+      <Field label="Holders">
+        <Badge>{makeDisplayNumber(tokenSummary?.holders || 0)}</Badge>
+      </Field>
+      {/* Counts transactions that moved this token, the same total as the Token Transfers tab. */}
+      <Field label="Transfers">
+        <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
+      </Field>
+      <Field label="Path">
+        <Badge>
+          <Text type="p4" color="blue" className="username-text">
+            <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${tokenSummary?.packagePath}`)}>
+              {formatDisplayPackagePath(tokenSummary?.packagePath)}
+            </S.StyledA>
+          </Text>
+          <CopyTooltip variant="path" copyText={tokenSummary?.packagePath} />
+        </Badge>
+      </Field>
+      <Field label="Registered">
+        <Badge>
+          <Text type="p4" color="blue" className="username-text">
+            <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${GRC20_REGISTRY_PATH}`)}>
+              {formatDisplayPackagePath(GRC20_REGISTRY_PATH)}
+            </S.StyledA>
+          </Text>
+          <CopyTooltip variant="path" copyText={GRC20_REGISTRY_PATH} />
+        </Badge>
+      </Field>
+      <Field label="Creator">
+        {tokenSummary?.owner === "genesis" ? (
           <Badge>
-            {price ? (
-              <S.PriceText>
-                <span>
-                  {marketCap ?? "-"} <S.Divider>|</S.Divider> {price}
-                </span>
-                <PriceChangeText change={priceEntry?.changeRateOneDay} />
-              </S.PriceText>
-            ) : (
-              "-"
-            )}
-          </Badge>
-        </Field>
-        <Field label="Total Supply">
-          <Badge>{makeDisplayNumber(tokenSummary?.totalSupply || 0)}</Badge>
-        </Field>
-        <Field label="Decimals">
-          <Badge>{tokenSummary?.decimals}</Badge>
-        </Field>
-        <Field label="Holders">
-          <Badge>{makeDisplayNumber(tokenSummary?.holders || 0)}</Badge>
-        </Field>
-        {/* Counts transactions that moved this token, the same total as the Token Transfers tab. */}
-        <Field label="Transfers">
-          <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
-        </Field>
-        <Field label="Path">
-          <Badge>
-            <Text type="p4" color="blue" className="username-text">
-              <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${tokenSummary?.packagePath}`)}>
-                {formatDisplayPackagePath(tokenSummary?.packagePath)}
-              </S.StyledA>
+            <Text type="p4" color="blue" className="ellipsis">
+              {getAddressDisplayText({
+                address: tokenSummary?.owner,
+                name: tokenSummary?.ownerName,
+                label: tokenSummary?.ownerLabel,
+              }) || ""}
             </Text>
-            <CopyTooltip variant="path" copyText={tokenSummary?.packagePath} />
           </Badge>
-        </Field>
-        <Field label="Registered">
-          <Badge>
-            <Text type="p4" color="blue" className="username-text">
-              <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${GRC20_REGISTRY_PATH}`)}>
-                {formatDisplayPackagePath(GRC20_REGISTRY_PATH)}
-              </S.StyledA>
-            </Text>
-            <CopyTooltip variant="path" copyText={GRC20_REGISTRY_PATH} />
-          </Badge>
-        </Field>
-        <Field label="Creator">
-          <Badge>
-            <S.CreatorText>
-              {tokenSummary?.owner && tokenSummary?.owner === "genesis" ? (
-                <Text type="p4" className="ellipsis">
-                  {getAddressDisplayText({
-                    address: tokenSummary?.owner,
-                    name: tokenSummary?.ownerName,
-                    label: tokenSummary?.ownerLabel,
-                  }) || ""}
-                </Text>
-              ) : (
-                <AddressDisplayLink
-                  address={tokenSummary?.owner}
-                  name={tokenSummary?.ownerName}
-                  label={tokenSummary?.ownerLabel}
-                  labelType={tokenSummary?.ownerLabelType}
-                  getUrlWithNetwork={getUrlWithNetwork}
-                />
-              )}
-              {tokenSummary?.owner && tokenSummary.owner !== "genesis" && (
-                <CopyTooltip variant="address" copyText={tokenSummary.owner} />
-              )}
-            </S.CreatorText>
-          </Badge>
-        </Field>
-        <DLWrap>
-          <dt>Public Functions</dt>
-          <PublicFunctions>
-            {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
-              <Badge type="blue" key={index}>
-                <Text type="p4" color="white">
-                  {functionName}
-                </Text>
-              </Badge>
-            ))}
-          </PublicFunctions>
-        </DLWrap>
-        {files && files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Source" />}
-      </DataSection>
-    </S.SummarySection>
+        ) : (
+          <AddressLink
+            address={tokenSummary?.owner || ""}
+            addressName={tokenSummary?.ownerName || ""}
+            copyText={tokenSummary?.owner || ""}
+            getUrlWithNetwork={getUrlWithNetwork}
+            label={tokenSummary?.ownerLabel}
+            labelType={tokenSummary?.ownerLabelType}
+          />
+        )}
+      </Field>
+      <DLWrap>
+        <dt>Public Functions</dt>
+        <PublicFunctions>
+          {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
+            <Badge type="blue" key={index}>
+              <Text type="p4" color="white">
+                {functionName}
+              </Text>
+            </Badge>
+          ))}
+        </PublicFunctions>
+      </DLWrap>
+      {files && files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Source" />}
+    </DataSection>
   );
 };
 

@@ -9,9 +9,11 @@ import Tooltip from "@/components/ui/tooltip";
 interface Props {
   packagePath: string;
   maxWidth?: number;
+  // Cut overflow at the front so the realm name at the end stays visible.
+  truncateStart?: boolean;
 }
 
-export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
+export const RealmPackage = ({ packagePath, maxWidth, truncateStart }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   const displayPackagePath = formatDisplayTokenPath(stripGnoLandPrefix(packagePath), 4);
 
@@ -20,16 +22,23 @@ export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
       <PackagePathLink
         className="ellipsis"
         maxWidth={maxWidth || 170}
+        $truncateStart={truncateStart}
         href={getUrlWithNetwork(`/realms/details?path=${packagePath}`)}
       >
-        <span className="link">{displayPackagePath}</span>
+        {truncateStart ? (
+          <bdi className="link">{displayPackagePath}</bdi>
+        ) : (
+          <span className="link">{displayPackagePath}</span>
+        )}
       </PackagePathLink>
     </Tooltip>
   );
 };
 
-const PackagePathLink = styled.a<{ maxWidth: number }>`
+const PackagePathLink = styled.a<{ maxWidth: number; $truncateStart?: boolean }>`
   max-width: ${({ maxWidth }) => `${maxWidth}px`};
+  // An RTL box puts the ellipsis on the left, while <bdi> keeps the path itself left to right.
+  ${({ $truncateStart }) => $truncateStart && "direction: rtl; text-align: left;"}
 `;
 
 const TooltipContent: React.FC<{ packagePath: string }> = ({ packagePath }) => (
