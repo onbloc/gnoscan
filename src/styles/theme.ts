@@ -38,6 +38,8 @@ const lightTheme: Palette = {
   nftBadge: "#F7F7F7",
   nftPlaceholder: "linear-gradient(135deg, rgba(193, 198, 208, 0.6) 0%, rgba(161, 169, 183, 0.6) 100%)",
   nftPlaceholderBorder: "rgba(138, 147, 161, 0.6)",
+  nftPanel: "#F8F9FB",
+  nftPanelBorder: "#E6E8EC",
 } as const;
 
 const darkTheme: Palette = {
@@ -78,6 +80,8 @@ const darkTheme: Palette = {
   nftBadge: "#232323",
   nftPlaceholder: "linear-gradient(135deg, #272B33 0%, #272C34 100%)",
   nftPlaceholderBorder: "#000000",
+  nftPanel: "#1A1A1A",
+  nftPanelBorder: "#2C2C2C",
 } as const;
 
 const fonts: FontsKeyType = {
@@ -212,7 +216,9 @@ export type PaletteKeyType =
   | "nftCardBorder"
   | "nftBadge"
   | "nftPlaceholder"
-  | "nftPlaceholderBorder";
+  | "nftPlaceholderBorder"
+  | "nftPanel"
+  | "nftPanelBorder";
 
 const device: DeviceValueType = {
   desktop: "(minWidth: 1280)",

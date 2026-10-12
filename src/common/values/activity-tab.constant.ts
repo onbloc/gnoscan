@@ -39,3 +39,15 @@ export const TOKEN_DETAIL_TABS: ActivityTabName[] = [
   ACTIVITY_TAB.EVENTS,
   ACTIVITY_TAB.HOLDERS,
 ];
+
+// The NFT collection page leads with its Inventory (the collection's NFTs) before the activity tabs.
+export const INVENTORY_TAB = "Inventory";
+
+export const NFT_COLLECTION_DETAIL_TABS = [
+  INVENTORY_TAB,
+  ACTIVITY_TAB.TRANSACTIONS,
+  ACTIVITY_TAB.TOKEN_TRANSFERS,
+  ACTIVITY_TAB.INTERNAL_TRANSACTIONS,
+  ACTIVITY_TAB.EVENTS,
+  ACTIVITY_TAB.HOLDERS,
+] as const;

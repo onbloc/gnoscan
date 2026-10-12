@@ -1,0 +1,150 @@
+import React from "react";
+
+import { NftCollectionItemModel } from "@/repositories/api/token/response";
+
+import IconArrow from "@/assets/svgs/icon-arrow.svg";
+import IconClose from "@/assets/svgs/icon-close.svg";
+import IconCopy from "@/assets/svgs/icon-copy.svg";
+import Tooltip from "@/components/ui/tooltip";
+import { DatatableItem } from "../../datatable";
+import NftImage from "../nft-image/NftImage";
+import * as S from "./NftTokenPanel.styles";
+
+// Shown until the API provides per-NFT details (mint, transfers, royalty, metadata, token URI).
+const EMPTY_VALUE = "-";
+// The only GRC721 standard package on gno.land
+const GRC721_STANDARD = "gno.land/p/nt/grc721/v0";
+
+interface NftTokenPanelProps {
+  nftId: string;
+  symbol: string;
+  // The NFT's inventory row when it is among the loaded items; owner comes from it
+  item: NftCollectionItemModel | null;
+  previousNftId: string | null;
+  nextNftId: string | null;
+  onSelect: (nftId: string) => void;
+  onClose: () => void;
+}
+
+const NftTokenPanel = ({ nftId, symbol, item, previousNftId, nextNftId, onSelect, onClose }: NftTokenPanelProps) => {
+  const title = `Token #${nftId}`;
+
+  return (
+    <>
+      <S.Backdrop onClick={onClose} />
+      <S.Panel aria-label={`${title} details`}>
+        <S.Header>
+          <S.HeaderButtons>
+            <S.IconButton
+              type="button"
+              aria-label="Previous token"
+              disabled={!previousNftId}
+              onClick={() => previousNftId && onSelect(previousNftId)}
+            >
+              <IconArrow className="icon-fill icon-previous" />
+            </S.IconButton>
+            <S.IconButton
+              type="button"
+              aria-label="Next token"
+              disabled={!nextNftId}
+              onClick={() => nextNftId && onSelect(nextNftId)}
+            >
+              <IconArrow className="icon-fill" />
+            </S.IconButton>
+          </S.HeaderButtons>
+          <S.TitleArea>
+            <S.Title>{title}</S.Title>
+            {symbol && <S.SymbolBadge>{symbol}</S.SymbolBadge>}
+          </S.TitleArea>
+          <S.HeaderButtons>
+            <Tooltip
+              content="Copied!"
+              trigger="click"
+              copyText={typeof window === "undefined" ? "" : window.location.href}
+            >
+              <S.IconButton as="span" role="button" aria-label="Copy token URL">
+                <IconCopy className="icon-stroke" />
+              </S.IconButton>
+            </Tooltip>
+            <S.IconButton type="button" aria-label="Close token details" onClick={onClose}>
+              <IconClose className="icon-stroke icon-close" />
+            </S.IconButton>
+          </S.HeaderButtons>
+        </S.Header>
+
+        <NftImage alt={title} aspectRatio="418 / 332" />
+
+        <S.Rows>
+          <S.Row>
+            <dt>Owner</dt>
+            <dd>
+              {item ? (
+                <DatatableItem.AddressCopy
+                  address={item.ownerAddress}
+                  label={item.ownerLabel}
+                  labelType={item.ownerLabelType}
+                />
+              ) : (
+                EMPTY_VALUE
+              )}
+            </dd>
+          </S.Row>
+          <S.Row>
+            <dt>Minted By</dt>
+            <dd>{EMPTY_VALUE}</dd>
+          </S.Row>
+          <S.Row>
+            <dt>Last Transfer</dt>
+            <dd>{EMPTY_VALUE}</dd>
+          </S.Row>
+          <S.Row>
+            <dt>Royalty</dt>
+            <dd>{EMPTY_VALUE}</dd>
+          </S.Row>
+        </S.Rows>
+
+        <S.Section>
+          <S.SectionTitle>Attributes</S.SectionTitle>
+          <S.EmptyText>{EMPTY_VALUE}</S.EmptyText>
+        </S.Section>
+
+        <S.Section>
+          <S.SectionTitle>Transfer History</S.SectionTitle>
+          <S.EmptyText>{EMPTY_VALUE}</S.EmptyText>
+        </S.Section>
+
+        <S.Section>
+          <S.SectionTitle>Technical</S.SectionTitle>
+          <S.Rows>
+            <S.Row compact>
+              <dt>Standard</dt>
+              <dd>{GRC721_STANDARD}</dd>
+            </S.Row>
+            <S.Row compact>
+              <dt>Token URL</dt>
+              <dd>{EMPTY_VALUE}</dd>
+            </S.Row>
+            <S.Row compact>
+              <dt>Mint height</dt>
+              <dd>{EMPTY_VALUE}</dd>
+            </S.Row>
+            <S.Row compact>
+              <dt>Mint Transaction</dt>
+              <dd>{EMPTY_VALUE}</dd>
+            </S.Row>
+            <S.Row compact>
+              <dt>Minted at</dt>
+              <dd>{EMPTY_VALUE}</dd>
+            </S.Row>
+          </S.Rows>
+        </S.Section>
+
+        <Tooltip content="Copied!" trigger="click" copyText={typeof window === "undefined" ? "" : window.location.href}>
+          <S.CopyUrlButton type="button">Copy URL</S.CopyUrlButton>
+        </Tooltip>
+      </S.Panel>
+    </>
+  );
+};
+
+export default NftTokenPanel;

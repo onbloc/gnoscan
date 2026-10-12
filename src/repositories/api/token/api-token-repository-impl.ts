@@ -7,6 +7,9 @@ import {
   GetTokenMetaTransactionsRequest,
   GetTokenMetaInternalTransactionsRequest,
   GetTokenEventsRequest,
+  GetNftCollectionsRequest,
+  GetNftCollectionItemsRequest,
+  GetNftCollectionHoldersRequest,
 } from "./request";
 import {
   GetTokenHoldersResponse,
@@ -17,6 +20,10 @@ import {
   GetTokenMetaTransactionsResponse,
   GetTokenMetaInternalTransactionsResponse,
   GetTokenEventsResponse,
+  GetNftCollectionsResponse,
+  GetNftCollectionResponse,
+  GetNftCollectionItemsResponse,
+  GetNftCollectionHoldersResponse,
 } from "./response";
 import { makeEncodedQueryParameter } from "@/common/utils/string-util";
 import { ApiRepository } from "../api-repository";
@@ -66,5 +73,29 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
     const { path, ...queryParams } = params;
     const requestParams = makeEncodedQueryParameter({ ...queryParams });
     return this.get<GetTokenEventsResponse>(`token-meta/${encodeURIComponent(path)}/events${requestParams}`);
+  }
+
+  getNftCollections(params: GetNftCollectionsRequest): Promise<GetNftCollectionsResponse> {
+    return this.get<GetNftCollectionsResponse>(`nft-collections${makeEncodedQueryParameter({ ...params })}`);
+  }
+
+  getNftCollection(tokenKey: string): Promise<GetNftCollectionResponse> {
+    return this.get<GetNftCollectionResponse>(`nft-collections/${encodeURIComponent(tokenKey)}`);
+  }
+
+  getNftCollectionItems(params: GetNftCollectionItemsRequest): Promise<GetNftCollectionItemsResponse> {
+    const { tokenKey, ...queryParams } = params;
+    return this.get<GetNftCollectionItemsResponse>(
+      `nft-collections/${encodeURIComponent(tokenKey)}/items`,
+      queryParams,
+    );
+  }
+
+  getNftCollectionHolders(params: GetNftCollectionHoldersRequest): Promise<GetNftCollectionHoldersResponse> {
+    const { tokenKey, ...queryParams } = params;
+    return this.get<GetNftCollectionHoldersResponse>(
+      `nft-collections/${encodeURIComponent(tokenKey)}/holders`,
+      queryParams,
+    );
   }
 }
