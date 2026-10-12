@@ -11,7 +11,6 @@ import { zindex } from "@/common/values/z-index";
 import { ChainModel } from "@/models/chain-model";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useRouter } from "next/router";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
 import LoadingSpinner from "../loading-spinner/LoadingSpinner";
 import { NodeRPCClient } from "@/common/clients/node-client";
@@ -31,7 +30,6 @@ interface StyleProps {
 }
 
 interface NetworkProps extends StyleProps {
-  inMenu?: boolean;
   chains: ChainModel[];
   toggleHandler: () => void;
   networkSettingHandler: (chainId: string) => void;
@@ -43,7 +41,7 @@ interface ConnectionErrorState {
   customIndexerUrl: boolean;
 }
 
-const Network = ({ entry, inMenu, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
+const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
   const { currentNetwork, nodeRPCClient } = useNetworkProvider();
   const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
 
@@ -57,13 +55,10 @@ const Network = ({ entry, inMenu, chains, toggle, toggleHandler, networkSettingH
 
   const ref = useOutSideClick(() => setToggle(false));
 
-  const { pathname } = useRouter();
   const { isDark, isLight } = useThemeMode();
 
-  const isReverseColor = useMemo(() => {
-    const isHome = pathname === "" || pathname === "/";
-    return isHome && isLight && !inMenu;
-  }, [pathname, isLight, inMenu]);
+  // entry is home or dark mode, so this is the light home header.
+  const isReverseColor = entry && isLight;
 
   const availCustomConnect = useMemo(() => {
     if (connectionErrors.customRpcUrl || connectionErrors.customIndexerUrl || !customRpcUrl) {

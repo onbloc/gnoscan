@@ -108,7 +108,7 @@ export const TopNav = () => {
           onClick={toggleMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
-          network={<HeaderNetwork entry={themeMode === "dark"} inMenu />}
+          network={<HeaderNetwork entry={themeMode === "dark"} />}
         />
       </div>
     </Wrapper>
@@ -116,7 +116,7 @@ export const TopNav = () => {
 };
 
 // Each instance keeps its own dropdown state, so the copy inside the mobile menu works independently.
-const HeaderNetwork = ({ entry, inMenu }: { entry: boolean; inMenu?: boolean }) => {
+const HeaderNetwork = ({ entry }: { entry: boolean }) => {
   const [toggle, setToggle] = useState<boolean>(false);
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), []);
 
@@ -135,7 +135,6 @@ const HeaderNetwork = ({ entry, inMenu }: { entry: boolean; inMenu?: boolean }) 
   return (
     <Network
       entry={entry}
-      inMenu={inMenu}
       chains={chains}
       toggle={toggle}
       toggleHandler={toggleHandler}
