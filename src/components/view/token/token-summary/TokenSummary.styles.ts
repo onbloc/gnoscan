@@ -31,10 +31,6 @@ export const SummarySection = styled.div`
     }
   }
 
-  dd > div > div {
-    gap: 16px 15px;
-  }
-
   ul {
     color: ${({ theme }) => theme.colors.primary};
   }

@@ -181,7 +181,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
           <PublicFunctions>
             {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
               <Badge type="blue" key={index}>
-                <Text type="h7" color="white" fontWeight={600}>
+                <Text type="p4" color="white">
                   {functionName}
                 </Text>
               </Badge>
