@@ -1,22 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 
-import Error404Layout from "@/layouts/error/error-404/Error404Layout";
-
 /**
  * Replaces the Next.js default 500 page, whose text color follows the OS color scheme instead of the app theme.
  * It is generated at build time, so it renders even when the request that failed cannot be rendered again.
  */
 const InternalServerErrorPage = () => {
   return (
-    <Error404Layout
-      notFound={
-        <Wrapper>
-          <h1>500</h1>
-          <h2>Internal Server Error.</h2>
-        </Wrapper>
-      }
-    />
+    <Wrapper>
+      <h1>500</h1>
+      <h2>Internal Server Error.</h2>
+    </Wrapper>
   );
 };
 
@@ -24,12 +18,13 @@ export default InternalServerErrorPage;
 
 /**
  * Matches the layout of the Next.js default error page.
+ * It grows to fill the space between the header and the footer, so the page never needs a fixed height.
  */
-const Wrapper = styled.div`
+const Wrapper = styled.main`
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
   min-height: 300px;
   color: ${({ theme }) => theme.colors.reverse};
 
