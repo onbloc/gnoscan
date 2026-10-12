@@ -12,9 +12,10 @@ export const TokenListTable = styled(CardTableContainer)`
   .scroll-wrapper > div:first-child {
     border-bottom-color: ${({ theme }) => theme.colors.dimmed100};
 
+    // One pixel less bottom padding keeps the row at the design's 40px with its border included.
     > div {
-      height: 40px;
-      padding: 12px 16px;
+      height: auto;
+      padding: 12px 16px 11px;
       font-size: 14px;
       font-weight: 500;
       line-height: 16px;
@@ -26,6 +27,11 @@ export const TokenListTable = styled(CardTableContainer)`
 
     > div {
       border-bottom-color: ${({ theme }) => theme.colors.dimmed100};
+    }
+
+    // Same for body rows: 52px including the border.
+    .row > div {
+      padding-bottom: 15px;
     }
   }
 `;

@@ -24,6 +24,7 @@ export const SummarySection = styled.div`
 
   .badge {
     gap: 4px;
+    line-height: 20px;
 
     svg {
       margin-left: 0;
@@ -32,6 +33,10 @@ export const SummarySection = styled.div`
 
   dd > div > div {
     gap: 16px 15px;
+  }
+
+  ul {
+    color: ${({ theme }) => theme.colors.primary};
   }
 
   ul li {
@@ -53,6 +58,7 @@ export const SummarySection = styled.div`
 
     > div {
       font-weight: 600;
+      color: ${({ theme }) => theme.colors.primary};
     }
   }
 
@@ -63,6 +69,10 @@ export const SummarySection = styled.div`
 
     > div > div:first-child {
       margin-bottom: 32px;
+    }
+
+    dt {
+      flex-shrink: 0;
     }
 
     dd {

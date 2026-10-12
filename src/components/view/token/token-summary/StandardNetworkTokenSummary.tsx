@@ -96,9 +96,9 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
         </Field>
         <Field
           label={
-            <>
+            <span>
               Market Cap <S.Divider>|</S.Divider> Price
-            </>
+            </span>
           }
         >
           <Badge>
