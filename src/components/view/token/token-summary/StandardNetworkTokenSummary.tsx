@@ -13,7 +13,7 @@ import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
-import { AddressLink, Field } from "@/components/ui/detail-field";
+import { AddressLink, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
@@ -26,6 +26,13 @@ import PublicFunctions from "@/components/ui/public-functions";
 interface TokenSummaryProps {
   tokenId: string;
 }
+
+const TOOLTIP_PACKAGE_PATH = (
+  <>
+    A unique identifier that serves as
+    <br />a contract address on Gno.land.
+  </>
+);
 
 const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
@@ -129,7 +136,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
       <Field label="Transfers">
         <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
       </Field>
-      <Field label="Path">
+      <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <Badge>
           <Text type="p4" color="blue" className="username-text">
             <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${tokenSummary?.packagePath}`)}>
@@ -138,7 +145,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
           </Text>
           <CopyTooltip variant="path" copyText={tokenSummary?.packagePath} />
         </Badge>
-      </Field>
+      </FieldWithTooltip>
       <Field label="Registered">
         <Badge>
           <Text type="p4" color="blue" className="username-text">
