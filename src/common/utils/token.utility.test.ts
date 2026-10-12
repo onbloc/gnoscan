@@ -1,6 +1,7 @@
 import {
   formatTokenDecimal,
   formatDisplayTokenPath,
+  ellipsizePathAddresses,
   resolveTokenMeta,
   findByTokenKey,
   parseTokenKey,
@@ -192,6 +193,18 @@ describe("formatDisplayTokenPath", () => {
     it("should handle visibleLength larger than address length", () => {
       expect(formatDisplayTokenPath(input, 100)).toBe(input);
     });
+  });
+});
+
+describe("ellipsizePathAddresses", () => {
+  it("shortens the address segment and keeps every nested package segment", () => {
+    expect(ellipsizePathAddresses("r/g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd/gnofly/nfts/planes")).toBe(
+      "r/g1t2kg2v...hngt4sfd/gnofly/nfts/planes",
+    );
+  });
+
+  it("leaves paths without an address segment unchanged", () => {
+    expect(ellipsizePathAddresses("r/gnoswap/gnft")).toBe("r/gnoswap/gnft");
   });
 });
 

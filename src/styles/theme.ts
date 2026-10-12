@@ -33,6 +33,11 @@ const lightTheme: Palette = {
   eventName: "#6639BA",
   eventParam: "#0A3069",
   linear: "linear-gradient(359.87deg, #FFFFFF 8.53%, rgba(255, 255, 255, 0) 69.1%)",
+  nftCard: "#FFFFFF",
+  nftCardBorder: "#E6E8EC",
+  nftBadge: "#F7F7F7",
+  nftPlaceholder: "linear-gradient(135deg, rgba(193, 198, 208, 0.6) 0%, rgba(161, 169, 183, 0.6) 100%)",
+  nftPlaceholderBorder: "rgba(138, 147, 161, 0.6)",
 } as const;
 
 const darkTheme: Palette = {
@@ -68,6 +73,11 @@ const darkTheme: Palette = {
   eventName: "#dbb7ff",
   eventParam: "#addcff",
   linear: "linear-gradient(359.87deg, #232323 8.53%, rgba(35, 35, 35, 0) 69.1%)",
+  nftCard: "#2A2A2A",
+  nftCardBorder: "#2A2A2A",
+  nftBadge: "#232323",
+  nftPlaceholder: "linear-gradient(135deg, #272B33 0%, #272C34 100%)",
+  nftPlaceholderBorder: "#000000",
 } as const;
 
 const fonts: FontsKeyType = {
@@ -197,7 +207,12 @@ export type PaletteKeyType =
   | "funcName"
   | "eventName"
   | "eventParam"
-  | "linear";
+  | "linear"
+  | "nftCard"
+  | "nftCardBorder"
+  | "nftBadge"
+  | "nftPlaceholder"
+  | "nftPlaceholderBorder";
 
 const device: DeviceValueType = {
   desktop: "(minWidth: 1280)",

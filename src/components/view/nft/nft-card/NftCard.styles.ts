@@ -1,0 +1,72 @@
+import styled, { css } from "styled-components";
+
+import { media } from "@/common/values/ui.constant";
+import Text from "@/components/ui/text";
+
+export type NftCardSize = "regular" | "compact";
+
+export const Card = styled.div<{ size: NftCardSize; selected: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: ${({ size }) => (size === "compact" ? "9px 9px 10px" : "12px")};
+  background-color: ${({ theme }) => theme.colors.nftCard};
+  /* Inset so the outline does not shrink the artwork (dark cards have none) */
+  box-shadow: inset 0 0 0 1px ${({ theme }) => theme.colors.nftCardBorder};
+  border-radius: 10px;
+
+  ${({ selected, theme }) =>
+    selected &&
+    css`
+      box-shadow: 0 0 0 2px ${theme.colors.blue};
+    `}
+
+  ${media.MOBILE} {
+    gap: 8px;
+    padding: 8px;
+  }
+`;
+
+export const Info = styled.div<{ size: NftCardSize }>`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: ${({ size }) => (size === "compact" ? "0 1px" : "0")};
+`;
+
+export const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+`;
+
+export const Title = styled(Text)`
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+// Shrinks far faster than the title so a narrow card truncates the symbol first.
+// Mobile cards show only the token title, as in the mobile design.
+export const SymbolBadge = styled(Text)`
+  flex: 0 100 auto;
+  min-width: 0;
+  max-width: 50%;
+  height: 24px;
+  padding: 2px 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background-color: ${({ theme }) => theme.colors.nftBadge};
+  border-radius: 10px;
+
+  ${media.MOBILE} {
+    display: none;
+  }
+`;

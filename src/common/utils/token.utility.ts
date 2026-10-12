@@ -218,3 +218,19 @@ export function formatDisplayTokenPath(path: string, visibleLength = 8): string 
     return path;
   }
 }
+
+/**
+ * Shortens every bech32 address segment of a package path to its first and last `visibleLength`
+ * characters, keeping the other segments (e.g. nested package names) intact.
+ * "r/g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd/gnofly/nfts/planes" -> "r/g1t2kg2v...hngt4sfd/gnofly/nfts/planes"
+ */
+export function ellipsizePathAddresses(path: string, visibleLength = 8): string {
+  return path
+    .split("/")
+    .map(segment =>
+      segment.length > visibleLength * 2 && isBech32Address(segment)
+        ? `${segment.slice(0, visibleLength)}...${segment.slice(-visibleLength)}`
+        : segment,
+    )
+    .join("/");
+}
