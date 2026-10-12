@@ -145,7 +145,7 @@ interface CollectionChipProps {
 
 const CollectionChip = ({ label, count, selected, onClick }: CollectionChipProps) => (
   <S.Chip type="button" role="tab" aria-selected={selected} selected={selected} onClick={onClick}>
-    {label}
+    <S.ChipLabel data-label={label}>{label}</S.ChipLabel>
     <S.ChipCount>{count.toLocaleString()}</S.ChipCount>
   </S.Chip>
 );

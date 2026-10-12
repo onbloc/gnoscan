@@ -1,5 +1,5 @@
 import Link from "next/link";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { media } from "@/common/values/ui.constant";
 import { ViewMoreButton as SharedViewMoreButton } from "@/components/ui/button/view-more-button";
@@ -47,36 +47,33 @@ export const Chips = styled.div`
   gap: 10px;
 `;
 
+// Figma: P4 (14/20) primary label on every chip; the selected chip is bold, like the active detail tab
 export const Chip = styled.button<{ selected: boolean }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 9px;
+  padding: 4px 10px;
   ${({ theme }) => theme.fonts.p4};
+  font-weight: ${({ selected }) => (selected ? 600 : 400)};
   color: ${({ theme }) => theme.colors.primary};
   background-color: ${({ theme }) => theme.colors.surface};
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 100px;
   cursor: pointer;
-  transition: border-color 0.2s;
+`;
 
-  ${({ selected, theme }) =>
-    selected &&
-    css`
-      border-color: ${theme.colors.primary};
-    `}
+// Reserves the bold label width so selecting a chip does not shift its neighbors
+export const ChipLabel = styled.span`
+  display: inline-flex;
+  flex-direction: column;
 
-  :hover {
-    border-color: ${({ theme }) => theme.colors.dimmed200};
+  ::after {
+    content: attr(data-label);
+    height: 0;
+    overflow: hidden;
+    font-weight: 600;
+    visibility: hidden;
   }
-
-  ${({ selected, theme }) =>
-    selected &&
-    css`
-      :hover {
-        border-color: ${theme.colors.primary};
-      }
-    `}
 `;
 
 export const ChipCount = styled.span`
