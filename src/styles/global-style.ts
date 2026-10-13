@@ -19,6 +19,8 @@ export const GlobalStyle = createGlobalStyle`
     height: 100%;
     position: relative;
     font-family: Roboto, "Roboto Fallback", sans-serif;
+    // Stops the rubber band scroll that shows a white area past the header and footer.
+    overscroll-behavior-y: none;
   };
 
   body {
