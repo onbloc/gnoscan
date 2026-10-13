@@ -7,6 +7,8 @@ import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString, safeString } from "@/common/utils/format/format-utils";
 import { TransactionTableModel } from "@/models/api/common";
 import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
+import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 export class BlockMapper {
   public static blockListFromApiResponses(responses: BlockModel[]): Block[] {
@@ -24,8 +26,8 @@ export class BlockMapper {
       totalFees:
         response.totalFees > 0
           ? {
-              value: response.totalFees.toString(),
-              denom: "GNOT",
+              value: formatTokenDecimal(response.totalFees, GNOTToken.decimals),
+              denom: GNOTToken.symbol,
             }
           : null,
     };

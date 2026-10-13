@@ -84,12 +84,9 @@ export const StandardNetworkBlockDatatable = ({ data, isError, hasNextPage, fetc
       .key("total_fees")
       .name("Total Fees")
       .width(163)
-      .renderOption((_, data) => {
-        if (data.numTxs === 0) {
-          return <DatatableItem.Amount value={"0"} denom={"GNOT"} />;
-        }
-        return <DatatableItem.LazyBlockTotalFee blockHeight={data.height} defaultDenom={"GNOT"} />;
-      })
+      .renderOption((_, data) => (
+        <DatatableItem.Amount value={data.totalFees?.value ?? "0"} denom={data.totalFees?.denom ?? "GNOT"} />
+      ))
       .build();
   };
 

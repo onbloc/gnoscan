@@ -2,6 +2,8 @@ import { BlockMapper } from "./block-mapper";
 import { TransactionTableModel } from "@/models/api/common";
 import { WUGNOT_PACKAGE_PATH } from "@/common/values/constant-value";
 
+jest.mock("@/common/hooks/common/use-token-meta", () => ({ GNOTToken: { symbol: "GNOT", decimals: 6 } }));
+
 const call = (funcType: string, pkgPath: string) => ({ messageType: "/vm.m_call", funcType, pkgPath });
 
 function transaction(func: TransactionTableModel["func"]): TransactionTableModel {
@@ -108,5 +110,26 @@ describe("transaction list representative function", () => {
     );
     expect(result.functionName).toBe("Swap");
     expect(result.packagePath).toBe("gno.land/r/gnoswap/pool");
+  });
+});
+
+describe("block list total fees", () => {
+  const block = (totalFees: number) => ({
+    blockHash: "hash",
+    blockHeight: 1,
+    blockProposer: "g1proposer",
+    blockProposerLabel: "",
+    network: "gnoland-1",
+    timestamp: "2026-10-13T00:00:00Z",
+    totalFees,
+    transactionCount: totalFees > 0 ? 1 : 0,
+  });
+
+  it("converts ugnot to GNOT", () => {
+    expect(BlockMapper.blockListFromApiResponse(block(1027)).totalFees).toEqual({ value: "0.001027", denom: "GNOT" });
+  });
+
+  it("returns null for a block without fees", () => {
+    expect(BlockMapper.blockListFromApiResponse(block(0)).totalFees).toBeNull();
   });
 });
