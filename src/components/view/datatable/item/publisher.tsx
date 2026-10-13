@@ -42,12 +42,13 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
 
   return address && address !== "genesis" ? (
     <EllipsisTooltip content={renderTooltip()}>
-      <Link
-        className="ellipsis"
+      <PublisherLink
+        // Shortened addresses are already middle truncated, so only clip names and labels
+        className={username || label ? "ellipsis" : undefined}
         href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
       >
         {displayName}
-      </Link>
+      </PublisherLink>
     </EllipsisTooltip>
   ) : (
     <>{displayName}</>
@@ -64,5 +65,13 @@ const TooltipWrapper = styled.span`
     align-items: center;
     word-break: keep-all;
     white-space: nowrap;
+  }
+`;
+
+const PublisherLink = styled(Link)`
+  white-space: nowrap;
+
+  &:not(.ellipsis) {
+    flex-shrink: 0;
   }
 `;
