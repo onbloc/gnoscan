@@ -3,19 +3,18 @@ name: release
 on:
   workflow_dispatch:
     inputs:
-      prefix:
-        description: Tag prefix
-        required: true
-        type: choice
-        options:
-          - prd
       version:
         description: Version (X.Y.Z)
-        required: true
+        required: false
         type: string
+      redeploy:
+        description: Redeploy the existing tag selected in 'Use workflow from' (skips tag and release creation)
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
-  group: release-${{ inputs.prefix }}
+  group: release
   cancel-in-progress: false
 
 permissions:
@@ -24,8 +23,10 @@ permissions:
 jobs:
   prepare:
     name: Create tag and release notes
-    # Releases are allowed only from main or chain/*
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/chain/')
+    # New releases run from main or chain/*; redeploys run from a release tag
+    if: >-
+      (!inputs.redeploy && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/chain/'))) ||
+      (inputs.redeploy && github.ref_type == 'tag')
     runs-on: ubuntu-latest
     environment: release
     outputs:
@@ -47,30 +48,48 @@ jobs:
       - name: Validate tag
         id: tag
         env:
-          PREFIX: ${{ inputs.prefix }}
           VERSION: ${{ inputs.version }}
+          REDEPLOY: ${{ inputs.redeploy }}
         run: |
+          if [ "$REDEPLOY" = "true" ]; then
+            tag="$GITHUB_REF_NAME"
+            if ! echo "$tag" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error::${tag} is not a release tag (vX.Y.Z)"; exit 1
+            fi
+            {
+              echo "tag=${tag}"
+              echo "version=${tag#v}"
+              echo "prev="
+              echo "redeploy=true"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "::error::Version must be X.Y.Z"; exit 1
           fi
-          tag="${PREFIX}-v${VERSION}"
+          tag="v${VERSION}"
           if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
             echo "::error::Tag ${tag} already exists"; exit 1
           fi
-          # Previous tag with the same prefix
-          prev=$(git tag --list "${PREFIX}-v*" --sort=-v:refname \
-            | grep -E "^${PREFIX}-v[0-9]+\.[0-9]+\.[0-9]+$" | head -n1 || true)
+          # Previous release tag
+          prev=$(git tag --list "v*" --sort=-v:refname \
+            | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | head -n1 || true)
           if [ -n "$prev" ]; then
-            prev_ver="${prev#"${PREFIX}"-v}"
+            prev_ver="${prev#v}"
             top=$(printf '%s\n%s\n' "$prev_ver" "$VERSION" | sort -V | tail -n1)
             if [ "$top" != "$VERSION" ] || [ "$prev_ver" = "$VERSION" ]; then
               echo "::error::${VERSION} must be higher than ${prev}"; exit 1
             fi
           fi
-          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
-          echo "prev=${prev}" >> "$GITHUB_OUTPUT"
+          {
+            echo "tag=${tag}"
+            echo "version=${VERSION}"
+            echo "prev=${prev}"
+            echo "redeploy=false"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Push tag
+        if: steps.tag.outputs.redeploy != 'true'
         env:
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
@@ -78,6 +97,7 @@ jobs:
           git push origin "refs/tags/${TAG}"
 
       - name: Create GitHub Release
+        if: steps.tag.outputs.redeploy != 'true'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           TAG: ${{ steps.tag.outputs.tag }}
@@ -95,22 +115,30 @@ jobs:
           PREV: ${{ steps.tag.outputs.prev }}
           SLACK_TOKEN: ${{ secrets.SLACK_RELEASE_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ vars.SLACK_RELEASE_CHANNEL_ID }}
+          REDEPLOY: ${{ steps.tag.outputs.redeploy }}
         run: |
           if [ -z "$SLACK_TOKEN" ] || [ -z "$SLACK_CHANNEL" ]; then
             echo "Slack is not configured, skipping"; exit 0
           fi
-          url=$(gh release view "$TAG" --json url -q .url)
-          # GitHub markdown -> Slack mrkdwn
-          body=$(gh release view "$TAG" --json body -q .body \
-            | sed -E 's/^#+ (.*)$/*\1*/; s/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g' | head -c 2800)
-          header="*${GITHUB_REPOSITORY}* \`${TAG}\` (since: \`${PREV:-initial}\`) by ${GITHUB_ACTOR}"
-          res=$(jq -n --arg ch "$SLACK_CHANNEL" --arg h "$header" --arg b "${body:-No changes}" --arg u "$url" '{
-              channel: $ch, text: $h,
-              blocks: [
-                {type: "section", text: {type: "mrkdwn", text: $h}},
-                {type: "section", text: {type: "mrkdwn", text: $b}},
-                {type: "context", elements: [{type: "mrkdwn", text: ("<" + $u + "|Full release notes>")}]}
-              ]}' \
+          if [ "$REDEPLOY" = "true" ]; then
+            payload=$(jq -n --arg ch "$SLACK_CHANNEL" \
+              --arg t "*${GITHUB_REPOSITORY}* \`${TAG}\` redeploy by ${GITHUB_ACTOR}" \
+              '{channel: $ch, text: $t}')
+          else
+            url=$(gh release view "$TAG" --json url -q .url)
+            # GitHub markdown -> Slack mrkdwn
+            body=$(gh release view "$TAG" --json body -q .body \
+              | sed -E 's/^#+ (.*)$/*\1*/; s/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g' | head -c 2800)
+            header="*${GITHUB_REPOSITORY}* \`${TAG}\` (since: \`${PREV:-initial}\`) by ${GITHUB_ACTOR}"
+            payload=$(jq -n --arg ch "$SLACK_CHANNEL" --arg h "$header" --arg b "${body:-No changes}" --arg u "$url" '{
+                channel: $ch, text: $h,
+                blocks: [
+                  {type: "section", text: {type: "mrkdwn", text: $h}},
+                  {type: "section", text: {type: "mrkdwn", text: $b}},
+                  {type: "context", elements: [{type: "mrkdwn", text: ("<" + $u + "|Full release notes>")}]}
+                ]}')
+          fi
+          res=$(echo "$payload" \
             | curl -sS -X POST https://slack.com/api/chat.postMessage \
                 -H "Authorization: Bearer ${SLACK_TOKEN}" \
                 -H 'Content-Type: application/json; charset=utf-8' -d @-)
@@ -138,16 +166,19 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      - name: Install Vercel CLI
+        run: npm install --global --ignore-scripts vercel@63.1.2
+
       - name: Pull Vercel production settings
-        run: npx --yes vercel@63 pull --yes --environment=production --token "$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
 
       - name: Build
-        run: npx --yes vercel@63 build --prod --token "$VERCEL_TOKEN"
+        run: vercel build --prod --token "$VERCEL_TOKEN"
 
       - name: Deploy
         id: deploy
         run: |
-          url=$(npx --yes vercel@63 deploy --prebuilt --prod --token "$VERCEL_TOKEN")
+          url=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
           echo "url=${url}" >> "$GITHUB_OUTPUT"
 
   notify:
