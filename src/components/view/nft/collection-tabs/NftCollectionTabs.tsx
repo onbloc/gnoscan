@@ -107,7 +107,7 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
       )}
       {currentTab === ACTIVITY_TAB.TOKEN_TRANSFERS && (
         <ActivityDatatable
-          variant="token-volume"
+          variant="token-ids"
           data={tokenTransfers}
           isFetched={isFetchedTransfers}
           hasNextPage={hasNextPageTransfers}

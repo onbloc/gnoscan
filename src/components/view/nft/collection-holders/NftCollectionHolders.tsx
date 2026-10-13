@@ -45,7 +45,7 @@ const HEADERS = [
     .build(),
   DatatableOption.Builder.builder<NftHolderRow>()
     .key("tokenCount")
-    .name("Quantity")
+    .name("Owned")
     .width(288)
     .renderOption(tokenCount => <span>{makeDisplayNumber(tokenCount)}</span>)
     .build(),
