@@ -3,9 +3,9 @@ import React from "react";
 import NftImage from "../nft-image/NftImage";
 import * as S from "./NftCard.styles";
 
-// Artwork frame per size: regular (account page) is square; compact (collection inventory) is 198×183.
+// Artwork frame per size: account cards follow Figma's 250×251 frame; inventory uses 198×183.
 const IMAGE_ASPECT_RATIO: Record<S.NftCardSize, string> = {
-  regular: "1 / 1",
+  regular: "250 / 251",
   compact: "198 / 183",
 };
 

@@ -13,7 +13,7 @@ import AccountNftCard from "./AccountNftCard";
 import * as S from "./AccountNfts.styles";
 import { Card as NftCardFrame } from "../../nft/nft-card/NftCard.styles";
 
-const NFT_PAGE_SIZE = 20;
+const NFT_PAGE_SIZE = 8;
 const ALL_COLLECTIONS = "ALL";
 
 interface AccountNftsProps {

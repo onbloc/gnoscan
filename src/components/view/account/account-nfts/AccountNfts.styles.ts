@@ -93,6 +93,7 @@ export const Grid = styled.div`
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   width: 100%;
+  max-width: 1146px;
 
   ${media.TABLET} {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -100,7 +101,7 @@ export const Grid = styled.div`
   }
 
   ${media.DESKTOP} {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
   }
 `;
@@ -162,7 +163,7 @@ export const CollectionRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 32px;
   min-width: 0;
 `;
 
@@ -226,5 +227,5 @@ export const CollectionName = styled(Text)`
 
 export const SkeletonImage = styled.div`
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 250 / 251;
 `;
