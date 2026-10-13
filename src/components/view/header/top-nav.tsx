@@ -279,7 +279,8 @@ const DropdownList = styled.ul<{ open: boolean }>`
   transform: ${({ open }) => (open ? "scale(1)" : "scale(0.5)")};
   transform-origin: top left;
   transition: all 0.3s ease;
-  z-index: ${zindex.scrollbar};
+  // Above the home page search box, which overlaps the bottom of the list.
+  z-index: ${zindex.searchResult + 1};
 
   a {
     ${mixins.flexbox("row", "center", "center")};
