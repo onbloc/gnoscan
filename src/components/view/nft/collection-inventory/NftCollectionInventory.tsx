@@ -60,32 +60,63 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
   const cardRefs = React.useRef(new Map<string, HTMLDivElement>());
   const previousPositions = React.useRef(new Map<string, { left: number; top: number }>());
   const previousHasPanel = React.useRef(false);
+  const cardAnimations = React.useRef(new Map<string, Animation>());
   useIsomorphicLayoutEffect(() => {
     const hasPanel = !!panelNftId;
     const reflowing = previousHasPanel.current !== hasPanel;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const nextPositions = new Map<string, { left: number; top: number }>();
-    const animations: Animation[] = [];
+    if (reducedMotion) {
+      cardAnimations.current.forEach(animation => animation.cancel());
+      cardAnimations.current.clear();
+    }
     cardRefs.current.forEach((card, id) => {
-      const { left, top } = card.getBoundingClientRect();
+      // Grid-relative layout coordinates ignore scrolling and any in-flight card translation.
+      const { offsetLeft: left, offsetTop: top } = card;
       nextPositions.set(id, { left, top });
       const previous = previousPositions.current.get(id);
-      if (!reflowing || reducedMotion || !previous) return;
-      const x = previous.left - left;
-      const y = previous.top - top;
+      if (reducedMotion || !previous) return;
+      const running = cardAnimations.current.get(id);
+      const moving = running?.playState === "running";
+      let x = previous.left - left;
+      let y = previous.top - top;
+      // Appending the extra NFTs must not cancel the opening transition.
+      if (!reflowing && (!moving || (!x && !y))) return;
+      if (moving) {
+        const transform = window.getComputedStyle(card).transform;
+        if (transform !== "none") {
+          const matrix = new DOMMatrixReadOnly(transform);
+          x += matrix.m41;
+          y += matrix.m42;
+        }
+      }
+      running?.cancel();
       if (x || y) {
-        animations.push(
-          card.animate([{ transform: `translate(${x}px, ${y}px)` }, { transform: "translate(0, 0)" }], {
-            duration: 400,
-            easing: "ease",
-          }),
-        );
+        const animation = card.animate([{ transform: `translate(${x}px, ${y}px)` }, { transform: "translate(0, 0)" }], {
+          duration: 400,
+          easing: "ease",
+        });
+        cardAnimations.current.set(id, animation);
+        animation.onfinish = () => {
+          if (cardAnimations.current.get(id) === animation) cardAnimations.current.delete(id);
+        };
       }
     });
     previousPositions.current = nextPositions;
     previousHasPanel.current = hasPanel;
-    return () => animations.forEach(animation => animation.cancel());
+    cardAnimations.current.forEach((animation, id) => {
+      if (cardRefs.current.has(id)) return;
+      animation.cancel();
+      cardAnimations.current.delete(id);
+    });
   }, [panelNftId, items]);
+  useIsomorphicLayoutEffect(() => {
+    const animations = cardAnimations.current;
+    return () => {
+      animations.forEach(animation => animation.cancel());
+      animations.clear();
+    };
+  }, []);
   const scrolledToRef = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (!isFetched || !selectedNftId || scrolledToRef.current === selectedNftId) return;

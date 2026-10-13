@@ -12,6 +12,7 @@ export const Container = styled.div`
 `;
 
 export const Grid = styled.div`
+  position: relative;
   display: grid;
   align-items: start;
   grid-template-columns: repeat(2, minmax(0, 1fr));

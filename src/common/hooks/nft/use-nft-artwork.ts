@@ -36,6 +36,12 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
     () => [currentNetwork?.chainId || "", QUERY_KEY.getNftTokenUris, batches],
     [currentNetwork?.chainId, batches],
   );
+  const cachedArtwork = queryClient
+    .getQueriesData<ArtworkEntry[]>([currentNetwork?.chainId || "", QUERY_KEY.getNftTokenUris])
+    .flatMap(([, entries]) => entries ?? [])
+    .filter(item =>
+      batches.some(batch => batch.packagePath === item.packagePath && batch.tokenIds.includes(item.tokenId)),
+    );
   const query = useApiRepositoryQuery(
     [QUERY_KEY.getNftTokenUris, batches],
     apiTokenRepository,
@@ -50,12 +56,16 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
       // A failed realm lookup must not discard artwork returned by other realms.
       return responses.flatMap(response => (response.status === "fulfilled" ? response.value : []));
     },
-    { enabled: batches.length > 0 },
+    {
+      enabled: batches.length > 0,
+      // Expanding the inventory changes the batch key; reuse artwork already cached on this network.
+      placeholderData: cachedArtwork.length > 0 ? cachedArtwork : undefined,
+    },
   );
   const attempted = React.useRef(new WeakSet<ArtworkEntry[]>());
   const data = query.data;
   React.useEffect(() => {
-    if (!apiTokenRepository || !data || attempted.current.has(data)) return;
+    if (!apiTokenRepository || !data || query.isPlaceholderData || attempted.current.has(data)) return;
     const flagged = data.filter(item => item.needsRefetch);
     if (flagged.length === 0) return;
     attempted.current.add(data);
@@ -81,13 +91,20 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
     return () => {
       cancelled = true;
     };
-  }, [apiTokenRepository, data, batches, queryClient, queryKey]);
+  }, [apiTokenRepository, data, batches, queryClient, queryKey, query.isPlaceholderData]);
 
   return React.useCallback(
     (packagePath: string, nftId: string) => {
       const item = data?.find(item => item.packagePath === packagePath && item.tokenId === nftId);
-      return item?.status === "found" ? nftMediaUrl(item.image) ?? nftMediaUrl(item.uri) : undefined;
+      const image = item?.status === "found" ? nftMediaUrl(item.image) ?? nftMediaUrl(item.uri) : undefined;
+      if (image) return image;
+      // A pending/failed expanded batch must not blank artwork already shown for the same NFT.
+      if (item && item.status !== "unavailable" && !item.needsRefetch) return undefined;
+      const cached = cachedArtwork.find(
+        entry => entry.packagePath === packagePath && entry.tokenId === nftId && entry.status === "found",
+      );
+      return cached ? nftMediaUrl(cached.image) ?? nftMediaUrl(cached.uri) : undefined;
     },
-    [data],
+    [data, cachedArtwork],
   );
 }
