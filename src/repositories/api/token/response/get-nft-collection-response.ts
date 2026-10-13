@@ -61,21 +61,3 @@ export interface GetNftCollectionItemsResponse {
     totalCount?: number;
   };
 }
-
-export interface NftHolderModel {
-  address: string;
-  nameTag?: string;
-  label?: string | null;
-  labelType?: ADDRESS_LABEL_TYPE | null;
-  tokenCount: number;
-  percentage: number;
-}
-
-export interface GetNftCollectionHoldersResponse {
-  items: NftHolderModel[];
-  page: {
-    cursor?: string;
-    hasNext: boolean;
-    totalCount?: number;
-  };
-}

@@ -4,3 +4,4 @@ export * from "./get-realm-direct-transactions-request";
 export * from "./get-realm-native-transfers-request";
 export * from "./get-realm-token-transfers-request";
 export * from "./get-realm-internal-transactions-request";
+export * from "./get-realm-holders-request";

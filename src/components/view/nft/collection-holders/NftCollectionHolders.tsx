@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useGetNftCollectionHolders } from "@/common/react-query/token/api";
+import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
@@ -62,7 +62,7 @@ interface NftCollectionHoldersProps {
 }
 
 const NftCollectionHolders = ({ tokenKey }: NftCollectionHoldersProps) => {
-  const { data, isFetched, hasNextPage, fetchNextPage } = useGetNftCollectionHolders({ tokenKey });
+  const { data, isFetched, hasNextPage, fetchNextPage } = useGetRealmHoldersByPath({ path: tokenKey });
 
   const holders = React.useMemo(
     () =>

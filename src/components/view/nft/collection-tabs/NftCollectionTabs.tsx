@@ -3,13 +3,13 @@ import React from "react";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import {
-  useGetNftCollectionHolders,
   useGetNftCollectionItems,
   useGetTokenEventsById,
   useGetTokenMetaInternalTransactionsById,
   useGetTokenMetaTransactionsById,
   useGetTokenTransfersById,
 } from "@/common/react-query/token/api";
+import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { debounce } from "@/common/utils/string-util";
 import { ACTIVITY_TAB, INVENTORY_TAB, NFT_COLLECTION_DETAIL_TABS } from "@/common/values/activity-tab.constant";
 
@@ -48,7 +48,7 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
     hasNextPage: hasNextPageInternal,
     fetchNextPage: fetchNextPageInternal,
   } = useGetTokenMetaInternalTransactionsById({ path: tokenKey }, { enabled: !!tokenKey });
-  const { data: holdersData } = useGetNftCollectionHolders({ tokenKey });
+  const { data: holdersData } = useGetRealmHoldersByPath({ path: tokenKey });
 
   // Events filters are restored with the history entry, so back/forward keeps the loaded list.
   const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`nft:${tokenKey}:eventTypeInput`, "");

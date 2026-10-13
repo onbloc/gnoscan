@@ -29,6 +29,7 @@ export enum QUERY_KEY {
   getRealmDirectTransactionsByPath = "api_get_realm_direct_transactions_by_path",
   getRealmNativeTransfersByPath = "api_get_realm_native_transfers_by_path",
   getRealmTokenTransfersByPath = "api_get_realm_token_transfers_by_path",
+  getRealmHoldersByPath = "api_get_realm_holders_by_path",
   getRealmInternalTransactionsByPath = "api_get_realm_internal_transactions_by_path",
   getRealmStorageDepositByPath = "get_realm_storage_deposit_by_path",
 
@@ -42,9 +43,9 @@ export enum QUERY_KEY {
   getTokenMetaInternalTransactionsById = "api_get_token_meta_internal_transactions_by_id",
   getTokenEventsById = "api_get_token_events_by_id",
   getNftCollections = "api_get_nft_collections",
+  getNftCollectionsList = "api_get_nft_collections_list",
   getNftCollection = "api_get_nft_collection",
   getNftCollectionItems = "api_get_nft_collection_items",
-  getNftCollectionHolders = "api_get_nft_collection_holders",
 
   // statistics
   getLatestBlogs = "api_get_latest_blogs",

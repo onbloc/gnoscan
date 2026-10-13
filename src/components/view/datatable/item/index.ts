@@ -18,6 +18,7 @@ export * from "./date";
 export * from "./has-link";
 export * from "./pkg-path";
 export * from "./publisher";
+export * from "./nft-collection-title";
 export * from "./caller-copy";
 export * from "./address-copy";
 export * from "./lazy-total-supply";

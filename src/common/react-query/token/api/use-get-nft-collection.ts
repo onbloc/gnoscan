@@ -4,13 +4,8 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useApiRepositoryInfiniteQuery, useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { GetNftCollectionItemsRequest, GetNftCollectionsRequest } from "@/repositories/api/token/request";
 import {
-  GetNftCollectionHoldersRequest,
-  GetNftCollectionItemsRequest,
-  GetNftCollectionsRequest,
-} from "@/repositories/api/token/request";
-import {
-  GetNftCollectionHoldersResponse,
   GetNftCollectionItemsResponse,
   GetNftCollectionResponse,
   GetNftCollectionsResponse,
@@ -47,6 +42,22 @@ export const useGetNftCollections = (
   );
 };
 
+// Cursor-paginated (infinite scroll) collection list for the NFT collections page.
+export const useGetNftCollectionsInfinite = (
+  params: GetNftCollectionsRequest = {},
+  options?: UseInfiniteQueryOptions<GetNftCollectionsResponse, Error, GetNftCollectionsResponse>,
+): UseInfiniteQueryResult<GetNftCollectionsResponse, Error> => {
+  const { apiTokenRepository } = useServiceProvider();
+
+  return useApiRepositoryInfiniteQuery<GetNftCollectionsResponse, Error, typeof apiTokenRepository>(
+    [QUERY_KEY.getNftCollectionsList, params],
+    apiTokenRepository,
+    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
+    (repository, cursor) => repository!.getNftCollections({ ...params, cursor }),
+    options,
+  );
+};
+
 export const useGetNftCollectionItems = (
   params: GetNftCollectionItemsRequest,
   options?: UseInfiniteQueryOptions<GetNftCollectionItemsResponse, Error, GetNftCollectionItemsResponse>,
@@ -58,21 +69,6 @@ export const useGetNftCollectionItems = (
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     (repository, cursor) => repository!.getNftCollectionItems({ ...params, cursor }),
-    { ...options, enabled: !!params.tokenKey && options?.enabled !== false },
-  );
-};
-
-export const useGetNftCollectionHolders = (
-  params: GetNftCollectionHoldersRequest,
-  options?: UseInfiniteQueryOptions<GetNftCollectionHoldersResponse, Error, GetNftCollectionHoldersResponse>,
-): UseInfiniteQueryResult<GetNftCollectionHoldersResponse, Error> => {
-  const { apiTokenRepository } = useServiceProvider();
-
-  return useApiRepositoryInfiniteQuery<GetNftCollectionHoldersResponse, Error, typeof apiTokenRepository>(
-    [QUERY_KEY.getNftCollectionHolders, params],
-    apiTokenRepository,
-    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, cursor) => repository!.getNftCollectionHolders({ ...params, cursor }),
     { ...options, enabled: !!params.tokenKey && options?.enabled !== false },
   );
 };

@@ -9,7 +9,6 @@ import {
   GetTokenEventsRequest,
   GetNftCollectionsRequest,
   GetNftCollectionItemsRequest,
-  GetNftCollectionHoldersRequest,
 } from "./request";
 import {
   GetTokenHoldersResponse,
@@ -23,7 +22,6 @@ import {
   GetNftCollectionsResponse,
   GetNftCollectionResponse,
   GetNftCollectionItemsResponse,
-  GetNftCollectionHoldersResponse,
 } from "./response";
 import { makeEncodedQueryParameter } from "@/common/utils/string-util";
 import { ApiRepository } from "../api-repository";
@@ -87,14 +85,6 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
     const { tokenKey, ...queryParams } = params;
     return this.get<GetNftCollectionItemsResponse>(
       `nft-collections/${encodeURIComponent(tokenKey)}/items`,
-      queryParams,
-    );
-  }
-
-  getNftCollectionHolders(params: GetNftCollectionHoldersRequest): Promise<GetNftCollectionHoldersResponse> {
-    const { tokenKey, ...queryParams } = params;
-    return this.get<GetNftCollectionHoldersResponse>(
-      `nft-collections/${encodeURIComponent(tokenKey)}/holders`,
       queryParams,
     );
   }
