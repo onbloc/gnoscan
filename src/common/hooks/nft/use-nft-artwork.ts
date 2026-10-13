@@ -86,7 +86,7 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
   return React.useCallback(
     (packagePath: string, nftId: string) => {
       const item = data?.find(item => item.packagePath === packagePath && item.tokenId === nftId);
-      return item?.status === "found" ? nftMediaUrl(item.uri) : undefined;
+      return item?.status === "found" ? nftMediaUrl(item.image) ?? nftMediaUrl(item.uri) : undefined;
     },
     [data],
   );

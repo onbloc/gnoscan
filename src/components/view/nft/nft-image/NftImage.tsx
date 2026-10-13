@@ -10,7 +10,7 @@ interface NftImageProps {
   className?: string;
 }
 
-// NFT artwork; the default placeholder covers a missing or unloadable image.
+// Fit the complete artwork without cropping; use the default placeholder for missing or unloadable images.
 const NftImage = ({ src, alt, aspectRatio = "1 / 1", className }: NftImageProps) => {
   const [failedSrc, setFailedSrc] = React.useState<string | null>(null);
   const showImage = !!src && failedSrc !== src;

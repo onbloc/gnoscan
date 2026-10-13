@@ -67,6 +67,8 @@ export type NftTokenLookupStatus = "found" | "not_set" | "unsupported" | "unavai
 export interface NftTokenUriModel {
   tokenId: string;
   uri: string;
+  // Image extracted from an inline JSON TokenURI; the raw URI is omitted in that case
+  image?: string;
   status: NftTokenLookupStatus;
   needsRefetch: boolean;
 }
@@ -78,6 +80,8 @@ export interface GetNftTokenUrisResponse {
 export interface GetNftTokenDetailResponse {
   tokenId: string;
   uri: string;
+  // Resolved metadata image, or the decoded inline TokenURI image
+  image?: string;
   status: NftTokenLookupStatus;
   metadataStatus: NftTokenLookupStatus;
   uriNeedsRefetch: boolean;
