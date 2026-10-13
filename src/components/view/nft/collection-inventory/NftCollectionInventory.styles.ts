@@ -54,11 +54,6 @@ export const CardButton = styled.div`
   cursor: pointer;
   scroll-margin: 96px;
 
-  > div .nft-default-icon {
-    width: 26px;
-    height: 29px;
-  }
-
   :focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.blue};
     outline-offset: 2px;

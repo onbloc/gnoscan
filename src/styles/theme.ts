@@ -36,8 +36,8 @@ const lightTheme: Palette = {
   nftCard: "#FFFFFF",
   nftCardBorder: "#E6E8EC",
   nftBadge: "#F7F7F7",
-  nftPlaceholder: "linear-gradient(135deg, rgba(193, 198, 208, 0.6) 0%, rgba(161, 169, 183, 0.6) 100%)",
-  nftPlaceholderBorder: "rgba(138, 147, 161, 0.6)",
+  nftPlaceholder: "url('/images/nft-placeholder-light.svg')",
+  nftPlaceholderIcon: "url('/images/nft-placeholder-icon-light.svg')",
   nftPanel: "#F8F9FB",
   nftPanelBorder: "#E6E8EC",
 } as const;
@@ -78,8 +78,8 @@ const darkTheme: Palette = {
   nftCard: "#2A2A2A",
   nftCardBorder: "#2A2A2A",
   nftBadge: "#232323",
-  nftPlaceholder: "linear-gradient(135deg, #272B33 0%, #272C34 100%)",
-  nftPlaceholderBorder: "#000000",
+  nftPlaceholder: "url('/images/nft-placeholder-dark.svg')",
+  nftPlaceholderIcon: "url('/images/nft-placeholder-icon-dark.svg')",
   nftPanel: "#1A1A1A",
   nftPanelBorder: "#2C2C2C",
 } as const;
@@ -216,7 +216,7 @@ export type PaletteKeyType =
   | "nftCardBorder"
   | "nftBadge"
   | "nftPlaceholder"
-  | "nftPlaceholderBorder"
+  | "nftPlaceholderIcon"
   | "nftPanel"
   | "nftPanelBorder";
 

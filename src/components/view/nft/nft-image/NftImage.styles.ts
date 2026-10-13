@@ -9,19 +9,19 @@ export const Frame = styled.div<{ isPlaceholder: boolean }>`
   flex-shrink: 0;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: ${({ isPlaceholder }) => (isPlaceholder ? "0" : "var(--nft-image-radius, 8px)")};
 
   ${({ isPlaceholder, theme }) =>
     isPlaceholder &&
     css`
-      background: ${theme.colors.nftPlaceholder};
-      border: 1px solid ${theme.colors.nftPlaceholderBorder};
+      background: ${theme.colors.nftPlaceholder} center / 100% 100% no-repeat;
     `}
 
   .nft-default-icon {
-    width: 36px;
-    height: 40px;
-    color: #858e99;
+    display: block;
+    width: 28.7549px;
+    height: 31.2404px;
+    background: ${({ theme }) => theme.colors.nftPlaceholderIcon} center / contain no-repeat;
   }
 `;
 

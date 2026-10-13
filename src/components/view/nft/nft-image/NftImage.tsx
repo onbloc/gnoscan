@@ -1,6 +1,5 @@
 import React from "react";
 
-import IconNftDefault from "@/assets/svgs/icon-nft-default.svg";
 import * as S from "./NftImage.styles";
 
 interface NftImageProps {
@@ -21,7 +20,7 @@ const NftImage = ({ src, alt, aspectRatio = "1 / 1", className }: NftImageProps)
       {showImage ? (
         <S.Image src={src} alt={alt} loading="lazy" onError={() => setFailedSrc(src)} />
       ) : (
-        <IconNftDefault className="nft-default-icon" aria-label={alt} role="img" />
+        <span className="nft-default-icon" aria-label={alt} role="img" />
       )}
     </S.Frame>
   );

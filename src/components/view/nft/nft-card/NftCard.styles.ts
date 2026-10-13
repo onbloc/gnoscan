@@ -16,6 +16,7 @@ export const Card = styled.div<{ size: NftCardSize; selected: boolean }>`
   /* Inset so the outline does not shrink the artwork (dark cards have none) */
   box-shadow: inset 0 0 0 1px ${({ theme }) => theme.colors.nftCardBorder};
   border-radius: 10px;
+  --nft-image-radius: ${({ size }) => (size === "compact" ? "9px / 8px" : "8px")};
 
   ${({ selected, theme }) =>
     selected &&
