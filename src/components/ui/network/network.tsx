@@ -43,7 +43,7 @@ interface ConnectionErrorState {
 }
 
 const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
-  const { currentNetwork, nodeRPCClient } = useNetworkProvider();
+  const { currentNetwork } = useNetworkProvider();
   const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
 
   const [isNetworkSwitching, setIsNetworkSwitching] = useState(false);
@@ -90,10 +90,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
       try {
         await tempRpcClient.health();
-      } catch (error) {
+      } catch {
         await sleep(500);
         setConnectionError("customRpcUrl", true);
-        setIsNetworkSwitching(false);
         return;
       }
 
@@ -102,10 +101,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
         try {
           await tempIndexerClient.health();
-        } catch (error) {
+        } catch {
           await sleep(500);
           setConnectionError("customIndexerUrl", true);
-          setIsNetworkSwitching(false);
           return;
         }
       }
