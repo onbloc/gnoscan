@@ -24,3 +24,7 @@ export const truncateDashboardUsername = (username: string) => {
   }
   return username;
 };
+
+/** True once a detail API query settles without its entity: the request failed or returned no data. */
+export const isApiNotFound = (query: { isFetched: boolean; isError: boolean; data?: { data?: unknown } | null }) =>
+  query.isFetched && (query.isError || !query.data?.data);

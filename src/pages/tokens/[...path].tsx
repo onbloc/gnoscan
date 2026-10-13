@@ -14,6 +14,7 @@ export default function Page() {
   return (
     <>
       <TokenLayout
+        tokenId={tokenId || ""}
         tokenSummary={<TokenSummaryContainer tokenId={tokenId || ""} />}
         tokenTransactionInfo={<TokenTransactionInfoContainer tokenId={tokenId || ""} />}
       />
