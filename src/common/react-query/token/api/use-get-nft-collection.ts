@@ -72,3 +72,22 @@ export const useGetNftCollectionItems = (
     { ...options, enabled: !!params.tokenKey && options?.enabled !== false },
   );
 };
+
+export const useGetNftTokenDetail = (packagePath: string, nftId: string) => {
+  const { apiTokenRepository } = useServiceProvider();
+
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getNftTokenDetail, packagePath, nftId],
+    apiTokenRepository,
+    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
+    async repository => {
+      const detail = await repository.getNftTokenDetail(packagePath, nftId);
+      if (detail.uriNeedsRefetch || detail.metadataNeedsRefetch) {
+        // Keep usable stale data visible if the forced refresh fails.
+        return repository.getNftTokenDetail(packagePath, nftId, true).catch(() => detail);
+      }
+      return detail;
+    },
+    { enabled: !!packagePath && !!nftId },
+  );
+};

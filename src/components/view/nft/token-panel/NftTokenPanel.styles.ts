@@ -202,3 +202,38 @@ export const CopyUrlButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
 `;
+
+export const Attributes = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+export const Attribute = styled.dl`
+  min-width: 0;
+  padding: 6px 12px;
+  background-color: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.nftPanelBorder};
+  border-radius: 8px;
+  dt {
+    font-size: 10px;
+    line-height: 13px;
+    color: ${({ theme }) => theme.colors.tertiary};
+    text-transform: uppercase;
+  }
+  dd {
+    font-size: 12px;
+    line-height: 16px;
+    color: ${({ theme }) => theme.colors.primary};
+    overflow-wrap: anywhere;
+  }
+`;
+
+export const RetryButton = styled.button`
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.blue};
+  font: inherit;
+  cursor: pointer;
+`;

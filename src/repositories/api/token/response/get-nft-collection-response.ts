@@ -61,3 +61,19 @@ export interface GetNftCollectionItemsResponse {
     totalCount?: number;
   };
 }
+
+export interface GetNftTokenDetailResponse {
+  tokenId: string;
+  uri: string;
+  status: "found" | "not_set" | "unsupported" | "unavailable";
+  metadataStatus: "found" | "not_set" | "unsupported" | "unavailable";
+  uriNeedsRefetch: boolean;
+  metadataNeedsRefetch: boolean;
+  metadata?: {
+    image?: string;
+    imageData?: string;
+    name?: string;
+    description?: string;
+    attributes?: { traitType: string; value: string; displayType?: string }[];
+  } | null;
+}

@@ -2,7 +2,7 @@ import React from "react";
 
 import { useSelectedNftToken } from "@/common/hooks/nft/use-selected-nft-token";
 import { useInfiniteScroll } from "@/common/hooks/use-infinite-scroll";
-import { useGetNftCollectionItems } from "@/common/react-query/token/api";
+import { useGetNftCollection, useGetNftCollectionItems } from "@/common/react-query/token/api";
 
 import IconSearch from "@/assets/svgs/icon-search.svg";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
@@ -25,6 +25,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
     tokenKey,
     limit: NFT_INVENTORY_PAGE_SIZE,
   });
+  const { data: collectionData } = useGetNftCollection(tokenKey);
   const items = React.useMemo(() => data?.pages.flatMap(page => page.items) ?? [], [data]);
   const sentinelRef = useInfiniteScroll<HTMLDivElement>({ hasNextPage, isFetchingNextPage, fetchNextPage });
 
@@ -123,6 +124,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
           <NftTokenPanel
             key={selectedNftId}
             nftId={selectedNftId}
+            packagePath={selectedItem?.packagePath ?? collectionData?.data.path ?? ""}
             symbol={symbol}
             item={selectedItem}
             previousNftId={selectedIndex > 0 ? items[selectedIndex - 1].nftId : null}

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useGetNftTokenDetail } from "@/common/react-query/token/api";
+import { nftArtwork, nftMediaUrl } from "@/common/utils/nft-media.utility";
 import { NftCollectionItemModel } from "@/repositories/api/token/response";
 
 import IconArrow from "@/assets/svgs/icon-arrow.svg";
@@ -10,13 +12,14 @@ import { DatatableItem } from "../../datatable";
 import NftImage from "../nft-image/NftImage";
 import * as S from "./NftTokenPanel.styles";
 
-// Shown until the API provides per-NFT details (mint, transfers, royalty, metadata, token URI).
+// The indexed API does not yet expose mint, transfer history or royalty per NFT.
 const EMPTY_VALUE = "-";
 // The only GRC721 standard package on gno.land
 const GRC721_STANDARD = "gno.land/p/nt/grc721/v0";
 
 interface NftTokenPanelProps {
   nftId: string;
+  packagePath: string;
   symbol: string;
   // The NFT's inventory row when it is among the loaded items; owner comes from it
   item: NftCollectionItemModel | null;
@@ -26,8 +29,23 @@ interface NftTokenPanelProps {
   onClose: () => void;
 }
 
-const NftTokenPanel = ({ nftId, symbol, item, previousNftId, nextNftId, onSelect, onClose }: NftTokenPanelProps) => {
+const NftTokenPanel = ({
+  nftId,
+  packagePath,
+  symbol,
+  item,
+  previousNftId,
+  nextNftId,
+  onSelect,
+  onClose,
+}: NftTokenPanelProps) => {
   const title = `Token #${nftId}`;
+  const { data: detail, isLoading, isError, refetch } = useGetNftTokenDetail(packagePath, nftId);
+  const metadata = detail?.metadataStatus === "found" ? detail.metadata : null;
+  const attributes = metadata?.attributes ?? [];
+  const tokenUrl = detail?.status === "found" ? detail.uri : "";
+  const tokenLink = nftMediaUrl(tokenUrl);
+  const needsRefresh = isError || detail?.uriNeedsRefetch || detail?.metadataNeedsRefetch;
 
   return (
     <>
@@ -72,7 +90,16 @@ const NftTokenPanel = ({ nftId, symbol, item, previousNftId, nextNftId, onSelect
           </S.HeaderButtons>
         </S.Header>
 
-        <NftImage alt={title} aspectRatio="418 / 332" />
+        <NftImage src={nftArtwork(metadata)} alt={metadata?.name || title} aspectRatio="418 / 332" />
+
+        {needsRefresh && (
+          <S.EmptyText role="status">
+            NFT metadata could not be fully loaded.{" "}
+            <S.RetryButton type="button" onClick={() => refetch()}>
+              Retry
+            </S.RetryButton>
+          </S.EmptyText>
+        )}
 
         <S.Rows>
           <S.Row>
@@ -104,8 +131,19 @@ const NftTokenPanel = ({ nftId, symbol, item, previousNftId, nextNftId, onSelect
         </S.Rows>
 
         <S.Section>
-          <S.SectionTitle>Attributes</S.SectionTitle>
-          <S.EmptyText>{EMPTY_VALUE}</S.EmptyText>
+          <S.SectionTitle>Attributes{attributes.length > 0 ? ` · ${attributes.length}` : ""}</S.SectionTitle>
+          {attributes.length > 0 ? (
+            <S.Attributes>
+              {attributes.map((attribute, index) => (
+                <S.Attribute key={`${attribute.traitType}:${index}`}>
+                  <dt>{attribute.traitType}</dt>
+                  <dd>{attribute.value}</dd>
+                </S.Attribute>
+              ))}
+            </S.Attributes>
+          ) : (
+            <S.EmptyText>{isLoading ? "Loading…" : EMPTY_VALUE}</S.EmptyText>
+          )}
         </S.Section>
 
         <S.Section>
@@ -122,7 +160,23 @@ const NftTokenPanel = ({ nftId, symbol, item, previousNftId, nextNftId, onSelect
             </S.Row>
             <S.Row compact>
               <dt>Token URL</dt>
-              <dd>{EMPTY_VALUE}</dd>
+              <dd>
+                {tokenUrl ? (
+                  tokenLink && /^https?:/i.test(tokenLink) ? (
+                    <a href={tokenLink} target="_blank" rel="noopener noreferrer" title={tokenUrl}>
+                      {tokenUrl}
+                    </a>
+                  ) : (
+                    <Tooltip content="Copied!" trigger="click" copyText={tokenUrl}>
+                      <S.RetryButton type="button">Copy token URI</S.RetryButton>
+                    </Tooltip>
+                  )
+                ) : isLoading ? (
+                  "Loading…"
+                ) : (
+                  EMPTY_VALUE
+                )}
+              </dd>
             </S.Row>
             <S.Row compact>
               <dt>Mint height</dt>
