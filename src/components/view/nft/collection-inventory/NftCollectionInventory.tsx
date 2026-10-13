@@ -177,6 +177,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
                     address={item.ownerAddress}
                     label={item.ownerLabel}
                     labelType={item.ownerLabelType}
+                    truncateFromStart
                   />
                 </S.OwnerRow>
               </NftCard>

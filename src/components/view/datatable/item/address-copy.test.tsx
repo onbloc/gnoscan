@@ -40,3 +40,15 @@ it("shows a realm address as its realm path linking to the realm page", () => {
   expect(html).toContain(`<a class="ellipsis" href="/realms/details?path=${REALM_PATH}">r/gnoland/wugnot</a>`);
   expect(html).toContain(`<div data-part="tooltip">${ADDRESS}</div>`);
 });
+
+it("shortens a nested realm label without changing its canonical destination", () => {
+  const realmPath = "gno.land/r/g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd/gnofly/nfts/market/bazaar/v1/gnofly";
+  const html = render({
+    address: ADDRESS,
+    label: realmPath,
+    labelType: "realm",
+    truncateFromStart: true,
+  });
+  expect(html).toContain("r/g1t2kg2v...hngt4sfd/gnofly/nfts/market/bazaar/v1/gnofly");
+  expect(html).toContain(`href="/realms/details?path=${realmPath}"`);
+});
