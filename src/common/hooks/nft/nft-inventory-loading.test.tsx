@@ -16,11 +16,17 @@ import { useNftInventoryControls } from "./use-nft-inventory-controls";
 import { useNftArtwork } from "./use-nft-artwork";
 
 const mockRepository = { getNftCollectionItems: jest.fn(), getNftTokenUris: jest.fn() };
+jest.mock("@/common/clients/node-client/nft-artwork", () => ({
+  requestNftTokenUri: jest.fn().mockRejectedValue(new Error("RPC unavailable")),
+}));
 jest.mock("@/common/hooks/provider/use-service-provider", () => ({
   useServiceProvider: () => ({ apiTokenRepository: mockRepository }),
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
-  useNetworkProvider: () => ({ currentNetwork: { chainId: "test-chain" } }),
+  useNetworkProvider: () => ({
+    currentNetwork: { chainId: "test-chain", rpcUrl: "https://rpc.example" },
+    nodeRPCClient: {},
+  }),
 }));
 
 // Support TS 4.9 and Node runtimes that do not expose Promise.withResolvers.
