@@ -236,18 +236,20 @@ const NftTokenPanel = ({
         </S.Rows>
 
         <S.Section>
-          <S.SectionTitle>Attributes{attributes.length > 0 ? ` · ${attributes.length}` : ""}</S.SectionTitle>
-          {attributes.length > 0 ? (
-            <S.Attributes>
-              {attributes.map((attribute, index) => (
-                <S.Attribute key={`${attribute.traitType}:${index}`}>
-                  <dt>{attribute.traitType}</dt>
-                  <dd>{attribute.value}</dd>
-                </S.Attribute>
-              ))}
-            </S.Attributes>
+          <S.SectionTitle>{isLoading ? "Attributes" : `Attributes · ${attributes.length}`}</S.SectionTitle>
+          {isLoading ? (
+            <S.EmptyText>Loading…</S.EmptyText>
           ) : (
-            <S.EmptyText>{isLoading ? "Loading…" : EMPTY_VALUE}</S.EmptyText>
+            attributes.length > 0 && (
+              <S.Attributes>
+                {attributes.map((attribute, index) => (
+                  <S.Attribute key={`${attribute.traitType}:${index}`}>
+                    <dt>{attribute.traitType}</dt>
+                    <dd>{attribute.value}</dd>
+                  </S.Attribute>
+                ))}
+              </S.Attributes>
+            )
           )}
         </S.Section>
 
