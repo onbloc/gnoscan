@@ -14,6 +14,7 @@ import { v1 } from "uuid";
 import Text from "@/components/ui/text";
 import { useNetwork } from "@/common/hooks/use-network";
 import { media } from "@/common/values/ui.constant";
+import { zindex } from "@/common/values/z-index";
 
 interface LinkStyleProps {
   current: boolean;
@@ -88,8 +89,7 @@ const Container = styled.div<{ open: boolean }>`
   right: ${({ open }) => (open ? "0px" : "100%")};
   width: 100%;
   height: 100%;
-  // Covers the header network button (z-index 99) so the copy in TopHeader slides in with the menu.
-  z-index: 100;
+  z-index: ${zindex.mobileMenu};
   transition: all 0.4s ease-out;
   padding: 0px 18px 20px;
   overflow: hidden;

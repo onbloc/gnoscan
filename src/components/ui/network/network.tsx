@@ -216,7 +216,7 @@ const NetworkButton = styled.button<StyleProps>`
   border-radius: 12px;
   justify-content: center;
   align-items: center;
-  z-index: 99;
+  z-index: ${zindex.networkButton};
 
   .svg-icon {
     width: 24px;
