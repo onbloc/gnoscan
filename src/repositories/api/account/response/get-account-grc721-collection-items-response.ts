@@ -13,7 +13,7 @@ export interface AccountGRC721CollectionItemModel {
 export interface GetAccountGRC721CollectionItemsResponse {
   items: AccountGRC721CollectionItemModel[];
   page: {
-    cursor?: string;
+    totalCount?: number;
     hasNext: boolean;
   };
 }

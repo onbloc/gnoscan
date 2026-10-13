@@ -6,15 +6,13 @@ import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-acco
 
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import Text from "@/components/ui/text";
+import { Pagination } from "@/components/ui/pagination";
 import { CardTitle } from "../account-address/AccountAddress.styles";
 import AccountNftCard from "./AccountNftCard";
 import * as S from "./AccountNfts.styles";
 import { Card as NftCardFrame } from "../../nft/nft-card/NftCard.styles";
 
-// Two desktop rows before View More
-const NFT_INITIAL_COUNT = 8;
-// View More loads every remaining NFT in API-max pages (handlerCommon.MaxPageSize)
-const NFT_LOAD_ALL_PAGE_SIZE = 100;
+const NFT_PAGE_SIZE = 20;
 const ALL_COLLECTIONS = "ALL";
 
 interface AccountNftsProps {
@@ -27,6 +25,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     `account:${address}:nft-collection`,
     ALL_COLLECTIONS,
   );
+  const [page, setPage] = React.useState(1);
 
   const collections = React.useMemo(() => collectionsData?.items ?? [], [collectionsData]);
   const totalCount = React.useMemo(
@@ -36,34 +35,20 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
 
   // ALL pages through every collection in order; a chip narrows it to one collection.
   const activeCollection = collections.find(collection => collection.tokenId === selectedCollection);
-  const collectionTokenIds = React.useMemo(
-    () => (activeCollection ? [activeCollection] : collections).map(collection => collection.tokenId),
+  const activeCollections = React.useMemo(
+    () =>
+      (activeCollection ? [activeCollection] : collections).map(({ tokenId, tokenCount }) => ({ tokenId, tokenCount })),
     [activeCollection, collections],
   );
-
-  const {
-    data: nftData,
-    isFetched: isFetchedNfts,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useGetAccountNfts({
+  const selectedCount = activeCollection?.tokenCount ?? totalCount;
+  const totalPages = Math.max(1, Math.ceil(selectedCount / NFT_PAGE_SIZE));
+  const { data: nftData, isFetched: isFetchedNfts } = useGetAccountNfts({
     address,
-    collectionTokenIds,
-    firstPageSize: NFT_INITIAL_COUNT,
-    pageSize: NFT_LOAD_ALL_PAGE_SIZE,
+    collections: activeCollections,
+    page,
+    pageSize: NFT_PAGE_SIZE,
   });
-
-  const nfts = React.useMemo(() => nftData?.pages.flatMap(page => page.items) ?? [], [nftData]);
-
-  // View More shows every NFT of the selected chip; switching chips starts again at the first 8.
-  const [isShowingAll, setIsShowingAll] = React.useState(false);
-
-  React.useEffect(() => {
-    if (isShowingAll && hasNextPage && !isFetchingNextPage) {
-      void fetchNextPage();
-    }
-  }, [isShowingAll, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const nfts = nftData?.items ?? [];
 
   // The section only appears for accounts that hold NFTs.
   if (!isFetchedCollections || collections.length === 0) {
@@ -86,7 +71,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
             selected={!activeCollection}
             onClick={() => {
               setSelectedCollection(ALL_COLLECTIONS);
-              setIsShowingAll(false);
+              setPage(1);
             }}
           />
           {collections.map(collection => (
@@ -97,7 +82,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
               selected={collection === activeCollection}
               onClick={() => {
                 setSelectedCollection(collection.tokenId);
-                setIsShowingAll(false);
+                setPage(1);
               }}
             />
           ))}
@@ -106,7 +91,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
 
       {!isFetchedNfts ? (
         <S.Grid aria-label="Loading NFTs">
-          {Array.from({ length: NFT_INITIAL_COUNT }, (_, index) => (
+          {Array.from({ length: NFT_PAGE_SIZE }, (_, index) => (
             <NftCardFrame key={index} size="regular" selected={false}>
               <S.SkeletonImage>
                 <SkeletonBar width="100%" height="100%" borderRadius={8} />
@@ -118,7 +103,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
         </S.Grid>
       ) : nfts.length > 0 ? (
         <S.Grid>
-          {(isShowingAll ? nfts : nfts.slice(0, NFT_INITIAL_COUNT)).map(nft => (
+          {nfts.map(nft => (
             <AccountNftCard key={`${nft.tokenId}:${nft.nftId}`} nft={nft} />
           ))}
         </S.Grid>
@@ -128,10 +113,14 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
         </Text>
       )}
 
-      {/* Stays (disabled) while the remaining NFTs load, then goes away */}
-      {(isShowingAll ? hasNextPage : hasNextPage || nfts.length > NFT_INITIAL_COUNT) && (
-        <S.ViewMoreButton text="View More NFTs" onClick={() => setIsShowingAll(true)} disabled={isShowingAll} />
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        hasNext={nftData?.page.hasNext}
+        hideFirstPageButtonWhenDisabled
+        hideLastPageButtonWhenCurrent
+        onChangePage={nextPage => setPage(Math.min(Math.max(nextPage, 1), totalPages))}
+      />
     </S.Card>
   );
 };

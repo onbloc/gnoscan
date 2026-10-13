@@ -10,9 +10,11 @@ interface AccountNftsContainerProps {
 
 // NFT holdings come from the API, which custom networks do not have.
 const AccountNftsContainer = ({ address }: AccountNftsContainerProps) => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { isCustomNetwork, currentNetwork } = useNetworkProvider();
 
-  return isCustomNetwork ? null : <StandardNetworkAccountNfts address={address} />;
+  return isCustomNetwork ? null : (
+    <StandardNetworkAccountNfts key={`${currentNetwork?.chainId}:${address}`} address={address} />
+  );
 };
 
 export default AccountNftsContainer;

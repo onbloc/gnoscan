@@ -2,7 +2,6 @@ import Link from "next/link";
 import styled from "styled-components";
 
 import { media } from "@/common/values/ui.constant";
-import { ViewMoreButton as SharedViewMoreButton } from "@/components/ui/button/view-more-button";
 import Text from "@/components/ui/text";
 
 export const Card = styled.div`
@@ -101,7 +100,7 @@ export const Grid = styled.div`
   }
 
   ${media.DESKTOP} {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 16px;
   }
 `;
@@ -157,25 +156,6 @@ export const TooltipHint = styled.span`
   font-size: 11px;
   line-height: 13px;
   color: #4f9cff;
-`;
-
-// Hugs its label (96px side padding), sits one grid gap below the cards and uses a SemiBold
-// label, per the design
-export const ViewMoreButton = styled(SharedViewMoreButton)`
-  && {
-    margin-top: 0;
-  }
-
-  && > * {
-    font-weight: 600;
-  }
-
-  ${media.DESKTOP} {
-    && {
-      width: fit-content;
-      padding: 0 96px;
-    }
-  }
 `;
 
 export const CollectionRow = styled.div`

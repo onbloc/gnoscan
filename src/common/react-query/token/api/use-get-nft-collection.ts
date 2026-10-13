@@ -68,7 +68,15 @@ export const useGetNftCollectionItems = (
     [QUERY_KEY.getNftCollectionItems, params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, cursor) => repository!.getNftCollectionItems({ ...params, cursor }),
+    async (repository, cursor) => {
+      const page = cursor === undefined ? params.page ?? 1 : Number(cursor);
+      const response = await repository!.getNftCollectionItems({ ...params, page });
+      return {
+        ...response,
+        // The items API uses page numbers; only the infinite-query HOC needs a cursor.
+        page: { ...response.page, cursor: response.page.hasNext ? String(page + 1) : undefined },
+      };
+    },
     { ...options, enabled: !!params.tokenKey && options?.enabled !== false },
   );
 };

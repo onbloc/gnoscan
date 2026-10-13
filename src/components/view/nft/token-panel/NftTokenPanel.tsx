@@ -17,6 +17,9 @@ const EMPTY_VALUE = "-";
 // The only GRC721 standard package on gno.land
 const GRC721_STANDARD = "gno.land/p/nt/grc721/v0";
 
+const PANEL_TRANSITION_MS = 400;
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
 interface NftTokenPanelProps {
   nftId: string;
   packagePath: string;
@@ -25,6 +28,8 @@ interface NftTokenPanelProps {
   item: NftCollectionItemModel | null;
   previousNftId: string | null;
   nextNftId: string | null;
+  open?: boolean;
+  onExited?: () => void;
   onSelect: (nftId: string) => void;
   onClose: () => void;
 }
@@ -36,6 +41,8 @@ const NftTokenPanel = ({
   item,
   previousNftId,
   nextNftId,
+  open = true,
+  onExited,
   onSelect,
   onClose,
 }: NftTokenPanelProps) => {
@@ -46,11 +53,109 @@ const NftTokenPanel = ({
   const tokenUrl = detail?.status === "found" ? detail.uri : "";
   const tokenLink = nftMediaUrl(tokenUrl);
   const needsRefresh = isError || detail?.uriNeedsRefetch || detail?.metadataNeedsRefetch;
+  const panelRef = React.useRef<HTMLElement>(null);
+  const onExitedRef = React.useRef(onExited);
+  const finishExitRef = React.useRef<(() => void) | null>(null);
+  const [visible, setVisible] = React.useState(false);
+  const interactive = open && visible;
+
+  useIsomorphicLayoutEffect(() => {
+    onExitedRef.current = onExited;
+  }, [onExited]);
+
+  useIsomorphicLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    if (interactive) {
+      panel.removeAttribute("inert");
+    } else {
+      const focusedElement = document.activeElement;
+      if (focusedElement instanceof HTMLElement && panel.contains(focusedElement)) {
+        focusedElement.blur();
+      }
+      // React 18 does not type the inert attribute; apply it before paint.
+      panel.setAttribute("inert", "");
+    }
+  }, [interactive]);
+
+  useIsomorphicLayoutEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let cancelled = false;
+    let exited = false;
+    let firstFrame: number | undefined;
+    let secondFrame: number | undefined;
+    let exitTimer: number | undefined;
+
+    const finishExit = () => {
+      if (cancelled || exited) return;
+      exited = true;
+      if (exitTimer !== undefined) window.clearTimeout(exitTimer);
+      onExitedRef.current?.();
+    };
+
+    if (open) {
+      if (reducedMotion.matches) {
+        setVisible(true);
+      } else {
+        // Paint the mounted closed state before transitioning into view.
+        firstFrame = window.requestAnimationFrame(() => {
+          secondFrame = window.requestAnimationFrame(() => setVisible(true));
+        });
+      }
+    } else {
+      setVisible(false);
+      finishExitRef.current = finishExit;
+      // Covers reduced motion, interrupted transitions and missing transition events.
+      exitTimer = window.setTimeout(finishExit, reducedMotion.matches ? 0 : PANEL_TRANSITION_MS + 50);
+    }
+
+    const onMotionChange = (event: MediaQueryListEvent) => {
+      if (!event.matches) return;
+      if (firstFrame !== undefined) window.cancelAnimationFrame(firstFrame);
+      if (secondFrame !== undefined) window.cancelAnimationFrame(secondFrame);
+      if (open) setVisible(true);
+      else finishExit();
+    };
+    reducedMotion.addEventListener("change", onMotionChange);
+
+    return () => {
+      cancelled = true;
+      finishExitRef.current = null;
+      if (firstFrame !== undefined) window.cancelAnimationFrame(firstFrame);
+      if (secondFrame !== undefined) window.cancelAnimationFrame(secondFrame);
+      if (exitTimer !== undefined) window.clearTimeout(exitTimer);
+      reducedMotion.removeEventListener("change", onMotionChange);
+    };
+  }, [open]);
+
+  const onTransitionEnd = (event: React.TransitionEvent<HTMLElement>) => {
+    if (
+      !open &&
+      event.target === event.currentTarget &&
+      event.propertyName === "opacity" &&
+      window.getComputedStyle(event.currentTarget).opacity === "0"
+    ) {
+      finishExitRef.current?.();
+    }
+  };
 
   return (
     <>
-      <S.Backdrop onClick={onClose} />
-      <S.Panel aria-label={`${title} details`}>
+      <S.Backdrop
+        $visible={visible}
+        $interactive={interactive}
+        aria-hidden="true"
+        onClick={interactive ? onClose : undefined}
+      />
+      <S.Panel
+        ref={panelRef}
+        $visible={visible}
+        $interactive={interactive}
+        aria-label={`${title} details`}
+        aria-hidden={!interactive}
+        onTransitionEnd={onTransitionEnd}
+      >
         <S.Header>
           <S.HeaderButtons>
             <S.IconButton

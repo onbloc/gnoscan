@@ -6,18 +6,29 @@ import { zindex } from "@/common/values/z-index";
 const PANEL_TOP_OFFSET = 24;
 
 // Desktop: sticks beside the inventory grid. Below desktop: a bottom sheet over the page.
-export const Panel = styled.aside`
+export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  min-width: 0;
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.nftPanel};
   border: 1px solid ${({ theme }) => theme.colors.nftPanelBorder};
   border-radius: 16px;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  visibility: ${({ $visible }) => ($visible ? "visible" : "hidden")};
+  pointer-events: ${({ $interactive }) => ($interactive ? "auto" : "none")};
+  transform: ${({ $visible }) => ($visible ? "translateY(0)" : "translateY(12px)")};
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0s ${({ $visible }) => ($visible ? "0s" : "0.4s")};
+
+  > * {
+    flex-shrink: 0;
+  }
 
   ${media.DESKTOP} {
     position: sticky;
+    align-self: start;
     top: ${PANEL_TOP_OFFSET}px;
     max-height: calc(100vh - ${PANEL_TOP_OFFSET * 2}px);
     overflow-y: auto;
@@ -33,11 +44,20 @@ export const Panel = styled.aside`
     overflow-y: auto;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+    transform: ${({ $visible }) => ($visible ? "translateY(0)" : "translateY(100%)")};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `;
 
-export const Backdrop = styled.div`
+export const Backdrop = styled.div<{ $visible: boolean; $interactive: boolean }>`
   display: none;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  visibility: ${({ $visible }) => ($visible ? "visible" : "hidden")};
+  pointer-events: ${({ $interactive }) => ($interactive ? "auto" : "none")};
+  transition: opacity 0.4s ease, visibility 0s ${({ $visible }) => ($visible ? "0s" : "0.4s")};
 
   ${media.NOT_DESKTOP} {
     position: fixed;
@@ -45,6 +65,10 @@ export const Backdrop = styled.div`
     z-index: ${zindex.modal};
     display: block;
     background-color: ${({ theme }) => theme.colors.dimmed600};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `;
 

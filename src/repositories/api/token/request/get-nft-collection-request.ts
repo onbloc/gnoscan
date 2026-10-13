@@ -9,6 +9,6 @@ export interface GetNftCollectionsRequest {
 // tokenKey: collection token ID (e.g. gno.land/r/gnoswap/gnft.GNFT.0000000) or its realm path
 export interface GetNftCollectionItemsRequest {
   tokenKey: string;
-  cursor?: string;
+  page?: number;
   limit?: number;
 }
