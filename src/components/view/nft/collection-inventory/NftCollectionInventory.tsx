@@ -2,6 +2,7 @@ import React from "react";
 
 import { useSelectedNftToken } from "@/common/hooks/nft/use-selected-nft-token";
 import { useNftInventoryControls } from "@/common/hooks/nft/use-nft-inventory-controls";
+import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetNftCollection } from "@/common/react-query/token/api";
 import { NftCollectionItemModel } from "@/repositories/api/token/response";
 
@@ -27,6 +28,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
   const { items, loadedItems, toolbarProps, isResolving, error, isFetched, page, totalPages, hasNext, onChangePage } =
     useNftInventoryControls(tokenKey, NFT_INVENTORY_PAGE_SIZE);
   const { data: collectionData } = useGetNftCollection(tokenKey);
+  const artwork = useNftArtwork(items);
 
   const [selectedNftId, selectToken] = useSelectedNftToken();
   // Retain the last NFT while the closing transition runs.
@@ -146,7 +148,13 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
                 }
               }}
             >
-              <NftCard nftId={item.nftId} symbol={symbol} size="compact" selected={item.nftId === selectedNftId}>
+              <NftCard
+                nftId={item.nftId}
+                symbol={symbol}
+                imageUrl={artwork(item.packagePath, item.nftId)}
+                size="compact"
+                selected={item.nftId === selectedNftId}
+              >
                 <S.OwnerRow>
                   <span>Owner:</span>
                   <DatatableItem.AddressCopy

@@ -195,7 +195,7 @@ const NftTokenPanel = ({
           </S.HeaderButtons>
         </S.Header>
 
-        <NftImage src={nftArtwork(metadata)} alt={metadata?.name || title} aspectRatio="418 / 332" />
+        <NftImage src={nftArtwork(metadata, tokenUrl)} alt={metadata?.name || title} aspectRatio="418 / 332" />
 
         {needsRefresh && (
           <S.EmptyText role="status">

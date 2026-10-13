@@ -7,6 +7,9 @@ This repository hosts the codebase for the GnoScan Interface. The interface is b
 ### NFT inventory pagination
 NFT Details Inventory shows at most 20 cards per page and uses the shared account-list pagination controls instead of infinite scrolling. Default pages are requested directly from the backend with `page` and `limit=20`. Search, owner filtering, and Token ID sorting still resolve the complete collection before paginating their results; changing those conditions resets to page one. Changing pages closes the token detail panel with its existing exit animation.
 
+### NFT artwork and metadata
+The interface uses the GRC721 RPC APIs from [onbloc-api-v3 #293](https://github.com/onbloc/onbloc-api-v3/pull/293). Visible Inventory and Account NFT cards fetch `/v1/realms/{realm}/token-uri` in realm-grouped batches of at most 20 IDs; missing, unsupported, unavailable, or unloadable images retain the default artwork. Token details use `/v1/realms/{realm}/tokens/{tokenId}` for URI, on-chain metadata, and attributes, preferring metadata artwork over the URI image. Returned stale/partial values remain visible while flagged lookups are refreshed once with `refresh=true`; failed refreshes retain usable data, and a failed realm batch does not discard other realms' artwork.
+
 ## Development Setup
 To set up the development environment, make sure you have Node.js version 18.14.2 installed. We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing Node.js versions. Follow these steps:
 

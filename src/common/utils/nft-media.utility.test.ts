@@ -17,3 +17,11 @@ it("preserves inline SVG characters and gives on-chain image data precedence", (
   expect(artwork).toBe(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`);
   expect(nftArtwork({ image: "https://example.com/image.png" })).toBe("https://example.com/image.png");
 });
+
+it("uses the TokenURI image when on-chain metadata is unavailable", () => {
+  const uri = "data:image/svg+xml;base64,PHN2Zy8+";
+  expect(nftArtwork(null, uri)).toBe(uri);
+  expect(nftArtwork({ image: "https://example.com/metadata.png" }, uri)).toBe("https://example.com/metadata.png");
+  expect(nftArtwork({ image: "javascript:alert(1)" }, uri)).toBe(uri);
+  expect(nftArtwork(null, "data:text/html,<script>alert(1)</script>")).toBeUndefined();
+});

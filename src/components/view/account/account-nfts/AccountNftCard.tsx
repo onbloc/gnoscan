@@ -27,9 +27,10 @@ const EMPTY_VALUE = "-";
 
 interface AccountNftCardProps {
   nft: AccountGRC721CollectionItemModel;
+  imageUrl?: string;
 }
 
-const AccountNftCard = ({ nft }: AccountNftCardProps) => {
+const AccountNftCard = ({ nft, imageUrl }: AccountNftCardProps) => {
   const { getUrlWithNetwork, gnoWebUrl } = useNetwork();
   const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
   // The tooltip describes the card click, so it hides while the gno.web link is hovered.
@@ -68,7 +69,7 @@ const AccountNftCard = ({ nft }: AccountNftCardProps) => {
     <>
       {/* The card link is stretched over the card so the gno.web link can sit above it instead of nesting anchors. */}
       <S.CardItem ref={refs.setReference} {...getReferenceProps()}>
-        <NftCard nftId={nft.nftId} symbol={nft.symbol}>
+        <NftCard nftId={nft.nftId} symbol={nft.symbol} imageUrl={imageUrl}>
           <S.CollectionRow>
             <S.CollectionPath {...gnoWebLinkProps}>
               <S.CollectionPathText type="p4" color="gray300">

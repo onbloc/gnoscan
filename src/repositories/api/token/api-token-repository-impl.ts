@@ -23,6 +23,7 @@ import {
   GetNftCollectionResponse,
   GetNftCollectionItemsResponse,
   GetNftTokenDetailResponse,
+  GetNftTokenUrisResponse,
 } from "./response";
 import { makeEncodedQueryParameter } from "@/common/utils/string-util";
 import { ApiRepository } from "../api-repository";
@@ -88,6 +89,13 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
       `nft-collections/${encodeURIComponent(tokenKey)}/items`,
       queryParams,
     );
+  }
+
+  getNftTokenUris(packagePath: string, nftIds: string[], refresh = false): Promise<GetNftTokenUrisResponse> {
+    return this.get<GetNftTokenUrisResponse>(`realms/${encodeURIComponent(packagePath)}/token-uri`, {
+      tokenIds: nftIds.join(","),
+      refresh,
+    });
   }
 
   getNftTokenDetail(packagePath: string, nftId: string, refresh = false): Promise<GetNftTokenDetailResponse> {

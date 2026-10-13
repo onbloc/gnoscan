@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetAccountGRC721Collections } from "@/common/react-query/account/api/use-get-account-grc721-collections";
 import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-account-nfts";
 
@@ -49,6 +50,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     pageSize: NFT_PAGE_SIZE,
   });
   const nfts = nftData?.items ?? [];
+  const artwork = useNftArtwork(nfts);
 
   // The section only appears for accounts that hold NFTs.
   if (!isFetchedCollections || collections.length === 0) {
@@ -104,7 +106,11 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
       ) : nfts.length > 0 ? (
         <S.Grid>
           {nfts.map(nft => (
-            <AccountNftCard key={`${nft.tokenId}:${nft.nftId}`} nft={nft} />
+            <AccountNftCard
+              key={`${nft.tokenId}:${nft.nftId}`}
+              nft={nft}
+              imageUrl={artwork(nft.packagePath, nft.nftId)}
+            />
           ))}
         </S.Grid>
       ) : (

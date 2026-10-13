@@ -8,9 +8,9 @@ export function nftMediaUrl(value?: string | null): string | undefined {
   return undefined;
 }
 
-export function nftArtwork(metadata?: { image?: string; imageData?: string } | null): string | undefined {
+export function nftArtwork(metadata?: { image?: string; imageData?: string } | null, uri?: string): string | undefined {
   if (metadata?.imageData) {
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(metadata.imageData)}`;
   }
-  return nftMediaUrl(metadata?.image);
+  return nftMediaUrl(metadata?.image) ?? nftMediaUrl(uri);
 }

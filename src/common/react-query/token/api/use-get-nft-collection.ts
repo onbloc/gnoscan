@@ -1,7 +1,9 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions } from "react-query";
+import React from "react";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, useQueryClient } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useApiRepositoryInfiniteQuery, useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { GetNftCollectionItemsRequest, GetNftCollectionsRequest } from "@/repositories/api/token/request";
@@ -9,6 +11,7 @@ import {
   GetNftCollectionItemsResponse,
   GetNftCollectionResponse,
   GetNftCollectionsResponse,
+  GetNftTokenDetailResponse,
 } from "@/repositories/api/token/response";
 
 export const useGetNftCollection = (
@@ -100,18 +103,41 @@ export const useGetNftCollectionItemsInfinite = (
 export const useGetNftTokenDetail = (packagePath: string, nftId: string) => {
   const { apiTokenRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
+  const { currentNetwork } = useNetworkProvider();
+  const queryClient = useQueryClient();
+  const queryKey = React.useMemo(
+    () => [currentNetwork?.chainId || "", QUERY_KEY.getNftTokenDetail, packagePath, nftId],
+    [currentNetwork?.chainId, packagePath, nftId],
+  );
+  const query = useApiRepositoryQuery(
     [QUERY_KEY.getNftTokenDetail, packagePath, nftId],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    async repository => {
-      const detail = await repository.getNftTokenDetail(packagePath, nftId);
-      if (detail.uriNeedsRefetch || detail.metadataNeedsRefetch) {
-        // Keep usable stale data visible if the forced refresh fails.
-        return repository.getNftTokenDetail(packagePath, nftId, true).catch(() => detail);
-      }
-      return detail;
-    },
+    repository => repository.getNftTokenDetail(packagePath, nftId),
     { enabled: !!packagePath && !!nftId },
   );
+  const attempted = React.useRef(new WeakSet<GetNftTokenDetailResponse>());
+  const data = query.data;
+  React.useEffect(() => {
+    if (!apiTokenRepository || !data || attempted.current.has(data)) return;
+    if (!data.uriNeedsRefetch && !data.metadataNeedsRefetch) return;
+    attempted.current.add(data);
+    let cancelled = false;
+    // Display stale/partial values first; refresh the flagged lookup without clearing them.
+    void apiTokenRepository
+      .getNftTokenDetail(packagePath, nftId, true)
+      .then(detail => {
+        if (cancelled) return;
+        queryClient.setQueryData(queryKey, detail);
+        const cached = queryClient.getQueryData<GetNftTokenDetailResponse>(queryKey);
+        if (cached) attempted.current.add(cached);
+      })
+      .catch(() => {
+        // Keep usable stale data and its refetch warning if the refresh fails.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiTokenRepository, data, packagePath, nftId, queryClient, queryKey]);
+  return query;
 };
