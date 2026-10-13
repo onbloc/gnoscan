@@ -60,12 +60,28 @@ export const useGetNftCollectionsInfinite = (
 
 export const useGetNftCollectionItems = (
   params: GetNftCollectionItemsRequest,
+  options?: UseQueryOptions<GetNftCollectionItemsResponse, Error, GetNftCollectionItemsResponse>,
+) => {
+  const { apiTokenRepository } = useServiceProvider();
+  const request = { ...params, page: params.page ?? 1 };
+
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getNftCollectionItems, request],
+    apiTokenRepository,
+    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
+    repository => repository.getNftCollectionItems(request),
+    { ...options, enabled: !!params.tokenKey && options?.enabled !== false },
+  );
+};
+
+export const useGetNftCollectionItemsInfinite = (
+  params: GetNftCollectionItemsRequest,
   options?: UseInfiniteQueryOptions<GetNftCollectionItemsResponse, Error, GetNftCollectionItemsResponse>,
 ): UseInfiniteQueryResult<GetNftCollectionItemsResponse, Error> => {
   const { apiTokenRepository } = useServiceProvider();
 
   return useApiRepositoryInfiniteQuery<GetNftCollectionItemsResponse, Error, typeof apiTokenRepository>(
-    [QUERY_KEY.getNftCollectionItems, params],
+    [QUERY_KEY.getNftCollectionItems, "all", params],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     async (repository, cursor) => {

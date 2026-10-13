@@ -70,8 +70,3 @@ export const OwnerRow = styled.div`
     color: ${({ theme }) => theme.colors.blue};
   }
 `;
-
-export const Sentinel = styled.div`
-  width: 100%;
-  height: 1px;
-`;

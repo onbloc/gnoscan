@@ -2,10 +2,11 @@ import React from "react";
 
 import { useSelectedNftToken } from "@/common/hooks/nft/use-selected-nft-token";
 import { useNftInventoryControls } from "@/common/hooks/nft/use-nft-inventory-controls";
-import { useInfiniteScroll } from "@/common/hooks/use-infinite-scroll";
-import { useGetNftCollection, useGetNftCollectionItems } from "@/common/react-query/token/api";
+import { useGetNftCollection } from "@/common/react-query/token/api";
+import { NftCollectionItemModel } from "@/repositories/api/token/response";
 
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import { Pagination } from "@/components/ui/pagination";
 import Text from "@/components/ui/text";
 import { DatatableItem } from "../../datatable";
 import NftCard from "../nft-card/NftCard";
@@ -23,16 +24,9 @@ interface NftCollectionInventoryProps {
 }
 
 const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProps) => {
-  const query = useGetNftCollectionItems({ tokenKey, limit: NFT_INVENTORY_PAGE_SIZE });
-  const { data, isFetched, hasNextPage, fetchNextPage, isFetchingNextPage } = query;
-  const { items, toolbarProps, isResolving, error, hasActiveControls } = useNftInventoryControls(tokenKey, query);
+  const { items, loadedItems, toolbarProps, isResolving, error, isFetched, page, totalPages, hasNext, onChangePage } =
+    useNftInventoryControls(tokenKey, NFT_INVENTORY_PAGE_SIZE);
   const { data: collectionData } = useGetNftCollection(tokenKey);
-  const loadedItems = React.useMemo(() => data?.pages.flatMap(page => page.items) ?? [], [data]);
-  const sentinelRef = useInfiniteScroll<HTMLDivElement>({
-    hasNextPage: hasNextPage && !hasActiveControls && !isResolving && !error,
-    isFetchingNextPage,
-    fetchNextPage,
-  });
 
   const [selectedNftId, selectToken] = useSelectedNftToken();
   // Retain the last NFT while the closing transition runs.
@@ -40,7 +34,10 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
   if (selectedNftId && retainedNftId !== selectedNftId) setRetainedNftId(selectedNftId);
   const panelNftId = selectedNftId ?? retainedNftId;
   const selectedIndex = items.findIndex(item => item.nftId === panelNftId);
-  const selectedItem = loadedItems.find(item => item.nftId === panelNftId) ?? null;
+  const [retainedItem, setRetainedItem] = React.useState<NftCollectionItemModel | null>(null);
+  const currentItem = loadedItems.find(item => item.nftId === panelNftId) ?? null;
+  if (selectedNftId && currentItem && retainedItem !== currentItem) setRetainedItem(currentItem);
+  const selectedItem = currentItem ?? (retainedItem?.nftId === panelNftId ? retainedItem : null);
 
   const cardRefs = React.useRef(new Map<string, HTMLDivElement>());
   const previousPositions = React.useRef(new Map<string, { left: number; top: number }>());
@@ -163,7 +160,17 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
           ))
         )}
       </S.Grid>
-      <S.Sentinel ref={sentinelRef} />
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        hasNext={hasNext}
+        hideFirstPageButtonWhenDisabled
+        hideLastPageButtonWhenCurrent
+        onChangePage={nextPage => {
+          selectToken(null);
+          onChangePage(nextPage);
+        }}
+      />
     </S.Container>
   );
 };

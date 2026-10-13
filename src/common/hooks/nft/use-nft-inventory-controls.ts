@@ -1,8 +1,8 @@
 import React from "react";
-import { UseInfiniteQueryResult } from "react-query";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { GetNftCollectionItemsResponse, NftCollectionItemModel } from "@/repositories/api/token/response";
+import { useGetNftCollectionItems, useGetNftCollectionItemsInfinite } from "@/common/react-query/token/api";
+import { NftCollectionItemModel } from "@/repositories/api/token/response";
 
 export type NftInventorySortOrder = "asc" | "desc" | null;
 
@@ -53,10 +53,7 @@ export function compareNftTokenIds(left: string, right: string): number {
  * picker resolves every remaining page before exposing global results/options.
  * collectionIdentity should be the tokenKey used by the collection-items query.
  */
-export function useNftInventoryControls(
-  collectionIdentity: string,
-  query: UseInfiniteQueryResult<GetNftCollectionItemsResponse, Error>,
-) {
+export function useNftInventoryControls(collectionIdentity: string, pageSize: number) {
   const { currentNetwork } = useNetworkProvider();
   const identity = JSON.stringify([currentNetwork?.chainId ?? "", collectionIdentity]);
   const [savedControls, setControls] = React.useState(() => initialControls(identity));
@@ -101,13 +98,30 @@ export function useNftInventoryControls(
   const search = controls.search.trim().toLowerCase();
   const hasActiveControls = !!search || !!controls.owner || controls.sortOrder !== null;
   const needsAllPages = hasActiveControls || controls.ownersRequested;
+  const pageScope = JSON.stringify([identity, search, controls.owner, controls.sortOrder]);
+  const [pagination, setPagination] = React.useState({ scope: pageScope, page: 1 });
+  if (pagination.scope !== pageScope) setPagination({ scope: pageScope, page: 1 });
+  const page = pagination.scope === pageScope ? pagination.page : 1;
+  const firstPageQuery = useGetNftCollectionItems(
+    { tokenKey: collectionIdentity, limit: pageSize, page: 1 },
+    { enabled: !hasActiveControls },
+  );
+  const pageQuery = useGetNftCollectionItems(
+    { tokenKey: collectionIdentity, limit: pageSize, page },
+    { enabled: !hasActiveControls },
+  );
+  const query = useGetNftCollectionItemsInfinite(
+    { tokenKey: collectionIdentity, limit: pageSize },
+    { enabled: needsAllPages },
+  );
   const incomplete = !query.data || !!query.hasNextPage;
-  const error = query.error ?? (failure?.identity === identity ? failure.error : null);
-  const isResolving = needsAllPages && incomplete && !error;
+  const globalError = query.error ?? (failure?.identity === identity ? failure.error : null);
+  const error = hasActiveControls ? globalError : pageQuery.error;
+  const isResolving = hasActiveControls && incomplete && !globalError;
   const { hasNextPage, isFetching, fetchNextPage } = query;
 
   React.useEffect(() => {
-    if (!needsAllPages || !hasNextPage || isFetching || error || flight.current?.identity === identity) {
+    if (!needsAllPages || !hasNextPage || isFetching || globalError || flight.current?.identity === identity) {
       return;
     }
 
@@ -130,17 +144,18 @@ export function useNftInventoryControls(
           setCompletion(previous => previous + 1);
         }
       });
-  }, [identity, needsAllPages, hasNextPage, isFetching, fetchNextPage, error, completion]);
+  }, [identity, needsAllPages, hasNextPage, isFetching, fetchNextPage, globalError, completion]);
 
-  const loadedItems = React.useMemo(() => query.data?.pages.flatMap(page => page.items) ?? [], [query.data]);
+  const allItems = React.useMemo(() => query.data?.pages.flatMap(page => page.items) ?? [], [query.data]);
+  const loadedItems = hasActiveControls ? allItems : pageQuery.data?.items ?? [];
   const owners = React.useMemo(
-    () => (incomplete ? [] : Array.from(new Set(loadedItems.map(item => item.ownerAddress))).sort()),
-    [loadedItems, incomplete],
+    () => (incomplete ? [] : Array.from(new Set(allItems.map(item => item.ownerAddress))).sort()),
+    [allItems, incomplete],
   );
-  const items = React.useMemo(() => {
+  const filteredItems = React.useMemo(() => {
     // Never show a filtered/sorted subset as though it were the whole collection.
     if (hasActiveControls && incomplete) return [];
-    let visibleItems: NftCollectionItemModel[] = loadedItems;
+    let visibleItems: NftCollectionItemModel[] = allItems;
     if (search || controls.owner) {
       visibleItems = visibleItems.filter(
         item =>
@@ -156,20 +171,42 @@ export function useNftInventoryControls(
       visibleItems = [...visibleItems].sort((left, right) => direction * compareNftTokenIds(left.nftId, right.nftId));
     }
     return visibleItems;
-  }, [loadedItems, hasActiveControls, incomplete, search, controls.owner, controls.sortOrder]);
+  }, [allItems, hasActiveControls, incomplete, search, controls.owner, controls.sortOrder]);
+
+  const totalCount = hasActiveControls ? filteredItems.length : firstPageQuery.data?.page.totalCount ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const items = React.useMemo(
+    () =>
+      hasActiveControls ? filteredItems.slice((page - 1) * pageSize, page * pageSize) : pageQuery.data?.items ?? [],
+    [hasActiveControls, filteredItems, page, pageSize, pageQuery.data],
+  );
+  const onChangePage = (nextPage: number) => {
+    setPagination({ scope: pageScope, page: Math.min(Math.max(nextPage, 1), totalPages) });
+  };
 
   const toolbarProps: NftInventoryToolbarProps = {
     search: controls.search,
     owner: controls.owner,
     sortOrder: controls.sortOrder,
     owners,
-    isLoadingOwners: controls.ownersRequested && incomplete && !error,
-    ownerError: controls.ownersRequested && incomplete ? error : null,
+    isLoadingOwners: controls.ownersRequested && incomplete && !globalError,
+    ownerError: controls.ownersRequested && incomplete ? globalError : null,
     onSearchChange,
     onOwnerChange,
     onOwnerOpen,
     onSortToggle,
   };
 
-  return { items, owners, toolbarProps, isResolving, error, hasActiveControls };
+  return {
+    items,
+    loadedItems,
+    toolbarProps,
+    isResolving,
+    error,
+    isFetched: hasActiveControls ? query.isFetched : pageQuery.isFetched,
+    page,
+    totalPages,
+    onChangePage,
+    hasNext: hasActiveControls ? page < totalPages : pageQuery.data?.page.hasNext,
+  };
 }
