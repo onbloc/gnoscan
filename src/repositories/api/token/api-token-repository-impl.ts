@@ -92,7 +92,7 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
   }
 
   getNftTokenUris(packagePath: string, nftIds: string[], refresh = false): Promise<GetNftTokenUrisResponse> {
-    return this.get<GetNftTokenUrisResponse>(`realms/${encodeURIComponent(packagePath)}/token-uri`, {
+    return this.get<GetNftTokenUrisResponse>(`realms/${encodeURIComponent(packagePath)}/nft-items/uris`, {
       tokenIds: nftIds.join(","),
       refresh,
     });
@@ -100,7 +100,7 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
 
   getNftTokenDetail(packagePath: string, nftId: string, refresh = false): Promise<GetNftTokenDetailResponse> {
     return this.get<GetNftTokenDetailResponse>(
-      `realms/${encodeURIComponent(packagePath)}/tokens/${encodeURIComponent(nftId)}`,
+      `realms/${encodeURIComponent(packagePath)}/nft-items/${encodeURIComponent(nftId)}/metadata`,
       { refresh },
     );
   }
