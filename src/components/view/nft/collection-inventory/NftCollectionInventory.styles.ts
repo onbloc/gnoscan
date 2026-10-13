@@ -5,15 +5,19 @@ import { media } from "@/common/values/ui.constant";
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   width: 100%;
+  max-width: 1146px;
+  align-self: center;
 `;
 
 export const Grid = styled.div`
   display: grid;
+  align-items: start;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   width: 100%;
+  max-width: 1144px;
 
   ${media.TABLET} {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -24,12 +28,15 @@ export const Grid = styled.div`
   }
 `;
 
-// The Figma panel occupies the right two columns for four rows, not the whole list.
+// With 20 items, reserve five three-card rows and leave one full five-card row below.
 export const PanelSlot = styled.div`
   min-width: 0;
+  align-self: stretch;
   ${media.DESKTOP} {
     grid-column: 4 / span 2;
-    grid-row: 1 / span 4;
+    grid-row: 1 / span 5;
+    /* Figma's 450px panel extends 2px beyond the last 216px card edge. */
+    margin-right: -2px;
   }
   ${media.NOT_DESKTOP} {
     display: contents;
@@ -46,6 +53,11 @@ export const CardButton = styled.div`
   border-radius: 10px;
   cursor: pointer;
   scroll-margin: 96px;
+
+  > div .nft-default-icon {
+    width: 26px;
+    height: 29px;
+  }
 
   :focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.blue};

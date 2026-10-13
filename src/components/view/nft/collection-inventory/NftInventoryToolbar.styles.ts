@@ -66,7 +66,7 @@ export const FilterButtons = styled.div`
 export const OwnerControl = styled.div`
   position: relative;
   min-width: 0;
-  max-width: 220px;
+  width: 103.5px;
 
   > span {
     position: absolute;
@@ -80,9 +80,9 @@ export const OwnerControl = styled.div`
 
 export const OwnerSelect = styled.select`
   appearance: none;
-  height: 38px;
-  max-width: 100%;
-  padding: 0 30px 0 16px;
+  height: 37.5px;
+  width: 100%;
+  padding: 0 24px 0 16px;
   font-size: 13px;
   color: ${({ theme }) => theme.colors.primary};
   background-color: ${({ theme }) => theme.colors.surface};
@@ -99,7 +99,8 @@ export const OwnerSelect = styled.select`
 
 export const SortButton = styled.button`
   flex: 0 0 auto;
-  height: 38px;
+  width: 96px;
+  height: 37.5px;
   padding: 0 12px 0 16px;
   font-size: 13px;
   color: ${({ theme }) => theme.colors.primary};

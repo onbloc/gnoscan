@@ -298,9 +298,15 @@ const NftTokenPanel = ({
           </S.Rows>
         </S.Section>
 
-        <Tooltip content="Copied!" trigger="click" copyText={typeof window === "undefined" ? "" : window.location.href}>
-          <S.CopyUrlButton type="button">Copy URL</S.CopyUrlButton>
-        </Tooltip>
+        <S.Footer>
+          <Tooltip
+            content="Copied!"
+            trigger="click"
+            copyText={typeof window === "undefined" ? "" : window.location.href}
+          >
+            <S.CopyUrlButton type="button">Copy URL</S.CopyUrlButton>
+          </Tooltip>
+        </S.Footer>
       </S.Panel>
     </>
   );

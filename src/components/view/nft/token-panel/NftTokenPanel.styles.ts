@@ -3,9 +3,7 @@ import styled from "styled-components";
 import { media } from "@/common/values/ui.constant";
 import { zindex } from "@/common/values/z-index";
 
-const PANEL_TOP_OFFSET = 24;
-
-// Desktop: sticks beside the inventory grid. Below desktop: a bottom sheet over the page.
+// Desktop: a full-height grid panel; the page scrolls. Below desktop: an accessible bottom sheet.
 export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
   display: flex;
   flex-direction: column;
@@ -14,7 +12,7 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
   min-width: 0;
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.nftPanel};
-  border: 1px solid ${({ theme }) => theme.colors.nftPanelBorder};
+  box-shadow: inset 0 0 0 1px ${({ theme }) => theme.colors.nftPanelBorder};
   border-radius: 16px;
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   visibility: ${({ $visible }) => ($visible ? "visible" : "hidden")};
@@ -27,11 +25,12 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
   }
 
   ${media.DESKTOP} {
-    position: sticky;
-    align-self: start;
-    top: ${PANEL_TOP_OFFSET}px;
-    max-height: calc(100vh - ${PANEL_TOP_OFFSET * 2}px);
-    overflow-y: auto;
+    min-height: 100%;
+  }
+
+  > div .nft-default-icon {
+    width: 72px;
+    height: 80px;
   }
 
   ${media.NOT_DESKTOP} {
@@ -214,6 +213,12 @@ export const EmptyText = styled.p`
   font-size: 11px;
   line-height: 24px;
   color: ${({ theme }) => theme.colors.tertiary};
+`;
+
+export const Footer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
 `;
 
 export const CopyUrlButton = styled.button`
