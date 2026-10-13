@@ -124,8 +124,8 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
   }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
   return (
-    <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
-      <NetworkInfoWrapper>
+    <NetworkWrapper entry={entry} ref={ref}>
+      <NetworkInfoWrapper type="button" onClick={toggleHandler} aria-expanded={!!toggle}>
         {isReverseColor || isDark ? (
           <GnoscanSymbol className="svg-icon" />
         ) : (
@@ -138,15 +138,13 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
       </NetworkInfoWrapper>
       <NetworkList toggle={toggle} entry={entry}>
         {chains.map((chain: ChainModel, index: number) => (
-          <li
-            key={index}
-            onClick={e => {
-              e.stopPropagation();
-              networkSettingHandler(chain.chainId);
-            }}
-            className={currentNetwork?.chainId === chain.chainId ? "selected" : ""}
-          >
-            <div className="item row">
+          <li key={index} className={currentNetwork?.chainId === chain.chainId ? "selected" : ""}>
+            <button
+              type="button"
+              className="item row"
+              onClick={() => networkSettingHandler(chain.chainId)}
+              aria-current={currentNetwork?.chainId === chain.chainId}
+            >
               {isDark ? <GnoscanSymbol className="svg-icon" /> : <GnoscanSymbolLight className="svg-icon" />}
               <div className="info-wrapper">
                 <Text type="h7" color="primary">
@@ -156,7 +154,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                   {chain.rpcUrl}
                 </Text>
               </div>
-            </div>
+            </button>
           </li>
         ))}
         <li className={currentNetwork?.chainId === "" ? "selected" : ""}>
@@ -168,7 +166,6 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
               <input
                 className={`custom-input ${connectionErrors.customRpcUrl ? "error" : ""}`}
                 value={customRpcUrl}
-                onClick={e => e.stopPropagation()}
                 onChange={e => {
                   setCustomRpcUrl(e.target.value);
                   if (connectionErrors.customRpcUrl) {
@@ -181,7 +178,6 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
               <input
                 className={`custom-input ${connectionErrors.customIndexerUrl ? "error" : ""}`}
                 value={indexerUrl}
-                onClick={e => e.stopPropagation()}
                 onChange={e => {
                   setIndexerUrl(e.target.value);
                   if (connectionErrors.customIndexerUrl) {
@@ -191,26 +187,20 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                 placeholder="Tx Indexer URL (Optional)"
                 aria-label="Tx Indexer URL (Optional)"
               />
-              <div
-                className={availCustomConnect ? "connect active" : "connect"}
-                onClick={e => {
-                  e.stopPropagation();
-                  connect();
-                }}
-              >
+              <button type="button" className={availCustomConnect ? "connect active" : "connect"} onClick={connect}>
                 <Text type="body1" color="primary">
                   {isNetworkSwitching ? <LoadingSpinner size={16} /> : "Connect"}
                 </Text>
-              </div>
+              </button>
             </div>
           </div>
         </li>
       </NetworkList>
-    </NetworkButton>
+    </NetworkWrapper>
   );
 };
 
-const NetworkButton = styled.button<StyleProps>`
+const NetworkWrapper = styled.div<StyleProps>`
   position: relative;
   display: flex;
   background-color: ${({ entry }) => (entry ? theme.lightTheme.reverse : theme.lightTheme.base)};
@@ -230,7 +220,7 @@ const NetworkButton = styled.button<StyleProps>`
   }
 `;
 
-const NetworkInfoWrapper = styled.div<StyleProps>`
+const NetworkInfoWrapper = styled.button<StyleProps>`
   display: flex;
   padding: 10px 15px;
   height: 44px;
@@ -275,6 +265,7 @@ const NetworkList = styled.ul<StyleProps>`
     gap: 12px;
     justify-content: center;
     align-items: center;
+    text-align: left;
     transition: 0.2s;
     border-radius: 8px;
 
