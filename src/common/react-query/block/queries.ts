@@ -19,8 +19,8 @@ export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | 
       }
       return blockRepository.getLatestBlockHeight().catch(() => null);
     },
-    enabled: !!blockRepository,
     ...options,
+    enabled: !!blockRepository && (options?.enabled ?? true),
   });
 };
 

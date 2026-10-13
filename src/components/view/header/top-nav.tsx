@@ -57,7 +57,6 @@ export const TopNav = () => {
   const isMain = router.route === "/";
   const entry = router.route === "/" || (router.route !== "/" && themeMode === "dark");
   const [value, setValue] = useRecoilState(searchState);
-  const [toggle, setToggle] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
 
@@ -69,25 +68,14 @@ export const TopNav = () => {
     return () => desktopQuery.removeEventListener("change", closeOnDesktop);
   }, []);
   const navigateToHomeHandler = () => router.push("/");
-  const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), [toggle]);
 
-  const { chains } = useNetworkProvider();
-  const { changeNetwork, getUrlWithNetwork } = useNetwork();
+  const { getUrlWithNetwork } = useNetwork();
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       debounce(setValue(e.target.value), 1000);
     },
     [value],
-  );
-
-  // Depend on changeNetwork so it reads the provider's chains, not the initial chains.json default.
-  const networkSettingHandler = useCallback(
-    (chainId: string) => {
-      changeNetwork(chainId);
-      setToggle(false);
-    },
-    [changeNetwork],
   );
 
   return (
@@ -112,14 +100,7 @@ export const TopNav = () => {
         </Nav>
       </div>
 
-      <Network
-        entry={entry}
-        chains={chains}
-        toggle={toggle}
-        toggleHandler={toggleHandler}
-        networkSettingHandler={networkSettingHandler}
-        setToggle={setToggle}
-      />
+      <HeaderNetwork entry={entry} />
       <div className="hide-desktop">
         <SubMenu
           entry={entry}
@@ -127,9 +108,39 @@ export const TopNav = () => {
           onClick={toggleMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
+          network={<HeaderNetwork entry={themeMode === "dark"} />}
         />
       </div>
     </Wrapper>
+  );
+};
+
+// Each instance keeps its own dropdown state, so the copy inside the mobile menu works independently.
+const HeaderNetwork = ({ entry }: { entry: boolean }) => {
+  const [toggle, setToggle] = useState<boolean>(false);
+  const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), []);
+
+  const { chains } = useNetworkProvider();
+  const { changeNetwork } = useNetwork();
+
+  // Depend on changeNetwork so it reads the provider's chains, not the initial chains.json default.
+  const networkSettingHandler = useCallback(
+    (chainId: string) => {
+      changeNetwork(chainId);
+      setToggle(false);
+    },
+    [changeNetwork],
+  );
+
+  return (
+    <Network
+      entry={entry}
+      chains={chains}
+      toggle={toggle}
+      toggleHandler={toggleHandler}
+      networkSettingHandler={networkSettingHandler}
+      setToggle={setToggle}
+    />
   );
 };
 
