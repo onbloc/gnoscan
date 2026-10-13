@@ -255,11 +255,7 @@ const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
           )}
         </Badge>
       </Field>
-      <FieldWithTooltip
-        label="Balance"
-        tooltipContent={TOOLTIP_BALANCE}
-        contentClassName="function-wrapper"
-      >
+      <FieldWithTooltip label="Balance" tooltipContent={TOOLTIP_BALANCE} contentClassName="function-wrapper">
         {realmBalanceList.length > 0 ? (
           realmBalanceList.map((amount, index) => (
             <Badge key={`${amount.denom}-${index}`}>
@@ -301,7 +297,7 @@ const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
           <UsdValueText tokenKey={GNOTToken.denom} amount={displayStorageDepositAmount.value} />
         </Badge>
       </FieldWithTooltip>
-      {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} btnTextType="Realms" />}
+      {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} />}
     </DataSection>
   );
 };

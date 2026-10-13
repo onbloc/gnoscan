@@ -190,7 +190,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
           ))}
         </PublicFunctions>
       </DLWrap>
-      {files && files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Source" />}
+      {files && files.length > 0 && <ShowLog isTabLog={true} files={files} />}
     </DataSection>
   );
 };

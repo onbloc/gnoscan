@@ -58,7 +58,7 @@ const StandardNetworkMsgRunMessage = ({ message, files = [], getUrlWithNetwork }
 
       <Field label="Files" className="top-aligned" contentClassName="files-wrapper">
         <BadgeList items={message?.files} />
-        {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
+        {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} />}
       </Field>
 
       <Field label="Called Functions">

@@ -142,7 +142,7 @@ const CustomNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
           getTokenAmount={getTokenAmount}
         />
       </Field>
-      {summary?.files && <ShowLog isTabLog={true} files={summary?.files} btnTextType="Realms" />}
+      {summary?.files && <ShowLog isTabLog={true} files={summary?.files} />}
     </DataSection>
   );
 };
