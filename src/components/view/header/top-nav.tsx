@@ -18,37 +18,50 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { DEVICE_SIZE_THRESHOLDS, media } from "@/common/values/ui.constant";
 import { SubMenu } from "./sub-menu";
+import IconChevron from "@/assets/svgs/icon-chevron.svg";
+import useOutSideClick from "@/common/hooks/use-outside-click";
+import { zindex } from "@/common/values/z-index";
 
 interface EntryProps {
   entry?: boolean;
   darkMode?: boolean;
 }
 
-export const navItems = [
-  {
-    name: "Blocks",
-    path: "/blocks",
-  },
-  {
-    name: "Transactions",
-    path: "/transactions",
-  },
-  {
-    name: "Accounts",
-    path: "/accounts",
-  },
-  {
-    name: "Realms",
-    path: "/realms",
-  },
-  {
-    name: "Tokens",
-    path: "/tokens",
-  },
-  {
-    name: "Validators",
-    path: "/validators",
-  },
+interface NavLink {
+  name: string;
+  path: string;
+}
+
+interface NavGroup {
+  name: string;
+  items: NavLink[];
+}
+
+const blocksLink = { name: "Blocks", path: "/blocks" };
+const transactionsLink = { name: "Transactions", path: "/transactions" };
+const accountsLink = { name: "Accounts", path: "/accounts" };
+const validatorsLink = { name: "Validators", path: "/validators" };
+const tokensLink = { name: "Tokens", path: "/tokens" };
+const nftsLink = { name: "NFTs", path: "/nft-collections" };
+const realmsLink = { name: "Realms", path: "/realms" };
+
+export const navItems: (NavLink | NavGroup)[] = [
+  { name: "Home", path: "/" },
+  { name: "Blockchain", items: [blocksLink, transactionsLink, accountsLink, validatorsLink] },
+  tokensLink,
+  nftsLink,
+  realmsLink,
+];
+
+// The mobile menu lists every page without groups.
+export const mobileNavItems: NavLink[] = [
+  blocksLink,
+  transactionsLink,
+  accountsLink,
+  tokensLink,
+  nftsLink,
+  realmsLink,
+  validatorsLink,
 ];
 
 export const TopNav = () => {
@@ -60,12 +73,12 @@ export const TopNav = () => {
   const [open, setOpen] = useState(false);
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
 
-  // The mobile menu is portaled outside the header, so close it (and release its scroll lock) on desktop.
+  // The mobile menu is portaled outside the header, so close it (and release its scroll lock) above mobile.
   useEffect(() => {
-    const desktopQuery = window.matchMedia(`(min-width: ${DEVICE_SIZE_THRESHOLDS.DESKTOP}px)`);
-    const closeOnDesktop = (e: MediaQueryListEvent) => e.matches && setOpen(false);
-    desktopQuery.addEventListener("change", closeOnDesktop);
-    return () => desktopQuery.removeEventListener("change", closeOnDesktop);
+    const notMobileQuery = window.matchMedia(`(min-width: ${DEVICE_SIZE_THRESHOLDS.TABLET}px)`);
+    const closeAboveMobile = (e: MediaQueryListEvent) => e.matches && setOpen(false);
+    notMobileQuery.addEventListener("change", closeAboveMobile);
+    return () => notMobileQuery.removeEventListener("change", closeAboveMobile);
   }, []);
   const navigateToHomeHandler = () => router.push("/");
 
@@ -85,23 +98,29 @@ export const TopNav = () => {
       ) : (
         <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
       )}
-      <div className="only-desktop">
-        {!isMain && (
+      {!isMain && (
+        <div className="only-desktop">
           <SubInput className="sub-search" value={value} onChange={onChange} clearValue={() => setValue("")} />
-        )}
+        </div>
+      )}
+      <div className="hide-mobile">
         <Nav>
-          {navItems.map((v, index) => (
-            <Link className="navigation-item" href={getUrlWithNetwork(v.path)} key={index}>
-              <Text type="p4" color={entry ? "white" : "primary"}>
-                {v.name}
-              </Text>
-            </Link>
-          ))}
+          {navItems.map(v =>
+            "items" in v ? (
+              <NavDropdown key={v.name} group={v} entry={entry} currentPath={router.route} />
+            ) : (
+              <Link className="navigation-item" href={getUrlWithNetwork(v.path)} key={v.name}>
+                <Text type="p4" color={entry ? "white" : "primary"}>
+                  {v.name}
+                </Text>
+              </Link>
+            ),
+          )}
         </Nav>
       </div>
 
       <HeaderNetwork entry={entry} />
-      <div className="hide-desktop">
+      <div className="only-mobile">
         <SubMenu
           entry={entry}
           open={open}
@@ -157,7 +176,8 @@ const Wrapper = styled.div<EntryProps>`
   }
   // CSS picks the layout so the server HTML matches the hydrated header.
   .only-desktop,
-  .hide-desktop {
+  .hide-mobile,
+  .only-mobile {
     display: contents;
   }
   ${media.NOT_DESKTOP} {
@@ -175,10 +195,103 @@ const Wrapper = styled.div<EntryProps>`
 const Nav = styled.nav`
   ${mixins.flexbox("row", "center", "center")};
   margin-left: auto;
-  gap: 35px;
-  margin-right: 35px;
+  gap: 28px;
+  margin-right: 28px;
+
+  ${media.TABLET} {
+    gap: 24px;
+    margin-right: 16px;
+  }
 
   .navigation-item {
     cursor: pointer;
+  }
+`;
+
+interface NavDropdownProps {
+  group: NavGroup;
+  entry: boolean;
+  currentPath: string;
+}
+
+const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
+  const { getUrlWithNetwork } = useNetwork();
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
+  const ref = useOutSideClick(close);
+
+  return (
+    <DropdownWrapper ref={ref as React.RefObject<HTMLDivElement>}>
+      <DropdownButton type="button" entry={entry} open={open} aria-expanded={open} onClick={() => setOpen(!open)}>
+        <Text type="p4" color={entry ? "white" : "primary"}>
+          {group.name}
+        </Text>
+        <IconChevron className="chevron" />
+      </DropdownButton>
+      <DropdownList open={open}>
+        {group.items.map(item => {
+          const selected = currentPath === item.path;
+          return (
+            <li key={item.path}>
+              <Link href={getUrlWithNetwork(item.path)} className={selected ? "selected" : ""} onClick={close}>
+                <Text type="p4" color={selected ? "primary" : "tertiary"}>
+                  {item.name}
+                </Text>
+              </Link>
+            </li>
+          );
+        })}
+      </DropdownList>
+    </DropdownWrapper>
+  );
+};
+
+const DropdownWrapper = styled.div`
+  position: relative;
+`;
+
+const DropdownButton = styled.button<{ entry: boolean; open: boolean }>`
+  ${mixins.flexbox("row", "center", "center")};
+  gap: 6px;
+
+  .chevron {
+    width: 8px;
+    height: 5px;
+    transform: rotate(${({ open }) => (open ? "0deg" : "180deg")});
+    transition: transform 0.3s ease;
+  }
+  .chevron path {
+    stroke: ${({ entry, theme }) => (entry ? theme.colors.white : theme.colors.primary)};
+  }
+`;
+
+const DropdownList = styled.ul<{ open: boolean }>`
+  position: absolute;
+  top: calc(100% + 18px);
+  left: 0;
+  width: 122px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.dimmed50};
+  background-color: ${({ theme }) => theme.colors.surface};
+  opacity: ${({ open }) => (open ? "1" : "0")};
+  visibility: ${({ open }) => (open ? "visible" : "hidden")};
+  transform: ${({ open }) => (open ? "scale(1)" : "scale(0.5)")};
+  transform-origin: top left;
+  transition: all 0.3s ease;
+  z-index: ${zindex.scrollbar};
+
+  a {
+    ${mixins.flexbox("row", "center", "center")};
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.hover};
+    }
+    &.selected {
+      background-color: ${({ theme }) => theme.colors.select};
+    }
   }
 `;

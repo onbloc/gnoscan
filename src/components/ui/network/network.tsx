@@ -17,6 +17,7 @@ import { NodeRPCClient } from "@/common/clients/node-client";
 import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { sleep } from "@/common/utils/common.utility";
 import { getDefaultChain } from "@/common/config/network.config";
+import { media } from "@/common/values/ui.constant";
 
 export interface NetworkData {
   all: string[];
@@ -131,7 +132,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
         ) : (
           <GnoscanSymbolLight className="svg-icon" />
         )}
-        <Text type="h7" color={isReverseColor ? "white" : "primary"}>
+        <Text type="h7" color={isReverseColor ? "white" : "primary"} className="network-name">
           {/* Default network until it resolves after hydration, so the button keeps its width */}
           {(currentNetwork ?? getDefaultChain(chains))?.name || ""}
         </Text>
@@ -236,6 +237,15 @@ const NetworkInfoWrapper = styled.div<StyleProps>`
   gap: 8px;
   justify-content: center;
   align-items: center;
+
+  ${media.NOT_DESKTOP} {
+    .network-name {
+      display: none;
+    }
+  }
+  ${media.MOBILE} {
+    padding: 10px;
+  }
 `;
 
 const NetworkList = styled.ul<StyleProps>`
