@@ -13,13 +13,12 @@ import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { GRC20_REGISTRY_PATH } from "@/common/values/constant-value";
-import { formatUsd, formatUsdWhole, getUsdValue } from "@/common/utils/price.utility";
+import { formatUsd, formatUsdWhole } from "@/common/utils/price.utility";
+import { getTokenMarketCap, toTokenKey } from "@/common/utils/sort/token-list-sort";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import * as S from "./StandardNetworkTokenListTable.styles";
-
-const toTokenKey = (data: GRC20InfoWithLogo) => (data.symbol ? `${data.packagePath}.${data.symbol}` : data.packagePath);
 
 interface TokenListTableProps {
   data: GRC20InfoWithLogo[];
@@ -78,7 +77,7 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("price")
       .name("Price (24h)")
-      .width(139)
+      .width(131)
       .renderOption((_, data) => {
         const entry = getPriceEntry(toTokenKey(data));
         const price = entry ? formatUsd(entry.price) : null;
@@ -97,12 +96,9 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("marketCap")
       .name("Market Cap")
-      .width(120)
-      .renderOption((_, data) => {
-        const price = getPriceEntry(toTokenKey(data))?.price;
-        const marketCap = price ? getUsdValue(formatTokenDecimal(data.totalSupply, data.decimals), price) : null;
-        return <>{formatUsdWhole(marketCap) ?? "-"}</>;
-      })
+      .sort()
+      .width(128)
+      .renderOption((_, data) => <>{formatUsdWhole(getTokenMarketCap(data, getPriceEntry)) ?? "-"}</>)
       .build();
   };
 
@@ -130,7 +126,8 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("totalSupply")
       .name("Total Supply")
-      .width(127)
+      .sort()
+      .width(133)
       .renderOption((_, data) => (
         <>
           {BigNumber(formatTokenDecimal(data.totalSupply, data.decimals)).integerValue(BigNumber.ROUND_DOWN).toFormat()}
@@ -143,11 +140,11 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("packagePath")
       .name("Path")
-      .width(159)
+      .width(153)
       .colorName("blue")
       .renderOption((packagePath, data) =>
         packagePath ? (
-          <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={127} truncateStart />
+          <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={121} truncateStart />
         ) : (
           <>{data.symbol}</>
         ),
@@ -155,7 +152,7 @@ export const StandardNetworkTokenListTable = ({
       .build();
   };
 
-  // Market Cap, Total Supply and Path give up width so the full registry path and the Holders sort icon fit.
+  // Price and Path give up width so the full registry path and the sort icons on Market Cap, Holders and Total Supply fit.
   const createHeaderRegistered = () => {
     return DatatableOption.Builder.builder()
       .key("registered")
