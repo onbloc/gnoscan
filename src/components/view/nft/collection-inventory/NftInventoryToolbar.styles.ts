@@ -67,19 +67,69 @@ export const OwnerControl = styled.div`
   position: relative;
   min-width: 0;
   width: 103.5px;
+`;
 
-  > span {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%);
-    color: ${({ theme }) => theme.colors.primary};
-    pointer-events: none;
+export const OwnerMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  min-width: 100%;
+  height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => `${theme.colors.tertiary} ${theme.colors.surface}`};
+  padding: 4px;
+  background-color: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.nftCardBorder};
+  border-radius: 8px;
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    display: block;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    display: block;
+    min-height: 24px;
+    background-color: ${({ theme }) => theme.colors.tertiary};
+    border: 2px solid ${({ theme }) => theme.colors.surface};
+    border-radius: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: ${({ theme }) => theme.colors.surface};
+  }
+
+  :focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.blue};
+    outline-offset: 2px;
   }
 `;
 
-export const OwnerSelect = styled.select`
-  appearance: none;
+export const OwnerOption = styled.div<{ $active: boolean }>`
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+  color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme, $active }) => ($active ? theme.colors.select : "transparent")};
+  border-radius: 4px;
+  cursor: pointer;
+
+  &[aria-selected="true"] {
+    color: ${({ theme }) => theme.colors.blue};
+  }
+
+  :hover {
+    background-color: ${({ theme }) => theme.colors.select};
+  }
+`;
+
+export const OwnerButton = styled.button`
   height: 37.5px;
   width: 100%;
   padding: 0 24px 0 16px;
@@ -90,6 +140,17 @@ export const OwnerSelect = styled.select`
   border-radius: 8px;
   cursor: pointer;
   text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: left;
+
+  ::after {
+    content: "▾";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 
   :focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.blue};
