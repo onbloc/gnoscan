@@ -5,7 +5,6 @@ import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import { useRouter } from "@/common/hooks/common/use-router";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useNetwork } from "@/common/hooks/use-network";
-import { debounce } from "@/common/utils/string-util";
 import { SubInput } from "@/components/ui/input";
 import Network from "@/components/ui/network";
 import Text from "@/components/ui/text";
@@ -45,6 +44,12 @@ const tokensLink = { name: "Tokens", path: "/tokens" };
 const nftsLink = { name: "NFTs", path: "/nft-collections" };
 const realmsLink = { name: "Realms", path: "/realms" };
 
+/**
+ * Header navigation shown from tablet width up, in display order.
+ *
+ * A {@link NavGroup} renders as a dropdown, and a {@link NavLink} renders as a plain link.
+ * Paths are relative to the site root and get the network query from `getUrlWithNetwork`.
+ */
 export const navItems: (NavLink | NavGroup)[] = [
   { name: "Home", path: "/" },
   { name: "Blockchain", items: [blocksLink, transactionsLink, accountsLink, validatorsLink] },
@@ -53,7 +58,13 @@ export const navItems: (NavLink | NavGroup)[] = [
   realmsLink,
 ];
 
-// The mobile menu lists every page without groups.
+/**
+ * Mobile menu entries, in display order.
+ *
+ * Holds every page from {@link navItems} except Home, without grouping. The order follows the
+ * mobile design and differs from the header, so it is kept as its own list instead of
+ * flattening {@link navItems}.
+ */
 export const mobileNavItems: NavLink[] = [
   blocksLink,
   transactionsLink,
@@ -84,12 +95,7 @@ export const TopNav = () => {
 
   const { getUrlWithNetwork } = useNetwork();
 
-  const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      debounce(setValue(e.target.value), 1000);
-    },
-    [value],
-  );
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), [setValue]);
 
   return (
     <Wrapper entry={entry}>
