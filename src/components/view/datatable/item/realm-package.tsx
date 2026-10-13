@@ -2,18 +2,19 @@ import React from "react";
 import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
-import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { ellipsizePathAddresses, stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 import Tooltip from "@/components/ui/tooltip";
 
 interface Props {
   packagePath: string;
   maxWidth?: number;
+  addressVisibleLength?: number;
 }
 
-export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
+export const RealmPackage = ({ packagePath, maxWidth, addressVisibleLength = 4 }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  const displayPackagePath = formatDisplayTokenPath(stripGnoLandPrefix(packagePath), 4);
+  const displayPackagePath = ellipsizePathAddresses(stripGnoLandPrefix(packagePath), addressVisibleLength);
 
   return (
     <Tooltip content={<TooltipContent packagePath={packagePath} />}>

@@ -16,7 +16,7 @@ export const NftCollectionTitle = ({ tokenId, name }: Props) => {
   return (
     <Link href={getUrlWithNetwork(`/tokens/${tokenId}`)}>
       <Wrapper>
-        <IconNftCollectionDefault className="collection-icon" width="20" height="20" />
+        <IconNftCollectionDefault className="collection-icon" aria-hidden="true" />
         <Text type="p4" color="blue">
           {name}
         </Text>
