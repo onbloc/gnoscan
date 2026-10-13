@@ -21,7 +21,7 @@ export const STAGING_CHAIN_ID = "staging";
 // display as 6, 1:1 with ugnot.
 export const WUGNOT_PACKAGE_PATH = "gno.land/r/gnoland/wugnot";
 // The API indexes GRC20 tokens only from this registry's register events, so every API token is registered here.
-export const GRC20_REGISTRY_PATH = "gno.land/r/nt/grc20reg";
+export const GRC20_REGISTRY_PATH = "gno.land/r/nt/grc20reg/v0";
 export const WUGNOT_DISPLAY_DECIMALS = 6;
 export const WUGNOT_DISPLAY_NAME = "wGNOT (Wrapped GNOT)";
 
