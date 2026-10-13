@@ -22,9 +22,9 @@ import IconChevron from "@/assets/svgs/icon-chevron.svg";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { zindex } from "@/common/values/z-index";
 
-interface EntryProps {
-  entry?: boolean;
-  darkMode?: boolean;
+// Whether the header sits on a dark background, so text and icons render white.
+interface WrapperProps {
+  entry: boolean;
 }
 
 interface NavLink {
@@ -68,7 +68,7 @@ export const TopNav = () => {
   const router = useRouter();
   const themeMode = useRecoilValue(themeState);
   const isMain = router.route === "/";
-  const entry = router.route === "/" || (router.route !== "/" && themeMode === "dark");
+  const entry = isMain || themeMode === "dark";
   const [value, setValue] = useRecoilState(searchState);
   const [open, setOpen] = useState(false);
   const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
@@ -163,7 +163,7 @@ const HeaderNetwork = ({ entry }: { entry: boolean }) => {
   );
 };
 
-const Wrapper = styled.div<EntryProps>`
+const Wrapper = styled.div<WrapperProps>`
   ${mixins.flexbox("row", "center", "center")};
   position: relative;
   height: 80px;
