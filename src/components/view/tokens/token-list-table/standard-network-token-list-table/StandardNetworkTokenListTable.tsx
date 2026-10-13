@@ -97,7 +97,7 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("marketCap")
       .name("Market Cap")
-      .width(130)
+      .width(120)
       .renderOption((_, data) => {
         const price = getPriceEntry(toTokenKey(data))?.price;
         const marketCap = price ? getUsdValue(formatTokenDecimal(data.totalSupply, data.decimals), price) : null;
@@ -110,7 +110,8 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("holders")
       .name("Holders")
-      .width(94)
+      .sort()
+      .width(106)
       .renderOption(holders => <>{makeDisplayNumber(holders)}</>)
       .build();
   };
@@ -129,7 +130,7 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("totalSupply")
       .name("Total Supply")
-      .width(133)
+      .width(127)
       .renderOption((_, data) => (
         <>
           {BigNumber(formatTokenDecimal(data.totalSupply, data.decimals)).integerValue(BigNumber.ROUND_DOWN).toFormat()}
@@ -142,11 +143,11 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("packagePath")
       .name("Path")
-      .width(174)
+      .width(159)
       .colorName("blue")
       .renderOption((packagePath, data) =>
         packagePath ? (
-          <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={142} truncateStart />
+          <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={127} truncateStart />
         ) : (
           <>{data.symbol}</>
         ),
@@ -154,14 +155,14 @@ export const StandardNetworkTokenListTable = ({
       .build();
   };
 
-  // Price, Market Cap and Holders give up a few pixels each so the full registry path fits.
+  // Market Cap, Total Supply and Path give up width so the full registry path and the Holders sort icon fit.
   const createHeaderRegistered = () => {
     return DatatableOption.Builder.builder()
       .key("registered")
       .name("Registered")
-      .width(118)
+      .width(137)
       .colorName("blue")
-      .renderOption(() => <DatatableItem.RealmPackage packagePath={GRC20_REGISTRY_PATH} maxWidth={86} />)
+      .renderOption(() => <DatatableItem.RealmPackage packagePath={GRC20_REGISTRY_PATH} maxWidth={105} />)
       .build();
   };
 
