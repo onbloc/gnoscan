@@ -17,6 +17,7 @@ import * as S from "./NftCollectionInventory.styles";
 import NftInventoryToolbar from "./NftInventoryToolbar";
 
 export const NFT_INVENTORY_PAGE_SIZE = 20;
+const NFT_DETAIL_INVENTORY_PAGE_SIZE = 22;
 const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
 
 interface NftCollectionInventoryProps {
@@ -25,16 +26,31 @@ interface NftCollectionInventoryProps {
 }
 
 const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProps) => {
-  const { items, loadedItems, toolbarProps, isResolving, error, isFetched, page, totalPages, hasNext, onChangePage } =
-    useNftInventoryControls(tokenKey, NFT_INVENTORY_PAGE_SIZE);
-  const { data: collectionData } = useGetNftCollection(tokenKey);
-  const artwork = useNftArtwork(items);
-
   const [selectedNftId, selectToken] = useSelectedNftToken();
-  // Retain the last NFT while the closing transition runs.
+  // Retain the expanded page and last NFT until the closing transition finishes.
   const [retainedNftId, setRetainedNftId] = React.useState<string | null>(null);
   if (selectedNftId && retainedNftId !== selectedNftId) setRetainedNftId(selectedNftId);
   const panelNftId = selectedNftId ?? retainedNftId;
+  const pageSize = panelNftId ? NFT_DETAIL_INVENTORY_PAGE_SIZE : NFT_INVENTORY_PAGE_SIZE;
+  const {
+    items,
+    loadedItems,
+    toolbarProps,
+    isResolving,
+    error,
+    isFetched,
+    page,
+    totalPages,
+    hasNext,
+    onChangePage,
+    onSelectItem,
+  } = useNftInventoryControls(tokenKey, pageSize);
+  const { data: collectionData } = useGetNftCollection(tokenKey);
+  const artwork = useNftArtwork(items);
+  const selectInventoryToken = (nftId: string) => {
+    onSelectItem(nftId);
+    selectToken(nftId);
+  };
   const selectedIndex = items.findIndex(item => item.nftId === panelNftId);
   const [retainedItem, setRetainedItem] = React.useState<NftCollectionItemModel | null>(null);
   const currentItem = loadedItems.find(item => item.nftId === panelNftId) ?? null;
@@ -98,13 +114,13 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
               nextNftId={
                 selectedIndex !== -1 && selectedIndex < items.length - 1 ? items[selectedIndex + 1].nftId : null
               }
-              onSelect={selectToken}
+              onSelect={selectInventoryToken}
               onClose={() => selectToken(null)}
             />
           </S.PanelSlot>
         )}
         {!isFetched || isResolving ? (
-          Array.from({ length: NFT_INVENTORY_PAGE_SIZE }, (_, index) => (
+          Array.from({ length: pageSize }, (_, index) => (
             <NftCardFrame key={index} size="compact" selected={false}>
               <SkeletonBar width="100%" height={183} borderRadius={8} />
               <SkeletonBar width="60%" height={24} />
@@ -138,13 +154,13 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
               onClick={event => {
                 // Owner link and copy icon keep their own behavior.
                 if ((event.target as HTMLElement).closest("a, .copy-tooltip")) return;
-                selectToken(item.nftId);
+                selectInventoryToken(item.nftId);
               }}
               onKeyDown={event => {
                 if (event.target !== event.currentTarget) return;
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  selectToken(item.nftId);
+                  selectInventoryToken(item.nftId);
                 }
               }}
             >
@@ -174,10 +190,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
         hasNext={hasNext}
         hideFirstPageButtonWhenDisabled
         hideLastPageButtonWhenCurrent
-        onChangePage={nextPage => {
-          selectToken(null);
-          onChangePage(nextPage);
-        }}
+        onChangePage={onChangePage}
       />
     </S.Container>
   );

@@ -28,13 +28,13 @@ export const Grid = styled.div`
   }
 `;
 
-// With 20 items, reserve five three-card rows and leave one full five-card row below.
+// Expanded pages show 12 cards beside the panel and two full five-card rows below.
 export const PanelSlot = styled.div`
   min-width: 0;
   align-self: stretch;
   ${media.DESKTOP} {
     grid-column: 4 / span 2;
-    grid-row: 1 / span 5;
+    grid-row: 1 / span 4;
     /* Figma's 450px panel extends 2px beyond the last 216px card edge. */
     margin-right: -2px;
   }

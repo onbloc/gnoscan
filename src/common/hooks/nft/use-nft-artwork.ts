@@ -17,7 +17,7 @@ interface ArtworkEntry extends NftTokenUriModel {
   packagePath: string;
 }
 
-// Both callers pass only the visible page (at most 20 NFTs), below the API's 50-ID limit.
+// Both callers pass only the visible page (at most 22 NFTs), below the API's 50-ID limit.
 export function useNftArtwork(nfts: readonly ArtworkToken[]) {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork } = useNetworkProvider();

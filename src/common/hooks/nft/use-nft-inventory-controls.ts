@@ -2,6 +2,7 @@ import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetNftCollectionItems, useGetNftCollectionItemsInfinite } from "@/common/react-query/token/api";
+import { remapNftInventoryPage } from "@/common/utils/nft-inventory.utility";
 import { NftCollectionItemModel } from "@/repositories/api/token/response";
 
 export type NftInventorySortOrder = "asc" | "desc" | null;
@@ -25,6 +26,13 @@ interface InventoryControlState {
   owner: string;
   sortOrder: NftInventorySortOrder;
   ownersRequested: boolean;
+}
+
+interface InventoryPagination {
+  scope: string;
+  page: number;
+  pageSize: number;
+  anchorIndex?: number;
 }
 
 const initialControls = (identity: string): InventoryControlState => ({
@@ -99,9 +107,23 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   const hasActiveControls = !!search || !!controls.owner || controls.sortOrder !== null;
   const needsAllPages = hasActiveControls || controls.ownersRequested;
   const pageScope = JSON.stringify([identity, search, controls.owner, controls.sortOrder]);
-  const [pagination, setPagination] = React.useState({ scope: pageScope, page: 1 });
-  if (pagination.scope !== pageScope) setPagination({ scope: pageScope, page: 1 });
-  const page = pagination.scope === pageScope ? pagination.page : 1;
+  const [pagination, setPagination] = React.useState<InventoryPagination>(() => ({
+    scope: pageScope,
+    page: 1,
+    pageSize,
+  }));
+  const currentPagination =
+    pagination.scope !== pageScope
+      ? { scope: pageScope, page: 1, pageSize }
+      : pagination.pageSize !== pageSize
+      ? {
+          ...pagination,
+          pageSize,
+          page: remapNftInventoryPage(pagination.page, pagination.pageSize, pageSize, pagination.anchorIndex),
+        }
+      : pagination;
+  if (currentPagination !== pagination) setPagination(currentPagination);
+  const page = currentPagination.page;
   const firstPageQuery = useGetNftCollectionItems(
     { tokenKey: collectionIdentity, limit: pageSize, page: 1 },
     { enabled: !hasActiveControls },
@@ -111,7 +133,8 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     { enabled: !hasActiveControls },
   );
   const query = useGetNftCollectionItemsInfinite(
-    { tokenKey: collectionIdentity, limit: pageSize },
+    // Keep complete search/filter data cached across 20/22-card display modes.
+    { tokenKey: collectionIdentity, limit: 20 },
     { enabled: needsAllPages },
   );
   const incomplete = !query.data || !!query.hasNextPage;
@@ -181,7 +204,17 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     [hasActiveControls, filteredItems, page, pageSize, pageQuery.data],
   );
   const onChangePage = (nextPage: number) => {
-    setPagination({ scope: pageScope, page: Math.min(Math.max(nextPage, 1), totalPages) });
+    setPagination({
+      scope: pageScope,
+      page: Math.min(Math.max(nextPage, 1), totalPages),
+      pageSize,
+      anchorIndex: undefined,
+    });
+  };
+  const onSelectItem = (nftId: string) => {
+    const index = items.findIndex(item => item.nftId === nftId);
+    if (index < 0) return;
+    setPagination(previous => ({ ...previous, anchorIndex: (page - 1) * pageSize + index }));
   };
 
   const toolbarProps: NftInventoryToolbarProps = {
@@ -207,6 +240,7 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     page,
     totalPages,
     onChangePage,
+    onSelectItem,
     hasNext: hasActiveControls ? page < totalPages : pageQuery.data?.page.hasNext,
   };
 }
