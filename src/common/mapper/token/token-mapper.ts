@@ -3,6 +3,8 @@ import { GRC20Info } from "@/repositories/realm-repository.ts";
 
 export interface GRC20InfoWithLogo extends GRC20Info {
   logoUrl: string;
+  registered: boolean;
+  transactionCount24h: number | null;
 }
 
 export class TokenMapper {
@@ -19,6 +21,8 @@ export class TokenMapper {
       totalSupply: Number(response.totalSupply),
       holders: response.holders,
       logoUrl: response.logoUrl ?? "",
+      registered: !!response.registeredPackagePath,
+      transactionCount24h: response.transactionCount24h ?? null,
     };
   }
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useGetTokenById, useGetTokenTransfersById } from "@/common/react-query/token/api";
+import { useGetTokenById, useGetTokens, useGetTokenTransfersById } from "@/common/react-query/token/api";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { TokenSummary } from "@/types/data-type";
@@ -43,6 +43,12 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   // Same query as the Token Transfers tab, so the count comes from the shared cache.
   const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
   const transferCount = transfersData?.pages[0]?.page.totalCount;
+  // The detail API has no registration field, so read it from this package's row in the token list.
+  const packagePath = data?.data?.path;
+  const { data: packageTokens } = useGetTokens({ packagePath }, { enabled: !!packagePath });
+  const isRegistered = !!packageTokens?.pages
+    .flatMap(page => page.items)
+    .find(item => item.tokenId === data?.data?.tokenId)?.registeredPackagePath;
 
   const tokenSummary: TokenSummary | null = React.useMemo(() => {
     const summaryData = data?.data;
@@ -148,14 +154,18 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
         </Badge>
       </FieldWithTooltip>
       <Field label="Registered">
-        <Badge>
-          <Text type="p4" color="blue" className="username-text">
-            <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${GRC20_REGISTRY_PATH}`)}>
-              {formatDisplayPackagePath(GRC20_REGISTRY_PATH)}
-            </S.StyledA>
-          </Text>
-          <CopyTooltip variant="path" copyText={GRC20_REGISTRY_PATH} />
-        </Badge>
+        {isRegistered ? (
+          <Badge>
+            <Text type="p4" color="blue" className="username-text">
+              <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${GRC20_REGISTRY_PATH}`)}>
+                {formatDisplayPackagePath(GRC20_REGISTRY_PATH)}
+              </S.StyledA>
+            </Text>
+            <CopyTooltip variant="path" copyText={GRC20_REGISTRY_PATH} />
+          </Badge>
+        ) : (
+          <Badge>-</Badge>
+        )}
       </Field>
       <Field label="Creator">
         {tokenSummary?.owner === "genesis" ? (

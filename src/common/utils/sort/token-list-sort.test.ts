@@ -2,7 +2,12 @@ import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { TokenPriceEntry } from "../price.utility";
 import { sortTokensOnClient, toTokenListApiSortParams } from "./token-list-sort";
 
-const token = (symbol: string, totalSupply: number, decimals = 0): GRC20InfoWithLogo => ({
+const token = (
+  symbol: string,
+  totalSupply: number,
+  decimals = 0,
+  transactionCount24h: number | null = null,
+): GRC20InfoWithLogo => ({
   tokenId: `gno.land/r/demo/${symbol}.${symbol}`,
   slug: symbol,
   packagePath: `gno.land/r/demo/${symbol}`,
@@ -14,6 +19,8 @@ const token = (symbol: string, totalSupply: number, decimals = 0): GRC20InfoWith
   totalSupply,
   holders: 0,
   logoUrl: "",
+  registered: true,
+  transactionCount24h,
 });
 
 // A has the larger supply, B the larger market cap, C has no price.
@@ -56,6 +63,18 @@ describe("sortTokensOnClient", () => {
       "B",
       "D",
     ]);
+  });
+
+  it("sorts by 24h transactions and keeps tokens without a count last", () => {
+    const busy = token("BUSY", 1, 0, 75);
+    const quiet = token("QUIET", 1, 0, 0);
+    const unknown = token("UNKNOWN", 1);
+    expect(
+      symbols(sortTokensOnClient([unknown, quiet, busy], { field: "transfers24h", order: "desc" }, getPriceEntry)),
+    ).toEqual(["BUSY", "QUIET", "UNKNOWN"]);
+    expect(
+      symbols(sortTokensOnClient([unknown, busy, quiet], { field: "transfers24h", order: "asc" }, getPriceEntry)),
+    ).toEqual(["QUIET", "BUSY", "UNKNOWN"]);
   });
 
   it("keeps the server order for holders and unsorted lists", () => {

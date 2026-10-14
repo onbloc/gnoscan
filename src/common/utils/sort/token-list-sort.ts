@@ -32,11 +32,13 @@ export const toTokenListApiSortParams = (
   };
 };
 
-/** Columns the API cannot sort: market cap comes from the price feed, which the API does not store. */
-export const isClientSortField = (sortOption: TokenListSortOption) =>
-  sortOption.order !== "none" && (sortOption.field === "marketCap" || sortOption.field === "totalSupply");
+const CLIENT_SORT_FIELDS: TokenListSortOption["field"][] = ["marketCap", "totalSupply", "transfers24h"];
 
-/** Sorts loaded tokens by a client side column. Tokens without a value (no price) always go last. */
+/** Columns the API cannot sort, such as market cap, which comes from the price feed the API does not store. */
+export const isClientSortField = (sortOption: TokenListSortOption) =>
+  sortOption.order !== "none" && CLIENT_SORT_FIELDS.includes(sortOption.field);
+
+/** Sorts loaded tokens by a client side column. Tokens without a value (no price or count) always go last. */
 export const sortTokensOnClient = (
   tokens: GRC20InfoWithLogo[],
   sortOption: TokenListSortOption,
@@ -44,10 +46,13 @@ export const sortTokensOnClient = (
 ): GRC20InfoWithLogo[] => {
   if (!isClientSortField(sortOption)) return tokens;
 
-  const valueOf = (token: GRC20InfoWithLogo) =>
-    sortOption.field === "marketCap"
-      ? getTokenMarketCap(token, getPriceEntry)
-      : new BigNumber(formatTokenDecimal(token.totalSupply, token.decimals));
+  const valueOf = (token: GRC20InfoWithLogo): BigNumber | null => {
+    if (sortOption.field === "marketCap") return getTokenMarketCap(token, getPriceEntry);
+    if (sortOption.field === "transfers24h") {
+      return token.transactionCount24h === null ? null : new BigNumber(token.transactionCount24h);
+    }
+    return new BigNumber(formatTokenDecimal(token.totalSupply, token.decimals));
+  };
   const direction = sortOption.order === "asc" ? 1 : -1;
 
   return tokens

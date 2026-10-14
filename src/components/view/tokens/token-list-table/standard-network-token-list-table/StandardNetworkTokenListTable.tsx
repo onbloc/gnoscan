@@ -16,6 +16,7 @@ import { GRC20_REGISTRY_PATH } from "@/common/values/constant-value";
 import { formatUsd, formatUsdWhole } from "@/common/utils/price.utility";
 import { getTokenMarketCap, toTokenKey } from "@/common/utils/sort/token-list-sort";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
+import Text from "@/components/ui/text";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import * as S from "./StandardNetworkTokenListTable.styles";
@@ -60,7 +61,7 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("token")
       .name("Token")
-      .width(229)
+      .width(219)
       .renderOption((_, data) => (
         <DatatableItem.StandardNetworkTokenTitle
           token={data.symbol}
@@ -112,13 +113,15 @@ export const StandardNetworkTokenListTable = ({
       .build();
   };
 
-  // ponytail: the API has no 24h transfer count yet, so this shows "-" until it does.
   const createHeaderTransfers = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("transfers24h")
       .name("Transfers (24h)")
-      .width(129)
-      .renderOption(() => <>-</>)
+      .sort()
+      .width(152)
+      .renderOption((_, data) => (
+        <>{data.transactionCount24h === null ? "-" : makeDisplayNumber(data.transactionCount24h)}</>
+      ))
       .build();
   };
 
@@ -140,11 +143,11 @@ export const StandardNetworkTokenListTable = ({
     return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("packagePath")
       .name("Path")
-      .width(153)
+      .width(140)
       .colorName("blue")
       .renderOption((packagePath, data) =>
         packagePath ? (
-          <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={121} truncateStart />
+          <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={108} truncateStart />
         ) : (
           <>{data.symbol}</>
         ),
@@ -152,14 +155,22 @@ export const StandardNetworkTokenListTable = ({
       .build();
   };
 
-  // Price and Path give up width so the full registry path and the sort icons on Market Cap, Holders and Total Supply fit.
+  // Token, Price and Path give up width so the full registry path and every sort icon fit.
   const createHeaderRegistered = () => {
-    return DatatableOption.Builder.builder()
+    return DatatableOption.Builder.builder<GRC20InfoWithLogo>()
       .key("registered")
       .name("Registered")
       .width(137)
       .colorName("blue")
-      .renderOption(() => <DatatableItem.RealmPackage packagePath={GRC20_REGISTRY_PATH} maxWidth={105} />)
+      .renderOption((_, data) =>
+        data.registered ? (
+          <DatatableItem.RealmPackage packagePath={GRC20_REGISTRY_PATH} maxWidth={105} />
+        ) : (
+          <Text type="p4" color="primary">
+            -
+          </Text>
+        ),
+      )
       .build();
   };
 
