@@ -18,12 +18,12 @@ const StandardNetworkTokensData = ({ sortOption, setSortOption }: StandardNetwor
   const tokensData = useMappedApiTokens(apiParams);
   const { getPriceEntry } = useTokenPrice();
   const isClientSort = isClientSortField(sortOption);
-  const { hasNextPage, fetchNextPage } = tokensData;
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = tokensData;
 
-  // A client side sort only orders loaded rows, so load every page first.
+  // A client side sort only orders loaded rows, so load every page first. Re-runs as each page finishes loading.
   React.useEffect(() => {
-    if (isClientSort && hasNextPage) fetchNextPage();
-  }, [isClientSort, hasNextPage, fetchNextPage]);
+    if (isClientSort && hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [isClientSort, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const data = React.useMemo(
     () => sortTokensOnClient(tokensData.data, sortOption, getPriceEntry),

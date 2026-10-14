@@ -67,7 +67,8 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
       ownerLabel: summaryData.ownerLabel,
       ownerLabelType: summaryData.ownerLabelType,
       functions: summaryData.funcTypesList,
-      totalSupply: Number(formatTokenDecimal(summaryData.totalSupply, resolved.decimals)),
+      // Kept as a string so large supplies keep full precision for display and market cap.
+      totalSupply: formatTokenDecimal(summaryData.totalSupply, resolved.decimals),
       holders: summaryData.holders,
     };
   }, [data?.data, getTokenMeta]);
