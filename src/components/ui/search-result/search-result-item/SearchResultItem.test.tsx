@@ -1,9 +1,9 @@
-import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "styled-components";
 
 import theme from "@/styles/theme";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
+import { SearchResult } from "@/repositories/api/search/response";
 import { SearchResultItem } from "./SearchResultItem";
 
 jest.mock("@/common/hooks/use-network", () => ({
@@ -14,73 +14,45 @@ jest.mock("@/common/utils/transaction.utility", () => ({
   toDisplayHash: (hash: string) => hash,
 }));
 
-const render = (item: React.ComponentProps<typeof SearchResultItem>["item"]) =>
+// The search API's GRC20 `link` holds the token name (e.g. "/tokens/Gnoswap"), not a routable token key.
+const gns: SearchResult = {
+  title: "gno.land/r/gnoswap/gns",
+  description: "GNS",
+  link: "/tokens/Gnoswap",
+  type: SEARCH_RESULT_TYPE.TOKEN,
+};
+
+const render = (item: SearchResult) =>
   renderToStaticMarkup(
     <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
       <SearchResultItem item={item} onClick={() => undefined} />
     </ThemeProvider>,
   );
 
-const renderHref = (item: React.ComponentProps<typeof SearchResultItem>["item"]) =>
-  render(item).match(/href="([^"]*)"/)?.[1];
+const renderHref = (item: SearchResult) => render(item).match(/href="([^"]*)"/)?.[1];
 
-const renderText = (item: React.ComponentProps<typeof SearchResultItem>["item"]) =>
-  render(item).replace(/<[^>]*>/g, "");
+const renderText = (item: SearchResult) => render(item).replace(/<[^>]*>/g, "");
 
 describe("SearchResultItem", () => {
-  // The search API's GRC20 `link` holds the token name (e.g. "/tokens/Gnoswap"), not a routable token key.
   it("links a token result to its package path and symbol, ignoring the API link", () => {
-    expect(
-      renderHref({
-        title: "gno.land/r/gnoswap/gns",
-        description: "GNS",
-        link: "/tokens/Gnoswap",
-        type: SEARCH_RESULT_TYPE.TOKEN,
-      }),
-    ).toBe("/tokens/gno.land/r/gnoswap/gns.GNS");
+    expect(renderHref(gns)).toBe("/tokens/gno.land/r/gnoswap/gns.GNS");
   });
 
   it("keeps the symbol for a realm hosting several tokens", () => {
-    expect(
-      renderHref({
-        title: "gno.land/r/demo/defi/grc20factory",
-        description: "PERUN",
-        link: "/tokens/Perun",
-        type: SEARCH_RESULT_TYPE.TOKEN,
-      }),
-    ).toBe("/tokens/gno.land/r/demo/defi/grc20factory.PERUN");
+    expect(renderHref({ ...gns, title: "gno.land/r/demo/defi/grc20factory", description: "PERUN" })).toBe(
+      "/tokens/gno.land/r/demo/defi/grc20factory.PERUN",
+    );
   });
 
   it("falls back to the package path when the symbol is missing", () => {
-    expect(
-      renderHref({
-        title: "gno.land/r/gnoswap/gns",
-        description: "",
-        link: "/tokens/Gnoswap",
-        type: SEARCH_RESULT_TYPE.TOKEN,
-      }),
-    ).toBe("/tokens/gno.land/r/gnoswap/gns");
+    expect(renderHref({ ...gns, description: "" })).toBe("/tokens/gno.land/r/gnoswap/gns");
   });
 
   it("shows the symbol next to the token path", () => {
-    expect(
-      renderText({
-        title: "gno.land/r/gnoswap/gns",
-        description: "GNS",
-        link: "/tokens/Gnoswap",
-        type: SEARCH_RESULT_TYPE.TOKEN,
-      }),
-    ).toBe("r/gnoswap/gns (GNS)");
+    expect(renderText(gns)).toBe("r/gnoswap/gns (GNS)");
   });
 
   it("does not show the API link when the symbol is missing", () => {
-    expect(
-      renderText({
-        title: "gno.land/r/gnoswap/gns",
-        description: "",
-        link: "/tokens/Gnoswap",
-        type: SEARCH_RESULT_TYPE.TOKEN,
-      }),
-    ).toBe("r/gnoswap/gns");
+    expect(renderText({ ...gns, description: "" })).toBe("r/gnoswap/gns");
   });
 });
