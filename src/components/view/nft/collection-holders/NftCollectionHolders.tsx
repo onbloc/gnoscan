@@ -3,7 +3,7 @@ import React from "react";
 import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
-import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import type { RealmHolderModel } from "@/repositories/api/realm/response";
 
 import { ViewMoreButton } from "@/components/ui/button";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -11,15 +11,10 @@ import { DatatableItem } from "../../datatable";
 import { FlushTableContainer } from "../../datatable/datatable.styles";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
-interface NftHolderRow {
+type NftHolderRow = Omit<RealmHolderModel, "nameTag"> & {
   rank: number;
-  address: string;
-  nameTag?: string | null;
-  label?: string | null;
-  labelType?: ADDRESS_LABEL_TYPE | null;
-  tokenCount: number;
-  percentage: number;
-}
+  nameTag: string | null;
+};
 
 const HEADERS = [
   DatatableOption.Builder.builder<NftHolderRow>()
@@ -70,13 +65,9 @@ const NftCollectionHolders = ({ tokenKey }: NftCollectionHoldersProps) => {
         .flatMap(page => page.items)
         .map(
           (item, index): NftHolderRow => ({
+            ...item,
             rank: index + 1,
-            address: item.address,
             nameTag: getAddressNameTag(item),
-            label: item.label,
-            labelType: item.labelType,
-            tokenCount: item.tokenCount,
-            percentage: item.percentage,
           }),
         ) ?? [],
     [data?.pages],
@@ -86,7 +77,7 @@ const NftCollectionHolders = ({ tokenKey }: NftCollectionHoldersProps) => {
 
   return (
     <FlushTableContainer>
-      <Datatable loading={!isFetched} headers={HEADERS} datas={holders} />
+      <Datatable headers={HEADERS} datas={holders} />
       {hasNextPage && <ViewMoreButton variant="table" text="View More Holders" onClick={() => fetchNextPage()} />}
     </FlushTableContainer>
   );
