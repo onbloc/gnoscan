@@ -19,6 +19,7 @@ export const SearchResultItem = ({
   onClick: () => void;
 }) => {
   const { getUrlWithNetwork } = useNetwork();
+  const textType = isMain ? "p4" : "body1";
 
   switch (item.type as SEARCH_RESULT_TYPE) {
     case SEARCH_RESULT_TYPE.ACCOUNT:
@@ -26,10 +27,10 @@ export const SearchResultItem = ({
         <Link href={getUrlWithNetwork(`/account/${item.title}`)} passHref style={{ width: "100%" }}>
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+              <Text type={textType} color="primary" className="ellipsis">
                 {item.title}
                 {item.description && (
-                  <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  <Text type={textType} color="primary" display="inline-block">
                     {` (${item.description})`}
                   </Text>
                 )}
@@ -44,9 +45,9 @@ export const SearchResultItem = ({
         <Link href={getUrlWithNetwork(`/block/${item.title}`)} passHref style={{ width: "100%" }}>
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+              <Text type={textType} color="primary" className="ellipsis">
                 {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                <Text type={textType} color="primary" display="inline-block">
                   {` (Block #${item.title})`}
                 </Text>
               </Text>
@@ -62,10 +63,10 @@ export const SearchResultItem = ({
         <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref style={{ width: "100%" }}>
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+              <Text type={textType} color="primary" className="ellipsis">
                 {formatDisplayTokenPath(stripGnoLandPrefix(item.title), 4)}
                 {item.description && (
-                  <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                  <Text type={textType} color="primary" display="inline-block">
                     {` (${item.description})`}
                   </Text>
                 )}
@@ -81,9 +82,9 @@ export const SearchResultItem = ({
         <Link href={item.link} target="_blank" passHref style={{ width: "100%" }}>
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+              <Text type={textType} color="primary" className="ellipsis">
                 {item.title}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                <Text type={textType} color="primary" display="inline-block">
                   {` (${item.description || item.link})`}
                 </Text>
               </Text>
@@ -97,7 +98,7 @@ export const SearchResultItem = ({
         <Link href={getUrlWithNetwork(`/realms/details?path=${item.title}`)} passHref style={{ width: "100%" }}>
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+              <Text type={textType} color="primary" className="ellipsis">
                 {formatDisplayTokenPath(stripGnoLandPrefix(item.title), 4)}
               </Text>
             </S.FitContentAStyle>
@@ -115,7 +116,7 @@ export const SearchResultItem = ({
         >
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
-              <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+              <Text type={textType} color="primary" className="ellipsis">
                 {displayHash}
               </Text>
             </S.FitContentAStyle>
@@ -128,10 +129,10 @@ export const SearchResultItem = ({
       return (
         <S.List>
           <S.FitContentAStyle onClick={onClick}>
-            <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
+            <Text type={textType} color="primary" className="ellipsis">
               {item.title}
               {item.description && (
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                <Text type={textType} color="primary" display="inline-block">
                   {` (${item.description})`}
                 </Text>
               )}

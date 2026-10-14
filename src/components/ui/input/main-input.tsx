@@ -64,7 +64,7 @@ export const MainInput = ({
       <Button onClick={onClickSearchButton}>
         <Search className="search-icon" />
       </Button>
-      {isCustomNetwork ? <SearchResult /> : <StandardNetworkSearchResult />}
+      {isCustomNetwork ? <SearchResult isMain /> : <StandardNetworkSearchResult isMain />}
     </Wrapper>
   );
 };

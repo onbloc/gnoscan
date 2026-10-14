@@ -18,7 +18,11 @@ import Text from "@/components/ui/text";
 import { SearchResultItem } from "./search-result-item/SearchResultItem";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 
-const StandardNetworkSearchResult = () => {
+interface StandardNetworkSearchResultProps {
+  isMain?: boolean;
+}
+
+const StandardNetworkSearchResult = ({ isMain = false }: StandardNetworkSearchResultProps) => {
   const { route } = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -26,7 +30,7 @@ const StandardNetworkSearchResult = () => {
   const debouncedKeyword = useDebounce(keyword, 300);
   const shouldSearch = debouncedKeyword.length > 0;
 
-  const isMain = route === "/";
+  const textType = isMain ? "p4" : "body1";
   const ref = useOutSideClick<HTMLDivElement>(() => setOpen(false));
 
   const { data: searchResult, isLoading: isLoadingSearch } = useGetSearch(debouncedKeyword, {
@@ -54,17 +58,17 @@ const StandardNetworkSearchResult = () => {
       {open && (
         <Wrapper $isMain={isMain} ref={ref}>
           {isLoadingSearch ? (
-            <Text type={isMain ? "p4" : "body1"} color="tertiary">
+            <Text type={textType} color="tertiary">
               Loading...
             </Text>
           ) : noResults ? (
-            <Text type={isMain ? "p4" : "body1"} color="tertiary">
+            <Text type={textType} color="tertiary">
               No match found
             </Text>
           ) : (
             groupedSearchResult.map(group => (
               <Section key={group.type}>
-                <Text type={isMain ? "p4" : "body1"} color="tertiary">
+                <Text type={textType} color="tertiary">
                   {SEARCH_TYPE_TITLES[group.type as SEARCH_RESULT_TYPE]}
                 </Text>
                 <ListContainer>
