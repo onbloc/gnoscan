@@ -64,9 +64,11 @@ export const SearchResultItem = ({
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {formatDisplayTokenPath(stripGnoLandPrefix(item.title), 4)}
-                <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
-                  {` (${item.description || item.link})`}
-                </Text>
+                {item.description && (
+                  <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
+                    {` (${item.description})`}
+                  </Text>
+                )}
               </Text>
             </S.FitContentAStyle>
           </S.List>

@@ -14,12 +14,18 @@ jest.mock("@/common/utils/transaction.utility", () => ({
   toDisplayHash: (hash: string) => hash,
 }));
 
-const renderHref = (item: React.ComponentProps<typeof SearchResultItem>["item"]) =>
+const render = (item: React.ComponentProps<typeof SearchResultItem>["item"]) =>
   renderToStaticMarkup(
     <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
       <SearchResultItem item={item} onClick={() => undefined} />
     </ThemeProvider>,
-  ).match(/href="([^"]*)"/)?.[1];
+  );
+
+const renderHref = (item: React.ComponentProps<typeof SearchResultItem>["item"]) =>
+  render(item).match(/href="([^"]*)"/)?.[1];
+
+const renderText = (item: React.ComponentProps<typeof SearchResultItem>["item"]) =>
+  render(item).replace(/<[^>]*>/g, "");
 
 describe("SearchResultItem", () => {
   // The search API's GRC20 `link` holds the token name (e.g. "/tokens/Gnoswap"), not a routable token key.
@@ -54,5 +60,27 @@ describe("SearchResultItem", () => {
         type: SEARCH_RESULT_TYPE.TOKEN,
       }),
     ).toBe("/tokens/gno.land/r/gnoswap/gns");
+  });
+
+  it("shows the symbol next to the token path", () => {
+    expect(
+      renderText({
+        title: "gno.land/r/gnoswap/gns",
+        description: "GNS",
+        link: "/tokens/Gnoswap",
+        type: SEARCH_RESULT_TYPE.TOKEN,
+      }),
+    ).toBe("r/gnoswap/gns (GNS)");
+  });
+
+  it("does not show the API link when the symbol is missing", () => {
+    expect(
+      renderText({
+        title: "gno.land/r/gnoswap/gns",
+        description: "",
+        link: "/tokens/Gnoswap",
+        type: SEARCH_RESULT_TYPE.TOKEN,
+      }),
+    ).toBe("r/gnoswap/gns");
   });
 });
