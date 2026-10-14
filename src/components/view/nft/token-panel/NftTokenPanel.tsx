@@ -241,8 +241,9 @@ const NftTokenPanel = ({
           </S.HeaderButtons>
         </S.Header>
 
-        {/* Missing or failed artwork uses the same default image as inventory and account cards. */}
+        {/* Keep the shared fallback artwork; panel-local styling rounds both loaded and failed images. */}
         <NftImage
+          className="token-artwork"
           src={nftArtwork(metadata, tokenUrl) ?? nftMediaUrl(detail?.image)}
           alt={metadata?.name || title}
           aspectRatio="418 / 332"

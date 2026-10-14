@@ -26,6 +26,11 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
     flex-shrink: 0;
   }
 
+  // Keep the same artwork corners when the shared image falls back.
+  .token-artwork {
+    border-radius: 8px;
+  }
+
   ${media.DESKTOP} {
     width: 450px;
     height: 1104px;

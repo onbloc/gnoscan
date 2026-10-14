@@ -25,6 +25,7 @@ export const Header = styled.div`
   justify-content: space-between;
   gap: 12px;
   width: 100%;
+  opacity: 0.8;
 `;
 
 export const TitleWrapper = styled.div`
