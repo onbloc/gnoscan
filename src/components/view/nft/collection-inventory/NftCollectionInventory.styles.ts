@@ -79,6 +79,11 @@ export const OwnerRow = styled.div`
     color: ${({ theme }) => theme.colors.tertiary};
   }
 
+  /* Keep the inventory owner text flush with its copy button. */
+  > div {
+    gap: 0;
+  }
+
   a {
     color: ${({ theme }) => theme.colors.blue};
   }

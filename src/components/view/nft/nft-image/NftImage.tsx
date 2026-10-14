@@ -47,7 +47,8 @@ const ArtworkFrame = ({ src, isLoading = false, alt, aspectRatio = "1 / 1", clas
       )}
       {loading && (
         <S.Loading role="status" aria-label="Loading NFT artwork">
-          <IconTableLoading aria-hidden="true" />
+          {/* Preserve scaling when SVGO strips the asset's viewBox. */}
+          <IconTableLoading viewBox="0 0 100 101" aria-hidden="true" />
         </S.Loading>
       )}
       {placeholder && <span className="nft-default-icon" aria-label={alt} role="img" />}

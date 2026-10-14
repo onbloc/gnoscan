@@ -48,14 +48,16 @@ export const Loading = styled.div`
   }
 
   svg {
+    width: 50px;
+    height: 50.5px;
     animation: nft-artwork-rotating 2s linear infinite;
   }
 
   stop {
-    stop-color: ${({ theme }) => theme.colors.tertiary};
+    stop-color: #808080;
   }
 
   circle {
-    fill: ${({ theme }) => theme.colors.tertiary};
+    fill: #808080;
   }
 `;
