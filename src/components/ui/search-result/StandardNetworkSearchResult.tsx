@@ -10,7 +10,7 @@ import useOutSideClick from "@/common/hooks/use-outside-click";
 import { useDebounce } from "@/common/hooks/use-debounce";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { useGetSearch } from "@/common/react-query/search/api/use-get-search";
-import { SearchResult } from "@/repositories/api/search/response";
+import { groupSearchResults } from "@/common/utils/search.utility";
 import { SEARCH_TYPE_TITLES } from "@/common/values/search.constant";
 
 import mixins from "@/styles/mixins";
@@ -39,22 +39,7 @@ const StandardNetworkSearchResult = () => {
     enabled: shouldSearch,
   });
 
-  const groupedSearchResult = React.useMemo(() => {
-    if (!searchResult) return [];
-
-    return Object.values(
-      searchResult.reduce((acc, item) => {
-        if (!acc[item.type]) {
-          acc[item.type] = {
-            type: item.type,
-            items: [],
-          };
-        }
-        acc[item.type].items.push(item);
-        return acc;
-      }, {} as Record<SEARCH_RESULT_TYPE, { type: SEARCH_RESULT_TYPE; items: SearchResult[] }>),
-    );
-  }, [searchResult]);
+  const groupedSearchResult = React.useMemo(() => groupSearchResults(searchResult ?? []), [searchResult]);
 
   useEffect(() => {
     setOpen(() => Boolean(debouncedKeyword.length > 0));
