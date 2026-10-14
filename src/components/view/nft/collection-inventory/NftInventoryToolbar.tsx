@@ -26,10 +26,16 @@ const NftInventoryToolbar = ({
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const menuId = React.useId();
-  const options = ["", ...owners];
+  const options = [{ address: "", label: "All" }, ...owners];
+  const ownerLabel = owners.find(option => option.address === owner)?.label || owner;
 
   const openMenu = () => {
-    setActiveIndex(Math.max(0, options.indexOf(owner)));
+    setActiveIndex(
+      Math.max(
+        0,
+        options.findIndex(option => option.address === owner),
+      ),
+    );
     setOpen(true);
     onOwnerOpen();
   };
@@ -93,7 +99,7 @@ const NftInventoryToolbar = ({
             aria-haspopup="listbox"
             aria-expanded={open}
             aria-controls={open ? menuId : undefined}
-            title={owner || "All owners"}
+            title={ownerLabel || "All owners"}
             onClick={() => (open ? closeMenu() : openMenu())}
             onKeyDown={event => {
               if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -102,7 +108,7 @@ const NftInventoryToolbar = ({
               }
             }}
           >
-            {owner || "Owner: All"}
+            {ownerLabel || "Owner: All"}
           </S.OwnerButton>
           {open && (
             <S.OwnerMenu
@@ -130,7 +136,7 @@ const NftInventoryToolbar = ({
                   case "Enter":
                   case " ":
                     event.preventDefault();
-                    selectOwner(options[activeIndex] ?? "");
+                    selectOwner(options[activeIndex]?.address ?? "");
                     break;
                   case "Escape":
                     event.preventDefault();
@@ -140,7 +146,7 @@ const NftInventoryToolbar = ({
                 }
               }}
             >
-              {options.map((address, index) => (
+              {options.map(({ address, label }, index) => (
                 <S.OwnerOption
                   key={address}
                   id={`${menuId}-${index}`}
@@ -150,7 +156,7 @@ const NftInventoryToolbar = ({
                   $active={activeIndex === index}
                   onClick={() => selectOwner(address)}
                 >
-                  {address || "All"}
+                  {label}
                 </S.OwnerOption>
               ))}
               {isLoadingOwners && <S.Status role="status">Loading owners…</S.Status>}

@@ -57,16 +57,18 @@ function createView() {
   function Inventory({ selected, limit, collection }: { selected: string | null; limit: number; collection: string }) {
     const view = useNftInventoryControls(collection, limit, selected);
     const item = view.loadedItems.find(item => item.nftId === selected);
-    const index = view.items.findIndex(item => item.nftId === selected);
     return (
       <section>
         <output data-page>{view.page}</output>
         <output data-owner>{item?.ownerAddress ?? "-"}</output>
-        <output data-previous>{index > 0 ? view.items[index - 1].nftId : "-"}</output>
-        <output data-next>{index >= 0 && index < view.items.length - 1 ? view.items[index + 1].nftId : "-"}</output>
+        <output data-previous>{view.previousNftId ?? "-"}</output>
+        <output data-next>{view.nextNftId ?? "-"}</output>
         <button onClick={() => view.toolbarProps.onSearchChange("28")}>Search</button>
         <button onClick={() => view.onChangePage(view.page + 1)}>Next page</button>
         <button onClick={() => view.onSelectItem("28")}>Select token 28</button>
+        <button onClick={view.toolbarProps.onSortToggle}>Toggle sort</button>
+        <button onClick={() => view.nextNftId && view.onSelectItem(view.nextNftId)}>Next token</button>
+        <button onClick={() => view.previousNftId && view.onSelectItem(view.previousNftId)}>Previous token</button>
         {view.error ? (
           <p role="alert">{view.error.message}</p>
         ) : view.isResolving ? (
@@ -253,4 +255,79 @@ it("resumes a failed linked-token lookup after refetch rather than leaving its o
   await settleUntil(() => view.value("[data-page]") === "2" && view.value("[data-next]") === "29");
   expect(view.value("[data-owner]")).toBe("owner-28");
   expect(view.container.querySelector('[role="alert"]')).toBeNull();
+});
+
+it("sorts the full collection from page one while a selected NFT remains open off-page", async () => {
+  const view = createView();
+  view.render("28", 20);
+  await settleUntil(() => view.value("[data-page]") === "2" && view.value("[data-next]") === "29");
+
+  view.click(3);
+  await settleUntil(() => view.container.querySelector("article")?.textContent === "1");
+  expect(view.value("[data-page]")).toBe("1");
+  expect(Array.from(view.container.querySelectorAll("article"), item => item.textContent)).toEqual(
+    Array.from({ length: 20 }, (_, index) => String(index + 1)),
+  );
+  expect(view.value("[data-owner]")).toBe("owner-28");
+  expect(view.value("[data-previous]")).toBe("27");
+  expect(view.value("[data-next]")).toBe("29");
+  expect(view.container.querySelector('article[data-selected="true"]')).toBeNull();
+
+  view.click(1);
+  await settleUntil(() => view.container.querySelector("article")?.textContent === "21");
+  view.click(3);
+  await settleUntil(() => view.container.querySelector("article")?.textContent === "70");
+  expect(view.value("[data-page]")).toBe("1");
+  expect(Array.from(view.container.querySelectorAll("article"), item => item.textContent)).toEqual(
+    Array.from({ length: 20 }, (_, index) => String(70 - index)),
+  );
+  expect(view.value("[data-owner]")).toBe("owner-28");
+  expect(view.value("[data-previous]")).toBe("29");
+  expect(view.value("[data-next]")).toBe("27");
+});
+
+it("moves across display pages in both sorted directions and stops only at result boundaries", async () => {
+  const ascending = createView();
+  ascending.render("20", 20);
+  await settleUntil(() => ascending.value("[data-owner]") === "owner-20");
+  ascending.click(3);
+  await settleUntil(() => ascending.value("[data-next]") === "21");
+  expect(ascending.value("[data-page]")).toBe("1");
+  ascending.click(4);
+  ascending.render("21", 20);
+  await settleUntil(() => ascending.container.querySelector('article[data-selected="true"]')?.textContent === "21");
+  expect(ascending.value("[data-page]")).toBe("2");
+  expect(ascending.value("[data-previous]")).toBe("20");
+  ascending.click(5);
+  ascending.render("20", 20);
+  expect(ascending.value("[data-page]")).toBe("1");
+  ascending.render("1", 20);
+  expect(ascending.value("[data-previous]")).toBe("-");
+  expect(ascending.value("[data-next]")).toBe("2");
+  ascending.render("70", 20);
+  expect(ascending.value("[data-previous]")).toBe("69");
+  expect(ascending.value("[data-next]")).toBe("-");
+
+  const descending = createView();
+  descending.render("51", 20);
+  await settleUntil(() => descending.value("[data-owner]") === "owner-51");
+  descending.click(3);
+  await settleUntil(() => descending.value("[data-next]") === "52");
+  descending.click(3);
+  await settleUntil(() => descending.value("[data-next]") === "50");
+  expect(descending.value("[data-page]")).toBe("1");
+  descending.click(4);
+  descending.render("50", 20);
+  expect(descending.value("[data-page]")).toBe("2");
+  expect(descending.container.querySelector('article[data-selected="true"]')?.textContent).toBe("50");
+  expect(descending.value("[data-previous]")).toBe("51");
+  descending.click(5);
+  descending.render("51", 20);
+  expect(descending.value("[data-page]")).toBe("1");
+  descending.render("70", 20);
+  expect(descending.value("[data-previous]")).toBe("-");
+  expect(descending.value("[data-next]")).toBe("69");
+  descending.render("1", 20);
+  expect(descending.value("[data-previous]")).toBe("2");
+  expect(descending.value("[data-next]")).toBe("-");
 });

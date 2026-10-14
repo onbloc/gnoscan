@@ -2,7 +2,9 @@ import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetNftCollectionItems, useGetNftCollectionItemsInfinite } from "@/common/react-query/token/api";
+import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { remapNftInventoryPage } from "@/common/utils/nft-inventory.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { GetNftCollectionItemsResponse, NftCollectionItemModel } from "@/repositories/api/token/response";
 
 export type NftInventorySortOrder = "asc" | "desc" | null;
@@ -11,7 +13,7 @@ export interface NftInventoryToolbarProps {
   search: string;
   owner: string;
   sortOrder: NftInventorySortOrder;
-  owners: readonly string[];
+  owners: readonly { address: string; label: string }[];
   isLoadingOwners: boolean;
   ownerError: Error | null;
   onSearchChange: (search: string) => void;
@@ -60,6 +62,8 @@ export function compareNftTokenIds(left: string, right: string): number {
  * Keep the default view lazy. Search, owner selection, sorting, or opening the owner
  * picker resolves every remaining page before exposing global results/options.
  * A linked NFT outside the visible page resolves only enough pages to locate its row.
+ * Changing sort starts at the first result page without closing the selected NFT detail.
+ * Sorted/filtered detail navigation follows the full result and moves the display page with the selection.
  * collectionIdentity should be the tokenKey used by the collection-items query.
  */
 export function useNftInventoryControls(collectionIdentity: string, pageSize: number, selectedNftId: string | null) {
@@ -209,10 +213,26 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
 
   // Keep the located owner available while the corresponding display page is loading.
   const loadedItems = hasActiveControls || (!selectionOnPage && linkedIndex >= 0) ? allItems : pageData?.items ?? [];
-  const owners = React.useMemo(
-    () => (incomplete ? [] : Array.from(new Set(allItems.map(item => item.ownerAddress))).sort()),
-    [allItems, incomplete],
-  );
+  const owners = React.useMemo(() => {
+    if (incomplete) return [];
+    const itemsByOwner = new Map<string, NftCollectionItemModel>();
+    for (const item of allItems) {
+      if (!itemsByOwner.has(item.ownerAddress)) itemsByOwner.set(item.ownerAddress, item);
+    }
+    return Array.from(itemsByOwner.keys())
+      .sort((left, right) => {
+        const leftItem = itemsByOwner.get(left);
+        const rightItem = itemsByOwner.get(right);
+        const leftIsRealm = leftItem?.ownerLabelType === ADDRESS_LABEL_TYPE.REALM && !!leftItem.ownerLabel;
+        const rightIsRealm = rightItem?.ownerLabelType === ADDRESS_LABEL_TYPE.REALM && !!rightItem.ownerLabel;
+        if (leftIsRealm !== rightIsRealm) return leftIsRealm ? -1 : 1;
+        return left < right ? -1 : left > right ? 1 : 0;
+      })
+      .map(address => ({
+        address,
+        label: getAddressDisplayText({ address, label: itemsByOwner.get(address)?.ownerLabel }) ?? address,
+      }));
+  }, [allItems, incomplete]);
   const filteredItems = React.useMemo(() => {
     // Never show a filtered/sorted subset as though it were the whole collection.
     if (hasActiveControls && incomplete) return [];
@@ -242,6 +262,11 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     () => (hasActiveControls ? filteredItems.slice((page - 1) * pageSize, page * pageSize) : pageData?.items ?? []),
     [hasActiveControls, filteredItems, page, pageSize, pageData],
   );
+  const navigationItems = hasActiveControls ? filteredItems : items;
+  const selectedIndex = selectedNftId ? navigationItems.findIndex(item => item.nftId === selectedNftId) : -1;
+  const previousNftId = selectedIndex > 0 ? navigationItems[selectedIndex - 1].nftId : null;
+  const nextNftId =
+    selectedIndex >= 0 && selectedIndex < navigationItems.length - 1 ? navigationItems[selectedIndex + 1].nftId : null;
   const onChangePage = (nextPage: number) => {
     setPagination({
       scope: pageScope,
@@ -251,8 +276,17 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     });
   };
   const onSelectItem = (nftId: string) => {
-    const index = items.findIndex(item => item.nftId === nftId);
+    const index = navigationItems.findIndex(item => item.nftId === nftId);
     if (index < 0) return;
+    if (hasActiveControls) {
+      setPagination({
+        scope: pageScope,
+        page: Math.floor(index / pageSize) + 1,
+        pageSize,
+        anchorIndex: index,
+      });
+      return;
+    }
     const anchorIndex =
       isResizing && previousPage
         ? (previousPage.page - 1) * previousPage.pageSize + index
@@ -291,6 +325,8 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     totalPages,
     onChangePage,
     onSelectItem,
+    previousNftId,
+    nextNftId,
     hasNext: hasActiveControls ? page < totalPages : pageData?.page.hasNext,
   };
 }

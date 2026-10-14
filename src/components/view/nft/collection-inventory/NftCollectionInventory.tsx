@@ -44,6 +44,8 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
     hasNext,
     onChangePage,
     onSelectItem,
+    previousNftId,
+    nextNftId,
   } = useNftInventoryControls(tokenKey, pageSize, selectedNftId);
   const { data: collectionData } = useGetNftCollection(tokenKey);
   const artwork = useNftArtwork(items);
@@ -51,7 +53,6 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
     onSelectItem(nftId);
     selectToken(nftId);
   };
-  const selectedIndex = items.findIndex(item => item.nftId === panelNftId);
   const [retainedItem, setRetainedItem] = React.useState<NftCollectionItemModel | null>(null);
   const currentItem = loadedItems.find(item => item.nftId === panelNftId) ?? null;
   if (selectedNftId && currentItem && retainedItem !== currentItem) setRetainedItem(currentItem);
@@ -144,10 +145,8 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
               packagePath={selectedItem?.packagePath ?? collectionData?.data.path ?? ""}
               symbol={symbol}
               item={selectedItem}
-              previousNftId={selectedIndex > 0 ? items[selectedIndex - 1].nftId : null}
-              nextNftId={
-                selectedIndex !== -1 && selectedIndex < items.length - 1 ? items[selectedIndex + 1].nftId : null
-              }
+              previousNftId={previousNftId}
+              nextNftId={nextNftId}
               onSelect={nftId => {
                 scrollHandledForRef.current = nftId;
                 selectInventoryToken(nftId);
