@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
@@ -19,11 +18,6 @@ import Text from "@/components/ui/text";
 import { SearchResultItem } from "./search-result-item/SearchResultItem";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 
-interface StyleProps {
-  isMain?: boolean;
-  ref?: any;
-}
-
 const StandardNetworkSearchResult = () => {
   const { route } = useRouter();
 
@@ -33,7 +27,7 @@ const StandardNetworkSearchResult = () => {
   const shouldSearch = debouncedKeyword.length > 0;
 
   const isMain = route === "/";
-  const ref = useOutSideClick(() => setOpen(false));
+  const ref = useOutSideClick<HTMLDivElement>(() => setOpen(false));
 
   const { data: searchResult, isLoading: isLoadingSearch } = useGetSearch(debouncedKeyword, {
     enabled: shouldSearch,
@@ -58,7 +52,7 @@ const StandardNetworkSearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper isMain={isMain} ref={ref}>
+        <Wrapper $isMain={isMain} ref={ref}>
           {isLoadingSearch ? (
             <Text type={isMain ? "p4" : "body1"} color="tertiary">
               Loading...
@@ -101,16 +95,16 @@ const Section = styled.section`
   ${commonContentStyle};
 `;
 
-const Wrapper = styled.div<StyleProps>`
+const Wrapper = styled.div<{ $isMain: boolean }>`
   ${scrollbarStyle};
   ${mixins.flexbox("column", "center", "flex-start")};
-  width: ${({ isMain }) => (isMain ? "calc(100% - 20px)" : "100%")};
+  width: ${({ $isMain }) => ($isMain ? "calc(100% - 20px)" : "100%")};
   max-height: 276px;
   border-radius: 8px;
   background-color: ${({ theme }) => theme.colors.surface};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   position: absolute;
-  top: ${({ isMain }) => (isMain ? "93%" : "calc(100% + 6px)")};
+  top: ${({ $isMain }) => ($isMain ? "93%" : "calc(100% + 6px)")};
   left: 50%;
   transform: translateX(-50%);
   z-index: ${zindex.searchResult};

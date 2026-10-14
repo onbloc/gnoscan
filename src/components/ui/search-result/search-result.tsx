@@ -17,11 +17,6 @@ import { zindex } from "@/common/values/z-index";
 import { ValuesType } from "utility-types";
 import { useNetwork } from "@/common/hooks/use-network";
 
-interface StyleProps {
-  isMain?: boolean;
-  ref?: any;
-}
-
 interface SearchResultProps {
   item: any;
   isMain: boolean;
@@ -41,7 +36,7 @@ const SearchResult = () => {
   const { route } = useRouter();
   const isMain = route === "/";
   const [open, setOpen] = useState(false);
-  const ref = useOutSideClick(() => setOpen(false));
+  const ref = useOutSideClick<HTMLDivElement>(() => setOpen(false));
 
   const { result } = useSearchQuery(keyword);
 
@@ -60,7 +55,7 @@ const SearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper isMain={isMain} ref={ref}>
+        <Wrapper $isMain={isMain} ref={ref}>
           {result && Object.keys(result).length !== 0 ? (
             Object.keys(result).map(searchTitle => (
               <Section key={v1()}>
@@ -170,15 +165,15 @@ const Section = styled.section`
   ${commonContentStyle};
 `;
 
-const Wrapper = styled.div<StyleProps>`
+const Wrapper = styled.div<{ $isMain: boolean }>`
   ${mixins.flexbox("column", "center", "flex-start")};
-  width: ${({ isMain }) => (isMain ? "calc(100% - 20px)" : "100%")};
+  width: ${({ $isMain }) => ($isMain ? "calc(100% - 20px)" : "100%")};
   max-height: 276px;
   border-radius: 8px;
   background-color: ${({ theme }) => theme.colors.surface};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   position: absolute;
-  top: ${({ isMain }) => (isMain ? "93%" : "calc(100% + 6px)")};
+  top: ${({ $isMain }) => ($isMain ? "93%" : "calc(100% + 6px)")};
   left: 50%;
   transform: translateX(-50%);
   z-index: ${zindex.searchResult};
