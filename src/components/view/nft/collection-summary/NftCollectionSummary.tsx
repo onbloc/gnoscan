@@ -3,9 +3,10 @@ import React from "react";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetNftCollection, useGetNftCollections } from "@/common/react-query/token/api";
 import { formatDisplayPackagePath, makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
+import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import Badge from "@/components/ui/badge";
-import { AddressDisplayLink, Field } from "@/components/ui/detail-field";
+import { AddressDisplayLink, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import PublicFunctions from "@/components/ui/public-functions";
 import ShowLog from "@/components/ui/show-log";
@@ -13,7 +14,7 @@ import Text from "@/components/ui/text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StyledA } from "../../token/token-summary/TokenSummary.styles";
-import * as S from "./NftCollectionSummary.styles";
+import DataSection from "../../details-data-section";
 
 // Missing collection fields use a dash. Standard remains API-derived from the
 // creation-event emitter; only its gno.land/ display prefix is omitted here.
@@ -39,18 +40,15 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
   if (!isFetched) return <TableSkeleton />;
 
   return (
-    <S.SummaryContainer>
-      <Text type="h6" desktopType="h4" color="primary" margin="0 0 16px 0" className="summary-title">
-        Summary
-      </Text>
+    <DataSection title="Summary">
       <Field label="Name">
         <Badge>{collection?.name || EMPTY_VALUE}</Badge>
       </Field>
       <Field label="Symbol">
         <Badge>{collection?.symbol || EMPTY_VALUE}</Badge>
       </Field>
-      <Field label="Path">
-        <Badge className="copyable-badge">
+      <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
+        <Badge>
           <Text type="p4" color="blue" className="username-text">
             <StyledA href={getUrlWithNetwork(`/realms/details?path=${collection?.path}`)}>
               {formatDisplayPackagePath(collection?.path)}
@@ -58,16 +56,16 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
           </Text>
           <CopyTooltip variant="path" copyText={collection?.path} />
         </Badge>
-      </Field>
+      </FieldWithTooltip>
       <Field label="NFT Standard">
         <Badge>{collection?.standardPackage?.replace(/^gno\.land\//, "") || EMPTY_VALUE}</Badge>
       </Field>
-      <DLWrap className="public-functions">
+      <DLWrap>
         <dt>Public Functions</dt>
         <PublicFunctions>
           {(collection?.funcTypesList ?? []).map(functionName => (
             <Badge type="blue" key={functionName}>
-              <Text type="p4" color="white" fontWeight={600}>
+              <Text type="p4" color="white">
                 {functionName}
               </Text>
             </Badge>
@@ -75,7 +73,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
         </PublicFunctions>
       </DLWrap>
       <Field label="Creator">
-        <Badge className="copyable-badge">
+        <Badge>
           <AddressDisplayLink
             address={collection?.owner}
             name={collection?.ownerName}
@@ -95,12 +93,8 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
       <Field label="Transfers">
         <Badge>{makeDisplayNumberWithDefault(transfers)}</Badge>
       </Field>
-      {files.length > 0 && (
-        <S.SourceArea>
-          <ShowLog isTabLog={true} files={files} btnTextType="Source" />
-        </S.SourceArea>
-      )}
-    </S.SummaryContainer>
+      {files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Source" />}
+    </DataSection>
   );
 };
 

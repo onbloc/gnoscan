@@ -12,7 +12,7 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 16px 16px 5px;
+  padding: 16px;
   background-color: ${({ theme }) => theme.colors.nftPanel};
   box-shadow: inset 0 0 0 1px ${({ theme }) => theme.colors.nftPanelBorder};
   border-radius: 16px;
@@ -139,6 +139,10 @@ export const Title = styled.h3`
   color: ${({ theme }) => theme.colors.primary};
   white-space: nowrap;
   text-overflow: ellipsis;
+
+  ${media.DESKTOP} {
+    font-size: 17px;
+  }
 `;
 
 export const SymbolBadge = styled.span`
@@ -150,6 +154,10 @@ export const SymbolBadge = styled.span`
   color: ${({ theme }) => theme.colors.primary};
   background-color: ${({ theme }) => theme.colors.nftBadge};
   border-radius: 10px;
+
+  ${media.DESKTOP} {
+    font-size: 13px;
+  }
 `;
 
 export const Rows = styled.dl`
@@ -219,6 +227,10 @@ export const Row = styled.div<{ compact?: boolean }>`
     transform: scale(0.875);
     stroke: ${({ theme }) => theme.colors.primary};
   }
+
+  ${media.DESKTOP} {
+    font-size: ${({ compact }) => (compact ? 12 : 15)}px;
+  }
 `;
 
 export const Section = styled.section<{ $variant: "attributes" | "history" | "technical" }>`
@@ -226,6 +238,13 @@ export const Section = styled.section<{ $variant: "attributes" | "history" | "te
   flex-direction: column;
   gap: ${({ $variant }) => ($variant === "technical" ? 5 : 6)}px;
   margin-top: ${({ $variant }) => ($variant === "history" ? 0.5 : 8)}px;
+
+  ${media.DESKTOP} {
+    // The shared pagination label keeps its mobile typography.
+    > div > span {
+      font-size: 15px;
+    }
+  }
 `;
 
 export const SectionTitle = styled.h4<{ $attributes?: boolean }>`
@@ -234,12 +253,20 @@ export const SectionTitle = styled.h4<{ $attributes?: boolean }>`
   line-height: ${({ $attributes }) => ($attributes ? 13.1 : 13)}px;
   color: ${({ theme, $attributes }) => ($attributes ? theme.colors.tertiary : theme.colors.nftPanelMuted)};
   text-transform: uppercase;
+
+  ${media.DESKTOP} {
+    font-size: 12px;
+  }
 `;
 
 export const EmptyText = styled.p`
   font-size: 11px;
   line-height: 24px;
   color: ${({ theme }) => theme.colors.tertiary};
+
+  ${media.DESKTOP} {
+    font-size: 12px;
+  }
 `;
 
 export const RoyaltyValue = styled.div`
@@ -279,6 +306,10 @@ export const TransferItem = styled.li`
     padding-bottom: 0;
     margin-bottom: 0;
     border-bottom: 0;
+  }
+
+  ${media.DESKTOP} {
+    font-size: 12px;
   }
 `;
 
@@ -371,11 +402,15 @@ export const CopyUrlButton = styled.button`
   height: 35px;
   font-size: 14px;
   line-height: 20px;
-  color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.tertiary};
   background-color: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.nftPanelButtonBorder};
   border-radius: 4px;
   cursor: pointer;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.reverse};
+  }
 
   &:disabled {
     opacity: 0.5;
@@ -419,6 +454,16 @@ export const Attribute = styled.dl`
     line-height: 15px;
     color: ${({ theme }) => theme.colors.primary};
     overflow-wrap: anywhere;
+  }
+
+  ${media.DESKTOP} {
+    dt {
+      font-size: 11px;
+    }
+
+    dd {
+      font-size: 13px;
+    }
   }
 `;
 

@@ -61,7 +61,7 @@ const AddressWrapper = styled.div<{ $truncateFromStart: boolean }>`
         white-space: nowrap;
         text-overflow: ellipsis;
         direction: rtl;
-        text-align: left;
+        text-align: right;
       }
 
       bdi {
