@@ -59,15 +59,15 @@ export function compareNftTokenIds(left: string, right: string): number {
 /**
  * Keep the default view lazy. Search, owner selection, sorting, or opening the owner
  * picker resolves every remaining page before exposing global results/options.
+ * A linked NFT outside the visible page resolves only enough pages to locate its row.
  * collectionIdentity should be the tokenKey used by the collection-items query.
  */
-export function useNftInventoryControls(collectionIdentity: string, pageSize: number) {
+export function useNftInventoryControls(collectionIdentity: string, pageSize: number, selectedNftId: string | null) {
   const { currentNetwork } = useNetworkProvider();
   const identity = JSON.stringify([currentNetwork?.chainId ?? "", collectionIdentity]);
   const [savedControls, setControls] = React.useState(() => initialControls(identity));
   if (savedControls.identity !== identity) setControls(initialControls(identity));
   const controls = savedControls.identity === identity ? savedControls : initialControls(identity);
-  const [failure, setFailure] = React.useState<{ identity: string; error: Error } | null>(null);
   const [completion, setCompletion] = React.useState(0);
   const flight = React.useRef<{ identity: string } | null>(null);
   const mounted = React.useRef(false);
@@ -144,6 +144,12 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   }
   const isResizing = pageQuery.isLoading && previousPage?.scope === pageScope && previousPage.pageSize !== pageSize;
   const pageData = pageQuery.data ?? (isResizing ? previousPage?.data : undefined);
+  const selectionScope = JSON.stringify([identity, selectedNftId]);
+  const [resolvedSelection, setResolvedSelection] = React.useState<string | null>(null);
+  if (!selectedNftId && resolvedSelection !== null) setResolvedSelection(null);
+  const selectionOnPage = !!selectedNftId && !!pageData?.items.some(item => item.nftId === selectedNftId);
+  const locatingSelection =
+    !!selectedNftId && !hasActiveControls && resolvedSelection !== selectionScope && !!pageData && !selectionOnPage;
   const [previousCount, setPreviousCount] = React.useState<{ identity: string; count: number } | null>(null);
   const firstPageCount = firstPageQuery.data?.page.totalCount;
   if (
@@ -155,42 +161,54 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   const query = useGetNftCollectionItemsInfinite(
     // Keep complete search/filter data cached across 20/22-card display modes.
     { tokenKey: collectionIdentity, limit: 20 },
-    { enabled: needsAllPages },
+    { enabled: needsAllPages || locatingSelection },
   );
   const incomplete = !query.data || !!query.hasNextPage;
-  const globalError = query.error ?? (failure?.identity === identity ? failure.error : null);
-  const error = hasActiveControls ? globalError : pageQuery.error;
-  const isResolving = hasActiveControls && incomplete && !globalError;
+  const allItems = React.useMemo(() => query.data?.pages.flatMap(page => page.items) ?? [], [query.data]);
+  const linkedIndex = selectedNftId ? allItems.findIndex(item => item.nftId === selectedNftId) : -1;
+  const needsMorePages = needsAllPages || (locatingSelection && linkedIndex < 0);
+  // Adjust selection and pagination together before painting a different inventory page.
+  if (selectedNftId && !hasActiveControls && resolvedSelection !== selectionScope) {
+    if (selectionOnPage) {
+      setResolvedSelection(selectionScope);
+    } else if (locatingSelection && linkedIndex >= 0) {
+      setResolvedSelection(selectionScope);
+      setPagination({
+        scope: pageScope,
+        page: Math.floor(linkedIndex / pageSize) + 1,
+        pageSize,
+        anchorIndex: linkedIndex,
+      });
+    } else if (locatingSelection && !incomplete) {
+      // An absent ID must not repeatedly scan the collection or select a different NFT.
+      setResolvedSelection(selectionScope);
+    }
+  }
+  // Query errors clear on successful refetch; a separate saved failure would keep recovery blocked.
+  const globalError = query.error;
+  const error = hasActiveControls || locatingSelection ? globalError : pageQuery.error;
+  const isResolving = ((hasActiveControls && incomplete) || locatingSelection) && !globalError;
   const { hasNextPage, isFetching, fetchNextPage } = query;
 
   React.useEffect(() => {
-    if (!needsAllPages || !hasNextPage || isFetching || globalError || flight.current?.identity === identity) {
+    if (!needsMorePages || !hasNextPage || isFetching || globalError || flight.current?.identity === identity) {
       return;
     }
 
     const request = { identity };
     flight.current = request;
-    const recordError = (cause: unknown) => {
-      if (!mounted.current || currentIdentity.current !== identity) return;
-      setFailure({ identity, error: cause instanceof Error ? cause : new Error(String(cause)) });
-    };
     // One page at a time; the next effect waits for this request to finish.
-    void fetchNextPage({ cancelRefetch: false })
-      .then(result => {
-        if (result.isError && result.error) recordError(result.error);
-      })
-      .catch(recordError)
-      .finally(() => {
-        if (flight.current !== request) return;
-        flight.current = null;
-        if (mounted.current && currentIdentity.current === identity) {
-          setCompletion(previous => previous + 1);
-        }
-      });
-  }, [identity, needsAllPages, hasNextPage, isFetching, fetchNextPage, globalError, completion]);
+    void fetchNextPage({ cancelRefetch: false, throwOnError: false }).finally(() => {
+      if (flight.current !== request) return;
+      flight.current = null;
+      if (mounted.current && currentIdentity.current === identity) {
+        setCompletion(previous => previous + 1);
+      }
+    });
+  }, [identity, needsMorePages, hasNextPage, isFetching, fetchNextPage, globalError, completion]);
 
-  const allItems = React.useMemo(() => query.data?.pages.flatMap(page => page.items) ?? [], [query.data]);
-  const loadedItems = hasActiveControls ? allItems : pageData?.items ?? [];
+  // Keep the located owner available while the corresponding display page is loading.
+  const loadedItems = hasActiveControls || (!selectionOnPage && linkedIndex >= 0) ? allItems : pageData?.items ?? [];
   const owners = React.useMemo(
     () => (incomplete ? [] : Array.from(new Set(allItems.map(item => item.ownerAddress))).sort()),
     [allItems, incomplete],

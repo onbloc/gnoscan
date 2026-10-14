@@ -79,7 +79,7 @@ it("keeps cards, artwork, and pagination visible while expanding, without leakin
   );
 
   function Inventory({ collection, limit }: { collection: string; limit: number }) {
-    const view = useNftInventoryControls(collection, limit);
+    const view = useNftInventoryControls(collection, limit, null);
     const image = useNftArtwork(view.items);
     return (
       <section>

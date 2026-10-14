@@ -44,7 +44,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
     hasNext,
     onChangePage,
     onSelectItem,
-  } = useNftInventoryControls(tokenKey, pageSize);
+  } = useNftInventoryControls(tokenKey, pageSize, selectedNftId);
   const { data: collectionData } = useGetNftCollection(tokenKey);
   const artwork = useNftArtwork(items);
   const selectInventoryToken = (nftId: string) => {
@@ -119,11 +119,12 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
   }, []);
   const scrolledToRef = React.useRef<string | null>(null);
   React.useEffect(() => {
-    if (!isFetched || !selectedNftId || scrolledToRef.current === selectedNftId) return;
+    const card = selectedNftId ? cardRefs.current.get(selectedNftId) : undefined;
+    if (!isFetched || !card || scrolledToRef.current === selectedNftId) return;
     scrolledToRef.current = selectedNftId;
     // Deep link and prev/next: bring the marked card into view when it is in the grid.
-    cardRefs.current.get(selectedNftId)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [isFetched, selectedNftId]);
+    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [isFetched, selectedNftId, items]);
 
   return (
     <S.Container>
