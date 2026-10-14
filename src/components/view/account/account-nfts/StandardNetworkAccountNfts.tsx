@@ -105,13 +105,12 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
         </S.Grid>
       ) : nfts.length > 0 ? (
         <S.Grid>
-          {nfts.map(nft => (
-            <AccountNftCard
-              key={`${nft.tokenId}:${nft.nftId}`}
-              nft={nft}
-              imageUrl={artwork(nft.packagePath, nft.nftId)}
-            />
-          ))}
+          {nfts.map(nft => {
+            const { src, isLoading } = artwork(nft.packagePath, nft.nftId);
+            return (
+              <AccountNftCard key={`${nft.tokenId}:${nft.nftId}`} nft={nft} imageUrl={src} imageLoading={isLoading} />
+            );
+          })}
         </S.Grid>
       ) : (
         <Text type="p4" color="tertiary">

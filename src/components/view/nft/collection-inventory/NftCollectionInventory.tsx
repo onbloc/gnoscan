@@ -176,49 +176,53 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
             </Text>
           </S.EmptyState>
         ) : (
-          items.map(item => (
-            <S.CardButton
-              key={item.nftId}
-              ref={element => {
-                if (element) cardRefs.current.set(item.nftId, element);
-                else cardRefs.current.delete(item.nftId);
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label={`Token #${item.nftId} details`}
-              aria-pressed={item.nftId === selectedNftId}
-              onClick={event => {
-                // Owner link and copy icon keep their own behavior.
-                if ((event.target as HTMLElement).closest("a, .copy-tooltip")) return;
-                selectInventoryToken(item.nftId);
-              }}
-              onKeyDown={event => {
-                if (event.target !== event.currentTarget) return;
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
+          items.map(item => {
+            const { src, isLoading } = artwork(item.packagePath, item.nftId);
+            return (
+              <S.CardButton
+                key={item.nftId}
+                ref={element => {
+                  if (element) cardRefs.current.set(item.nftId, element);
+                  else cardRefs.current.delete(item.nftId);
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Token #${item.nftId} details`}
+                aria-pressed={item.nftId === selectedNftId}
+                onClick={event => {
+                  // Owner link and copy icon keep their own behavior.
+                  if ((event.target as HTMLElement).closest("a, .copy-tooltip")) return;
                   selectInventoryToken(item.nftId);
-                }
-              }}
-            >
-              <NftCard
-                nftId={item.nftId}
-                symbol={symbol}
-                imageUrl={artwork(item.packagePath, item.nftId)}
-                size="compact"
-                selected={item.nftId === selectedNftId}
+                }}
+                onKeyDown={event => {
+                  if (event.target !== event.currentTarget) return;
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    selectInventoryToken(item.nftId);
+                  }
+                }}
               >
-                <S.OwnerRow>
-                  <span>Owner:</span>
-                  <DatatableItem.AddressCopy
-                    address={item.ownerAddress}
-                    label={item.ownerLabel}
-                    labelType={item.ownerLabelType}
-                    truncateFromStart
-                  />
-                </S.OwnerRow>
-              </NftCard>
-            </S.CardButton>
-          ))
+                <NftCard
+                  nftId={item.nftId}
+                  symbol={symbol}
+                  imageUrl={src}
+                  imageLoading={isLoading}
+                  size="compact"
+                  selected={item.nftId === selectedNftId}
+                >
+                  <S.OwnerRow>
+                    <span>Owner:</span>
+                    <DatatableItem.AddressCopy
+                      address={item.ownerAddress}
+                      label={item.ownerLabel}
+                      labelType={item.ownerLabelType}
+                      truncateFromStart
+                    />
+                  </S.OwnerRow>
+                </NftCard>
+              </S.CardButton>
+            );
+          })
         )}
       </S.Grid>
       <Pagination

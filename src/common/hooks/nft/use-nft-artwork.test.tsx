@@ -94,12 +94,21 @@ function createView() {
     return (
       <section>
         {nfts.map(nft => {
-          const src = image(nft.packagePath, nft.nftId);
+          const { src, isLoading } = image(nft.packagePath, nft.nftId);
           return (
-            <article key={`${nft.packagePath}:${nft.nftId}`} data-path={nft.packagePath} data-token={nft.nftId}>
+            <article
+              key={`${nft.packagePath}:${nft.nftId}`}
+              data-path={nft.packagePath}
+              data-token={nft.nftId}
+              data-loading={isLoading}
+            >
               {/* A plain image exposes the hook's resolved source without Next.js image-loader behavior. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {src ? <img alt={`NFT ${nft.nftId}`} src={src} /> : <span>Default artwork</span>}
+              {src ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img alt={`NFT ${nft.nftId}`} src={src} />
+              ) : (
+                <span>{isLoading ? "Loading artwork" : "Default artwork"}</span>
+              )}
             </article>
           );
         })}
@@ -130,6 +139,9 @@ function createView() {
     },
     image(tokenId: string) {
       return container.querySelector(`article[data-token="${tokenId}"] img`);
+    },
+    loading(tokenId: string) {
+      return container.querySelector(`article[data-token="${tokenId}"]`)?.getAttribute("data-loading") === "true";
     },
   };
 }
@@ -174,7 +186,7 @@ it("completes only flagged visible entries and keeps fresh API artwork authorita
   }
   view.render(nfts);
   expect(mockRequestNftTokenUri.mock.calls.map(call => call[2])).toEqual(["1"]);
-  expect(view.artwork("1")).toBe("Default artwork");
+  expect(view.artwork("1")).toBe("Loading artwork");
   expect(view.artwork("2")).toBe("https://images.example/api-2.png");
   expect(view.artwork("3")).toBe("Default artwork");
 
@@ -206,6 +218,9 @@ it("publishes each image without waiting for peers and isolates failures within 
   view.render(nfts);
   expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(8);
   expect(view.artwork("3")).toBe("https://images.example/api-3.png");
+  expect(view.loading("3")).toBe(false);
+  expect(view.artwork("9")).toBe("Loading artwork");
+  expect(view.artwork("10")).toBe("Loading artwork");
 
   await settle(() =>
     requests.get("2")!.resolve(
@@ -217,7 +232,7 @@ it("publishes each image without waiting for peers and isolates failures within 
     ),
   );
   expect(view.artwork("2")).toBe("https://images.example/fast.png");
-  expect(view.artwork("1")).toBe("Default artwork");
+  expect(view.artwork("1")).toBe("Loading artwork");
   expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(9);
 
   await settle(() => requests.get("3")!.reject(new Error("RPC timeout")));
@@ -233,7 +248,7 @@ it("publishes each image without waiting for peers and isolates failures within 
     ),
   );
   expect(view.artwork("10")).toBe("https://images.example/ten.png");
-  expect(view.artwork("1")).toBe("Default artwork");
+  expect(view.artwork("1")).toBe("Loading artwork");
 });
 
 it("deduplicates in-flight IDs across 20/22 batches, preserves images during placeholders, and reuses successes", async () => {
@@ -266,7 +281,8 @@ it("deduplicates in-flight IDs across 20/22 batches, preserves images during pla
   view.render(expanded);
   expect(view.artwork("1")).toBe("https://images.example/1.png");
   expect(view.image("1")).toBe(originalImage);
-  expect(view.artwork("22")).toBe("Default artwork");
+  expect(view.loading("1")).toBe(false);
+  expect(view.artwork("22")).toBe("Loading artwork");
   expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(10);
 
   await settle(() => batch.resolve({ items: expanded.map(nft => entry(nft.nftId)) }));
@@ -329,7 +345,7 @@ it.each(["network", "endpoint", "collection"])(
         );
       });
     });
-    expect(view.artwork("1", currentPath)).toBe("Default artwork");
+    expect(view.artwork("1", currentPath)).toBe("Loading artwork");
     expect(requests).toHaveLength(oldRequests + 1);
     await settle(() =>
       requests[oldRequests].resolve(
@@ -359,8 +375,10 @@ it("retains an expired successful RPC image through failure, retries only on new
   );
   view.render(nfts);
   expect(view.artwork("1")).toBe("https://images.example/previous.png");
+  expect(view.loading("1")).toBe(false);
   await settle(() => failed.resolve(entry("1")));
   expect(view.artwork("1")).toBe("https://images.example/previous.png");
+  expect(view.loading("1")).toBe(false);
   await settle(() => {
     focusManager.setFocused(false);
     focusManager.setFocused(true);
@@ -420,4 +438,91 @@ it("keeps a fresh backend update authoritative when an older in-flight RPC later
   );
   expect(view.artwork("1")).toBe("https://images.example/fresh-api.png");
   expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(1);
+});
+
+it.each(["unavailable", "failed"] as const)(
+  "keeps loading through backend and RPC resolution, then stops after RPC is %s",
+  async outcome => {
+    const view = createView();
+    const nfts = tokens(1);
+    const backend = deferred<GetNftTokenUrisResponse>();
+    const rpc = deferred<NftTokenUriModel>();
+    mockRepository.getNftTokenUris.mockReturnValue(backend.promise);
+    mockRequestNftTokenUri.mockReturnValue(rpc.promise);
+
+    view.render(nfts);
+    expect(view.artwork("1")).toBe("Loading artwork");
+    expect(mockRequestNftTokenUri).not.toHaveBeenCalled();
+    await settle(() => backend.resolve({ items: [entry("1")] }));
+    expect(view.artwork("1")).toBe("Loading artwork");
+    expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(1);
+    await settle(() => {
+      if (outcome === "failed") rpc.reject(new Error("RPC unavailable"));
+      else rpc.resolve(entry("1"));
+    });
+    expect(view.artwork("1")).toBe("Default artwork");
+    expect(view.loading("1")).toBe(false);
+    view.render([...nfts]);
+    await settle();
+    expect(view.loading("1")).toBe(false);
+    expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(1);
+  },
+);
+
+it.each(["missing", "not_set", "unsupported"] as const)(
+  "stops loading when the backend settles with %s artwork and no RPC work",
+  async status => {
+    const view = createView();
+    const nfts = tokens(1);
+    const backend = deferred<GetNftTokenUrisResponse>();
+    mockRepository.getNftTokenUris.mockReturnValue(backend.promise);
+    view.render(nfts);
+    expect(view.artwork("1")).toBe("Loading artwork");
+    await settle(() =>
+      backend.resolve({
+        items: status === "missing" ? [] : [entry("1", { status, needsRefetch: false })],
+      }),
+    );
+    expect(view.artwork("1")).toBe("Default artwork");
+    expect(view.loading("1")).toBe(false);
+    expect(mockRequestNftTokenUri).not.toHaveBeenCalled();
+  },
+);
+
+it("stops loading after reusing a completed no-art RPC result without fetching it again", async () => {
+  const view = createView();
+  const nfts = tokens(1);
+  seedApi(view.client, nfts);
+  view.client.setQueryData(rpcKey("1"), entry("1", { status: "not_set", needsRefetch: false }));
+  view.render(nfts);
+  await settle();
+  expect(view.artwork("1")).toBe("Default artwork");
+  expect(view.loading("1")).toBe(false);
+  expect(mockRequestNftTokenUri).not.toHaveBeenCalled();
+});
+
+it("preserves cached backend artwork without loading while its batch refreshes", async () => {
+  const view = createView();
+  const nfts = tokens(1);
+  const backend = deferred<GetNftTokenUrisResponse>();
+  mockRepository.getNftTokenUris.mockReturnValue(backend.promise);
+  seedApi(view.client, nfts, [
+    entry("1", { status: "found", uri: "https://images.example/cached.png", needsRefetch: false }),
+  ]);
+  view.render(nfts);
+  const originalImage = view.image("1");
+  await settle(() => {
+    void view.client.invalidateQueries(apiKey(nfts));
+  });
+  expect(mockRepository.getNftTokenUris).toHaveBeenCalledTimes(1);
+  expect(view.artwork("1")).toBe("https://images.example/cached.png");
+  expect(view.image("1")).toBe(originalImage);
+  expect(view.loading("1")).toBe(false);
+  await settle(() =>
+    backend.resolve({
+      items: [entry("1", { status: "found", uri: "https://images.example/refreshed.png", needsRefetch: false })],
+    }),
+  );
+  expect(view.artwork("1")).toBe("https://images.example/refreshed.png");
+  expect(view.loading("1")).toBe(false);
 });

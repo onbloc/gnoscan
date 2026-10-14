@@ -157,10 +157,22 @@ export const useGetNftTokenDetail = (packagePath: string, nftId: string) => {
   );
   const attempted = React.useRef(new WeakSet<GetNftTokenDetailResponse>());
   const data = query.data;
+  const [artworkRefresh, setArtworkRefresh] = React.useState<{
+    queryKey: typeof queryKey;
+    data: GetNftTokenDetailResponse;
+    isLoading: boolean;
+  } | null>(null);
+  const needsArtworkRefresh = !!apiTokenRepository && !!data && (data.uriNeedsRefetch || data.metadataNeedsRefetch);
+  // Artwork includes the manual stale-metadata refresh, without changing query loading semantics.
+  const isArtworkLoading =
+    (!!packagePath && !!nftId && query.isLoading) ||
+    (!!needsArtworkRefresh && !!data && !attempted.current.has(data)) ||
+    (artworkRefresh?.queryKey === queryKey && artworkRefresh.data === data && artworkRefresh.isLoading);
   React.useEffect(() => {
     if (!apiTokenRepository || !data || attempted.current.has(data)) return;
     if (!data.uriNeedsRefetch && !data.metadataNeedsRefetch) return;
     attempted.current.add(data);
+    setArtworkRefresh({ queryKey, data, isLoading: true });
     let cancelled = false;
     // Display stale/partial values first; refresh the flagged lookup without clearing them.
     void apiTokenRepository
@@ -173,10 +185,19 @@ export const useGetNftTokenDetail = (packagePath: string, nftId: string) => {
       })
       .catch(() => {
         // Keep usable stale data and its refetch warning if the refresh fails.
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setArtworkRefresh(refresh =>
+          refresh?.queryKey === queryKey && refresh.data === data ? { ...refresh, isLoading: false } : refresh,
+        );
       });
     return () => {
       cancelled = true;
+      setArtworkRefresh(refresh =>
+        refresh?.queryKey === queryKey && refresh.data === data ? { ...refresh, isLoading: false } : refresh,
+      );
     };
   }, [apiTokenRepository, data, packagePath, nftId, queryClient, queryKey]);
-  return query;
+  return { ...query, isArtworkLoading };
 };

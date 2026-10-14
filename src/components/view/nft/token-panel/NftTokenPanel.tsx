@@ -61,7 +61,7 @@ const NftTokenPanel = ({
 }: NftTokenPanelProps) => {
   const title = `Token #${nftId}`;
   const { getUrlWithNetwork } = useNetwork();
-  const { data: detail, isLoading } = useGetNftTokenDetail(packagePath, nftId);
+  const { data: detail, isLoading, isArtworkLoading } = useGetNftTokenDetail(packagePath, nftId);
   const indexedQuery = useGetNftItemDetail(tokenKey, nftId, { keepPreviousData: false });
   const transferIdentity = `${tokenKey}:${nftId}`;
   const [transferPagination, setTransferPagination] = React.useState({ identity: transferIdentity, page: 1 });
@@ -245,6 +245,7 @@ const NftTokenPanel = ({
         <NftImage
           className="token-artwork"
           src={nftArtwork(metadata, tokenUrl) ?? nftMediaUrl(detail?.image)}
+          isLoading={isArtworkLoading}
           alt={metadata?.name || title}
           aspectRatio="418 / 332"
         />

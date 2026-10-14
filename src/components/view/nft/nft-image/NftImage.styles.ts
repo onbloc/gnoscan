@@ -30,3 +30,32 @@ export const Image = styled.img`
   height: 100%;
   object-fit: contain;
 `;
+
+export const Loading = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @keyframes nft-artwork-rotating {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  svg {
+    animation: nft-artwork-rotating 2s linear infinite;
+  }
+
+  stop {
+    stop-color: ${({ theme }) => theme.colors.tertiary};
+  }
+
+  circle {
+    fill: ${({ theme }) => theme.colors.tertiary};
+  }
+`;

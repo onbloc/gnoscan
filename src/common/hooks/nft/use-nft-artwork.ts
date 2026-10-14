@@ -23,7 +23,10 @@ interface RpcArtworkEntry extends NftTokenUriModel {
   fallbackImage?: string;
 }
 
-// Both callers pass only the visible page (at most 22 NFTs), below the API's 50-ID limit.
+/**
+ * Resolves visible-page artwork and pending backend/RPC lookups without replacing usable cached images.
+ * Both callers pass at most 22 NFTs, below the API's 50-ID limit.
+ */
 export function useNftArtwork(nfts: readonly ArtworkToken[]) {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork, nodeRPCClient } = useNetworkProvider();
@@ -107,6 +110,7 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
   // Disabled observers publish each fetchQuery completion independently, without automatic refetches.
   const rpcResults = useQueries(rpcQueries);
   const attempted = React.useRef(new WeakMap<ArtworkEntry[], Set<string>>());
+  const [, publishCompletion] = React.useReducer((version: number) => version + 1, 0);
   React.useEffect(() => {
     if (!nodeRPCClient || !data || query.isPlaceholderData || rpcQueries.length === 0) return;
     const scheduled = attempted.current.get(data) ?? new Set<string>();
@@ -127,6 +131,9 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
           });
         } catch {
           // A failed token must not prevent this worker from completing the remaining visible tokens.
+        } finally {
+          // Reusing a fresh cached no-art result may not notify the disabled observer.
+          if (!cancelled) publishCompletion();
         }
       }
     };
@@ -138,26 +145,49 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
   }, [nodeRPCClient, data, rpcQueries, queryClient, query.isPlaceholderData]);
 
   return React.useCallback(
-    (packagePath: string, nftId: string) => {
+    (packagePath: string, nftId: string): { src: string | undefined; isLoading: boolean } => {
       const item = data?.find(item => item.packagePath === packagePath && item.tokenId === nftId);
       const image = item?.status === "found" ? nftMediaUrl(item.image) ?? nftMediaUrl(item.uri) : undefined;
-      if (item?.needsRefetch) {
-        const index = flagged.findIndex(entry => entry.packagePath === packagePath && entry.tokenId === nftId);
-        const rpc = index >= 0 ? rpcResults[index]?.data : undefined;
-        const rpcImage = rpc?.status === "found" ? nftMediaUrl(rpc.image) ?? nftMediaUrl(rpc.uri) : undefined;
-        // A completed lookup without artwork clears stale images; only transient failures retain them.
-        if (rpc && !rpc.needsRefetch && rpc.status !== "unavailable") return rpcImage;
-        if (rpcImage || rpc?.fallbackImage) return rpcImage ?? rpc?.fallbackImage;
-      }
+      const index = item?.needsRefetch
+        ? flagged.findIndex(entry => entry.packagePath === packagePath && entry.tokenId === nftId)
+        : -1;
+      const rpcResult = index >= 0 ? rpcResults[index] : undefined;
+      const rpc = rpcResult?.data;
+      const rpcImage = rpc?.status === "found" ? nftMediaUrl(rpc.image) ?? nftMediaUrl(rpc.uri) : undefined;
+      // A completed lookup without artwork clears stale images; only transient failures retain them.
+      const rpcComplete = !!rpc && !rpc.needsRefetch && rpc.status !== "unavailable";
+      let src = rpcComplete ? rpcImage : rpcImage || rpc?.fallbackImage || image;
       // Fresh backend data is authoritative even when an older RPC result exists.
-      if (image) return image;
-      // A pending/failed expanded batch must not blank artwork already shown for the same NFT.
-      if (item && item.status !== "unavailable" && !item.needsRefetch) return undefined;
-      const cached = cachedArtwork.find(
-        entry => entry.packagePath === packagePath && entry.tokenId === nftId && entry.status === "found",
-      );
-      return cached ? nftMediaUrl(cached.image) ?? nftMediaUrl(cached.uri) : undefined;
+      const backendComplete = !!item && item.status !== "unavailable" && !item.needsRefetch;
+      if (!src && !rpcComplete && !backendComplete) {
+        // A pending/failed expanded batch must not blank artwork already shown for the same NFT.
+        const cached = cachedArtwork.find(
+          entry => entry.packagePath === packagePath && entry.tokenId === nftId && entry.status === "found",
+        );
+        src = cached ? nftMediaUrl(cached.image) ?? nftMediaUrl(cached.uri) : undefined;
+      }
+      const scheduled = data ? attempted.current.get(data) : undefined;
+      // Queued tokens are pending before their worker starts; disabled isLoading is not evidence of work.
+      const rpcPending =
+        index >= 0 &&
+        (rpcResult?.isFetching ||
+          (!!nodeRPCClient && !query.isPlaceholderData && !scheduled?.has(JSON.stringify(rpcQueries[index].queryKey))));
+      return {
+        src,
+        isLoading: !src && (query.isFetching || (batches.length > 0 && query.isLoading) || rpcPending),
+      };
     },
-    [data, cachedArtwork, flagged, rpcResults],
+    [
+      data,
+      cachedArtwork,
+      flagged,
+      rpcResults,
+      rpcQueries,
+      nodeRPCClient,
+      batches.length,
+      query.isFetching,
+      query.isLoading,
+      query.isPlaceholderData,
+    ],
   );
 }

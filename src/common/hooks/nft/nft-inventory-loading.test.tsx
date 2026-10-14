@@ -19,6 +19,13 @@ const mockRepository = { getNftCollectionItems: jest.fn(), getNftTokenUris: jest
 jest.mock("@/common/clients/node-client/nft-artwork", () => ({
   requestNftTokenUri: jest.fn().mockRejectedValue(new Error("RPC unavailable")),
 }));
+jest.mock(
+  "@/assets/svgs/icon-table-loading.svg",
+  () =>
+    function MockTableLoading() {
+      return <svg />;
+    },
+);
 jest.mock("@/common/hooks/provider/use-service-provider", () => ({
   useServiceProvider: () => ({ apiTokenRepository: mockRepository }),
 }));
@@ -39,6 +46,7 @@ function deferred<T>() {
 }
 
 it("keeps cards, artwork, and pagination visible while expanding, without leaking another collection", async () => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   const path = "gno.land/r/example/nfts";
   const tokenKey = `${path}.NFT.0000000`;
   const items = Array.from({ length: 22 }, (_, index) => ({
@@ -90,11 +98,14 @@ it("keeps cards, artwork, and pagination visible while expanding, without leakin
         {!view.isFetched ? (
           <p>Loading NFTs</p>
         ) : (
-          view.items.map(item => (
-            <article key={item.nftId}>
-              <NftImage alt={`Token ${item.nftId}`} src={image(item.packagePath, item.nftId)} />
-            </article>
-          ))
+          view.items.map(item => {
+            const { src, isLoading } = image(item.packagePath, item.nftId);
+            return (
+              <article key={item.nftId}>
+                <NftImage alt={`Token ${item.nftId}`} src={src} isLoading={isLoading} />
+              </article>
+            );
+          })
         )}
       </section>
     );
@@ -113,11 +124,17 @@ it("keeps cards, artwork, and pagination visible while expanding, without leakin
     );
   try {
     render(tokenKey, 20);
+    act(() => {
+      container.querySelectorAll("img").forEach(image => image.dispatchEvent(new Event("load")));
+    });
+    expect(container.querySelectorAll('[aria-label="Loading NFT artwork"]')).toHaveLength(0);
     const originalImage = container.querySelector("img");
     render(tokenKey, 22);
     expect(container.querySelectorAll("article")).toHaveLength(20);
     expect(container.querySelectorAll("img")).toHaveLength(20);
     expect(container.querySelector("img")).toBe(originalImage);
+    expect(originalImage?.style.visibility).toBe("visible");
+    expect(container.querySelectorAll('[aria-label="Loading NFT artwork"]')).toHaveLength(0);
     expect(container.querySelector("output")?.textContent).toBe("1/5");
     await act(async () => {
       pageRequest.resolve(expanded);
@@ -128,6 +145,9 @@ it("keeps cards, artwork, and pagination visible while expanding, without leakin
     expect(container.querySelectorAll("article")).toHaveLength(22);
     expect(container.querySelectorAll("img")).toHaveLength(20);
     expect(container.querySelector("img")).toBe(originalImage);
+    expect(originalImage?.style.visibility).toBe("visible");
+    expect(container.querySelectorAll('[aria-label="Loading NFT artwork"]')).toHaveLength(2);
+    expect(container.querySelector(".nft-default-icon")).toBeNull();
     await act(async () => {
       artworkRequest.resolve({
         items: artwork.items.map((item, index) =>
@@ -142,6 +162,11 @@ it("keeps cards, artwork, and pagination visible while expanding, without leakin
     expect(container.querySelector("img")).toBe(originalImage);
     expect(originalImage?.getAttribute("src")).toBe("https://example.org/1.png");
     act(() => {
+      container.querySelectorAll("img").forEach(image => image.dispatchEvent(new Event("load")));
+    });
+    expect(originalImage?.style.visibility).toBe("visible");
+    expect(container.querySelectorAll('[aria-label="Loading NFT artwork"]')).toHaveLength(0);
+    act(() => {
       client.setQueryData(
         ["test-chain", QUERY_KEY.getNftTokenUris, [{ packagePath: path, tokenIds: items.map(item => item.nftId) }]],
         artwork.items.map((item, index) => ({
@@ -155,6 +180,8 @@ it("keeps cards, artwork, and pagination visible while expanding, without leakin
       await delay(0);
     });
     expect(container.querySelector("article")?.querySelector("img")).toBeNull();
+    expect(container.querySelector("article")?.querySelector(".nft-default-icon")).not.toBeNull();
+    expect(container.querySelectorAll('[aria-label="Loading NFT artwork"]')).toHaveLength(0);
     act(() => container.querySelector("button")!.click());
     expect(container.querySelectorAll("article")).toHaveLength(0);
     expect(container.textContent).toContain("Loading NFTs");

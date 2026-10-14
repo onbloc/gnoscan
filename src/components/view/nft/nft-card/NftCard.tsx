@@ -13,19 +13,28 @@ interface NftCardProps {
   nftId: string;
   symbol: string;
   imageUrl?: string | null;
+  imageLoading?: boolean;
   size?: S.NftCardSize;
   selected?: boolean;
   // Rows below the token title (e.g. collection or owner)
   children?: React.ReactNode;
 }
 
-const NftCard = ({ nftId, symbol, imageUrl, size = "regular", selected = false, children }: NftCardProps) => {
+const NftCard = ({
+  nftId,
+  symbol,
+  imageUrl,
+  imageLoading,
+  size = "regular",
+  selected = false,
+  children,
+}: NftCardProps) => {
   const title = `Token #${nftId}`;
   const isCompact = size === "compact";
 
   return (
     <S.Card size={size} selected={selected}>
-      <NftImage src={imageUrl} alt={title} aspectRatio={IMAGE_ASPECT_RATIO[size]} />
+      <NftImage src={imageUrl} isLoading={imageLoading} alt={title} aspectRatio={IMAGE_ASPECT_RATIO[size]} />
       <S.Info size={size}>
         <S.TitleRow>
           <S.Title type="p4" desktopType={isCompact ? "p4" : "p3"} color="primary" style={{ lineHeight: "24px" }}>
