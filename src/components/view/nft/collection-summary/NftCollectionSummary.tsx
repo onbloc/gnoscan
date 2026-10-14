@@ -15,7 +15,7 @@ import DataSection from "@/components/view/details-data-section";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StyledA } from "../../token/token-summary/TokenSummary.styles";
 
-// Shown until the API provides the value (e.g. NFT Standard).
+// Missing collection fields use a dash; Standard comes from the creation-event emitter.
 const EMPTY_VALUE = "-";
 
 const TOOLTIP_PACKAGE_PATH = (
@@ -63,7 +63,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
         </Badge>
       </FieldWithTooltip>
       <Field label="NFT Standard">
-        <Badge>{EMPTY_VALUE}</Badge>
+        <Badge>{collection?.standardPackage || EMPTY_VALUE}</Badge>
       </Field>
       <DLWrap>
         <dt>Public Functions</dt>
