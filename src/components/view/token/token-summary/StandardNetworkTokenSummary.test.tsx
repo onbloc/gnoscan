@@ -1,10 +1,17 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { createRoot } from "react-dom/client";
+import { act } from "react-dom/test-utils";
 import { ThemeProvider } from "styled-components";
 import StandardNetworkTokenSummary from "./StandardNetworkTokenSummary";
 
-// The token list row for this package; tests set registeredPackagePath to model registered or unregistered tokens.
-let mockPackageTokenRow: { tokenId: string; registeredPackagePath?: string } = { tokenId: "gno.land/r/demo/foo.FOO" };
+// The token list pages for this package; tests set registeredPackagePath to model registered or unregistered tokens.
+type MockRow = { tokenId: string; registeredPackagePath?: string };
+let mockPackageTokenRow: MockRow = { tokenId: "gno.land/r/demo/foo.FOO" };
+let mockPackageTokens: { pages: MockRow[][]; hasNextPage?: boolean; isError?: boolean } | null = null;
+const mockFetchNextPage = jest.fn();
 
 jest.mock("@/common/react-query/token/api", () => ({
   useGetTokenById: () => ({
@@ -23,7 +30,16 @@ jest.mock("@/common/react-query/token/api", () => ({
     },
   }),
   useGetTokenTransfersById: () => ({ data: undefined }),
-  useGetTokens: () => ({ data: { pages: [{ items: [mockPackageTokenRow] }] } }),
+  useGetTokens: () => {
+    const { pages, hasNextPage = false, isError = false } = mockPackageTokens ?? { pages: [[mockPackageTokenRow]] };
+    return {
+      data: { pages: pages.map(items => ({ items })) },
+      hasNextPage,
+      isFetchingNextPage: false,
+      isError,
+      fetchNextPage: mockFetchNextPage,
+    };
+  },
 }));
 jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
   useTokenResourceMeta: () => ({ getTokenMeta: (_: string, meta: object) => meta }),
@@ -62,12 +78,26 @@ jest.mock("@/components/ui/tooltip/copy-tooltip", () => ({ CopyTooltip: () => nu
 // Stub theme: every color and font token resolves to a harmless value.
 const anyValue = new Proxy({}, { get: () => "inherit" });
 
-const renderSummary = () =>
-  renderToStaticMarkup(
-    <ThemeProvider theme={{ colors: anyValue, fonts: anyValue }}>
-      <StandardNetworkTokenSummary tokenId="gno.land/r/demo/foo.FOO" />
-    </ThemeProvider>,
+const renderSummary = () => {
+  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  const container = document.createElement("div");
+  const root = createRoot(container);
+  act(() =>
+    root.render(
+      <ThemeProvider theme={{ colors: anyValue, fonts: anyValue }}>
+        <StandardNetworkTokenSummary tokenId="gno.land/r/demo/foo.FOO" />
+      </ThemeProvider>,
+    ),
   );
+  const markup = container.innerHTML;
+  act(() => root.unmount());
+  return markup;
+};
+
+beforeEach(() => {
+  mockFetchNextPage.mockClear();
+  mockPackageTokens = null;
+});
 
 it("computes market cap from the exact supply, not a rounded number", () => {
   const markup = renderSummary();
@@ -84,4 +114,28 @@ it("links the grc20reg registry when the token list reports a registration", () 
 it("shows a dash for a token that was never registered", () => {
   mockPackageTokenRow = { tokenId: "gno.land/r/demo/foo.FOO" };
   expect(renderSummary()).not.toContain("grc20reg");
+});
+
+it("loads later pages to find a registration beyond the first page", () => {
+  const otherRow = { tokenId: "gno.land/r/demo/foo.BAR" };
+  mockPackageTokens = { pages: [[otherRow]], hasNextPage: true };
+  expect(renderSummary()).not.toContain("grc20reg");
+  expect(mockFetchNextPage).toHaveBeenCalledTimes(1);
+
+  mockPackageTokens = {
+    pages: [[otherRow], [{ tokenId: "gno.land/r/demo/foo.FOO", registeredPackagePath: "gno.land/r/demo/foo" }]],
+  };
+  expect(renderSummary()).toContain("gno.land/r/nt/grc20reg/v0");
+});
+
+it("does not load more pages once the token row is found", () => {
+  mockPackageTokens = { pages: [[{ tokenId: "gno.land/r/demo/foo.FOO" }]], hasNextPage: true };
+  renderSummary();
+  expect(mockFetchNextPage).not.toHaveBeenCalled();
+});
+
+it("stops loading pages after a request fails", () => {
+  mockPackageTokens = { pages: [[{ tokenId: "gno.land/r/demo/foo.BAR" }]], hasNextPage: true, isError: true };
+  expect(renderSummary()).not.toContain("grc20reg");
+  expect(mockFetchNextPage).not.toHaveBeenCalled();
 });
