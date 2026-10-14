@@ -7,6 +7,7 @@ import {
   GetTokenEventsRequest,
   GetNftCollectionsRequest,
   GetNftCollectionItemsRequest,
+  GetNftItemTransfersRequest,
 } from "./request";
 import {
   GetTokenHoldersResponse,
@@ -20,6 +21,8 @@ import {
   GetNftCollectionsResponse,
   GetNftCollectionResponse,
   GetNftCollectionItemsResponse,
+  GetNftItemDetailResponse,
+  GetNftItemTransfersResponse,
   GetNftTokenDetailResponse,
   GetNftTokenUrisResponse,
 } from "./response";
@@ -48,6 +51,10 @@ export interface ApiTokenRepository {
   getNftCollection(tokenKey: string): Promise<GetNftCollectionResponse>;
 
   getNftCollectionItems(params: GetNftCollectionItemsRequest): Promise<GetNftCollectionItemsResponse>;
+
+  getNftItemDetail(tokenKey: string, nftId: string): Promise<GetNftItemDetailResponse>;
+
+  getNftItemTransfers(params: GetNftItemTransfersRequest): Promise<GetNftItemTransfersResponse>;
 
   getNftTokenUris(packagePath: string, nftIds: string[], refresh?: boolean): Promise<GetNftTokenUrisResponse>;
 

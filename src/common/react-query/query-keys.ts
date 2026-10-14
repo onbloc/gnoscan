@@ -46,6 +46,8 @@ export enum QUERY_KEY {
   getNftCollectionsList = "api_get_nft_collections_list",
   getNftCollection = "api_get_nft_collection",
   getNftCollectionItems = "api_get_nft_collection_items",
+  getNftItemDetail = "api_get_nft_item_detail",
+  getNftItemTransfers = "api_get_nft_item_transfers",
   getNftTokenDetail = "api_get_nft_token_detail",
   getNftTokenUris = "api_get_nft_token_uris",
   getNftTokenUriRpc = "rpc_get_nft_token_uri",

@@ -12,3 +12,10 @@ export interface GetNftCollectionItemsRequest {
   page?: number;
   limit?: number;
 }
+
+export interface GetNftItemTransfersRequest {
+  tokenKey: string;
+  nftId: string;
+  page?: number;
+  limit?: number;
+}

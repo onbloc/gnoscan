@@ -1,27 +1,36 @@
 import React from "react";
+import dayjs from "dayjs";
+import Link from "next/link";
 
-import { useGetNftTokenDetail } from "@/common/react-query/token/api";
+import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } from "@/common/react-query/token/api";
+import { useNetwork } from "@/common/hooks/use-network";
+import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { nftArtwork, nftMediaUrl } from "@/common/utils/nft-media.utility";
+import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
+import { base64HashToHex, isBase64Hash } from "@/common/utils/transaction.utility";
 import { NftCollectionItemModel } from "@/repositories/api/token/response";
 
 import IconArrow from "@/assets/svgs/icon-arrow.svg";
 import IconClose from "@/assets/svgs/icon-close.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
+import IconLink from "@/assets/svgs/icon-link.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import Tooltip from "@/components/ui/tooltip";
 import { DatatableItem } from "../../datatable";
 import NftImage from "../nft-image/NftImage";
 import * as S from "./NftTokenPanel.styles";
 
-// The indexed API does not yet expose mint, transfer history or royalty per NFT.
 const EMPTY_VALUE = "-";
-// The only GRC721 standard package on gno.land
-const GRC721_STANDARD = "gno.land/p/nt/grc721/v0";
 
 const PANEL_TRANSITION_MS = 400;
 const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
 
 interface NftTokenPanelProps {
   nftId: string;
+  tokenKey: string;
+  standardPackage: string | null;
   packagePath: string;
   symbol: string;
   // The NFT's inventory row when it is among the loaded items; owner comes from it
@@ -36,6 +45,8 @@ interface NftTokenPanelProps {
 
 const NftTokenPanel = ({
   nftId,
+  tokenKey,
+  standardPackage,
   packagePath,
   symbol,
   item,
@@ -47,7 +58,27 @@ const NftTokenPanel = ({
   onClose,
 }: NftTokenPanelProps) => {
   const title = `Token #${nftId}`;
+  const { getUrlWithNetwork } = useNetwork();
   const { data: detail, isLoading, isError, refetch } = useGetNftTokenDetail(packagePath, nftId);
+  const indexedQuery = useGetNftItemDetail(tokenKey, nftId, { keepPreviousData: false });
+  const transfersQuery = useGetNftItemTransfers({ tokenKey, nftId, limit: 5 }, { keepPreviousData: false });
+  const [nextPageError, setNextPageError] = React.useState<Error | null>(null);
+  const isNextPageError = transfersQuery.isError && transfersQuery.error === nextPageError;
+  const fetchMoreTransfers = async () => {
+    const result = await transfersQuery.fetchNextPage();
+    setNextPageError(result.error);
+  };
+  const indexedDetail = indexedQuery.data?.data;
+  const transfers = React.useMemo(
+    () => transfersQuery.data?.pages.flatMap(page => page.items) ?? [],
+    [transfersQuery.data?.pages],
+  );
+  const lastTransfer = transfers.find(
+    transfer =>
+      transfer.fromAddress && transfer.toAddress && transfer.blockTime === indexedDetail?.lastTransferBlockTime,
+  );
+  const mintHash = indexedDetail?.lastMintTransactionHash;
+  const displayMintHash = mintHash && (isBase64Hash(mintHash) ? base64HashToHex(mintHash) : mintHash);
   const metadata = detail?.metadataStatus === "found" ? detail.metadata : null;
   const attributes = metadata?.attributes ?? [];
   const tokenUrl = detail?.status === "found" ? detail.uri : "";
@@ -186,7 +217,7 @@ const NftTokenPanel = ({
               copyText={typeof window === "undefined" ? "" : window.location.href}
             >
               <S.IconButton as="span" role="button" aria-label="Copy token URL">
-                <IconCopy className="icon-stroke" />
+                <IconCopy className="icon-stroke" viewBox="0 0 16 16" width={14} height={14} />
               </S.IconButton>
             </Tooltip>
             <S.IconButton type="button" aria-label="Close token details" onClick={onClose}>
@@ -195,6 +226,7 @@ const NftTokenPanel = ({
           </S.HeaderButtons>
         </S.Header>
 
+        {/* Missing or failed artwork uses the same default image as inventory and account cards. */}
         <NftImage
           src={nftArtwork(metadata, tokenUrl) ?? nftMediaUrl(detail?.image)}
           alt={metadata?.name || title}
@@ -210,11 +242,20 @@ const NftTokenPanel = ({
           </S.EmptyText>
         )}
 
+        {indexedQuery.isError && (
+          <S.EmptyText role="alert">
+            Indexed NFT details could not be loaded.{" "}
+            <S.RetryButton type="button" disabled={indexedQuery.isFetching} onClick={() => indexedQuery.refetch()}>
+              Retry
+            </S.RetryButton>
+          </S.EmptyText>
+        )}
+
         <S.Rows>
           <S.Row>
             <dt>Owner</dt>
             <dd>
-              {item ? (
+              {item?.ownerAddress ? (
                 <DatatableItem.AddressCopy
                   address={item.ownerAddress}
                   label={item.ownerLabel}
@@ -226,48 +267,182 @@ const NftTokenPanel = ({
             </dd>
           </S.Row>
           <S.Row>
-            <dt>Minted By</dt>
-            <dd>{EMPTY_VALUE}</dd>
+            <dt title="Caller of the latest mint, including remints; not necessarily the recipient">Minted By</dt>
+            <dd>
+              {indexedDetail?.mintedBy ? <DatatableItem.AddressCopy address={indexedDetail.mintedBy} /> : EMPTY_VALUE}
+            </dd>
           </S.Row>
           <S.Row>
-            <dt>Last Transfer</dt>
-            <dd>{EMPTY_VALUE}</dd>
+            <dt title="Latest transfer, excluding mint and burn events">Last Transfer</dt>
+            <dd className="last-transfer-value">
+              {indexedDetail?.lastTransferBlockTime ? (
+                <span>
+                  <time dateTime={indexedDetail.lastTransferBlockTime} title={indexedDetail.lastTransferBlockTime}>
+                    {formatNftRelativeTime(indexedDetail.lastTransferBlockTime)}
+                  </time>
+                  {lastTransfer && (
+                    <>
+                      {" · Block "}
+                      <Link href={getUrlWithNetwork(`/block/${lastTransfer.blockHeight}`)}>
+                        {makeDisplayNumber(lastTransfer.blockHeight)}
+                      </Link>
+                    </>
+                  )}
+                </span>
+              ) : (
+                EMPTY_VALUE
+              )}
+            </dd>
           </S.Row>
           <S.Row>
             <dt>Royalty</dt>
-            <dd>{EMPTY_VALUE}</dd>
+            <dd>
+              {indexedDetail?.royaltyStatus === "found" && indexedDetail.royalty ? (
+                <S.RoyaltyValue title="Indexed royalty policy; not a settlement guarantee">
+                  <span>
+                    {indexedDetail.royalty.bps / 100}% <b>→</b>
+                  </span>
+                  <Link
+                    href={getUrlWithNetwork(`/account/${indexedDetail.royalty.receiver}`)}
+                    title={indexedDetail.royalty.receiver}
+                  >
+                    {textEllipsis(indexedDetail.royalty.receiver, 8)}
+                  </Link>
+                </S.RoyaltyValue>
+              ) : (
+                EMPTY_VALUE
+              )}
+            </dd>
           </S.Row>
         </S.Rows>
 
-        <S.Section>
-          <S.SectionTitle>{isLoading ? "Attributes" : `Attributes · ${attributes.length}`}</S.SectionTitle>
-          {isLoading ? (
-            <S.EmptyText>Loading…</S.EmptyText>
-          ) : (
-            attributes.length > 0 && (
-              <S.Attributes>
-                {attributes.map((attribute, index) => (
-                  <S.Attribute key={`${attribute.traitType}:${index}`}>
-                    <dt>{attribute.traitType}</dt>
-                    <dd>{attribute.value}</dd>
-                  </S.Attribute>
-                ))}
-              </S.Attributes>
-            )
+        <S.Section $variant="attributes">
+          <S.SectionTitle $attributes>{isLoading ? "Attributes" : `Attributes · ${attributes.length}`}</S.SectionTitle>
+          {!isLoading && attributes.length > 0 && (
+            <S.Attributes>
+              {attributes.map((attribute, index) => (
+                <S.Attribute key={`${attribute.traitType}:${index}`}>
+                  <dt>{attribute.traitType}</dt>
+                  <dd>{attribute.value || EMPTY_VALUE}</dd>
+                </S.Attribute>
+              ))}
+            </S.Attributes>
           )}
         </S.Section>
 
-        <S.Section>
+        <S.Section $variant="history">
           <S.SectionTitle>Transfer History</S.SectionTitle>
-          <S.EmptyText>{EMPTY_VALUE}</S.EmptyText>
+          {!transfersQuery.isLoading && (
+            <>
+              {transfers.length > 0 ? (
+                <S.TransferList>
+                  {transfers.map((transfer, index) => {
+                    const isTransfer = !!transfer.fromAddress && !!transfer.toAddress;
+                    const eventName = !transfer.fromAddress ? "Mint" : "Burn";
+                    const addresses = isTransfer
+                      ? [transfer.fromAddress, transfer.toAddress]
+                      : [transfer.callerAddress];
+                    const txHash = isBase64Hash(transfer.transactionHash)
+                      ? base64HashToHex(transfer.transactionHash)
+                      : transfer.transactionHash;
+
+                    return (
+                      <S.TransferItem key={index}>
+                        <S.TransferDescription>
+                          {addresses.map((address, addressIndex) => {
+                            const owner = item?.ownerAddress === address ? item : null;
+                            const label = owner?.ownerLabel;
+                            return (
+                              <React.Fragment key={addressIndex}>
+                                <span className="event-prefix">
+                                  {isTransfer ? (
+                                    addressIndex === 0 ? (
+                                      <>
+                                        <b>Transfer</b> from
+                                      </>
+                                    ) : (
+                                      "to"
+                                    )
+                                  ) : (
+                                    <>
+                                      <b>{eventName}</b> by
+                                    </>
+                                  )}
+                                </span>
+                                {address ? (
+                                  <S.TransferParty>
+                                    <Tooltip content={address}>
+                                      <Link
+                                        href={getUrlWithNetwork(
+                                          getAddressLinkPath({ address, label, labelType: owner?.ownerLabelType }),
+                                        )}
+                                      >
+                                        {label ? stripGnoLandPrefix(label) : textEllipsis(address, 6)}
+                                      </Link>
+                                    </Tooltip>
+                                    <CopyTooltip copyText={address} variant="plain" iconClassName="copy-icon" />
+                                  </S.TransferParty>
+                                ) : (
+                                  EMPTY_VALUE
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </S.TransferDescription>
+                        <S.TransferMeta>
+                          <time dateTime={transfer.blockTime || undefined} title={transfer.blockTime || undefined}>
+                            {formatNftRelativeTime(transfer.blockTime)}
+                          </time>
+                          <span>·</span>
+                          {txHash ? (
+                            <Link
+                              href={getUrlWithNetwork(`/transactions/details?txhash=${txHash}`)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title={txHash}
+                            >
+                              Txhash <IconLink viewBox="0 0 16 16" />
+                            </Link>
+                          ) : (
+                            EMPTY_VALUE
+                          )}
+                        </S.TransferMeta>
+                      </S.TransferItem>
+                    );
+                  })}
+                </S.TransferList>
+              ) : (
+                !transfersQuery.isError && <S.EmptyText>{EMPTY_VALUE}</S.EmptyText>
+              )}
+              {transfersQuery.isError && (
+                <S.EmptyText role="alert">
+                  {isNextPageError ? "More transfers could not be loaded." : "Transfer history could not be loaded."}{" "}
+                  <S.RetryButton
+                    type="button"
+                    disabled={transfersQuery.isFetching}
+                    onClick={() => (isNextPageError ? fetchMoreTransfers() : transfersQuery.refetch())}
+                  >
+                    Retry
+                  </S.RetryButton>
+                </S.EmptyText>
+              )}
+              {transfersQuery.hasNextPage && !transfersQuery.isError && (
+                <S.CopyUrlButton type="button" disabled={transfersQuery.isFetching} onClick={fetchMoreTransfers}>
+                  View More
+                </S.CopyUrlButton>
+              )}
+            </>
+          )}
         </S.Section>
 
-        <S.Section>
+        <S.Section $variant="technical">
           <S.SectionTitle>Technical</S.SectionTitle>
           <S.Rows>
             <S.Row compact>
-              <dt>Standard</dt>
-              <dd>{GRC721_STANDARD}</dd>
+              <dt title="Package that emitted the collection creation event; not a certification of standards compliance">
+                Standard
+              </dt>
+              <dd title="Creation-event emitter, not standards certification">{standardPackage || EMPTY_VALUE}</dd>
             </S.Row>
             <S.Row compact>
               <dt>Token URL</dt>
@@ -279,27 +454,59 @@ const NftTokenPanel = ({
                     </a>
                   ) : (
                     <Tooltip content="Copied!" trigger="click" copyText={tokenUrl}>
-                      <S.RetryButton type="button">Copy token URI</S.RetryButton>
+                      <S.TokenUriButton type="button" title={tokenUrl}>
+                        {tokenUrl}
+                      </S.TokenUriButton>
                     </Tooltip>
                   )
-                ) : isLoading ? (
-                  "Loading…"
                 ) : (
                   EMPTY_VALUE
                 )}
               </dd>
             </S.Row>
             <S.Row compact>
-              <dt>Mint height</dt>
-              <dd>{EMPTY_VALUE}</dd>
+              <dt title="Latest mint, including remints">Mint height</dt>
+              <dd>
+                {indexedDetail?.lastMintBlockHeight != null ? (
+                  <span>
+                    Block{" "}
+                    <Link href={getUrlWithNetwork(`/block/${indexedDetail.lastMintBlockHeight}`)}>
+                      {makeDisplayNumber(indexedDetail.lastMintBlockHeight)}
+                    </Link>
+                  </span>
+                ) : (
+                  EMPTY_VALUE
+                )}
+              </dd>
             </S.Row>
             <S.Row compact>
-              <dt>Mint Transaction</dt>
-              <dd>{EMPTY_VALUE}</dd>
+              <dt title="Latest mint, including remints">Mint Transaction</dt>
+              <dd>
+                {displayMintHash ? (
+                  <Link
+                    href={getUrlWithNetwork(`/transactions/details?txhash=${displayMintHash}`)}
+                    title={displayMintHash}
+                  >
+                    {displayMintHash.slice(0, 7)}…{displayMintHash.slice(-6)}
+                  </Link>
+                ) : (
+                  EMPTY_VALUE
+                )}
+              </dd>
             </S.Row>
             <S.Row compact>
-              <dt>Minted at</dt>
-              <dd>{EMPTY_VALUE}</dd>
+              <dt title="Latest mint, including remints">Minted at</dt>
+              <dd>
+                {indexedDetail?.lastMintBlockTime ? (
+                  <time dateTime={indexedDetail.lastMintBlockTime} title={indexedDetail.lastMintBlockTime}>
+                    {formatNftRelativeTime(indexedDetail.lastMintBlockTime)}
+                    {" · "}
+                    {dayjs(indexedDetail.lastMintBlockTime).format("YYYY-MM-DD HH:mm")}
+                  </time>
+                ) : (
+                  EMPTY_VALUE
+                )}
+              </dd>
             </S.Row>
           </S.Rows>
         </S.Section>

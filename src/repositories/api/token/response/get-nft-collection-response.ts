@@ -36,6 +36,8 @@ export interface GetNftCollectionResponse {
     ownerLabelType?: ADDRESS_LABEL_TYPE | null;
     funcTypesList: string[];
     sourceFiles: { filename: string; content: string }[];
+    // Creation-event emitter, not a certification of standards compliance.
+    standardPackage: string | null;
     holders: number;
   };
 }
@@ -59,6 +61,47 @@ export interface GetNftCollectionItemsResponse {
     hasNext: boolean;
     // Live NFT count, first page only
     totalCount?: number;
+  };
+}
+
+export interface GetNftItemDetailResponse {
+  data: {
+    tokenId: string;
+    nftId: string;
+    // Caller of the latest mint, including remints; not necessarily the recipient.
+    mintedBy: string | null;
+    lastMintBlockHeight: number | null;
+    lastMintTransactionHash: string | null;
+    // RFC3339 time of the latest successful indexed mint, including remints.
+    lastMintBlockTime: string | null;
+    // Transfers only; excludes mint and burn.
+    lastTransferBlockTime: string | null;
+    // Unknown means no indexed evidence, not unsupported or zero royalty.
+    royaltyStatus: "found" | "not_set" | "unknown";
+    royalty: {
+      receiver: string;
+      // Basis points (10000 = 100%); zero with a receiver is a valid policy.
+      bps: number;
+      scope: "default" | "token";
+    } | null;
+  };
+}
+
+export interface NftItemTransferModel {
+  // Empty fromAddress denotes a mint; empty toAddress denotes a burn.
+  fromAddress: string;
+  toAddress: string;
+  callerAddress: string;
+  transactionHash: string;
+  blockHeight: number;
+  blockTime: string;
+}
+
+export interface GetNftItemTransfersResponse {
+  items: NftItemTransferModel[];
+  page: {
+    hasNext: boolean;
+    totalCount: number;
   };
 }
 

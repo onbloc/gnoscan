@@ -13,6 +13,8 @@ import {
 import React from "react";
 
 import { useNetwork } from "@/common/hooks/use-network";
+import { useGetNftItemDetail } from "@/common/react-query/token/api";
+import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { ellipsizePathAddresses, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { makeNftTokenHash } from "@/common/utils/nft-token-hash.utility";
 import { zindex } from "@/common/values/z-index";
@@ -21,9 +23,6 @@ import { AccountGRC721CollectionItemModel } from "@/repositories/api/account/res
 import IconLink from "@/assets/svgs/icon-link.svg";
 import NftCard from "../../nft/nft-card/NftCard";
 import * as S from "./AccountNfts.styles";
-
-// Shown until the API provides per-NFT activity times.
-const EMPTY_VALUE = "-";
 
 interface AccountNftCardProps {
   nft: AccountGRC721CollectionItemModel;
@@ -35,6 +34,11 @@ const AccountNftCard = ({ nft, imageUrl }: AccountNftCardProps) => {
   const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
   // The tooltip describes the card click, so it hides while the gno.web link is hovered.
   const [isOverGnoWebLink, setIsOverGnoWebLink] = React.useState(false);
+  const activity = useGetNftItemDetail(nft.tokenId, nft.nftId, {
+    enabled: isTooltipOpen && !isOverGnoWebLink,
+  });
+  const lastTransferTime = activity.data?.data.lastTransferBlockTime;
+  const lastMintTime = activity.data?.data.lastMintBlockTime;
 
   const { x, y, strategy, refs, context } = useFloating({
     open: isTooltipOpen,
@@ -96,9 +100,19 @@ const AccountNftCard = ({ nft, imageUrl }: AccountNftCardProps) => {
               {nft.name} · Token #{nft.nftId}
             </S.TooltipTitle>
             <S.TooltipDetail>
-              Last Transfer {EMPTY_VALUE}
-              {"  ·  "}
-              Minted {EMPTY_VALUE}
+              {activity.isError ? (
+                "Activity unavailable"
+              ) : (
+                <>
+                  <span title={lastTransferTime ?? undefined}>
+                    Last Transfer {activity.isLoading ? "Loading…" : formatNftRelativeTime(lastTransferTime)}
+                  </span>
+                  {"  ·  "}
+                  <span title={lastMintTime ?? undefined}>
+                    Minted {activity.isLoading ? "Loading…" : formatNftRelativeTime(lastMintTime)}
+                  </span>
+                </>
+              )}
             </S.TooltipDetail>
             <S.TooltipHint>Click to open the collection for details</S.TooltipHint>
           </S.Tooltip>

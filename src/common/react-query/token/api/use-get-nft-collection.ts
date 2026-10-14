@@ -6,11 +6,17 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useApiRepositoryInfiniteQuery, useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
-import { GetNftCollectionItemsRequest, GetNftCollectionsRequest } from "@/repositories/api/token/request";
+import {
+  GetNftCollectionItemsRequest,
+  GetNftCollectionsRequest,
+  GetNftItemTransfersRequest,
+} from "@/repositories/api/token/request";
 import {
   GetNftCollectionItemsResponse,
   GetNftCollectionResponse,
   GetNftCollectionsResponse,
+  GetNftItemDetailResponse,
+  GetNftItemTransfersResponse,
   GetNftTokenDetailResponse,
 } from "@/repositories/api/token/response";
 
@@ -97,6 +103,46 @@ export const useGetNftCollectionItemsInfinite = (
       };
     },
     { ...options, enabled: !!params.tokenKey && options?.enabled !== false },
+  );
+};
+
+export const useGetNftItemDetail = (
+  tokenKey: string,
+  nftId: string,
+  options?: UseQueryOptions<GetNftItemDetailResponse, Error, GetNftItemDetailResponse>,
+) => {
+  const { apiTokenRepository } = useServiceProvider();
+
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getNftItemDetail, tokenKey, nftId],
+    apiTokenRepository,
+    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
+    repository => repository.getNftItemDetail(tokenKey, nftId),
+    { ...options, enabled: !!apiTokenRepository && !!tokenKey && !!nftId && options?.enabled !== false },
+  );
+};
+
+export const useGetNftItemTransfers = (
+  params: GetNftItemTransfersRequest,
+  options?: UseInfiniteQueryOptions<GetNftItemTransfersResponse, Error, GetNftItemTransfersResponse>,
+): UseInfiniteQueryResult<GetNftItemTransfersResponse, Error> => {
+  const { apiTokenRepository } = useServiceProvider();
+  const { tokenKey, nftId, limit = 5 } = params;
+
+  return useApiRepositoryInfiniteQuery<GetNftItemTransfersResponse, Error, typeof apiTokenRepository>(
+    [QUERY_KEY.getNftItemTransfers, tokenKey, nftId, limit],
+    apiTokenRepository,
+    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
+    async (repository, cursor) => {
+      const page = cursor === undefined ? 1 : Number(cursor);
+      const response = await repository!.getNftItemTransfers({ tokenKey, nftId, page, limit });
+      return {
+        ...response,
+        // Adapt numbered pages only for the infinite-query HOC.
+        page: { ...response.page, cursor: response.page.hasNext ? String(page + 1) : undefined },
+      };
+    },
+    { ...options, enabled: !!apiTokenRepository && !!tokenKey && !!nftId && options?.enabled !== false },
   );
 };
 

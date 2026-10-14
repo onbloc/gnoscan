@@ -40,6 +40,10 @@ const lightTheme: Palette = {
   nftPlaceholderIcon: "url('/images/nft-placeholder-icon-light.svg')",
   nftPanel: "#F8F9FB",
   nftPanelBorder: "#E6E8EC",
+  nftPanelMuted: "#8A93A1",
+  nftPanelText: "#1F2430",
+  nftPanelButtonBorder: "#E2E3E5",
+  nftPanelIcon: "#A0A0A0",
 } as const;
 
 const darkTheme: Palette = {
@@ -82,6 +86,10 @@ const darkTheme: Palette = {
   nftPlaceholderIcon: "url('/images/nft-placeholder-icon-dark.svg')",
   nftPanel: "#1A1A1A",
   nftPanelBorder: "#2C2C2C",
+  nftPanelMuted: "#A0A0A0",
+  nftPanelText: "#FFFFFF",
+  nftPanelButtonBorder: "#2C2C2C",
+  nftPanelIcon: "#A0A0A0",
 } as const;
 
 const fonts: FontsKeyType = {
@@ -218,7 +226,11 @@ export type PaletteKeyType =
   | "nftPlaceholder"
   | "nftPlaceholderIcon"
   | "nftPanel"
-  | "nftPanelBorder";
+  | "nftPanelBorder"
+  | "nftPanelMuted"
+  | "nftPanelText"
+  | "nftPanelButtonBorder"
+  | "nftPanelIcon";
 
 const device: DeviceValueType = {
   desktop: "(minWidth: 1280)",

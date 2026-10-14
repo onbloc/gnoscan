@@ -9,6 +9,7 @@ import {
   GetTokenEventsRequest,
   GetNftCollectionsRequest,
   GetNftCollectionItemsRequest,
+  GetNftItemTransfersRequest,
 } from "./request";
 import {
   GetTokenHoldersResponse,
@@ -22,6 +23,8 @@ import {
   GetNftCollectionsResponse,
   GetNftCollectionResponse,
   GetNftCollectionItemsResponse,
+  GetNftItemDetailResponse,
+  GetNftItemTransfersResponse,
   GetNftTokenDetailResponse,
   GetNftTokenUrisResponse,
 } from "./response";
@@ -88,6 +91,20 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
     return this.get<GetNftCollectionItemsResponse>(
       `nft-collections/${encodeURIComponent(tokenKey)}/items`,
       queryParams,
+    );
+  }
+
+  getNftItemDetail(tokenKey: string, nftId: string): Promise<GetNftItemDetailResponse> {
+    return this.get<GetNftItemDetailResponse>(
+      `nft-collections/${encodeURIComponent(tokenKey)}/items/${encodeURIComponent(nftId)}`,
+    );
+  }
+
+  getNftItemTransfers(params: GetNftItemTransfersRequest): Promise<GetNftItemTransfersResponse> {
+    const { tokenKey, nftId, page = 1, limit = 5 } = params;
+    return this.get<GetNftItemTransfersResponse>(
+      `nft-collections/${encodeURIComponent(tokenKey)}/items/${encodeURIComponent(nftId)}/transfers`,
+      { page, limit },
     );
   }
 
