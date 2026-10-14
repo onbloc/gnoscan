@@ -61,6 +61,7 @@ export const StandardNetworkNftCollectionListTable = ({
       .key("standardPackage")
       .name("NFT Standard")
       .width(179)
+      .colorName("blue")
       .renderOption((_, data) => <DatatableItem.LazyNftStandard tokenKey={data.tokenId} />)
       .build(),
   ];
