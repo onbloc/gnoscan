@@ -85,7 +85,7 @@ export const StandardNetworkNftCollectionListTable = ({
   );
 };
 
-// Match the Accounts table's inset and header treatment; keep collection-specific columns.
+// Keep the table inset; header colors inherit the shared Realms/Tokens treatment.
 const CollectionTableContainer = styled(CardTableContainer)`
   && {
     > div:first-child {
@@ -98,8 +98,6 @@ const CollectionTableContainer = styled(CardTableContainer)`
           padding-top: 12px;
           padding-bottom: 12px;
           line-height: 16px;
-          color: ${({ theme }) => theme.colors.primary};
-          opacity: 0.8;
         }
       }
     }
