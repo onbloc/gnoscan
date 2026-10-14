@@ -26,7 +26,7 @@ interface ShowLogProps {
     name: string;
     body: string;
   }[];
-  // Source file viewers share the default label; log viewers pass their own ("Logs", "Error Logs").
+  /** Source file viewers share the default label; log viewers pass their own ("Logs", "Error Logs"). */
   btnTextType?: string;
 }
 

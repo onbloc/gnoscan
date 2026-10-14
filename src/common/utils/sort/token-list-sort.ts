@@ -17,8 +17,10 @@ export const getTokenMarketCap = (token: GRC20InfoWithLogo, getPriceEntry: Price
   return price ? getUsdValue(formatTokenDecimal(token.totalSupply, token.decimals), price) : null;
 };
 
-// Translates the UI sort option into API request params. Only holders sorts on the server; the
-// other columns sort on the client (see sortTokensOnClient), so they request the default order.
+/**
+ * Translates the UI sort option into API request params. Only holders sorts on the server; the
+ * other columns sort on the client (see {@link sortTokensOnClient}), so they request the default order.
+ */
 export const toTokenListApiSortParams = (
   sortOption: TokenListSortOption,
 ): Pick<GetTokensRequestParameters, "sort" | "order"> => {

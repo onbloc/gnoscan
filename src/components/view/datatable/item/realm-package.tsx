@@ -10,7 +10,7 @@ import Tooltip from "@/components/ui/tooltip";
 interface Props {
   packagePath: string;
   maxWidth?: number;
-  // Cut overflow at the front so the realm name at the end stays visible.
+  /** Cut overflow at the front so the realm name at the end stays visible. */
   truncateStart?: boolean;
 }
 
