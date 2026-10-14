@@ -3,14 +3,15 @@ import styled from "styled-components";
 import { media } from "@/common/values/ui.constant";
 import { zindex } from "@/common/values/z-index";
 
-// Figma 6565:14831: 16px content inset and 5px below Copy URL; height follows the rendered rows.
-// Content may grow for extra attributes/transfers; below desktop it becomes a scrollable bottom sheet.
+// Figma 6565:14833: 450 × 1104px desktop box with a 16px content inset.
+// Extra content scrolls inside the box; below desktop it remains a bottom sheet.
 export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
   min-width: 0;
+  box-sizing: border-box;
   padding: 16px 16px 5px;
   background-color: ${({ theme }) => theme.colors.nftPanel};
   box-shadow: inset 0 0 0 1px ${({ theme }) => theme.colors.nftPanelBorder};
@@ -23,6 +24,12 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
 
   > * {
     flex-shrink: 0;
+  }
+
+  ${media.DESKTOP} {
+    width: 450px;
+    height: 1104px;
+    overflow-y: auto;
   }
 
   ${media.NOT_DESKTOP} {
@@ -351,8 +358,7 @@ export const TransferMeta = styled.div`
 export const Footer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 0;
-  /* Keep the panel's 16px gap instead of absorbing unused height above the button. */
+  margin-top: auto;
 `;
 
 export const CopyUrlButton = styled.button`

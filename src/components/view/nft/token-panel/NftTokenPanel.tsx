@@ -17,12 +17,14 @@ import IconClose from "@/assets/svgs/icon-close.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
+import { Pagination } from "@/components/ui/pagination";
 import Tooltip from "@/components/ui/tooltip";
 import { DatatableItem } from "../../datatable";
 import NftImage from "../nft-image/NftImage";
 import * as S from "./NftTokenPanel.styles";
 
 const EMPTY_VALUE = "-";
+const TRANSFERS_PAGE_SIZE = 5;
 
 const PANEL_TRANSITION_MS = 400;
 const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
@@ -59,21 +61,35 @@ const NftTokenPanel = ({
 }: NftTokenPanelProps) => {
   const title = `Token #${nftId}`;
   const { getUrlWithNetwork } = useNetwork();
-  const { data: detail, isLoading, isError, refetch } = useGetNftTokenDetail(packagePath, nftId);
+  const { data: detail, isLoading } = useGetNftTokenDetail(packagePath, nftId);
   const indexedQuery = useGetNftItemDetail(tokenKey, nftId, { keepPreviousData: false });
-  const transfersQuery = useGetNftItemTransfers({ tokenKey, nftId, limit: 5 }, { keepPreviousData: false });
-  const [nextPageError, setNextPageError] = React.useState<Error | null>(null);
-  const isNextPageError = transfersQuery.isError && transfersQuery.error === nextPageError;
-  const fetchMoreTransfers = async () => {
-    const result = await transfersQuery.fetchNextPage();
-    setNextPageError(result.error);
+  const transferIdentity = `${tokenKey}:${nftId}`;
+  const [transferPagination, setTransferPagination] = React.useState({ identity: transferIdentity, page: 1 });
+  const transferPage = transferPagination.identity === transferIdentity ? transferPagination.page : 1;
+  if (transferPagination.identity !== transferIdentity) {
+    setTransferPagination({ identity: transferIdentity, page: 1 });
+  }
+  // Keep latest-transfer information independent of the visible history page.
+  const firstTransfersQuery = useGetNftItemTransfers(
+    { tokenKey, nftId, page: 1, limit: TRANSFERS_PAGE_SIZE },
+    { keepPreviousData: false },
+  );
+  const transfersQuery = useGetNftItemTransfers(
+    { tokenKey, nftId, page: transferPage, limit: TRANSFERS_PAGE_SIZE },
+    { keepPreviousData: false },
+  );
+  const totalTransferPages = Math.max(
+    1,
+    Math.ceil(
+      (transfersQuery.data?.page.totalCount ?? firstTransfersQuery.data?.page.totalCount ?? 0) / TRANSFERS_PAGE_SIZE,
+    ),
+  );
+  const changeTransferPage = (page: number) => {
+    setTransferPagination({ identity: transferIdentity, page: Math.min(Math.max(page, 1), totalTransferPages) });
   };
   const indexedDetail = indexedQuery.data?.data;
-  const transfers = React.useMemo(
-    () => transfersQuery.data?.pages.flatMap(page => page.items) ?? [],
-    [transfersQuery.data?.pages],
-  );
-  const lastTransfer = transfers.find(
+  const transfers = transfersQuery.data?.items ?? [];
+  const lastTransfer = firstTransfersQuery.data?.items.find(
     transfer =>
       transfer.fromAddress && transfer.toAddress && transfer.blockTime === indexedDetail?.lastTransferBlockTime,
   );
@@ -83,7 +99,6 @@ const NftTokenPanel = ({
   const attributes = metadata?.attributes ?? [];
   const tokenUrl = detail?.status === "found" ? detail.uri : "";
   const tokenLink = nftMediaUrl(tokenUrl);
-  const needsRefresh = isError || detail?.uriNeedsRefetch || detail?.metadataNeedsRefetch;
   const panelRef = React.useRef<HTMLElement>(null);
   const onExitedRef = React.useRef(onExited);
   const finishExitRef = React.useRef<(() => void) | null>(null);
@@ -232,15 +247,6 @@ const NftTokenPanel = ({
           alt={metadata?.name || title}
           aspectRatio="418 / 332"
         />
-
-        {needsRefresh && (
-          <S.EmptyText role="status">
-            NFT metadata could not be fully loaded.{" "}
-            <S.RetryButton type="button" onClick={() => refetch()}>
-              Retry
-            </S.RetryButton>
-          </S.EmptyText>
-        )}
 
         {indexedQuery.isError && (
           <S.EmptyText role="alert">
@@ -416,23 +422,26 @@ const NftTokenPanel = ({
               )}
               {transfersQuery.isError && (
                 <S.EmptyText role="alert">
-                  {isNextPageError ? "More transfers could not be loaded." : "Transfer history could not be loaded."}{" "}
+                  Transfer history could not be loaded.{" "}
                   <S.RetryButton
                     type="button"
                     disabled={transfersQuery.isFetching}
-                    onClick={() => (isNextPageError ? fetchMoreTransfers() : transfersQuery.refetch())}
+                    onClick={() => transfersQuery.refetch()}
                   >
                     Retry
                   </S.RetryButton>
                 </S.EmptyText>
               )}
-              {transfersQuery.hasNextPage && !transfersQuery.isError && (
-                <S.CopyUrlButton type="button" disabled={transfersQuery.isFetching} onClick={fetchMoreTransfers}>
-                  View More
-                </S.CopyUrlButton>
-              )}
             </>
           )}
+          <Pagination
+            page={transferPage}
+            totalPages={totalTransferPages}
+            hasNext={transfersQuery.data?.page.hasNext}
+            hideFirstPageButtonWhenDisabled
+            hideLastPageButtonWhenCurrent
+            onChangePage={changeTransferPage}
+          />
         </S.Section>
 
         <S.Section $variant="technical">

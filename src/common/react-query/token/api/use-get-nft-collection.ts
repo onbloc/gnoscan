@@ -122,27 +122,20 @@ export const useGetNftItemDetail = (
   );
 };
 
+/** One numbered transfer-history page, defaulting to five rows; pages replace rather than append history. */
 export const useGetNftItemTransfers = (
   params: GetNftItemTransfersRequest,
-  options?: UseInfiniteQueryOptions<GetNftItemTransfersResponse, Error, GetNftItemTransfersResponse>,
-): UseInfiniteQueryResult<GetNftItemTransfersResponse, Error> => {
+  options?: UseQueryOptions<GetNftItemTransfersResponse, Error, GetNftItemTransfersResponse>,
+) => {
   const { apiTokenRepository } = useServiceProvider();
-  const { tokenKey, nftId, limit = 5 } = params;
+  const request = { ...params, page: params.page ?? 1, limit: params.limit ?? 5 };
 
-  return useApiRepositoryInfiniteQuery<GetNftItemTransfersResponse, Error, typeof apiTokenRepository>(
-    [QUERY_KEY.getNftItemTransfers, tokenKey, nftId, limit],
+  return useApiRepositoryQuery(
+    [QUERY_KEY.getNftItemTransfers, request],
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    async (repository, cursor) => {
-      const page = cursor === undefined ? 1 : Number(cursor);
-      const response = await repository!.getNftItemTransfers({ tokenKey, nftId, page, limit });
-      return {
-        ...response,
-        // Adapt numbered pages only for the infinite-query HOC.
-        page: { ...response.page, cursor: response.page.hasNext ? String(page + 1) : undefined },
-      };
-    },
-    { ...options, enabled: !!apiTokenRepository && !!tokenKey && !!nftId && options?.enabled !== false },
+    repository => repository.getNftItemTransfers(request),
+    { ...options, enabled: !!apiTokenRepository && !!params.tokenKey && !!params.nftId && options?.enabled !== false },
   );
 };
 
