@@ -28,27 +28,29 @@ const SearchResultContainer = ({ keyword }: SearchResultContainerProps) => {
 
   return (
     <Container>
-      <Wrapper>
-        <PageTitle type="p2" desktopType="h2" title={`Search results for "${keyword}"`} />
-        {!data ? (
-          <Text type="body1" color="tertiary">
-            Loading...
-          </Text>
-        ) : (
-          groupSearchResults(data).map(group => (
-            <Section key={group.type}>
-              <Text type="body1" color="tertiary">
-                {SEARCH_TYPE_TITLES[group.type]}
-              </Text>
-              <ul>
-                {group.items.map(item => (
-                  <SearchResultItem key={`${item.title}-${item.description}`} item={item} onClick={() => undefined} />
-                ))}
-              </ul>
-            </Section>
-          ))
-        )}
-      </Wrapper>
+      <InnerLayout>
+        <Wrapper>
+          <PageTitle type="p2" desktopType="h2" title={`Search results for "${keyword}"`} />
+          {!data ? (
+            <Text type="body1" color="tertiary">
+              Loading...
+            </Text>
+          ) : (
+            groupSearchResults(data).map(group => (
+              <Section key={group.type}>
+                <Text type="body1" color="tertiary">
+                  {SEARCH_TYPE_TITLES[group.type]}
+                </Text>
+                <ul>
+                  {group.items.map(item => (
+                    <SearchResultItem key={`${item.title}-${item.description}`} item={item} onClick={() => undefined} />
+                  ))}
+                </ul>
+              </Section>
+            ))
+          )}
+        </Wrapper>
+      </InnerLayout>
     </Container>
   );
 };
@@ -62,8 +64,11 @@ const Container = styled.main`
   }
 `;
 
+const InnerLayout = styled.div`
+  ${innerLayoutCss}
+`;
+
 const Wrapper = styled.div`
-  ${innerLayoutCss};
   display: flex;
   flex-direction: column;
   gap: 16px;
