@@ -1,10 +1,10 @@
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
-import { TokenPriceEntry } from "../price.utility";
-import { sortTokensOnClient, toTokenListApiSortParams } from "./token-list-sort";
+import { formatUsdWhole, TokenPriceEntry } from "../price.utility";
+import { getTokenMarketCap, sortTokensOnClient, toTokenListApiSortParams } from "./token-list-sort";
 
 const token = (
   symbol: string,
-  totalSupply: number,
+  totalSupply: number | string,
   decimals = 0,
   transactionCount24h: number | null = null,
 ): GRC20InfoWithLogo => ({
@@ -16,7 +16,7 @@ const token = (
   symbol,
   decimals,
   functions: [],
-  totalSupply,
+  totalSupply: String(totalSupply),
   holders: 0,
   logoUrl: "",
   registered: true,
@@ -88,5 +88,12 @@ describe("sortTokensOnClient", () => {
       "A",
       "B",
     ]);
+  });
+});
+
+describe("getTokenMarketCap", () => {
+  it("keeps the exact raw supply past 2^53", () => {
+    const D = token("D", "999999999999999999", 18);
+    expect(formatUsdWhole(getTokenMarketCap(D, () => ({ price: "100" })))).toBe("$99");
   });
 });

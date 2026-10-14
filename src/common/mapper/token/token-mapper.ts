@@ -1,7 +1,9 @@
 import { TokenModel } from "@/models/api/token/token-model";
 import { GRC20Info } from "@/repositories/realm-repository.ts";
 
-export interface GRC20InfoWithLogo extends GRC20Info {
+export interface GRC20InfoWithLogo extends Omit<GRC20Info, "totalSupply"> {
+  /** Raw API string, kept unconverted so supplies past 2^53 keep full precision for display and market cap. */
+  totalSupply: string;
   logoUrl: string;
   registered: boolean;
   transactionCount24h: number | null;
@@ -18,7 +20,7 @@ export class TokenMapper {
       symbol: response.symbol,
       decimals: response.decimals,
       functions: response.funcTypesList,
-      totalSupply: Number(response.totalSupply),
+      totalSupply: response.totalSupply,
       holders: response.holders,
       logoUrl: response.logoUrl ?? "",
       registered: !!response.registeredPackagePath,

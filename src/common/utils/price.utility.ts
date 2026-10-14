@@ -16,7 +16,7 @@ export interface TokenPriceEntry {
   price: string;
   // {packagePath}.{symbol}; lets a package-path key reject a different token from the same package.
   tokenPath?: string;
-  // Percent change against the price 24 hours earlier, null when the feed has no price from a day ago.
+  /** Percent change against the price 24 hours earlier, null when the feed has no price from a day ago. */
   changeRateOneDay?: number | null;
 }
 
