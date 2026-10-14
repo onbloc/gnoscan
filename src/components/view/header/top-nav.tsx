@@ -259,6 +259,12 @@ const DropdownWrapper = styled.div`
 const DropdownButton = styled.button<{ entry: boolean; open: boolean }>`
   ${mixins.flexbox("row", "center", "center")};
   gap: 6px;
+  border-radius: 4px;
+
+  &:focus-visible {
+    outline: 1px solid ${({ entry, theme }) => (entry ? theme.colors.white : theme.colors.primary)};
+    outline-offset: 4px;
+  }
 
   .chevron {
     width: 8px;

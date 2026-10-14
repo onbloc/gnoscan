@@ -122,8 +122,16 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     }
   }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
+  // Default network until it resolves after hydration, so the button keeps its width
+  const networkName = (currentNetwork ?? getDefaultChain(chains))?.name || "";
+
   return (
-    <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
+    <NetworkButton
+      entry={entry}
+      onClick={toggleHandler}
+      ref={ref}
+      aria-label={`Select network, current network: ${networkName}`}
+    >
       <NetworkInfoWrapper>
         {isReverseColor || isDark ? (
           <GnoscanSymbol className="svg-icon" />
@@ -131,8 +139,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
           <GnoscanSymbolLight className="svg-icon" />
         )}
         <Text type="h7" color={isReverseColor ? "white" : "primary"} className="network-name">
-          {/* Default network until it resolves after hydration, so the button keeps its width */}
-          {(currentNetwork ?? getDefaultChain(chains))?.name || ""}
+          {networkName}
         </Text>
       </NetworkInfoWrapper>
       <NetworkList toggle={toggle} entry={entry}>
