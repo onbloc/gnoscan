@@ -1,6 +1,9 @@
+import { toTabHash } from "@/common/hooks/detail-tabs/tab-hash";
+import { INVENTORY_TAB } from "@/common/values/activity-tab.constant";
+
 // Deep link to one NFT on its collection page: the Inventory tab with that token's detail panel open,
 // e.g. "#inventory&tokenId=1011". The first segment stays a plain tab hash (see detail-tabs/tab-hash).
-const INVENTORY_TAB_HASH = "inventory";
+const INVENTORY_TAB_HASH = toTabHash(INVENTORY_TAB);
 const TOKEN_ID_PARAM = "tokenId";
 
 export function makeNftTokenHash(nftId: string): string {
