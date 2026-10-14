@@ -109,14 +109,14 @@ const CollectionTableContainer = styled(CardTableContainer)`
         padding: 12px 16px;
         line-height: 16px;
         font-weight: 600;
-        color: ${({ theme }) => theme.colors.secondary};
+        color: ${({ theme }) => theme.colors.nftTableHeader};
       }
     }
 
     .scroll-wrapper > div:first-child,
     .scroll-wrapper > div:nth-child(2) > div {
       border-bottom: 0;
-      box-shadow: inset 0 -1px 0 ${({ theme }) => theme.colors.dimmed50};
+      box-shadow: inset 0 -1px 0 ${({ theme }) => theme.colors.dimmed100};
     }
 
     .scroll-wrapper > div:nth-child(2) {
@@ -135,7 +135,7 @@ const CollectionTableContainer = styled(CardTableContainer)`
 
     .view-more-button {
       ${media.DESKTOP} {
-        width: fit-content;
+        width: 308px;
         padding: 16px 96px;
       }
     }

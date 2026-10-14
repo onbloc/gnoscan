@@ -378,14 +378,18 @@ export const CopyUrlButton = styled.button`
   }
 `;
 
-// Figma trait widths are 145 / 88 / 170px within the 418px content area.
+// Match Figma's vertical spacing while sizing each trait to its text.
 export const Attributes = styled.div`
-  display: grid;
-  grid-template-columns: minmax(0, 1.649fr) minmax(0, 1fr) minmax(0, 1.94fr);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: 7.5px;
 `;
 
 export const Attribute = styled.dl`
+  flex: 0 1 auto;
+  width: max-content;
+  max-width: 100%;
   min-width: 0;
   padding: 7px 13px 3.3px;
   font-family: Inter, sans-serif;
@@ -402,6 +406,7 @@ export const Attribute = styled.dl`
     line-height: 12px;
     color: ${({ theme }) => theme.colors.tertiary};
     text-transform: uppercase;
+    overflow-wrap: anywhere;
   }
   dd {
     margin-top: 1px;
