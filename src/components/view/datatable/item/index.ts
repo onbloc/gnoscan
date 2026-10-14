@@ -24,6 +24,7 @@ export * from "./address-copy";
 export * from "./lazy-total-supply";
 export * from "./lazy-holders";
 export * from "./lazy-functions";
+export * from "./lazy-nft-standard";
 export * from "./lazy-fee-amount";
 export * from "./lazy-total-calls";
 export * from "./lazy-date";

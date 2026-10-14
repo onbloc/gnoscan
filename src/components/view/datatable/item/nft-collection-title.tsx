@@ -16,7 +16,8 @@ export const NftCollectionTitle = ({ tokenId, name }: Props) => {
   return (
     <Link href={getUrlWithNetwork(`/tokens/${tokenId}`)}>
       <Wrapper>
-        <IconNftCollectionDefault className="collection-icon" aria-hidden="true" />
+        {/* Preserve scaling when SVGO strips the asset's viewBox. */}
+        <IconNftCollectionDefault className="collection-icon" viewBox="0 0 24 24" aria-hidden="true" />
         <Text type="p4" color="blue">
           {name}
         </Text>
@@ -32,10 +33,12 @@ const Wrapper = styled.div`
     height: auto;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
     cursor: pointer;
 
     .collection-icon {
+      width: 20px;
+      height: 20px;
       flex-shrink: 0;
     }
   }

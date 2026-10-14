@@ -6,11 +6,12 @@ import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 export const Container = styled.main`
   width: 100%;
   flex: 1;
-  padding: 40px 0;
+  padding: 39px 0;
 `;
 
 export const InnerLayout = styled.div`
   ${innerLayoutCss}
+  max-width: 1278px;
 `;
 
 export const Wrapper = styled.div`
@@ -19,8 +20,6 @@ export const Wrapper = styled.div`
   gap: 24px;
 
   width: 100%;
-  max-width: 1242px;
-  margin: 0 auto;
   padding: 24px;
   border-radius: 10px;
 

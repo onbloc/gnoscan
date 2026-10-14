@@ -58,18 +58,10 @@ export const StandardNetworkNftCollectionListTable = ({
       .renderOption(path => <DatatableItem.RealmPackage packagePath={path} maxWidth={205} addressVisibleLength={8} />)
       .build(),
     DatatableOption.Builder.builder<NftCollectionModel>()
-      .key("owner")
-      .name("Publisher")
+      .key("standardPackage")
+      .name("NFT Standard")
       .width(179)
-      .colorName("blue")
-      .renderOption((_, data) => (
-        <DatatableItem.Publisher
-          address={data.owner}
-          username={undefined}
-          label={data.ownerLabel}
-          labelType={data.ownerLabelType}
-        />
-      ))
+      .renderOption((_, data) => <DatatableItem.LazyNftStandard tokenKey={data.tokenId} />)
       .build(),
   ];
 
@@ -93,39 +85,23 @@ export const StandardNetworkNftCollectionListTable = ({
   );
 };
 
-// Scope the Figma collection-table geometry without changing other datatables.
+// Match the Accounts table's inset and header treatment; keep collection-specific columns.
 const CollectionTableContainer = styled(CardTableContainer)`
   && {
-    padding: 24px;
-
     > div:first-child {
-      padding: 0;
-    }
+      padding: 24px 24px 0;
 
-    .scroll-wrapper > div:first-child {
-      height: 40px;
+      .scroll-wrapper > div:first-child {
+        border-color: ${({ theme }) => theme.colors.dimmed100};
 
-      > div {
-        padding: 12px 16px;
-        line-height: 16px;
-        font-weight: 600;
-        color: ${({ theme }) => theme.colors.nftTableHeader};
+        > div {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          line-height: 16px;
+          color: ${({ theme }) => theme.colors.primary};
+          opacity: 0.8;
+        }
       }
-    }
-
-    .scroll-wrapper > div:first-child,
-    .scroll-wrapper > div:nth-child(2) > div {
-      border-bottom: 0;
-      box-shadow: inset 0 -1px 0 ${({ theme }) => theme.colors.dimmed100};
-    }
-
-    .scroll-wrapper > div:nth-child(2) {
-      border-bottom: 0;
-    }
-
-    .row > div {
-      height: auto;
-      align-self: stretch;
     }
 
     .button-wrapper {

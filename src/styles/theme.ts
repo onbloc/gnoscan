@@ -34,7 +34,6 @@ const lightTheme: Palette = {
   eventParam: "#0A3069",
   linear: "linear-gradient(359.87deg, #FFFFFF 8.53%, rgba(255, 255, 255, 0) 69.1%)",
   nftCard: "#FFFFFF",
-  nftTableHeader: "#666666",
   nftCardBorder: "#E6E8EC",
   nftBadge: "#F7F7F7",
   nftPlaceholder: "url('/images/nft-placeholder-light.svg')",
@@ -81,7 +80,6 @@ const darkTheme: Palette = {
   eventParam: "#addcff",
   linear: "linear-gradient(359.87deg, #232323 8.53%, rgba(35, 35, 35, 0) 69.1%)",
   nftCard: "#2A2A2A",
-  nftTableHeader: "#A0A0A0",
   nftCardBorder: "#2A2A2A",
   nftBadge: "#232323",
   nftPlaceholder: "url('/images/nft-placeholder-dark.svg')",
@@ -223,7 +221,6 @@ export type PaletteKeyType =
   | "eventParam"
   | "linear"
   | "nftCard"
-  | "nftTableHeader"
   | "nftCardBorder"
   | "nftBadge"
   | "nftPlaceholder"
