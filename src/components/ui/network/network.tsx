@@ -193,7 +193,13 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                 placeholder="Tx Indexer URL (Optional)"
                 aria-label="Tx Indexer URL (Optional)"
               />
-              <button type="button" className={availCustomConnect ? "connect active" : "connect"} onClick={connect}>
+              <button
+                type="button"
+                className={availCustomConnect ? "connect active" : "connect"}
+                onClick={connect}
+                aria-label="Connect"
+                aria-busy={isNetworkSwitching}
+              >
                 <Text type="body1" color="primary">
                   {isNetworkSwitching ? <LoadingSpinner size={16} /> : "Connect"}
                 </Text>
