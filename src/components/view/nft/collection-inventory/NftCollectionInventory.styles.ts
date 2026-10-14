@@ -9,6 +9,11 @@ export const Container = styled.div`
   width: 100%;
   max-width: 1146px;
   align-self: center;
+
+  ${media.DESKTOP} {
+    /* DetailsContainer's tab-area leaves 16px; Figma spec is 24px from tabs to toolbar. */
+    margin-top: 8px;
+  }
 `;
 
 export const Grid = styled.div`
