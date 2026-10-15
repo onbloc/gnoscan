@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import Link from "next/link";
 
 import { useNetwork } from "@/common/hooks/use-network";
-import { useUpdateTime } from "@/common/hooks/main/use-update-time";
 import { useGetNewestRealms } from "@/common/react-query/statistics";
 import { textEllipsis } from "@/common/utils/string-util";
 import { getLocalDateString } from "@/common/utils/date-util";
@@ -26,7 +25,6 @@ function makeDisplayRealmPath(path: string, length = 11) {
 }
 
 const StandardNetworkActiveNewest = () => {
-  const { isFetched: isFetchedUpdatedAt } = useUpdateTime();
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetNewestRealms();
@@ -75,7 +73,7 @@ const StandardNetworkActiveNewest = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Newest Realms
-        {isFetched && isFetchedUpdatedAt && (
+        {isFetched && (
           <Text className="hide-mobile" type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>

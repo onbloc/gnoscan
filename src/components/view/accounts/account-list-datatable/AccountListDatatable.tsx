@@ -195,15 +195,6 @@ const Container = styled.div`
   & > div:first-child {
     padding: 24px 24px 0;
 
-    .scroll-wrapper > div:first-child {
-      border-color: ${({ theme }) => theme.colors.dimmed100};
-
-      > div {
-        color: ${({ theme }) => theme.colors.primary};
-        opacity: 0.8;
-      }
-    }
-
     .scroll-wrapper > div:first-child > div {
       padding-top: 12px;
       padding-bottom: 12px;
