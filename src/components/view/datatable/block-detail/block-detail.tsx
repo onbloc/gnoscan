@@ -1,4 +1,3 @@
-"use client";
 import React, { useMemo } from "react";
 
 import { ViewMoreButton } from "@/components/ui/button";

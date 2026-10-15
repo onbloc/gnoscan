@@ -1,5 +1,3 @@
-"use client";
-
 import Card from "@/components/ui/card";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import Text from "@/components/ui/text";

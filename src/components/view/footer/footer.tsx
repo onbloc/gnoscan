@@ -1,5 +1,3 @@
-"use client";
-
 import mixins from "@/styles/mixins";
 import React from "react";
 import styled, { css } from "styled-components";

@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Header } from "@/components/view/header";

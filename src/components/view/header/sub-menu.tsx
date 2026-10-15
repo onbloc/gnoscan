@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useLayoutEffect } from "react";
 import styled from "styled-components";
 import Portal from "@/components/core/portal";

@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
