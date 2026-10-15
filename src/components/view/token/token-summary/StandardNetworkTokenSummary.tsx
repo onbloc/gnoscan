@@ -114,39 +114,6 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
       <Field label="Symbol">
         <Badge>{tokenSummary?.symbol}</Badge>
       </Field>
-      <Field
-        label={
-          <span>
-            Market Cap <S.Divider>|</S.Divider> Price
-          </span>
-        }
-      >
-        <Badge>
-          {price ? (
-            <S.PriceText>
-              <span>
-                {marketCap ?? "-"} <S.Divider>|</S.Divider> {price}
-              </span>
-              <PriceChangeText change={priceEntry?.changeRateOneDay} />
-            </S.PriceText>
-          ) : (
-            "-"
-          )}
-        </Badge>
-      </Field>
-      <Field label="Total Supply">
-        <Badge>{makeDisplayNumber(tokenSummary?.totalSupply || 0)}</Badge>
-      </Field>
-      <Field label="Decimals">
-        <Badge>{tokenSummary?.decimals}</Badge>
-      </Field>
-      <Field label="Holders">
-        <Badge>{makeDisplayNumber(tokenSummary?.holders || 0)}</Badge>
-      </Field>
-      {/* Counts transactions that moved this token, the same total as the Token Transfers tab. */}
-      <Field label="Transfers">
-        <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
-      </Field>
       <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <Badge>
           <Text type="p4" color="blue" className="username-text">
@@ -171,6 +138,21 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
           <Badge>-</Badge>
         )}
       </Field>
+      <Field label="Decimals">
+        <Badge>{tokenSummary?.decimals}</Badge>
+      </Field>
+      <DLWrap>
+        <dt>Public Functions</dt>
+        <PublicFunctions>
+          {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
+            <Badge type="blue" key={index}>
+              <Text type="p4" color="white">
+                {functionName}
+              </Text>
+            </Badge>
+          ))}
+        </PublicFunctions>
+      </DLWrap>
       <Field label="Creator">
         {tokenSummary?.owner === "genesis" ? (
           <Badge>
@@ -193,18 +175,36 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
           />
         )}
       </Field>
-      <DLWrap>
-        <dt>Public Functions</dt>
-        <PublicFunctions>
-          {(tokenSummary?.functions ?? []).map((functionName: string, index: number) => (
-            <Badge type="blue" key={index}>
-              <Text type="p4" color="white">
-                {functionName}
-              </Text>
-            </Badge>
-          ))}
-        </PublicFunctions>
-      </DLWrap>
+      <Field
+        label={
+          <span>
+            Market Cap <S.Divider>|</S.Divider> Price
+          </span>
+        }
+      >
+        <Badge>
+          {price ? (
+            <S.PriceText>
+              <span>
+                {marketCap ?? "-"} <S.Divider>|</S.Divider> {price}
+              </span>
+              <PriceChangeText change={priceEntry?.changeRateOneDay} />
+            </S.PriceText>
+          ) : (
+            "-"
+          )}
+        </Badge>
+      </Field>
+      <Field label="Total Supply">
+        <Badge>{makeDisplayNumber(tokenSummary?.totalSupply || 0)}</Badge>
+      </Field>
+      <Field label="Holders">
+        <Badge>{makeDisplayNumber(tokenSummary?.holders || 0)}</Badge>
+      </Field>
+      {/* Counts transactions that moved this token, the same total as the Token Transfers tab. */}
+      <Field label="Transfers">
+        <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
+      </Field>
       {files && files.length > 0 && <ShowLog isTabLog={true} files={files} />}
     </DataSection>
   );
