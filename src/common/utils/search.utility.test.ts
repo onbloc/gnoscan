@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { parseSearchString, processSearchKeyword, NETWORK_PARAM_KEYS } from "./search.utility";
+import { SearchResult } from "@/repositories/api/search/response";
+import { groupSearchResults, parseSearchString, processSearchKeyword, NETWORK_PARAM_KEYS } from "./search.utility";
 
 describe("parseSearchString", () => {
   // Basic test cases
@@ -264,7 +265,7 @@ describe("processSearchKeyword", () => {
     });
 
     test("Different prefix Bech32 address should also work", () => {
-      const address = "adv1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5";
+      const address = "adv1manfred47kzduec920z88wfr64ylksmdsf69r9";
       const result = processSearchKeyword(address, networkParams);
 
       expect(result).toEqual({
@@ -345,53 +346,25 @@ describe("processSearchKeyword", () => {
     });
   });
 
-  // Account search tests
-  describe("processAccountSearch", () => {
-    test("General account search should redirect to the account page", () => {
-      const accountName = "testuser";
-      const result = processSearchKeyword(accountName, networkParams);
-
-      expect(result).toEqual({
-        keyword: accountName,
-        permanent: false,
-        destination: `/account/${accountName}?type=mainnet&rpcUrl=https://rpc.gno.network&indexerUrl=https://index.gno.network&chainId=gno-mainnet-1`,
-      });
-    });
-
-    test("Valid account patterns", () => {
-      const validAccounts = ["user123", "test-user", "test_user", "test.user", "TEST", "abc123"];
-
-      for (const account of validAccounts) {
-        const result = processSearchKeyword(account, networkParams);
-        expect(result).not.toBeNull();
-        expect(result?.destination).toContain(`/account/${account}?`);
+  // Keywords without a dedicated page stay on the search page
+  describe("Other keywords", () => {
+    test("should not redirect so the search page can list matches", () => {
+      for (const keyword of ["gns", "testuser", "test-user", "123abc", "ab", "test user", "test&user"]) {
+        expect(processSearchKeyword(keyword, networkParams)).toBeNull();
       }
     });
+  });
+});
 
-    test("Account names 2 characters or less should return null", () => {
-      expect(processSearchKeyword("ab", networkParams)).toBeNull();
-      expect(processSearchKeyword("a", networkParams)).toBeNull();
-    });
+describe("groupSearchResults", () => {
+  test("should group results by type in first-seen order", () => {
+    const realm = { title: "gno.land/r/gnoswap/gns", description: "", link: "", type: "REALM" } as SearchResult;
+    const token = { ...realm, description: "GNS", type: "GRC20" } as SearchResult;
+    const otherRealm = { ...realm, title: "gno.land/r/moul/gns/v0" };
 
-    test("Account names containing spaces should return null", () => {
-      expect(processSearchKeyword("test user", networkParams)).toBeNull();
-    });
-
-    test("Invalid account patterns should return null", () => {
-      expect(processSearchKeyword("test&user", networkParams)).toBeNull();
-      expect(processSearchKeyword("test@user", networkParams)).toBeNull();
-      expect(processSearchKeyword("$test", networkParams)).toBeNull();
-    });
-
-    test("Non-matching patterns should fall back to account search if valid", () => {
-      const invalidBlockNumber = "123abc";
-      const result = processSearchKeyword(invalidBlockNumber, networkParams);
-
-      expect(result).toEqual({
-        keyword: invalidBlockNumber,
-        permanent: false,
-        destination: `/account/${invalidBlockNumber}?type=mainnet&rpcUrl=https://rpc.gno.network&indexerUrl=https://index.gno.network&chainId=gno-mainnet-1`,
-      });
-    });
+    expect(groupSearchResults([realm, token, otherRealm])).toEqual([
+      { type: "REALM", items: [realm, otherRealm] },
+      { type: "GRC20", items: [token] },
+    ]);
   });
 });

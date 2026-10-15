@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
@@ -10,7 +9,7 @@ import useOutSideClick from "@/common/hooks/use-outside-click";
 import { useDebounce } from "@/common/hooks/use-debounce";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { useGetSearch } from "@/common/react-query/search/api/use-get-search";
-import { SearchResult } from "@/repositories/api/search/response";
+import { groupSearchResults } from "@/common/utils/search.utility";
 import { SEARCH_TYPE_TITLES } from "@/common/values/search.constant";
 
 import mixins from "@/styles/mixins";
@@ -19,12 +18,11 @@ import Text from "@/components/ui/text";
 import { SearchResultItem } from "./search-result-item/SearchResultItem";
 import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
 
-interface StyleProps {
+interface StandardNetworkSearchResultProps {
   isMain?: boolean;
-  ref?: any;
 }
 
-const StandardNetworkSearchResult = () => {
+const StandardNetworkSearchResult = ({ isMain = false }: StandardNetworkSearchResultProps) => {
   const { route } = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -32,29 +30,14 @@ const StandardNetworkSearchResult = () => {
   const debouncedKeyword = useDebounce(keyword, 300);
   const shouldSearch = debouncedKeyword.length > 0;
 
-  const isMain = route === "/";
-  const ref = useOutSideClick(() => setOpen(false));
+  const textType = isMain ? "p4" : "body1";
+  const ref = useOutSideClick<HTMLDivElement>(() => setOpen(false));
 
   const { data: searchResult, isLoading: isLoadingSearch } = useGetSearch(debouncedKeyword, {
     enabled: shouldSearch,
   });
 
-  const groupedSearchResult = React.useMemo(() => {
-    if (!searchResult) return [];
-
-    return Object.values(
-      searchResult.reduce((acc, item) => {
-        if (!acc[item.type]) {
-          acc[item.type] = {
-            type: item.type,
-            items: [],
-          };
-        }
-        acc[item.type].items.push(item);
-        return acc;
-      }, {} as Record<SEARCH_RESULT_TYPE, { type: SEARCH_RESULT_TYPE; items: SearchResult[] }>),
-    );
-  }, [searchResult]);
+  const groupedSearchResult = React.useMemo(() => groupSearchResults(searchResult ?? []), [searchResult]);
 
   useEffect(() => {
     setOpen(() => Boolean(debouncedKeyword.length > 0));
@@ -73,19 +56,19 @@ const StandardNetworkSearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper isMain={isMain} ref={ref}>
+        <Wrapper $isMain={isMain} ref={ref}>
           {isLoadingSearch ? (
-            <Text type={isMain ? "p4" : "body1"} color="tertiary">
+            <Text type={textType} color="tertiary">
               Loading...
             </Text>
           ) : noResults ? (
-            <Text type={isMain ? "p4" : "body1"} color="tertiary">
+            <Text type={textType} color="tertiary">
               No match found
             </Text>
           ) : (
             groupedSearchResult.map(group => (
               <Section key={group.type}>
-                <Text type={isMain ? "p4" : "body1"} color="tertiary">
+                <Text type={textType} color="tertiary">
                   {SEARCH_TYPE_TITLES[group.type as SEARCH_RESULT_TYPE]}
                 </Text>
                 <ListContainer>
@@ -116,16 +99,16 @@ const Section = styled.section`
   ${commonContentStyle};
 `;
 
-const Wrapper = styled.div<StyleProps>`
+const Wrapper = styled.div<{ $isMain: boolean }>`
   ${scrollbarStyle};
   ${mixins.flexbox("column", "center", "flex-start")};
-  width: ${({ isMain }) => (isMain ? "calc(100% - 20px)" : "100%")};
+  width: ${({ $isMain }) => ($isMain ? "calc(100% - 20px)" : "100%")};
   max-height: 276px;
   border-radius: 8px;
   background-color: ${({ theme }) => theme.colors.surface};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   position: absolute;
-  top: ${({ isMain }) => (isMain ? "93%" : "calc(100% + 6px)")};
+  top: ${({ $isMain }) => ($isMain ? "93%" : "calc(100% + 6px)")};
   left: 50%;
   transform: translateX(-50%);
   z-index: ${zindex.searchResult};

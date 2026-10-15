@@ -3,6 +3,8 @@ import BigNumber from "bignumber.js";
 import { isBech32Address } from "./bech32.utility";
 import { isHash } from "./transaction.utility";
 import { makeQueryString } from "./string-util";
+import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
+import { SearchResult } from "@/repositories/api/search/response";
 
 export type NetworkParams = Record<string, string>;
 export type SearchRedirect = {
@@ -138,28 +140,6 @@ function processTransactionHash(keyword: string, networkParams: NetworkParams): 
 }
 
 /**
- * Processes account search input to return redirect information.
- *
- * @param keyword - Search keyword
- * @param networkParams - network-related parameters
- */
-function processAccountSearch(keyword: string, networkParams: NetworkParams): SearchRedirect {
-  if (keyword.length > 2 && !keyword.includes(" ")) {
-    const validAccountPattern = /^[a-zA-Z0-9_\-\.]+$/;
-
-    if (validAccountPattern.test(keyword)) {
-      const queryString = makeQueryString(networkParams);
-      return {
-        keyword,
-        permanent: false,
-        destination: `/account/${keyword}?${queryString}`,
-      };
-    }
-  }
-  return null;
-}
-
-/**
  * Processes a search keyword and determines the appropriate redirect destination.
  * Used in getServerSideProps to handle search functionality and redirects.
  *
@@ -172,8 +152,7 @@ function processAccountSearch(keyword: string, networkParams: NetworkParams): Se
  * - "gno.land" prefixed strings -> Realm details page
  * - Bech32 addresses -> Account page
  * - Transaction hashes -> Transaction details page
- * - Other strings (length > 2, no spaces) -> Account page
- * - All other cases -> No redirect (returns null)
+ * - All other cases -> No redirect (returns null); the search page lists matching results
  *
  * Network parameters (type, rpcUrl, indexerUrl, chainId) are preserved in all redirects.
  */
@@ -190,7 +169,6 @@ export function processSearchKeyword(keyword: string, params: Record<string, str
     processRealmPath,
     processBech32Address,
     processTransactionHash,
-    processAccountSearch,
   ];
 
   for (const processor of processors) {
@@ -199,4 +177,15 @@ export function processSearchKeyword(keyword: string, params: Record<string, str
   }
 
   return null;
+}
+
+/**
+ * Groups search API results by type, keeping the order in which each type first appears.
+ */
+export function groupSearchResults(results: SearchResult[]) {
+  const groups = new Map<SEARCH_RESULT_TYPE, SearchResult[]>();
+  for (const item of results) {
+    groups.set(item.type, [...(groups.get(item.type) ?? []), item]);
+  }
+  return Array.from(groups, ([type, items]) => ({ type, items }));
 }
