@@ -94,7 +94,7 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
 
   return (
     <DataListSection tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {currentTab === INVENTORY_TAB && <NftCollectionInventory tokenKey={tokenKey} symbol={symbol} />}
+      {currentTab === INVENTORY_TAB && <NftCollectionInventory key={tokenKey} tokenKey={tokenKey} symbol={symbol} />}
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <ActivityDatatable
           variant="direct"

@@ -199,6 +199,107 @@ it("completes only flagged visible entries and keeps fresh API artwork authorita
   expect(view.client.getQueryData<NftTokenUriModel[]>(apiKey(nfts))?.[0].needsRefetch).toBe(true);
 });
 
+it("batches only round-trippable IDs and resolves exact unsafe IDs alongside ordinary RPC fallback", async () => {
+  const view = createView();
+  const safeIds = ["safe-id_1", "safe:id/2?x=y", "fallback"];
+  const unsafeIds = ["comma,id", " leading", "trailing ", "amp&ersand", "plus+sign"];
+  const nfts = [...safeIds, ...unsafeIds].map(nftId => ({ packagePath: PATH, nftId }));
+  const backend = deferred<GetNftTokenUrisResponse>();
+  const requests = new Map<string, Deferred<NftTokenUriModel>>();
+  mockRepository.getNftTokenUris.mockReturnValue(backend.promise);
+  mockRequestNftTokenUri.mockImplementation((_node, _path, tokenId: string) => {
+    const request = deferred<NftTokenUriModel>();
+    requests.set(tokenId, request);
+    return request.promise;
+  });
+
+  view.render(nfts);
+  expect(mockRepository.getNftTokenUris.mock.calls).toEqual([[PATH, safeIds]]);
+  for (const tokenId of [...safeIds, ...unsafeIds]) {
+    expect(view.artwork(tokenId)).toBe("Loading artwork");
+  }
+  await settle(() =>
+    backend.resolve({
+      items: safeIds.map(tokenId =>
+        entry(
+          tokenId,
+          tokenId === "fallback"
+            ? {}
+            : { uri: "https://images.example/backend.png", status: "found", needsRefetch: false },
+        ),
+      ),
+    }),
+  );
+  expect(mockRequestNftTokenUri.mock.calls).toEqual(
+    ["fallback", ...unsafeIds].map(tokenId => [mockNodeClient, PATH, tokenId]),
+  );
+  expect(view.artwork(safeIds[0])).toBe("https://images.example/backend.png");
+  expect(view.artwork(safeIds[1])).toBe("https://images.example/backend.png");
+  for (const tokenId of ["fallback", ...unsafeIds]) {
+    expect(view.loading(tokenId)).toBe(true);
+  }
+
+  await settle(() => {
+    for (const [tokenId, request] of requests) {
+      request.resolve(entry(tokenId, { uri: "https://images.example/rpc.png", status: "found", needsRefetch: false }));
+    }
+  });
+  for (const tokenId of ["fallback", ...unsafeIds]) {
+    expect(view.artwork(tokenId)).toBe("https://images.example/rpc.png");
+    expect(view.loading(tokenId)).toBe(false);
+  }
+  expect(mockRepository.getNftTokenUris.mock.calls).toEqual([[PATH, safeIds]]);
+});
+
+it.each(["found", "not_set", "unavailable", "failed"] as const)(
+  "resolves unsafe-only IDs without backend calls and finishes loading when RPC is %s",
+  async outcome => {
+    const view = createView();
+    const unsafeIds = ["comma,id", " leading", "trailing ", "amp&ersand", "hash#tag", "plus+sign", "percent%2F"];
+    const nfts = unsafeIds.map(nftId => ({ packagePath: PATH, nftId }));
+    const requests = new Map<string, Deferred<NftTokenUriModel>>();
+    mockRequestNftTokenUri.mockImplementation((_node, _path, tokenId: string) => {
+      const request = deferred<NftTokenUriModel>();
+      requests.set(tokenId, request);
+      return request.promise;
+    });
+
+    view.render(nfts);
+    for (const tokenId of unsafeIds) {
+      expect(view.artwork(tokenId)).toBe("Loading artwork");
+    }
+    await settle();
+    expect(mockRepository.getNftTokenUris).not.toHaveBeenCalled();
+    expect(mockRequestNftTokenUri.mock.calls).toEqual(unsafeIds.map(tokenId => [mockNodeClient, PATH, tokenId]));
+    for (const tokenId of unsafeIds) {
+      expect(view.loading(tokenId)).toBe(true);
+    }
+
+    await settle(() => {
+      for (const [tokenId, request] of requests) {
+        if (outcome === "failed") request.reject(new Error("RPC unavailable"));
+        else {
+          request.resolve(
+            entry(tokenId, {
+              status: outcome,
+              uri: outcome === "found" ? "https://images.example/direct.png" : "",
+              needsRefetch: outcome === "unavailable",
+            }),
+          );
+        }
+      }
+    });
+    for (const tokenId of unsafeIds) {
+      expect(view.artwork(tokenId)).toBe(outcome === "found" ? "https://images.example/direct.png" : "Default artwork");
+      expect(view.loading(tokenId)).toBe(false);
+    }
+    view.render([...nfts]);
+    await settle();
+    expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(unsafeIds.length);
+    expect(mockRepository.getNftTokenUris).not.toHaveBeenCalled();
+  },
+);
+
 it("publishes each image without waiting for peers and isolates failures within an eight-worker pool", async () => {
   const view = createView();
   const nfts = tokens(10);

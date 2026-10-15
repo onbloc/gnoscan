@@ -23,6 +23,11 @@ interface RpcArtworkEntry extends NftTokenUriModel {
   fallbackImage?: string;
 }
 
+function isBatchSafeNftId(tokenId: string): boolean {
+  // The API splits/trims CSV IDs and interpolates its query without URL encoding.
+  return tokenId.length > 0 && tokenId.trim() === tokenId && !/[,&#+%\t\r\n]/.test(tokenId);
+}
+
 /**
  * Resolves visible-page artwork and pending backend/RPC lookups without replacing usable cached images.
  * Both callers pass at most 22 NFTs, below the API's 50-ID limit.
@@ -56,12 +61,28 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
     async repository => {
       const responses = await Promise.allSettled(
         batches.map(async ({ packagePath, tokenIds }) => {
-          const response = await repository.getNftTokenUris(packagePath, tokenIds);
+          const apiTokenIds = tokenIds.filter(isBatchSafeNftId);
+          if (apiTokenIds.length === 0) return [];
+          const response = await repository.getNftTokenUris(packagePath, apiTokenIds);
           return response.items.map(item => ({ ...item, packagePath }));
         }),
       );
-      // A failed realm lookup must not discard artwork returned by other realms.
-      return responses.flatMap(response => (response.status === "fulfilled" ? response.value : []));
+      // IDs that cannot round-trip through the API use the same RPC workers and scoped cache.
+      const rpcOnly = batches.flatMap(({ packagePath, tokenIds }) =>
+        tokenIds
+          .filter(tokenId => !isBatchSafeNftId(tokenId))
+          .map(
+            (tokenId): ArtworkEntry => ({
+              packagePath,
+              tokenId,
+              uri: "",
+              status: "unavailable",
+              needsRefetch: true,
+            }),
+          ),
+      );
+      // A failed realm lookup must not discard other realms or prevent direct RPC lookups.
+      return [...responses.flatMap(response => (response.status === "fulfilled" ? response.value : [])), ...rpcOnly];
     },
     {
       enabled: batches.length > 0,
