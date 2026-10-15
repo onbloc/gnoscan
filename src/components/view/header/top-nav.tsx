@@ -103,10 +103,9 @@ export const TopNav = () => {
       <HeaderNetwork entry={entry} />
       <div className="hide-desktop">
         <SubMenu
-          entry={entry}
           open={open}
-          onClick={toggleMenuHandler}
-          darkMode={themeMode === "dark"}
+          onToggle={toggleMenuHandler}
+          darkSurface={entry}
           currentPath={router.route}
           network={<HeaderNetwork entry={themeMode === "dark"} />}
         />
