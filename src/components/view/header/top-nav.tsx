@@ -1,5 +1,3 @@
-"use client";
-
 import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
 import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import { useRouter } from "@/common/hooks/common/use-router";

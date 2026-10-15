@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import BigNumber from "bignumber.js";
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";

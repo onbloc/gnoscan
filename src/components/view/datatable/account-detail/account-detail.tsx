@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
