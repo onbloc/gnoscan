@@ -17,6 +17,7 @@ import { useGetNftItemDetail } from "@/common/react-query/token/api";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { ellipsizePathAddresses, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { makeNftTokenHash } from "@/common/utils/nft-token-hash.utility";
+import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { zindex } from "@/common/values/z-index";
 import { AccountGRC721CollectionItemModel } from "@/repositories/api/account/response";
 
@@ -74,7 +75,13 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
     <>
       {/* The card link is stretched over the card so the gno.web link can sit above it instead of nesting anchors. */}
       <S.CardItem ref={refs.setReference} {...getReferenceProps()}>
-        <NftCard nftId={nft.nftId} symbol={nft.symbol} imageUrl={imageUrl} imageLoading={imageLoading}>
+        <NftCard
+          nftId={nft.nftId}
+          symbol={nft.symbol}
+          imageUrl={imageUrl}
+          imageLoading={imageLoading}
+          staked={isStakedNft(nft)}
+        >
           <S.CollectionRow>
             <S.CollectionPath {...gnoWebLinkProps}>
               <S.CollectionPathText type="p4" color="gray300">
