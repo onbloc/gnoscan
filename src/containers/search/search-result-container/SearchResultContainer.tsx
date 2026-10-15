@@ -22,7 +22,8 @@ const SearchResultContainer = ({ keyword }: SearchResultContainerProps) => {
   const { data, isFetched } = useGetSearch(keyword, { enabled: !isCustomNetwork });
 
   // Custom networks have no search API, so only the redirects in `processSearchKeyword` apply there.
-  if (isCustomNetwork || (isFetched && !data?.length)) {
+  // An empty keyword never fetches, so it would otherwise stay on the loading state.
+  if (!keyword || isCustomNetwork || (isFetched && !data?.length)) {
     return <NotFound keyword={keyword} />;
   }
 
