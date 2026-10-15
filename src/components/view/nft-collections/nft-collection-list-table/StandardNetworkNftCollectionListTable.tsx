@@ -43,11 +43,12 @@ export const StandardNetworkNftCollectionListTable = ({
       .renderOption((_, data) => <DatatableItem.NftCollectionTitle tokenId={data.tokenId} name={data.name} />)
       .build(),
     DatatableOption.Builder.builder().key("symbol").name("Symbol").width(159).build(),
-    DatatableOption.Builder.builder().key("holders").name("Holders").width(102).build(),
-    DatatableOption.Builder.builder().key("transfers").name("Transfers").width(106).build(),
+    DatatableOption.Builder.builder().key("holders").name("Holders").sort().width(102).build(),
+    DatatableOption.Builder.builder().key("transfers").name("Transfers").sort().width(106).build(),
     DatatableOption.Builder.builder<NftCollectionModel>()
       .key("totalSupply")
       .name("Total Supply")
+      .sort()
       .width(134)
       .renderOption((_, data) => <>{makeDisplayNumber(data.totalSupply)}</>)
       .build(),

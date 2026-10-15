@@ -2,7 +2,7 @@ export interface GetNftCollectionsRequest {
   packagePath?: string;
   cursor?: string;
   limit?: number;
-  sort?: "id" | "holders";
+  sort?: "id" | "holders" | "transfers" | "totalSupply";
   order?: "asc" | "desc";
 }
 

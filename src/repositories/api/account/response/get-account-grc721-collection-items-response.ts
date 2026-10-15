@@ -1,3 +1,5 @@
+import type { NftPositionModel } from "../../token/response/get-nft-collection-response";
+
 export interface AccountGRC721CollectionItemModel {
   tokenId: string;
   packagePath: string;
@@ -8,6 +10,8 @@ export interface AccountGRC721CollectionItemModel {
   // Empty when the NFT has no operator
   operatorAddress: string;
   isOwned: boolean;
+  // GNFT position state; omitted for other collections.
+  position?: NftPositionModel;
 }
 
 export interface GetAccountGRC721CollectionItemsResponse {

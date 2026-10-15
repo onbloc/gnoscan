@@ -81,6 +81,7 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
           imageUrl={imageUrl}
           imageLoading={imageLoading}
           staked={isStakedNft(nft)}
+          burned={nft.position?.burned === true}
         >
           <S.CollectionRow>
             <S.CollectionPath {...gnoWebLinkProps}>

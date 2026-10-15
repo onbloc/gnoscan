@@ -215,6 +215,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
                   size="compact"
                   selected={item.nftId === selectedNftId}
                   staked={isStakedNft(item)}
+                  burned={item.position?.burned === true}
                 >
                   <S.OwnerRow>
                     <span>Owner:</span>

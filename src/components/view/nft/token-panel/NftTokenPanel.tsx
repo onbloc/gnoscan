@@ -23,6 +23,7 @@ import { Pagination } from "@/components/ui/pagination";
 import Tooltip from "@/components/ui/tooltip";
 import { DatatableItem } from "../../datatable";
 import StakedBadge from "../staked-badge/StakedBadge";
+import BurnBadge from "../burn-badge/BurnBadge";
 import NftImage from "../nft-image/NftImage";
 import NftPositionInfo from "./NftPositionInfo";
 import * as S from "./NftTokenPanel.styles";
@@ -93,6 +94,7 @@ const NftTokenPanel = ({
     setTransferPagination({ identity: transferIdentity, page: Math.min(Math.max(page, 1), totalTransferPages) });
   };
   const indexedDetail = indexedQuery.data?.data;
+  const burned = (indexedDetail?.position ?? item?.position)?.burned === true;
   const transfers = transfersQuery.data?.items ?? [];
   const lastTransfer = firstTransfersQuery.data?.items.find(
     transfer =>
@@ -252,6 +254,7 @@ const NftTokenPanel = ({
             <S.Title>{title}</S.Title>
             {symbol && <S.SymbolBadge>{symbol}</S.SymbolBadge>}
             {staked && <StakedBadge size="inline" />}
+            {burned && <BurnBadge size="inline" />}
           </S.TitleArea>
           <S.HeaderButtons>
             <Tooltip
