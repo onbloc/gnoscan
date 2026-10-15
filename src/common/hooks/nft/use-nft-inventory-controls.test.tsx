@@ -71,6 +71,10 @@ function createView() {
         <button onClick={() => view.previousNftId && view.onSelectItem(view.previousNftId)}>Previous token</button>
         <button onClick={() => view.toolbarProps.onSearchChange("r/gnoswap/pool")}>Search realm label</button>
         <output data-suggestions>{view.toolbarProps.ownerSuggestions.map(owner => owner.label).join("|")}</output>
+        <button onClick={() => view.toolbarProps.onOwnerChange("g1op")}>Owner operator</button>
+        <button onClick={() => view.toolbarProps.onOwnerChange("g1staker")}>Owner staker</button>
+        <button onClick={() => view.toolbarProps.onSearchChange("g1op")}>Search operator</button>
+        <output data-owners>{view.toolbarProps.owners.map(owner => owner.address).join("|")}</output>
         {view.error ? (
           <p role="alert">{view.error.message}</p>
         ) : view.isResolving ? (
@@ -164,6 +168,36 @@ it("finds NFTs by the displayed realm path of their owner and suggests the match
   view.click(6);
   await settleUntil(() => view.container.querySelectorAll("article").length === 2);
   expect(view.value("[data-suggestions]")).toBe("r/gnoswap/pool");
+});
+
+it("lists a staked NFT under both its staker owner and the operator who staked it", async () => {
+  const view = createView();
+  mockRepository.getNftCollectionItems.mockImplementation(async params => {
+    const page = collectionPage(params);
+    return {
+      ...page,
+      items: page.items.map(item =>
+        item.nftId === "5" || item.nftId === "6"
+          ? { ...item, ownerAddress: "g1staker", operatorAddress: "g1op" }
+          : item,
+      ),
+    } as GetNftCollectionItemsResponse;
+  });
+  view.render(null, 20);
+  await settleUntil(() => view.container.querySelectorAll("article").length === 20);
+
+  view.click(7);
+  await settleUntil(() => view.container.querySelectorAll("article").length === 2);
+  expect([...view.container.querySelectorAll("article")].map(article => article.textContent)).toEqual(["5", "6"]);
+  expect(view.value("[data-owners]")).toContain("g1op");
+
+  view.click(8);
+  await settleUntil(() => view.value("[data-owners]")?.includes("g1staker") === true);
+  expect([...view.container.querySelectorAll("article")].map(article => article.textContent)).toEqual(["5", "6"]);
+
+  view.click(9);
+  await settleUntil(() => view.container.querySelectorAll("article").length === 2);
+  expect([...view.container.querySelectorAll("article")].map(article => article.textContent)).toEqual(["5", "6"]);
 });
 
 it("finds an off-page linked NFT, restores its owner and neighbors, and stops the lookup at the matching page", async () => {

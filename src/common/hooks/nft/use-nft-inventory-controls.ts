@@ -58,6 +58,15 @@ function matchesOwnerSearch(item: NftCollectionItemModel, search: string): boole
   );
 }
 
+// An NFT belongs to its owner and, while staked in gnoswap, to the operator who staked it.
+function isHeldBy(item: NftCollectionItemModel, address: string): boolean {
+  return item.ownerAddress === address || item.operatorAddress === address;
+}
+
+function matchesOperatorSearch(item: NftCollectionItemModel, search: string): boolean {
+  return !!item.operatorAddress && item.operatorAddress.toLowerCase().includes(search);
+}
+
 const tokenIdCollator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
 
 // Compare decimal IDs without converting them to Number (or losing large-ID precision).
@@ -232,7 +241,12 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     for (const item of allItems) {
       if (!itemsByOwner.has(item.ownerAddress)) itemsByOwner.set(item.ownerAddress, item);
     }
-    return Array.from(itemsByOwner.keys())
+    // A staked NFT is held by the staker realm but also belongs to the operator who staked it.
+    const operators = new Set<string>();
+    for (const item of allItems) {
+      if (item.operatorAddress && !itemsByOwner.has(item.operatorAddress)) operators.add(item.operatorAddress);
+    }
+    return [...itemsByOwner.keys(), ...operators]
       .sort((left, right) => {
         const leftItem = itemsByOwner.get(left);
         const rightItem = itemsByOwner.get(right);
@@ -252,6 +266,7 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     const matched = new Set<string>();
     for (const item of allItems) {
       if (matchesOwnerSearch(item, search)) matched.add(item.ownerAddress);
+      if (matchesOperatorSearch(item, search)) matched.add(item.operatorAddress);
     }
     return owners.filter(({ address }) => matched.has(address)).slice(0, OWNER_SUGGESTION_LIMIT);
   }, [allItems, incomplete, owners, search]);
@@ -262,11 +277,12 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
     if (search || controls.owner) {
       visibleItems = visibleItems.filter(
         item =>
-          (!controls.owner || item.ownerAddress === controls.owner) &&
+          (!controls.owner || isHeldBy(item, controls.owner)) &&
           (!search ||
             item.nftId.toLowerCase().includes(search) ||
             item.tokenId.toLowerCase().includes(search) ||
-            matchesOwnerSearch(item, search)),
+            matchesOwnerSearch(item, search) ||
+            matchesOperatorSearch(item, search)),
       );
     }
     if (controls.sortOrder) {
