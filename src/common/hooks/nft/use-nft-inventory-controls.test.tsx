@@ -69,6 +69,8 @@ function createView() {
         <button onClick={view.toolbarProps.onSortToggle}>Toggle sort</button>
         <button onClick={() => view.nextNftId && view.onSelectItem(view.nextNftId)}>Next token</button>
         <button onClick={() => view.previousNftId && view.onSelectItem(view.previousNftId)}>Previous token</button>
+        <button onClick={() => view.toolbarProps.onSearchChange("r/gnoswap/pool")}>Search realm label</button>
+        <output data-suggestions>{view.toolbarProps.ownerSuggestions.map(owner => owner.label).join("|")}</output>
         {view.error ? (
           <p role="alert">{view.error.message}</p>
         ) : view.isResolving ? (
@@ -142,6 +144,26 @@ it("resumes remaining pages and search results after a failed next page is succe
   await settleUntil(() => view.container.querySelector("article")?.textContent === "28");
   expect(view.container.querySelector('[role="alert"]')).toBeNull();
   expect(view.container.querySelectorAll("article")).toHaveLength(1);
+});
+
+it("finds NFTs by the displayed realm path of their owner and suggests the matching owner", async () => {
+  const view = createView();
+  mockRepository.getNftCollectionItems.mockImplementation(async params => {
+    const page = collectionPage(params);
+    return {
+      ...page,
+      items: page.items.map(item =>
+        item.nftId === "5" || item.nftId === "6"
+          ? { ...item, ownerAddress: "g1pool", ownerLabel: "gno.land/r/gnoswap/pool", ownerLabelType: "REALM" }
+          : item,
+      ),
+    } as GetNftCollectionItemsResponse;
+  });
+  view.render(null, 20);
+  await settleUntil(() => view.container.querySelectorAll("article").length === 20);
+  view.click(6);
+  await settleUntil(() => view.container.querySelectorAll("article").length === 2);
+  expect(view.value("[data-suggestions]")).toBe("r/gnoswap/pool");
 });
 
 it("finds an off-page linked NFT, restores its owner and neighbors, and stops the lookup at the matching page", async () => {

@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 
 import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } from "@/common/react-query/token/api";
+import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 import { useNetwork } from "@/common/hooks/use-network";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
@@ -123,6 +124,28 @@ const NftTokenPanel = ({
       // React 18 does not type the inert attribute; apply it before paint.
       panel.setAttribute("inert", "");
     }
+  }, [interactive]);
+
+  // Below desktop the panel is a modal bottom sheet; keep the page behind it from scrolling.
+  React.useEffect(() => {
+    if (!interactive) return;
+    const sheet = window.matchMedia(`(max-width: ${DEVICE_SIZE_THRESHOLDS.DESKTOP - 1}px)`);
+    let previousOverflow: string | null = null;
+    const sync = () => {
+      if (sheet.matches && previousOverflow === null) {
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+      } else if (!sheet.matches && previousOverflow !== null) {
+        document.body.style.overflow = previousOverflow;
+        previousOverflow = null;
+      }
+    };
+    sync();
+    sheet.addEventListener("change", sync);
+    return () => {
+      sheet.removeEventListener("change", sync);
+      if (previousOverflow !== null) document.body.style.overflow = previousOverflow;
+    };
   }, [interactive]);
 
   useIsomorphicLayoutEffect(() => {

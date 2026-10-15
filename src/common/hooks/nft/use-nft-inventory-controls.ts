@@ -11,6 +11,7 @@ export type NftInventorySortOrder = "asc" | "desc" | null;
 
 export interface NftInventoryToolbarProps {
   search: string;
+  ownerSuggestions: readonly { address: string; label: string }[];
   owner: string;
   sortOrder: NftInventorySortOrder;
   owners: readonly { address: string; label: string }[];
@@ -44,6 +45,18 @@ const initialControls = (identity: string): InventoryControlState => ({
   sortOrder: null,
   ownersRequested: false,
 });
+
+const OWNER_SUGGESTION_LIMIT = 5;
+
+// Owners are searchable by address and by the label shown in the grid (realm path without its gno.land/ prefix).
+function matchesOwnerSearch(item: NftCollectionItemModel, search: string): boolean {
+  const { ownerAddress, ownerLabel } = item;
+  return (
+    ownerAddress.toLowerCase().includes(search) ||
+    !!ownerLabel?.toLowerCase().includes(search) ||
+    !!getAddressDisplayText({ address: ownerAddress, label: ownerLabel })?.toLowerCase().includes(search)
+  );
+}
 
 const tokenIdCollator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
 
@@ -233,6 +246,15 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
         label: getAddressDisplayText({ address, label: itemsByOwner.get(address)?.ownerLabel }) ?? address,
       }));
   }, [allItems, incomplete]);
+  // Matching owners for the search box, like the global search suggestions.
+  const ownerSuggestions = React.useMemo(() => {
+    if (!search || incomplete) return [];
+    const matched = new Set<string>();
+    for (const item of allItems) {
+      if (matchesOwnerSearch(item, search)) matched.add(item.ownerAddress);
+    }
+    return owners.filter(({ address }) => matched.has(address)).slice(0, OWNER_SUGGESTION_LIMIT);
+  }, [allItems, incomplete, owners, search]);
   const filteredItems = React.useMemo(() => {
     // Never show a filtered/sorted subset as though it were the whole collection.
     if (hasActiveControls && incomplete) return [];
@@ -244,7 +266,7 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
           (!search ||
             item.nftId.toLowerCase().includes(search) ||
             item.tokenId.toLowerCase().includes(search) ||
-            item.ownerAddress.toLowerCase().includes(search)),
+            matchesOwnerSearch(item, search)),
       );
     }
     if (controls.sortOrder) {
@@ -303,6 +325,7 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
 
   const toolbarProps: NftInventoryToolbarProps = {
     search: controls.search,
+    ownerSuggestions,
     owner: controls.owner,
     sortOrder: controls.sortOrder,
     owners,

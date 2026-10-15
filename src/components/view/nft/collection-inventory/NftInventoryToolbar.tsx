@@ -17,7 +17,18 @@ const NftInventoryToolbar = ({
   onOwnerChange,
   onOwnerOpen,
   onSortToggle,
+  ownerSuggestions,
 }: NftInventoryToolbarProps) => {
+  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [suggestionIndex, setSuggestionIndex] = React.useState(0);
+  const suggestionsId = React.useId();
+  const showSuggestions = searchOpen && ownerSuggestions.length > 0;
+  const selectSuggestion = (address: string) => {
+    if (!address) return;
+    onOwnerChange(address);
+    onSearchChange("");
+    setSearchOpen(false);
+  };
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [menuWidth, setMenuWidth] = React.useState(440);
@@ -74,16 +85,67 @@ const NftInventoryToolbar = ({
 
   return (
     <S.Toolbar role="search" aria-label="NFT inventory controls">
-      <S.SearchBox>
-        <input
-          type="search"
-          aria-label="Search by Token ID or Owner’s Address"
-          placeholder="Search by Token ID or Owner’s Address"
-          value={search}
-          onChange={event => onSearchChange(event.target.value)}
-        />
-        <IconSearch aria-hidden="true" />
-      </S.SearchBox>
+      <S.SearchControl
+        onBlur={event => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setSearchOpen(false);
+        }}
+      >
+        <S.SearchBox>
+          <input
+            type="search"
+            role="combobox"
+            aria-label="Search by Token ID or Owner’s Address"
+            aria-autocomplete="list"
+            aria-expanded={showSuggestions}
+            aria-controls={showSuggestions ? suggestionsId : undefined}
+            aria-activedescendant={showSuggestions ? `${suggestionsId}-${suggestionIndex}` : undefined}
+            placeholder="Search by Token ID or Owner’s Address"
+            value={search}
+            onChange={event => {
+              setSearchOpen(true);
+              setSuggestionIndex(0);
+              onSearchChange(event.target.value);
+            }}
+            onFocus={() => setSearchOpen(true)}
+            onKeyDown={event => {
+              if (event.key === "Escape") {
+                setSearchOpen(false);
+                return;
+              }
+              if (!showSuggestions) return;
+              if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                event.preventDefault();
+                setSuggestionIndex(index =>
+                  Math.max(0, Math.min(ownerSuggestions.length - 1, index + (event.key === "ArrowDown" ? 1 : -1))),
+                );
+              } else if (event.key === "Enter") {
+                event.preventDefault();
+                selectSuggestion(ownerSuggestions[suggestionIndex]?.address ?? "");
+              }
+            }}
+          />
+          <IconSearch aria-hidden="true" />
+        </S.SearchBox>
+        {showSuggestions && (
+          <S.SuggestionMenu id={suggestionsId} role="listbox" aria-label="Matching owners">
+            {ownerSuggestions.map(({ address, label }, index) => (
+              <S.OwnerOption
+                key={address}
+                id={`${suggestionsId}-${index}`}
+                role="option"
+                aria-selected={index === suggestionIndex}
+                $active={index === suggestionIndex}
+                // Keep input focus so the blur handler does not close the menu before the click lands.
+                onMouseDown={event => event.preventDefault()}
+                onClick={() => selectSuggestion(address)}
+              >
+                {label}
+                {label !== address && <S.SuggestionAddress>{address}</S.SuggestionAddress>}
+              </S.OwnerOption>
+            ))}
+          </S.SuggestionMenu>
+        )}
+      </S.SearchControl>
       <S.FilterButtons>
         <S.OwnerControl
           ref={controlRef}

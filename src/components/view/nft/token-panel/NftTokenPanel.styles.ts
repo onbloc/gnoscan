@@ -45,6 +45,7 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
     z-index: ${zindex.modal};
     max-height: 85vh;
     overflow-y: auto;
+    overscroll-behavior: contain;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
     transform: ${({ $visible }) => ($visible ? "translateY(0)" : "translateY(100%)")};
@@ -64,6 +65,7 @@ export const Backdrop = styled.div<{ $visible: boolean; $interactive: boolean }>
 
   ${media.NOT_DESKTOP} {
     position: fixed;
+    touch-action: none;
     inset: 0;
     z-index: ${zindex.modal};
     display: block;

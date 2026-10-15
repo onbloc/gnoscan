@@ -11,6 +11,15 @@ export const Toolbar = styled.div`
   width: 100%;
 `;
 
+export const SearchControl = styled.div`
+  position: relative;
+  width: 100%;
+
+  ${media.NOT_MOBILE} {
+    width: 398px;
+  }
+`;
+
 export const SearchBox = styled.label`
   display: flex;
   align-items: center;
@@ -21,10 +30,6 @@ export const SearchBox = styled.label`
   padding: 0 16px;
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 8px;
-
-  ${media.NOT_MOBILE} {
-    width: 398px;
-  }
 
   :focus-within {
     outline: 2px solid ${({ theme }) => theme.colors.blue};
@@ -127,6 +132,24 @@ export const OwnerOption = styled.div<{ $active: boolean }>`
   :hover {
     background-color: ${({ theme }) => theme.colors.select};
   }
+`;
+
+export const SuggestionMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  padding: 4px;
+  background-color: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.nftCardBorder};
+  border-radius: 8px;
+`;
+
+export const SuggestionAddress = styled.div`
+  font-size: 11px;
+  color: ${({ theme }) => theme.colors.tertiary};
+  word-break: break-all;
 `;
 
 export const OwnerButton = styled.button`
