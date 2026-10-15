@@ -4,9 +4,10 @@ import styled, { css } from "styled-components";
 
 import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
-import { ellipsizePathAddresses, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip, { EllipsisTooltip } from "@/components/ui/tooltip";
+import PathText from "@/components/ui/path-text/PathText";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 
@@ -23,12 +24,11 @@ interface Props {
 export const AddressCopy = ({ address, label, labelType, truncateFromStart = false }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   const displayLabel = label ? stripGnoLandPrefix(label) : textEllipsis(address, ADDRESS_ELLIPSIS_LENGTH);
-  const formattedLabel = truncateFromStart && label ? ellipsizePathAddresses(displayLabel) : displayLabel;
   return (
     <AddressWrapper $truncateFromStart={truncateFromStart}>
       <EllipsisTooltip content={address}>
         <Link className="ellipsis" href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
-          {truncateFromStart ? <bdi>{formattedLabel}</bdi> : formattedLabel}
+          {truncateFromStart ? <PathText path={displayLabel} align="right" /> : displayLabel}
         </Link>
       </EllipsisTooltip>
       <Tooltip className="copy-tooltip" content="Copied!" trigger="click" copyText={address} width={85}>
@@ -58,14 +58,6 @@ const AddressWrapper = styled.div<{ $truncateFromStart: boolean }>`
         display: block;
         width: 100%;
         overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        direction: rtl;
-        text-align: right;
-      }
-
-      bdi {
-        direction: ltr;
       }
     `}
 

@@ -2,7 +2,7 @@ import React from "react";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetNftCollection, useGetNftCollections } from "@/common/react-query/token/api";
-import { formatDisplayPackagePath, makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
+import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import Badge from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import PublicFunctions from "@/components/ui/public-functions";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
+import PathText from "@/components/ui/path-text/PathText";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StyledA } from "../../token/token-summary/TokenSummary.styles";
@@ -49,9 +50,9 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
       </Field>
       <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <Badge>
-          <Text type="p4" color="blue" className="username-text">
+          <Text type="p4" color="blue" className="username-text ellipsis">
             <StyledA href={getUrlWithNetwork(`/realms/details?path=${collection?.path}`)}>
-              {formatDisplayPackagePath(collection?.path)}
+              <PathText path={collection?.path} />
             </StyledA>
           </Text>
           <CopyTooltip variant="path" copyText={collection?.path} />

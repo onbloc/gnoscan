@@ -15,11 +15,12 @@ import React from "react";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetNftItemDetail } from "@/common/react-query/token/api";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
-import { ellipsizePathAddresses, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { makeNftTokenHash } from "@/common/utils/nft-token-hash.utility";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { zindex } from "@/common/values/z-index";
 import { AccountGRC721CollectionItemModel } from "@/repositories/api/account/response";
+import PathText from "@/components/ui/path-text/PathText";
 
 import IconLink from "@/assets/svgs/icon-link.svg";
 import NftCard from "../../nft/nft-card/NftCard";
@@ -55,7 +56,6 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
   const { getReferenceProps, getFloatingProps } = useInteractions([clientPoint, hover]);
 
   const realmPath = stripGnoLandPrefix(nft.packagePath);
-  const displayPath = ellipsizePathAddresses(realmPath);
   // Opens the collection page on its Inventory tab with this token's detail panel. The canonical collection
   // token ID is used because the API does not resolve GRC721 collections by "path.SYMBOL".
   // The hash goes after the network query that getUrlWithNetwork appends.
@@ -85,7 +85,7 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
           <S.CollectionRow>
             <S.CollectionPath {...gnoWebLinkProps}>
               <S.CollectionPathText type="p4" color="gray300">
-                <bdi>{displayPath}</bdi>
+                <PathText path={realmPath} />
               </S.CollectionPathText>
               {gnoWebUrl && <IconLink className="icon-link" />}
             </S.CollectionPath>

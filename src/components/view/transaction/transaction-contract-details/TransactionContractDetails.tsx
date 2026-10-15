@@ -3,12 +3,11 @@ import Link from "next/link";
 import React from "react";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import PathText from "@/components/ui/path-text/PathText";
 import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type";
 
 import Badge from "@/components/ui/badge";
 import { Field, FieldWithTooltip } from "@/components/ui/detail-field";
-import { FitContentSpan } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
@@ -150,9 +149,7 @@ export const TransactionContractDetails: React.FC<{
                       )}
                       passHref
                     >
-                      <FitContentSpan>
-                        {formatDisplayPackagePath(message?.pkg_path || message?.package?.path || message?.func || "-")}
-                      </FitContentSpan>
+                      <PathText path={message?.pkg_path || message?.package?.path || message?.func || "-"} />
                     </Link>
                   </Text>
                   <CopyTooltip variant="address" copyText={message?.pkg_path || message?.package?.path || "-"} />

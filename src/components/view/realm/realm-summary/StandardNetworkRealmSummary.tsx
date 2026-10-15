@@ -11,7 +11,7 @@ import { useGetNativeTokenBalance } from "@/common/react-query/account";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import PathText from "@/components/ui/path-text/PathText";
 import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
@@ -175,7 +175,7 @@ const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
       <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} contentClassName="path-wrapper">
         <Badge margin="0">
           <Text type="p4" color="reverse" className="ellipsis">
-            {formatDisplayPackagePath(realmSummary?.path)}
+            <PathText path={realmSummary?.path} />
           </Text>
 
           <CopyTooltip variant="path" copyText={realmSummary?.path} />
@@ -255,11 +255,7 @@ const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
           )}
         </Badge>
       </Field>
-      <FieldWithTooltip
-        label="Balance"
-        tooltipContent={TOOLTIP_BALANCE}
-        contentClassName="function-wrapper"
-      >
+      <FieldWithTooltip label="Balance" tooltipContent={TOOLTIP_BALANCE} contentClassName="function-wrapper">
         {realmBalanceList.length > 0 ? (
           realmBalanceList.map((amount, index) => (
             <Badge key={`${amount.denom}-${index}`}>

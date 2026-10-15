@@ -198,16 +198,10 @@ export const CollectionPath = styled.span`
   }
 `;
 
-// Truncates from the start so the trailing package name stays visible: the RTL box puts the
-// ellipsis on the left while the <bdi> keeps the path itself left-to-right.
+// The path inside is a PathText, which cuts it from the start so the trailing package name stays visible.
 export const CollectionPathText = styled(Text)`
   min-width: 0;
   line-height: 24px;
-  direction: rtl;
-  text-align: left;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 `;
 
 export const CollectionName = styled(Text)`

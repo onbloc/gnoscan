@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { isBech32Address } from "./bech32.utility";
 import { GNO_NETWORK_PREFIXES } from "../values/gno.constant";
 import {
   GNFT_DISPLAY_SYMBOL,
@@ -197,40 +196,4 @@ export function stripGnoLandPrefix(path: string): string {
 
   const prefix = `${GNO_NETWORK_PREFIXES.GNO_LAND}/`;
   return path.startsWith(prefix) ? path.slice(prefix.length) : path;
-}
-
-export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
-  if (!path || typeof path !== "string") return path;
-
-  const prefix = GNO_NETWORK_PREFIXES.TOKEN_PATH;
-  if (!path.startsWith(prefix)) return path;
-
-  try {
-    const [address, tokenName] = path.substring(prefix.length).split("/");
-
-    if (!address || !tokenName) return path;
-
-    if (!isBech32Address(address)) return path;
-
-    const ellipsisAddress = `${address.slice(0, visibleLength)}...${address.slice(-visibleLength)}`;
-    return `${prefix}${ellipsisAddress}/${tokenName}`;
-  } catch {
-    return path;
-  }
-}
-
-/**
- * Shortens every bech32 address segment of a package path to its first and last `visibleLength`
- * characters, keeping the other segments (e.g. nested package names) intact.
- * "r/g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd/gnofly/nfts/planes" -> "r/g1t2kg2v...hngt4sfd/gnofly/nfts/planes"
- */
-export function ellipsizePathAddresses(path: string, visibleLength = 8): string {
-  return path
-    .split("/")
-    .map(segment =>
-      segment.length > visibleLength * 2 && isBech32Address(segment)
-        ? `${segment.slice(0, visibleLength)}...${segment.slice(-visibleLength)}`
-        : segment,
-    )
-    .join("/");
 }
