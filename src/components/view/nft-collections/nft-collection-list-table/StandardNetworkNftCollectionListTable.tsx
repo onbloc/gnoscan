@@ -7,6 +7,7 @@ import { makeDisplayNumber } from "@/common/utils/string-util";
 import { NftCollectionListSortOption } from "@/common/types/token";
 import { NftCollectionModel } from "@/repositories/api/token/response";
 import { media } from "@/common/values/ui.constant";
+import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -53,14 +54,15 @@ export const StandardNetworkNftCollectionListTable = ({
     DatatableOption.Builder.builder<NftCollectionModel>()
       .key("path")
       .name("Path")
-      .width(237)
+      .width(242)
       .colorName("blue")
-      .renderOption(path => <DatatableItem.RealmPackage packagePath={path} maxWidth={205} addressVisibleLength={8} />)
+      .tooltip(TOOLTIP_PACKAGE_PATH)
+      .renderOption(path => <DatatableItem.RealmPackage packagePath={path} maxWidth={210} />)
       .build(),
     DatatableOption.Builder.builder<NftCollectionModel>()
       .key("standardPackage")
       .name("NFT Standard")
-      .width(179)
+      .width(174)
       .colorName("blue")
       .renderOption((_, data) => <DatatableItem.LazyNftStandard tokenKey={data.tokenId} />)
       .build(),
@@ -92,14 +94,10 @@ const CollectionTableContainer = styled(CardTableContainer)`
     > div:first-child {
       padding: 24px 24px 0;
 
-      .scroll-wrapper > div:first-child {
-        border-color: ${({ theme }) => theme.colors.dimmed100};
-
-        > div {
-          padding-top: 12px;
-          padding-bottom: 12px;
-          line-height: 16px;
-        }
+      .scroll-wrapper > div:first-child > div {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        line-height: 16px;
       }
     }
 
