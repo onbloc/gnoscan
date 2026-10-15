@@ -219,6 +219,15 @@ describe("processSearchKeyword", () => {
         destination: `/block/${blockNumber}?type=mainnet&rpcUrl=https://rpc.gno.network&indexerUrl=https://index.gno.network&chainId=gno-mainnet-1`,
       });
     });
+
+    test.each(["0x10", "0b11", "0o7", "1e3", "Infinity", "-5", "1.5", "+3"])(
+      "Non decimal integer %s should not redirect to the block page",
+      keyword => {
+        const result = processSearchKeyword(keyword, networkParams);
+
+        expect(result?.destination.startsWith("/block/")).not.toBe(true);
+      },
+    );
   });
 
   // Realm path search tests

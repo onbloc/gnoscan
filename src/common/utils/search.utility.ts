@@ -1,5 +1,3 @@
-import BigNumber from "bignumber.js";
-
 import { isBech32Address } from "./bech32.utility";
 import { isHash } from "./transaction.utility";
 import { makeQueryString } from "./string-util";
@@ -65,7 +63,7 @@ function extractNetworkParams(params: NetworkParams): NetworkParams {
  * @param networkParams - network-related parameters
  */
 function processBlockNumber(keyword: string, networkParams: NetworkParams): SearchRedirect {
-  const isNumber = !BigNumber(keyword).isNaN();
+  const isNumber = /^\d+$/.test(keyword);
   if (isNumber) {
     const queryString = makeQueryString(networkParams);
     return {
