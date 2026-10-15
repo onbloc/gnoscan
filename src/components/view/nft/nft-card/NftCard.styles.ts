@@ -61,6 +61,8 @@ export const SymbolBadge = styled(Text)`
   max-width: 50%;
   height: 24px;
   padding: 2px 10px;
+  // Fills the fixed 24px height (2 + 20 + 2); body1's 16px line box left the text high.
+  line-height: 20px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
