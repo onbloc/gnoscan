@@ -469,6 +469,37 @@ export const Attribute = styled.dl`
   }
 `;
 
+// A value inside an Attribute box that opens a gnoswap page.
+export const AttributeLink = styled.a`
+  color: ${({ theme }) => theme.colors.blue};
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+// GNFT Pool & Position Information only: three cells that fill one row in Figma's proportions (6565:14919,
+// 144.8 : 87.8 : 170.4 of the 418px desktop panel) instead of boxes sized to their text. A cell never gets
+// narrower than its content: a wider pool label takes its extra width from the other two cells, and only the
+// narrowest screens wrap the row.
+export const PositionBoxes = styled(Attributes)`
+  flex-wrap: nowrap;
+  max-width: 418px;
+
+  ${media.MOBILE} {
+    flex-wrap: wrap;
+  }
+`;
+
+// `ratio` is the cell's share of the row width left after the two 7.5px gaps. A percentage basis is used because a
+// zero basis still leaves the padding and border (28px) as the base size, which skews the proportions.
+export const PositionBox = styled(Attribute)<{ $ratio: number }>`
+  flex: 0 1 calc((100% - 15px) * ${({ $ratio }) => $ratio});
+  width: auto;
+  min-width: max-content;
+`;
+
 export const TokenUriButton = styled.button`
   max-width: min(250px, 60vw);
   padding: 0;

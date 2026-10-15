@@ -52,6 +52,22 @@ export interface NftCollectionItemModel {
   ownerLabelType?: ADDRESS_LABEL_TYPE | null;
   // gnoswap position operator; empty when none
   operatorAddress: string;
+  // Listed GNFTs only; omitted for other collections
+  position?: NftPositionModel;
+}
+
+// gnoswap position state of a GNFT, from onbloc-api-v3 `position`. liquidity is a decimal string, feeTier is in
+// hundredths of a bip (3000 = 0.3%), and tickLower/tickUpper are the position's range. burned is gnoswap's own
+// burn (all liquidity removed): the NFT still has its owner and stays listed. staked is true while the staker
+// realm holds the NFT.
+export interface NftPositionModel {
+  poolPath: string;
+  liquidity: string;
+  feeTier: number;
+  tickLower: number;
+  tickUpper: number;
+  burned: boolean;
+  staked: boolean;
 }
 
 export interface GetNftCollectionItemsResponse {
@@ -84,6 +100,8 @@ export interface GetNftItemDetailResponse {
       bps: number;
       scope: "default" | "token";
     } | null;
+    // Always present; null for NFTs that are not gnoswap positions
+    position: NftPositionModel | null;
   };
 }
 

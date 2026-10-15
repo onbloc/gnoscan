@@ -8,7 +8,7 @@ import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { useNetwork } from "@/common/hooks/use-network";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
-import { stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { isGnftPackagePath, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { nftArtwork, nftMediaUrl } from "@/common/utils/nft-media.utility";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { base64HashToHex, isBase64Hash } from "@/common/utils/transaction.utility";
@@ -24,6 +24,7 @@ import Tooltip from "@/components/ui/tooltip";
 import { DatatableItem } from "../../datatable";
 import StakedBadge from "../staked-badge/StakedBadge";
 import NftImage from "../nft-image/NftImage";
+import NftPositionInfo from "./NftPositionInfo";
 import * as S from "./NftTokenPanel.styles";
 
 const EMPTY_VALUE = "-";
@@ -359,19 +360,29 @@ const NftTokenPanel = ({
           </S.Row>
         </S.Rows>
 
-        <S.Section $variant="attributes">
-          <S.SectionTitle $attributes>{isLoading ? "Attributes" : `Attributes · ${attributes.length}`}</S.SectionTitle>
-          {!isLoading && attributes.length > 0 && (
-            <S.Attributes>
-              {attributes.map((attribute, index) => (
-                <S.Attribute key={`${attribute.traitType}:${index}`}>
-                  <dt>{attribute.traitType}</dt>
-                  <dd>{attribute.value || EMPTY_VALUE}</dd>
-                </S.Attribute>
-              ))}
-            </S.Attributes>
-          )}
-        </S.Section>
+        {isGnftPackagePath(tokenKey) ? (
+          <NftPositionInfo
+            nftId={nftId}
+            position={indexedQuery.isLoading ? undefined : indexedDetail?.position ?? null}
+            holderAddress={staked ? item?.operatorAddress : item?.ownerAddress}
+          />
+        ) : (
+          <S.Section $variant="attributes">
+            <S.SectionTitle $attributes>
+              {isLoading ? "Attributes" : `Attributes · ${attributes.length}`}
+            </S.SectionTitle>
+            {!isLoading && attributes.length > 0 && (
+              <S.Attributes>
+                {attributes.map((attribute, index) => (
+                  <S.Attribute key={`${attribute.traitType}:${index}`}>
+                    <dt>{attribute.traitType}</dt>
+                    <dd>{attribute.value || EMPTY_VALUE}</dd>
+                  </S.Attribute>
+                ))}
+              </S.Attributes>
+            )}
+          </S.Section>
+        )}
 
         <S.Section $variant="history">
           <S.SectionTitle>Transfer History</S.SectionTitle>
