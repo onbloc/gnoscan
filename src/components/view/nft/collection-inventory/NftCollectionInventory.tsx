@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useSelectedNftToken } from "@/common/hooks/nft/use-selected-nft-token";
+import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNftInventoryControls } from "@/common/hooks/nft/use-nft-inventory-controls";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetNftCollection } from "@/common/react-query/token/api";
@@ -27,12 +28,14 @@ interface NftCollectionInventoryProps {
 }
 
 const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProps) => {
+  const { isDesktop } = useWindowSize();
   const [selectedNftId, selectToken] = useSelectedNftToken();
   // Retain the expanded page and last NFT until the closing transition finishes.
   const [retainedNftId, setRetainedNftId] = React.useState<string | null>(null);
   if (selectedNftId && retainedNftId !== selectedNftId) setRetainedNftId(selectedNftId);
   const panelNftId = selectedNftId ?? retainedNftId;
-  const pageSize = panelNftId ? NFT_DETAIL_INVENTORY_PAGE_SIZE : NFT_INVENTORY_PAGE_SIZE;
+  // Only the desktop panel shares the grid: it fits 12 cards beside it plus two full rows below.
+  const pageSize = isDesktop && panelNftId ? NFT_DETAIL_INVENTORY_PAGE_SIZE : NFT_INVENTORY_PAGE_SIZE;
   const {
     items,
     loadedItems,
@@ -67,7 +70,8 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
   const previousHasPanel = React.useRef(false);
   const cardAnimations = React.useRef(new Map<string, Animation>());
   useIsomorphicLayoutEffect(() => {
-    const hasPanel = !!panelNftId;
+    // Below desktop the panel is a bottom sheet over the grid, so the grid never reflows for it.
+    const hasPanel = isDesktop && !!panelNftId;
     const reflowing = previousHasPanel.current !== hasPanel;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const nextPositions = new Map<string, { left: number; top: number }>();
@@ -114,7 +118,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
       animation.cancel();
       cardAnimations.current.delete(id);
     });
-  }, [panelNftId, items]);
+  }, [panelNftId, isDesktop, items]);
   useIsomorphicLayoutEffect(() => {
     const animations = cardAnimations.current;
     return () => {
