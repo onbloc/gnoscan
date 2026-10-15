@@ -4,12 +4,6 @@ GnoScan is an opensource blockchain explorer for the Gno.land blockchain, aiming
 ## Project Overview
 This repository hosts the codebase for the GnoScan Interface. The interface is built using TypeScript and comes with rich features including a real-time dashboard for the Gno.land blockchain, recent blocks and transactions, details of realms, a full list of GRC20 tokens, and more.
 
-NFT token deep links use `/tokens/{tokenKey}#inventory&tokenId={encodedNftId}` to open the Inventory tab and the selected token panel. The Inventory hash is derived from the shared tab name and hash converter.
-
-The `/nfts` collection list supports server-side sorting by Holders, Transfers, and Total Supply. It defaults to Holders descending; each column's sort control cycles through descending, ascending, and unsorted. Changing the sort resets pagination, and View More retains the selected sort.
-
-GNFT cards in Inventory and account holdings, and the token detail panel, display a Burn badge when the API returns `position.burned: true`. This means the GnoSwap position is closed (all liquidity removed), not that the GRC721 NFT itself was destroyed; the NFT remains listed with its owner.
-
 ## Development Setup
 To set up the development environment, make sure you have Node.js version 18.14.2 installed. We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing Node.js versions. Follow these steps:
 
