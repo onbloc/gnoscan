@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import Portal from "@/components/core/portal";
 import mixins from "@/styles/mixins";
 import MenuIcon from "@/assets/svgs/icon-menu-button.svg";
@@ -10,61 +10,54 @@ import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
 import { mobileNavItems } from "./top-nav";
 import Link from "next/link";
-import { v1 } from "uuid";
+import { useRecoilValue } from "recoil";
 import Text from "@/components/ui/text";
 import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { useNetwork } from "@/common/hooks/use-network";
 import { media } from "@/common/values/ui.constant";
 import { zindex } from "@/common/values/z-index";
-
-interface LinkStyleProps {
-  current: boolean;
-}
+import { themeState } from "@/states";
 
 interface SubMenuProps {
-  entry: boolean;
   open: boolean;
-  onClick: (e: React.MouseEvent) => void;
-  selector?: string;
-  darkMode?: boolean;
+  onToggle: () => void;
+  // True when the header behind the menu button is dark, so the button icon is drawn in white.
+  darkSurface: boolean;
   currentPath: string;
 }
 
-export const SubMenu: React.FC<SubMenuProps> = ({
-  entry,
-  open,
-  onClick,
-  selector = "modal-root",
-  darkMode,
-  currentPath,
-}) => {
+export const SubMenu: React.FC<SubMenuProps> = ({ open, onToggle, darkSurface, currentPath }) => {
   const { getUrlWithNetwork } = useNetwork();
+  const darkMode = useRecoilValue(themeState) === "dark";
   useBodyScrollLock(open);
 
-  const close = (e: React.MouseEvent<HTMLElement>) => setTimeout(() => onClick(e), 100);
+  const close = () => setTimeout(onToggle, 100);
 
   return (
     <>
-      <MenuButton entry={entry} onClick={onClick}>
+      <MenuButton darkSurface={darkSurface} onClick={onToggle}>
         <MenuIcon className="menu-icon" />
       </MenuButton>
-      <Portal selector={selector}>
+      <Portal selector="modal-root">
         <Container open={open}>
           <TopHeader>
             {darkMode ? <GnoscanLogo /> : <GnoscanLogoLight />}
-            <CloseButton onClick={onClick}>
+            <CloseButton onClick={onToggle}>
               <CloseIcon className="close-icon" />
             </CloseButton>
           </TopHeader>
           <Nav>
             {mobileNavItems.map(v => (
-              <Link href={getUrlWithNetwork(v.path)} passHref key={v1()} onClick={close}>
-                <StyledA current={currentPath === v.path}>
-                  <Text type="h4" color="primary">
-                    {v.name}
-                  </Text>
-                </StyledA>
-              </Link>
+              <NavLink
+                href={getUrlWithNetwork(v.path)}
+                key={v.path}
+                onClick={close}
+                aria-current={currentPath === v.path ? "page" : undefined}
+              >
+                <Text type="h4" color="primary">
+                  {v.name}
+                </Text>
+              </NavLink>
             ))}
           </Nav>
         </Container>
@@ -93,10 +86,10 @@ const Container = styled.div<{ open: boolean }>`
   }
 `;
 
-const MenuButton = styled.button<{ entry: boolean }>`
+const MenuButton = styled.button<{ darkSurface: boolean }>`
   margin-left: 16px;
   .menu-icon {
-    stroke: ${({ entry, theme }) => (entry ? theme.colors.white : theme.colors.primary)};
+    stroke: ${({ darkSurface, theme }) => (darkSurface ? theme.colors.white : theme.colors.primary)};
   }
 `;
 
@@ -120,17 +113,15 @@ const Nav = styled.nav`
   padding: 24px 0 40px;
 `;
 
-const StyledA = styled.span<LinkStyleProps>`
+const NavLink = styled(Link)`
   display: inline-block;
   padding: 10px 10px 12px;
-  ${({ current }) =>
-    current &&
-    css`
-      text-decoration-line: underline;
-      text-underline-offset: 9px;
-      text-decoration-thickness: 2px;
-      text-decoration-color: ${({ theme }) => theme.colors.primary};
-    `}
+  &[aria-current="page"] {
+    text-decoration-line: underline;
+    text-underline-offset: 9px;
+    text-decoration-thickness: 2px;
+    text-decoration-color: ${({ theme }) => theme.colors.primary};
+  }
 `;
 
 const CloseButton = styled.button`
