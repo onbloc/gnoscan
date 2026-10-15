@@ -49,7 +49,10 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
   } = useNftInventoryControls(tokenKey, pageSize, selectedNftId);
   const { data: collectionData } = useGetNftCollection(tokenKey);
   const artwork = useNftArtwork(items);
+  const scrollHandledForRef = React.useRef<string | null>(null);
   const selectInventoryToken = (nftId: string) => {
+    // User-initiated selection must not move the viewport.
+    scrollHandledForRef.current = nftId;
     onSelectItem(nftId);
     selectToken(nftId);
   };
@@ -118,13 +121,13 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
       animations.clear();
     };
   }, []);
-  const scrollHandledForRef = React.useRef<string | null>(null);
+  const panelRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
-    const card = selectedNftId ? cardRefs.current.get(selectedNftId) : undefined;
-    if (!isFetched || !card || scrollHandledForRef.current === selectedNftId) return;
+    const panel = panelRef.current;
+    if (!isFetched || !selectedNftId || !panel || scrollHandledForRef.current === selectedNftId) return;
     scrollHandledForRef.current = selectedNftId;
-    // Deep links and grid selections reveal the card; detail navigation keeps the viewport.
-    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // Only deep links move the viewport, and they land on the detail panel; user selections keep it.
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [isFetched, selectedNftId, items]);
 
   return (
@@ -133,7 +136,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
 
       <S.Grid data-inventory-grid>
         {panelNftId && (
-          <S.PanelSlot data-inventory-panel>
+          <S.PanelSlot ref={panelRef} data-inventory-panel>
             <NftTokenPanel
               nftId={panelNftId}
               tokenKey={tokenKey}
@@ -147,10 +150,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
               item={selectedItem}
               previousNftId={previousNftId}
               nextNftId={nextNftId}
-              onSelect={nftId => {
-                scrollHandledForRef.current = nftId;
-                selectInventoryToken(nftId);
-              }}
+              onSelect={selectInventoryToken}
               onClose={() => selectToken(null)}
             />
           </S.PanelSlot>
