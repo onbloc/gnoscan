@@ -50,7 +50,7 @@ export const Loading = styled.div`
   svg {
     width: 50px;
     height: 50.5px;
-    animation: nft-artwork-rotating 2s linear infinite;
+    animation: nft-artwork-rotating 1s linear infinite;
   }
 
   stop {
