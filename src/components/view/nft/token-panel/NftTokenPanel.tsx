@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } from "@/common/react-query/token/api";
 import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
+import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { useNetwork } from "@/common/hooks/use-network";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
@@ -21,6 +22,7 @@ import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { Pagination } from "@/components/ui/pagination";
 import Tooltip from "@/components/ui/tooltip";
 import { DatatableItem } from "../../datatable";
+import StakedBadge from "../staked-badge/StakedBadge";
 import NftImage from "../nft-image/NftImage";
 import * as S from "./NftTokenPanel.styles";
 
@@ -61,6 +63,7 @@ const NftTokenPanel = ({
   onClose,
 }: NftTokenPanelProps) => {
   const title = `Token #${nftId}`;
+  const staked = !!item && isStakedNft(item);
   const { getUrlWithNetwork } = useNetwork();
   const { data: detail, isLoading, isArtworkLoading } = useGetNftTokenDetail(packagePath, nftId);
   const indexedQuery = useGetNftItemDetail(tokenKey, nftId, { keepPreviousData: false });
@@ -247,6 +250,7 @@ const NftTokenPanel = ({
           <S.TitleArea>
             <S.Title>{title}</S.Title>
             {symbol && <S.SymbolBadge>{symbol}</S.SymbolBadge>}
+            {staked && <StakedBadge size="inline" />}
           </S.TitleArea>
           <S.HeaderButtons>
             <Tooltip
@@ -297,6 +301,14 @@ const NftTokenPanel = ({
               )}
             </dd>
           </S.Row>
+          {staked && (
+            <S.Row>
+              <dt title="Address that staked this position; the staker realm holds the NFT meanwhile">Operator</dt>
+              <dd>
+                {item.operatorAddress ? <DatatableItem.AddressCopy address={item.operatorAddress} /> : EMPTY_VALUE}
+              </dd>
+            </S.Row>
+          )}
           <S.Row>
             <dt title="Caller of the latest mint, including remints; not necessarily the recipient">Minted By</dt>
             <dd>

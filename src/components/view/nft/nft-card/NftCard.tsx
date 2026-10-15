@@ -1,6 +1,7 @@
 import React from "react";
 
 import NftImage from "../nft-image/NftImage";
+import StakedBadge from "../staked-badge/StakedBadge";
 import * as S from "./NftCard.styles";
 
 // Artwork frame per size: account cards follow Figma's 250×251 frame; inventory uses 198×183.
@@ -16,6 +17,8 @@ interface NftCardProps {
   imageLoading?: boolean;
   size?: S.NftCardSize;
   selected?: boolean;
+  // gnoswap position held by the staker
+  staked?: boolean;
   // Rows below the token title (e.g. collection or owner)
   children?: React.ReactNode;
 }
@@ -27,6 +30,7 @@ const NftCard = ({
   imageLoading,
   size = "regular",
   selected = false,
+  staked = false,
   children,
 }: NftCardProps) => {
   const title = `Token #${nftId}`;
@@ -34,7 +38,14 @@ const NftCard = ({
 
   return (
     <S.Card size={size} selected={selected}>
-      <NftImage src={imageUrl} isLoading={imageLoading} alt={title} aspectRatio={IMAGE_ASPECT_RATIO[size]} />
+      <S.Artwork>
+        <NftImage src={imageUrl} isLoading={imageLoading} alt={title} aspectRatio={IMAGE_ASPECT_RATIO[size]} />
+        {staked && (
+          <S.StakedBadgeSlot>
+            <StakedBadge />
+          </S.StakedBadgeSlot>
+        )}
+      </S.Artwork>
       <S.Info size={size}>
         <S.TitleRow>
           <S.Title type="p4" desktopType={isCompact ? "p4" : "p3"} color="primary" style={{ lineHeight: "24px" }}>

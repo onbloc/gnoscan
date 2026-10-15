@@ -30,6 +30,19 @@ export const Card = styled.div<{ size: NftCardSize; selected: boolean }>`
   }
 `;
 
+export const Artwork = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+// 4px inside the artwork's top-right corner (Figma 6712:6791).
+export const StakedBadgeSlot = styled.div`
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+`;
+
 export const Info = styled.div<{ size: NftCardSize }>`
   display: flex;
   flex-direction: column;

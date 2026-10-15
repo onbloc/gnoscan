@@ -4,6 +4,7 @@ import { useSelectedNftToken } from "@/common/hooks/nft/use-selected-nft-token";
 import { useNftInventoryControls } from "@/common/hooks/nft/use-nft-inventory-controls";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetNftCollection } from "@/common/react-query/token/api";
+import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { NftCollectionItemModel } from "@/repositories/api/token/response";
 
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
@@ -209,6 +210,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
                   imageLoading={isLoading}
                   size="compact"
                   selected={item.nftId === selectedNftId}
+                  staked={isStakedNft(item)}
                 >
                   <S.OwnerRow>
                     <span>Owner:</span>
