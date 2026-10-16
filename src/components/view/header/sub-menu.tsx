@@ -88,7 +88,9 @@ const Container = styled.div<{ open: boolean }>`
   z-index: ${zindex.mobileMenu};
   transition: all 0.4s ease-out;
   padding: 0px 18px 20px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 
   ${media.NOT_MOBILE} {
     display: none;
@@ -114,11 +116,13 @@ const TopHeader = styled.div`
   }
 `;
 
+// Centered in the space below the header while it fits, and scrollable from the top when it does not.
 const Nav = styled.nav`
   ${mixins.flexbox("column", "center", "center")};
-  gap: 24px;
-  margin-top: 32px;
-  ${mixins.positionCenter()};
+  flex-shrink: 0;
+  gap: 40px;
+  margin: auto 0;
+  padding: 24px 0 40px;
 `;
 
 const StyledA = styled.span<LinkStyleProps>`

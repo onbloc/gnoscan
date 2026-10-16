@@ -43,7 +43,10 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
     bottom: 0;
     left: 0;
     z-index: ${zindex.modal};
-    max-height: 85vh;
+    // Fixed height, not content-sized, so every NFT opens the same sheet. dvh follows the visible viewport, so the
+    // sheet keeps the same top offset whether the browser toolbar is showing or collapsed (vh is the fallback).
+    height: 85vh;
+    height: 85dvh;
     overflow-y: auto;
     overscroll-behavior: contain;
     border-radius: 16px 16px 0 0;
@@ -74,6 +77,21 @@ export const Backdrop = styled.div<{ $visible: boolean; $interactive: boolean }>
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
+  }
+`;
+
+// Affordance for dragging the bottom sheet down to close it; only shown where the panel is a sheet.
+export const DragHandle = styled.div`
+  display: none;
+
+  ${media.NOT_DESKTOP} {
+    display: block;
+    flex-shrink: 0;
+    width: 36px;
+    height: 4px;
+    margin: -8px auto -4px;
+    border-radius: 2px;
+    background-color: ${({ theme }) => theme.colors.dimmed100};
   }
 `;
 

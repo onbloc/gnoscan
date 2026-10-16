@@ -26,6 +26,11 @@ export const Header = styled.div`
   gap: 12px;
   width: 100%;
   opacity: 0.8;
+
+  ${media.MOBILE} {
+    justify-content: flex-start;
+    gap: 12px 10px;
+  }
 `;
 
 export const TitleWrapper = styled.div`
@@ -45,6 +50,12 @@ export const Chips = styled.div`
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+
+  // Below tablet the chips flow right after the title and wrap only when a chip no longer fits, instead of
+  // the whole group dropping to its own row.
+  ${media.MOBILE} {
+    display: contents;
+  }
 `;
 
 // Figma: P4 (14/20) primary label on every chip; the selected chip is bold, like the active detail tab
@@ -167,6 +178,14 @@ export const CollectionRow = styled.div<{ $position?: boolean }>`
   gap: 25px;
   flex-wrap: ${({ $position }) => ($position ? "wrap" : "nowrap")};
   min-width: 0;
+
+  // On a card this narrow the path (or "View Position") and the collection name stack under the title, so every
+  // card has the same three rows and a row of cards stays equal in height without empty space.
+  ${media.MOBILE} {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
 `;
 
 // Rendered as the gno.web link when the network has one; raised above the stretched card link
@@ -185,7 +204,7 @@ export const CollectionPath = styled.span`
   }
 
   ${media.MOBILE} {
-    display: none;
+    max-width: 100%;
   }
 
   .icon-link {
@@ -203,10 +222,6 @@ export const PositionLink = styled(CollectionPath)`
   flex: 0 0 auto;
   gap: 4px;
   white-space: nowrap;
-
-  ${media.MOBILE} {
-    display: flex;
-  }
 `;
 
 // The path inside is a PathText, which cuts it from the start so the trailing package name stays visible.
