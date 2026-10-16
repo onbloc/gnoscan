@@ -88,7 +88,7 @@ const Container = styled.div<{ open: boolean }>`
   right: ${({ open }) => (open ? "0px" : "100%")};
   width: 100%;
   height: 100%;
-  // Covers the header network button (z-index 99) so the copy in TopHeader slides in with the menu.
+  // Covers the header network button so the copy in TopHeader slides in with the menu.
   z-index: 100;
   transition: all 0.4s ease-out;
   padding: 0px 18px 20px;
