@@ -127,7 +127,7 @@ export const TopNav = () => {
         </Nav>
       </div>
 
-      <HeaderNetwork />
+      <HeaderNetwork entry={entry} />
       <div className="header-mobile-menu">
         <SubMenu
           entry={entry}
@@ -135,7 +135,7 @@ export const TopNav = () => {
           onClick={toggleMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
-          network={<HeaderNetwork />}
+          network={<HeaderNetwork entry />}
         />
       </div>
     </Wrapper>
@@ -143,8 +143,8 @@ export const TopNav = () => {
 };
 
 // Each instance keeps its own dropdown state, so the copy inside the mobile menu works independently.
-// Both header surfaces use the black network button, independent of the page theme.
-const HeaderNetwork = () => {
+// The top bar follows the page header theme; the mobile menu always uses the black button.
+const HeaderNetwork = ({ entry }: { entry: boolean }) => {
   const [toggle, setToggle] = useState<boolean>(false);
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), []);
 
@@ -162,7 +162,7 @@ const HeaderNetwork = () => {
 
   return (
     <Network
-      entry
+      entry={entry}
       chains={chains}
       toggle={toggle}
       toggleHandler={toggleHandler}
