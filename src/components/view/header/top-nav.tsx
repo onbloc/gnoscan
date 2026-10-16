@@ -12,7 +12,7 @@ import { searchState, themeState } from "@/states";
 import mixins from "@/styles/mixins";
 import theme from "@/styles/theme";
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { media } from "@/common/values/ui.constant";
@@ -236,16 +236,32 @@ interface NavDropdownProps {
 const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
   const { getUrlWithNetwork } = useNetwork();
   const [open, setOpen] = useState(false);
+  const mouseHovered = useRef(false);
   const close = useCallback(() => setOpen(false), []);
   const ref = useOutSideClick(close);
 
   return (
     <DropdownWrapper
       ref={ref as React.RefObject<HTMLDivElement>}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={close}
+      onPointerEnter={e => {
+        if (e.pointerType !== "mouse") return;
+        mouseHovered.current = true;
+        setOpen(true);
+      }}
+      onPointerLeave={e => {
+        if (e.pointerType !== "mouse") return;
+        mouseHovered.current = false;
+        close();
+      }}
     >
-      <DropdownButton type="button" entry={entry} open={open} aria-expanded={open} onClick={() => setOpen(!open)}>
+      <DropdownButton
+        type="button"
+        entry={entry}
+        open={open}
+        aria-expanded={open}
+        // Mouse clicks keep the hovered menu open; keyboard and touch clicks still toggle.
+        onClick={e => setOpen(previous => (e.detail > 0 && mouseHovered.current ? true : !previous))}
+      >
         <Text type="p4" color={entry ? "white" : "primary"}>
           {group.name}
         </Text>
