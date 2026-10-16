@@ -237,12 +237,14 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
   const { getUrlWithNetwork } = useNetwork();
   const [open, setOpen] = useState(false);
   const mouseHovered = useRef(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setOpen(false), []);
   const ref = useOutSideClick(close);
 
   return (
     <DropdownWrapper
       ref={ref as React.RefObject<HTMLDivElement>}
+      open={open}
       onPointerEnter={e => {
         if (e.pointerType !== "mouse") return;
         mouseHovered.current = true;
@@ -253,8 +255,19 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
         mouseHovered.current = false;
         close();
       }}
+      onKeyDown={e => {
+        if (e.key !== "Escape" || !open) return;
+        close();
+        triggerRef.current?.focus();
+      }}
+      onBlur={e => {
+        // Close once focus leaves the whole dropdown, not when it moves between its children.
+        if (mouseHovered.current || e.currentTarget.contains(e.relatedTarget)) return;
+        close();
+      }}
     >
       <DropdownButton
+        ref={triggerRef}
         type="button"
         entry={entry}
         open={open}
@@ -286,8 +299,20 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
   );
 };
 
-const DropdownWrapper = styled.div`
+const DropdownWrapper = styled.div<{ open: boolean }>`
   position: relative;
+
+  // Keep the menu hovered while crossing the space below the trigger. Lives on the
+  // untransformed wrapper so the hit area stays continuous during the open animation.
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 122px;
+    height: 18px;
+    pointer-events: ${({ open }) => (open ? "auto" : "none")};
+  }
 `;
 
 const DropdownButton = styled.button<{ entry: boolean; open: boolean }>`
@@ -330,16 +355,6 @@ const DropdownList = styled.ul<{ open: boolean }>`
   transition: all 0.3s ease;
   // Above the home page search box, which overlaps the bottom of the list.
   z-index: ${zindex.searchResult + 1};
-
-  // Keep the menu hovered while crossing the space below the trigger.
-  &::before {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    width: 100%;
-    height: 18px;
-  }
 
   a {
     ${mixins.flexbox("row", "center", "center")};
