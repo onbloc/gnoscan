@@ -1,12 +1,10 @@
 "use client";
 import React from "react";
-import styled from "styled-components";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { NftCollectionListSortOption } from "@/common/types/token";
 import { NftCollectionModel } from "@/repositories/api/token/response";
-import { media } from "@/common/values/ui.constant";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
@@ -72,7 +70,7 @@ export const StandardNetworkNftCollectionListTable = ({
   if (!isFetched) return <TableSkeleton />;
 
   return (
-    <CollectionTableContainer>
+    <CardTableContainer>
       <Datatable
         headers={headers}
         datas={data}
@@ -85,33 +83,6 @@ export const StandardNetworkNftCollectionListTable = ({
           <ViewMoreButton variant="table" text="View More Tokens" onClick={() => fetchNextPage()} />
         </div>
       )}
-    </CollectionTableContainer>
+    </CardTableContainer>
   );
 };
-
-// Keep the table inset; header colors inherit the shared Realms/Tokens treatment.
-const CollectionTableContainer = styled(CardTableContainer)`
-  && {
-    > div:first-child {
-      padding: 24px 24px 0;
-
-      .scroll-wrapper > div:first-child > div {
-        padding-top: 12px;
-        padding-bottom: 12px;
-        line-height: 16px;
-      }
-    }
-
-    .button-wrapper {
-      margin-top: 24px;
-      padding: 0;
-    }
-
-    .view-more-button {
-      ${media.DESKTOP} {
-        width: 308px;
-        padding: 16px 96px;
-      }
-    }
-  }
-`;

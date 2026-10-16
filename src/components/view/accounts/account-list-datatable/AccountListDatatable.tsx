@@ -193,13 +193,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.colors.base};
 
   & > div:first-child {
-    padding: 24px 24px 0;
-
-    .scroll-wrapper > div:first-child > div {
-      padding-top: 12px;
-      padding-bottom: 12px;
-      line-height: 16px;
-    }
+    padding: 20px 24px 0;
   }
 `;
 
