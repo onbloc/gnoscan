@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } from "@/common/react-query/token/api";
 import { acquireBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
+import { useSheetDragDismiss } from "@/common/hooks/common/use-sheet-drag-dismiss";
 import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -111,6 +112,7 @@ const NftTokenPanel = ({
   const finishExitRef = React.useRef<(() => void) | null>(null);
   const [visible, setVisible] = React.useState(false);
   const interactive = open && visible;
+  useSheetDragDismiss(panelRef, interactive, onClose);
 
   useIsomorphicLayoutEffect(() => {
     onExitedRef.current = onExited;
@@ -230,6 +232,7 @@ const NftTokenPanel = ({
         aria-hidden={!interactive}
         onTransitionEnd={onTransitionEnd}
       >
+        <S.DragHandle aria-hidden="true" />
         <S.Header>
           <S.HeaderButtons>
             <S.IconButton

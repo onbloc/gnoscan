@@ -79,6 +79,21 @@ export const Backdrop = styled.div<{ $visible: boolean; $interactive: boolean }>
   }
 `;
 
+// Affordance for dragging the bottom sheet down to close it; only shown where the panel is a sheet.
+export const DragHandle = styled.div`
+  display: none;
+
+  ${media.NOT_DESKTOP} {
+    display: block;
+    flex-shrink: 0;
+    width: 36px;
+    height: 4px;
+    margin: -8px auto -4px;
+    border-radius: 2px;
+    background-color: ${({ theme }) => theme.colors.dimmed100};
+  }
+`;
+
 export const Header = styled.div`
   display: flex;
   align-items: center;
