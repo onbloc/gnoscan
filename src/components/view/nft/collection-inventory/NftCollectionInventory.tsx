@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useSelectedNftToken } from "@/common/hooks/nft/use-selected-nft-token";
+import { holdElementInView } from "@/common/hooks/detail-tabs/tab-hash";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNftInventoryControls } from "@/common/hooks/nft/use-nft-inventory-controls";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
@@ -127,13 +128,17 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
     };
   }, []);
   const panelRef = React.useRef<HTMLDivElement>(null);
+  const cancelPanelHoldRef = React.useRef<(() => void) | null>(null);
   React.useEffect(() => {
     const panel = panelRef.current;
     if (!isFetched || !selectedNftId || !panel || scrollHandledForRef.current === selectedNftId) return;
     scrollHandledForRef.current = selectedNftId;
     // Only deep links move the viewport, and they land on the detail panel; user selections keep it.
-    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // The panel stays at the top while the page above it keeps loading, until the user scrolls.
+    cancelPanelHoldRef.current?.();
+    cancelPanelHoldRef.current = holdElementInView(panel, null);
   }, [isFetched, selectedNftId, items]);
+  React.useEffect(() => () => cancelPanelHoldRef.current?.(), []);
 
   return (
     <S.Container>

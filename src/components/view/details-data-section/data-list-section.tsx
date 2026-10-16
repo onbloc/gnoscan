@@ -4,6 +4,7 @@ import Text from "@/components/ui/text";
 import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useSteadyTabSwitch } from "@/common/hooks/detail-tabs/use-steady-tab-switch";
+import { parseNftTokenHash } from "@/common/utils/nft-token-hash.utility";
 import { getHashTabToApply, holdElementInView, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
 
 interface DataListSectionProps {
@@ -47,8 +48,10 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
     lastHandledUrlRef.current = url;
     if (hashTab !== currentTab) setCurrentTab(hashTab);
     // Deep links land on the tab, not the page top, and stay there while content above finishes loading.
-    // Clicked tabs mark their URL handled first, so they never scroll.
+    // Clicked tabs mark their URL handled first, so they never scroll. A token link lands on its detail
+    // panel instead, which holds its own position.
     cancelHoldRef.current?.();
+    if (parseNftTokenHash(hash)) return;
     if (tabAreaRef.current) cancelHoldRef.current = holdElementInView(tabAreaRef.current, contentRef.current);
   });
 
