@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import PathText from "@/components/ui/path-text/PathText";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useRealm } from "@/common/hooks/realms/use-realm";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -64,7 +64,7 @@ const CustomNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
       <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH} contentClassName="path-wrapper">
         <Badge>
           <Text type="p4" color="reverse" className="ellipsis">
-            {formatDisplayPackagePath(summary?.path)}
+            <PathText path={summary?.path} />
           </Text>
 
           <CopyTooltip variant="path" copyText={summary?.path} />
@@ -142,7 +142,7 @@ const CustomNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
           getTokenAmount={getTokenAmount}
         />
       </Field>
-      {summary?.files && <ShowLog isTabLog={true} files={summary?.files} btnTextType="Realms" />}
+      {summary?.files && <ShowLog isTabLog={true} files={summary?.files} />}
     </DataSection>
   );
 };

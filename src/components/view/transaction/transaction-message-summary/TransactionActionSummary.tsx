@@ -3,9 +3,9 @@ import styled from "styled-components";
 
 import Text from "@/components/ui/text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
-import { GNOSWAP_APP_BASE_URL } from "@/common/values/constant-value";
 import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
-import { formatTokenDecimal, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { formatPoolFeePercent, gnoswapPoolUrl, gnoswapPositionUrl } from "@/common/utils/gnoswap-link.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ActionAsset, TransactionAction } from "@/types/data-type";
 import {
   ActionAmount,
@@ -85,14 +85,6 @@ const Ref = ({ label, value, href }: { label?: string; value: string; href?: str
   );
 };
 
-const gnoswapPoolUrl = (poolPath: string) =>
-  `${GNOSWAP_APP_BASE_URL}/earn/pool?poolPath=${encodeURIComponent(poolPath)}`;
-
-const gnoswapPositionUrl = (poolPath: string, positionId: string, ownerAddress?: string) => {
-  const addrQuery = ownerAddress ? `&addr=${encodeURIComponent(ownerAddress)}` : "";
-  return `${gnoswapPoolUrl(poolPath)}${addrQuery}#${encodeURIComponent(positionId)}`;
-};
-
 // Every pool/position action carries its own canonical "pool" asset (already the on-chain
 // "token0Path:token1Path:fee"), so this is never reconstructed from other assets.
 const poolHref = (pool: ActionAsset | undefined) => (pool ? gnoswapPoolUrl(pool.value) : undefined);
@@ -105,15 +97,11 @@ const Verb = ({ children }: { children: React.ReactNode }) => (
   </Text>
 );
 
-// Pool fee tiers are raw hundredths-of-a-bip units (e.g. "3000" = 0.3%), same as gnoswap itself
-// uses - see onbloc-api-v3's gnoswap/pool.go.
-const formatFeePercent = (fee: string) => `${formatTokenDecimal(fee, 4)}%`;
-
 // pairLabel and the fee% live in one Text (not two adjacent "display: contents" nodes) - two
 // such nodes next to each other don't reliably get the flex gap between them, so they'd render
 // glued together ("GNS0.3%") otherwise.
 const PoolFeeClause = ({ fee, pairLabel, href }: { fee: string; pairLabel?: string; href?: string }) => {
-  const feeLabel = formatFeePercent(fee);
+  const feeLabel = formatPoolFeePercent(fee);
   const text = (
     <>
       {pairLabel && (

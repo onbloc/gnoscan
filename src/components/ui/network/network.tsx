@@ -223,7 +223,8 @@ const NetworkButton = styled.button<StyleProps>`
   border-radius: 12px;
   justify-content: center;
   align-items: center;
-  z-index: ${zindex.networkButton};
+  // Header dropdowns stay above page content, but below modal backdrops.
+  z-index: ${zindex.searchResult};
 
   .svg-icon {
     width: 24px;

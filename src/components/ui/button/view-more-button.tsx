@@ -11,6 +11,7 @@ interface ViewMoreButtonProps {
   text?: string;
   // "table" renders the paging button shown below datatables
   variant?: "default" | "table";
+  className?: string;
 }
 
 export const ViewMoreButton = ({
@@ -18,6 +19,7 @@ export const ViewMoreButton = ({
   disabled = false,
   text = "View More Transactions",
   variant = "default",
+  className,
 }: ViewMoreButtonProps) => {
   if (variant === "table") {
     return (
@@ -28,7 +30,7 @@ export const ViewMoreButton = ({
   }
 
   return (
-    <Wrapper onClick={onClick} disabled={disabled} fullWidth height="52px">
+    <Wrapper className={className} onClick={onClick} disabled={disabled} fullWidth height="52px">
       <Text type="h7" color="reverse">
         {text}
       </Text>

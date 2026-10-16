@@ -1,11 +1,14 @@
 import {
   GetAccountDirectTransactionsRequest,
+  GetAccountGRC721CollectionItemsRequest,
   GetAccountNativeTransfersRequest,
   GetAccountTokenTransfersRequest,
   GetAccountsRequest,
 } from "./request";
 import {
   GetAccountDirectTransactionsResponse,
+  GetAccountGRC721CollectionItemsResponse,
+  GetAccountGRC721CollectionsResponse,
   GetAccountNativeTransfersResponse,
   GetAccountResponse,
   GetAccountTokenTransfersResponse,
@@ -24,4 +27,10 @@ export interface ApiAccountRepository {
   getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse>;
 
   getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse>;
+
+  getAccountGRC721Collections(address: string): Promise<GetAccountGRC721CollectionsResponse>;
+
+  getAccountGRC721CollectionItems(
+    params: GetAccountGRC721CollectionItemsRequest,
+  ): Promise<GetAccountGRC721CollectionItemsResponse>;
 }

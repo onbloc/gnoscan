@@ -15,9 +15,10 @@ import { getRepresentativeTransactionFunction } from "@/common/utils/transaction
  * - "direct": Transactions tab (Tx Hash, Function, Block, Caller, Native Value, Fee, Time).
  * - "transfers": Native/Token Transfers on account & realm pages (Amount In/Out).
  * - "token-volume": Token page's own Token Transfers tab (Volume/Transfers count instead of In/Out).
+ * - "token-ids": NFT collection Token Transfers (TokenID list, retaining repeated transfers).
  * - "internal": Internal Transactions tab (Entry Function, Realm Events summary).
  */
-export type ActivityDatatableVariant = "direct" | "transfers" | "token-volume" | "internal";
+export type ActivityDatatableVariant = "direct" | "transfers" | "token-volume" | "token-ids" | "internal";
 
 interface Props {
   variant: ActivityDatatableVariant;
@@ -182,14 +183,25 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
           createHeaderTime(),
         ];
       case "token-volume":
+      case "token-ids":
         return [
           createHeaderTxHash(),
-          createHeaderFunction(210),
+          createHeaderFunction(variant === "token-ids" ? 180 : 210),
           createHeaderBlock(),
-          createHeaderVolume(256),
+          variant === "token-ids"
+            ? DatatableOption.Builder.builder<ActivityRow>()
+                .key("volume")
+                .name("TokenID")
+                .width(140)
+                .renderOption((_, row) => {
+                  const tokenIds = row.volume.flatMap(amount => amount.tokenIds ?? []);
+                  return <span>{tokenIds.length ? tokenIds.map(id => `#${id}`).join(" ") : "-"}</span>;
+                })
+                .build()
+            : createHeaderVolume(256),
           createHeaderTransferCount(120),
-          createHeaderFee(),
-          createHeaderTime(),
+          createHeaderFee(variant === "token-ids" ? 180 : 130),
+          createHeaderTime(variant === "token-ids" ? 216 : 120),
         ];
       case "internal":
         // One column fewer: spread the spare width across all columns instead of padding Realm Events.

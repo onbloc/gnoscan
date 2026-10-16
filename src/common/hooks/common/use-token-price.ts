@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import BigNumber from "bignumber.js";
 
 import { useGetPrices } from "@/common/react-query/price";
-import { formatTokenUsd, TokenPriceMap } from "@/common/utils/price.utility";
+import { formatTokenUsd, getTokenPriceEntry, TokenPriceMap } from "@/common/utils/price.utility";
 
 const EMPTY_PRICE_MAP: TokenPriceMap = {};
 
@@ -17,5 +17,7 @@ export const useTokenPrice = () => {
     [priceMap],
   );
 
-  return { isLoading, getUsdDisplay };
+  const getPriceEntry = useCallback((tokenKey: string) => getTokenPriceEntry(priceMap, tokenKey), [priceMap]);
+
+  return { isLoading, getUsdDisplay, getPriceEntry };
 };

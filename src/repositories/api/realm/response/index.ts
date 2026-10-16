@@ -5,3 +5,4 @@ export * from "./get-realm-direct-transactions-response";
 export * from "./get-realm-native-transfers-response";
 export * from "./get-realm-token-transfers-response";
 export * from "./get-realm-internal-transactions-response";
+export * from "./get-realm-holders-response";

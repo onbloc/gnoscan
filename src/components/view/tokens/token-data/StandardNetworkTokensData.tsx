@@ -1,7 +1,9 @@
 import React from "react";
 
 import { TokenListSortOption } from "@/common/types/token";
-import { toTokenListApiSortParams } from "@/common/utils/sort/token-list-sort";
+import { isClientSortField, sortTokensOnClient, toTokenListApiSortParams } from "@/common/utils/sort/token-list-sort";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
+import { useFetchRemainingPages } from "@/common/hooks/common/use-fetch-remaining-pages";
 
 import { StandardNetworkTokenListTable } from "../token-list-table/standard-network-token-list-table/StandardNetworkTokenListTable";
 import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-tokens";
@@ -12,11 +14,28 @@ interface StandardNetworkTokensDataProps {
 }
 
 const StandardNetworkTokensData = ({ sortOption, setSortOption }: StandardNetworkTokensDataProps) => {
-  const apiParams = React.useMemo(() => toTokenListApiSortParams(sortOption), [sortOption.field, sortOption.order]);
+  const apiParams = React.useMemo(() => toTokenListApiSortParams(sortOption), [sortOption]);
 
   const tokensData = useMappedApiTokens(apiParams);
+  const { getPriceEntry } = useTokenPrice();
+  const isClientSort = isClientSortField(sortOption);
+  // A client side sort only orders loaded rows, so load every page first.
+  useFetchRemainingPages(tokensData, isClientSort);
 
-  return <StandardNetworkTokenListTable sortOption={sortOption} setSortOption={setSortOption} {...tokensData} />;
+  const data = React.useMemo(
+    () => sortTokensOnClient(tokensData.data, sortOption, getPriceEntry),
+    [tokensData.data, sortOption, getPriceEntry],
+  );
+
+  return (
+    <StandardNetworkTokenListTable
+      sortOption={sortOption}
+      setSortOption={setSortOption}
+      {...tokensData}
+      data={data}
+      hasNextPage={!isClientSort && tokensData.hasNextPage}
+    />
+  );
 };
 
 export default StandardNetworkTokensData;

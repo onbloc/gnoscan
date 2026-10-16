@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
 import Portal from "@/components/core/portal";
 import mixins from "@/styles/mixins";
@@ -12,6 +12,7 @@ import { mobileNavItems } from "./top-nav";
 import Link from "next/link";
 import { v1 } from "uuid";
 import Text from "@/components/ui/text";
+import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { useNetwork } from "@/common/hooks/use-network";
 import { media } from "@/common/values/ui.constant";
 import { zindex } from "@/common/values/z-index";
@@ -40,13 +41,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
   network,
 }) => {
   const { getUrlWithNetwork } = useNetwork();
-  useLayoutEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-  }, [open]);
+  useBodyScrollLock(open);
 
   const close = (e: React.MouseEvent<HTMLElement>) => setTimeout(() => onClick(e), 100);
 
@@ -89,6 +84,7 @@ const Container = styled.div<{ open: boolean }>`
   right: ${({ open }) => (open ? "0px" : "100%")};
   width: 100%;
   height: 100%;
+  // Covers the header network button so the copy in TopHeader slides in with the menu.
   z-index: ${zindex.mobileMenu};
   transition: all 0.4s ease-out;
   padding: 0px 18px 20px;

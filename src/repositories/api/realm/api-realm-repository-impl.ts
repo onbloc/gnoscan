@@ -9,6 +9,7 @@ import {
   GetRealmNativeTransfersRequest,
   GetRealmTokenTransfersRequest,
   GetRealmInternalTransactionsRequest,
+  GetRealmHoldersRequest,
 } from "./request";
 import {
   GetRealmEventsResponse,
@@ -18,6 +19,7 @@ import {
   GetRealmNativeTransfersResponse,
   GetRealmTokenTransfersResponse,
   GetRealmInternalTransactionsResponse,
+  GetRealmHoldersResponse,
 } from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { makeEncodedQueryParameter } from "@/common/utils/string-util";
@@ -66,6 +68,11 @@ export class ApiRealmRepositoryImpl extends ApiRepository implements ApiRealmRep
   getRealmTokenTransfers(params: GetRealmTokenTransfersRequest): Promise<GetRealmTokenTransfersResponse> {
     const { path, ...queryParams } = params;
     return this.get<GetRealmTokenTransfersResponse>(`/realms/${encodeURIComponent(path)}/token-transfers`, queryParams);
+  }
+
+  getRealmHolders(params: GetRealmHoldersRequest): Promise<GetRealmHoldersResponse> {
+    const { path, ...queryParams } = params;
+    return this.get<GetRealmHoldersResponse>(`/realms/${encodeURIComponent(path)}/holders`, queryParams);
   }
 
   getRealmInternalTransactions(

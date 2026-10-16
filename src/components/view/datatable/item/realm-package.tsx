@@ -2,7 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
-import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
+import PathText from "@/components/ui/path-text/PathText";
 
 import Tooltip from "@/components/ui/tooltip";
 
@@ -13,7 +14,6 @@ interface Props {
 
 export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
-  const displayPackagePath = formatDisplayTokenPath(stripGnoLandPrefix(packagePath), 4);
 
   return (
     <Tooltip content={<TooltipContent packagePath={packagePath} />}>
@@ -22,7 +22,7 @@ export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
         maxWidth={maxWidth || 170}
         href={getUrlWithNetwork(`/realms/details?path=${packagePath}`)}
       >
-        <span className="link">{displayPackagePath}</span>
+        <PathText path={stripGnoLandPrefix(packagePath)} />
       </PackagePathLink>
     </Tooltip>
   );

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { css } from "styled-components";
 
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import PathText from "@/components/ui/path-text/PathText";
 import { TOOLTIP_NOT_YET_ENABLED } from "@/common/values/tooltip-content.constant";
 import { PaletteKeyType } from "@/styles";
 import { useGetRealmByPath } from "@/common/react-query/realm/api";
@@ -129,12 +129,6 @@ export const PkgPathLink: React.FC<PkgPathLinkProps> = ({
   isEllipsis,
   visibleRealmStatus,
 }) => {
-  const displayPkgPath = React.useMemo(() => {
-    if (isEllipsis) {
-      return formatDisplayPackagePath(path);
-    }
-    return path;
-  }, [path]);
   const isRealmNotEnabled = useIsRealmNotEnabled(path, !!visibleRealmStatus);
 
   return (
@@ -143,7 +137,7 @@ export const PkgPathLink: React.FC<PkgPathLinkProps> = ({
         <AddressTextBox>
           <Text type="p4" color="blue" className="ellipsis">
             <Link href={getUrlWithNetwork(`/realms/details?path=${path}`)} passHref>
-              <FitContentSpan>{displayPkgPath}</FitContentSpan>
+              {isEllipsis ? <PathText path={path} /> : <FitContentSpan>{path}</FitContentSpan>}
             </Link>
           </Text>
           <CopyTooltip variant="address" copyText={path} />

@@ -6,3 +6,4 @@ export * from "./use-get-token-meta-by-path";
 export * from "./use-get-token-meta-transactions-by-id";
 export * from "./use-get-token-meta-internal-transactions-by-id";
 export * from "./use-get-token-events-by-id";
+export * from "./use-get-nft-collection";
