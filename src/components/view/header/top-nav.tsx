@@ -15,11 +15,13 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { DEVICE_SIZE_THRESHOLDS, media } from "@/common/values/ui.constant";
+import { media } from "@/common/values/ui.constant";
 import { SubMenu } from "./sub-menu";
 import IconChevron from "@/assets/svgs/icon-chevron.svg";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { zindex } from "@/common/values/z-index";
+
+const HEADER_MOBILE_MAX_WIDTH = 600;
 
 // Whether the header sits on a dark background, so text and icons render white.
 interface WrapperProps {
@@ -41,7 +43,7 @@ const transactionsLink = { name: "Transactions", path: "/transactions" };
 const accountsLink = { name: "Accounts", path: "/accounts" };
 const validatorsLink = { name: "Validators", path: "/validators" };
 const tokensLink = { name: "Tokens", path: "/tokens" };
-const nftsLink = { name: "NFTs", path: "/nft-collections" };
+const nftsLink = { name: "NFTs", path: "/nfts" };
 const realmsLink = { name: "Realms", path: "/realms" };
 
 /**
@@ -86,7 +88,7 @@ export const TopNav = () => {
 
   // The mobile menu is portaled outside the header, so close it (and release its scroll lock) above mobile.
   useEffect(() => {
-    const notMobileQuery = window.matchMedia(`(min-width: ${DEVICE_SIZE_THRESHOLDS.TABLET}px)`);
+    const notMobileQuery = window.matchMedia(`(min-width: ${HEADER_MOBILE_MAX_WIDTH + 1}px)`);
     const closeAboveMobile = (e: MediaQueryListEvent) => e.matches && setOpen(false);
     notMobileQuery.addEventListener("change", closeAboveMobile);
     return () => notMobileQuery.removeEventListener("change", closeAboveMobile);
@@ -109,7 +111,7 @@ export const TopNav = () => {
           <SubInput className="sub-search" value={value} onChange={onChange} clearValue={() => setValue("")} />
         </div>
       )}
-      <div className="hide-mobile">
+      <div className="header-navigation">
         <Nav>
           {navItems.map(v =>
             "items" in v ? (
@@ -125,15 +127,15 @@ export const TopNav = () => {
         </Nav>
       </div>
 
-      <HeaderNetwork entry={entry} />
-      <div className="only-mobile">
+      <HeaderNetwork />
+      <div className="header-mobile-menu">
         <SubMenu
           entry={entry}
           open={open}
           onClick={toggleMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
-          network={<HeaderNetwork entry={themeMode === "dark"} />}
+          network={<HeaderNetwork />}
         />
       </div>
     </Wrapper>
@@ -141,7 +143,8 @@ export const TopNav = () => {
 };
 
 // Each instance keeps its own dropdown state, so the copy inside the mobile menu works independently.
-const HeaderNetwork = ({ entry }: { entry: boolean }) => {
+// Both header surfaces use the black network button, independent of the page theme.
+const HeaderNetwork = () => {
   const [toggle, setToggle] = useState<boolean>(false);
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), []);
 
@@ -159,7 +162,7 @@ const HeaderNetwork = ({ entry }: { entry: boolean }) => {
 
   return (
     <Network
-      entry={entry}
+      entry
       chains={chains}
       toggle={toggle}
       toggleHandler={toggleHandler}
@@ -182,9 +185,19 @@ const Wrapper = styled.div<WrapperProps>`
   }
   // CSS picks the layout so the server HTML matches the hydrated header.
   .only-desktop,
-  .hide-mobile,
-  .only-mobile {
+  .header-navigation,
+  .header-mobile-menu {
     display: contents;
+  }
+  @media (max-width: ${HEADER_MOBILE_MAX_WIDTH}px) {
+    .header-navigation {
+      display: none;
+    }
+  }
+  @media (min-width: ${HEADER_MOBILE_MAX_WIDTH + 1}px) {
+    .header-mobile-menu {
+      display: none;
+    }
   }
   ${media.NOT_DESKTOP} {
     .logo-icon {
@@ -201,10 +214,10 @@ const Wrapper = styled.div<WrapperProps>`
 const Nav = styled.nav`
   ${mixins.flexbox("row", "center", "center")};
   margin-left: auto;
-  gap: 28px;
+  gap: 32px;
   margin-right: 28px;
 
-  ${media.TABLET} {
+  ${media.NOT_DESKTOP} {
     gap: 24px;
     margin-right: 16px;
   }
@@ -227,12 +240,17 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
   const ref = useOutSideClick(close);
 
   return (
-    <DropdownWrapper ref={ref as React.RefObject<HTMLDivElement>}>
+    <DropdownWrapper
+      ref={ref as React.RefObject<HTMLDivElement>}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={close}
+    >
       <DropdownButton type="button" entry={entry} open={open} aria-expanded={open} onClick={() => setOpen(!open)}>
         <Text type="p4" color={entry ? "white" : "primary"}>
           {group.name}
         </Text>
-        <IconChevron className="chevron" />
+        {/* Preserve scaling into the CSS dimensions; SVG optimization removes the asset's viewBox. */}
+        <IconChevron className="chevron" viewBox="0 0 11.4674 7.18129" />
       </DropdownButton>
       <DropdownList open={open}>
         {group.items.map(item => {
@@ -268,7 +286,7 @@ const DropdownButton = styled.button<{ entry: boolean; open: boolean }>`
 
   .chevron {
     width: 8px;
-    height: 5px;
+    height: 4.57px;
     transform: rotate(${({ open }) => (open ? "0deg" : "180deg")});
     transition: transform 0.3s ease;
   }
@@ -278,6 +296,9 @@ const DropdownButton = styled.button<{ entry: boolean; open: boolean }>`
 `;
 
 const DropdownList = styled.ul<{ open: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   position: absolute;
   top: calc(100% + 18px);
   left: 0;
@@ -293,6 +314,16 @@ const DropdownList = styled.ul<{ open: boolean }>`
   transition: all 0.3s ease;
   // Above the home page search box, which overlaps the bottom of the list.
   z-index: ${zindex.searchResult + 1};
+
+  // Keep the menu hovered while crossing the space below the trigger.
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    height: 18px;
+  }
 
   a {
     ${mixins.flexbox("row", "center", "center")};
