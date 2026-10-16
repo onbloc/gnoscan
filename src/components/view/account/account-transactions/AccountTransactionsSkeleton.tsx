@@ -17,7 +17,6 @@ interface Props {
 const AccountTransactionsSkeleton = ({ tabNames = ACCOUNT_DETAIL_TABS }: Props) => {
   return (
     <DataListSection
-      wrapTabsOnMobile
       tabs={tabNames.map(tabName => ({ tabName }))}
       currentTab={tabNames[0]}
       setCurrentTab={() => undefined}

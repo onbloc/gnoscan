@@ -53,7 +53,7 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
   }
 
   return (
-    <DataListSection wrapTabsOnMobile tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <ActivityDatatable
           variant="direct"
