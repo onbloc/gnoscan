@@ -9,7 +9,6 @@ import { searchState } from "@/states";
 import mixins from "@/styles/mixins";
 import Text from "@/components/ui/text";
 import { MainInput, SubInput } from "@/components/ui/input";
-import { debounce } from "@/common/utils/string-util";
 import { RiseIn, StretchOut } from "@/components/ui/animation/Animation";
 import { FontsType } from "@/styles";
 import { zindex } from "@/common/values/z-index";
@@ -26,12 +25,7 @@ export const BtmNav = () => {
   const entry = router.route === "/";
   const [value, setValue] = useRecoilState(searchState);
 
-  const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      debounce(setValue(e.target.value), 1000);
-    },
-    [value],
-  );
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), [setValue]);
 
   const clearValue = () => {
     setValue("");

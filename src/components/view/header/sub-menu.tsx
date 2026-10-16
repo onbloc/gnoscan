@@ -8,13 +8,14 @@ import MenuIcon from "@/assets/svgs/icon-menu-button.svg";
 import CloseIcon from "@/assets/svgs/icon-close.svg";
 import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
-import { navItems } from "./top-nav";
+import { mobileNavItems } from "./top-nav";
 import Link from "next/link";
 import { v1 } from "uuid";
 import Text from "@/components/ui/text";
 import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { useNetwork } from "@/common/hooks/use-network";
 import { media } from "@/common/values/ui.constant";
+import { zindex } from "@/common/values/z-index";
 
 interface LinkStyleProps {
   current: boolean;
@@ -59,7 +60,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
             </CloseButton>
           </TopHeader>
           <Nav>
-            {navItems.map((v, i) => (
+            {mobileNavItems.map(v => (
               <Link href={getUrlWithNetwork(v.path)} passHref key={v1()} onClick={close}>
                 <StyledA current={currentPath === v.path}>
                   <Text type="h4" color="primary">
@@ -84,12 +85,12 @@ const Container = styled.div<{ open: boolean }>`
   width: 100%;
   height: 100%;
   // Covers the header network button so the copy in TopHeader slides in with the menu.
-  z-index: 100;
+  z-index: ${zindex.mobileMenu};
   transition: all 0.4s ease-out;
   padding: 0px 18px 20px;
   overflow: hidden;
 
-  ${media.DESKTOP} {
+  ${media.NOT_MOBILE} {
     display: none;
   }
 `;
@@ -115,16 +116,13 @@ const TopHeader = styled.div`
 
 const Nav = styled.nav`
   ${mixins.flexbox("column", "center", "center")};
-  gap: 48px;
+  gap: 24px;
   margin-top: 32px;
   ${mixins.positionCenter()};
-
-  ${media.MOBILE} {
-    gap: 36px;
-  }
 `;
 
-const StyledA = styled.a<LinkStyleProps>`
+const StyledA = styled.span<LinkStyleProps>`
+  display: inline-block;
   padding: 10px 10px 12px;
   ${({ current }) =>
     current &&

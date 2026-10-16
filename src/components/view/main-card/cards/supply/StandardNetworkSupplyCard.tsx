@@ -38,9 +38,9 @@ export const StandardNetworkSupplyCard = () => {
                 type="body2"
                 color={priceChangeColor}
                 margin="2px 0px 0px 6px"
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: "Inter, sans-serif", fontSize: 13 }}
               >
-                <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor}>
+                <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor} style={{ fontSize: 13 }}>
                   {formatPriceChange(priceChange)}
                 </Text>{" "}
                 (24h)

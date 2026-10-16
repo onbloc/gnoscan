@@ -17,6 +17,7 @@ import { NodeRPCClient } from "@/common/clients/node-client";
 import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { sleep } from "@/common/utils/common.utility";
 import { getDefaultChain } from "@/common/config/network.config";
+import { media } from "@/common/values/ui.constant";
 
 export interface NetworkData {
   all: string[];
@@ -42,7 +43,7 @@ interface ConnectionErrorState {
 }
 
 const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
-  const { currentNetwork, nodeRPCClient } = useNetworkProvider();
+  const { currentNetwork } = useNetworkProvider();
   const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
 
   const [isNetworkSwitching, setIsNetworkSwitching] = useState(false);
@@ -89,10 +90,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
       try {
         await tempRpcClient.health();
-      } catch (error) {
+      } catch {
         await sleep(500);
         setConnectionError("customRpcUrl", true);
-        setIsNetworkSwitching(false);
         return;
       }
 
@@ -101,10 +101,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
         try {
           await tempIndexerClient.health();
-        } catch (error) {
+        } catch {
           await sleep(500);
           setConnectionError("customIndexerUrl", true);
-          setIsNetworkSwitching(false);
           return;
         }
       }
@@ -123,17 +122,24 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     }
   }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
+  // Default network until it resolves after hydration, so the button keeps its width
+  const networkName = (currentNetwork ?? getDefaultChain(chains))?.name || "";
+
   return (
-    <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
+    <NetworkButton
+      entry={entry}
+      onClick={toggleHandler}
+      ref={ref}
+      aria-label={`Select network, current network: ${networkName}`}
+    >
       <NetworkInfoWrapper>
         {isReverseColor || isDark ? (
           <GnoscanSymbol className="svg-icon" />
         ) : (
           <GnoscanSymbolLight className="svg-icon" />
         )}
-        <Text type="h7" color={isReverseColor ? "white" : "primary"}>
-          {/* Default network until it resolves after hydration, so the button keeps its width */}
-          {(currentNetwork ?? getDefaultChain(chains))?.name || ""}
+        <Text type="h7" color={isReverseColor ? "white" : "primary"} className="network-name">
+          {networkName}
         </Text>
       </NetworkInfoWrapper>
       <NetworkList toggle={toggle} entry={entry}>
@@ -237,6 +243,15 @@ const NetworkInfoWrapper = styled.div<StyleProps>`
   gap: 8px;
   justify-content: center;
   align-items: center;
+
+  ${media.NOT_DESKTOP} {
+    .network-name {
+      display: none;
+    }
+  }
+  ${media.MOBILE} {
+    padding: 10px;
+  }
 `;
 
 const NetworkList = styled.ul<StyleProps>`
