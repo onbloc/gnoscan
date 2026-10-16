@@ -81,7 +81,7 @@ export function makeQueryString(params: { [key in string]: string } | null) {
 /**
  * Display form of a package path wherever one is shown: every bech32 address segment keeps only its first
  * and last `visibleLength` characters; the other segments (nested package and token names) stay intact.
- * "r/g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd/gnofly/nfts/planes" -> "r/g1t2...t4sfd/gnofly/nfts/planes"
+ * "r/g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd/gnofly/nfts/planes" -> "r/g1t2…4sfd/gnofly/nfts/planes"
  * Fit it into a narrow area with the truncate-from-start path text so the trailing names stay visible.
  */
 export function formatDisplayPackagePath(packagePath: string | null | undefined, visibleLength = 4): string {
@@ -93,16 +93,16 @@ export function formatDisplayPackagePath(packagePath: string | null | undefined,
     .split("/")
     .map(segment =>
       segment.length > visibleLength * 2 && isBech32Address(segment)
-        ? `${segment.slice(0, visibleLength)}...${segment.slice(-visibleLength)}`
+        ? `${segment.slice(0, visibleLength)}…${segment.slice(-visibleLength)}`
         : segment,
     )
     .join("/");
 }
 
 /**
- * Fits a display path into `availableWidth` by dropping whole leading segments behind a "..." marker, so the
- * trailing names are never cut and no address is cut in the middle: "r/g1n4...rhmt/bazaar/c/name" becomes
- * ".../bazaar/c/name", then ".../c/name". The last two segments are always kept so a short final name such as
+ * Fits a display path into `availableWidth` by dropping whole leading segments behind a "…" marker, so the
+ * trailing names are never cut and no address is cut in the middle: "r/g1n4…rhmt/bazaar/c/name" becomes
+ * "…/bazaar/c/name", then "…/c/name". The last two segments are always kept so a short final name such as
  * "v0" still shows its package; the caller cuts the remaining overflow from the start. `measure` returns the
  * rendered width of a candidate.
  */
@@ -114,13 +114,13 @@ export function fitPathToWidth(path: string, availableWidth: number, measure: (c
   const segments = path.split("/");
   const minKept = Math.min(2, segments.length - 1);
   for (let dropped = 1; dropped <= segments.length - minKept; dropped++) {
-    const candidate = `.../${segments.slice(dropped).join("/")}`;
+    const candidate = `…/${segments.slice(dropped).join("/")}`;
     if (measure(candidate) <= availableWidth) {
       return candidate;
     }
   }
 
-  return segments.length > 1 ? `.../${segments.slice(-minKept).join("/")}` : path;
+  return segments.length > 1 ? `…/${segments.slice(-minKept).join("/")}` : path;
 }
 
 export function makeQueryParameter(data: {

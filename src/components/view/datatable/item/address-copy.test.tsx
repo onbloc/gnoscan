@@ -49,6 +49,6 @@ it("shortens a nested realm label without changing its canonical destination", (
     labelType: "realm",
     truncateFromStart: true,
   });
-  expect(html).toContain("r/g1t2...4sfd/gnofly/nfts/market/bazaar/v1/gnofly");
+  expect(html).toContain("r/g1t2…4sfd/gnofly/nfts/market/bazaar/v1/gnofly");
   expect(html).toContain(`href="/realms/details?path=${realmPath}"`);
 });
