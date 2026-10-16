@@ -69,5 +69,5 @@ export function useSteadyTabSwitch<T extends HTMLElement>(currentTab: string, se
 
   const contentStyle = padding === null ? undefined : { minHeight: padding };
 
-  return { contentRef, contentStyle, selectTab };
+  return { contentRef, contentStyle, selectTab, setPadding };
 }

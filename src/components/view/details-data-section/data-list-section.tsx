@@ -25,7 +25,12 @@ interface DataListSectionProps {
 }
 
 const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
-  const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
+  const { contentRef, contentStyle, selectTab, setPadding } = useSteadyTabSwitch<HTMLDivElement>(
+    currentTab,
+    setCurrentTab,
+  );
+  const latestRef = React.useRef({ currentTab, setPadding });
+  latestRef.current = { currentTab, setPadding };
 
   const tabAreaRef = React.useRef<HTMLDivElement>(null);
   const cancelHoldRef = React.useRef<(() => void) | null>(null);
@@ -60,7 +65,19 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
     cancelHoldRef.current?.();
     if (parseNftTokenHash(hash)) return;
     if (tabAreaRef.current) {
-      cancelHoldRef.current = holdElementInView(tabAreaRef.current, contentRef.current, TAB_HOLD_SCOPE, url);
+      cancelHoldRef.current = holdElementInView(
+        tabAreaRef.current,
+        contentRef.current,
+        TAB_HOLD_SCOPE,
+        url,
+        // Keep the height with the history entry so Back/Forward has it before Next.js restores the scroll.
+        // Only once the hash tab is showing, because the padding is stored per tab.
+        minHeight => {
+          if (latestRef.current.currentTab !== hashTab) return false;
+          latestRef.current.setPadding(minHeight);
+          return true;
+        },
+      );
     }
   });
 

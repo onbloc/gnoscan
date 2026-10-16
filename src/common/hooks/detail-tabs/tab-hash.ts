@@ -58,7 +58,9 @@ export function markHoldHandled(scope: string, key: string): void {
 /**
  * Keeps `element` at the top of the viewport while the page above it is still loading and
  * pushing it down. When the page is too short to scroll that far, `content` gets the min-height
- * it needs. Stops on the first user input or after `durationMs`, then marks `key` handled for `scope`.
+ * it needs. `onMinHeight` receives that height so the caller can persist it for history restoration and
+ * returns whether it did; it is retried on later layout changes and when the hold settles.
+ * Stops on the first user input or after 15s, then marks `key` handled for `scope`.
  * Does nothing when `key` was already handled on this history entry. Returns a cancel function for
  * unmounting, which leaves `key` unhandled so a remount within the same visit holds again.
  */
@@ -67,10 +69,17 @@ export function holdElementInView(
   content: HTMLElement | null,
   scope: string,
   key: string,
-  durationMs = 15000,
+  onMinHeight?: (minHeight: number) => boolean,
 ): () => void {
+  const durationMs = 15000;
   if (isHoldHandled(scope, key)) return () => {};
+  let appliedMinHeight: number | null = null;
+  let persisted = true;
+  const persist = () => {
+    if (appliedMinHeight !== null && !persisted && onMinHeight) persisted = onMinHeight(appliedMinHeight);
+  };
   const align = () => {
+    persist();
     const top = element.getBoundingClientRect().top;
     if (Math.abs(top) <= 1) return;
     const minHeight =
@@ -81,7 +90,12 @@ export function holdElementInView(
         document.documentElement.scrollHeight,
         content.offsetHeight,
       );
-    if (minHeight != null && content) content.style.minHeight = `${minHeight}px`;
+    if (minHeight != null && content) {
+      content.style.minHeight = `${minHeight}px`;
+      appliedMinHeight = minHeight;
+      persisted = false;
+      persist();
+    }
     element.scrollIntoView({ block: "start" });
   };
   const observer = new ResizeObserver(align);
@@ -97,6 +111,7 @@ export function holdElementInView(
     USER_INPUT_EVENTS.forEach(type => window.removeEventListener(type, settle));
   }
   function settle() {
+    persist();
     cancel();
     markHoldHandled(scope, key);
   }
