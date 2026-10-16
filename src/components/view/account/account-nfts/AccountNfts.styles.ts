@@ -26,6 +26,11 @@ export const Header = styled.div`
   gap: 12px;
   width: 100%;
   opacity: 0.8;
+
+  ${media.MOBILE} {
+    justify-content: flex-start;
+    gap: 12px 10px;
+  }
 `;
 
 export const TitleWrapper = styled.div`
@@ -45,6 +50,12 @@ export const Chips = styled.div`
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+
+  // Below tablet the chips flow right after the title and wrap only when a chip no longer fits, instead of
+  // the whole group dropping to its own row.
+  ${media.MOBILE} {
+    display: contents;
+  }
 `;
 
 // Figma: P4 (14/20) primary label on every chip; the selected chip is bold, like the active detail tab
