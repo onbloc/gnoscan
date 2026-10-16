@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useSelectedNftToken } from "@/common/hooks/nft/use-selected-nft-token";
+import { holdElementInView, markHoldHandled } from "@/common/hooks/detail-tabs/tab-hash";
 import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNftInventoryControls } from "@/common/hooks/nft/use-nft-inventory-controls";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
@@ -20,6 +21,7 @@ import NftInventoryToolbar from "./NftInventoryToolbar";
 
 export const NFT_INVENTORY_PAGE_SIZE = 20;
 const NFT_DETAIL_INVENTORY_PAGE_SIZE = 22;
+const PANEL_HOLD_SCOPE = "nft-panel";
 const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
 
 interface NftCollectionInventoryProps {
@@ -57,6 +59,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
   const selectInventoryToken = (nftId: string) => {
     // User-initiated selection must not move the viewport.
     scrollHandledForRef.current = nftId;
+    markHoldHandled(PANEL_HOLD_SCOPE, nftId);
     onSelectItem(nftId);
     selectToken(nftId);
   };
@@ -127,13 +130,17 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
     };
   }, []);
   const panelRef = React.useRef<HTMLDivElement>(null);
+  const cancelPanelHoldRef = React.useRef<(() => void) | null>(null);
   React.useEffect(() => {
     const panel = panelRef.current;
     if (!isFetched || !selectedNftId || !panel || scrollHandledForRef.current === selectedNftId) return;
     scrollHandledForRef.current = selectedNftId;
     // Only deep links move the viewport, and they land on the detail panel; user selections keep it.
-    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // The panel stays at the top while the page above it keeps loading, until the user scrolls.
+    cancelPanelHoldRef.current?.();
+    cancelPanelHoldRef.current = holdElementInView(panel, null, PANEL_HOLD_SCOPE, selectedNftId);
   }, [isFetched, selectedNftId, items]);
+  React.useEffect(() => () => cancelPanelHoldRef.current?.(), []);
 
   return (
     <S.Container>
