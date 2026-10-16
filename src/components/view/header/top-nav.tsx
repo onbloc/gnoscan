@@ -127,7 +127,13 @@ export const TopNav = () => {
         </Nav>
       </div>
 
-      <HeaderNetwork entry={entry} />
+      {/* Next to the hamburger icon the button is black on every page, like the one inside the open menu. */}
+      <div className="network-default">
+        <HeaderNetwork entry={entry} />
+      </div>
+      <div className="network-mobile">
+        <HeaderNetwork entry />
+      </div>
       <div className="header-mobile-menu">
         <SubMenu
           entry={entry}
@@ -186,16 +192,20 @@ const Wrapper = styled.div<WrapperProps>`
   // CSS picks the layout so the server HTML matches the hydrated header.
   .only-desktop,
   .header-navigation,
+  .network-default,
+  .network-mobile,
   .header-mobile-menu {
     display: contents;
   }
   @media (max-width: ${HEADER_MOBILE_MAX_WIDTH}px) {
-    .header-navigation {
+    .header-navigation,
+    .network-default {
       display: none;
     }
   }
   @media (min-width: ${HEADER_MOBILE_MAX_WIDTH + 1}px) {
-    .header-mobile-menu {
+    .header-mobile-menu,
+    .network-mobile {
       display: none;
     }
   }
