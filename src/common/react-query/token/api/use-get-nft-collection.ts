@@ -178,7 +178,8 @@ export const useGetNftTokenDetail = (packagePath: string, nftId: string) => {
     void apiTokenRepository
       .getNftTokenDetail(packagePath, nftId, true)
       .then(detail => {
-        if (cancelled) return;
+        // A refresh that finishes after the user left still belongs to its own scoped key,
+        // so returning within the freshness window sees the refreshed response.
         queryClient.setQueryData(queryKey, detail);
         const cached = queryClient.getQueryData<GetNftTokenDetailResponse>(queryKey);
         if (cached) attempted.current.add(cached);

@@ -130,19 +130,22 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
   );
   // Disabled observers publish each fetchQuery completion independently, without automatic refetches.
   const rpcResults = useQueries(rpcQueries);
+  // Structural sharing keeps `data` identical across equivalent refetches; each successful API fetch
+  // starts a new generation so transient RPC failures can be retried.
+  const generation = query.dataUpdatedAt;
   const attempted = React.useRef(new WeakMap<ArtworkEntry[], Set<string>>());
   const [, publishCompletion] = React.useReducer((version: number) => version + 1, 0);
   React.useEffect(() => {
     if (!nodeRPCClient || !data || query.isPlaceholderData || rpcQueries.length === 0) return;
     const scheduled = attempted.current.get(data) ?? new Set<string>();
     attempted.current.set(data, scheduled);
-    const pending = rpcQueries.filter(options => !scheduled.has(JSON.stringify(options.queryKey)));
+    const pending = rpcQueries.filter(options => !scheduled.has(`${generation}:${JSON.stringify(options.queryKey)}`));
     let cancelled = false;
     let next = 0;
     const work = async () => {
       while (!cancelled && next < pending.length) {
         const options = pending[next++];
-        scheduled.add(JSON.stringify(options.queryKey));
+        scheduled.add(`${generation}:${JSON.stringify(options.queryKey)}`);
         const cached = queryClient.getQueryData<RpcArtworkEntry>(options.queryKey);
         try {
           await queryClient.fetchQuery({
@@ -163,7 +166,7 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
       // In-flight queries may finish in their old scoped cache, but no more stale work is scheduled.
       cancelled = true;
     };
-  }, [nodeRPCClient, data, rpcQueries, queryClient, query.isPlaceholderData]);
+  }, [nodeRPCClient, data, generation, rpcQueries, queryClient, query.isPlaceholderData]);
 
   return React.useCallback(
     (packagePath: string, nftId: string): { src: string | undefined; isLoading: boolean } => {
@@ -192,7 +195,9 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
       const rpcPending =
         index >= 0 &&
         (rpcResult?.isFetching ||
-          (!!nodeRPCClient && !query.isPlaceholderData && !scheduled?.has(JSON.stringify(rpcQueries[index].queryKey))));
+          (!!nodeRPCClient &&
+            !query.isPlaceholderData &&
+            !scheduled?.has(`${generation}:${JSON.stringify(rpcQueries[index].queryKey)}`)));
       return {
         src,
         isLoading: !src && (query.isFetching || (batches.length > 0 && query.isLoading) || rpcPending),
@@ -202,6 +207,7 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
       data,
       cachedArtwork,
       flagged,
+      generation,
       rpcResults,
       rpcQueries,
       nodeRPCClient,

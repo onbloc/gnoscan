@@ -280,7 +280,6 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
           (!controls.owner || isHeldBy(item, controls.owner)) &&
           (!search ||
             item.nftId.toLowerCase().includes(search) ||
-            item.tokenId.toLowerCase().includes(search) ||
             matchesOwnerSearch(item, search) ||
             matchesOperatorSearch(item, search)),
       );

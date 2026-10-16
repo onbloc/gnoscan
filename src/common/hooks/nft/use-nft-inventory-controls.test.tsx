@@ -74,6 +74,7 @@ function createView() {
         <button onClick={() => view.toolbarProps.onOwnerChange("g1op")}>Owner operator</button>
         <button onClick={() => view.toolbarProps.onOwnerChange("g1staker")}>Owner staker</button>
         <button onClick={() => view.toolbarProps.onSearchChange("g1op")}>Search operator</button>
+        <button onClick={() => view.toolbarProps.onSearchChange("example")}>Search collection key</button>
         <output data-owners>{view.toolbarProps.owners.map(owner => owner.address).join("|")}</output>
         {view.error ? (
           <p role="alert">{view.error.message}</p>
@@ -168,6 +169,15 @@ it("finds NFTs by the displayed realm path of their owner and suggests the match
   view.click(6);
   await settleUntil(() => view.container.querySelectorAll("article").length === 2);
   expect(view.value("[data-suggestions]")).toBe("r/gnoswap/pool");
+});
+
+it("does not match every NFT when the query is only part of the shared collection key", async () => {
+  const view = createView();
+  view.render(null, 20);
+  await settleUntil(() => view.container.querySelectorAll("article").length === 20);
+  view.click(10);
+  await settleUntil(() => !view.container.querySelector("article"));
+  expect(view.container.textContent).not.toContain("Loading");
 });
 
 it("lists a staked NFT under both its staker owner and the operator who staked it", async () => {

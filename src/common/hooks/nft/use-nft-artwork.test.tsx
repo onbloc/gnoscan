@@ -503,6 +503,26 @@ it("retains an expired successful RPC image through failure, retries only on new
   expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(2);
 });
 
+it("retries a transient RPC failure after an equivalent successful API refetch", async () => {
+  const view = createView();
+  const nfts = tokens(1);
+  mockRequestNftTokenUri
+    .mockResolvedValueOnce(entry("1"))
+    .mockResolvedValueOnce(
+      entry("1", { uri: "https://images.example/recovered.png", status: "found", needsRefetch: false }),
+    );
+  seedApi(view.client, nfts);
+  view.render(nfts);
+  await settle();
+  expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(1);
+  expect(view.artwork("1")).toBe("Default artwork");
+
+  // Structural sharing keeps the same array for equivalent data, but the fetch itself succeeded again.
+  await settle(() => seedApi(view.client, nfts));
+  expect(mockRequestNftTokenUri).toHaveBeenCalledTimes(2);
+  expect(view.artwork("1")).toBe("https://images.example/recovered.png");
+});
+
 it.each(["unsupported", "found"] as const)("treats complete %s without an image as authoritative", async status => {
   const view = createView();
   const nfts = tokens(1);

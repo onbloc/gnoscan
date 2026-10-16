@@ -18,8 +18,10 @@ export default function Page() {
 
   const { isCustomNetwork } = useNetworkProvider();
   // GRC721 collections share this route with GRC20 tokens; token-meta tells them apart.
+  // A failed lookup must not hold GRC20 pages behind the skeleton through react-query's retries.
   const { data: tokenMeta, isFetched: isFetchedTokenMeta } = useGetTokenMetaByPath(tokenId, {
     enabled: !isCustomNetwork,
+    retry: false,
   });
 
   if (!isCustomNetwork && !isFetchedTokenMeta) {

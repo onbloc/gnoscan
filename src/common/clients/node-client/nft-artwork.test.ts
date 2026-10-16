@@ -397,4 +397,9 @@ describe("inline TokenURI card projection", () => {
       invalidInline,
     );
   });
+
+  it("matches attribute keys case-insensitively like top-level fields", async () => {
+    expect((await lookupUri('data:application/json,{"attributes":[{"value":{}}]}')).needsRefetch).toBe(true);
+    expect((await lookupUri('data:application/json,{"attributes":[{"Value":{}}]}')).needsRefetch).toBe(true);
+  });
 });

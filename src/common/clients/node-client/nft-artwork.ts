@@ -219,7 +219,9 @@ function projectInlineUri(uri: string, validUtf8: boolean): Pick<NftTokenUriMode
         let displayType = "";
         let traitType = "";
         let traitValue = "";
-        for (const [key, raw] of jsonEntries(trait)) {
+        for (const [traitKey, raw] of jsonEntries(trait)) {
+          // encoding/json matches struct field names case-insensitively.
+          const key = traitKey.toLowerCase();
           if (key !== "display_type" && key !== "trait_type" && key !== "value") continue;
           const value: unknown = JSON.parse(raw);
           if (key === "value") {
