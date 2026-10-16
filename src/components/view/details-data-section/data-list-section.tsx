@@ -4,7 +4,7 @@ import Text from "@/components/ui/text";
 import { DetailsContainer } from "@/components/ui/detail-page-common-styles";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useSteadyTabSwitch } from "@/common/hooks/detail-tabs/use-steady-tab-switch";
-import { getHashTabToApply, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
+import { getHashTabToApply, holdElementInView, writeTabHash } from "@/common/hooks/detail-tabs/tab-hash";
 
 interface DataListSectionProps {
   children: React.ReactNode;
@@ -19,6 +19,9 @@ interface DataListSectionProps {
 const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
   const { contentRef, contentStyle, selectTab } = useSteadyTabSwitch<HTMLDivElement>(currentTab, setCurrentTab);
 
+  const tabAreaRef = React.useRef<HTMLDivElement>(null);
+  const cancelHoldRef = React.useRef<(() => void) | null>(null);
+  React.useEffect(() => () => cancelHoldRef.current?.(), []);
   const lastHandledUrlRef = React.useRef<string | null>(null);
   // Next.js does not re-render when only the hash changes.
   const [, rerenderOnHashChange] = React.useReducer((count: number) => count + 1, 0);
@@ -43,6 +46,10 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
     if (!hashTab) return;
     lastHandledUrlRef.current = url;
     if (hashTab !== currentTab) setCurrentTab(hashTab);
+    // Deep links land on the tab, not the page top, and stay there while content above finishes loading.
+    // Clicked tabs mark their URL handled first, so they never scroll.
+    cancelHoldRef.current?.();
+    if (tabAreaRef.current) cancelHoldRef.current = holdElementInView(tabAreaRef.current, contentRef.current);
   });
 
   const onClickTab = (tabName: string) => {
@@ -52,7 +59,7 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
 
   return (
     <DetailsContainer>
-      <div className="tab-area">
+      <div className="tab-area" ref={tabAreaRef}>
         {tabs.map((tab, index) => {
           const isSelected = currentTab === tab.tabName;
           return (
