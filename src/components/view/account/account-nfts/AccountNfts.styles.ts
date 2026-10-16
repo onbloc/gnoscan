@@ -168,9 +168,12 @@ export const CollectionRow = styled.div<{ $position?: boolean }>`
   flex-wrap: ${({ $position }) => ($position ? "wrap" : "nowrap")};
   min-width: 0;
 
-  // The position link and collection name stack on a card this narrow; keep them as tight as the title above.
+  // On a card this narrow the path (or "View Position") and the collection name stack under the title, so every
+  // card has the same three rows and a row of cards stays equal in height without empty space.
   ${media.MOBILE} {
-    row-gap: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
   }
 `;
 
@@ -190,7 +193,7 @@ export const CollectionPath = styled.span`
   }
 
   ${media.MOBILE} {
-    display: none;
+    max-width: 100%;
   }
 
   .icon-link {
@@ -208,10 +211,6 @@ export const PositionLink = styled(CollectionPath)`
   flex: 0 0 auto;
   gap: 4px;
   white-space: nowrap;
-
-  ${media.MOBILE} {
-    display: flex;
-  }
 `;
 
 // The path inside is a PathText, which cuts it from the start so the trailing package name stays visible.
