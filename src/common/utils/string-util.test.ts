@@ -31,8 +31,17 @@ describe("fitPathToWidth", () => {
     expect(fitPathToWidth(path, path.length, measure)).toBe(path);
   });
 
-  it("drops whole leading segments instead of cutting an address in the middle", () => {
-    expect(fitPathToWidth(path, path.length - 1, measure)).toBe(".../bazaar/c/bazaargens");
+  it("keeps the tail of a shortened address before dropping the address entirely", () => {
+    expect(fitPathToWidth(path, path.length - 1, measure)).toBe("...rhmt/bazaar/c/bazaargens");
+  });
+
+  it("fills width left after a whole-segment drop with the end of what was dropped", () => {
+    expect(fitPathToWidth(path, "...rhmt/bazaar/c/bazaargens".length - 1, measure)).toBe("...hmt/bazaar/c/bazaargens");
+    expect(fitPathToWidth(path, ".../c/bazaargens".length + 3, measure)).toBe("...aar/c/bazaargens");
+  });
+
+  it("drops the address entirely once there is no width to spare", () => {
+    expect(fitPathToWidth(path, ".../bazaar/c/bazaargens".length, measure)).toBe(".../bazaar/c/bazaargens");
   });
 
   it("keeps dropping segments until the rest fits and always keeps the last two segments", () => {

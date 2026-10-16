@@ -109,9 +109,8 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
             ) : (
               <S.CollectionPath {...gnoWebLinkProps}>
                 <S.CollectionPathText type="p4" color="gray300">
-                  <PathText path={realmPath} />
+                  <PathText path={realmPath} suffix={gnoWebUrl ? <IconLink className="icon-link" /> : undefined} />
                 </S.CollectionPathText>
-                {gnoWebUrl && <IconLink className="icon-link" />}
               </S.CollectionPath>
             )}
             <S.CollectionName type="p4" color="gray300">

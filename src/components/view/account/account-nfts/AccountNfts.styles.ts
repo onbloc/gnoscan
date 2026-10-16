@@ -164,7 +164,7 @@ export const CollectionRow = styled.div<{ $position?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: ${({ $position }) => ($position ? "8px" : "32px")};
+  gap: 25px;
   flex-wrap: ${({ $position }) => ($position ? "wrap" : "nowrap")};
   min-width: 0;
 `;

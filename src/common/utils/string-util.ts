@@ -101,10 +101,12 @@ export function formatDisplayPackagePath(packagePath: string | null | undefined,
 
 /**
  * Fits a display path into `availableWidth` by dropping whole leading segments behind a "..." marker, so the
- * trailing names are never cut and no address is cut in the middle: "r/g1n4...rhmt/bazaar/c/name" becomes
- * ".../bazaar/c/name", then ".../c/name". The last two segments are always kept so a short final name such as
- * "v0" still shows its package; when even those do not fit, the front of them is cut behind a single "..."
- * ("...rc20faucet/v0"). `measure` returns the rendered width of a candidate.
+ * trailing names are never cut: "r/g1n4...rhmt/bazaar/c/name" becomes ".../bazaar/c/name", then ".../c/name".
+ * Width left over after a whole-segment drop is filled with the end of what was dropped behind the same single
+ * marker ("...rhmt/bazaar/c/name", "...azaar/c/name"), never reaching back across an address's own "...".
+ * The last two segments are always kept so a short final name such as "v0" still shows its package; when even
+ * those do not fit, the front of them is cut behind a single "..." ("...rc20faucet/v0").
+ * `measure` returns the rendered width of a candidate.
  */
 export function fitPathToWidth(path: string, availableWidth: number, measure: (candidate: string) => number): string {
   if (measure(path) <= availableWidth) {
@@ -114,10 +116,25 @@ export function fitPathToWidth(path: string, availableWidth: number, measure: (c
   const segments = path.split("/");
   const minKept = Math.min(2, Math.max(segments.length - 1, 1));
   for (let dropped = 1; dropped <= segments.length - minKept; dropped++) {
-    const candidate = `.../${segments.slice(dropped).join("/")}`;
-    if (measure(candidate) <= availableWidth) {
-      return candidate;
+    const rest = segments.slice(dropped).join("/");
+    const candidate = `.../${rest}`;
+    if (measure(candidate) > availableWidth) {
+      continue;
     }
+
+    // Dropping only the first segment ("r") has nothing worth keeping from it.
+    if (dropped > 1) {
+      const droppedText = `${segments.slice(0, dropped).join("/")}/`;
+      const firstStart = droppedText.lastIndexOf("...") + (droppedText.includes("...") ? 3 : 0);
+      for (let start = firstStart; start < droppedText.length; start++) {
+        if (droppedText[start] === "/") continue;
+        const filled = `...${droppedText.slice(start)}${rest}`;
+        if (measure(filled) <= availableWidth) {
+          return filled;
+        }
+      }
+    }
+    return candidate;
   }
 
   // Binary search the shortest cut that fits; widths grow monotonically with the kept tail. A cut that lands
