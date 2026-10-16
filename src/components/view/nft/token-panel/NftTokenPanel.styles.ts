@@ -43,7 +43,9 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
     bottom: 0;
     left: 0;
     z-index: ${zindex.modal};
-    max-height: 85vh;
+    // Fixed height, not content-sized, so every NFT opens the same sheet; dvh follows the browser toolbar state.
+    height: 85vh;
+    height: 85dvh;
     overflow-y: auto;
     overscroll-behavior: contain;
     border-radius: 16px 16px 0 0;
