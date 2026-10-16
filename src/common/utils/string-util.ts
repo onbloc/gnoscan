@@ -120,3 +120,21 @@ export function isValidBlockHeight(value: string | string[] | undefined): boolea
   const num = Number(value);
   return !Number.isNaN(num) && Number.isFinite(num) && num >= 0;
 }
+
+/**
+ * Keeps the end of text and cuts the front with "…" so the result fits in maxWidth.
+ * measure returns the rendered width of a string. Returns text unchanged when it already fits.
+ */
+export function truncateStartToWidth(text: string, maxWidth: number, measure: (value: string) => number): string {
+  if (measure(text) <= maxWidth) return text;
+
+  // Binary search the shortest cut that fits; widths grow monotonically with the kept tail.
+  let low = 1;
+  let high = text.length;
+  while (low < high) {
+    const cut = Math.floor((low + high) / 2);
+    if (measure(`…${text.slice(cut)}`) <= maxWidth) high = cut;
+    else low = cut + 1;
+  }
+  return `…${text.slice(low)}`;
+}

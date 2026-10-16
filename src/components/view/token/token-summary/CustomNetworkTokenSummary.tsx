@@ -103,7 +103,7 @@ const CustomNetworkTokenSummary = ({ tokenPath }: TokenSummaryProps) => {
       <Field label="Holders">
         <Badge>{summaryData.holders}</Badge>
       </Field>
-      {files && <ShowLog isTabLog={true} files={files} btnTextType="Logs" />}
+      {files && <ShowLog isTabLog={true} files={files} />}
     </DataSection>
   );
 };

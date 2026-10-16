@@ -1,7 +1,16 @@
 import BigNumber from "bignumber.js";
 
 import { AssetPriceModel } from "@/repositories/api/price/response";
-import { buildTokenPriceMap, formatTokenUsd, formatUsd, getTokenPrice, getUsdValue } from "./price.utility";
+import {
+  buildTokenPriceMap,
+  formatPriceChange,
+  formatTokenUsd,
+  formatUsd,
+  formatUsdWhole,
+  getTokenPrice,
+  getTokenPriceEntry,
+  getUsdValue,
+} from "./price.utility";
 
 const asset = (overrides: Partial<AssetPriceModel>): AssetPriceModel => ({
   assetId: "",
@@ -152,5 +161,30 @@ describe("formatTokenUsd", () => {
 
   it("returns null for an unpriced token", () => {
     expect(formatTokenUsd(priceMap, "gno.land/r/demo/foo", "1")).toBeNull();
+  });
+});
+
+describe("getTokenPriceEntry", () => {
+  it("carries the 24h change rate with the price", () => {
+    const priceMap = buildTokenPriceMap([{ ...GNS, changeRateOneDay: -3.1 }]);
+    expect(getTokenPriceEntry(priceMap, "gno.land/r/gnoswap/gns.GNS")?.changeRateOneDay).toBe(-3.1);
+    expect(getTokenPriceEntry(priceMap, "gno.land/r/demo/foo")).toBeNull();
+  });
+});
+
+describe("formatPriceChange", () => {
+  it("signs the rate and keeps two decimals", () => {
+    expect(formatPriceChange(15.254)).toBe("+15.25%");
+    expect(formatPriceChange(0)).toBe("+0.00%");
+    expect(formatPriceChange(-3.1)).toBe("-3.10%");
+  });
+});
+
+describe("formatUsdWhole", () => {
+  it("truncates to whole dollars with separators", () => {
+    expect(formatUsdWhole("123512612.99")).toBe("$123,512,612");
+    expect(formatUsdWhole("0.5")).toBe("$0");
+    expect(formatUsdWhole(null)).toBeNull();
+    expect(formatUsdWhole("abc")).toBeNull();
   });
 });

@@ -77,7 +77,7 @@ export interface TokenSummary {
   ownerLabel?: string | null;
   ownerLabelType?: ADDRESS_LABEL_TYPE | null;
   functions: string[];
-  totalSupply: number;
+  totalSupply: string | number;
   holders: number;
 }
 

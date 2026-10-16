@@ -29,6 +29,7 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
     isError: isApiError,
     fetchNextPage,
     hasNextPage,
+    isFetchingNextPage,
   } = useGetTokens(params);
 
   const { getTokenMeta } = useTokenResourceMeta();
@@ -64,5 +65,6 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
     isError: isApiError,
     fetchNextPage,
     hasNextPage,
+    isFetchingNextPage,
   };
 };

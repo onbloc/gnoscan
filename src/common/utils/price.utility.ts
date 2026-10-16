@@ -16,6 +16,8 @@ export interface TokenPriceEntry {
   price: string;
   // {packagePath}.{symbol}; lets a package-path key reject a different token from the same package.
   tokenPath?: string;
+  /** Percent change against the price 24 hours earlier, null when the feed has no price from a day ago. */
+  changeRateOneDay?: number | null;
 }
 
 /** Keyed by token path and bare package path (gnoswap), "ugnot", or feed slug. */
@@ -40,17 +42,17 @@ export function buildTokenPriceMap(items: AssetPriceModel[] | null | undefined):
 
   (items ?? []).filter(isPriced).forEach(item => {
     if (item.provider !== GNOSWAP_PROVIDER) {
-      setIfAbsent(item.assetId, { price: item.price });
+      setIfAbsent(item.assetId, { price: item.price, changeRateOneDay: item.changeRateOneDay });
       return;
     }
     const { packagePath, tokenPath } = parseTokenKey(item.assetId);
-    const entry = { price: item.price, tokenPath };
+    const entry = { price: item.price, tokenPath, changeRateOneDay: item.changeRateOneDay };
     setIfAbsent(tokenPath, entry);
     setIfAbsent(packagePath, entry);
   });
 
   const gnotEntry = priceMap[GNOT_FEED_ASSET_ID] ?? priceMap[GNOT_DENOM] ?? priceMap[WUGNOT_PACKAGE_PATH];
-  if (gnotEntry) priceMap[GNOT_DENOM] = { price: gnotEntry.price };
+  if (gnotEntry) priceMap[GNOT_DENOM] = { price: gnotEntry.price, changeRateOneDay: gnotEntry.changeRateOneDay };
 
   return priceMap;
 }
@@ -60,9 +62,19 @@ export function buildTokenPriceMap(items: AssetPriceModel[] | null | undefined):
  * A key naming a symbol never takes the price of a different token in the same package.
  */
 export function getTokenPrice(priceMap: TokenPriceMap, tokenKey: string): string | null {
+  return getTokenPriceEntry(priceMap, tokenKey)?.price ?? null;
+}
+
+/** Price entry of a token key with the same lookup rules as getTokenPrice, or null when unpriced. */
+export function getTokenPriceEntry(priceMap: TokenPriceMap, tokenKey: string): TokenPriceEntry | null {
   const key = tokenKey.trim();
-  if (key.toLowerCase() === GNOT_DENOM) return priceMap[GNOT_DENOM]?.price ?? null;
-  return findByTokenKey(priceMap, key)?.price ?? null;
+  if (key.toLowerCase() === GNOT_DENOM) return priceMap[GNOT_DENOM] ?? null;
+  return findByTokenKey(priceMap, key) ?? null;
+}
+
+/** Signed 24h change rate with two decimals, e.g. "+15.25%" or "-3.10%". */
+export function formatPriceChange(change: number): string {
+  return `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
 }
 
 /** amount (display units, decimals applied) x price. Null when either side is not a finite number. */
@@ -93,6 +105,15 @@ export function formatUsd(value: BigNumber.Value | null | undefined): string | n
 
   const decimals = usd.lt(1) ? USD_DECIMALS_BELOW_ONE : USD_DECIMALS_FROM_ONE;
   return `$${usd.decimalPlaces(decimals, BigNumber.ROUND_DOWN).toFormat(USD_FORMAT)}`;
+}
+
+/** Whole dollars with thousands separators, truncated: "$123,512,612". Used for market caps. */
+export function formatUsdWhole(value: BigNumber.Value | null | undefined): string | null {
+  if (value === null || value === undefined) return null;
+
+  const usd = new BigNumber(value);
+  if (!usd.isFinite()) return null;
+  return `$${usd.integerValue(BigNumber.ROUND_DOWN).toFormat(USD_FORMAT)}`;
 }
 
 /** Formatted USD value of a token amount, or null when the token has no price. */
