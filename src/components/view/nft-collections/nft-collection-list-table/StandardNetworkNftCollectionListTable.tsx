@@ -93,7 +93,7 @@ export const StandardNetworkNftCollectionListTable = ({
 const CollectionTableContainer = styled(CardTableContainer)`
   && {
     > div:first-child {
-      padding: 24px 24px 0;
+      padding: 20px 24px 0;
     }
 
     .button-wrapper {
