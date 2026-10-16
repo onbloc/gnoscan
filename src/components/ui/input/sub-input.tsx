@@ -54,8 +54,9 @@ export const SubInput = ({ className = "", value, onChange, clearValue }: SubInp
         onKeyDown={onKeyDownInput}
         type="text"
         placeholder="Search by Tx / Account / Realm / Token"
+        aria-label="Search"
       />
-      <Button onClick={onClickSearchButton}>
+      <Button onClick={onClickSearchButton} aria-label="Search">
         <Search className="search-icon" />
       </Button>
       {isCustomNetwork ? <SearchResult /> : <StandardNetworkSearchResult />}

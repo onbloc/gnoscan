@@ -46,7 +46,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
 
   return (
     <>
-      <MenuButton entry={entry} onClick={onClick}>
+      <MenuButton entry={entry} onClick={onClick} aria-label="Open menu">
         <MenuIcon className="menu-icon" />
       </MenuButton>
       <Portal selector={selector}>
@@ -54,7 +54,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
           <TopHeader>
             {darkMode ? <GnoscanLogo /> : <GnoscanLogoLight />}
             {network}
-            <CloseButton onClick={onClick}>
+            <CloseButton onClick={onClick} aria-label="Close menu">
               <CloseIcon className="close-icon" />
             </CloseButton>
           </TopHeader>
