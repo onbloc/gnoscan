@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import AccountLayout, { AccountLayoutSkeleton } from "@/layouts/account/AccountLayout";
 import AccountAddressContainer from "@/containers/account/account-address-container/AccountAddressContainer";
 import AccountAssetsContainer from "@/containers/account/account-assets-container/AccountAssetsContainer";
+import AccountNftsContainer from "@/containers/account/account-nfts-container/AccountNftsContainer";
 import AccountTransactionsContainer from "@/containers/account/account-transactions-container/AccountTransactionsContainer";
 import { useGetValidatorByAddress } from "@/common/react-query/validator/api";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
@@ -70,6 +71,7 @@ function AccountPage({ address }: { address: string }) {
         validatorInfo={validatorInfo}
         accountAddress={<AccountAddressContainer address={address} validatorInfo={validatorInfo} />}
         accountAssets={<AccountAssetsContainer address={address} />}
+        accountNfts={<AccountNftsContainer address={address} />}
         accountTransactions={<AccountTransactionsContainer address={address} />}
       />
     </>

@@ -1,6 +1,5 @@
 import {
   formatTokenDecimal,
-  formatDisplayTokenPath,
   resolveTokenMeta,
   findByTokenKey,
   parseTokenKey,
@@ -102,95 +101,6 @@ describe("formatTokenDecimal", () => {
     it("should handle extreme decimal places", () => {
       expect(formatTokenDecimal("1", 20)).toBe("0.00000000000000000001");
       expect(formatTokenDecimal("1", 0)).toBe("1");
-    });
-  });
-});
-
-describe("formatDisplayTokenPath", () => {
-  describe("Normal Cases", () => {
-    it("should format path with default visibleLength (8)", () => {
-      const input = "r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
-      const expected = "r/g1edq4du...cgleuc8p/USDC";
-      expect(formatDisplayTokenPath(input)).toBe(expected);
-    });
-
-    it("should format path with custom visibleLength", () => {
-      const input = "r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
-      const expected = "r/g1ed...uc8p/USDC";
-      expect(formatDisplayTokenPath(input, 4)).toBe(expected);
-    });
-  });
-
-  describe("Edge Cases", () => {
-    it("should return original path for null input", () => {
-      const input = null;
-      // @ts-expect-error formatDisplayTokenPath expects string type
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path for undefined input", () => {
-      const input = undefined;
-      // @ts-expect-error formatDisplayTokenPath expects string type
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path for non-string input", () => {
-      const input = 123;
-      // @ts-expect-error formatDisplayTokenPath expects string type
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-  });
-
-  describe("Invalid Format Cases", () => {
-    it("should return original path when not starting with r/", () => {
-      const input = "wrong/path/format";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path when missing token name", () => {
-      const input = "r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path for malformed input", () => {
-      const input = "r//USDC";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-  });
-
-  describe("Boundary Value Tests", () => {
-    it("should handle empty string input", () => {
-      expect(formatDisplayTokenPath("")).toBe("");
-    });
-
-    it("should handle path with minimum valid format", () => {
-      const input = "r/a/b";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should handle path with exactly twice the visibleLength", () => {
-      const input = "r/1234567890123456/TOKEN";
-      expect(formatDisplayTokenPath(input, 8)).toBe(input);
-    });
-  });
-
-  describe("Various VisibleLength Tests", () => {
-    const input = "r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1/USDC";
-
-    it("should handle zero visibleLength", () => {
-      expect(formatDisplayTokenPath(input, 0)).toBe(input);
-    });
-
-    it("should handle negative visibleLength", () => {
-      expect(formatDisplayTokenPath(input, -1)).toBe(input);
-    });
-
-    it("should handle large visibleLength", () => {
-      expect(formatDisplayTokenPath(input, 20)).toBe(input);
-    });
-
-    it("should handle visibleLength larger than address length", () => {
-      expect(formatDisplayTokenPath(input, 100)).toBe(input);
     });
   });
 });

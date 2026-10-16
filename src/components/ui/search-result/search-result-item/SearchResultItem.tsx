@@ -4,7 +4,8 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { SearchResult } from "@/repositories/api/search/response";
 
-import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { toDisplayHash } from "@/common/utils/transaction.utility";
 import Text from "@/components/ui/text";
 import * as S from "./SearchResultItem.styles";
@@ -63,7 +64,7 @@ export const SearchResultItem = ({
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {formatDisplayTokenPath(stripGnoLandPrefix(item.title), 4)}
+                {formatDisplayPackagePath(stripGnoLandPrefix(item.title))}
                 {item.description && (
                   <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
                     {` (${item.description})`}
@@ -98,7 +99,7 @@ export const SearchResultItem = ({
           <S.List>
             <S.FitContentAStyle onClick={onClick}>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
-                {formatDisplayTokenPath(stripGnoLandPrefix(item.title), 4)}
+                {formatDisplayPackagePath(stripGnoLandPrefix(item.title))}
               </Text>
             </S.FitContentAStyle>
           </S.List>

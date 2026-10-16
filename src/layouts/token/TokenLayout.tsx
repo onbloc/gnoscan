@@ -9,12 +9,18 @@ import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 
 interface TokenLayoutProps {
-  tokenId: string;
+  title?: string;
+  tokenId?: string;
   tokenSummary: React.ReactNode;
   tokenTransactionInfo: React.ReactNode;
 }
 
-const TokenLayout = ({ tokenId, tokenSummary, tokenTransactionInfo }: TokenLayoutProps) => {
+const TokenLayout = ({
+  title = "Token Details",
+  tokenId = "",
+  tokenSummary,
+  tokenTransactionInfo,
+}: TokenLayoutProps) => {
   const { isCustomNetwork } = useNetworkProvider();
   // Same query as the summary, so this reads the shared cache instead of sending another request.
   const tokenQuery = useGetTokenById(tokenId, { enabled: !isCustomNetwork && !!tokenId });
@@ -30,7 +36,7 @@ const TokenLayout = ({ tokenId, tokenSummary, tokenTransactionInfo }: TokenLayou
     <S.Container>
       <S.InnerLayout>
         <S.Wrapper>
-          <PageTitle title="Token Details" type="p2" desktopType="h2" />
+          <PageTitle title={title} type="p2" desktopType="h2" />
           {tokenSummary}
           {tokenTransactionInfo}
         </S.Wrapper>

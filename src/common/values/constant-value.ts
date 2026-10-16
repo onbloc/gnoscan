@@ -33,6 +33,11 @@ export const WUGNOT_DISPLAY_NAME = "wGNOT (Wrapped GNOT)";
 export const GNFT_PACKAGE_PATH = "gno.land/r/gnoswap/gnft";
 export const GNFT_DISPLAY_SYMBOL = "GNFT";
 
+// chain.PackageAddress("gno.land/r/gnoswap/staker"): realm addresses derive from the package path,
+// so this is identical on every network. StakeToken moves the position NFT here and UnStakeToken
+// returns it; gnft refuses transfers of staker-held tokens by anyone else.
+export const GNOSWAP_STAKER_ADDRESS = "g1q6d4ns7zkr492rgl0pcgf5ajaf2dlz0nnptky3";
+
 export const BYTES_PER_KB = 1024 as const;
 
 export const BYTE_UNITS = {

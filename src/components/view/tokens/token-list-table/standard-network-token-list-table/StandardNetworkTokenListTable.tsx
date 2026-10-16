@@ -146,11 +146,7 @@ export const StandardNetworkTokenListTable = ({
       .width(140)
       .colorName("blue")
       .renderOption((packagePath, data) =>
-        packagePath ? (
-          <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={108} truncateStart />
-        ) : (
-          <>{data.symbol}</>
-        ),
+        packagePath ? <DatatableItem.RealmPackage packagePath={packagePath} maxWidth={108} /> : <>{data.symbol}</>,
       )
       .build();
   };

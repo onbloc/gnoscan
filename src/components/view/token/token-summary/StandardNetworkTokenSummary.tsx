@@ -3,6 +3,7 @@ import React from "react";
 import { useGetTokenById, useGetTokens, useGetTokenTransfersById } from "@/common/react-query/token/api";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
+import PathText from "@/components/ui/path-text/PathText";
 import { TokenSummary } from "@/types/data-type";
 
 import { useNetwork } from "@/common/hooks/use-network";
@@ -116,9 +117,9 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
       </Field>
       <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <Badge>
-          <Text type="p4" color="blue" className="username-text">
+          <Text type="p4" color="blue" className="username-text ellipsis">
             <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${tokenSummary?.packagePath}`)}>
-              {formatDisplayPackagePath(tokenSummary?.packagePath)}
+              <PathText path={tokenSummary?.packagePath} />
             </S.StyledA>
           </Text>
           <CopyTooltip variant="path" copyText={tokenSummary?.packagePath} />

@@ -4,7 +4,8 @@ import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { Amount } from "@/types/data-type";
 import { useNetwork } from "@/common/hooks/use-network";
-import { formatDisplayTokenPath, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { resolveAccountAssetLogoUrl } from "./account-asset-item.utility";
 
 import * as S from "./AccountAssetItem.styles";
@@ -56,7 +57,7 @@ const AccountAssetItem = ({
 
   const displayTokenPath = React.useMemo(() => {
     if (!tokenPath) return null;
-    return formatDisplayTokenPath(stripGnoLandPrefix(tokenPath));
+    return formatDisplayPackagePath(stripGnoLandPrefix(tokenPath));
   }, [tokenPath]);
 
   const tokenKey = React.useMemo(() => {

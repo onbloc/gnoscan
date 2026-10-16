@@ -21,6 +21,10 @@ describe("tab hash", () => {
     expect(findTabByHash("", TABS)).toBeNull();
   });
 
+  it("names the tab with the segment before tab parameters", () => {
+    expect(findTabByHash("#inventory&tokenId=1011", ["Inventory", ...TABS])).toBe("Inventory");
+  });
+
   it("gives every detail tab a unique hash that resolves back to it", () => {
     const tabNames = [...Object.values(ACTIVITY_TAB), "Messages"];
     const hashes = tabNames.map(toTabHash);

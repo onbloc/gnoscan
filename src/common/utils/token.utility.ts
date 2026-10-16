@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { isBech32Address } from "./bech32.utility";
 import { GNO_NETWORK_PREFIXES } from "../values/gno.constant";
 import {
   GNFT_DISPLAY_SYMBOL,
@@ -197,24 +196,4 @@ export function stripGnoLandPrefix(path: string): string {
 
   const prefix = `${GNO_NETWORK_PREFIXES.GNO_LAND}/`;
   return path.startsWith(prefix) ? path.slice(prefix.length) : path;
-}
-
-export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
-  if (!path || typeof path !== "string") return path;
-
-  const prefix = GNO_NETWORK_PREFIXES.TOKEN_PATH;
-  if (!path.startsWith(prefix)) return path;
-
-  try {
-    const [address, tokenName] = path.substring(prefix.length).split("/");
-
-    if (!address || !tokenName) return path;
-
-    if (!isBech32Address(address)) return path;
-
-    const ellipsisAddress = `${address.slice(0, visibleLength)}...${address.slice(-visibleLength)}`;
-    return `${prefix}${ellipsisAddress}/${tokenName}`;
-  } catch {
-    return path;
-  }
 }

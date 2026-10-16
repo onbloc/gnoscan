@@ -24,6 +24,7 @@ interface AccountLayoutProps {
   validatorInfo?: ValidatorInfo | null;
   accountAddress: React.ReactNode;
   accountAssets: React.ReactNode;
+  accountNfts: React.ReactNode;
   accountTransactions: React.ReactNode;
 }
 
@@ -34,6 +35,7 @@ const AccountLayout = ({
   validatorInfo,
   accountAddress,
   accountAssets,
+  accountNfts,
   accountTransactions,
 }: AccountLayoutProps) => {
   const { isCustomNetwork } = useNetworkProvider();
@@ -80,6 +82,7 @@ const AccountLayout = ({
       {isLoadingPageTitle ? <S.TitleSkeleton /> : <PageTitle type="p2" desktopType="h2" title={pageTitle} />}
       {accountAddress}
       {accountAssets}
+      {accountNfts}
       {accountTransactions}
     </AccountFrame>
   );

@@ -78,13 +78,77 @@ export function makeQueryString(params: { [key in string]: string } | null) {
     .join("&");
 }
 
-export function formatDisplayPackagePath(packagePath: string | null | undefined): string {
+/**
+ * Display form of a package path wherever one is shown: every bech32 address segment keeps only its first
+ * and last `visibleLength` characters; the other segments (nested package and token names) stay intact.
+ * "r/g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd/gnofly/nfts/planes" -> "r/g1t2...4sfd/gnofly/nfts/planes"
+ * Fit it into a narrow area with the truncate-from-start path text so the trailing names stay visible.
+ */
+export function formatDisplayPackagePath(packagePath: string | null | undefined, visibleLength = 4): string {
   if (!packagePath) {
     return "";
   }
 
-  const elements = packagePath.split("/");
-  return elements.map(element => (isBech32Address(element) ? textEllipsis(element, 4) : element)).join("/");
+  return packagePath
+    .split("/")
+    .map(segment =>
+      segment.length > visibleLength * 2 && isBech32Address(segment)
+        ? `${segment.slice(0, visibleLength)}...${segment.slice(-visibleLength)}`
+        : segment,
+    )
+    .join("/");
+}
+
+/**
+ * Fits a display path into `availableWidth` by dropping whole leading segments behind a "..." marker, so the
+ * trailing names are never cut: "r/g1n4...rhmt/bazaar/c/name" becomes ".../bazaar/c/name", then ".../c/name".
+ * Width left over after a whole-segment drop is filled with the end of what was dropped behind the same single
+ * marker ("...rhmt/bazaar/c/name", "...azaar/c/name"), never reaching back across an address's own "...".
+ * The last two segments are always kept so a short final name such as "v0" still shows its package; when even
+ * those do not fit, the front of them is cut behind a single "..." ("...rc20faucet/v0").
+ * `measure` returns the rendered width of a candidate.
+ */
+export function fitPathToWidth(path: string, availableWidth: number, measure: (candidate: string) => number): string {
+  if (measure(path) <= availableWidth) {
+    return path;
+  }
+
+  const segments = path.split("/");
+  const minKept = Math.min(2, Math.max(segments.length - 1, 1));
+  for (let dropped = 1; dropped <= segments.length - minKept; dropped++) {
+    const rest = segments.slice(dropped).join("/");
+    const candidate = `.../${rest}`;
+    if (measure(candidate) > availableWidth) {
+      continue;
+    }
+
+    // Dropping only the first segment ("r") has nothing worth keeping from it.
+    if (dropped > 1) {
+      const droppedText = `${segments.slice(0, dropped).join("/")}/`;
+      const firstStart = droppedText.lastIndexOf("...") + (droppedText.includes("...") ? 3 : 0);
+      for (let start = firstStart; start < droppedText.length; start++) {
+        if (droppedText[start] === "/") continue;
+        const filled = `...${droppedText.slice(start)}${rest}`;
+        if (measure(filled) <= availableWidth) {
+          return filled;
+        }
+      }
+    }
+    return candidate;
+  }
+
+  // Binary search the shortest cut that fits; widths grow monotonically with the kept tail. A cut that lands
+  // inside an address's own "..." must not leave two markers in a row, so leading dots are dropped first.
+  const tail = segments.slice(-minKept).join("/");
+  const cutFront = (cut: number) => `...${tail.slice(cut).replace(/^\.+/, "")}`;
+  let low = 1;
+  let high = tail.length;
+  while (low < high) {
+    const cut = Math.floor((low + high) / 2);
+    if (measure(cutFront(cut)) <= availableWidth) high = cut;
+    else low = cut + 1;
+  }
+  return cutFront(low);
 }
 
 export function makeQueryParameter(data: {
@@ -119,22 +183,4 @@ export function makeEncodedQueryParameter(data: {
 export function isValidBlockHeight(value: string | string[] | undefined): boolean {
   const num = Number(value);
   return !Number.isNaN(num) && Number.isFinite(num) && num >= 0;
-}
-
-/**
- * Keeps the end of text and cuts the front with "…" so the result fits in maxWidth.
- * measure returns the rendered width of a string. Returns text unchanged when it already fits.
- */
-export function truncateStartToWidth(text: string, maxWidth: number, measure: (value: string) => number): string {
-  if (measure(text) <= maxWidth) return text;
-
-  // Binary search the shortest cut that fits; widths grow monotonically with the kept tail.
-  let low = 1;
-  let high = text.length;
-  while (low < high) {
-    const cut = Math.floor((low + high) / 2);
-    if (measure(`…${text.slice(cut)}`) <= maxWidth) high = cut;
-    else low = cut + 1;
-  }
-  return `…${text.slice(low)}`;
 }

@@ -35,6 +35,7 @@ jest.mock("@/layouts/account/AccountLayout", () => ({
 }));
 jest.mock("@/containers/account/account-address-container/AccountAddressContainer", () => () => null);
 jest.mock("@/containers/account/account-assets-container/AccountAssetsContainer", () => () => null);
+jest.mock("@/containers/account/account-nfts-container/AccountNftsContainer", () => () => null);
 jest.mock("@/containers/account/account-transactions-container/AccountTransactionsContainer", () => () => null);
 
 beforeEach(() => {

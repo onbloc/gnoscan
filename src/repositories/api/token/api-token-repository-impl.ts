@@ -7,6 +7,9 @@ import {
   GetTokenMetaTransactionsRequest,
   GetTokenMetaInternalTransactionsRequest,
   GetTokenEventsRequest,
+  GetNftCollectionsRequest,
+  GetNftCollectionItemsRequest,
+  GetNftItemTransfersRequest,
 } from "./request";
 import {
   GetTokenHoldersResponse,
@@ -17,6 +20,13 @@ import {
   GetTokenMetaTransactionsResponse,
   GetTokenMetaInternalTransactionsResponse,
   GetTokenEventsResponse,
+  GetNftCollectionsResponse,
+  GetNftCollectionResponse,
+  GetNftCollectionItemsResponse,
+  GetNftItemDetailResponse,
+  GetNftItemTransfersResponse,
+  GetNftTokenDetailResponse,
+  GetNftTokenUrisResponse,
 } from "./response";
 import { makeEncodedQueryParameter } from "@/common/utils/string-util";
 import { ApiRepository } from "../api-repository";
@@ -66,5 +76,49 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
     const { path, ...queryParams } = params;
     const requestParams = makeEncodedQueryParameter({ ...queryParams });
     return this.get<GetTokenEventsResponse>(`token-meta/${encodeURIComponent(path)}/events${requestParams}`);
+  }
+
+  getNftCollections(params: GetNftCollectionsRequest): Promise<GetNftCollectionsResponse> {
+    return this.get<GetNftCollectionsResponse>(`nft-collections${makeEncodedQueryParameter({ ...params })}`);
+  }
+
+  getNftCollection(tokenKey: string): Promise<GetNftCollectionResponse> {
+    return this.get<GetNftCollectionResponse>(`nft-collections/${encodeURIComponent(tokenKey)}`);
+  }
+
+  getNftCollectionItems(params: GetNftCollectionItemsRequest): Promise<GetNftCollectionItemsResponse> {
+    const { tokenKey, ...queryParams } = params;
+    return this.get<GetNftCollectionItemsResponse>(
+      `nft-collections/${encodeURIComponent(tokenKey)}/items`,
+      queryParams,
+    );
+  }
+
+  getNftItemDetail(tokenKey: string, nftId: string): Promise<GetNftItemDetailResponse> {
+    return this.get<GetNftItemDetailResponse>(
+      `nft-collections/${encodeURIComponent(tokenKey)}/items/${encodeURIComponent(nftId)}`,
+    );
+  }
+
+  getNftItemTransfers(params: GetNftItemTransfersRequest): Promise<GetNftItemTransfersResponse> {
+    const { tokenKey, nftId, page = 1, limit = 5 } = params;
+    return this.get<GetNftItemTransfersResponse>(
+      `nft-collections/${encodeURIComponent(tokenKey)}/items/${encodeURIComponent(nftId)}/transfers`,
+      { page, limit },
+    );
+  }
+
+  getNftTokenUris(packagePath: string, nftIds: string[], refresh = false): Promise<GetNftTokenUrisResponse> {
+    return this.get<GetNftTokenUrisResponse>(`realms/${encodeURIComponent(packagePath)}/nft-items/uris`, {
+      tokenIds: nftIds.join(","),
+      refresh,
+    });
+  }
+
+  getNftTokenDetail(packagePath: string, nftId: string, refresh = false): Promise<GetNftTokenDetailResponse> {
+    return this.get<GetNftTokenDetailResponse>(
+      `realms/${encodeURIComponent(packagePath)}/nft-items/${encodeURIComponent(nftId)}/metadata`,
+      { refresh },
+    );
   }
 }

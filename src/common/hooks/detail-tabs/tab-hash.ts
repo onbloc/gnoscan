@@ -3,9 +3,13 @@ export function toTabHash(tabName: string): string {
   return tabName.trim().toLowerCase().replace(/\s+/g, "-");
 }
 
-/** The tab a URL hash points to, or null when it matches none of the given tabs. */
+/**
+ * The tab a URL hash points to, or null when it matches none of the given tabs.
+ * Only the segment before the first "&" names the tab; the rest carries tab parameters
+ * (e.g. "#inventory&tokenId=1011").
+ */
 export function findTabByHash(hash: string, tabNames: string[]): string | null {
-  const target = hash.replace(/^#/, "").toLowerCase();
+  const target = hash.replace(/^#/, "").split("&")[0].toLowerCase();
   if (!target) return null;
   return tabNames.find(tabName => toTabHash(tabName) === target) ?? null;
 }
@@ -18,11 +22,16 @@ export function getHashTabToApply(url: string, lastHandledUrl: string | null, ta
 }
 
 /**
- * Writes the tab into the URL hash without a new history entry and returns the URL.
+ * Replaces the URL hash without a new history entry and returns the URL.
  * Keeps the Next.js entry key and updates `as`, which Next.js restores on Back/Forward.
  */
-export function writeTabHash(tabName: string): string {
-  const url = `${window.location.pathname}${window.location.search}#${toTabHash(tabName)}`;
+export function replaceUrlHash(hash: string): string {
+  const url = `${window.location.pathname}${window.location.search}${hash}`;
   window.history.replaceState({ ...window.history.state, as: url }, "", url);
   return url;
+}
+
+/** Writes the tab into the URL hash without a new history entry and returns the URL. */
+export function writeTabHash(tabName: string): string {
+  return replaceUrlHash(`#${toTabHash(tabName)}`);
 }
