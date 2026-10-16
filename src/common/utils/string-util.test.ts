@@ -35,9 +35,14 @@ describe("fitPathToWidth", () => {
     expect(fitPathToWidth(path, path.length - 1, measure)).toBe(".../bazaar/c/bazaargens");
   });
 
-  it("keeps dropping segments until the rest fits and always keeps the last name", () => {
+  it("keeps dropping segments until the rest fits and always keeps the last two segments", () => {
     expect(fitPathToWidth(path, ".../c/bazaargens".length, measure)).toBe(".../c/bazaargens");
-    expect(fitPathToWidth(path, 1, measure)).toBe(".../bazaargens");
+    expect(fitPathToWidth(path, 1, measure)).toBe(".../c/bazaargens");
+    expect(fitPathToWidth("r/moul/x/grc20faucet/v0", 1, measure)).toBe(".../grc20faucet/v0");
+  });
+
+  it("keeps a two-segment path's last name", () => {
+    expect(fitPathToWidth("r/bazaargens", 1, measure)).toBe(".../bazaargens");
   });
 
   it("leaves a single segment unchanged", () => {

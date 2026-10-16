@@ -102,8 +102,9 @@ export function formatDisplayPackagePath(packagePath: string | null | undefined,
 /**
  * Fits a display path into `availableWidth` by dropping whole leading segments behind a "..." marker, so the
  * trailing names are never cut and no address is cut in the middle: "r/g1n4...rhmt/bazaar/c/name" becomes
- * ".../bazaar/c/name", then ".../c/name". At least the last segment is kept; `measure` returns the rendered
- * width of a candidate.
+ * ".../bazaar/c/name", then ".../c/name". The last two segments are always kept so a short final name such as
+ * "v0" still shows its package; the caller cuts the remaining overflow from the start. `measure` returns the
+ * rendered width of a candidate.
  */
 export function fitPathToWidth(path: string, availableWidth: number, measure: (candidate: string) => number): string {
   if (measure(path) <= availableWidth) {
@@ -111,14 +112,15 @@ export function fitPathToWidth(path: string, availableWidth: number, measure: (c
   }
 
   const segments = path.split("/");
-  for (let dropped = 1; dropped < segments.length - 1; dropped++) {
+  const minKept = Math.min(2, segments.length - 1);
+  for (let dropped = 1; dropped <= segments.length - minKept; dropped++) {
     const candidate = `.../${segments.slice(dropped).join("/")}`;
     if (measure(candidate) <= availableWidth) {
       return candidate;
     }
   }
 
-  return segments.length > 1 ? `.../${segments[segments.length - 1]}` : path;
+  return segments.length > 1 ? `.../${segments.slice(-minKept).join("/")}` : path;
 }
 
 export function makeQueryParameter(data: {
