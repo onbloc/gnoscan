@@ -116,7 +116,7 @@ const TopHeader = styled.div`
 
 const Nav = styled.nav`
   ${mixins.flexbox("column", "center", "center")};
-  gap: 24px;
+  gap: 40px;
   margin-top: 32px;
   ${mixins.positionCenter()};
 `;
