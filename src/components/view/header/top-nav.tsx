@@ -127,13 +127,7 @@ export const TopNav = () => {
         </Nav>
       </div>
 
-      {/* Next to the hamburger icon the button is black on every page, like the one inside the open menu. */}
-      <div className="network-default">
-        <HeaderNetwork entry={entry} />
-      </div>
-      <div className="network-mobile">
-        <HeaderNetwork entry />
-      </div>
+      <HeaderNetwork />
       <div className="header-mobile-menu">
         <SubMenu
           entry={entry}
@@ -141,7 +135,7 @@ export const TopNav = () => {
           onClick={toggleMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
-          network={<HeaderNetwork entry />}
+          network={<HeaderNetwork />}
         />
       </div>
     </Wrapper>
@@ -149,8 +143,8 @@ export const TopNav = () => {
 };
 
 // Each instance keeps its own dropdown state, so the copy inside the mobile menu works independently.
-// The top bar follows the page header theme; the mobile menu always uses the black button.
-const HeaderNetwork = ({ entry }: { entry: boolean }) => {
+// The network button is the black one on every page and theme, in the top bar and inside the mobile menu.
+const HeaderNetwork = () => {
   const [toggle, setToggle] = useState<boolean>(false);
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), []);
 
@@ -168,7 +162,7 @@ const HeaderNetwork = ({ entry }: { entry: boolean }) => {
 
   return (
     <Network
-      entry={entry}
+      entry
       chains={chains}
       toggle={toggle}
       toggleHandler={toggleHandler}
@@ -192,20 +186,16 @@ const Wrapper = styled.div<WrapperProps>`
   // CSS picks the layout so the server HTML matches the hydrated header.
   .only-desktop,
   .header-navigation,
-  .network-default,
-  .network-mobile,
   .header-mobile-menu {
     display: contents;
   }
   @media (max-width: ${HEADER_MOBILE_MAX_WIDTH}px) {
-    .header-navigation,
-    .network-default {
+    .header-navigation {
       display: none;
     }
   }
   @media (min-width: ${HEADER_MOBILE_MAX_WIDTH + 1}px) {
-    .header-mobile-menu,
-    .network-mobile {
+    .header-mobile-menu {
       display: none;
     }
   }
