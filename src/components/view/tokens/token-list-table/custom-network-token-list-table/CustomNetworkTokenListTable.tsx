@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";

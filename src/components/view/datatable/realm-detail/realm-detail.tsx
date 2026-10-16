@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { ViewMoreButton } from "@/components/ui/button";

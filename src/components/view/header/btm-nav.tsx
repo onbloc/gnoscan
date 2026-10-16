@@ -1,4 +1,3 @@
-"use client";
 import React, { useCallback } from "react";
 import styled, { CSSProperties } from "styled-components";
 import { useRecoilState } from "recoil";

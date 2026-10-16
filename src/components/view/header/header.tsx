@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import React from "react";
 import styled from "styled-components";
 import mixins from "@/styles/mixins";

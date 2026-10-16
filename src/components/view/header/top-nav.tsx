@@ -1,5 +1,3 @@
-"use client";
-
 import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
 import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import { useRouter } from "@/common/hooks/common/use-router";
@@ -103,10 +101,9 @@ export const TopNav = () => {
       <HeaderNetwork entry={entry} />
       <div className="hide-desktop">
         <SubMenu
-          entry={entry}
           open={open}
-          onClick={toggleMenuHandler}
-          darkMode={themeMode === "dark"}
+          onToggle={toggleMenuHandler}
+          darkSurface={entry}
           currentPath={router.route}
           network={<HeaderNetwork entry={themeMode === "dark"} />}
         />
