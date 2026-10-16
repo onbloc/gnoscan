@@ -160,11 +160,12 @@ export const TooltipHint = styled.span`
   color: #4f9cff;
 `;
 
-export const CollectionRow = styled.div`
+export const CollectionRow = styled.div<{ $position?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 32px;
+  gap: ${({ $position }) => ($position ? "8px" : "32px")};
+  flex-wrap: ${({ $position }) => ($position ? "wrap" : "nowrap")};
   min-width: 0;
 `;
 
@@ -195,6 +196,16 @@ export const CollectionPath = styled.span`
     * {
       stroke: ${({ theme }) => theme.colors.gray300};
     }
+  }
+`;
+
+export const PositionLink = styled(CollectionPath)`
+  flex: 0 0 auto;
+  gap: 4px;
+  white-space: nowrap;
+
+  ${media.MOBILE} {
+    display: flex;
   }
 `;
 

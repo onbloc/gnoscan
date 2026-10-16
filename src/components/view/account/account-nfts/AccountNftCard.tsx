@@ -15,9 +15,10 @@ import React from "react";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetNftItemDetail } from "@/common/react-query/token/api";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
-import { stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { isGnftPackagePath, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { makeNftTokenHash } from "@/common/utils/nft-token-hash.utility";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
+import { gnoswapPositionUrl } from "@/common/utils/gnoswap-link.utility";
 import { zindex } from "@/common/values/z-index";
 import { AccountGRC721CollectionItemModel } from "@/repositories/api/account/response";
 import PathText from "@/components/ui/path-text/PathText";
@@ -34,14 +35,20 @@ interface AccountNftCardProps {
 
 const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) => {
   const { getUrlWithNetwork, gnoWebUrl } = useNetwork();
+  const isGnft = isGnftPackagePath(nft.tokenId);
   const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
-  // The tooltip describes the card click, so it hides while the gno.web link is hovered.
+  // The tooltip describes the card click, so it hides over the secondary external link.
   const [isOverGnoWebLink, setIsOverGnoWebLink] = React.useState(false);
   const activity = useGetNftItemDetail(nft.tokenId, nft.nftId, {
     enabled: isTooltipOpen && !isOverGnoWebLink,
   });
   const lastTransferTime = activity.data?.data.lastTransferBlockTime;
   const lastMintTime = activity.data?.data.lastMintBlockTime;
+  const position = nft.position;
+  const positionUrl =
+    isGnft && position
+      ? gnoswapPositionUrl(position.poolPath, nft.nftId, isStakedNft(nft) ? nft.operatorAddress : nft.ownerAddress)
+      : null;
 
   const { x, y, strategy, refs, context } = useFloating({
     open: isTooltipOpen,
@@ -83,13 +90,30 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
           staked={isStakedNft(nft)}
           burned={nft.position?.burned === true}
         >
-          <S.CollectionRow>
-            <S.CollectionPath {...gnoWebLinkProps}>
-              <S.CollectionPathText type="p4" color="gray300">
-                <PathText path={realmPath} />
-              </S.CollectionPathText>
-              {gnoWebUrl && <IconLink className="icon-link" />}
-            </S.CollectionPath>
+          <S.CollectionRow $position={!!positionUrl}>
+            {positionUrl ? (
+              <S.PositionLink
+                as="a"
+                href={positionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View Position #${nft.nftId} on GnoSwap`}
+                onMouseEnter={() => setIsOverGnoWebLink(true)}
+                onMouseLeave={() => setIsOverGnoWebLink(false)}
+              >
+                <S.CollectionPathText type="p4" color="gray300">
+                  View Position
+                </S.CollectionPathText>
+                <IconLink className="icon-link" />
+              </S.PositionLink>
+            ) : (
+              <S.CollectionPath {...gnoWebLinkProps}>
+                <S.CollectionPathText type="p4" color="gray300">
+                  <PathText path={realmPath} />
+                </S.CollectionPathText>
+                {gnoWebUrl && <IconLink className="icon-link" />}
+              </S.CollectionPath>
+            )}
             <S.CollectionName type="p4" color="gray300">
               {nft.name}
             </S.CollectionName>
