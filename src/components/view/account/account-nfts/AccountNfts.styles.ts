@@ -167,6 +167,11 @@ export const CollectionRow = styled.div<{ $position?: boolean }>`
   gap: 25px;
   flex-wrap: ${({ $position }) => ($position ? "wrap" : "nowrap")};
   min-width: 0;
+
+  // The position link and collection name stack on a card this narrow; keep them as tight as the title above.
+  ${media.MOBILE} {
+    row-gap: 0;
+  }
 `;
 
 // Rendered as the gno.web link when the network has one; raised above the stretched card link
