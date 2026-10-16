@@ -12,8 +12,8 @@ interface PathTextProps {
 }
 
 // A package path shortened by formatDisplayPackagePath (first and last 4 characters of each address). When it
-// still does not fit its area, whole leading segments are replaced by ".../" so the trailing names stay fully
-// visible and no address is cut in the middle.
+// still does not fit its area, whole leading segments are replaced by ".../" so the trailing names stay visible
+// and no address is cut in the middle; the last two segments are cut from the front only as a last resort.
 const PathText = ({ path, className, align = "left" }: PathTextProps) => {
   const text = formatDisplayPackagePath(path);
   const wrapperRef = React.useRef<HTMLSpanElement>(null);
@@ -45,9 +45,7 @@ const PathText = ({ path, className, align = "left" }: PathTextProps) => {
     <Wrapper ref={wrapperRef} className={className} $align={align}>
       {/* Keeps the area as wide as the full path wants, so it can grow back after being shortened. */}
       <Sizer aria-hidden="true">{text}</Sizer>
-      <Visible>
-        <bdi>{display}</bdi>
-      </Visible>
+      <Visible>{display}</Visible>
       <Measure ref={measureRef} aria-hidden="true" />
     </Wrapper>
   );
@@ -71,16 +69,11 @@ const Sizer = styled.span`
   visibility: hidden;
 `;
 
-// Only the last segment can still overflow; it is cut from the start so its end stays visible.
+// fitPathToWidth already cuts the front behind its own "...", so the text never overflows; nothing is clipped by
+// CSS, which keeps every row's text starting at the same left edge.
 const Visible = styled.span`
   display: block;
   overflow: hidden;
-  text-overflow: ellipsis;
-  direction: rtl;
-
-  bdi {
-    direction: ltr;
-  }
 `;
 
 const Measure = styled.span`

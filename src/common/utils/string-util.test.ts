@@ -4,11 +4,11 @@ describe("formatDisplayPackagePath", () => {
   const ADDRESS = "g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd";
 
   it("keeps the first and last 4 characters of a middle address and the names after it", () => {
-    expect(formatDisplayPackagePath(`r/${ADDRESS}/gnofly/nfts/planes`)).toBe("r/g1t2…4sfd/gnofly/nfts/planes");
+    expect(formatDisplayPackagePath(`r/${ADDRESS}/gnofly/nfts/planes`)).toBe("r/g1t2...4sfd/gnofly/nfts/planes");
   });
 
   it("shortens every address segment in the path", () => {
-    expect(formatDisplayPackagePath(`r/${ADDRESS}/market/${ADDRESS}`)).toBe("r/g1t2…4sfd/market/g1t2…4sfd");
+    expect(formatDisplayPackagePath(`r/${ADDRESS}/market/${ADDRESS}`)).toBe("r/g1t2...4sfd/market/g1t2...4sfd");
   });
 
   it("leaves paths without an address and short address-like segments unchanged", () => {
@@ -25,28 +25,33 @@ describe("formatDisplayPackagePath", () => {
 describe("fitPathToWidth", () => {
   // One unit of width per character keeps the expectations readable.
   const measure = (candidate: string) => candidate.length;
-  const path = "r/g1n4…rhmt/bazaar/c/bazaargens";
+  const path = "r/g1n4...rhmt/bazaar/c/bazaargens";
 
   it("keeps the whole path when it fits", () => {
     expect(fitPathToWidth(path, path.length, measure)).toBe(path);
   });
 
   it("drops whole leading segments instead of cutting an address in the middle", () => {
-    expect(fitPathToWidth(path, path.length - 1, measure)).toBe("…/bazaar/c/bazaargens");
+    expect(fitPathToWidth(path, path.length - 1, measure)).toBe(".../bazaar/c/bazaargens");
   });
 
   it("keeps dropping segments until the rest fits and always keeps the last two segments", () => {
-    expect(fitPathToWidth(path, "…/c/bazaargens".length, measure)).toBe("…/c/bazaargens");
-    expect(fitPathToWidth(path, 1, measure)).toBe("…/c/bazaargens");
-    expect(fitPathToWidth("r/moul/x/grc20faucet/v0", 1, measure)).toBe("…/grc20faucet/v0");
+    expect(fitPathToWidth(path, ".../c/bazaargens".length, measure)).toBe(".../c/bazaargens");
+    expect(fitPathToWidth("r/moul/x/grc20faucet/v0", ".../grc20faucet/v0".length, measure)).toBe(".../grc20faucet/v0");
   });
 
-  it("keeps a two-segment path's last name", () => {
-    expect(fitPathToWidth("r/bazaargens", 1, measure)).toBe("…/bazaargens");
+  it("cuts the front of the last two segments behind one ellipsis when they still do not fit", () => {
+    expect(fitPathToWidth("r/moul/x/grc20faucet/v0", 16, measure)).toBe("...rc20faucet/v0");
+    expect(fitPathToWidth("r/bazaargens", 8, measure)).toBe("...rgens");
   });
 
-  it("leaves a single segment unchanged", () => {
-    expect(fitPathToWidth("bazaargens", 3, measure)).toBe("bazaargens");
+  it("never leaves two markers in a row when the cut lands on an address's own dots", () => {
+    expect(fitPathToWidth("r/g1n4...rhmt/wbubble", 16, measure)).toBe("...rhmt/wbubble");
+    expect(fitPathToWidth("r/g1n4...rhmt/wbubble", 14, measure)).toBe("...hmt/wbubble");
+  });
+
+  it("cuts a single segment from the front instead of adding a separator", () => {
+    expect(fitPathToWidth("bazaargens", 6, measure)).toBe("...ens");
   });
 });
 
