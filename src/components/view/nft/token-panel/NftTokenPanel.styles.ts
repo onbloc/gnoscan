@@ -317,6 +317,7 @@ export const TransferItem = styled.li`
 
 export const TransferDescription = styled.div`
   display: flex;
+  flex: 1;
   align-items: center;
   gap: 4px;
   min-width: 0;
@@ -339,12 +340,12 @@ export const TransferDescription = styled.div`
   }
 `;
 
-export const TransferParty = styled.span`
+export const TransferParty = styled.span<{ $hasLabel: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
   min-width: 0;
-  max-width: 120px;
+  flex-shrink: ${({ $hasLabel }) => ($hasLabel ? 1 : 0)};
 
   > div:last-child {
     flex-shrink: 0;

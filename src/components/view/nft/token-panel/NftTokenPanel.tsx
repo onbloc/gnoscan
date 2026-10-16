@@ -6,9 +6,8 @@ import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } fro
 import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { useNetwork } from "@/common/hooks/use-network";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
-import { isGnftPackagePath, stripGnoLandPrefix } from "@/common/utils/token.utility";
+import { isGnftPackagePath } from "@/common/utils/token.utility";
 import { nftArtwork, nftMediaUrl } from "@/common/utils/nft-media.utility";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { base64HashToHex, isBase64Hash } from "@/common/utils/transaction.utility";
@@ -18,7 +17,6 @@ import IconArrow from "@/assets/svgs/icon-arrow.svg";
 import IconClose from "@/assets/svgs/icon-close.svg";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import IconLink from "@/assets/svgs/icon-link.svg";
-import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { Pagination } from "@/components/ui/pagination";
 import Tooltip from "@/components/ui/tooltip";
 import { DatatableItem } from "../../datatable";
@@ -26,6 +24,7 @@ import StakedBadge from "../staked-badge/StakedBadge";
 import BurnBadge from "../burn-badge/BurnBadge";
 import NftImage from "../nft-image/NftImage";
 import NftPositionInfo from "./NftPositionInfo";
+import NftTransferParty from "./NftTransferParty";
 import * as S from "./NftTokenPanel.styles";
 
 const EMPTY_VALUE = "-";
@@ -408,7 +407,6 @@ const NftTokenPanel = ({
                         <S.TransferDescription>
                           {addresses.map((address, addressIndex) => {
                             const owner = item?.ownerAddress === address ? item : null;
-                            const label = owner?.ownerLabel;
                             return (
                               <React.Fragment key={addressIndex}>
                                 <span className="event-prefix">
@@ -427,18 +425,11 @@ const NftTokenPanel = ({
                                   )}
                                 </span>
                                 {address ? (
-                                  <S.TransferParty>
-                                    <Tooltip content={address}>
-                                      <Link
-                                        href={getUrlWithNetwork(
-                                          getAddressLinkPath({ address, label, labelType: owner?.ownerLabelType }),
-                                        )}
-                                      >
-                                        {label ? stripGnoLandPrefix(label) : textEllipsis(address, 6)}
-                                      </Link>
-                                    </Tooltip>
-                                    <CopyTooltip copyText={address} variant="plain" iconClassName="copy-icon" />
-                                  </S.TransferParty>
+                                  <NftTransferParty
+                                    address={address}
+                                    label={owner?.ownerLabel}
+                                    labelType={owner?.ownerLabelType}
+                                  />
                                 ) : (
                                   EMPTY_VALUE
                                 )}
