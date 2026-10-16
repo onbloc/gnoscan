@@ -3,10 +3,9 @@ import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetGnotPrice, useGetSummarySupply } from "@/common/react-query/statistics";
 import { makeCompactNumber } from "@/common/utils/string-util";
+import { formatPriceChange } from "@/common/utils/price.utility";
 
 const formatPrice = (price: string) => `$${Number(price).toFixed(4)}`;
-
-const formatPriceChange = (change: number) => `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
 
 export const StandardNetworkSupplyCard = () => {
   const { data: supply, isFetched: isSupplyFetched } = useGetSummarySupply();

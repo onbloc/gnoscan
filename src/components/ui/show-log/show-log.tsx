@@ -26,7 +26,8 @@ interface ShowLogProps {
     name: string;
     body: string;
   }[];
-  btnTextType: string;
+  /** Source file viewers share the default label; log viewers pass their own ("Logs", "Error Logs"). */
+  btnTextType?: string;
 }
 
 const throttle = (func: Function, ms: number) => {
@@ -43,7 +44,7 @@ const throttle = (func: Function, ms: number) => {
 };
 const delay = 10;
 
-const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogProps) => {
+const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "Source" }: ShowLogProps) => {
   const [showLog, setShowLog] = useState(false);
   const [index, setIndex] = useState(0);
   const draggable = useRef<HTMLUListElement>(null);

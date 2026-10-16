@@ -70,7 +70,7 @@ export const TransactionAddPackageContract = ({
           <dt>Files</dt>
           <dd className="files-wrapper">
             <BadgeList items={files?.map(file => file.name) || []} />
-            {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
+            {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} />}
           </dd>
         </DLWrap>
       )}

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { useRouter } from "next/router";
 
@@ -15,6 +14,7 @@ export default function Page() {
   return (
     <>
       <RealmLayout
+        path={path}
         realmSummary={<RealmSummaryContainer path={path} />}
         realmInfo={<RealmInfoContainer path={path} />}
       />

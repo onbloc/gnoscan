@@ -2,6 +2,7 @@ import React from "react";
 
 import { useBlock } from "@/common/hooks/blocks/use-block";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { isApiNotFound } from "@/common/utils/common.utility";
 import TitleOption from "@/components/view/common/title-option/TitleOption";
 
 import * as S from "./BlockLayout.styles";
@@ -19,11 +20,7 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
   const { isCustomNetwork } = useNetworkProvider();
 
   const { block, isFetched: isFetchedRpcData, isErrorBlock: isErrorRpcData } = useBlock(blockHeight);
-  const {
-    isFetched: isFetchedApiData,
-    isError: isErrorApiData,
-    data: apiBlock,
-  } = useGetBlockByHeight(String(blockHeight), { enabled: !isCustomNetwork });
+  const blockQuery = useGetBlockByHeight(String(blockHeight), { enabled: !isCustomNetwork });
 
   const titleOptionProps = React.useMemo(
     () => ({
@@ -46,7 +43,7 @@ const BlockLayout = ({ blockHeight, blockSummary, blockInfo }: BlockLayoutProps)
       </S.InnerLayout>
     );
 
-  if (!isCustomNetwork && isFetchedApiData && (isErrorApiData || !apiBlock?.data))
+  if (!isCustomNetwork && isApiNotFound(blockQuery))
     return (
       <S.InnerLayout>
         <NotFound keyword={`${blockHeight}`} />

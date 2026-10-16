@@ -297,7 +297,7 @@ const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
           <UsdValueText tokenKey={GNOTToken.denom} amount={displayStorageDepositAmount.value} />
         </Badge>
       </FieldWithTooltip>
-      {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} btnTextType="Realms" />}
+      {realmSummary?.files && <ShowLog isTabLog={true} files={realmSummary?.files} />}
     </DataSection>
   );
 };
