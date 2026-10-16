@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 
 import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } from "@/common/react-query/token/api";
+import { acquireBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -135,21 +136,20 @@ const NftTokenPanel = ({
   React.useEffect(() => {
     if (!interactive) return;
     const sheet = window.matchMedia(`(max-width: ${DEVICE_SIZE_THRESHOLDS.DESKTOP - 1}px)`);
-    let previousOverflow: string | null = null;
+    let release: (() => void) | null = null;
     const sync = () => {
-      if (sheet.matches && previousOverflow === null) {
-        previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-      } else if (!sheet.matches && previousOverflow !== null) {
-        document.body.style.overflow = previousOverflow;
-        previousOverflow = null;
+      if (sheet.matches && !release) {
+        release = acquireBodyScrollLock();
+      } else if (!sheet.matches && release) {
+        release();
+        release = null;
       }
     };
     sync();
     sheet.addEventListener("change", sync);
     return () => {
       sheet.removeEventListener("change", sync);
-      if (previousOverflow !== null) document.body.style.overflow = previousOverflow;
+      release?.();
     };
   }, [interactive]);
 
