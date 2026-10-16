@@ -1,3 +1,4 @@
+import { readHistoryEntryState, writeHistoryEntryState } from "./use-history-entry-state";
 import { getSteadyContentMinHeight } from "./use-steady-tab-switch";
 
 /** URL hash for a detail tab, e.g. "Native Transfers" -> "native-transfers". */
@@ -39,13 +40,36 @@ export function writeTabHash(tabName: string): string {
 }
 
 const USER_INPUT_EVENTS = ["wheel", "touchstart", "keydown", "mousedown"] as const;
+const HOLD_STATE_PREFIX = "detail-tabs:hold:";
+
+/** Whether the hold for `key` (a URL or token id) already finished on the current history entry. */
+export function isHoldHandled(scope: string, key: string): boolean {
+  return readHistoryEntryState<string | null>(`${HOLD_STATE_PREFIX}${scope}`, null) === key;
+}
+
+/**
+ * Records that `key` was handled on the current history entry, so Back/Forward (which remounts the page
+ * and restores the saved scroll position) is not treated as a fresh deep link.
+ */
+export function markHoldHandled(scope: string, key: string): void {
+  writeHistoryEntryState(`${HOLD_STATE_PREFIX}${scope}`, key);
+}
 
 /**
  * Keeps `element` at the top of the viewport while the page above it is still loading and
  * pushing it down. When the page is too short to scroll that far, `content` gets the min-height
- * it needs. Stops on the first user input or after `durationMs`; returns a cancel function.
+ * it needs. Stops on the first user input or after `durationMs`, then marks `key` handled for `scope`.
+ * Does nothing when `key` was already handled on this history entry. Returns a cancel function for
+ * unmounting, which leaves `key` unhandled so a remount within the same visit holds again.
  */
-export function holdElementInView(element: HTMLElement, content: HTMLElement | null, durationMs = 15000): () => void {
+export function holdElementInView(
+  element: HTMLElement,
+  content: HTMLElement | null,
+  scope: string,
+  key: string,
+  durationMs = 15000,
+): () => void {
+  if (isHoldHandled(scope, key)) return () => {};
   const align = () => {
     const top = element.getBoundingClientRect().top;
     if (Math.abs(top) <= 1) return;
@@ -64,13 +88,17 @@ export function holdElementInView(element: HTMLElement, content: HTMLElement | n
   observer.observe(document.body);
   observer.observe(document.documentElement);
   align();
-  const timer = window.setTimeout(cancel, durationMs);
-  USER_INPUT_EVENTS.forEach(type => window.addEventListener(type, cancel, { passive: true }));
+  const timer = window.setTimeout(settle, durationMs);
+  USER_INPUT_EVENTS.forEach(type => window.addEventListener(type, settle, { passive: true }));
 
   function cancel() {
     observer.disconnect();
     window.clearTimeout(timer);
-    USER_INPUT_EVENTS.forEach(type => window.removeEventListener(type, cancel));
+    USER_INPUT_EVENTS.forEach(type => window.removeEventListener(type, settle));
+  }
+  function settle() {
+    cancel();
+    markHoldHandled(scope, key);
   }
   return cancel;
 }
