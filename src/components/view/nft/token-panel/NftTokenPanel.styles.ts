@@ -43,9 +43,9 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
     bottom: 0;
     left: 0;
     z-index: ${zindex.modal};
-    // Fixed height, not content-sized, so every NFT opens the same sheet; dvh follows the browser toolbar state.
+    // Fixed height, not content-sized, so every NFT opens the same sheet. vh (largest viewport) does not
+    // change while the browser toolbar shows or hides, unlike dvh.
     height: 85vh;
-    height: 85dvh;
     overflow-y: auto;
     overscroll-behavior: contain;
     border-radius: 16px 16px 0 0;

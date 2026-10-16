@@ -4,6 +4,7 @@ import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 
 const DISMISS_DISTANCE = 120;
 const DISMISS_VELOCITY = 0.6;
+const SETTLE_FALLBACK_MS = 600;
 
 /**
  * Lets a bottom sheet be dragged down to close it. A drag only takes over when the sheet's own
@@ -21,11 +22,13 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
     if (!enabled || !sheet) return;
     const isSheetLayout = () => window.matchMedia(`(max-width: ${DEVICE_SIZE_THRESHOLDS.DESKTOP - 1}px)`).matches;
 
+    let startX = 0;
     let startY = 0;
     let startTime = 0;
     let offset = 0;
     let tracking = false;
     let dragging = false;
+    let settleTimer: number | undefined;
 
     const reset = () => {
       sheet.style.transition = "";
@@ -37,20 +40,33 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
       dragging = false;
       offset = 0;
       if (!tracking) return;
+      startX = event.touches[0].clientX;
       startY = event.touches[0].clientY;
       startTime = event.timeStamp;
     };
 
     const onTouchMove = (event: TouchEvent) => {
       if (!tracking) return;
-      const delta = event.touches[0].clientY - startY;
+      const { clientX, clientY } = event.touches[0];
+      const delta = clientY - startY;
       if (!dragging) {
+        // A horizontal gesture is not a dismiss; leave it alone for the rest of the touch.
+        if (Math.abs(clientX - startX) > Math.abs(delta)) {
+          tracking = false;
+          return;
+        }
         // Dragging down from the top of the content starts the dismiss gesture; anything else scrolls.
         if (delta <= 0 || sheet.scrollTop > 0) return;
         dragging = true;
+        // The content may have scrolled to the top during this touch; measure the drag from here so the sheet
+        // does not jump by the distance already scrolled.
+        startY = clientY;
+        startTime = event.timeStamp;
         sheet.style.transition = "none";
+        event.preventDefault();
+        return;
       }
-      offset = Math.max(delta, 0);
+      offset = Math.max(clientY - startY, 0);
       sheet.style.transform = `translateY(${offset}px)`;
       event.preventDefault();
     };
@@ -63,22 +79,31 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
       const velocity = offset / Math.max(event.timeStamp - startTime, 1);
       sheet.style.transition = "";
       if (offset > DISMISS_DISTANCE || velocity > DISMISS_VELOCITY) {
-        // Leaves the drag offset in place; closing animates it away, and the cleanup below clears it.
+        // Leaves the drag offset in place so closing animates from it, and the cleanup below clears it.
+        // If the caller keeps the sheet open, snap back instead of leaving it stuck mid-screen.
         onCloseRef.current();
+        settleTimer = window.setTimeout(reset, SETTLE_FALLBACK_MS);
       } else {
         sheet.style.transform = "";
       }
     };
 
+    const onTouchCancel = () => {
+      tracking = false;
+      dragging = false;
+      reset();
+    };
+
     sheet.addEventListener("touchstart", onTouchStart, { passive: true });
     sheet.addEventListener("touchmove", onTouchMove, { passive: false });
     sheet.addEventListener("touchend", onTouchEnd);
-    sheet.addEventListener("touchcancel", onTouchEnd);
+    sheet.addEventListener("touchcancel", onTouchCancel);
     return () => {
       sheet.removeEventListener("touchstart", onTouchStart);
       sheet.removeEventListener("touchmove", onTouchMove);
       sheet.removeEventListener("touchend", onTouchEnd);
-      sheet.removeEventListener("touchcancel", onTouchEnd);
+      sheet.removeEventListener("touchcancel", onTouchCancel);
+      window.clearTimeout(settleTimer);
       reset();
     };
   }, [ref, enabled]);
