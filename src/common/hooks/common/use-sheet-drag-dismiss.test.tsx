@@ -95,19 +95,21 @@ it("does nothing when the panel is not laid out as a sheet", () => {
   expect(onClose).not.toHaveBeenCalled();
 });
 
-it("measures the drag from where the content reached the top, so the sheet does not jump", () => {
-  const { sheet } = mountSheet(jest.fn());
+it("leaves a gesture that began as scrolling to scrolling, even after the content reaches the top", () => {
+  const onClose = jest.fn();
+  const { sheet } = mountSheet(onClose);
 
-  sheet.scrollTop = 100;
+  sheet.scrollTop = 200;
   touch(sheet, "touchstart", 100, 0);
   touch(sheet, "touchmove", 160, 100);
-  expect(sheet.style.transform).toBe("");
 
   sheet.scrollTop = 0;
-  touch(sheet, "touchmove", 200, 200);
+  const reachedTop = touch(sheet, "touchmove", 310, 200);
+  touch(sheet, "touchend", 310, 200);
+
+  expect(reachedTop.defaultPrevented).toBe(false);
   expect(sheet.style.transform).toBe("");
-  touch(sheet, "touchmove", 230, 300);
-  expect(sheet.style.transform).toBe("translateY(30px)");
+  expect(onClose).not.toHaveBeenCalled();
 });
 
 it("does not start a dismiss from a mostly horizontal swipe", () => {

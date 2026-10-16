@@ -25,6 +25,7 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
     let startX = 0;
     let startY = 0;
     let startTime = 0;
+    let startedAtTop = false;
     let offset = 0;
     let tracking = false;
     let dragging = false;
@@ -40,6 +41,7 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
       dragging = false;
       offset = 0;
       if (!tracking) return;
+      startedAtTop = sheet.scrollTop <= 0;
       startX = event.touches[0].clientX;
       startY = event.touches[0].clientY;
       startTime = event.timeStamp;
@@ -55,11 +57,10 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
           tracking = false;
           return;
         }
-        // Dragging down from the top of the content starts the dismiss gesture; anything else scrolls.
-        if (delta <= 0 || sheet.scrollTop > 0) return;
+        // Only a gesture that began at the top of the content can dismiss. One that began as scrolling stays
+        // scrolling until the next touch, so scrolling back to the top never closes the sheet.
+        if (!startedAtTop || delta <= 0 || sheet.scrollTop > 0) return;
         dragging = true;
-        // The content may have scrolled to the top during this touch; measure the drag from here so the sheet
-        // does not jump by the distance already scrolled.
         startY = clientY;
         startTime = event.timeStamp;
         sheet.style.transition = "none";
