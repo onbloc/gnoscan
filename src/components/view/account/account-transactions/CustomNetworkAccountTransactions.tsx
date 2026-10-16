@@ -43,7 +43,7 @@ const CustomNetworkAccountTransactions = ({ address }: AccountTransactionsProps)
   }
 
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection wrapTabsOnMobile tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <AccountDetailDatatable
           data={accountTransactions || []}

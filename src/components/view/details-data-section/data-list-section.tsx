@@ -22,9 +22,17 @@ interface DataListSectionProps {
   }[];
   currentTab: string;
   setCurrentTab: (tab: string) => void;
+  /** Below desktop, wrap the tabs onto extra rows instead of scrolling them sideways. */
+  wrapTabsOnMobile?: boolean;
 }
 
-const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
+const DataListSection = ({
+  children,
+  tabs,
+  currentTab,
+  setCurrentTab,
+  wrapTabsOnMobile = false,
+}: DataListSectionProps) => {
   const { contentRef, contentStyle, selectTab, setPadding } = useSteadyTabSwitch<HTMLDivElement>(
     currentTab,
     setCurrentTab,
@@ -90,7 +98,7 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
 
   return (
     <DetailsContainer>
-      <div className="tab-area" ref={tabAreaRef}>
+      <div className={wrapTabsOnMobile ? "tab-area wrap-tabs" : "tab-area"} ref={tabAreaRef}>
         {tabs.map((tab, index) => {
           const isSelected = currentTab === tab.tabName;
           return (

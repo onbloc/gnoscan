@@ -36,6 +36,15 @@ export const DetailsContainer = styled.div<StyleProps>`
       }
     }
 
+    // Keeps every tab visible when there are more of them than fit in one row.
+    &.wrap-tabs {
+      @media (max-width: 1279px) {
+        flex-wrap: wrap;
+        gap: 12px 24px;
+        overflow-x: visible;
+      }
+    }
+
     .tab-item {
       display: flex;
       flex-direction: row;
