@@ -3,10 +3,9 @@ import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetGnotPrice, useGetSummarySupply } from "@/common/react-query/statistics";
 import { makeCompactNumber } from "@/common/utils/string-util";
+import { formatPriceChange } from "@/common/utils/price.utility";
 
 const formatPrice = (price: string) => `$${Number(price).toFixed(4)}`;
-
-const formatPriceChange = (change: number) => `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
 
 export const StandardNetworkSupplyCard = () => {
   const { data: supply, isFetched: isSupplyFetched } = useGetSummarySupply();
@@ -39,9 +38,9 @@ export const StandardNetworkSupplyCard = () => {
                 type="body2"
                 color={priceChangeColor}
                 margin="2px 0px 0px 6px"
-                style={{ fontFamily: "Inter, sans-serif" }}
+                style={{ fontFamily: "Inter, sans-serif", fontSize: 13 }}
               >
-                <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor}>
+                <Text type="body2" display="inline" fontWeight={700} color={priceChangeColor} style={{ fontSize: 13 }}>
                   {formatPriceChange(priceChange)}
                 </Text>{" "}
                 (24h)

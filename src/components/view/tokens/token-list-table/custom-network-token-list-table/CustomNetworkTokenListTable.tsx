@@ -10,7 +10,6 @@ import { DatatableItem } from "../../../datatable";
 import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20Info } from "@/repositories/realm-repository.ts";
-import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -20,7 +19,7 @@ const TOOLTIP_PACAKGE_PATH = (
 );
 
 interface TokenListTableProps {
-  tokens: GRC20Info[] | GRC20InfoWithLogo[];
+  tokens: GRC20Info[];
   hasNextPage: boolean;
   isFetched: boolean;
   nextPage: () => void;
@@ -90,7 +89,7 @@ export const CustomNetworkTokenListTable = ({ tokens, hasNextPage, isFetched, ne
   };
 
   const createHeaderPkgPath = () => {
-    return DatatableOption.Builder.builder<GRC20Info | GRC20InfoWithLogo>()
+    return DatatableOption.Builder.builder<GRC20Info>()
       .key("packagePath")
       .name("Path")
       .width(176)

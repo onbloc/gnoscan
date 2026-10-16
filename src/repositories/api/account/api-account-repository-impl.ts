@@ -2,12 +2,15 @@ import { ApiAccountRepository } from "./api-account-repository";
 
 import {
   GetAccountDirectTransactionsRequest,
+  GetAccountGRC721CollectionItemsRequest,
   GetAccountNativeTransfersRequest,
   GetAccountTokenTransfersRequest,
   GetAccountsRequest,
 } from "./request";
 import {
   GetAccountDirectTransactionsResponse,
+  GetAccountGRC721CollectionItemsResponse,
+  GetAccountGRC721CollectionsResponse,
   GetAccountNativeTransfersResponse,
   GetAccountResponse,
   GetAccountTokenTransfersResponse,
@@ -39,5 +42,19 @@ export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccoun
   getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse> {
     const { address, ...queryParams } = params;
     return this.get<GetAccountTokenTransfersResponse>(`accounts/${address}/token-transfers`, queryParams);
+  }
+
+  getAccountGRC721Collections(address: string): Promise<GetAccountGRC721CollectionsResponse> {
+    return this.get<GetAccountGRC721CollectionsResponse>(`accounts/${address}/grc721-tokens`);
+  }
+
+  getAccountGRC721CollectionItems(
+    params: GetAccountGRC721CollectionItemsRequest,
+  ): Promise<GetAccountGRC721CollectionItemsResponse> {
+    const { address, tokenId, ...queryParams } = params;
+    return this.get<GetAccountGRC721CollectionItemsResponse>(
+      `accounts/${address}/grc721-tokens/${encodeURIComponent(tokenId)}/items`,
+      queryParams,
+    );
   }
 }

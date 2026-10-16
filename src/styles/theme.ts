@@ -33,6 +33,17 @@ const lightTheme: Palette = {
   eventName: "#6639BA",
   eventParam: "#0A3069",
   linear: "linear-gradient(359.87deg, #FFFFFF 8.53%, rgba(255, 255, 255, 0) 69.1%)",
+  nftCard: "#FFFFFF",
+  nftCardBorder: "#E6E8EC",
+  nftBadge: "#F7F7F7",
+  nftPlaceholder: "url('/images/nft-placeholder-light.svg')",
+  nftPlaceholderIcon: "url('/images/nft-placeholder-icon-light.svg')",
+  nftPanel: "#F8F9FB",
+  nftPanelBorder: "#E6E8EC",
+  nftPanelMuted: "#8A93A1",
+  nftPanelText: "#1F2430",
+  nftPanelButtonBorder: "#E2E3E5",
+  nftPanelIcon: "#A0A0A0",
 } as const;
 
 const darkTheme: Palette = {
@@ -68,6 +79,17 @@ const darkTheme: Palette = {
   eventName: "#dbb7ff",
   eventParam: "#addcff",
   linear: "linear-gradient(359.87deg, #232323 8.53%, rgba(35, 35, 35, 0) 69.1%)",
+  nftCard: "#2A2A2A",
+  nftCardBorder: "#2A2A2A",
+  nftBadge: "#232323",
+  nftPlaceholder: "url('/images/nft-placeholder-dark.svg')",
+  nftPlaceholderIcon: "url('/images/nft-placeholder-icon-dark.svg')",
+  nftPanel: "#1A1A1A",
+  nftPanelBorder: "#2C2C2C",
+  nftPanelMuted: "#A0A0A0",
+  nftPanelText: "#FFFFFF",
+  nftPanelButtonBorder: "#2C2C2C",
+  nftPanelIcon: "#A0A0A0",
 } as const;
 
 const fonts: FontsKeyType = {
@@ -197,7 +219,18 @@ export type PaletteKeyType =
   | "funcName"
   | "eventName"
   | "eventParam"
-  | "linear";
+  | "linear"
+  | "nftCard"
+  | "nftCardBorder"
+  | "nftBadge"
+  | "nftPlaceholder"
+  | "nftPlaceholderIcon"
+  | "nftPanel"
+  | "nftPanelBorder"
+  | "nftPanelMuted"
+  | "nftPanelText"
+  | "nftPanelButtonBorder"
+  | "nftPanelIcon";
 
 const device: DeviceValueType = {
   desktop: "(minWidth: 1280)",

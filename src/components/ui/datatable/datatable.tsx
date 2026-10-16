@@ -119,7 +119,7 @@ const Container = styled.div<{ maxWidth?: number }>`
       align-items: center;
 
       svg {
-        animation: rotating 2s linear infinite;
+        animation: rotating 1s linear infinite;
       }
 
       stop {

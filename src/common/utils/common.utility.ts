@@ -24,3 +24,10 @@ export const truncateDashboardUsername = (username: string) => {
   }
   return username;
 };
+
+/**
+ * True once a detail API query settles without its entity. Keyed on missing data rather than
+ * isError, because a failed background refetch keeps the cached entity and must not hide the page.
+ */
+export const isApiNotFound = (query: { isFetched: boolean; isError: boolean; data?: { data?: unknown } | null }) =>
+  query.isFetched && !query.data?.data;

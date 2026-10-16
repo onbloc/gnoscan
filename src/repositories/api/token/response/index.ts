@@ -6,3 +6,4 @@ export * from "./get-token-holders-response";
 export * from "./get-token-meta-transactions-response";
 export * from "./get-token-meta-internal-transactions-response";
 export * from "./get-token-events-response";
+export * from "./get-nft-collection-response";

@@ -5,6 +5,8 @@ export enum QUERY_KEY {
   getAccountDirectTransactions = "api_get_account_direct_transactions",
   getAccountNativeTransfers = "api_get_account_native_transfers",
   getAccountTokenTransfers = "api_get_account_token_transfers",
+  getAccountGRC721Collections = "api_get_account_grc721_collections",
+  getAccountNfts = "api_get_account_nfts",
 
   // block
   getBlocks = "api_get_blocks",
@@ -27,6 +29,7 @@ export enum QUERY_KEY {
   getRealmDirectTransactionsByPath = "api_get_realm_direct_transactions_by_path",
   getRealmNativeTransfersByPath = "api_get_realm_native_transfers_by_path",
   getRealmTokenTransfersByPath = "api_get_realm_token_transfers_by_path",
+  getRealmHoldersByPath = "api_get_realm_holders_by_path",
   getRealmInternalTransactionsByPath = "api_get_realm_internal_transactions_by_path",
   getRealmStorageDepositByPath = "get_realm_storage_deposit_by_path",
 
@@ -39,6 +42,15 @@ export enum QUERY_KEY {
   getTokenMetaTransactionsById = "api_get_token_meta_transactions_by_id",
   getTokenMetaInternalTransactionsById = "api_get_token_meta_internal_transactions_by_id",
   getTokenEventsById = "api_get_token_events_by_id",
+  getNftCollections = "api_get_nft_collections",
+  getNftCollectionsList = "api_get_nft_collections_list",
+  getNftCollection = "api_get_nft_collection",
+  getNftCollectionItems = "api_get_nft_collection_items",
+  getNftItemDetail = "api_get_nft_item_detail",
+  getNftItemTransfers = "api_get_nft_item_transfers",
+  getNftTokenDetail = "api_get_nft_token_detail",
+  getNftTokenUris = "api_get_nft_token_uris",
+  getNftTokenUriRpc = "rpc_get_nft_token_uri",
 
   // statistics
   getLatestBlogs = "api_get_latest_blogs",

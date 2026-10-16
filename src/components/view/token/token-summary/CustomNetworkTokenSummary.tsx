@@ -2,7 +2,8 @@ import React from "react";
 import Link from "next/link";
 
 import { Amount } from "@/types/data-type";
-import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
+import { makeDisplayNumber } from "@/common/utils/string-util";
+import PathText from "@/components/ui/path-text/PathText";
 
 import * as S from "./TokenSummary.styles";
 import Text from "@/components/ui/text";
@@ -63,9 +64,9 @@ const CustomNetworkTokenSummary = ({ tokenPath }: TokenSummaryProps) => {
       </Field>
       <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
         <Badge>
-          <Text type="p4" color="blue" className="username-text">
+          <Text type="p4" color="blue" className="username-text ellipsis">
             <S.StyledA href={getUrlWithNetwork(`/realms/details?path=${summaryData.packagePath}`)}>
-              {formatDisplayPackagePath(summaryData.packagePath)}
+              <PathText path={summaryData.packagePath} />
             </S.StyledA>
           </Text>
           <CopyTooltip variant="path" copyText={summaryData.packagePath} />
@@ -103,7 +104,7 @@ const CustomNetworkTokenSummary = ({ tokenPath }: TokenSummaryProps) => {
       <Field label="Holders">
         <Badge>{summaryData.holders}</Badge>
       </Field>
-      {files && <ShowLog isTabLog={true} files={files} btnTextType="Logs" />}
+      {files && <ShowLog isTabLog={true} files={files} />}
     </DataSection>
   );
 };

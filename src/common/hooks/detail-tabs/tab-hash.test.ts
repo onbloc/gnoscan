@@ -1,5 +1,5 @@
 import { ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
-import { findTabByHash, getHashTabToApply, toTabHash, writeTabHash } from "./tab-hash";
+import { findTabByHash, getHashTabToApply, isHoldHandled, markHoldHandled, toTabHash, writeTabHash } from "./tab-hash";
 
 const TABS = ["Transactions", "Native Transfers", "Token Transfers", "Internal Transactions", "Events"];
 
@@ -19,6 +19,10 @@ describe("tab hash", () => {
     expect(findTabByHash("#holders", TABS)).toBeNull();
     expect(findTabByHash("#", TABS)).toBeNull();
     expect(findTabByHash("", TABS)).toBeNull();
+  });
+
+  it("names the tab with the segment before tab parameters", () => {
+    expect(findTabByHash("#inventory&tokenId=1011", ["Inventory", ...TABS])).toBe("Inventory");
   });
 
   it("gives every detail tab a unique hash that resolves back to it", () => {
@@ -64,6 +68,33 @@ describe("tab hash", () => {
 
       expect(url).toBe("/tokens/a?chainId=test#native-transfers");
       expect(replaceState).toHaveBeenCalledWith({ key: "entry-a", __N: true, as: url }, "", url);
+    });
+  });
+
+  describe("hold handled marker", () => {
+    afterEach(() => {
+      delete (globalThis as { window?: unknown }).window;
+    });
+
+    it("is scoped to the history entry, so Back skips the hold but a new visit holds", () => {
+      const store = new Map<string, string>();
+      const sessionStorage = {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => void store.set(key, value),
+      };
+      const visit = (key: string) => {
+        (globalThis as { window?: unknown }).window = { history: { state: { key } }, sessionStorage };
+      };
+
+      visit("entry-a");
+      expect(isHoldHandled("tab", "/tokens/a#holders")).toBe(false);
+      markHoldHandled("tab", "/tokens/a#holders");
+      expect(isHoldHandled("tab", "/tokens/a#holders")).toBe(true);
+      expect(isHoldHandled("tab", "/tokens/a#events")).toBe(false);
+      expect(isHoldHandled("nft-panel", "/tokens/a#holders")).toBe(false);
+
+      visit("entry-b");
+      expect(isHoldHandled("tab", "/tokens/a#holders")).toBe(false);
     });
   });
 });

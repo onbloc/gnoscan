@@ -1,4 +1,68 @@
-import { makeCompactNumber, makeEncodedQueryParameter } from "./string-util";
+import { fitPathToWidth, formatDisplayPackagePath, makeCompactNumber, makeEncodedQueryParameter } from "./string-util";
+
+describe("formatDisplayPackagePath", () => {
+  const ADDRESS = "g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd";
+
+  it("keeps the first and last 4 characters of a middle address and the names after it", () => {
+    expect(formatDisplayPackagePath(`r/${ADDRESS}/gnofly/nfts/planes`)).toBe("r/g1t2...4sfd/gnofly/nfts/planes");
+  });
+
+  it("shortens every address segment in the path", () => {
+    expect(formatDisplayPackagePath(`r/${ADDRESS}/market/${ADDRESS}`)).toBe("r/g1t2...4sfd/market/g1t2...4sfd");
+  });
+
+  it("leaves paths without an address and short address-like segments unchanged", () => {
+    expect(formatDisplayPackagePath("r/gnoswap/gnft")).toBe("r/gnoswap/gnft");
+    expect(formatDisplayPackagePath("r/g1abc/name")).toBe("r/g1abc/name");
+  });
+
+  it("returns an empty string for a missing path", () => {
+    expect(formatDisplayPackagePath(undefined)).toBe("");
+    expect(formatDisplayPackagePath(null)).toBe("");
+  });
+});
+
+describe("fitPathToWidth", () => {
+  // One unit of width per character keeps the expectations readable.
+  const measure = (candidate: string) => candidate.length;
+  const path = "r/g1n4...rhmt/bazaar/c/bazaargens";
+
+  it("keeps the whole path when it fits", () => {
+    expect(fitPathToWidth(path, path.length, measure)).toBe(path);
+  });
+
+  it("keeps the tail of a shortened address before dropping the address entirely", () => {
+    expect(fitPathToWidth(path, path.length - 1, measure)).toBe("...rhmt/bazaar/c/bazaargens");
+  });
+
+  it("fills width left after a whole-segment drop with the end of what was dropped", () => {
+    expect(fitPathToWidth(path, "...rhmt/bazaar/c/bazaargens".length - 1, measure)).toBe("...hmt/bazaar/c/bazaargens");
+    expect(fitPathToWidth(path, ".../c/bazaargens".length + 3, measure)).toBe("...aar/c/bazaargens");
+  });
+
+  it("drops the address entirely once there is no width to spare", () => {
+    expect(fitPathToWidth(path, ".../bazaar/c/bazaargens".length, measure)).toBe(".../bazaar/c/bazaargens");
+  });
+
+  it("keeps dropping segments until the rest fits and always keeps the last two segments", () => {
+    expect(fitPathToWidth(path, ".../c/bazaargens".length, measure)).toBe(".../c/bazaargens");
+    expect(fitPathToWidth("r/moul/x/grc20faucet/v0", ".../grc20faucet/v0".length, measure)).toBe(".../grc20faucet/v0");
+  });
+
+  it("cuts the front of the last two segments behind one ellipsis when they still do not fit", () => {
+    expect(fitPathToWidth("r/moul/x/grc20faucet/v0", 16, measure)).toBe("...rc20faucet/v0");
+    expect(fitPathToWidth("r/bazaargens", 8, measure)).toBe("...rgens");
+  });
+
+  it("never leaves two markers in a row when the cut lands on an address's own dots", () => {
+    expect(fitPathToWidth("r/g1n4...rhmt/wbubble", 16, measure)).toBe("...rhmt/wbubble");
+    expect(fitPathToWidth("r/g1n4...rhmt/wbubble", 14, measure)).toBe("...hmt/wbubble");
+  });
+
+  it("cuts a single segment from the front instead of adding a separator", () => {
+    expect(fitPathToWidth("bazaargens", 6, measure)).toBe("...ens");
+  });
+});
 
 describe("makeEncodedQueryParameter", () => {
   it("returns an empty string when every value is missing", () => {

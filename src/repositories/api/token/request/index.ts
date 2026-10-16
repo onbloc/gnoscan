@@ -4,3 +4,4 @@ export * from "./get-token-holders-request";
 export * from "./get-token-meta-transactions-request";
 export * from "./get-token-meta-internal-transactions-request";
 export * from "./get-token-events-request";
+export * from "./get-nft-collection-request";
