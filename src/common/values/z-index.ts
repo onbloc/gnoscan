@@ -3,7 +3,8 @@ export const zindex = {
   chart: 2,
   tooltip: 3,
   searchResult: 4,
-  modal: 5,
+  headerDropdown: 5,
+  modal: 6,
   // Covers the header network button so the copy in TopNav slides in with the mobile menu.
   mobileMenu: 100,
 };
