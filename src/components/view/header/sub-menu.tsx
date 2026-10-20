@@ -81,7 +81,6 @@ const Container = styled.div<{ open: boolean }>`
   right: ${({ open }) => (open ? "0px" : "100%")};
   width: 100%;
   height: 100%;
-  // Covers the header network button, which the menu does not show.
   z-index: ${zindex.mobileMenu};
   transition: all 0.4s ease-out;
   padding: 0px 18px 20px;
@@ -107,7 +106,6 @@ const TopHeader = styled.div`
   width: 100%;
   height: 80px;
   flex-shrink: 0;
-  gap: 16px;
   & > svg:first-child {
     margin-right: auto;
   }
