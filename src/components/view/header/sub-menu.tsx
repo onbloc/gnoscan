@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import styled, { css } from "styled-components";
 import Portal from "@/components/core/portal";
