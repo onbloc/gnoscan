@@ -3,7 +3,7 @@ import { UseQueryOptions } from "react-query";
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_CACHE_TIME } from "@/common/values/query.constant";
 import { AccountNftPage, fetchAccountNftPage } from "@/common/utils/account-nft.utility";
 import { AccountGRC721CollectionModel } from "@/repositories/api/account/response";
 
@@ -28,6 +28,10 @@ export const useGetAccountNfts = (
       fetchAccountNftPage(collections, page, pageSize, (tokenId, collectionPage, limit) =>
         repository.getAccountGRC721CollectionItems({ address, tokenId, page: collectionPage, limit }),
       ),
-    { ...options, enabled: !!address && collections.length > 0 && options?.enabled !== false },
+    {
+      cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
+      ...options,
+      enabled: !!address && collections.length > 0 && options?.enabled !== false,
+    },
   );
 };

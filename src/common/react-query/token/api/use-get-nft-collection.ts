@@ -5,7 +5,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useApiRepositoryInfiniteQuery, useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_CACHE_TIME } from "@/common/values/query.constant";
 import {
   GetNftCollectionItemsRequest,
   GetNftCollectionsRequest,
@@ -79,7 +79,7 @@ export const useGetNftCollectionItems = (
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     repository => repository.getNftCollectionItems(request),
-    { ...options, enabled: !!params.tokenKey && options?.enabled !== false },
+    { cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME, ...options, enabled: !!params.tokenKey && options?.enabled !== false },
   );
 };
 
@@ -135,7 +135,11 @@ export const useGetNftItemTransfers = (
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     repository => repository.getNftItemTransfers(request),
-    { ...options, enabled: !!apiTokenRepository && !!params.tokenKey && !!params.nftId && options?.enabled !== false },
+    {
+      cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
+      ...options,
+      enabled: !!apiTokenRepository && !!params.tokenKey && !!params.nftId && options?.enabled !== false,
+    },
   );
 };
 
