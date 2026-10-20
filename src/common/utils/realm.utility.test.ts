@@ -18,6 +18,11 @@ describe("parseRealmPath", () => {
     );
   });
 
+  it("returns an empty string without an exact path param", () => {
+    expect(parseRealmPath("/realms/details")).toBe("");
+    expect(parseRealmPath("/realms/details?subpath=gno.land/r/demo/foo")).toBe("");
+  });
+
   it("keeps a malformed percent sequence as is", () => {
     expect(parseRealmPath("/realms/details?path=gno.land/r/demo/foo%")).toBe("gno.land/r/demo/foo%");
   });
