@@ -28,7 +28,6 @@ interface SubMenuProps {
   selector?: string;
   darkMode?: boolean;
   currentPath: string;
-  network?: React.ReactNode;
 }
 
 export const SubMenu: React.FC<SubMenuProps> = ({
@@ -38,7 +37,6 @@ export const SubMenu: React.FC<SubMenuProps> = ({
   selector = "modal-root",
   darkMode,
   currentPath,
-  network,
 }) => {
   const { getUrlWithNetwork } = useNetwork();
   useBodyScrollLock(open);
@@ -54,7 +52,6 @@ export const SubMenu: React.FC<SubMenuProps> = ({
         <Container open={open}>
           <TopHeader>
             {darkMode ? <GnoscanLogo /> : <GnoscanLogoLight />}
-            {network}
             <CloseButton onClick={onClick}>
               <CloseIcon className="close-icon" />
             </CloseButton>
@@ -84,7 +81,6 @@ const Container = styled.div<{ open: boolean }>`
   right: ${({ open }) => (open ? "0px" : "100%")};
   width: 100%;
   height: 100%;
-  // Covers the header network button so the copy in TopHeader slides in with the menu.
   z-index: ${zindex.mobileMenu};
   transition: all 0.4s ease-out;
   padding: 0px 18px 20px;
@@ -110,7 +106,6 @@ const TopHeader = styled.div`
   width: 100%;
   height: 80px;
   flex-shrink: 0;
-  gap: 16px;
   & > svg:first-child {
     margin-right: auto;
   }
@@ -120,7 +115,7 @@ const TopHeader = styled.div`
 const Nav = styled.nav`
   ${mixins.flexbox("column", "center", "center")};
   flex-shrink: 0;
-  gap: 40px;
+  gap: 36px;
   margin: auto 0;
   padding: 24px 0 40px;
 `;
