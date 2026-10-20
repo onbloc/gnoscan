@@ -112,5 +112,10 @@ export function parseRealmPath(url: string) {
   if (params.length < 2) return "";
 
   const realmPath = params[1].split("&")[0];
-  return realmPath;
+  // The /search redirect encodes the path, so "/" arrives as "%2F".
+  try {
+    return decodeURIComponent(realmPath);
+  } catch {
+    return realmPath;
+  }
 }
