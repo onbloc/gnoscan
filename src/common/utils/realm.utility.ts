@@ -103,14 +103,14 @@ export function parseBankerGRC20InfoByFile(file: string): {
   }
 }
 
+/**
+ * Reads the `path` query param from a realm details URL such as `router.asPath`.
+ * URLSearchParams decodes "%2F" from the /search redirect and keeps malformed "%" as is.
+ */
 export function parseRealmPath(url: string) {
-  if (!url.includes("path=")) {
-    return "";
-  }
-  // Drop the URL hash (e.g. "#events" selecting a detail tab) before reading the param.
-  const params = url.split("#")[0].split("path=");
-  if (params.length < 2) return "";
+  const [beforeHash] = url.split("#");
+  const queryStart = beforeHash.indexOf("?");
+  if (queryStart < 0) return "";
 
-  const realmPath = params[1].split("&")[0];
-  return realmPath;
+  return new URLSearchParams(beforeHash.slice(queryStart + 1)).get("path") ?? "";
 }
