@@ -42,7 +42,7 @@ const StandardNetworkAccountAddress = ({ address, validatorInfo }: AccountAddres
 
   return (
     <S.Card>
-      <S.CardTitle aria-label="title">Address</S.CardTitle>
+      <S.CardTitle>Address</S.CardTitle>
       <S.Box>
         <S.AccountWrapper>
           <S.ContentWrapper>

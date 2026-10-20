@@ -157,7 +157,7 @@ const NftInventoryToolbar = ({
           <S.OwnerButton
             ref={buttonRef}
             type="button"
-            aria-label="Filter by owner"
+            aria-label={`Owner: ${ownerLabel || "All"}`}
             aria-haspopup="listbox"
             aria-expanded={open}
             aria-controls={open ? menuId : undefined}

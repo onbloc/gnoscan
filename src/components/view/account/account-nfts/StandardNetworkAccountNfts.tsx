@@ -63,13 +63,13 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     <S.Card>
       <S.Header>
         <S.TitleWrapper>
-          <CardTitle aria-label="title">NFTs</CardTitle>
+          <CardTitle>NFTs</CardTitle>
           <S.CountPill type="p4" color="primary">
             {totalCount.toLocaleString()}
           </S.CountPill>
         </S.TitleWrapper>
         {hasCollections && (
-          <S.Chips role="tablist" aria-label="NFT collections">
+          <S.Chips role="group" aria-label="NFT collections">
             <CollectionChip
               label="ALL"
               count={totalCount}
@@ -96,7 +96,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
       </S.Header>
 
       {hasCollections && !isFetchedNfts ? (
-        <S.Grid aria-label="Loading NFTs">
+        <S.Grid role="status" aria-label="Loading NFTs">
           {Array.from({ length: NFT_PAGE_SIZE }, (_, index) => (
             <NftCardFrame key={index} size="regular" selected={false}>
               <S.SkeletonImage>
@@ -144,7 +144,7 @@ interface CollectionChipProps {
 }
 
 const CollectionChip = ({ label, count, selected, onClick }: CollectionChipProps) => (
-  <S.Chip type="button" role="tab" aria-selected={selected} selected={selected} onClick={onClick}>
+  <S.Chip type="button" aria-pressed={selected} selected={selected} onClick={onClick}>
     <S.ChipLabel data-label={label}>{label}</S.ChipLabel>
     <S.ChipCount>{count.toLocaleString()}</S.ChipCount>
   </S.Chip>

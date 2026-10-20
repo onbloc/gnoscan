@@ -51,7 +51,7 @@ const CustomNetworkAccountAssets = ({ address, breakpoint }: AccountAssetsProps)
 
   return (
     <S.Card>
-      <CardTitle aria-label="title">Assets</CardTitle>
+      <CardTitle>Assets</CardTitle>
       <S.GridLayout breakpoint={breakpoint}>
         {isFetchedAssets &&
           tokenAssets.map((tokenAsset: AccountAssetViewModel) => {

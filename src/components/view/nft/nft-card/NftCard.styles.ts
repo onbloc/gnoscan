@@ -35,12 +35,14 @@ export const Artwork = styled.div`
   width: 100%;
 `;
 
-// 4px inside the artwork's top-right corner (Figma 6712:6791).
+// 4px inside the artwork's top-right corner.
+// Decorative, so clicks pass through to the stretched card button or link below.
 export const StatusBadgeSlot = styled.div`
   position: absolute;
   top: 4px;
   right: 4px;
   z-index: 1;
+  pointer-events: none;
   display: flex;
   gap: 4px;
 `;

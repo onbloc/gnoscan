@@ -53,12 +53,22 @@ export const EmptyState = styled.div`
   grid-column: 1 / -1;
 `;
 
-export const CardButton = styled.div`
+export const CardItem = styled.div`
+  position: relative;
   display: flex;
   min-width: 0;
+  scroll-margin: 96px;
+`;
+
+// Covers the whole card; the owner link and copy icon are raised above it
+export const CardButton = styled.button`
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
   border-radius: 10px;
   cursor: pointer;
-  scroll-margin: 96px;
 
   :focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.blue};
@@ -86,5 +96,11 @@ export const OwnerRow = styled.div`
 
   a {
     color: ${({ theme }) => theme.colors.blue};
+  }
+
+  a,
+  .copy-tooltip {
+    position: relative;
+    z-index: 1;
   }
 `;
