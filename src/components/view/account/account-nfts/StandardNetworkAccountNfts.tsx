@@ -6,7 +6,6 @@ import { useGetAccountGRC721Collections } from "@/common/react-query/account/api
 import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-account-nfts";
 
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
-import Text from "@/components/ui/text";
 import { Pagination } from "@/components/ui/pagination";
 import { CardTitle } from "../account-address/AccountAddress.styles";
 import AccountNftCard from "./AccountNftCard";
@@ -107,19 +106,17 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
             </NftCardFrame>
           ))}
         </S.Grid>
-      ) : nfts.length > 0 ? (
-        <S.Grid>
-          {nfts.map(nft => {
-            const { src, isLoading } = artwork(nft.packagePath, nft.nftId);
-            return (
-              <AccountNftCard key={`${nft.tokenId}:${nft.nftId}`} nft={nft} imageUrl={src} imageLoading={isLoading} />
-            );
-          })}
-        </S.Grid>
       ) : (
-        <Text type="p4" color="tertiary">
-          No data to display
-        </Text>
+        nfts.length > 0 && (
+          <S.Grid>
+            {nfts.map(nft => {
+              const { src, isLoading } = artwork(nft.packagePath, nft.nftId);
+              return (
+                <AccountNftCard key={`${nft.tokenId}:${nft.nftId}`} nft={nft} imageUrl={src} imageLoading={isLoading} />
+              );
+            })}
+          </S.Grid>
+        )
       )}
 
       {hasCollections && (
