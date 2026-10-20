@@ -25,7 +25,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     `account:${address}:nft-collection`,
     ALL_COLLECTIONS,
   );
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useHistoryEntryState(`account:${address}:nft-page`, 1);
 
   const collections = React.useMemo(() => collectionsData?.items ?? [], [collectionsData]);
   const totalCount = React.useMemo(

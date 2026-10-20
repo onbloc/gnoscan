@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetNftCollectionItems, useGetNftCollectionItemsInfinite } from "@/common/react-query/token/api";
 import { getAddressDisplayText } from "@/common/utils/address-label.utility";
@@ -91,8 +92,11 @@ export function compareNftTokenIds(left: string, right: string): number {
 export function useNftInventoryControls(collectionIdentity: string, pageSize: number, selectedNftId: string | null) {
   const { currentNetwork } = useNetworkProvider();
   const identity = JSON.stringify([currentNetwork?.chainId ?? "", collectionIdentity]);
-  const [savedControls, setControls] = React.useState(() => initialControls(identity));
-  if (savedControls.identity !== identity) setControls(initialControls(identity));
+  // Saved per history entry so Back, or returning to this tab, restores the filters and page.
+  const [savedControls, setControls] = useHistoryEntryState(
+    `nft-inventory:${identity}:controls`,
+    initialControls(identity),
+  );
   const controls = savedControls.identity === identity ? savedControls : initialControls(identity);
   const [completion, setCompletion] = React.useState(0);
   const flight = React.useRef<{ identity: string } | null>(null);
@@ -111,33 +115,25 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   }, [identity]);
 
   const updateControls = React.useCallback(
-    (update: Partial<Omit<InventoryControlState, "identity">>) => {
-      setControls(previous => ({
-        ...(previous.identity === identity ? previous : initialControls(identity)),
-        ...update,
-      }));
-    },
-    [identity],
+    (update: Partial<Omit<InventoryControlState, "identity">>) => setControls({ ...controls, ...update }),
+    [controls, setControls],
   );
   const onSearchChange = React.useCallback((search: string) => updateControls({ search }), [updateControls]);
   const onOwnerChange = React.useCallback((owner: string) => updateControls({ owner }), [updateControls]);
   const onOwnerOpen = React.useCallback(() => updateControls({ ownersRequested: true }), [updateControls]);
-  const onSortToggle = React.useCallback(() => {
-    setControls(previous => {
-      const current = previous.identity === identity ? previous : initialControls(identity);
-      return { ...current, sortOrder: current.sortOrder === "asc" ? "desc" : "asc" };
-    });
-  }, [identity]);
+  const onSortToggle = React.useCallback(
+    () => updateControls({ sortOrder: controls.sortOrder === "asc" ? "desc" : "asc" }),
+    [controls.sortOrder, updateControls],
+  );
 
   const search = controls.search.trim().toLowerCase();
   const hasActiveControls = !!search || !!controls.owner || controls.sortOrder !== null;
   const needsAllPages = hasActiveControls || controls.ownersRequested;
   const pageScope = JSON.stringify([identity, search, controls.owner, controls.sortOrder]);
-  const [pagination, setPagination] = React.useState<InventoryPagination>(() => ({
-    scope: pageScope,
-    page: 1,
-    pageSize,
-  }));
+  const [pagination, setPagination] = useHistoryEntryState<InventoryPagination>(
+    `nft-inventory:${identity}:pagination`,
+    { scope: pageScope, page: 1, pageSize },
+  );
   const currentPagination =
     pagination.scope !== pageScope
       ? { scope: pageScope, page: 1, pageSize }
@@ -328,14 +324,14 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
       isResizing && previousPage
         ? (previousPage.page - 1) * previousPage.pageSize + index
         : (page - 1) * pageSize + index;
-    setPagination(previous => ({
-      ...previous,
+    setPagination({
+      ...currentPagination,
       anchorIndex,
       page:
         isResizing && previousPage
           ? remapNftInventoryPage(previousPage.page, previousPage.pageSize, pageSize, anchorIndex)
-          : previous.page,
-    }));
+          : currentPagination.page,
+    });
   };
 
   const toolbarProps: NftInventoryToolbarProps = {

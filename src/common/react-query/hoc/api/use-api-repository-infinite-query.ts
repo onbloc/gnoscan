@@ -1,7 +1,7 @@
 import { useInfiniteQuery, UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
 import { CommonError } from "@/common/errors";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_CACHE_TIME } from "@/common/values/query.constant";
 
 /**
  * Response shape of cursor paginated API lists
@@ -46,6 +46,7 @@ export function useApiRepositoryInfiniteQuery<TData extends CursorPageResponse, 
     },
     getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
     enabled: !!repository && options?.enabled !== false,
+    cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
     ...options,
   });
 }

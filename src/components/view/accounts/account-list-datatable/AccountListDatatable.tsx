@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useGetAccounts } from "@/common/react-query/account/api/use-get-accounts";
 import { AccountListItemModel } from "@/models/api/account/account-list-item-model";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
@@ -20,7 +21,7 @@ interface AccountListDatatableProps {
 }
 
 export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatableProps) => {
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useHistoryEntryState("accounts:page", 1);
 
   const { data, isFetched, isPreviousData } = useGetAccounts(
     { denom: "ugnot", page, limit: ACCOUNTS_LIST_PAGE_SIZE },
