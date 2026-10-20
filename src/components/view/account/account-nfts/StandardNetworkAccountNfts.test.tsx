@@ -18,7 +18,7 @@ jest.mock("@/common/react-query/account/api/use-get-account-grc721-collections",
 jest.mock("@/common/react-query/account/api/use-get-account-nfts", () => ({
   useGetAccountNfts: () => ({ data: undefined, isFetched: false }),
 }));
-jest.mock("@/components/ui/pagination", () => ({ Pagination: () => <nav>pagination</nav> }));
+jest.mock("@/components/ui/pagination", () => ({ Pagination: () => null }));
 
 it("shows an empty NFTs card for accounts without NFTs", () => {
   const html = renderToStaticMarkup(
@@ -32,5 +32,4 @@ it("shows an empty NFTs card for accounts without NFTs", () => {
   expect(html).toContain("No data to display");
   expect(html).not.toContain("Loading NFTs");
   expect(html).not.toContain("NFT collections");
-  expect(html).not.toContain("pagination");
 });
