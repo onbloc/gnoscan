@@ -220,14 +220,26 @@ describe("processSearchKeyword", () => {
       });
     });
 
-    test.each(["0x10", "0b11", "0o7", "1e3", "Infinity", "-5", "1.5", "+3"])(
-      "Non decimal integer %s should not redirect to the block page",
+    test.each(["0x10", "0b11", "0o7", "1e3", "Infinity", "1.5"])(
+      "Non decimal integer %s should fall through to the account search",
       keyword => {
         const result = processSearchKeyword(keyword, networkParams);
 
-        expect(result?.destination.startsWith("/block/")).not.toBe(true);
+        expect(result?.destination.startsWith(`/account/${keyword}?`)).toBe(true);
       },
     );
+
+    test.each(["-5", "+3"])("Non decimal integer %s should not redirect anywhere", keyword => {
+      expect(processSearchKeyword(keyword, networkParams)).toBeNull();
+    });
+
+    test("All digit 64 char hex hash should redirect to the transaction page, not the block page", () => {
+      const hash = "1".repeat(64);
+      const result = processSearchKeyword(hash, networkParams);
+
+      expect(result?.destination.startsWith("/transactions/details?")).toBe(true);
+      expect(result?.destination).toContain(`txhash=${hash}`);
+    });
   });
 
   // Realm path search tests
