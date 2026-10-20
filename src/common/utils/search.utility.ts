@@ -1,5 +1,3 @@
-import BigNumber from "bignumber.js";
-
 import { isBech32Address } from "./bech32.utility";
 import { isHash } from "./transaction.utility";
 import { makeQueryString } from "./string-util";
@@ -65,7 +63,7 @@ function extractNetworkParams(params: NetworkParams): NetworkParams {
  * @param networkParams - network-related parameters
  */
 function processBlockNumber(keyword: string, networkParams: NetworkParams): SearchRedirect {
-  const isNumber = !BigNumber(keyword).isNaN();
+  const isNumber = /^\d+$/.test(keyword);
   if (isNumber) {
     const queryString = makeQueryString(networkParams);
     return {
@@ -168,10 +166,10 @@ function processAccountSearch(keyword: string, networkParams: NetworkParams): Se
  * @returns A redirect object with destination URL if a redirect is needed, null otherwise
  *
  * Redirect logic:
- * - Numbers -> Block page
+ * - Transaction hashes -> Transaction details page
+ * - Decimal integers -> Block page
  * - "gno.land" prefixed strings -> Realm details page
  * - Bech32 addresses -> Account page
- * - Transaction hashes -> Transaction details page
  * - Other strings (length > 2, no spaces) -> Account page
  * - All other cases -> No redirect (returns null)
  *
@@ -185,11 +183,12 @@ export function processSearchKeyword(keyword: string, params: Record<string, str
   const trimmedKeyword = keyword.trim();
   const networkParams = extractNetworkParams(params);
 
+  // Hashes go first because a hex hash can be all digits
   const processors: Array<(keyword: string, networkParams: NetworkParams) => SearchRedirect> = [
+    processTransactionHash,
     processBlockNumber,
     processRealmPath,
     processBech32Address,
-    processTransactionHash,
     processAccountSearch,
   ];
 
