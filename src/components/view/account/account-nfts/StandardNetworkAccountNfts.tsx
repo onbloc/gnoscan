@@ -122,14 +122,16 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
         </Text>
       )}
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        hasNext={nftData?.page.hasNext}
-        hideFirstPageButtonWhenDisabled
-        hideLastPageButtonWhenCurrent
-        onChangePage={setPage}
-      />
+      {hasCollections && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          hasNext={nftData?.page.hasNext}
+          hideFirstPageButtonWhenDisabled
+          hideLastPageButtonWhenCurrent
+          onChangePage={nextPage => setPage(Math.min(Math.max(nextPage, 1), totalPages))}
+        />
+      )}
     </S.Card>
   );
 };
