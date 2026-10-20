@@ -8,7 +8,6 @@ import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
 import {
   API_REPOSITORY_KEY,
   DEFAULT_LIST_ITEMS_SIZE,
-  DEFAULT_LIST_ITEMS_CACHE_TIME,
   DEFAULT_LIST_ITEMS_STALE_TIME,
 } from "@/common/values/query.constant";
 
@@ -42,7 +41,6 @@ export const useGetTokens = (
         cursor,
       }),
     {
-      cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
       staleTime: DEFAULT_LIST_ITEMS_STALE_TIME,
       ...options,
     },

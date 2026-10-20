@@ -25,7 +25,6 @@ export interface NftInventoryToolbarProps {
 }
 
 interface InventoryControlState {
-  identity: string;
   search: string;
   owner: string;
   sortOrder: NftInventorySortOrder;
@@ -39,13 +38,12 @@ interface InventoryPagination {
   anchorIndex?: number;
 }
 
-const initialControls = (identity: string): InventoryControlState => ({
-  identity,
+const INITIAL_CONTROLS: InventoryControlState = {
   search: "",
   owner: "",
   sortOrder: null,
   ownersRequested: false,
-});
+};
 
 const OWNER_SUGGESTION_LIMIT = 5;
 
@@ -93,11 +91,7 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   const { currentNetwork } = useNetworkProvider();
   const identity = JSON.stringify([currentNetwork?.chainId ?? "", collectionIdentity]);
   // Saved per history entry so Back, or returning to this tab, restores the filters and page.
-  const [savedControls, setControls] = useHistoryEntryState(
-    `nft-inventory:${identity}:controls`,
-    initialControls(identity),
-  );
-  const controls = savedControls.identity === identity ? savedControls : initialControls(identity);
+  const [controls, setControls] = useHistoryEntryState(`nft-inventory:${identity}:controls`, INITIAL_CONTROLS);
   const [completion, setCompletion] = React.useState(0);
   const flight = React.useRef<{ identity: string } | null>(null);
   const mounted = React.useRef(false);
@@ -115,7 +109,7 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   }, [identity]);
 
   const updateControls = React.useCallback(
-    (update: Partial<Omit<InventoryControlState, "identity">>) => setControls({ ...controls, ...update }),
+    (update: Partial<InventoryControlState>) => setControls({ ...controls, ...update }),
     [controls, setControls],
   );
   const onSearchChange = React.useCallback((search: string) => updateControls({ search }), [updateControls]);

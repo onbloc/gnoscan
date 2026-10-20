@@ -74,8 +74,7 @@ const NftTokenPanel = ({
   const { getUrlWithNetwork } = useNetwork();
   const { data: detail, isLoading, isArtworkLoading } = useGetNftTokenDetail(packagePath, nftId);
   const indexedQuery = useGetNftItemDetail(tokenKey, nftId, { keepPreviousData: false });
-  const transferIdentity = `${tokenKey}:${nftId}`;
-  const [transferPage, setTransferPage] = useHistoryEntryState(`nft-token:${transferIdentity}:transfer-page`, 1);
+  const [transferPage, setTransferPage] = useHistoryEntryState(`nft-token:${tokenKey}:${nftId}:transfer-page`, 1);
   // Keep latest-transfer information independent of the visible history page.
   const firstTransfersQuery = useGetNftItemTransfers(
     { tokenKey, nftId, page: 1, limit: TRANSFERS_PAGE_SIZE },

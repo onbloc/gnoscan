@@ -38,7 +38,7 @@ export function writeHistoryEntryState<T>(name: string, value: T, entryKey = get
 
 /**
  * `useState` scoped to the current browser history entry: back/forward navigation
- * restores the value (e.g. the selected tab or event filters), a new visit starts fresh.
+ * restores the value (e.g. the selected tab, event filters, or a list's page and sort), a new visit starts fresh.
  */
 export function useHistoryEntryState<T>(name: string, initialValue: T) {
   const readInitial = (entryKey: string | null) =>
