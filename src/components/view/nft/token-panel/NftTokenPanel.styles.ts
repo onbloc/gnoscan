@@ -26,6 +26,11 @@ export const Panel = styled.aside<{ $visible: boolean; $interactive: boolean }>`
     flex-shrink: 0;
   }
 
+  // The sheet takes focus only to move it inside; its controls show their own focus rings.
+  :focus {
+    outline: none;
+  }
+
   // Keep the same artwork corners when the shared image falls back.
   .token-artwork {
     border-radius: 8px;
