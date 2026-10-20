@@ -82,15 +82,11 @@ const StandardNetworkAccountAssets = ({ address, breakpoint }: AccountAssetsProp
 
   return (
     <S.Card>
-      <CardTitle aria-label="title">Assets</CardTitle>
+      <CardTitle>Assets</CardTitle>
       {hasAssets ? (
         <AccountAssetGrid breakpoint={breakpoint}>
           {showNativeAsset && (
-            <NativeTokenAsset
-              balance={nativeBalance?.value}
-              isFetched={isFetchedNativeBalance}
-              vesting={vesting}
-            />
+            <NativeTokenAsset balance={nativeBalance?.value} isFetched={isFetchedNativeBalance} vesting={vesting} />
           )}
           {grc20TokenAssets.map(renderGrc20Asset)}
         </AccountAssetGrid>

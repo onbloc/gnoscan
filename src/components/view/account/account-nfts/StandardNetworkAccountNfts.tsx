@@ -63,7 +63,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     <S.Card>
       <S.Header>
         <S.TitleWrapper>
-          <CardTitle aria-label="title">NFTs</CardTitle>
+          <CardTitle>NFTs</CardTitle>
           <S.CountPill type="p4" color="primary">
             {totalCount.toLocaleString()}
           </S.CountPill>
