@@ -18,6 +18,12 @@ describe("parseRealmPath", () => {
     );
   });
 
+  it("reads an absolute URL on any host", () => {
+    expect(parseRealmPath("https://dev.gnoscan.io/realms/details?path=gno.land%2Fr%2Fdemo%2Ffoo#events")).toBe(
+      "gno.land/r/demo/foo",
+    );
+  });
+
   it("returns an empty string without an exact path param", () => {
     expect(parseRealmPath("/realms/details")).toBe("");
     expect(parseRealmPath("/realms/details?subpath=gno.land/r/demo/foo")).toBe("");
