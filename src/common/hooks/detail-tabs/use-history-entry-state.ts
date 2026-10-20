@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useState } from "react";
 
 const STORAGE_PREFIX = "__detail_state_";
 
@@ -50,10 +50,11 @@ export function useHistoryEntryState<T>(name: string, initialValue: T) {
 
   // A reused component (e.g. account A -> account B, or a new entry on the same route) re-reads for the new scope.
   const liveEntryKey = hasHydrated ? getCurrentEntryKey() : state.entryKey;
-  const isCurrentScope = state.name === name && state.entryKey === liveEntryKey;
-  if (!isCurrentScope) {
-    setState({ name, entryKey: liveEntryKey, value: readInitial(liveEntryKey) });
-  }
+  const current =
+    state.name === name && state.entryKey === liveEntryKey
+      ? state
+      : { name, entryKey: liveEntryKey, value: readInitial(liveEntryKey) };
+  if (current !== state) setState(current);
 
   useEffect(() => {
     hasHydrated = true;
@@ -61,27 +62,26 @@ export function useHistoryEntryState<T>(name: string, initialValue: T) {
 
   // Bound to the entry this state was read for, so a delayed (debounced) write
   // that fires after navigating away still lands on its originating entry.
-  const { entryKey } = state;
-  // An updater sees the result of earlier calls in the same event, like `useState`.
+  const { entryKey } = current;
   const setEntryValue = useCallback(
-    (action: T | ((previous: T) => T)) => {
-      if (typeof action !== "function") {
-        setState({ name, entryKey, value: action });
-        writeHistoryEntryState(name, action, entryKey);
-        return;
-      }
-      setState(previous => {
-        const base =
-          previous.name === name && previous.entryKey === entryKey
-            ? previous.value
-            : readHistoryEntryState(name, initialValue, entryKey);
-        const value = (action as (previous: T) => T)(base);
+    (action: SetStateAction<T>) => {
+      const commit = (value: T) => {
         writeHistoryEntryState(name, value, entryKey);
         return { name, entryKey, value };
+      };
+      if (typeof action !== "function") {
+        setState(commit(action));
+        return;
+      }
+      // An updater sees the result of earlier calls in the same event, like `useState`.
+      setState(previous => {
+        const isSameEntry = previous.name === name && previous.entryKey === entryKey;
+        const base = isSameEntry ? previous.value : readHistoryEntryState(name, initialValue, entryKey);
+        return commit((action as (previous: T) => T)(base));
       });
     },
     [name, entryKey, initialValue],
   );
 
-  return [isCurrentScope ? state.value : readInitial(liveEntryKey), setEntryValue] as const;
+  return [current.value, setEntryValue] as const;
 }
