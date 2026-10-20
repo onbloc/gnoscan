@@ -109,15 +109,15 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   }, [identity]);
 
   const updateControls = React.useCallback(
-    (update: Partial<InventoryControlState>) => setControls({ ...controls, ...update }),
-    [controls, setControls],
+    (update: Partial<InventoryControlState>) => setControls(previous => ({ ...previous, ...update })),
+    [setControls],
   );
   const onSearchChange = React.useCallback((search: string) => updateControls({ search }), [updateControls]);
   const onOwnerChange = React.useCallback((owner: string) => updateControls({ owner }), [updateControls]);
   const onOwnerOpen = React.useCallback(() => updateControls({ ownersRequested: true }), [updateControls]);
   const onSortToggle = React.useCallback(
-    () => updateControls({ sortOrder: controls.sortOrder === "asc" ? "desc" : "asc" }),
-    [controls.sortOrder, updateControls],
+    () => setControls(previous => ({ ...previous, sortOrder: previous.sortOrder === "asc" ? "desc" : "asc" })),
+    [setControls],
   );
 
   const search = controls.search.trim().toLowerCase();
@@ -318,14 +318,14 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
       isResizing && previousPage
         ? (previousPage.page - 1) * previousPage.pageSize + index
         : (page - 1) * pageSize + index;
-    setPagination({
-      ...currentPagination,
+    setPagination(previous => ({
+      ...previous,
       anchorIndex,
       page:
         isResizing && previousPage
           ? remapNftInventoryPage(previousPage.page, previousPage.pageSize, pageSize, anchorIndex)
-          : currentPagination.page,
-    });
+          : previous.page,
+    }));
   };
 
   const toolbarProps: NftInventoryToolbarProps = {

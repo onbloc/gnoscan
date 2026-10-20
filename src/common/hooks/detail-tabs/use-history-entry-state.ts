@@ -62,12 +62,25 @@ export function useHistoryEntryState<T>(name: string, initialValue: T) {
   // Bound to the entry this state was read for, so a delayed (debounced) write
   // that fires after navigating away still lands on its originating entry.
   const { entryKey } = state;
+  // An updater sees the result of earlier calls in the same event, like `useState`.
   const setEntryValue = useCallback(
-    (nextValue: T) => {
-      setState({ name, entryKey, value: nextValue });
-      writeHistoryEntryState(name, nextValue, entryKey);
+    (action: T | ((previous: T) => T)) => {
+      if (typeof action !== "function") {
+        setState({ name, entryKey, value: action });
+        writeHistoryEntryState(name, action, entryKey);
+        return;
+      }
+      setState(previous => {
+        const base =
+          previous.name === name && previous.entryKey === entryKey
+            ? previous.value
+            : readHistoryEntryState(name, initialValue, entryKey);
+        const value = (action as (previous: T) => T)(base);
+        writeHistoryEntryState(name, value, entryKey);
+        return { name, entryKey, value };
+      });
     },
-    [name, entryKey],
+    [name, entryKey, initialValue],
   );
 
   return [isCurrentScope ? state.value : readInitial(liveEntryKey), setEntryValue] as const;

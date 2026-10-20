@@ -75,6 +75,14 @@ function createView() {
         <button onClick={() => view.toolbarProps.onOwnerChange("g1staker")}>Owner staker</button>
         <button onClick={() => view.toolbarProps.onSearchChange("g1op")}>Search operator</button>
         <button onClick={() => view.toolbarProps.onSearchChange("example")}>Search collection key</button>
+        <button
+          onClick={() => {
+            view.toolbarProps.onOwnerChange("owner-28");
+            view.toolbarProps.onSearchChange("");
+          }}
+        >
+          Pick owner suggestion
+        </button>
         <output data-owners>{view.toolbarProps.owners.map(owner => owner.address).join("|")}</output>
         {view.error ? (
           <p role="alert">{view.error.message}</p>
@@ -178,6 +186,17 @@ it("does not match every NFT when the query is only part of the shared collectio
   view.click(10);
   await settleUntil(() => !view.container.querySelector("article"));
   expect(view.container.textContent).not.toContain("Loading");
+});
+
+it("keeps the owner filter when a suggestion sets the owner and clears the search in one click", async () => {
+  const view = createView();
+  view.render(null);
+  await settleUntil(() => !!view.container.querySelector("article"));
+
+  view.click(0);
+  view.click(11);
+  await settleUntil(() => view.container.querySelectorAll("article").length === 1);
+  expect([...view.container.querySelectorAll("article")].map(article => article.textContent)).toEqual(["28"]);
 });
 
 it("lists a staked NFT under both its staker owner and the operator who staked it", async () => {
