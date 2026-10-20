@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
@@ -19,7 +20,7 @@ export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
     <Tooltip content={<TooltipContent packagePath={packagePath} />}>
       <PackagePathLink
         className="ellipsis"
-        maxWidth={maxWidth || 170}
+        $maxWidth={maxWidth || 170}
         href={getUrlWithNetwork(`/realms/details?path=${packagePath}`)}
       >
         <PathText path={stripGnoLandPrefix(packagePath)} />
@@ -28,8 +29,8 @@ export const RealmPackage = ({ packagePath, maxWidth }: Props) => {
   );
 };
 
-const PackagePathLink = styled.a<{ maxWidth: number }>`
-  max-width: ${({ maxWidth }) => `${maxWidth}px`};
+const PackagePathLink = styled(Link)<{ $maxWidth: number }>`
+  max-width: ${({ $maxWidth }) => `${$maxWidth}px`};
 `;
 
 const TooltipContent: React.FC<{ packagePath: string }> = ({ packagePath }) => (
