@@ -2,7 +2,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { RecoilRoot } from "recoil";
 import { ServerStyleSheet } from "styled-components";
-import { EllipsisTooltip } from "./tooltip";
+import Tooltip, { EllipsisTooltip } from "./tooltip";
 
 jest.mock("@/states", () => {
   const { atom } = jest.requireActual("recoil");
@@ -27,4 +27,15 @@ it("bounds the ellipsis tooltip to its container so long text can shrink", () =>
   } finally {
     sheet.seal();
   }
+});
+
+it("keeps an empty status region next to click tooltips for the copy result", () => {
+  const html = renderToStaticMarkup(
+    <RecoilRoot>
+      <Tooltip content="Copied!" trigger="click" copyText="g1abc">
+        <button type="button">Copy</button>
+      </Tooltip>
+    </RecoilRoot>,
+  );
+  expect(html).toMatch(/<span[^>]*role="status"[^>]*><\/span>/);
 });
