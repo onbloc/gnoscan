@@ -128,9 +128,10 @@ export const TopNav = () => {
       <HeaderNetwork entry={entry} />
       <div className="header-mobile-menu">
         <SubMenu
+          entry={entry}
           open={open}
-          onToggle={toggleMenuHandler}
-          darkSurface={entry}
+          onClick={toggleMenuHandler}
+          darkMode={themeMode === "dark"}
           currentPath={router.route}
         />
       </div>
