@@ -6,7 +6,7 @@ import StandardNetworkNftCollectionsData from "@/components/view/nft-collections
 
 const DEFAULT_SORT_OPTION: NftCollectionListSortOption = { field: "holders", order: "desc" };
 
-// NFT collections come from the API, which custom networks do not have.
+/** NFT collections come from the API, which custom networks do not have. */
 const NftCollectionListContainer = () => {
   const { isCustomNetwork } = useNetworkProvider();
 

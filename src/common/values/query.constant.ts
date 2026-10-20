@@ -30,6 +30,6 @@ export const PRICES_REFETCH_INTERVAL = 10_000;
 export const DEFAULT_LIST_ITEMS_SIZE = 40 as const;
 export const ACCOUNTS_LIST_PAGE_SIZE = 100 as const;
 export const MAX_ACCOUNTS_LIST_SIZE = 1_000 as const;
-// Long enough that Back restores every loaded page after a detour through a detail page.
+/** Long enough that Back restores every loaded page after a detour through a detail page. */
 export const DEFAULT_LIST_ITEMS_CACHE_TIME = 30 * 60 * 1000;
 export const DEFAULT_LIST_ITEMS_STALE_TIME = 3 * 60 * 1000;

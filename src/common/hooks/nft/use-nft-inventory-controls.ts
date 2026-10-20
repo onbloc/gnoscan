@@ -68,7 +68,7 @@ function matchesOperatorSearch(item: NftCollectionItemModel, search: string): bo
 
 const tokenIdCollator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
 
-// Compare decimal IDs without converting them to Number (or losing large-ID precision).
+/** Compare decimal IDs without converting them to Number (or losing precision on large IDs). */
 export function compareNftTokenIds(left: string, right: string): number {
   if (/^\d+$/.test(left) && /^\d+$/.test(right)) {
     const leftDigits = left.replace(/^0+/, "") || "0";
