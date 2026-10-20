@@ -164,6 +164,7 @@ const NftCollectionInventory = ({ tokenKey, symbol }: NftCollectionInventoryProp
               nextNftId={nextNftId}
               onSelect={selectInventoryToken}
               onClose={() => selectToken(null)}
+              getReturnFocusTarget={nftId => cardRefs.current.get(nftId)?.querySelector(":scope > button") ?? null}
             />
           </S.PanelSlot>
         )}

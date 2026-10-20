@@ -49,6 +49,8 @@ interface NftTokenPanelProps {
   onExited?: () => void;
   onSelect: (nftId: string) => void;
   onClose: () => void;
+  // Element to focus when the sheet closes on this NFT, e.g. its inventory card
+  getReturnFocusTarget?: (nftId: string) => HTMLElement | null;
 }
 
 const NftTokenPanel = ({
@@ -64,6 +66,7 @@ const NftTokenPanel = ({
   onExited,
   onSelect,
   onClose,
+  getReturnFocusTarget,
 }: NftTokenPanelProps) => {
   const title = `Token #${nftId}`;
   const staked = !!item && isStakedNft(item);
@@ -109,6 +112,7 @@ const NftTokenPanel = ({
   const tokenLink = nftMediaUrl(tokenUrl);
   const panelRef = React.useRef<HTMLElement>(null);
   const onExitedRef = React.useRef(onExited);
+  const returnFocusRef = React.useRef(() => getReturnFocusTarget?.(nftId) ?? null);
   const finishExitRef = React.useRef<(() => void) | null>(null);
   const [visible, setVisible] = React.useState(false);
   const interactive = open && visible;
@@ -117,6 +121,10 @@ const NftTokenPanel = ({
   useIsomorphicLayoutEffect(() => {
     onExitedRef.current = onExited;
   }, [onExited]);
+
+  useIsomorphicLayoutEffect(() => {
+    returnFocusRef.current = () => getReturnFocusTarget?.(nftId) ?? null;
+  }, [getReturnFocusTarget, nftId]);
 
   useIsomorphicLayoutEffect(() => {
     const panel = panelRef.current;
@@ -158,10 +166,11 @@ const NftTokenPanel = ({
       sheet.removeEventListener("change", sync);
       if (release) {
         release();
-        // Closing blurs the sheet, so focus goes back to the card that opened it.
+        // Closing blurs the sheet, so focus goes back to the card of the NFT shown last, else to the opener.
+        const target = returnFocusRef.current() ?? opener;
         const focused = document.activeElement;
-        if (opener?.isConnected && (!focused || focused === document.body || panel?.contains(focused))) {
-          opener.focus({ preventScroll: true });
+        if (target?.isConnected && (!focused || focused === document.body || panel?.contains(focused))) {
+          target.focus({ preventScroll: true });
         }
       }
     };
