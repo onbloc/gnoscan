@@ -32,23 +32,27 @@ beforeEach(() => {
 });
 
 it("shows the 24h change next to the total", () => {
-  expect(renderText(<SummaryCount total={1234} new24h={12} unit="realms" />)).toBe("1,234 realms +12 (24h)");
+  expect(renderText(<SummaryCount total={1234} new24h={12} unit="realms" isFetched />)).toBe("1,234 realms +12 (24h)");
 });
 
 it("hides a zero 24h change so a quiet day does not read as a dead chain", () => {
-  expect(renderText(<SummaryCount total={32} new24h={0} unit="tokens" />)).toBe("32 tokens");
+  expect(renderText(<SummaryCount total={32} new24h={0} unit="tokens" isFetched />)).toBe("32 tokens");
 });
 
-it("renders nothing before the total is known", () => {
-  expect(renderText(<SummaryCount unit="tokens" />)).toBe("");
+it("renders nothing while the total is loading", () => {
+  expect(renderText(<SummaryCount unit="tokens" isFetched={false} />)).toBe("");
 });
 
-it("hides the summary API cards when the summary request fails", () => {
+it("shows a dash when the total could not be loaded", () => {
+  expect(renderText(<SummaryCount unit="tokens" isFetched />)).toBe("- tokens");
+});
+
+it("keeps every card with empty values when the summary request fails", () => {
   mockSummary.isError = true;
   const text = renderText(<RealmsSummary />);
-  expect(text).toContain("Recently Deployed");
-  expect(text).not.toContain("Trending Realm");
-  expect(text).not.toContain("24h Calls");
+  expect(text).toContain("Trending Realm");
+  expect(text).toContain("24h Calls - Realm calls in the last 24h");
+  expect(text).toContain("Active Callers (24h) - Unique callers in the last 24h");
 });
 
 it("keeps the cards when a later poll fails after data loaded", () => {

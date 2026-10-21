@@ -12,8 +12,8 @@ import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue }
 const RECENT_MINTS_LIMIT = 3;
 
 export const NftsCount = () => {
-  const { data } = useGetSummaryNftCollections();
-  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} unit="collections" />;
+  const { data, isFetched } = useGetSummaryNftCollections();
+  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} isFetched={isFetched} unit="collections" />;
 };
 
 export const NftsSummary = () => {
@@ -53,33 +53,25 @@ export const NftsSummary = () => {
   }));
 
   const stats = summary.data?.data;
-  // A failed poll keeps the previous data, so cards hide only when nothing ever loaded.
-  const showStats = !(summary.isError && !summary.data);
 
   return (
     <SummaryGrid>
-      {!(recent.isError && !recent.data) && (
-        <SummaryCard title="Recently Minted" live>
-          <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No recent mints" />
-        </SummaryCard>
-      )}
-      {showStats && (
-        <>
-          <SummaryCard title="Trending Collection" caption="Most active in 24h">
-            <SummaryItemList
-              items={trendingItems}
-              isFetched={summary.isFetched}
-              emptyText="No collection activity in the last 24h"
-            />
-          </SummaryCard>
-          <SummaryCard title="Unique Holders" caption="Wallets holding any NFT">
-            <SummaryValue value={stats?.holders ?? 0} isFetched={summary.isFetched} />
-          </SummaryCard>
-          <SummaryCard title="24h Transfers" caption="Transfers in the last 24h">
-            <SummaryValue value={stats?.transfers24h ?? 0} isFetched={summary.isFetched} />
-          </SummaryCard>
-        </>
-      )}
+      <SummaryCard title="Recently Minted" live>
+        <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No recent mints" />
+      </SummaryCard>
+      <SummaryCard title="Trending Collection" caption="Most active in 24h">
+        <SummaryItemList
+          items={trendingItems}
+          isFetched={summary.isFetched}
+          emptyText="No collection activity in the last 24h"
+        />
+      </SummaryCard>
+      <SummaryCard title="Unique Holders" caption="Wallets holding any NFT">
+        <SummaryValue value={stats?.holders} isFetched={summary.isFetched} />
+      </SummaryCard>
+      <SummaryCard title="24h Transfers" caption="Transfers in the last 24h">
+        <SummaryValue value={stats?.transfers24h} isFetched={summary.isFetched} />
+      </SummaryCard>
     </SummaryGrid>
   );
 };

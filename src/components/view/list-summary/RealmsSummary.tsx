@@ -14,8 +14,8 @@ import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue }
 const publisherText = (publisher: string, publisherName?: string) => publisherName || textEllipsis(publisher);
 
 export const RealmsCount = () => {
-  const { data } = useGetSummaryRealms();
-  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} unit="realms" />;
+  const { data, isFetched } = useGetSummaryRealms();
+  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} isFetched={isFetched} unit="realms" />;
 };
 
 export const RealmsSummary = () => {
@@ -44,33 +44,25 @@ export const RealmsSummary = () => {
   });
 
   const stats = summary.data?.data;
-  // A failed poll keeps the previous data, so cards hide only when nothing ever loaded.
-  const showStats = !(summary.isError && !summary.data);
 
   return (
     <SummaryGrid>
-      {!(newest.isError && !newest.data) && (
-        <SummaryCard title="Recently Deployed" live>
-          <SummaryItemList items={recentItems} isFetched={newest.isFetched} emptyText="No realms deployed yet" />
-        </SummaryCard>
-      )}
-      {showStats && (
-        <>
-          <SummaryCard title="Trending Realm" caption="Most called in 24h">
-            <SummaryItemList
-              items={trendingItems}
-              isFetched={summary.isFetched}
-              emptyText="No realm calls in the last 24h"
-            />
-          </SummaryCard>
-          <SummaryCard title="24h Calls" caption="Realm calls in the last 24h">
-            <SummaryValue value={stats?.calls24h ?? 0} isFetched={summary.isFetched} />
-          </SummaryCard>
-          <SummaryCard title="Active Callers (24h)" caption="Unique callers in the last 24h">
-            <SummaryValue value={stats?.activeCallers24h ?? 0} isFetched={summary.isFetched} />
-          </SummaryCard>
-        </>
-      )}
+      <SummaryCard title="Recently Deployed" live>
+        <SummaryItemList items={recentItems} isFetched={newest.isFetched} emptyText="No realms deployed yet" />
+      </SummaryCard>
+      <SummaryCard title="Trending Realm" caption="Most called in 24h">
+        <SummaryItemList
+          items={trendingItems}
+          isFetched={summary.isFetched}
+          emptyText="No realm calls in the last 24h"
+        />
+      </SummaryCard>
+      <SummaryCard title="24h Calls" caption="Realm calls in the last 24h">
+        <SummaryValue value={stats?.calls24h} isFetched={summary.isFetched} />
+      </SummaryCard>
+      <SummaryCard title="Active Callers (24h)" caption="Unique callers in the last 24h">
+        <SummaryValue value={stats?.activeCallers24h} isFetched={summary.isFetched} />
+      </SummaryCard>
     </SummaryGrid>
   );
 };
