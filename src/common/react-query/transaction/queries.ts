@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { QUERY_KEY } from "./types";
@@ -63,7 +62,7 @@ export const useGetTransactionStatInfoQuery = (
     ...options,
     retry: 1,
     keepPreviousData: true,
-    enabled: !!transactionRepository && options?.enabled,
+    enabled: !!transactionRepository && options?.enabled !== false,
   });
 };
 export const useGetTransactionsQuery = (
@@ -87,7 +86,7 @@ export const useGetTransactionsQuery = (
     ...options,
     retry: 1,
     keepPreviousData: true,
-    enabled: !!transactionRepository && options?.enabled,
+    enabled: !!transactionRepository && options?.enabled !== false,
   });
 };
 
@@ -131,7 +130,7 @@ export const useGetTransactionsInfinityQuery = (
       const cursor = context?.pageParam || null;
       return transactionRepository.getTransactionsPage(cursor);
     },
-    enabled: !!transactionRepository && options?.enabled,
+    enabled: !!transactionRepository && options?.enabled !== false,
     keepPreviousData: true,
     ...options,
   });
@@ -162,7 +161,7 @@ export const useGetUsingAccountTransactionCount = (options?: UseQueryOptions<num
       const accounts = [...new Set(allAccounts)];
       return accounts.length;
     },
-    enabled: !!transactionRepository && options?.enabled,
+    enabled: !!transactionRepository && options?.enabled !== false,
     keepPreviousData: true,
     ...options,
   });

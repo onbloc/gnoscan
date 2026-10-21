@@ -94,7 +94,7 @@ const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize 
 
         {validators.map(validator => {
           const proposalUrl = getProposalUrl(validator.proposalId);
-          const profileUrl = getProfileUrl(validator.address);
+          const profileUrl = getProfileUrl(validator.operationAddress);
 
           return (
             <S.DataRow key={validator.address}>

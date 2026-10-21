@@ -1,23 +1,18 @@
 import React from "react";
 
 import { useNetwork } from "@/common/hooks/use-network";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
 
 import * as S from "./AccountAddress.styles";
-import Text from "@/components/ui/text";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
 import { Username } from "@/components/ui/username/Username";
 
 interface AccountAddressProps {
-  breakpoint: DEVICE_TYPE;
-  isDesktop: boolean;
   address: string;
 }
 
-const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: AccountAddressProps) => {
+const CustomNetworkAccountAddress = ({ address }: AccountAddressProps) => {
   const { currentNetwork } = useNetwork();
 
   const { isFetched: isFetchedUsername, isLoading: isLoadingUsername, getName, getAddress, getUserUrl } = useUsername();
@@ -41,22 +36,18 @@ const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Account
   const hasUsername = React.useMemo(() => Boolean(userName), [userName]);
 
   if (isLoadingUsername || !isFetchedUsername) {
-    return <AccountAddressSkeleton isDesktop={isDesktop} />;
+    return <AccountAddressSkeleton />;
   }
 
   return (
-    <S.Card isDesktop={isDesktop}>
-      <Text aria-label="title" type={isDesktop ? "h4" : "h6"} color="primary">
-        Address
-      </Text>
-      <S.Box isDesktop={isDesktop}>
+    <S.Card>
+      <S.CardTitle>Address</S.CardTitle>
+      <S.Box>
         <S.AccountWrapper>
-          <S.ContentWrapper isDesktop={isDesktop}>
-            <S.Content type="p4" color="primary">
+          <S.ContentWrapper>
+            <S.Content type="p4" desktopType="p3" color="primary">
               {address}
-              <S.CopyTooltip content="Copied!" trigger="click" copyText={address || ""}>
-                <IconCopy />
-              </S.CopyTooltip>
+              <S.CopyTooltip variant="plain" copyText={address || ""} />
               {hasUsername && <Username username={userName} userUrl={userUrl} />}
             </S.Content>
           </S.ContentWrapper>
@@ -65,11 +56,5 @@ const CustomNetworkAccountAddress = ({ breakpoint, isDesktop, address }: Account
     </S.Card>
   );
 };
-
-interface UsernameDependentComponentProps {
-  breakpoint: DEVICE_TYPE;
-  userName: string | null;
-  userUrl: string | null;
-}
 
 export default CustomNetworkAccountAddress;

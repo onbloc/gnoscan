@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
+import BigNumber from "bignumber.js";
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import styled from "styled-components";
-import { Button } from "@/components/ui/button";
-import theme from "@/styles/theme";
+import { ViewMoreButton } from "@/components/ui/button";
 import { DatatableItem } from "..";
-import { eachMedia } from "@/common/hooks/use-media";
-import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
+import { FlushTableContainer } from "../datatable.styles";
 import { useToken } from "@/common/hooks/tokens/use-token";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenTransactions } from "@/common/hooks/tokens/use-token-transactions";
@@ -29,9 +24,6 @@ const TOOLTIP_TYPE = (
 );
 
 export const TokenDetailDatatable = ({ path }: Props) => {
-  const media = eachMedia();
-  const themeMode = useRecoilValue(themeState);
-
   const { isFetched: isFetchedToken } = useToken(path);
   const { isFetchedGRC20Tokens, getTokenAmount } = useTokenMeta();
   const { isFetched: isFetchedUsername } = useUsername();
@@ -114,6 +106,8 @@ export const TokenDetailDatatable = ({ path }: Props) => {
       .renderOption((amount: { value: string; denom: string }, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
+        ) : new BigNumber(amount?.value).isZero() ? (
+          <span>-</span>
         ) : (
           <DatatableItem.Amount {...getTokenAmount(amount.denom, amount.value)} />
         ),
@@ -142,53 +136,10 @@ export const TokenDetailDatatable = ({ path }: Props) => {
   };
 
   return (
-    <Container>
-      <Datatable
-        loading={!isFetchedTransactions}
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={transactions as any[]}
-      />
+    <FlushTableContainer>
+      <Datatable loading={!isFetchedTransactions} headers={createHeaders()} datas={transactions as any[]} />
 
-      {hasNextPage ? (
-        <Button className={`more-button ${media}`} radius={"4px"} onClick={() => nextPage()}>
-          {"View More Transactions"}
-        </Button>
-      ) : (
-        <></>
-      )}
-    </Container>
+      {hasNextPage && <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />}
+    </FlushTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-
-    & > div {
-      padding: 0;
-    }
-
-    .more-button {
-      width: 100%;
-      padding: 16px;
-      color: ${({ theme }) => theme.colors.primary};
-      background-color: ${({ theme }) => theme.colors.surface};
-      ${theme.fonts.p4}
-      font-weight: 600;
-      margin-top: 24px;
-
-      &.desktop {
-        width: 344px;
-      }
-    }
-  }
-`;

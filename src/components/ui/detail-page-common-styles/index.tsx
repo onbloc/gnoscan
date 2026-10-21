@@ -1,32 +1,55 @@
 import mixins from "@/styles/mixins";
 import styled from "styled-components";
+import { media } from "@/common/values/ui.constant";
 
 interface StyleProps {
-  media?: string;
-  desktop?: boolean;
   multipleBadgeGap?: string;
 }
 
 export const DetailsContainer = styled.div<StyleProps>`
   ${mixins.flexbox("column", "flex-start", "space-between")};
   background-color: ${({ theme }) => theme.colors.base};
-  padding: ${({ desktop }) => (desktop ? "24px" : "16px")};
+  padding: 16px;
   border-radius: 10px;
   width: 100%;
+
+  ${media.DESKTOP} {
+    padding: 24px;
+  }
 
   .tab-area {
     display: flex;
     flex-direction: row;
-    gap: 32px;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 16px;
+
+    @media (max-width: 1279px) {
+      width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+
+      ::-webkit-scrollbar {
+        width: 0px;
+        height: 0px;
+        display: none;
+      }
+    }
 
     .tab-item {
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: 10px;
       justify-content: center;
       cursor: pointer;
 
+      @media (max-width: 1279px) {
+        flex-shrink: 0;
+      }
+
       .badge {
+        ${mixins.flexbox("row", "center", "center")};
         width: fit-content;
         min-width: 28px;
         height: 28px;
@@ -34,11 +57,9 @@ export const DetailsContainer = styled.div<StyleProps>`
         border-radius: 14px;
         background-color: ${({ theme }) => theme.colors.surface};
 
-        &.small {
-          width: fit-content;
+        ${media.NOT_DESKTOP} {
           min-width: 24px;
           height: 24px;
-          padding: 0 8px;
         }
       }
     }
@@ -46,9 +67,8 @@ export const DetailsContainer = styled.div<StyleProps>`
 `;
 
 export const DLWrap = styled.dl<StyleProps>`
-  ${({ desktop }) =>
-    desktop ? mixins.flexbox("row", "center", "flex-start") : mixins.flexbox("column", "flex-start", "center")};
-  padding: ${({ desktop }) => (desktop ? "18px 0px" : "12px 0px")};
+  ${mixins.flexbox("column", "flex-start", "center")};
+  padding: 12px 0px;
   width: 100%;
   color: ${({ theme }) => theme.colors.primary};
   &:not(:first-of-type) {
@@ -68,15 +88,15 @@ export const DLWrap = styled.dl<StyleProps>`
     }
   }
   &.multiple-badges {
-    padding-top: ${({ desktop }) => (desktop ? "0px" : "12px")};
+    padding-top: 12px;
     .badge {
-      margin-top: ${({ desktop }) => (desktop ? "18px" : "12px")};
+      margin-top: 12px;
     }
   }
   dt {
     color: ${({ theme }) => theme.colors.tertiary};
-    width: ${({ desktop }) => (desktop ? "200px" : "100%")};
-    ${({ desktop, theme }) => (desktop ? theme.fonts.p3 : theme.fonts.p4)};
+    width: 100%;
+    ${({ theme }) => theme.fonts.p4};
   }
   dd {
     ${({ theme }) => theme.fonts.p4};
@@ -87,7 +107,7 @@ export const DLWrap = styled.dl<StyleProps>`
       display: flex;
       flex-direction: row;
       gap: 15px;
-      margin-top: ${({ desktop }) => (desktop ? "0" : "12px")};
+      margin-top: 12px;
 
       > .badge {
         margin-top: 0;
@@ -130,6 +150,24 @@ export const DLWrap = styled.dl<StyleProps>`
     .multi-line {
       word-break: break-all;
       white-space: pre-line;
+    }
+  }
+
+  ${media.DESKTOP} {
+    ${mixins.flexbox("row", "center", "flex-start")};
+    padding: 18px 0px;
+    &.multiple-badges {
+      padding-top: 0px;
+      .badge {
+        margin-top: 18px;
+      }
+    }
+    dt {
+      width: 200px;
+      ${({ theme }) => theme.fonts.p3};
+    }
+    dd.path-wrapper {
+      margin-top: 0;
     }
   }
 `;

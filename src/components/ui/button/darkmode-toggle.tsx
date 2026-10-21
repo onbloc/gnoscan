@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import Moon from "@/assets/svgs/icon-moon.svg";

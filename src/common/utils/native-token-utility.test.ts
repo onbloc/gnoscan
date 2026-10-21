@@ -35,17 +35,17 @@ describe("toGNOTAmount", () => {
   });
 
   describe("when converting from non-ugnot denomination", () => {
-    it("should keep original value and uppercase the denom", () => {
+    it("should keep the original value and denom as-is", () => {
       expect(toGNOTAmount("100", "atom")).toEqual({
         value: "100",
-        denom: "ATOM",
+        denom: "atom",
       });
     });
 
-    it("should trim and uppercase denom", () => {
+    it("should trim the denom without changing its case", () => {
       expect(toGNOTAmount("100", " atom ")).toEqual({
         value: "100",
-        denom: "ATOM",
+        denom: "atom",
       });
     });
   });

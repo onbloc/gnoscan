@@ -1,8 +1,12 @@
 export enum QUERY_KEY {
   // account
   getAccount = "api_get_account",
-  getAccountEvents = "api_get_account_events",
-  getAccountTransactions = "api_get_account_transactions",
+  getAccounts = "api_get_accounts",
+  getAccountDirectTransactions = "api_get_account_direct_transactions",
+  getAccountNativeTransfers = "api_get_account_native_transfers",
+  getAccountTokenTransfers = "api_get_account_token_transfers",
+  getAccountGRC721Collections = "api_get_account_grc721_collections",
+  getAccountNfts = "api_get_account_nfts",
 
   // block
   getBlocks = "api_get_blocks",
@@ -22,15 +26,31 @@ export enum QUERY_KEY {
   getRealms = "api_get_realms",
   getRealmByPath = "api_get_realm_by_path",
   getRealmEventsByPath = "api_get_realm_events_by_path",
-  getRealmTransactionsByPath = "api_get_realm_transactions_by_path",
+  getRealmDirectTransactionsByPath = "api_get_realm_direct_transactions_by_path",
+  getRealmNativeTransfersByPath = "api_get_realm_native_transfers_by_path",
+  getRealmTokenTransfersByPath = "api_get_realm_token_transfers_by_path",
+  getRealmHoldersByPath = "api_get_realm_holders_by_path",
+  getRealmInternalTransactionsByPath = "api_get_realm_internal_transactions_by_path",
   getRealmStorageDepositByPath = "get_realm_storage_deposit_by_path",
 
   // token
   getTokens = "api_get_tokens",
   getTokenById = "api_get_token_by_id",
-  getTokenTransactionsById = "api_get_token_transactions_by_id",
+  getTokenTransfersById = "api_get_token_transfers_by_id",
   getTokenHoldersById = "api_get_token_holders_by_id",
   getTokenMetaByPath = "api_get_token_meta_by_path",
+  getTokenMetaTransactionsById = "api_get_token_meta_transactions_by_id",
+  getTokenMetaInternalTransactionsById = "api_get_token_meta_internal_transactions_by_id",
+  getTokenEventsById = "api_get_token_events_by_id",
+  getNftCollections = "api_get_nft_collections",
+  getNftCollectionsList = "api_get_nft_collections_list",
+  getNftCollection = "api_get_nft_collection",
+  getNftCollectionItems = "api_get_nft_collection_items",
+  getNftItemDetail = "api_get_nft_item_detail",
+  getNftItemTransfers = "api_get_nft_item_transfers",
+  getNftTokenDetail = "api_get_nft_token_detail",
+  getNftTokenUris = "api_get_nft_token_uris",
+  getNftTokenUriRpc = "rpc_get_nft_token_uri",
 
   // statistics
   getLatestBlogs = "api_get_latest_blogs",
@@ -39,6 +59,7 @@ export enum QUERY_KEY {
   getSummaryAccounts = "api_get_summary_accounts",
   getSummaryBlocks = "api_get_summary_blocks",
   getSummarySupply = "api_get_summary_supply",
+  getGnotPrice = "api_get_gnot_price",
   getSummaryTransactions = "api_get_summary_transactions",
   getTotalDailyFees = "api_get_total_daily_fees",
   getTotalDailyTransactions = "api_get_total_daily_transactions",
@@ -57,4 +78,7 @@ export enum QUERY_KEY {
   getValidators = "api_get_validators",
   getValidatorCommits = "api_get_validator_commits",
   getValidatorByAddress = "api_get_validator_by_address",
+
+  // price
+  getPrices = "api_get_prices",
 }

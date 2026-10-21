@@ -17,6 +17,7 @@ import { ApiTokenRepository, ApiTokenRepositoryImpl } from "@/repositories/api/t
 import { ApiStatisticsRepository, ApiStatisticsRepositoryImpl } from "@/repositories/api/statistics";
 import { ApiSearchRepository, ApiSearchRepositoryImpl } from "@/repositories/api/search";
 import { ApiValidatorRepository, ApiValidatorRepositoryImpl } from "@/repositories/api/validator";
+import { ApiPriceRepository, ApiPriceRepositoryImpl } from "@/repositories/api/price";
 
 interface ServiceContextProps {
   chainRepository: IChainRepository | null;
@@ -32,6 +33,7 @@ interface ServiceContextProps {
   apiStatisticsRepository: ApiStatisticsRepository | null;
   apiSearchRepository: ApiSearchRepository | null;
   apiValidatorRepository: ApiValidatorRepository | null;
+  apiPriceRepository: ApiPriceRepository | null;
 }
 
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
@@ -118,6 +120,12 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     return new ApiValidatorRepositoryImpl(onblocAPIClient);
   }, [nodeRPCClient, onblocAPIClient, isCustomNetwork]);
 
+  // Null without an API client so the price query stays disabled instead of failing.
+  const apiPriceRepository = useMemo(
+    () => (onblocAPIClient ? new ApiPriceRepositoryImpl(onblocAPIClient) : null),
+    [onblocAPIClient],
+  );
+
   const transactionRepository = useMemo(() => {
     if (!nodeRPCClient) {
       return null;
@@ -170,6 +178,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         apiStatisticsRepository,
         apiSearchRepository,
         apiValidatorRepository,
+        apiPriceRepository,
       }}
     >
       {children}

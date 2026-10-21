@@ -15,10 +15,9 @@ interface Props {
   messages: TransactionContractModel[];
   numOfMessage: number;
   summary?: TransactionSummaryDetail | null;
-  isDesktop: boolean;
 }
 
-const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: Props) => {
+const TransactionTopSummary = ({ messages, numOfMessage, summary }: Props) => {
   const actions = summary?.actions ?? [];
   const positionOwnerAddress = getSharedSummaryCaller(messages);
   const transferSummaryLines = getTransferSummaryLines(numOfMessage, summary);
@@ -38,25 +37,25 @@ const TransactionTopSummary = ({ messages, numOfMessage, summary, isDesktop }: P
             positionOwnerAddress={positionOwnerAddress}
             embedded
           />
-          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
+          {summary && <TransactionMessageSummary summary={summary} embedded />}
         </SummaryCard>
       );
     case "common-summary":
       return (
         <SummaryCard>
           <TransferSummaryLine transfers={transferSummaryLines} embedded />
-          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
+          {summary && <TransactionMessageSummary summary={summary} embedded />}
         </SummaryCard>
       );
     case "common-message":
       return (
         <SummaryCard>
           <CommonMessageSummary messages={messages} embedded />
-          {summary && <TransactionMessageSummary summary={summary} isDesktop={isDesktop} embedded />}
+          {summary && <TransactionMessageSummary summary={summary} embedded />}
         </SummaryCard>
       );
     case "none":
-      return summary ? <TransactionMessageSummary summary={summary} isDesktop={isDesktop} /> : null;
+      return summary ? <TransactionMessageSummary summary={summary} /> : null;
     default:
       return null;
   }

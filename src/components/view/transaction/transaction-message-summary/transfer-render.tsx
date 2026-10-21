@@ -1,15 +1,15 @@
 import React, { CSSProperties } from "react";
 import Link from "next/link";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useQueries } from "react-query";
 import BigNumber from "bignumber.js";
 
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import GNOTIcon from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
+import { UsdValueText } from "@/components/ui/text/usd-value-text";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -19,6 +19,7 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import {
+  findByTokenKey,
   getFallbackTokenSymbol,
   getTokenKeySymbol,
   stripTokenKeySymbol,
@@ -36,13 +37,13 @@ export interface TokenDisplayInfo {
 export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDisplayInfo> => {
   const { apiTokenRepository } = useServiceProvider();
   const { currentNetwork } = useNetworkProvider();
-  const { tokenResourceMap, getTokenMeta } = useTokenResourceMeta();
+  const { hasTokenResourceMeta, getTokenMeta } = useTokenResourceMeta();
 
   const queryKeys = React.useMemo(() => getTokenInfoQueryKeys(tokenKeys), [tokenKeys]);
 
   const tokenQueries = useQueries(
     queryKeys.map(tokenKey => {
-      const hasResourceMeta = !!tokenResourceMap[toBarePackagePath(tokenKey)];
+      const hasResourceMeta = hasTokenResourceMeta(tokenKey);
       return {
         queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
         queryFn: () => {
@@ -62,7 +63,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     const map: Record<string, TokenDisplayInfo> = {};
     queryKeys.forEach((tokenKey, index) => {
       const packagePath = toBarePackagePath(tokenKey);
-      const hasResourceMeta = !!tokenResourceMap[packagePath];
+      const hasResourceMeta = hasTokenResourceMeta(tokenKey);
       const token = tokenQueries[index]?.data?.data;
       if (!hasResourceMeta && !token) return;
 
@@ -80,7 +81,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
     });
 
     return withTokenKeyAliases(map, tokenKeys);
-  }, [tokenKeys, queryKeys, tokenQueries, tokenResourceMap, getTokenMeta]);
+  }, [tokenKeys, queryKeys, tokenQueries, hasTokenResourceMeta, getTokenMeta]);
 };
 
 interface Grc20AmountLeg {
@@ -107,11 +108,41 @@ export const useGrc20TokenInfos = (items: Grc20AmountLeg[]): Record<string, Toke
 
 const isGrc20AssetType = (assetType: string) => assetType.includes("/");
 
-// The summary line's 18px/500 text uses a 28px line-height per Figma - a one-off value,
-// not one of the app's shared text tokens (closest, p2, uses 26px) - so it's applied as
-// an inline override rather than added to the theme for this single call site's sake.
+/**
+ * Line height for the summary line's 18px/500 text, set to 28px per Figma.
+ *
+ * @remarks
+ * The value is not one of the app's shared text tokens (the closest, p2, uses 26px), so it
+ * is applied as an inline override instead of being added to the theme for a single call site.
+ */
 export const SUMMARY_LINE_HEIGHT: CSSProperties = { lineHeight: "28px" };
+// Every word of the 18px summary sentence is Roboto Medium per Figma.
+export const SUMMARY_FONT_WEIGHT = 500;
 const COMPACT_TRANSFER_LINE_HEIGHT: CSSProperties = { lineHeight: "20px" };
+
+/**
+ * Flex layout for a single summary sentence.
+ *
+ * @remarks
+ * Below desktop a long sentence wraps, so the row gap is dropped to keep its wrapped rows
+ * reading as one sentence. The parent's gap still separates sentences.
+ */
+export const summaryLineCss = css`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  @media (max-width: 1279px) {
+    row-gap: 0;
+  }
+`;
+
+// Figma separates the words of the 18px sentence with a single space (4.47px in 18px Roboto).
+export const SummaryLine = styled.div`
+  ${summaryLineCss}
+  column-gap: 4.47px;
+`;
 
 export const useActionTokenInfos = (actions: { assets: ActionAsset[] }[]) => {
   const tokenKeys = React.useMemo(() => {
@@ -153,11 +184,15 @@ export const getTransferSummaryLines = (
   return summary.transfers;
 };
 
-// Same symbol resolution TokenAmountDisplay uses (registry lookup, else the last "."-segment
-// of the token path) - exported for callers that need just the symbol, not a full amount.
+/**
+ * Resolves a token symbol the same way TokenAmountDisplay does: the registry entry, or else
+ * the last "." segment of the token path.
+ *
+ * @remarks
+ * Exported for callers that need only the symbol, not a full amount.
+ */
 export function getTokenSymbol(tokenKey: string, tokenInfosByTokenKey: Record<string, TokenDisplayInfo>): string {
-  const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
-  const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
+  const tokenInfo = findByTokenKey(tokenInfosByTokenKey, tokenKey);
   return tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);
 }
 
@@ -179,7 +214,7 @@ export const TransferAddress = ({
 
   if (!address && !label) {
     return (
-      <Text type={textType} color="primary" fontWeight={400} style={textStyle}>
+      <Text type={textType} color="primary" fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT} style={textStyle}>
         -
       </Text>
     );
@@ -193,14 +228,18 @@ export const TransferAddress = ({
         </RealmLink>
       ) : (
         <Link href={getUrlWithNetwork(getAddressLinkPath({ address, label, labelType }))}>
-          <Text type={textType} color="blue" fontWeight={400} display="contents" style={textStyle}>
+          <Text
+            type={textType}
+            color="blue"
+            fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT}
+            display="contents"
+            style={textStyle}
+          >
             {label || textEllipsis(address, 6)}
           </Text>
         </Link>
       )}
-      <Tooltip content="Copied!" trigger="click" copyText={address || label || ""}>
-        <IconCopy className="copy-icon" />
-      </Tooltip>
+      <CopyTooltip variant="plain" iconClassName="copy-icon" copyText={address || label || ""} />
     </AddressChip>
   );
 };
@@ -221,7 +260,7 @@ export const RealmLink = ({
       <Text
         type={compact ? "p4" : "p2"}
         color="blue"
-        fontWeight={400}
+        fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT}
         display="contents"
         style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
       >
@@ -230,6 +269,29 @@ export const RealmLink = ({
     </Link>
   );
 };
+
+// USD value after the token chip. Use the existing summary price color in both
+// the compact transfer lists and top summary sentences.
+// The parent line's flex gap provides the spacing.
+const SummaryUsdValue = ({
+  tokenKey,
+  amount,
+  compact = false,
+}: {
+  tokenKey: string;
+  amount: string;
+  compact?: boolean;
+}) => (
+  <UsdValueText
+    tokenKey={tokenKey}
+    amount={amount}
+    type={compact ? "p4" : "p2"}
+    color="tertiary"
+    fontWeight={compact ? 400 : SUMMARY_FONT_WEIGHT}
+    margin="0"
+    style={compact ? COMPACT_TRANSFER_LINE_HEIGHT : SUMMARY_LINE_HEIGHT}
+  />
+);
 
 interface TokenAmountDisplayProps {
   tokenKey: string;
@@ -285,15 +347,16 @@ const TokenAmountDisplay = ({
             <UnknownToken className="token-icon" width="16" height="16" />
           )}
         </TokenChip>
+        <SummaryUsdValue tokenKey={tokenKey} amount={displayAmount.value} compact={compact} />
       </>
     );
   }
 
   const normalizedTokenKey = stripTokenKeySymbol(tokenKey);
-  const tokenInfo = tokenInfosByTokenKey[tokenKey] || tokenInfosByTokenKey[normalizedTokenKey];
+  const tokenInfo = findByTokenKey(tokenInfosByTokenKey, tokenKey);
   const symbol = tokenInfo?.symbol || getFallbackTokenSymbol(tokenKey);
   const linkTokenKey = tokenInfo?.tokenKey || (symbol ? toTokenKey(normalizedTokenKey, symbol) : tokenKey);
-  const imagePath = getTokenImage(stripTokenKeySymbol(linkTokenKey));
+  const imagePath = getTokenImage(linkTokenKey);
 
   const decimals = tokenInfo?.decimals;
   const displayValue =
@@ -329,6 +392,7 @@ const TokenAmountDisplay = ({
           )}
         </TokenChip>
       </Link>
+      <SummaryUsdValue tokenKey={tokenKey} amount={displayValue} compact={compact} />
     </>
   );
 };

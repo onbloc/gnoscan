@@ -1,12 +1,9 @@
-import { eachMedia } from "@/common/hooks/use-media";
 import React, { useState } from "react";
 import styled, { CSSProperties } from "styled-components";
 import mixins from "@/styles/mixins";
 import { v1 } from "uuid";
 import { StyledText } from "@/components/view/main-active-list/main-active-list";
-import Tooltip from "../tooltip";
-import { Button } from "../button";
-import IconInfo from "@/assets/svgs/icon-info.svg";
+import { InfoTooltip } from "@/components/ui/tooltip/info-tooltip";
 import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
 interface ActiveListProps {
   title: string[];
@@ -17,7 +14,6 @@ interface ActiveListProps {
 const hasTooltipTitle = ["Unique Users"];
 
 const ActiveList = ({ title, colWidth, children }: ActiveListProps) => {
-  const media = eachMedia();
   const { scrollVisible, onFocusIn, onFocusOut } = useScrollbar();
 
   return (
@@ -27,21 +23,19 @@ const ActiveList = ({ title, colWidth, children }: ActiveListProps) => {
           {title.map((v: string, i: number) => (
             <StyledText
               key={v1()}
-              type={media === "desktop" ? "p4" : "body1"}
+              type="body1"
+              desktopType="p4"
               width={colWidth[i]}
               color="tertiary"
               gap={hasTooltipTitle.includes(v) ? "8px" : "0px"}
             >
               {v}
               {hasTooltipTitle.includes(v) && (
-                <Tooltip
+                <InfoTooltip
                   content="Number of users who created a thread, reply or repost 
               (excl. duplicates) in the board."
-                >
-                  <Button width="16px" height="16px" radius="50%" bgColor="surface">
-                    <IconInfo className="svg-info-tooltip-icon" />
-                  </Button>
-                </Tooltip>
+                  iconClassName="svg-info-tooltip-icon"
+                />
               )}
             </StyledText>
           ))}

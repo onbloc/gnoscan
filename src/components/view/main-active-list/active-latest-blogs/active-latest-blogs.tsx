@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import Link from "next/link";
 import Text from "@/components/ui/text";
-import { eachMedia } from "@/common/hooks/use-media";
 import ActiveList from "@/components/ui/active-list";
 import { colWidth, List, listTitle, StyledCard, StyledText } from "../main-active-list";
 import IconLink from "@/assets/svgs/icon-link.svg";
@@ -23,7 +22,6 @@ interface BlogWithPublisher extends Blog {
 }
 
 const ActiveLatestBlogs = () => {
-  const media = eachMedia();
   const { isFetched } = useUpdateTime();
 
   const { data, isFetched: blogsFetched } = useGetLatestBlogs();
@@ -62,8 +60,8 @@ const ActiveLatestBlogs = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Latest Blogs
-        {media !== "mobile" && blogsFetched && isFetched && (
-          <Text type="body1" color="tertiary">
+        {blogsFetched && isFetched && (
+          <Text className="hide-mobile" type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
@@ -108,8 +106,8 @@ const ActiveLatestBlogs = () => {
         <FetchedSkeleton />
       )}
 
-      {media === "mobile" && blogsFetched && (
-        <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
+      {blogsFetched && (
+        <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}

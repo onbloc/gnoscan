@@ -1,14 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { GnoEvent } from "@/types";
-import { decodeTxMessages, MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnolang/gno-js-client";
-import { base64ToUint8Array, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
+import {
+  decodeTxMessages,
+  MsgAddPackage,
+  MsgCall,
+  MsgEnablePackage,
+  MsgRejectPackage,
+  MsgRun,
+  MsgSend,
+} from "@gnolang/gno-js-client";
+import { base64ToUint8Array, Tx, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
 import crypto from "crypto";
 import { GNOTToken } from "../hooks/common/use-token-meta";
 import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
-import { decodeExtraTxMessage, EXTRA_MESSAGE_TYPES, MsgEnablePackage, MsgRejectPackage } from "./tx-proto-decoder";
-import { Tx } from "@/common/proto/vendor/tm2/tx";
+import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
+import { DeliverTx } from "@/common/clients/node-client";
 
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
@@ -50,10 +58,6 @@ export function decodeTransactionSafely(tx: string) {
 function decodeTxMessagesSafely(rawMessages: any[]): any[] {
   return rawMessages.flatMap(rawMessage => {
     try {
-      const extra = decodeExtraTxMessage(rawMessage?.type_url, rawMessage?.value);
-      if (extra) {
-        return [extra];
-      }
       return decodeTxMessages([rawMessage]);
     } catch (error) {
       console.warn(`Keeping message with unsupported type "${rawMessage?.type_url}" as a placeholder:`, error);
@@ -259,7 +263,7 @@ export function makeTransactionMessageInfo(message: any) {
         },
       };
     }
-    case EXTRA_MESSAGE_TYPES.VM_ENABLE_PKG: {
+    case MESSAGE_TYPES.VM_ENABLE_PKG: {
       const msg = message as MsgEnablePackage;
 
       return {
@@ -273,7 +277,7 @@ export function makeTransactionMessageInfo(message: any) {
         },
       };
     }
-    case EXTRA_MESSAGE_TYPES.VM_REJECT_PKG: {
+    case MESSAGE_TYPES.VM_REJECT_PKG: {
       const msg = message as MsgRejectPackage;
 
       return {
@@ -303,7 +307,8 @@ export function parseTxHash(url: string) {
   if (!url.includes("txhash=")) {
     return "";
   }
-  const params = url.split("txhash=");
+  // Drop the URL hash (e.g. "#events" selecting a detail tab) before reading the param.
+  const params = url.split("#")[0].split("txhash=");
   if (params.length < 2) return "";
 
   const txHash = params[1].split("&")[0];
@@ -353,4 +358,20 @@ export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): Storage
     deposit: finalDepositValue,
     storage: finalStorageValue,
   };
+}
+
+/**
+ * Returns the deliver_tx result of the given tx. block_results.deliver_tx is
+ * ordered the same as the block's txs, so the tx's index maps to its result.
+ */
+export function findTransactionResult(
+  transactions: { hash: string }[],
+  deliverTxs: DeliverTx[],
+  hash: string,
+): DeliverTx | null {
+  const txIndex = transactions.findIndex(tx => tx.hash === hash);
+  if (txIndex < 0) {
+    return null;
+  }
+  return deliverTxs[txIndex] || null;
 }

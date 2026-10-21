@@ -1,7 +1,11 @@
 import BigNumber from "bignumber.js";
-import { isBech32Address } from "./bech32.utility";
 import { GNO_NETWORK_PREFIXES } from "../values/gno.constant";
-import { WUGNOT_PACKAGE_PATH, WUGNOT_DISPLAY_DECIMALS } from "../values/constant-value";
+import {
+  GNFT_DISPLAY_SYMBOL,
+  GNFT_PACKAGE_PATH,
+  WUGNOT_PACKAGE_PATH,
+  WUGNOT_DISPLAY_DECIMALS,
+} from "../values/constant-value";
 
 export function parseTokenAmount(tokenAmount = "0", denomination = "ugnot"): number {
   const pattern = new RegExp(`^(\\d+)${denomination}$`);
@@ -100,18 +104,70 @@ export function isWugnotPackagePath(packagePath: string): boolean {
   return toBarePackagePath(packagePath) === WUGNOT_PACKAGE_PATH;
 }
 
+export function isGnftPackagePath(packagePath: string): boolean {
+  return toBarePackagePath(packagePath) === GNFT_PACKAGE_PATH;
+}
+
+export interface ParsedTokenKey {
+  packagePath: string;
+  symbol: string;
+  tokenPath: string;
+}
+
+// "gno.land/r/pad.GDOG.0000002" -> { packagePath: "gno.land/r/pad", symbol: "GDOG", tokenPath: "gno.land/r/pad.GDOG" }
+export function parseTokenKey(tokenKey: string): ParsedTokenKey {
+  const prefix = tokenKey.slice(0, tokenKey.lastIndexOf("/") + 1);
+  const parts = stripNumericTokenIdSuffix(tokenKey.slice(prefix.length).split("."));
+  return {
+    packagePath: prefix + parts[0],
+    symbol: parts.length > 1 ? parts[parts.length - 1] : "",
+    tokenPath: prefix + parts.join("."),
+  };
+}
+
+export interface TokenResourceEntry {
+  name: string;
+  symbol: string;
+  decimals: number;
+  image?: string;
+  // Resource `token_path` ({packagePath}.{symbol}); identifies one token inside a multi-token realm.
+  tokenPath?: string;
+}
+
+/**
+ * Looks up a token-keyed map by exact key, then token path, then bare packagePath.
+ * A packagePath can host several tokens (e.g. grc20factory), so a key naming a symbol only
+ * falls back to the packagePath entry when that entry is the same token.
+ */
+export function findByTokenKey<T extends { symbol?: string; tokenPath?: string }>(
+  tokenMap: Record<string, T>,
+  tokenKey: string,
+): T | undefined {
+  if (!tokenKey) return undefined;
+
+  const { packagePath, symbol, tokenPath } = parseTokenKey(tokenKey);
+  const directEntry = tokenMap[tokenKey] || tokenMap[tokenPath];
+  if (directEntry) return directEntry;
+
+  const packageEntry = tokenMap[packagePath];
+  if (!packageEntry || !symbol) return packageEntry;
+
+  const entrySymbol = packageEntry.tokenPath ? parseTokenKey(packageEntry.tokenPath).symbol : packageEntry.symbol;
+  return !entrySymbol || entrySymbol.toLowerCase() === symbol.toLowerCase() ? packageEntry : undefined;
+}
+
 /**
  * The static gno-token-resource list is the first-choice source for a token's
  * name/symbol/decimals/image; the caller's own (backend/on-chain) data is only used as a
  * fallback for tokens the resource list doesn't know about. It's all-or-nothing per token -
  * fields aren't merged individually - so the result is never a mix of both sources.
  */
-export function resolveTokenMeta<T extends { name: string; symbol: string; decimals: number; image?: string }>(
+export function resolveTokenMeta<T extends TokenResourceEntry>(
   tokenResourceMap: Record<string, T>,
   tokenKey: string,
   fallback: TokenMetaFallback,
 ): ResolvedTokenMeta {
-  const resourceMeta = tokenResourceMap[tokenKey] || tokenResourceMap[toBarePackagePath(tokenKey)];
+  const resourceMeta = findByTokenKey(tokenResourceMap, tokenKey);
   const resolved = resourceMeta
     ? {
         name: resourceMeta.name,
@@ -127,6 +183,11 @@ export function resolveTokenMeta<T extends { name: string; symbol: string; decim
     return { ...resolved, decimals: WUGNOT_DISPLAY_DECIMALS };
   }
 
+  // GNFT has no symbol in either source; show the collection name instead of the raw key.
+  if (isGnftPackagePath(tokenKey)) {
+    return { ...resolved, symbol: GNFT_DISPLAY_SYMBOL };
+  }
+
   return resolved;
 }
 
@@ -135,24 +196,4 @@ export function stripGnoLandPrefix(path: string): string {
 
   const prefix = `${GNO_NETWORK_PREFIXES.GNO_LAND}/`;
   return path.startsWith(prefix) ? path.slice(prefix.length) : path;
-}
-
-export function formatDisplayTokenPath(path: string, visibleLength = 8): string {
-  if (!path || typeof path !== "string") return path;
-
-  const prefix = GNO_NETWORK_PREFIXES.TOKEN_PATH;
-  if (!path.startsWith(prefix)) return path;
-
-  try {
-    const [address, tokenName] = path.substring(prefix.length).split("/");
-
-    if (!address || !tokenName) return path;
-
-    if (!isBech32Address(address)) return path;
-
-    const ellipsisAddress = `${address.slice(0, visibleLength)}...${address.slice(-visibleLength)}`;
-    return `${prefix}${ellipsisAddress}/${tokenName}`;
-  } catch {
-    return path;
-  }
 }

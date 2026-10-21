@@ -15,23 +15,24 @@ import { getNetworkConfig } from "@/common/config/network.config";
 
 const App: React.FC = ({ Component, pageProps }: any) => {
   const networks = getNetworkConfig(DefaultChainData);
+  // Create the client once: a new client per render would drop the cache on every route change.
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            cacheTime: 60 * 1000,
+            staleTime: 60 * 1000,
+          },
+        },
+      }),
+  );
 
   return (
     <>
       <Meta />
       <GoogleAnalytics />
-      <QueryClientProvider
-        client={
-          new QueryClient({
-            defaultOptions: {
-              queries: {
-                cacheTime: 60 * 1000,
-                staleTime: 60 * 1000,
-              },
-            },
-          })
-        }
-      >
+      <QueryClientProvider client={queryClient}>
         <Hydrate state={pageProps.dehydratedState}>
           <RecoilRoot>
             <ErrorBoundary fallback={<div>ERROR</div>}>

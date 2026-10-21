@@ -3,15 +3,14 @@ import Link from "next/link";
 import React from "react";
 
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { formatDisplayPackagePath } from "@/common/utils/string-util";
+import PathText from "@/components/ui/path-text/PathText";
 import { Amount, Transaction, TransactionContractInfo } from "@/types/data-type";
 
-import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import Badge from "@/components/ui/badge";
-import { DLWrap, FitContentSpan } from "@/components/ui/detail-page-common-styles";
+import { Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
-import Tooltip from "@/components/ui/tooltip";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { TransactionAddPackageContract } from "../transaction-add-package-contract/TransactionAddPackageContract";
 import { TransactionCallerContract } from "../transaction-caller-contract/TransactionCallerContract";
 import { TransactionMsgRunContract } from "../transaction-msg-run-contract/TransactionMsgRunContract";
@@ -27,11 +26,10 @@ const TOOLTIP_PACKAGE_PATH = (
 
 export const TransactionContractDetails: React.FC<{
   transactionItem: TransactionContractInfo | Transaction | null;
-  isDesktop: boolean;
   getUrlWithNetwork: (uri: string) => string;
   getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount;
   getName?: (address: string) => string;
-}> = ({ transactionItem, isDesktop, getUrlWithNetwork, getTokenAmount }) => {
+}> = ({ transactionItem, getUrlWithNetwork, getTokenAmount }) => {
   const { tokenMap } = useTokenMeta();
 
   const messages = React.useMemo(() => {
@@ -131,73 +129,45 @@ export const TransactionContractDetails: React.FC<{
           )}
           {isBankMsgSend(message) && (
             <>
-              <DLWrap desktop={isDesktop}>
-                <dt>Name</dt>
-                <dd>
-                  <Badge>
-                    <Text type="p4" color="primary">
-                      {message["@type"] ||
-                        message?.package?.name ||
-                        tokenMap?.[message?.pkg_path]?.name ||
-                        message.func ||
-                        "-"}
-                    </Text>
-                  </Badge>
-                </dd>
-              </DLWrap>
-              <DLWrap desktop={isDesktop}>
-                <dt>
-                  Path
-                  <div className="tooltip-wrapper">
-                    <Tooltip content={TOOLTIP_PACKAGE_PATH}>
-                      <IconTooltip />
-                    </Tooltip>
-                  </div>
-                </dt>
-                <dd>
-                  <Badge>
-                    <Text type="p4" color="blue" className="ellipsis">
-                      <Link
-                        href={getUrlWithNetwork(
-                          `/realms/details?path=${message?.package?.path || message?.pkg_path || "-"}`,
-                        )}
-                        passHref
-                      >
-                        <FitContentSpan>
-                          {formatDisplayPackagePath(
-                            message?.pkg_path || message?.package?.path || message?.func || "-",
-                          )}
-                        </FitContentSpan>
-                      </Link>
-                    </Text>
-                    <Tooltip
-                      content="Copied!"
-                      trigger="click"
-                      copyText={message?.pkg_path || message?.package?.path || "-"}
-                      className="address-tooltip"
+              <Field label="Name">
+                <Badge>
+                  <Text type="p4" color="primary">
+                    {message["@type"] ||
+                      message?.package?.name ||
+                      tokenMap?.[message?.pkg_path]?.name ||
+                      message.func ||
+                      "-"}
+                  </Text>
+                </Badge>
+              </Field>
+              <FieldWithTooltip label="Path" tooltipContent={TOOLTIP_PACKAGE_PATH}>
+                <Badge>
+                  <Text type="p4" color="blue" className="ellipsis">
+                    <Link
+                      href={getUrlWithNetwork(
+                        `/realms/details?path=${message?.package?.path || message?.pkg_path || "-"}`,
+                      )}
+                      passHref
                     >
-                      <S.StyledIconCopy />
-                    </Tooltip>
-                  </Badge>
-                </dd>
-              </DLWrap>
+                      <PathText path={message?.pkg_path || message?.package?.path || message?.func || "-"} />
+                    </Link>
+                  </Text>
+                  <CopyTooltip variant="address" copyText={message?.pkg_path || message?.package?.path || "-"} />
+                </Badge>
+              </FieldWithTooltip>
             </>
           )}
-          <DLWrap desktop={isDesktop}>
-            <dt>Function</dt>
-            <dd>
-              <Badge type="blue">
-                <Text type="p4" color="white">
-                  {getContractType(message)}
-                </Text>
-              </Badge>
-            </dd>
-          </DLWrap>
+          <Field label="Function">
+            <Badge type="blue">
+              <Text type="p4" color="white">
+                {getContractType(message)}
+              </Text>
+            </Badge>
+          </Field>
 
           {isVmCall(message) && message?.func === "Transfer" && (
             <TransactionTransferContract
               message={message}
-              isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
               getTokenAmount={getTokenAmount}
             />
@@ -205,7 +175,6 @@ export const TransactionContractDetails: React.FC<{
           {isBankMsgSend(message) && (
             <TransactionTransferContract
               message={message}
-              isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
               getTokenAmount={getTokenAmount}
             />
@@ -213,18 +182,14 @@ export const TransactionContractDetails: React.FC<{
           {isVmAddPkg(message) && (
             <TransactionAddPackageContract
               message={message}
-              isDesktop={isDesktop}
               files={getMessageFiles(message) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
-          {hasCaller(message) && (
-            <TransactionCallerContract message={message} isDesktop={isDesktop} getUrlWithNetwork={getUrlWithNetwork} />
-          )}
+          {hasCaller(message) && <TransactionCallerContract message={message} getUrlWithNetwork={getUrlWithNetwork} />}
           {isVmRun(message) && (
             <TransactionMsgRunContract
               message={message}
-              isDesktop={isDesktop}
               files={getMessageFiles(message) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />

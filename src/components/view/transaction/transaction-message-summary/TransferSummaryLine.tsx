@@ -3,7 +3,14 @@ import styled from "styled-components";
 
 import Text from "@/components/ui/text";
 import { AssetTransfer } from "@/types/data-type";
-import { SUMMARY_LINE_HEIGHT, TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
+import {
+  SUMMARY_FONT_WEIGHT,
+  SUMMARY_LINE_HEIGHT,
+  SummaryLine,
+  TransferAddress,
+  TransferAmount,
+  useGrc20TokenInfos,
+} from "./transfer-render";
 
 interface Props {
   transfers: AssetTransfer[];
@@ -17,21 +24,21 @@ const TransferSummaryLine = ({ transfers, embedded = false }: Props) => {
   return (
     <Wrapper $embedded={embedded}>
       {transfers.map((transfer, index) => (
-        <Line key={`${transfer.assetType}-${transfer.from}-${transfer.to}-${transfer.amount.denom}-${index}`}>
+        <SummaryLine key={`${transfer.assetType}-${transfer.from}-${transfer.to}-${transfer.amount.denom}-${index}`}>
           {numbered && (
-            <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+            <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
               {`${index + 1}.`}
             </Text>
           )}
-          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
             Transfer
           </Text>
           <TransferAmount transfer={transfer} tokenInfosByTokenKey={tokenInfosByTokenKey} />
-          <Text type="p2" color="tertiary" fontWeight={400} style={SUMMARY_LINE_HEIGHT}>
+          <Text type="p2" color="tertiary" fontWeight={SUMMARY_FONT_WEIGHT} style={SUMMARY_LINE_HEIGHT}>
             to
           </Text>
           <TransferAddress address={transfer.to} label={transfer.toLabel} labelType={transfer.toLabelType} />
-        </Line>
+        </SummaryLine>
       ))}
     </Wrapper>
   );
@@ -47,13 +54,6 @@ const Wrapper = styled.div<{ $embedded: boolean }>`
   padding: ${({ $embedded }) => ($embedded ? "0px" : "24px")};
   background-color: ${({ theme, $embedded }) => ($embedded ? "transparent" : theme.colors.surface)};
   border-radius: ${({ $embedded }) => ($embedded ? "0px" : "16px")};
-`;
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
 `;
 
 export default TransferSummaryLine;

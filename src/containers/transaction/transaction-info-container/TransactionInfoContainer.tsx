@@ -1,7 +1,6 @@
 import React from "react";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 
@@ -13,7 +12,6 @@ interface TransactionInfoContainerProps {
 }
 
 const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => {
-  const { isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const [currentTab, setCurrentTab] = React.useState("Messages");
@@ -26,7 +24,6 @@ const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => 
       txHash={txHash}
       currentTab={currentTab}
       setCurrentTab={setCurrentTab}
-      isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
       getTokenAmount={getTokenAmount}
     />
@@ -35,7 +32,6 @@ const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => 
       txHash={txHash}
       currentTab={currentTab}
       setCurrentTab={setCurrentTab}
-      isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
     />
   );

@@ -7,8 +7,7 @@ import { toDisplayHash } from "@/common/utils/transaction.utility";
 import { useNetwork } from "@/common/hooks/use-network";
 import { TX_HASH_ELLIPSIS_LENGTH } from "@/common/values/number.constant";
 
-import Tooltip from "@/components/ui/tooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 
 interface Props {
   txHash: string;
@@ -21,9 +20,7 @@ export const TxHashCopy = ({ txHash }: Props) => {
     <TxHashWrapper>
       <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${displayHash}`)}>
         {textEllipsis(displayHash, TX_HASH_ELLIPSIS_LENGTH)}
-        <Tooltip className="path-copy-tooltip" content="Copied!" trigger="click" copyText={displayHash} width={85}>
-          <IconCopy className="svg-icon" />
-        </Tooltip>
+        <CopyTooltip variant="path" copyText={displayHash} />
       </Link>
     </TxHashWrapper>
   );

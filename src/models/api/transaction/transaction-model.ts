@@ -35,7 +35,6 @@ export interface TransactionModel extends BaseTransactionModel {
 
 export interface TransactionContractMessagesProps {
   message: TransactionContractModel;
-  isDesktop: boolean;
   files?: { name: string; body: string }[] | null;
   getUrlWithNetwork: (uri: string) => string;
 }

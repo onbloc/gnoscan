@@ -1,15 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
 import { AreaChartTooltip } from "./tooltip";
-import theme from "@/styles/theme";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
 import styled from "styled-components";
 import BigNumber from "bignumber.js";
 import { formatAddress } from "@/common/utils";
+import {
+  createBaseChartOptions,
+  createExternalTooltipPlugins,
+  createValueAxisStyle,
+  getActiveTooltipElement,
+  getChartPalette,
+  tooltipAnchorStyle,
+  useHideTooltipOnScroll,
+} from "../chart-common";
 interface AreaChartProps {
   labels: Array<string>;
   datas: { [key in string]: Array<{ value: number; rate: number }> };
@@ -40,12 +48,25 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
     value: [] as any,
   });
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleTooltipVisible);
-    return () => {
-      window.removeEventListener("scroll", handleTooltipVisible);
-    };
-  }, [tooltipRef]);
+  const anchorRef = useRef({ caretX: 0, chartLeft: 0, chartRight: 0 });
+
+  useHideTooltipOnScroll(tooltipRef);
+
+  // Centers the tooltip on the caret and keeps it within the chart using its rendered width.
+  const positionTooltip = () => {
+    const tooltipElement = tooltipRef.current;
+    const { caretX, chartLeft, chartRight } = anchorRef.current;
+    if (!tooltipElement || chartRight <= chartLeft) {
+      return;
+    }
+
+    const { width } = tooltipElement.getBoundingClientRect();
+    const left = Math.min(chartLeft + caretX - width / 2, chartRight - width);
+    tooltipElement.style.left = Math.max(left, chartLeft) + "px";
+  };
+
+  // Runs after new content renders and before paint, so the clamp uses the updated width.
+  useLayoutEffect(positionTooltip, [currentValue]);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -68,30 +89,14 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
     [excludedDatasets],
   );
 
-  const handleTooltipVisible = () => {
-    if (tooltipRef.current) {
-      tooltipRef.current.style.opacity = "0";
-    }
-  };
-
-  const getThemePallet = () => {
-    return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
-  };
-
   const renderExternalTooltip = (context: { chart: Chart<"line">; tooltip: TooltipModel<"line"> }) => {
     const { chart, tooltip } = context;
-
-    if (!tooltipRef.current) {
+    const currentTooltip = getActiveTooltipElement(tooltipRef, tooltip);
+    if (!currentTooltip) {
       return;
     }
-
-    const currentTooltip = tooltipRef.current;
 
     const tooltipModel = tooltip;
-    if (tooltipModel.opacity === 0) {
-      currentTooltip.style.opacity = "0";
-      return;
-    }
 
     if (tooltip.title[0] !== currentValue.title) {
       setCurrentValue({
@@ -102,27 +107,21 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
 
     currentTooltip.style.opacity = "1";
 
-    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
     currentTooltip.style.position = "fixed";
     currentTooltip.style.top = position.bottom - position.height - tooltip.height + "px";
 
-    const left = tooltipModel.caretX - position.width / 2;
-    if (left + tooltipRect.width > position.width) {
-      currentTooltip.style.marginRight = "0";
-    } else {
-      currentTooltip.style.marginLeft = left + "px";
-    }
+    anchorRef.current = { caretX: tooltipModel.caretX, chartLeft: position.left, chartRight: position.right };
+    positionTooltip();
   };
 
   const createChartOption = (): ChartOptions<"line"> => {
-    const themePallet = getThemePallet();
+    const themePallet = getChartPalette(themeMode);
     return {
-      responsive: true,
-      maintainAspectRatio: false,
-      aspectRatio: 2,
+      ...createBaseChartOptions(),
       scales: {
         yAxis: {
+          ...createValueAxisStyle(themePallet),
           ticks: {
             color: themePallet.tertiary,
             count: 5,
@@ -130,12 +129,6 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
               if (index === 0) return "";
               return BigNumber(tickValue).shiftedBy(-6).toString();
             },
-          },
-          grid: {
-            color: themePallet.dimmed50,
-          },
-          border: {
-            dash: [4, 2],
           },
         },
         xAxis: {
@@ -160,24 +153,7 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
           },
         },
       },
-      interaction: {
-        mode: "index",
-        intersect: false,
-      },
-      plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          enabled: false,
-          position: "average",
-          displayColors: false,
-          external: renderExternalTooltip,
-        },
-        title: {
-          display: false,
-        },
-      },
+      plugins: createExternalTooltipPlugins(renderExternalTooltip),
     };
   };
 
@@ -185,7 +161,7 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
     labels: Array<string>,
     datasets: { [key in string]: Array<{ value: number; rate: number }> },
   ): ChartData<"line"> => {
-    const themePallet = getThemePallet();
+    const themePallet = getChartPalette(themeMode);
     if (!chartRef.current || !labels || !datasets) {
       return { labels: [], datasets: [] };
     }
@@ -308,10 +284,7 @@ const Wrapper = styled.div`
   }
 
   .tooltip-container {
-    position: absolute;
-    display: flex;
-    width: fit-content;
-    height: fit-content;
+    ${tooltipAnchorStyle};
     z-index: ${zindex.chart};
     pointer-events: none;
   }

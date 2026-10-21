@@ -1,6 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useUsername } from "@/common/hooks/account/use-username";
 import { isBech32Address } from "@/common/utils/bech32.utility";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
@@ -9,7 +8,8 @@ import * as S from "./AccountLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
-import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import AccountAddressSkeleton from "@/components/view/account/account-address/AccountAddressSkeleton";
+import AccountTransactionsSkeleton from "@/components/view/account/account-transactions/AccountTransactionsSkeleton";
 
 export interface ValidatorInfo {
   name: string;
@@ -24,6 +24,7 @@ interface AccountLayoutProps {
   validatorInfo?: ValidatorInfo | null;
   accountAddress: React.ReactNode;
   accountAssets: React.ReactNode;
+  accountNfts: React.ReactNode;
   accountTransactions: React.ReactNode;
 }
 
@@ -34,9 +35,9 @@ const AccountLayout = ({
   validatorInfo,
   accountAddress,
   accountAssets,
+  accountNfts,
   accountTransactions,
 }: AccountLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const { getAddress } = useUsername();
@@ -72,25 +73,41 @@ const AccountLayout = ({
   if (hasErrorCustomNetwork || hasErrorStandardNetwork)
     return (
       <S.InnerLayout>
-        <NotFound keyword={address} breakpoint={breakpoint} />
+        <NotFound keyword={address} />
       </S.InnerLayout>
     );
 
   return (
-    <S.Container breakpoint={breakpoint}>
+    <AccountFrame>
+      {isLoadingPageTitle ? <S.TitleSkeleton /> : <PageTitle type="p2" desktopType="h2" title={pageTitle} />}
+      {accountAddress}
+      {accountAssets}
+      {accountNfts}
+      {accountTransactions}
+    </AccountFrame>
+  );
+};
+
+const AccountFrame = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
-          {isLoadingPageTitle ? (
-            <SkeletonBar width={200} height={isDesktop ? 36 : 24} />
-          ) : (
-            <PageTitle type={isDesktop ? "h2" : "p2"} title={pageTitle} />
-          )}
-          {accountAddress}
-          {accountAssets}
-          {accountTransactions}
-        </S.Wrapper>
+        <S.Wrapper>{children}</S.Wrapper>
       </S.InnerLayout>
     </S.Container>
+  );
+};
+
+// Mirrors the loaded layout (address, assets, transactions) so the page does not jump
+// while the address is classified; renders no query-bearing panels.
+export const AccountLayoutSkeleton = () => {
+  return (
+    <AccountFrame>
+      <S.TitleSkeleton />
+      <AccountAddressSkeleton />
+      <AccountAddressSkeleton />
+      <AccountTransactionsSkeleton />
+    </AccountFrame>
   );
 };
 

@@ -42,42 +42,31 @@ export const useTokenMeta = () => {
     };
   }, [grc20Infos, getTokenMeta]);
 
+  // Same order everywhere: token resource list -> backend GRC20 list -> raw value (decimals 0).
+  // Tokens missing from the backend list still go through getTokenMeta (resource + wugnot override).
   const getTokenInfo = useCallback(
-    (tokenId: string): TokenInfo | undefined => {
+    (tokenId: string): TokenInfo => {
       const tokenInfo = tokenMap[tokenId] || tokenMap[stripTokenKeySymbol(tokenId)];
-      if (!tokenInfo) {
-        const values = tokenId.split("/");
-        const namespace = values[values.length - 1].toUpperCase();
-        return {
-          name: namespace,
-          denom: namespace,
-          symbol: namespace,
-          decimals: 6,
-        };
-      }
-      return tokenInfo;
+      if (tokenInfo) return tokenInfo;
+
+      const values = tokenId.split("/");
+      const namespace = values[values.length - 1];
+      const resolved = getTokenMeta(tokenId, { name: namespace, symbol: namespace, decimals: 0 });
+      return { name: resolved.name, denom: tokenId, symbol: resolved.symbol, decimals: resolved.decimals };
     },
-    [tokenMap],
+    [tokenMap, getTokenMeta],
   );
 
   const getTokenAmount = useCallback(
     (tokenId: string, amountRaw: string | number): Amount => {
-      const tokenInfo = tokenMap[tokenId] || tokenMap[stripTokenKeySymbol(tokenId)];
-      if (!tokenInfo) {
-        const values = tokenId.split("/");
-        return {
-          value: `${amountRaw}`.toString(),
-          denom: values[values.length - 1],
-        };
-      }
+      const tokenInfo = getTokenInfo(tokenId);
+      const value = BigNumber(amountRaw);
       return {
-        value: BigNumber(amountRaw)
-          .shiftedBy(tokenInfo.decimals * -1)
-          .toString(),
+        value: value.isNaN() ? `${amountRaw}` : value.shiftedBy(tokenInfo.decimals * -1).toString(),
         denom: tokenInfo.symbol,
       };
     },
-    [tokenMap],
+    [getTokenInfo],
   );
 
   return {

@@ -1,66 +1,60 @@
-import { NetworkClient } from "@/common/clients/network-client";
 import { ApiAccountRepository } from "./api-account-repository";
 
-import { GetAccountEventsRequest, GetAccountTransactionsRequest } from "./request";
-import { GetAccountEventsResponse, GetAccountResponse, GetAccountTransactionsResponse } from "./response";
-import { makeQueryParameter } from "@/common/utils/string-util";
-import { CommonError } from "@/common/errors";
+import {
+  GetAccountDirectTransactionsRequest,
+  GetAccountGRC721CollectionItemsRequest,
+  GetAccountNativeTransfersRequest,
+  GetAccountTokenTransfersRequest,
+  GetAccountsRequest,
+} from "./request";
+import {
+  GetAccountDirectTransactionsResponse,
+  GetAccountGRC721CollectionItemsResponse,
+  GetAccountGRC721CollectionsResponse,
+  GetAccountNativeTransfersResponse,
+  GetAccountResponse,
+  GetAccountTokenTransfersResponse,
+  GetAccountsResponse,
+} from "./response";
+import { ApiRepository } from "../api-repository";
 
-interface APIResponse<T> {
-  data: T;
-}
-
-export class ApiAccountRepositoryImpl implements ApiAccountRepository {
-  private networkClient: NetworkClient | null;
-  constructor(networkClient: NetworkClient | null) {
-    this.networkClient = networkClient;
-  }
-
+export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccountRepository {
   getAccount(address: string): Promise<GetAccountResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    return this.networkClient
-      .get<APIResponse<GetAccountResponse>>({
-        url: `accounts/${address}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+    return this.get<GetAccountResponse>(`accounts/${address}`);
   }
 
-  getAccountEvents(params: GetAccountEventsRequest): Promise<GetAccountEventsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
-    const { address, ...queryParams } = params;
-    const requestParams = makeQueryParameter(queryParams);
-
-    return this.networkClient
-      .get<APIResponse<GetAccountEventsResponse>>({
-        url: `accounts/${address}/events${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+  getAccounts(params: GetAccountsRequest): Promise<GetAccountsResponse> {
+    return this.get<GetAccountsResponse>("native/holders", { ...params });
   }
 
-  getAccountTransactions(params: GetAccountTransactionsRequest): Promise<GetAccountTransactionsResponse> {
-    if (!this.networkClient) {
-      throw new CommonError("FAILED_INITIALIZE_PROVIDER", "NetworkClient");
-    }
-
+  getAccountDirectTransactions(
+    params: GetAccountDirectTransactionsRequest,
+  ): Promise<GetAccountDirectTransactionsResponse> {
     const { address, ...queryParams } = params;
-    const requestParams = makeQueryParameter(queryParams);
+    return this.get<GetAccountDirectTransactionsResponse>(`accounts/${address}/direct-transactions`, queryParams);
+  }
 
-    return this.networkClient
-      .get<APIResponse<GetAccountTransactionsResponse>>({
-        url: `accounts/${address}/transactions${requestParams}`,
-      })
-      .then(result => {
-        return result.data?.data;
-      });
+  getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse> {
+    const { address, ...queryParams } = params;
+    return this.get<GetAccountNativeTransfersResponse>(`accounts/${address}/native-transfers`, queryParams);
+  }
+
+  getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse> {
+    const { address, ...queryParams } = params;
+    return this.get<GetAccountTokenTransfersResponse>(`accounts/${address}/token-transfers`, queryParams);
+  }
+
+  getAccountGRC721Collections(address: string): Promise<GetAccountGRC721CollectionsResponse> {
+    return this.get<GetAccountGRC721CollectionsResponse>(`accounts/${address}/grc721-tokens`);
+  }
+
+  getAccountGRC721CollectionItems(
+    params: GetAccountGRC721CollectionItemsRequest,
+  ): Promise<GetAccountGRC721CollectionItemsResponse> {
+    const { address, tokenId, ...queryParams } = params;
+    return this.get<GetAccountGRC721CollectionItemsResponse>(
+      `accounts/${address}/grc721-tokens/${encodeURIComponent(tokenId)}/items`,
+      queryParams,
+    );
   }
 }

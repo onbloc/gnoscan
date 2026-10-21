@@ -11,13 +11,13 @@ interface AccountAssetsContainerProps {
 }
 
 const AccountAssetsContainer = ({ address }: AccountAssetsContainerProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
+  const { breakpoint } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   return isCustomNetwork ? (
-    <CustomNetworkAccountAssets address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
+    <CustomNetworkAccountAssets address={address} breakpoint={breakpoint} />
   ) : (
-    <StandardNetworkAccountAssets address={address} breakpoint={breakpoint} isDesktop={isDesktop} />
+    <StandardNetworkAccountAssets address={address} breakpoint={breakpoint} />
   );
 };
 

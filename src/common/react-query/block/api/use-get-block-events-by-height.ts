@@ -30,14 +30,13 @@ export const useGetBlockEventsByHeight = (
     [QUERY_KEY.getBlockEventsByHeight, params],
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getBlockEvents({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
       ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false,
     },
   );

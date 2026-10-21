@@ -1,18 +1,14 @@
-"use client";
 import React from "react";
-import { useRecoilValue } from "recoil";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { themeState } from "@/states";
 import { RealmListSortOption } from "@/common/types/realm";
 import { Realm } from "@/types/data-type";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 
-import * as S from "./StandardNetworkRealmListTable.styles";
+import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../../datatable";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
@@ -27,7 +23,6 @@ const TOOLTIP_PATH = (
 );
 
 interface RealmListTableProps {
-  breakpoint: DEVICE_TYPE;
   sortOption: RealmListSortOption;
   realms: Realm[];
   isFetched: boolean;
@@ -37,7 +32,6 @@ interface RealmListTableProps {
 }
 
 export const StandardNetworkRealmListTable = ({
-  breakpoint,
   sortOption,
   setSortOption,
   realms,
@@ -45,7 +39,6 @@ export const StandardNetworkRealmListTable = ({
   hasNextPage,
   fetchNextPage,
 }: RealmListTableProps) => {
-  const themeMode = useRecoilValue(themeState);
   const { indexerQueryClient } = useNetworkProvider();
 
   if (!isFetched) return <TableSkeleton />;
@@ -152,29 +145,20 @@ export const StandardNetworkRealmListTable = ({
   };
 
   return (
-    <S.Container>
+    <CardTableContainer>
       <Datatable
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
+        headers={createHeaders()}
         datas={realms || []}
         sortOption={sortOption}
         setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
 
-      {hasNextPage ? (
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
-            {"View More Realms"}
-          </Button>
+          <ViewMoreButton variant="table" text="View More Realms" onClick={() => fetchNextPage()} />
         </div>
-      ) : (
-        <></>
       )}
-    </S.Container>
+    </CardTableContainer>
   );
 };

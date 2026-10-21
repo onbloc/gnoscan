@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UseQueryOptions, useQuery } from "react-query";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { QUERY_KEY } from "./types";
-import { TokenMeta } from "@/types/data-type";
+import { TokenResourceMeta } from "@/types/data-type";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 
@@ -13,30 +12,28 @@ function makeTokenMetaURL(type: "gno-native" | "grc20", chainId: string) {
   return `${GNO_TOKEN_RESOURCE_BASE_URI}/${type}/${chainId}.json`;
 }
 
-async function fetchTokenMeta(url: string): Promise<TokenMeta[]> {
+async function fetchTokenMeta(url: string): Promise<TokenResourceMeta[]> {
   if (!url) {
     return [];
   }
 
   return fetch(url)
     .then(response => response.json())
-    .then(json =>
-      json?.map(
-        (data: any) =>
-          ({
-            ...data,
-            id: data?.denom || data?.pkg_path,
-          } || []),
-      ),
+    .then(
+      json =>
+        json?.map((data: Omit<TokenResourceMeta, "id">) => ({
+          ...data,
+          id: data?.denom || data?.pkg_path || "",
+        })) || [],
     )
     .catch(() => []);
 }
 
-export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenMeta[], Error>) => {
+export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenResourceMeta[], Error>) => {
   const { currentNetwork } = useNetworkProvider();
   const { blockRepository } = useServiceProvider();
 
-  return useQuery<TokenMeta[], Error>({
+  return useQuery<TokenResourceMeta[], Error>({
     queryKey: [QUERY_KEY.getTokenMeta, currentNetwork?.chainId || ""],
     queryFn: () => {
       return Promise.all([

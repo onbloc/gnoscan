@@ -6,6 +6,9 @@ import { makeDisplayNumber } from "@/common/utils/string-util";
 import { getTimeStamp } from "@/common/utils/date-util";
 import { formatGasString, safeString } from "@/common/utils/format/format-utils";
 import { TransactionTableModel } from "@/models/api/common";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
+import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
 export class BlockMapper {
   public static blockListFromApiResponses(responses: BlockModel[]): Block[] {
@@ -23,8 +26,8 @@ export class BlockMapper {
       totalFees:
         response.totalFees > 0
           ? {
-              value: response.totalFees.toString(),
-              denom: "GNOT",
+              value: formatTokenDecimal(response.totalFees, GNOTToken.decimals),
+              denom: GNOTToken.symbol,
             }
           : null,
     };
@@ -83,13 +86,14 @@ export class BlockMapper {
   }
 
   public static blockTransactionsFromApiResponse(response: TransactionTableModel): Transaction {
+    const func = getRepresentativeTransactionFunction(response);
     return {
       hash: response.txHash,
       success: response.successYn,
       numOfMessage: response.messageCount,
-      type: response.func[0].messageType,
-      packagePath: response.func[0].pkgPath,
-      functionName: response.func[0].funcType,
+      type: func?.messageType || "",
+      packagePath: func?.pkgPath || "",
+      functionName: func?.funcType || "",
       blockHeight: response.blockHeight,
       from: response.fromAddress,
       fromName: response.fromName,

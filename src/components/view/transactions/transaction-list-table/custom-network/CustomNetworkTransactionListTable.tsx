@@ -1,18 +1,15 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
-import { useRecoilValue } from "recoil";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { themeState } from "@/states";
 import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { useUsername } from "@/common/hooks/account/use-username";
 
-import * as S from "./CustomNetworkTransactionListTable.styles";
+import { TooltipContainer } from "../TransactionListTable.styles";
+import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 interface TransactionWithTime extends Transaction {
@@ -39,7 +36,6 @@ function mapDisplayFunctionName(type: string, functionName: string) {
 }
 
 interface CustomNetworkTransactionListTableProps {
-  breakpoint: DEVICE_TYPE;
   transactions: Transaction[];
   hasNextPage: boolean;
   isFetched: boolean;
@@ -48,15 +44,12 @@ interface CustomNetworkTransactionListTableProps {
 }
 
 export const CustomNetworkTransactionListTable = ({
-  breakpoint,
   transactions,
   hasNextPage,
   nextPage,
   isFetched,
   isLoading,
 }: CustomNetworkTransactionListTableProps) => {
-  const themeMode = useRecoilValue(themeState);
-
   const { getTokenAmount } = useTokenMeta();
   const { isFetched: isFetchedUsername, getName } = useUsername();
 
@@ -90,7 +83,7 @@ export const CustomNetworkTransactionListTable = ({
       .name("Function")
       .width(190)
       .colorName("blue")
-      .tooltip(<S.TooltipContainer>{TOOLTIP_TYPE}</S.TooltipContainer>)
+      .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => {
         const displayFunctionName = mapDisplayFunctionName(data.type, data.functionName);
         return (
@@ -165,25 +158,13 @@ export const CustomNetworkTransactionListTable = ({
   if (isLoading || !isFetched || !isFetchedUsername) return <TableSkeleton />;
 
   return (
-    <S.Container>
-      <Datatable
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={transactions as TransactionWithTime[]}
-      />
-      {hasNextPage ? (
+    <CardTableContainer>
+      <Datatable headers={createHeaders()} datas={transactions as TransactionWithTime[]} />
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
-            {"View More Transactions"}
-          </Button>
+          <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />
         </div>
-      ) : (
-        <></>
       )}
-    </S.Container>
+    </CardTableContainer>
   );
 };

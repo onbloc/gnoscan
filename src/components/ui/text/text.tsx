@@ -1,10 +1,13 @@
 import styled, { css } from "styled-components";
 import React, { CSSProperties, PropsWithChildren } from "react";
 import { FontsType } from "@/styles/theme";
+import { media } from "@/common/values/ui.constant";
 
 export interface TextProps extends React.ComponentPropsWithoutRef<"div"> {
   className?: string;
   type: FontsType;
+  // Font from the desktop breakpoint up, set in CSS so it matches the server HTML
+  desktopType?: FontsType;
   display?: CSSProperties["display"];
   textAlign?: CSSProperties["textAlign"];
   fontWeight?: CSSProperties["fontWeight"];
@@ -14,6 +17,7 @@ export interface TextProps extends React.ComponentPropsWithoutRef<"div"> {
 
 const Text = ({
   type,
+  desktopType,
   children,
   display = "block",
   textAlign = "left",
@@ -26,6 +30,7 @@ const Text = ({
   return (
     <Wrapper
       type={type}
+      desktopType={desktopType}
       display={display}
       textAlign={textAlign}
       fontWeight={fontWeight}
@@ -49,6 +54,12 @@ const Wrapper = styled.div<TextProps>`
       color: ${props.theme.colors[props.color ?? props.theme.colors.black]};
       white-space: pre-wrap;
       margin: ${props.margin};
+      ${props.desktopType &&
+      css`
+        ${media.DESKTOP} {
+          ${props.theme.fonts[props.desktopType]};
+        }
+      `}
     `;
   }}
   &.ellipsis {

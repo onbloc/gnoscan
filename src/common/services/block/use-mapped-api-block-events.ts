@@ -29,26 +29,11 @@ export const useMappedApiBlockEvents = (params: GetBlockEventsRequest) => {
     hasNextPage,
   } = useGetBlockEventsByHeight(params);
 
-  const [events, setEvents] = React.useState<GnoEvent[]>([]);
-  const [isDataReady, setIsDataReady] = React.useState(false);
-
-  React.useEffect(() => {
-    if (apiData?.pages) {
-      setIsDataReady(false);
-
-      const allItems = apiData.pages.flatMap(page => page.items);
-      const mappedBlocksData = BlockMapper.blockEventsFromApiResponses(allItems);
-
-      setEvents(mappedBlocksData);
-      setIsDataReady(true);
-    } else {
-      setEvents([]);
-      setIsDataReady(true);
-    }
-  }, [apiData?.pages]);
-
-  const isLoading = isApiLoading || !isDataReady;
-  const isFetched = isApiFetched && isDataReady;
+  const pages = apiData?.pages;
+  const events = React.useMemo<GnoEvent[]>(
+    () => (pages ? BlockMapper.blockEventsFromApiResponses(pages.flatMap(page => page.items)) : []),
+    [pages],
+  );
 
   // The API returns the total event count only on the first page.
   const totalCount = apiData?.pages?.[0]?.page?.totalCount;
@@ -56,8 +41,8 @@ export const useMappedApiBlockEvents = (params: GetBlockEventsRequest) => {
   return {
     data: events,
     totalCount,
-    isFetched,
-    isLoading,
+    isFetched: isApiFetched,
+    isLoading: isApiLoading,
     isError: isApiError,
     fetchNextPage,
     hasNextPage,

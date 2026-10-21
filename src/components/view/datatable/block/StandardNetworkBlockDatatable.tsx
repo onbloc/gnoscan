@@ -1,40 +1,23 @@
-"use client";
-
 import React from "react";
-import { useRecoilValue } from "recoil";
-import styled from "styled-components";
 
 import { numberWithCommas } from "@/common/utils";
-import { themeState } from "@/states";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import theme from "@/styles/theme";
 import { formatDate } from "@/common/utils/date-util";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "..";
+import { CardTableContainer } from "../datatable.styles";
 import { Block } from "@/types/data-type";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 
 interface BlockDatatableProps {
-  breakpoint: DEVICE_TYPE;
   data: Block[];
-  isFetched: boolean;
   isError: boolean;
-  isLoading: boolean;
   hasNextPage: boolean | undefined;
 
   fetchNextPage: () => void;
 }
 
-export const StandardNetworkBlockDatatable = ({
-  breakpoint,
-  data,
-  isError,
-  hasNextPage,
-  fetchNextPage,
-}: BlockDatatableProps) => {
-  const themeMode = useRecoilValue(themeState);
-
+export const StandardNetworkBlockDatatable = ({ data, isError, hasNextPage, fetchNextPage }: BlockDatatableProps) => {
   const createHeaders = () => {
     return [
       createHeaderBlockHash(),
@@ -99,72 +82,21 @@ export const StandardNetworkBlockDatatable = ({
       .key("total_fees")
       .name("Total Fees")
       .width(163)
-      .renderOption((_, data) => {
-        if (data.numTxs === 0) {
-          return <DatatableItem.Amount value={"0"} denom={"GNOT"} />;
-        }
-        return <DatatableItem.LazyBlockTotalFee blockHeight={data.height} defaultDenom={"GNOT"} />;
-      })
+      .renderOption((_, data) => (
+        <DatatableItem.Amount value={data.totalFees?.value ?? "0"} denom={data.totalFees?.denom ?? "GNOT"} />
+      ))
       .build();
   };
 
   return (
-    <Container>
-      <Datatable
-        supported={!isError}
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={data}
-      />
+    <CardTableContainer>
+      <Datatable supported={!isError} headers={createHeaders()} datas={data} />
 
-      {hasNextPage ? (
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
-            {"View More Blocks"}
-          </Button>
+          <ViewMoreButton variant="table" text="View More Blocks" onClick={() => fetchNextPage()} />
         </div>
-      ) : (
-        <></>
       )}
-    </Container>
+    </CardTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-    background-color: ${({ theme }) => theme.colors.base};
-    padding-bottom: 24px;
-    border-radius: 10px;
-
-    .button-wrapper {
-      display: flex;
-      width: 100%;
-      height: auto;
-      margin-top: 4px;
-      padding: 0 20px;
-      justify-content: center;
-
-      .more-button {
-        width: 100%;
-        padding: 16px;
-        color: ${({ theme }) => theme.colors.primary};
-        background-color: ${({ theme }) => theme.colors.surface};
-        ${theme.fonts.p4}
-        font-weight: 600;
-
-        &.desktop {
-          width: 344px;
-        }
-      }
-    }
-  }
-`;

@@ -1,22 +1,28 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { media } from "@/common/values/ui.constant";
 
 import Text from "@/components/ui/text";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import { AssetTransfer, NetTransfer, TransactionSummaryDetail } from "@/types/data-type";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import { SUMMARY_ASSET_TYPES, TransferAddress, TransferAmount, useGrc20TokenInfos } from "./transfer-render";
+import {
+  SUMMARY_ASSET_TYPES,
+  summaryLineCss,
+  TransferAddress,
+  TransferAmount,
+  useGrc20TokenInfos,
+} from "./transfer-render";
 
 type TransferView = "all" | "net";
 const GNOSWAP_EMISSION_PACKAGE_PATH = "gno.land/r/gnoswap/emission";
 
 interface Props {
   summary: TransactionSummaryDetail;
-  isDesktop: boolean;
   embedded?: boolean;
 }
 
-const TransactionMessageSummary = ({ summary, isDesktop, embedded = false }: Props) => {
+const TransactionMessageSummary = ({ summary, embedded = false }: Props) => {
   const grc20Transfers = summary.transfers.filter(
     transfer => transfer.assetType === SUMMARY_ASSET_TYPES.GRC20 && !isGnoswapEmissionTransfer(transfer),
   );
@@ -38,7 +44,6 @@ const TransactionMessageSummary = ({ summary, isDesktop, embedded = false }: Pro
         label="GRC-20 Transferred"
         transfers={grc20Transfers}
         netTransfers={grc20NetTransfers}
-        isDesktop={isDesktop}
         embedded={embedded}
       />
     </SummaryWrapper>
@@ -86,11 +91,10 @@ interface TransferGroupProps {
   label: string;
   transfers: AssetTransfer[];
   netTransfers: NetTransfer[];
-  isDesktop: boolean;
   embedded: boolean;
 }
 
-const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: TransferGroupProps) => {
+const TransferGroup = ({ label, transfers, netTransfers, embedded }: TransferGroupProps) => {
   const hasAll = transfers.length > 0;
   const hasNet = netTransfers.length > 0;
 
@@ -109,7 +113,7 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: 
   );
 
   return (
-    <TopAlignedDLWrap desktop={isDesktop} $embedded={embedded}>
+    <TopAlignedDLWrap $embedded={embedded}>
       <dt>{label}</dt>
       <dd>
         <Content>
@@ -190,18 +194,33 @@ const TransferGroup = ({ label, transfers, netTransfers, isDesktop, embedded }: 
 // blow up the label into a 200px-tall empty box instead of stacking normally.
 const TopAlignedDLWrap = styled(DLWrap)<{ $embedded: boolean }>`
   align-items: flex-start !important;
-  gap: ${({ $embedded, desktop }) => ($embedded ? (desktop ? "24px" : "12px") : "0px")};
+  gap: ${({ $embedded }) => ($embedded ? "12px" : "0px")};
 
   dt {
-    flex: ${({ $embedded, desktop }) => ($embedded && desktop ? "0 0 200px" : "initial")};
+    flex: initial;
     color: ${({ theme, $embedded }) => ($embedded ? theme.colors.primary : theme.colors.tertiary)};
     ${({ theme, $embedded }) => $embedded && theme.fonts.p3};
   }
 
   dd {
-    width: ${({ $embedded, desktop }) => ($embedded && desktop ? "auto" : "100%")};
-    flex: ${({ $embedded, desktop }) => ($embedded && desktop ? "0 1 auto" : "initial")};
+    width: 100%;
+    flex: initial;
   }
+
+  ${({ $embedded }) =>
+    $embedded &&
+    css`
+      ${media.DESKTOP} {
+        gap: 24px;
+        dt {
+          flex: 0 0 200px;
+        }
+        dd {
+          width: auto;
+          flex: 0 1 auto;
+        }
+      }
+    `}
 `;
 
 // Figma places a 1px separator 16px above the GRC-20 transfer row.
@@ -263,10 +282,7 @@ const List = styled.ul<{ $embedded: boolean }>`
   gap: 6px;
 
   li {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
+    ${summaryLineCss}
     ${({ theme }) => theme.fonts.p4};
   }
 `;

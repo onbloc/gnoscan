@@ -1,6 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { RealmListSortOption } from "@/common/types/realm";
 
@@ -8,7 +7,6 @@ import CustomNetworkRealmsData from "@/components/view/realms/realm-data/CustomN
 import StandardNetworkRealmsData from "@/components/view/realms/realm-data/StandardNetworkRealmsData";
 
 const RealmListContainer = () => {
-  const { breakpoint } = useWindowSize();
   const { isCustomNetwork } = useNetworkProvider();
 
   const [sortOption, setSortOption] = React.useState<RealmListSortOption>({
@@ -17,9 +15,9 @@ const RealmListContainer = () => {
   });
 
   return isCustomNetwork ? (
-    <CustomNetworkRealmsData breakpoint={breakpoint} sortOption={sortOption} setSortOption={setSortOption} />
+    <CustomNetworkRealmsData sortOption={sortOption} setSortOption={setSortOption} />
   ) : (
-    <StandardNetworkRealmsData breakpoint={breakpoint} sortOption={sortOption} setSortOption={setSortOption} />
+    <StandardNetworkRealmsData sortOption={sortOption} setSortOption={setSortOption} />
   );
 };
 

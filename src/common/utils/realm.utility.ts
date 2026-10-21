@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const GRC20_FUNCTIONS = ["TotalSupply", "BalanceOf", "Transfer", "Allowance", "Approve", "TransferFrom"];
 
 export function parseGRC20InfoByFile(file: string): {
@@ -104,13 +103,14 @@ export function parseBankerGRC20InfoByFile(file: string): {
   }
 }
 
+/**
+ * Reads the `path` query param from a realm details URL such as `router.asPath`.
+ * URLSearchParams decodes "%2F" from the /search redirect and keeps malformed "%" as is.
+ */
 export function parseRealmPath(url: string) {
-  if (!url.includes("path=")) {
-    return "";
-  }
-  const params = url.split("path=");
-  if (params.length < 2) return "";
+  const [beforeHash] = url.split("#");
+  const queryStart = beforeHash.indexOf("?");
+  if (queryStart < 0) return "";
 
-  const realmPath = params[1].split("&")[0];
-  return realmPath;
+  return new URLSearchParams(beforeHash.slice(queryStart + 1)).get("path") ?? "";
 }

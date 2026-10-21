@@ -1,36 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import styled from "styled-components";
-import theme from "@/styles/theme";
 import { DatatableItem } from "..";
-import { useRecoilValue } from "recoil";
-import { themeState } from "@/states";
+import { FlushTableContainer } from "../datatable.styles";
 import { useGetTokenHoldersByid, useGetTokenById } from "@/common/react-query/token/api";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
-import { useWindowSize } from "@/common/hooks/use-window-size";
 import { TokenHolderModel } from "@/models/api/token/token-holder-model";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
+import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 import { TokenHolder } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 
 interface Props {
   path: string[] | any;
 }
 
 export const TokenHoldersDatatablePage = ({ path }: Props) => {
-  const themeMode = useRecoilValue(themeState);
-  const { breakpoint } = useWindowSize();
-
   const { data: tokenData } = useGetTokenById(path);
   const { getTokenMeta } = useTokenResourceMeta();
   const backendMeta = tokenData?.data ?? { decimals: 0, symbol: "" };
   const resolved = tokenData?.data?.path
-    ? getTokenMeta(tokenData.data.path, {
+    ? getTokenMeta(tokenData.data.tokenId || tokenData.data.path, {
         name: tokenData.data.name,
         symbol: tokenData.data.symbol,
         decimals: tokenData.data.decimals,
@@ -50,7 +42,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
       return {
         rank: index + 1,
         address: item.address,
-        nameTag: item.nameTag,
+        nameTag: getAddressNameTag(item),
         label: item.label,
         labelType: item.labelType,
         balance: {
@@ -90,7 +82,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
       .width(275)
       .colorName("blue")
       .renderOption((_, data) => (
-        <DatatableItem.CallerCopy caller={data.address} label={data.label} labelType={data.labelType} />
+        <DatatableItem.AddressCopy address={data.address} label={data.label} labelType={data.labelType} />
       ))
       .build();
   };
@@ -125,52 +117,9 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   };
 
   return (
-    <Container>
-      <Datatable
-        loading={!isFetchedHolders}
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={tokenHolders as TokenHolder[]}
-      />
-      {hasNextPage ? (
-        <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
-          {"View More Holders"}
-        </Button>
-      ) : (
-        <></>
-      )}
-    </Container>
+    <FlushTableContainer>
+      <Datatable loading={!isFetchedHolders} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
+      {hasNextPage && <ViewMoreButton variant="table" text="View More Holders" onClick={() => fetchNextPage()} />}
+    </FlushTableContainer>
   );
 };
-
-const Container = styled.div<{ maxWidth?: number }>`
-  & {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    align-items: center;
-
-    & > div {
-      padding: 0;
-    }
-
-    .more-button {
-      width: 100%;
-      padding: 16px;
-      color: ${({ theme }) => theme.colors.primary};
-      background-color: ${({ theme }) => theme.colors.surface};
-      ${theme.fonts.p4}
-      font-weight: 600;
-      margin-top: 24px;
-
-      &.desktop {
-        width: 344px;
-      }
-    }
-  }
-`;

@@ -1,7 +1,8 @@
 import {
   formatTokenDecimal,
-  formatDisplayTokenPath,
   resolveTokenMeta,
+  findByTokenKey,
+  parseTokenKey,
   isWugnotPackagePath,
   stripGnoLandPrefix,
 } from "./token.utility";
@@ -104,95 +105,6 @@ describe("formatTokenDecimal", () => {
   });
 });
 
-describe("formatDisplayTokenPath", () => {
-  describe("Normal Cases", () => {
-    it("should format path with default visibleLength (8)", () => {
-      const input = "r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
-      const expected = "r/g1edq4du...cgleuc8p/USDC";
-      expect(formatDisplayTokenPath(input)).toBe(expected);
-    });
-
-    it("should format path with custom visibleLength", () => {
-      const input = "r/g1edq4dugw0sgat4zxcw9xardvuydqf6cgleuc8p/USDC";
-      const expected = "r/g1ed...uc8p/USDC";
-      expect(formatDisplayTokenPath(input, 4)).toBe(expected);
-    });
-  });
-
-  describe("Edge Cases", () => {
-    it("should return original path for null input", () => {
-      const input = null;
-      // @ts-expect-error formatDisplayTokenPath expects string type
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path for undefined input", () => {
-      const input = undefined;
-      // @ts-expect-error formatDisplayTokenPath expects string type
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path for non-string input", () => {
-      const input = 123;
-      // @ts-expect-error formatDisplayTokenPath expects string type
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-  });
-
-  describe("Invalid Format Cases", () => {
-    it("should return original path when not starting with r/", () => {
-      const input = "wrong/path/format";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path when missing token name", () => {
-      const input = "r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should return original path for malformed input", () => {
-      const input = "r//USDC";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-  });
-
-  describe("Boundary Value Tests", () => {
-    it("should handle empty string input", () => {
-      expect(formatDisplayTokenPath("")).toBe("");
-    });
-
-    it("should handle path with minimum valid format", () => {
-      const input = "r/a/b";
-      expect(formatDisplayTokenPath(input)).toBe(input);
-    });
-
-    it("should handle path with exactly twice the visibleLength", () => {
-      const input = "r/1234567890123456/TOKEN";
-      expect(formatDisplayTokenPath(input, 8)).toBe(input);
-    });
-  });
-
-  describe("Various VisibleLength Tests", () => {
-    const input = "r/g1jg2mtutu9khhfwc4nxmuhcpftf0pajfja1azs1/USDC";
-
-    it("should handle zero visibleLength", () => {
-      expect(formatDisplayTokenPath(input, 0)).toBe(input);
-    });
-
-    it("should handle negative visibleLength", () => {
-      expect(formatDisplayTokenPath(input, -1)).toBe(input);
-    });
-
-    it("should handle large visibleLength", () => {
-      expect(formatDisplayTokenPath(input, 20)).toBe(input);
-    });
-
-    it("should handle visibleLength larger than address length", () => {
-      expect(formatDisplayTokenPath(input, 100)).toBe(input);
-    });
-  });
-});
-
 describe("stripGnoLandPrefix", () => {
   it("should strip the gno.land/ prefix", () => {
     expect(stripGnoLandPrefix("gno.land/r/gnoswap/emission")).toBe("r/gnoswap/emission");
@@ -215,6 +127,12 @@ describe("stripGnoLandPrefix", () => {
 });
 
 describe("resolveTokenMeta", () => {
+  it("names the GNFT collection even though neither source has a symbol", () => {
+    const fallback = { name: "", symbol: "", decimals: 0 };
+    expect(resolveTokenMeta({}, "gno.land/r/gnoswap/gnft.GNFT.0000000", fallback).symbol).toBe("GNFT");
+    expect(resolveTokenMeta({}, "gno.land/r/gnoswap/gnft", fallback).symbol).toBe("GNFT");
+  });
+
   const fallback = { name: "Backend Name", symbol: "BKD", decimals: 6, image: "backend.png" };
 
   it("uses the resource entry (all fields) when the token key matches directly", () => {
@@ -290,6 +208,69 @@ describe("resolveTokenMeta", () => {
     const result = resolveTokenMeta({}, "gno.land/r/other/token", { ...fallback, decimals: 0 });
 
     expect(result.decimals).toBe(0);
+  });
+});
+
+describe("parseTokenKey", () => {
+  it("splits a tokenId into packagePath, symbol and token path", () => {
+    expect(parseTokenKey("gno.land/r/demo/pad.GDOG.0000002")).toEqual({
+      packagePath: "gno.land/r/demo/pad",
+      symbol: "GDOG",
+      tokenPath: "gno.land/r/demo/pad.GDOG",
+    });
+  });
+
+  it("parses a token path and a bare packagePath", () => {
+    expect(parseTokenKey("gno.land/r/demo/pad.GDOG").symbol).toBe("GDOG");
+    expect(parseTokenKey("gno.land/r/demo/pad")).toEqual({
+      packagePath: "gno.land/r/demo/pad",
+      symbol: "",
+      tokenPath: "gno.land/r/demo/pad",
+    });
+  });
+
+  it("keeps a native denom as-is", () => {
+    expect(parseTokenKey("ugnot")).toEqual({ packagePath: "ugnot", symbol: "", tokenPath: "ugnot" });
+  });
+});
+
+describe("findByTokenKey", () => {
+  const FACTORY = "gno.land/r/demo/defi/grc20factory";
+  const perun = { name: "Perun", symbol: "PERUN", decimals: 6, image: "perun.svg", tokenPath: `${FACTORY}.PERUN` };
+  // Mirrors useTokenResourceMeta: keyed by both pkg_path and token_path.
+  const resourceMap = { [FACTORY]: perun, [`${FACTORY}.PERUN`]: perun };
+
+  it("matches a token by tokenId, token path or bare packagePath", () => {
+    expect(findByTokenKey(resourceMap, `${FACTORY}.PERUN.0000001`)).toBe(perun);
+    expect(findByTokenKey(resourceMap, `${FACTORY}.PERUN`)).toBe(perun);
+    expect(findByTokenKey(resourceMap, FACTORY)).toBe(perun);
+  });
+
+  it("does not match another token hosted by the same realm", () => {
+    expect(findByTokenKey(resourceMap, `${FACTORY}.MOULTEST.0000002`)).toBeUndefined();
+    expect(findByTokenKey(resourceMap, `${FACTORY}.MOULTEST`)).toBeUndefined();
+  });
+
+  it("falls back to the packagePath entry of the same token, ignoring symbol case", () => {
+    expect(findByTokenKey({ [FACTORY]: perun }, `${FACTORY}.perun.0000001`)).toBe(perun);
+  });
+
+  it("compares by symbol when the entry has no token path", () => {
+    const gdog = { symbol: "GDOG", decimals: 0 };
+    const map = { "gno.land/r/demo/pad": gdog };
+
+    expect(findByTokenKey(map, "gno.land/r/demo/pad.GDOG")).toBe(gdog);
+    expect(findByTokenKey(map, "gno.land/r/demo/pad.DABUTT")).toBeUndefined();
+  });
+
+  it("returns undefined for an empty key", () => {
+    expect(findByTokenKey(resourceMap, "")).toBeUndefined();
+  });
+
+  it("keeps the backend meta for the other factory token in resolveTokenMeta", () => {
+    const fallback = { name: "moultest", symbol: "MOULTEST", decimals: 6, image: undefined };
+
+    expect(resolveTokenMeta(resourceMap, `${FACTORY}.MOULTEST.0000002`, fallback)).toEqual(fallback);
   });
 });
 

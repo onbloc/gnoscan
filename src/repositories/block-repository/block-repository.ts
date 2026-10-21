@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BlockInfo, BlockMeta } from "@gnolang/tm2-js-client";
 
 import { BlockResults, NodeRPCClient } from "@/common/clients/node-client";
@@ -37,7 +36,7 @@ export class BlockRepository implements IBlockRepository {
 
     return this.nodeRPCClient
       .blockResults(height)
-      .then(result => result.results)
+      .then(({ results }) => ({ ...results, deliver_tx: results.deliver_tx ?? [] }))
       .catch(() => null);
   }
 

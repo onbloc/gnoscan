@@ -18,6 +18,8 @@ interface TooltipProps {
   copyText?: string;
   contentWidth?: string;
   visible?: boolean;
+  // Also open on keyboard focus (hover trigger only)
+  openOnFocus?: boolean;
 }
 
 const Tooltip = ({
@@ -28,6 +30,7 @@ const Tooltip = ({
   width,
   copyText = "",
   visible = true,
+  openOnFocus = false,
 }: TooltipProps) => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const themeMode = useRecoilValue(themeState);
@@ -71,21 +74,25 @@ const Tooltip = ({
   return (
     <Wrapper className={className}>
       {trigger === "click" ? (
-        <AntdTooltip
-          zIndex={zindex.tooltip}
-          trigger="click"
-          overlayInnerStyle={getTooltipStyle(width, 8)}
-          color={getCurrentTheme().base}
-          title={<TooltipWrapper>{content}</TooltipWrapper>}
-          open={isClicked}
-          onOpenChange={clickTimer}
-        >
-          <div className="tooltip-button cursor">{children}</div>
-        </AntdTooltip>
+        <>
+          <AntdTooltip
+            zIndex={zindex.tooltip}
+            trigger="click"
+            overlayInnerStyle={getTooltipStyle(width, 8)}
+            color={getCurrentTheme().base}
+            title={<TooltipWrapper>{content}</TooltipWrapper>}
+            open={isClicked}
+            onOpenChange={clickTimer}
+          >
+            <div className="tooltip-button cursor">{children}</div>
+          </AntdTooltip>
+          {/* The popup is not tied to its trigger, so announce the click result (e.g. "Copied!") here. */}
+          <ClickStatus role="status">{isClicked ? content : null}</ClickStatus>
+        </>
       ) : (
         <AntdTooltip
           zIndex={zindex.tooltip}
-          trigger="hover"
+          trigger={openOnFocus ? ["hover", "focus"] : "hover"}
           overlayInnerStyle={getTooltipStyle(width, 16)}
           color={getCurrentTheme().base}
           title={<TooltipWrapper>{content}</TooltipWrapper>}
@@ -115,9 +122,30 @@ const Wrapper = styled.div`
   }
 `;
 
+// Visually hidden but still read by screen readers
+const ClickStatus = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+`;
+
 const TooltipWrapper = styled.div`
   word-break: keep-all;
   text-align: center;
+`;
+
+// Bound the tooltip to its container so long text gets the CSS ellipsis
+export const EllipsisTooltip = styled(Tooltip)`
+  max-width: 100%;
+  min-width: 0;
+
+  .tooltip-button,
+  a {
+    min-width: 0;
+  }
 `;
 
 export default Tooltip;

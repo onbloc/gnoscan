@@ -1,19 +1,17 @@
-"use client";
 import React from "react";
-import { useRecoilValue } from "recoil";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { themeState } from "@/states";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { mapDisplayFunctionName } from "@/common/utils/format/format-utils";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 
-import * as S from "./StandardNetworkTransactionListTable.styles";
+import { TooltipContainer } from "../TransactionListTable.styles";
+import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { TransactionModel } from "@/models/api/transaction/transaction-model";
+import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
 
 const TOOLTIP_TYPE = (
   <>
@@ -24,7 +22,6 @@ const TOOLTIP_TYPE = (
 );
 
 interface StandardNetworkTransactionListTableProps {
-  breakpoint: DEVICE_TYPE;
   transactions: TransactionModel[];
   hasNextPage?: boolean;
   isFetched: boolean;
@@ -33,15 +30,12 @@ interface StandardNetworkTransactionListTableProps {
 }
 
 export const StandardNetworkTransactionListTable = ({
-  breakpoint,
   transactions,
   hasNextPage,
   nextPage,
   isFetched,
   isLoading,
 }: StandardNetworkTransactionListTableProps) => {
-  const themeMode = useRecoilValue(themeState);
-
   const createHeaders = () => {
     return [
       createHeaderTxHash(),
@@ -73,9 +67,9 @@ export const StandardNetworkTransactionListTable = ({
       .name("Function")
       .width(190)
       .colorName("blue")
-      .tooltip(<S.TooltipContainer>{TOOLTIP_TYPE}</S.TooltipContainer>)
+      .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => {
-        const func = data.func && data.func.length > 0 ? data.func[0] : null;
+        const func = getRepresentativeTransactionFunction(data);
         if (!func) return "-";
 
         const displayFunctionName = mapDisplayFunctionName(func.pkgPath, func.funcType);
@@ -167,25 +161,13 @@ export const StandardNetworkTransactionListTable = ({
   if (isLoading || !isFetched) return <TableSkeleton />;
 
   return (
-    <S.Container>
-      <Datatable
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={transactions}
-      />
-      {hasNextPage ? (
+    <CardTableContainer>
+      <Datatable headers={createHeaders()} datas={transactions} />
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
-            {"View More Transactions"}
-          </Button>
+          <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />
         </div>
-      ) : (
-        <></>
       )}
-    </S.Container>
+    </CardTableContainer>
   );
 };

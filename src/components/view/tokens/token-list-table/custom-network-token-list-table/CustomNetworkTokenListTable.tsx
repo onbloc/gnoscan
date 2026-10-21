@@ -1,19 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import React from "react";
-import { useRecoilValue } from "recoil";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { themeState } from "@/states";
 
-import * as S from "./CustomNetworkTokenListTable.styles";
+import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../../datatable";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20Info } from "@/repositories/realm-repository.ts";
-import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 
 const TOOLTIP_PACAKGE_PATH = (
   <>
@@ -23,21 +18,13 @@ const TOOLTIP_PACAKGE_PATH = (
 );
 
 interface TokenListTableProps {
-  breakpoint: DEVICE_TYPE;
-  tokens: GRC20Info[] | GRC20InfoWithLogo[];
+  tokens: GRC20Info[];
   hasNextPage: boolean;
   isFetched: boolean;
   nextPage: () => void;
 }
 
-export const CustomNetworkTokenListTable = ({
-  breakpoint,
-  tokens,
-  hasNextPage,
-  isFetched,
-  nextPage,
-}: TokenListTableProps) => {
-  const themeMode = useRecoilValue(themeState);
+export const CustomNetworkTokenListTable = ({ tokens, hasNextPage, isFetched, nextPage }: TokenListTableProps) => {
   const { indexerQueryClient } = useNetworkProvider();
 
   const createHeaders = () => {
@@ -101,7 +88,7 @@ export const CustomNetworkTokenListTable = ({
   };
 
   const createHeaderPkgPath = () => {
-    return DatatableOption.Builder.builder<GRC20Info | GRC20InfoWithLogo>()
+    return DatatableOption.Builder.builder<GRC20Info>()
       .key("packagePath")
       .name("Path")
       .width(176)
@@ -116,26 +103,13 @@ export const CustomNetworkTokenListTable = ({
   if (!isFetched) return <TableSkeleton />;
 
   return (
-    <S.Container>
-      <Datatable
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
-        datas={tokens}
-        supported={!!indexerQueryClient}
-      />
-      {hasNextPage ? (
+    <CardTableContainer>
+      <Datatable headers={createHeaders()} datas={tokens} supported={!!indexerQueryClient} />
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => nextPage()}>
-            {"View More Tokens"}
-          </Button>
+          <ViewMoreButton variant="table" text="View More Tokens" onClick={() => nextPage()} />
         </div>
-      ) : (
-        <></>
       )}
-    </S.Container>
+    </CardTableContainer>
   );
 };

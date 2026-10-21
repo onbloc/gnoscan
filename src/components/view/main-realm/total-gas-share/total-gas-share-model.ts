@@ -1,4 +1,4 @@
-import { ValueWithDenomType } from "@/types/data-type";
+import { Amount } from "@/types/data-type";
 import BigNumber from "bignumber.js";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
@@ -23,7 +23,7 @@ export class TotalGasShareModel {
   constructor(
     responseDatas: Array<{
       date: string;
-      daily_total_fee: ValueWithDenomType;
+      daily_total_fee: Amount;
       packages: Array<{
         path: string;
         daily_fee: number;
@@ -116,7 +116,7 @@ export class TotalGasShareModel {
     packages,
   }: {
     date: string;
-    daily_total_fee: ValueWithDenomType;
+    daily_total_fee: Amount;
     packages: Array<{
       path: string;
       daily_fee: number;

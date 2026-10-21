@@ -1,18 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import React from "react";
-import { useRecoilValue } from "recoil";
 
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
-import { themeState } from "@/states";
 import { RealmListSortOption } from "@/common/types/realm";
 import { Realm } from "@/types/data-type";
 
-import * as S from "./CustomNetworkRealmListTable.styles";
+import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../../datatable";
-import { Button } from "@/components/ui/button";
+import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 
 const TOOLTIP_PATH = (
@@ -23,7 +19,6 @@ const TOOLTIP_PATH = (
 );
 
 interface RealmListTableProps {
-  breakpoint: DEVICE_TYPE;
   sortOption: RealmListSortOption;
   realms: Realm[];
   isFetched: boolean;
@@ -36,7 +31,6 @@ interface RealmListTableProps {
 }
 
 export const CustomNetworkRealmListTable = ({
-  breakpoint,
   sortOption,
   setSortOption,
   realms,
@@ -47,7 +41,6 @@ export const CustomNetworkRealmListTable = ({
   defaultFromHeight,
   getName,
 }: RealmListTableProps) => {
-  const themeMode = useRecoilValue(themeState);
   const { indexerQueryClient } = useNetworkProvider();
 
   const createHeaders = () => {
@@ -141,29 +134,20 @@ export const CustomNetworkRealmListTable = ({
   if (!isFetched) return <TableSkeleton />;
 
   return (
-    <S.Container>
+    <CardTableContainer>
       <Datatable
-        headers={createHeaders().map(item => {
-          return {
-            ...item,
-            themeMode: themeMode,
-          };
-        })}
+        headers={createHeaders()}
         datas={realms || []}
         sortOption={sortOption}
         setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
 
-      {hasNextPage ? (
+      {hasNextPage && (
         <div className="button-wrapper">
-          <Button className={`more-button ${breakpoint}`} radius={"4px"} onClick={() => fetchNextPage()}>
-            {"View More Realms"}
-          </Button>
+          <ViewMoreButton variant="table" text="View More Realms" onClick={() => fetchNextPage()} />
         </div>
-      ) : (
-        <></>
       )}
-    </S.Container>
+    </CardTableContainer>
   );
 };

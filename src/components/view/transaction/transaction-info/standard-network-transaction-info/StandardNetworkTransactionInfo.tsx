@@ -19,14 +19,12 @@ import TransactionTopSummary from "../../transaction-message-summary/Transaction
 interface TransactionInfoProps {
   txHash: string;
   currentTab: string;
-  isDesktop: boolean;
   setCurrentTab: (tab: string) => void;
   getUrlWithNetwork: (uri: string) => string;
 }
 
 const StandardNetworkTransactionInfo = ({
   txHash,
-  isDesktop,
   currentTab,
   setCurrentTab,
   getUrlWithNetwork,
@@ -106,7 +104,6 @@ const StandardNetworkTransactionInfo = ({
         (isPending ? (
           <TransactionContractDetails
             transactionItem={apiTransaction.transactionItem}
-            isDesktop={isDesktop}
             getUrlWithNetwork={getUrlWithNetwork}
             getTokenAmount={getTokenAmount}
           />
@@ -116,12 +113,10 @@ const StandardNetworkTransactionInfo = ({
               messages={txContracts.messages}
               numOfMessage={txContracts.numOfMessage}
               summary={apiTransaction?.summary}
-              isDesktop={isDesktop}
             />
             <StandardNetworkTransactionContractDetails
               transactionItem={txContracts}
               rawTransaction={transactionItem}
-              isDesktop={isDesktop}
               getUrlWithNetwork={getUrlWithNetwork}
               storageDepositInfo={storageDepositInfo}
             />

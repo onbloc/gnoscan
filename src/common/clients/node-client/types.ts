@@ -47,7 +47,8 @@ export interface NodeResponseBlock {
 
 export interface NodeResponseBlockResults {
   height: string;
-  results: BlockResults;
+  // the node sends deliver_tx as null for blocks without txs
+  results: Omit<BlockResults, "deliver_tx"> & { deliver_tx: DeliverTx[] | null };
 }
 
 export interface NodeResponseBlockchainInfo {
@@ -126,7 +127,7 @@ interface PreCommit {
 }
 
 export interface BlockResults {
-  deliver_tx: DeliverTx[] | null;
+  deliver_tx: DeliverTx[];
   end_block: Endblock;
   begin_block: BeginBlock;
 }
@@ -142,7 +143,7 @@ interface Endblock {
   Events: Event[] | null;
 }
 
-interface DeliverTx {
+export interface DeliverTx {
   ResponseBase: ResponseBase;
   GasWanted: string;
   GasUsed: string;

@@ -3,19 +3,15 @@ import React from "react";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { TransactionContractMessagesProps } from "@/models/api/transaction";
-import { AmountBadge, BadgeTooltipProps } from "../../common/TransactionMessageFields";
+import { AmountBadge, AddressLink, BadgeText, Field } from "@/components/ui/detail-field";
+import { BadgeTooltipProps } from "../../common/TransactionMessageFields";
 
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import ShowLog from "@/components/ui/show-log";
-import { AddressLink, BadgeList, BadgeText, Field, HoverBadgeList } from "@/components/view/transaction/common";
+import { BadgeList, HoverBadgeList } from "@/components/view/transaction/common";
 import { Amount } from "@/types";
 
-const StandardNetworkMsgRunMessage = ({
-  isDesktop,
-  message,
-  files = [],
-  getUrlWithNetwork,
-}: TransactionContractMessagesProps) => {
+const StandardNetworkMsgRunMessage = ({ message, files = [], getUrlWithNetwork }: TransactionContractMessagesProps) => {
   const calledFunctions: BadgeTooltipProps[] | null = React.useMemo(() => {
     if (!message?.calledFunctions) return null;
 
@@ -41,15 +37,15 @@ const StandardNetworkMsgRunMessage = ({
 
   return (
     <>
-      <Field label="Type" isDesktop={isDesktop}>
+      <Field label="Type">
         <BadgeText>{MESSAGE_TYPES.VM_RUN}</BadgeText>
       </Field>
 
-      <Field label="Pkg Name" isDesktop={isDesktop}>
+      <Field label="Pkg Name">
         <BadgeText>{message.name || "-"}</BadgeText>
       </Field>
 
-      <Field label="Caller" isDesktop={isDesktop}>
+      <Field label="Caller">
         <AddressLink
           address={message.caller || ""}
           addressName={message.callerName}
@@ -60,12 +56,12 @@ const StandardNetworkMsgRunMessage = ({
         />
       </Field>
 
-      <Field label="Files" isDesktop={isDesktop} className="top-aligned" contentClassName="files-wrapper">
+      <Field label="Files" className="top-aligned" contentClassName="files-wrapper">
         <BadgeList items={message?.files} />
-        {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Files" />}
+        {files && files?.length > 0 && <ShowLog isTabLog={true} files={files} />}
       </Field>
 
-      <Field label="Called Functions" isDesktop={isDesktop}>
+      <Field label="Called Functions">
         <HoverBadgeList
           items={calledFunctions}
           linkUrl={"/realms/details?path="}
@@ -74,11 +70,11 @@ const StandardNetworkMsgRunMessage = ({
         />
       </Field>
 
-      <Field label="Send" isDesktop={isDesktop}>
+      <Field label="Send">
         <AmountBadge amount={send} />
       </Field>
 
-      <Field label="Max_Deposit" isDesktop={isDesktop}>
+      <Field label="Max_Deposit">
         <AmountBadge amount={maxDeposit} />
       </Field>
     </>

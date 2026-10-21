@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
-
 import { useNetwork } from "@/common/hooks/use-network";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
@@ -14,30 +12,27 @@ interface TransactionSummaryContainerProps {
 }
 
 const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProps) => {
-  const { isDesktop } = useWindowSize();
   const { getUrlWithNetwork } = useNetwork();
   const { isCustomNetwork } = useNetworkProvider();
 
   const { transaction, isFetched: isFetchedTxRpcData } = useTransaction(txHash);
-  const { blockResult, transactionItem } = transaction;
+  const { txResult, transactionItem } = transaction;
 
   const blockResultLog = React.useMemo(() => {
     if (transactionItem?.success) return null;
 
     try {
-      return JSON.stringify(blockResult, null, 2);
+      return JSON.stringify(txResult, null, 2);
     } catch {
       return null;
     }
-  }, [transactionItem, blockResult]);
+  }, [transactionItem, txResult]);
 
   const txErrorType: string = React.useMemo(() => {
     if (transactionItem?.success) return "";
 
-    if (!blockResult || !blockResult?.deliver_tx) return "";
-
-    return blockResult.deliver_tx[0]?.ResponseBase?.Error?.["@type"] || "";
-  }, [transactionItem?.success, blockResult]);
+    return txResult?.ResponseBase?.Error?.["@type"] || "";
+  }, [transactionItem?.success, txResult]);
 
   return isCustomNetwork ? (
     <CustomNetworkTransactionSummary
@@ -45,7 +40,6 @@ const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProp
       transactionSummaryInfo={transaction}
       txErrorType={txErrorType}
       isFetchedTxRpcData={isFetchedTxRpcData}
-      isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
     />
   ) : (
@@ -53,7 +47,6 @@ const TransactionSummaryContainer = ({ txHash }: TransactionSummaryContainerProp
       txHash={txHash}
       blockResultLog={blockResultLog}
       txErrorType={txErrorType}
-      isDesktop={isDesktop}
       getUrlWithNetwork={getUrlWithNetwork}
     />
   );

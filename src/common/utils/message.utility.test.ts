@@ -1,4 +1,5 @@
-import { getTransactionMessageType } from "./message.utility";
+import { getSummaryCaller, getTransactionMessageType } from "./message.utility";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { TransactionContractModel } from "@/repositories/api/transaction/response";
 import {
   MESSAGE_TYPES,
@@ -120,5 +121,44 @@ describe("package approval message type guards", () => {
     expect(isRejectPackageMessageType(MESSAGE_TYPES.VM_REJECT_PACKAGE)).toBe(true);
     expect(isRejectPackageMessageType(MESSAGE_TYPES.VM_ENABLE_PACKAGE)).toBe(false);
     expect(isRejectPackageMessageType(null)).toBe(false);
+  });
+});
+
+const contract = (fields: Partial<TransactionContractModel>) => fields as TransactionContractModel;
+
+describe("getSummaryCaller", () => {
+  it("returns the caller with its label first", () => {
+    expect(
+      getSummaryCaller(
+        contract({
+          caller: "g1caller",
+          callerLabel: "Kraken #1",
+          callerLabelType: ADDRESS_LABEL_TYPE.EXCHANGE,
+          from: "g1from",
+          fromLabel: "KuCoin #1",
+        }),
+      ),
+    ).toEqual({ address: "g1caller", label: "Kraken #1", labelType: ADDRESS_LABEL_TYPE.EXCHANGE });
+  });
+
+  it("falls back to from, then creator, keeping the matching label", () => {
+    expect(getSummaryCaller(contract({ from: "g1from", fromLabel: "KuCoin #1" }))).toEqual({
+      address: "g1from",
+      label: "KuCoin #1",
+      labelType: undefined,
+    });
+    expect(
+      getSummaryCaller(
+        contract({
+          creator: "g1creator",
+          creatorLabel: "gno.land/r/demo/foo",
+          creatorLabelType: ADDRESS_LABEL_TYPE.REALM,
+        }),
+      ),
+    ).toEqual({ address: "g1creator", label: "gno.land/r/demo/foo", labelType: ADDRESS_LABEL_TYPE.REALM });
+  });
+
+  it("returns an empty address when none is present", () => {
+    expect(getSummaryCaller(contract({}))).toEqual({ address: "" });
   });
 });

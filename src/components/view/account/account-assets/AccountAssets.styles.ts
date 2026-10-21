@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
+import { DEVICE_TYPE, media } from "@/common/values/ui.constant";
 
-import Text from "@/components/ui/text";
+import { ASSET_GRID_GAP } from "./account-assets.utility";
 
-export const Card = styled.div<{ breakpoint: DEVICE_TYPE }>`
+export const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -14,51 +14,38 @@ export const Card = styled.div<{ breakpoint: DEVICE_TYPE }>`
   background-color: ${({ theme }) => theme.colors.base};
   border-radius: 10px;
   width: 100%;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "24px" : "16px")};
+  padding: 16px;
+
+  ${media.DESKTOP} {
+    padding: 24px;
+  }
 `;
 
 export const GridLayout = styled.div<{ breakpoint: DEVICE_TYPE }>`
   width: 100%;
+  max-width: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "1146px" : "none")};
   display: grid;
-  grid-template-columns: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "repeat(2, 1fr)" : "1fr")};
+  grid-template-columns: ${({ breakpoint }) =>
+    breakpoint === DEVICE_TYPE.DESKTOP ? "repeat(2, minmax(0, 1fr))" : "minmax(0, 1fr)"};
   grid-template-rows: auto;
   grid-gap: 16px;
 `;
 
-export const Box = styled.div<{ breakpoint: DEVICE_TYPE }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
+// Masonry via 1px rows: each cell spans its measured height, so expanding one
+// cell only shifts its own column while the DOM stays row-major
+export const MasonryGrid = styled.div`
   width: 100%;
-  padding: ${({ breakpoint }) => (breakpoint === DEVICE_TYPE.DESKTOP ? "16px 24px" : "12px 16px")};
-
-  background-color: ${({ theme }) => theme.colors.surface};
-  border-radius: 4px;
+  max-width: 1146px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1px;
+  grid-auto-flow: row dense;
+  column-gap: ${ASSET_GRID_GAP}px;
+  align-items: start;
+  margin-bottom: -${ASSET_GRID_GAP}px;
 `;
 
-export const TokenInfo = styled.div`
+export const GridCell = styled.div`
   display: flex;
-  align-items: center;
-  jutify-content: center;
-  gap: 16px;
+  min-width: 0;
 `;
-
-export const LogoWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background-color ${({ theme }) => theme.colors.base}:
-  border-radius: 50%;
-
-  .logo-icon {
-    fill: ${({ theme }) => theme.colors.primary};
-  }
-  img {
-    width: 40px;
-    height: 40px;
-  }
-`;
-
-export const TokenName = styled(Text)``;

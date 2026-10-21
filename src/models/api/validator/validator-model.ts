@@ -9,6 +9,8 @@ export interface ValidatorModel {
 
   address: string;
 
+  operationAddress: string;
+
   votingPower: string;
 
   shareRate: string;

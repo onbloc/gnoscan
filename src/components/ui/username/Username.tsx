@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
-import { DEVICE_TYPE } from "@/common/values/ui.constant";
 import { makeTemplate } from "@/common/utils/template.utils";
 import { GNOWEB_USER_TEMPLATE } from "@/common/values/url.constant";
 import { GNOWEB_USER_DETAIL_PATH } from "@/common/values/url.constant";
@@ -19,9 +17,6 @@ interface UsernameProps {
 
 export const Username = ({ username, userUrl }: UsernameProps) => {
   const { gnoWebUrl } = useNetwork();
-  const { breakpoint } = useWindowSize();
-
-  const isDesktop = breakpoint === DEVICE_TYPE.DESKTOP;
 
   const handleGnoWebNavigation = React.useCallback(() => {
     if (!username) return;
@@ -43,11 +38,11 @@ export const Username = ({ username, userUrl }: UsernameProps) => {
 
   return (
     <>
-      <S.ContentWrapper isDesktop={isDesktop}>
+      <S.ContentWrapper>
         <Divider size={1} length={18} orientation="vertical" />
 
         <LinkWrapper onClick={handleGnoWebNavigation} rel="noreferrer">
-          <S.Username type="p4" color="blue" breakpoint={breakpoint}>
+          <S.Username type="p4" color="blue">
             {username}
             <IconLink />
           </S.Username>

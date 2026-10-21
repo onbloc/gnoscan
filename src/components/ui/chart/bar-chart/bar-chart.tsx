@@ -1,12 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart, ChartData, ChartDataset, ChartOptions, TooltipModel } from "chart.js";
 import { BarChartTooltip } from "./bar-chart-tooltip";
 import { styled } from "@/styles";
-import theme from "@/styles/theme";
 import { useRecoilState } from "recoil";
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
+import {
+  createBaseChartOptions,
+  createExternalTooltipPlugins,
+  createValueAxisStyle,
+  getActiveTooltipElement,
+  getChartPalette,
+  tooltipAnchorStyle,
+  useHideTooltipOnScroll,
+} from "../chart-common";
 interface BarChartProps {
   labels: Array<string>;
   datas: Array<{ date: string; value: number }>;
@@ -25,12 +33,25 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
     value: "",
   });
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleTooltipVisible);
-    return () => {
-      window.removeEventListener("scroll", handleTooltipVisible);
-    };
-  }, [tooltipRef]);
+  const anchorRef = useRef({ left: 0, chartWidth: 0 });
+
+  useHideTooltipOnScroll(tooltipRef);
+
+  // Measures the tooltip as currently rendered so a wider value is clamped by its real width.
+  const positionTooltip = () => {
+    const tooltipElement = tooltipRef.current;
+    const { left, chartWidth } = anchorRef.current;
+    if (!tooltipElement || !chartWidth) {
+      return;
+    }
+
+    const { width } = tooltipElement.getBoundingClientRect();
+    const leftLimit = chartWidth - width + 20;
+    tooltipElement.style.left = (left + width > chartWidth ? leftLimit : left) + "px";
+  };
+
+  // Runs after a new value renders and before paint, so the clamp uses the updated width.
+  useLayoutEffect(positionTooltip, [currentValue]);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -39,30 +60,14 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
     }
   }, [chartRef, labels, datas]);
 
-  const handleTooltipVisible = () => {
-    if (tooltipRef.current) {
-      tooltipRef.current.style.opacity = "0";
-    }
-  };
-
-  const getThemePallet = () => {
-    return themeMode === "light" ? theme.lightTheme : theme.darkTheme;
-  };
-
   const renderExternalTooltip = (context: { chart: Chart<"bar">; tooltip: TooltipModel<"bar"> }) => {
     const { chart, tooltip } = context;
-
-    if (!tooltipRef.current) {
+    const currentTooltip = getActiveTooltipElement(tooltipRef, tooltip);
+    if (!currentTooltip) {
       return;
     }
-
-    const currentTooltip = tooltipRef.current;
 
     const tooltipModel = tooltip;
-    if (tooltipModel.opacity === 0) {
-      currentTooltip.style.opacity = "0";
-      return;
-    }
 
     if (tooltip.title[0] !== currentValue.title || tooltip.dataPoints[0].formattedValue !== currentValue.value) {
       setCurrentValue({
@@ -73,28 +78,21 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
 
     currentTooltip.style.opacity = "1";
 
-    const tooltipRect = currentTooltip.getBoundingClientRect();
     const position = chart.canvas.getBoundingClientRect();
     currentTooltip.style.position = "absolute";
     currentTooltip.style.marginTop = -position.height + "px";
 
-    const left = tooltipModel.caretX - tooltipModel.width / 2;
-    const leftLimit = position.width - tooltipRect.width + 20;
-    if (left + tooltipRect.width > position.width) {
-      currentTooltip.style.left = leftLimit + "px";
-    } else {
-      currentTooltip.style.left = left + "px";
-    }
+    anchorRef.current = { left: tooltipModel.caretX - tooltipModel.width / 2, chartWidth: position.width };
+    positionTooltip();
   };
 
   const createChartOption = (): ChartOptions<"bar"> => {
-    const themePallet = getThemePallet();
+    const themePallet = getChartPalette(themeMode);
     return {
-      responsive: true,
-      maintainAspectRatio: false,
-      aspectRatio: 2,
+      ...createBaseChartOptions(),
       scales: {
         yAxis: {
+          ...createValueAxisStyle(themePallet),
           ticks: {
             color: themePallet.tertiary,
             count: 5,
@@ -102,12 +100,6 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
               minimumFractionDigits: 0,
               maximumFractionDigits: 6,
             },
-          },
-          grid: {
-            color: themePallet.dimmed50,
-          },
-          border: {
-            dash: [4, 2],
           },
         },
         xAxis: {
@@ -119,24 +111,7 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
           },
         },
       },
-      interaction: {
-        mode: "index",
-        intersect: false,
-      },
-      plugins: {
-        legend: {
-          display: false,
-        },
-        title: {
-          display: false,
-        },
-        tooltip: {
-          enabled: false,
-          position: "average",
-          displayColors: false,
-          external: renderExternalTooltip,
-        },
-      },
+      plugins: createExternalTooltipPlugins(renderExternalTooltip),
     };
   };
 
@@ -144,7 +119,7 @@ export const BarChart = ({ labels, datas, isDenom }: BarChartProps) => {
     labels: Array<string>,
     datasets: Array<{ date: string; value: number }>,
   ): ChartData<"bar"> => {
-    const themePallet = getThemePallet();
+    const themePallet = getChartPalette(themeMode);
     if (!chartRef.current || !labels || !datasets) {
       return { labels: [], datasets: [] };
     }
@@ -197,10 +172,7 @@ const Wrapper = styled.div`
     overflow: hidden;
 
     .tooltip-container {
-      position: absolute;
-      display: flex;
-      width: fit-content;
-      height: fit-content;
+      ${tooltipAnchorStyle};
       z-index: ${zindex.tooltip};
     }
   }

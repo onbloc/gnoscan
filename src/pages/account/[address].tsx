@@ -1,9 +1,10 @@
 import React from "react";
 import { useRouter } from "next/router";
 
-import AccountLayout from "@/layouts/account/AccountLayout";
+import AccountLayout, { AccountLayoutSkeleton } from "@/layouts/account/AccountLayout";
 import AccountAddressContainer from "@/containers/account/account-address-container/AccountAddressContainer";
 import AccountAssetsContainer from "@/containers/account/account-assets-container/AccountAssetsContainer";
+import AccountNftsContainer from "@/containers/account/account-nfts-container/AccountNftsContainer";
 import AccountTransactionsContainer from "@/containers/account/account-transactions-container/AccountTransactionsContainer";
 import { useGetValidatorByAddress } from "@/common/react-query/validator/api";
 import { useGetAccountByAddress } from "@/common/react-query/account/api/use-get-account-by-address";
@@ -15,29 +16,38 @@ export default function Page() {
   const router = useRouter();
   const { address: accountAddress } = router.query;
 
-  const address = accountAddress as string;
+  const address = typeof accountAddress === "string" ? accountAddress : "";
 
-  const { isCustomNetwork } = useNetworkProvider();
+  const { currentNetwork, isCustomNetwork } = useNetworkProvider();
   const { getUrlWithNetwork } = useNetwork();
 
-  const { data: validatorData, isFetched: isFetchedValidator } = useGetValidatorByAddress(address);
-
-  // Same rule the search bar uses: a realm address always goes to its realm page, regardless
-  // of a resolved name - unlike getAddressLinkPath's other callers, this isn't displaying text
-  // the link needs to match, so no name is passed in here.
-  const { data: accountData } = useGetAccountByAddress(address, {
-    enabled: !isCustomNetwork && !!address,
+  // Route realms by their label even when the address also has a resolved name.
+  const { data: accountData, isFetched: isFetchedAccount } = useGetAccountByAddress(address, {
+    enabled: router.isReady && !!currentNetwork && !isCustomNetwork && !!address,
   });
 
-  React.useEffect(() => {
-    if (isCustomNetwork || !address || !accountData?.data) return;
+  const linkPath =
+    !isCustomNetwork && accountData?.data
+      ? getAddressLinkPath({ address, label: accountData.data.label, labelType: accountData.data.labelType })
+      : null;
+  const realmDestination = linkPath?.startsWith("/realms/details") ? getUrlWithNetwork(linkPath) : null;
 
-    const { label, labelType } = accountData.data;
-    const linkPath = getAddressLinkPath({ address, label, labelType });
-    if (linkPath.startsWith("/realms/details")) {
-      router.replace(getUrlWithNetwork(linkPath));
+  React.useEffect(() => {
+    if (router.isReady && currentNetwork && realmDestination) {
+      void router.replace(realmDestination);
     }
-  }, [isCustomNetwork, address, accountData, getUrlWithNetwork, router]);
+  }, [router, currentNetwork, realmDestination]);
+
+  // Do not mount account panels (or start their queries) for an unresolved or realm address.
+  if (!router.isReady || !currentNetwork || (!isCustomNetwork && (!isFetchedAccount || realmDestination))) {
+    return <AccountLayoutSkeleton />;
+  }
+
+  return <AccountPage address={address} />;
+}
+
+function AccountPage({ address }: { address: string }) {
+  const { data: validatorData, isFetched: isFetchedValidator } = useGetValidatorByAddress(address);
 
   const isValidator = React.useMemo(() => {
     return !!validatorData?.name;
@@ -61,6 +71,7 @@ export default function Page() {
         validatorInfo={validatorInfo}
         accountAddress={<AccountAddressContainer address={address} validatorInfo={validatorInfo} />}
         accountAssets={<AccountAssetsContainer address={address} />}
+        accountNfts={<AccountNftsContainer address={address} />}
         accountTransactions={<AccountTransactionsContainer address={address} />}
       />
     </>

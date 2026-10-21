@@ -9,6 +9,7 @@ import mixins from "@/styles/mixins";
 interface AmountTextProps {
   minSize: FontsType;
   maxSize: FontsType;
+  denomSize?: FontsType;
   value: number | string | BigNumber;
   denom?: string;
   decimals?: number;
@@ -25,6 +26,7 @@ interface AmountTextProps {
 export const AmountText = ({
   minSize,
   maxSize,
+  denomSize = maxSize,
   value,
   denom = "",
   color = "primary",
@@ -99,7 +101,7 @@ export const AmountText = ({
             {formattedDecimals}
           </Text>
           <Text
-            type={maxSize}
+            type={denomSize}
             color={color}
             display="contents"
             fontWeight={fontWeight}

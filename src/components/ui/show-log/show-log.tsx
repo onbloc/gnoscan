@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { v1 } from "uuid";
 
 import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
-import { isDesktop } from "@/common/hooks/use-media";
+import { media } from "@/common/values/ui.constant";
 import mixins from "@/styles/mixins";
 
 import { ViewMoreButton } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import Textarea from "@/components/ui/textarea";
 import { CopyButton } from "../copy-button/CopyButton";
 
 interface StyleProps {
-  desktop?: boolean;
   showLog?: boolean;
   isTabLog?: boolean;
   hasRadius?: boolean;
@@ -27,7 +26,8 @@ interface ShowLogProps {
     name: string;
     body: string;
   }[];
-  btnTextType: string;
+  /** Source file viewers share the default label; log viewers pass their own ("Logs", "Error Logs"). */
+  btnTextType?: string;
 }
 
 const throttle = (func: Function, ms: number) => {
@@ -44,8 +44,7 @@ const throttle = (func: Function, ms: number) => {
 };
 const delay = 10;
 
-const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogProps) => {
-  const desktop: boolean = isDesktop();
+const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "Source" }: ShowLogProps) => {
   const [showLog, setShowLog] = useState(false);
   const [index, setIndex] = useState(0);
   const draggable = useRef<HTMLUListElement>(null);
@@ -90,7 +89,7 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
     <>
       <ShowLogsWrap showLog={showLog}>
         {isTabLog ? (
-          <TabLogWrap desktop={desktop} showLog={showLog}>
+          <TabLogWrap showLog={showLog}>
             <div className="inner-tab">
               <ul
                 ref={draggable}
@@ -119,8 +118,8 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
                     color="primary"
                     className={scrollVisible ? "scroll-visible" : ""}
                     value={files[index].body}
+                    aria-label={files[index].name}
                     showLog={showLog}
-                    desktop={desktop}
                     onFocus={onFocusIn}
                     onBlur={onFocusOut}
                     fullRadius={false}
@@ -143,8 +142,8 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
                     color="primary"
                     className={scrollVisible ? "scroll-visible" : ""}
                     value={logData}
+                    aria-label={btnTextType}
                     showLog={showLog}
-                    desktop={desktop}
                     onFocus={onFocusIn}
                     onBlur={onFocusOut}
                     fullRadius={false}
@@ -156,7 +155,7 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
             </div>
           </TabLogWrap>
         ) : (
-          <LogWrap desktop={desktop} showLog={showLog}>
+          <LogWrap showLog={showLog}>
             <TextareaContainer>
               <CopyButton width={85} copyText={logData} tooltipText="Copied!" svgClassname="svg-icon" trigger="click" />
               <ReadonlyTextarea
@@ -164,8 +163,8 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "" }: ShowLogPro
                 color="primary"
                 className="scroll-visible"
                 value={logData}
+                aria-label={btnTextType}
                 showLog={showLog}
-                desktop={desktop}
                 onFocus={onFocusIn}
                 onBlur={onFocusOut}
                 fullRadius={true}
@@ -199,6 +198,14 @@ const ShowLogsWrap = styled.div<StyleProps>`
   margin-top: ${({ showLog }) => (showLog ? "24px" : "8px")};
 `;
 
+// Open log height, taller on desktop
+const logHeight = (height: string, desktopHeight: string) => css<StyleProps>`
+  height: ${({ showLog }) => (showLog ? height : "0px")};
+  ${media.DESKTOP} {
+    height: ${({ showLog }) => (showLog ? desktopHeight : "0px")};
+  }
+`;
+
 const logWrapCommonStyle = css<StyleProps>`
   width: 100%;
   transition: all 0.4s ease;
@@ -208,13 +215,7 @@ const TabLogWrap = styled.div<StyleProps>`
   ${logWrapCommonStyle};
   overflow: hidden;
   color: ${({ theme }) => theme.colors.reverse};
-  height: ${({ showLog, desktop }) => {
-    if (showLog) {
-      return desktop ? "572px" : "336px";
-    } else {
-      return "0px";
-    }
-  }};
+  ${logHeight("336px", "572px")};
   .inner-tab {
     width: 100%;
     ul {
@@ -233,13 +234,7 @@ const LogWrap = styled.div<StyleProps>`
   overflow: auto;
   border-radius: 10px;
   background-color: ${({ theme }) => theme.colors.surface};
-  height: ${({ showLog, desktop }) => {
-    if (showLog) {
-      return desktop ? "528px" : "292px";
-    } else {
-      return "0px";
-    }
-  }};
+  ${logHeight("292px", "528px")};
 `;
 
 const Log = styled.div<StyleProps>`
@@ -253,13 +248,7 @@ const Log = styled.div<StyleProps>`
 
 const TabLog = styled(Log)<StyleProps>`
   ${scrollbarStyle};
-  height: ${({ showLog, desktop }) => {
-    if (showLog) {
-      return desktop ? "528px" : "292px";
-    } else {
-      return "0px";
-    }
-  }};
+  ${logHeight("292px", "528px")};
   overflow: auto;
   background-color: ${({ theme }) => theme.colors.surface};
 `;
@@ -287,13 +276,7 @@ const ReadonlyTextarea = styled(Textarea)<StyleProps>`
 
   ${scrollbarStyle};
 
-  height: ${({ showLog, desktop }) => {
-    if (showLog) {
-      return desktop ? "528px" : "292px";
-    } else {
-      return "0px";
-    }
-  }};
+  ${logHeight("292px", "528px")};
   overflow: auto;
   background-color: ${({ theme }) => theme.colors.surface};
 

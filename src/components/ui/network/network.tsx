@@ -11,12 +11,13 @@ import { zindex } from "@/common/values/z-index";
 import { ChainModel } from "@/models/chain-model";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useRouter } from "next/router";
 import { useThemeMode } from "@/common/hooks/use-theme-mode";
 import LoadingSpinner from "../loading-spinner/LoadingSpinner";
 import { NodeRPCClient } from "@/common/clients/node-client";
 import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { sleep } from "@/common/utils/common.utility";
+import { getDefaultChain } from "@/common/config/network.config";
+import { media } from "@/common/values/ui.constant";
 
 export interface NetworkData {
   all: string[];
@@ -42,7 +43,7 @@ interface ConnectionErrorState {
 }
 
 const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, setToggle }: NetworkProps) => {
-  const { currentNetwork, nodeRPCClient } = useNetworkProvider();
+  const { currentNetwork } = useNetworkProvider();
   const { currentNetwork: currentNetworkInfo, changeCustomNetwork } = useNetwork();
 
   const [isNetworkSwitching, setIsNetworkSwitching] = useState(false);
@@ -55,13 +56,10 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
   const ref = useOutSideClick(() => setToggle(false));
 
-  const { pathname } = useRouter();
   const { isDark, isLight } = useThemeMode();
 
-  const isReverseColor = useMemo(() => {
-    const isHome = pathname === "" || pathname === "/";
-    return isHome && isLight;
-  }, [pathname, isLight]);
+  // entry is home or dark mode, so this is the light home header.
+  const isReverseColor = entry && isLight;
 
   const availCustomConnect = useMemo(() => {
     if (connectionErrors.customRpcUrl || connectionErrors.customIndexerUrl || !customRpcUrl) {
@@ -92,10 +90,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
       try {
         await tempRpcClient.health();
-      } catch (error) {
+      } catch {
         await sleep(500);
         setConnectionError("customRpcUrl", true);
-        setIsNetworkSwitching(false);
         return;
       }
 
@@ -104,10 +101,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
         try {
           await tempIndexerClient.health();
-        } catch (error) {
+        } catch {
           await sleep(500);
           setConnectionError("customIndexerUrl", true);
-          setIsNetworkSwitching(false);
           return;
         }
       }
@@ -126,29 +122,35 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     }
   }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
+  // Default network until it resolves after hydration, so the button keeps its width
+  const networkName = (currentNetwork ?? getDefaultChain(chains))?.name || "";
+
   return (
-    <NetworkButton entry={entry} onClick={toggleHandler} ref={ref}>
-      <NetworkInfoWrapper>
+    <NetworkWrapper entry={entry} ref={ref}>
+      <NetworkInfoWrapper
+        type="button"
+        onClick={toggleHandler}
+        aria-expanded={!!toggle}
+        aria-label={`Select network, current network: ${networkName}`}
+      >
         {isReverseColor || isDark ? (
           <GnoscanSymbol className="svg-icon" />
         ) : (
           <GnoscanSymbolLight className="svg-icon" />
         )}
-        <Text type="h7" color={isReverseColor ? "white" : "primary"}>
-          {currentNetwork?.name || ""}
+        <Text type="h7" color={isReverseColor ? "white" : "primary"} className="network-name">
+          {networkName}
         </Text>
       </NetworkInfoWrapper>
       <NetworkList toggle={toggle} entry={entry}>
         {chains.map((chain: ChainModel, index: number) => (
-          <li
-            key={index}
-            onClick={e => {
-              e.stopPropagation();
-              networkSettingHandler(chain.chainId);
-            }}
-            className={currentNetwork?.chainId === chain.chainId ? "selected" : ""}
-          >
-            <div className="item row">
+          <li key={index} className={currentNetwork?.chainId === chain.chainId ? "selected" : ""}>
+            <button
+              type="button"
+              className="item row"
+              onClick={() => networkSettingHandler(chain.chainId)}
+              aria-current={currentNetwork?.chainId === chain.chainId}
+            >
               {isDark ? <GnoscanSymbol className="svg-icon" /> : <GnoscanSymbolLight className="svg-icon" />}
               <div className="info-wrapper">
                 <Text type="h7" color="primary">
@@ -158,7 +160,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                   {chain.rpcUrl}
                 </Text>
               </div>
-            </div>
+            </button>
           </li>
         ))}
         <li className={currentNetwork?.chainId === "" ? "selected" : ""}>
@@ -170,7 +172,6 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
               <input
                 className={`custom-input ${connectionErrors.customRpcUrl ? "error" : ""}`}
                 value={customRpcUrl}
-                onClick={e => e.stopPropagation()}
                 onChange={e => {
                   setCustomRpcUrl(e.target.value);
                   if (connectionErrors.customRpcUrl) {
@@ -178,11 +179,11 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                   }
                 }}
                 placeholder="RPC URL"
+                aria-label="RPC URL"
               />
               <input
                 className={`custom-input ${connectionErrors.customIndexerUrl ? "error" : ""}`}
                 value={indexerUrl}
-                onClick={e => e.stopPropagation()}
                 onChange={e => {
                   setIndexerUrl(e.target.value);
                   if (connectionErrors.customIndexerUrl) {
@@ -190,27 +191,28 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                   }
                 }}
                 placeholder="Tx Indexer URL (Optional)"
+                aria-label="Tx Indexer URL (Optional)"
               />
-              <div
+              <button
+                type="button"
                 className={availCustomConnect ? "connect active" : "connect"}
-                onClick={e => {
-                  e.stopPropagation();
-                  connect();
-                }}
+                onClick={connect}
+                aria-label="Connect"
+                aria-busy={isNetworkSwitching}
               >
                 <Text type="body1" color="primary">
                   {isNetworkSwitching ? <LoadingSpinner size={16} /> : "Connect"}
                 </Text>
-              </div>
+              </button>
             </div>
           </div>
         </li>
       </NetworkList>
-    </NetworkButton>
+    </NetworkWrapper>
   );
 };
 
-const NetworkButton = styled.button<StyleProps>`
+const NetworkWrapper = styled.div<StyleProps>`
   position: relative;
   display: flex;
   background-color: ${({ entry }) => (entry ? theme.lightTheme.reverse : theme.lightTheme.base)};
@@ -219,7 +221,8 @@ const NetworkButton = styled.button<StyleProps>`
   border-radius: 12px;
   justify-content: center;
   align-items: center;
-  z-index: 99;
+  // Header dropdowns stay above page content, but below modal backdrops.
+  z-index: ${zindex.headerDropdown};
 
   .svg-icon {
     width: 24px;
@@ -230,7 +233,7 @@ const NetworkButton = styled.button<StyleProps>`
   }
 `;
 
-const NetworkInfoWrapper = styled.div<StyleProps>`
+const NetworkInfoWrapper = styled.button<StyleProps>`
   display: flex;
   padding: 10px 15px;
   height: 44px;
@@ -238,6 +241,15 @@ const NetworkInfoWrapper = styled.div<StyleProps>`
   gap: 8px;
   justify-content: center;
   align-items: center;
+
+  ${media.NOT_DESKTOP} {
+    .network-name {
+      display: none;
+    }
+  }
+  ${media.MOBILE} {
+    padding: 10px;
+  }
 `;
 
 const NetworkList = styled.ul<StyleProps>`
@@ -275,6 +287,7 @@ const NetworkList = styled.ul<StyleProps>`
     gap: 12px;
     justify-content: center;
     align-items: center;
+    text-align: left;
     transition: 0.2s;
     border-radius: 8px;
 

@@ -1,40 +1,42 @@
 import React from "react";
 
-import { useWindowSize } from "@/common/hooks/use-window-size";
-import { useToken } from "@/common/hooks/tokens/use-token";
-import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
-import { useUsername } from "@/common/hooks/account/use-username";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { isApiNotFound } from "@/common/utils/common.utility";
+import { useGetTokenById } from "@/common/react-query/token/api";
 
 import * as S from "./TokenLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import NotFound from "@/components/view/search/not-found/NotFound";
 
 interface TokenLayoutProps {
-  tokenId: string;
+  title?: string;
+  tokenId?: string;
   tokenSummary: React.ReactNode;
   tokenTransactionInfo: React.ReactNode;
 }
 
-const TokenLayout = ({ tokenId, tokenSummary, tokenTransactionInfo }: TokenLayoutProps) => {
-  const { breakpoint, isDesktop } = useWindowSize();
+const TokenLayout = ({
+  title = "Token Details",
+  tokenId = "",
+  tokenSummary,
+  tokenTransactionInfo,
+}: TokenLayoutProps) => {
+  const { isCustomNetwork } = useNetworkProvider();
+  // Same query as the summary, so this reads the shared cache instead of sending another request.
+  const tokenQuery = useGetTokenById(tokenId, { enabled: !isCustomNetwork && !!tokenId });
 
-  const { summary, isFetched: isFetchedToken } = useToken(tokenId);
-  const { isFetchedGRC20Tokens } = useTokenMeta();
-  const { isFetched: isFetchedUsername } = useUsername();
-
-  const isDataLoaded = isFetchedToken && isFetchedUsername && isFetchedGRC20Tokens;
-  const hasError = isDataLoaded && (!summary || summary.packagePath === "");
-
-  // Todo: NotFound Logic
-  // if (isDataLoaded && hasError) {
-  //   return <NotFound keyword={tokenPath} breakpoint={breakpoint} />;
-  // }
+  if (!isCustomNetwork && isApiNotFound(tokenQuery))
+    return (
+      <S.InnerLayout>
+        <NotFound keyword={tokenId} />
+      </S.InnerLayout>
+    );
 
   return (
-    <S.Container breakpoint={breakpoint}>
+    <S.Container>
       <S.InnerLayout>
-        <S.Wrapper breakpoint={breakpoint}>
-          <PageTitle title="Token Details" type={isDesktop ? "h2" : "p2"} />
+        <S.Wrapper>
+          <PageTitle title={title} type="p2" desktopType="h2" />
           {tokenSummary}
           {tokenTransactionInfo}
         </S.Wrapper>

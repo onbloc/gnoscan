@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from "react";
 import Text from "@/components/ui/text";
-import { eachMedia } from "@/common/hooks/use-media";
 import ActiveList from "@/components/ui/active-list";
 import { colWidth, List, listTitle, StyledAmountText, StyledCard, StyledText } from "../main-active-list";
 import Link from "next/link";
@@ -19,7 +18,6 @@ import { useUpdateTime } from "@/common/hooks/main/use-update-time";
 import { MonthlyAccountTransaction } from "@/types/data-type";
 
 const ActiveAccount = () => {
-  const media = eachMedia();
   const { getUrlWithNetwork } = useNetwork();
   const { updatedAt } = useUpdateTime();
   const useMonthlyActiveAccountsHook = useMonthlyActiveAccounts;
@@ -41,8 +39,8 @@ const ActiveAccount = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Monthly Active Accounts
-        {media !== "mobile" && loaded && (
-          <Text type="body1" color="tertiary">
+        {loaded && (
+          <Text className="hide-mobile" type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
@@ -74,8 +72,8 @@ const ActiveAccount = () => {
       ) : (
         <FetchedSkeleton />
       )}
-      {media === "mobile" && loaded && (
-        <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
+      {loaded && (
+        <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}

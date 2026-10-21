@@ -42,36 +42,27 @@ export const useMappedApiBlock = (height: string) => {
   } = useGetBlockByHeight(height);
 
   const { data: latestBlockHeight } = useGetLatestBlockHeightQuery();
-  const [block, setBlock] = React.useState<BlockSummaryInfo>(INITIAL_BLOCK_SUMMARY_STATE);
-  const [isDataReady, setIsDataReady] = React.useState(false);
-
   const hasData = Boolean(apiData?.data);
 
-  React.useEffect(() => {
-    if (isApiFetched && apiData?.data) {
-      const mappedBlock = BlockMapper.blockFromApiResponse(apiData.data);
-
-      const blockHeight = mappedBlock.blockHeight || 0;
-      const hasPreviousBlock = blockHeight > 1;
-      const hasNextBlock = latestBlockHeight ? blockHeight < latestBlockHeight : true;
-
-      setBlock({
-        ...mappedBlock,
-        hasPreviousBlock,
-        hasNextBlock,
-      });
-
-      setIsDataReady(true);
+  const block = React.useMemo<BlockSummaryInfo>(() => {
+    if (!isApiFetched || !apiData?.data) {
+      return INITIAL_BLOCK_SUMMARY_STATE;
     }
-  }, [apiData, isApiFetched, latestBlockHeight]);
 
-  const isLoading = isApiLoading || (hasData && !isDataReady);
-  const isFetched = isApiFetched && (!hasData || isDataReady);
+    const mappedBlock = BlockMapper.blockFromApiResponse(apiData.data);
+    const blockHeight = mappedBlock.blockHeight || 0;
+
+    return {
+      ...mappedBlock,
+      hasPreviousBlock: blockHeight > 1,
+      hasNextBlock: latestBlockHeight ? blockHeight < latestBlockHeight : true,
+    };
+  }, [apiData, isApiFetched, latestBlockHeight]);
 
   return {
     data: block,
-    isFetched,
-    isLoading,
+    isFetched: isApiFetched,
+    isLoading: isApiLoading,
     isError: isApiError,
     hasData,
   };

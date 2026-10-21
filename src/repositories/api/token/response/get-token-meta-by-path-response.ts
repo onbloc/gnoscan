@@ -1,5 +1,5 @@
 export interface TokenMeta {
-  tokenType: "Native" | "GRC20";
+  tokenType: "Native" | "GRC20" | "GRC721";
   tokenId: string;
   slug: string;
   path: string;
@@ -7,6 +7,8 @@ export interface TokenMeta {
   symbol: string;
   decimals: number;
   logoUrl: string | null;
+  realmAddress: string;
+  hostedTokenCount: number;
 }
 
 export interface GetTokenMetaByPathResponse {

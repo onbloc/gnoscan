@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo } from "react";
 import Text from "@/components/ui/text";
-import { eachMedia } from "@/common/hooks/use-media";
 import ActiveList from "@/components/ui/active-list";
 import { colWidth, FitContentA, List, listTitle, StyledCard, StyledText } from "../main-active-list";
 import Link from "next/link";
@@ -26,7 +25,6 @@ function makeDisplayRealmPath(path: string, length = 11) {
 }
 
 const CustomNetworkActiveNewest = () => {
-  const media = eachMedia();
   const { isFetched: isFetchedUsername, getName } = useUsername();
   const { isFetched: isFetchedUpdatedAt, updatedAt } = useUpdateTime();
   const { getUrlWithNetwork } = useNetwork();
@@ -40,8 +38,8 @@ const CustomNetworkActiveNewest = () => {
     <StyledCard>
       <Text className="active-list-title" type="h6" color="primary">
         Newest Realms
-        {media !== "mobile" && isFetched && isFetchedUsername && isFetchedUpdatedAt && (
-          <Text type="body1" color="tertiary">
+        {isFetched && isFetchedUsername && isFetchedUpdatedAt && (
+          <Text className="hide-mobile" type="body1" color="tertiary">
             {`Last Updated: ${getLocalDateString(updatedAt)}`}
           </Text>
         )}
@@ -80,8 +78,8 @@ const CustomNetworkActiveNewest = () => {
       ) : (
         <FetchedSkeleton />
       )}
-      {media === "mobile" && isFetched && isFetchedUsername && (
-        <Text type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
+      {isFetched && isFetchedUsername && (
+        <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}
         </Text>
       )}

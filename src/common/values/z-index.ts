@@ -3,5 +3,8 @@ export const zindex = {
   chart: 2,
   tooltip: 3,
   searchResult: 4,
-  modal: 5,
+  headerDropdown: 5,
+  modal: 6,
+  // Above the header network button, so the open mobile menu covers it.
+  mobileMenu: 100,
 };

@@ -12,6 +12,7 @@ import { formatBytes } from "@/common/utils/format/format-utils";
 interface StorageDepositTextProps {
   minSize: FontsType;
   maxSize: FontsType;
+  denomSize?: FontsType;
   value: number | string | BigNumber;
   denom?: string;
   sizeInBytes?: number;
@@ -26,6 +27,7 @@ interface StorageDepositTextProps {
 export const StorageDepositText = ({
   minSize,
   maxSize,
+  denomSize = maxSize,
   value,
   denom = "",
   sizeInBytes = 0,
@@ -109,7 +111,7 @@ export const StorageDepositText = ({
           <Text type={minSize} color={color} display="contents" className="decimals">
             {formattedDecimals}
           </Text>
-          <Text type={maxSize} color={color} display="contents">
+          <Text type={denomSize} color={color} display="contents">
             {denom}
           </Text>
           {visibleStorageSize && (

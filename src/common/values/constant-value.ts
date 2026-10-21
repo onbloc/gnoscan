@@ -20,8 +20,23 @@ export const STAGING_CHAIN_ID = "staging";
 // end), so it can't be fixed by picking a different data source - it should actually
 // display as 6, 1:1 with ugnot.
 export const WUGNOT_PACKAGE_PATH = "gno.land/r/gnoland/wugnot";
+/**
+ * The grc20reg realm that GRC20 tokens register with. Tokens the API indexed without a register
+ * event (backfilled ones such as xGNS) are not registered here.
+ */
+export const GRC20_REGISTRY_PATH = "gno.land/r/nt/grc20reg/v0";
 export const WUGNOT_DISPLAY_DECIMALS = 6;
 export const WUGNOT_DISPLAY_NAME = "wGNOT (Wrapped GNOT)";
+
+// Gnoswap position NFT: its collection key (gno.land/r/gnoswap/gnft.GNFT.0000000) carries no
+// symbol in activity data or the resource list, so it would otherwise render as the raw key.
+export const GNFT_PACKAGE_PATH = "gno.land/r/gnoswap/gnft";
+export const GNFT_DISPLAY_SYMBOL = "GNFT";
+
+// chain.PackageAddress("gno.land/r/gnoswap/staker"): realm addresses derive from the package path,
+// so this is identical on every network. StakeToken moves the position NFT here and UnStakeToken
+// returns it; gnft refuses transfers of staker-held tokens by anyone else.
+export const GNOSWAP_STAKER_ADDRESS = "g1q6d4ns7zkr492rgl0pcgf5ajaf2dlz0nnptky3";
 
 export const BYTES_PER_KB = 1024 as const;
 

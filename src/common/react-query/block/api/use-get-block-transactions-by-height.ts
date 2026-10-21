@@ -31,14 +31,13 @@ export const useGetBlockTransactionsByHeight = (
     [QUERY_KEY.getBlockTransactionsByHeight, params],
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    (repository, pageParam) =>
+    (repository, cursor) =>
       repository!.getBlockTransactions({
         ...params,
-        cursor: pageParam as string | undefined,
+        cursor,
       }),
     {
       ...options,
-      getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
       enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false,
     },
   );

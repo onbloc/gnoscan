@@ -1,4 +1,4 @@
-import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import { ADDRESS_LABEL_TAG, ADDRESS_LABEL_TAG_TEXT, ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 
 interface AddressLabelInfo {
@@ -25,4 +25,19 @@ export function getAddressLinkPath({ address, name, label, labelType }: AddressL
   }
 
   return `/account/${address ?? ""}`;
+}
+
+interface AddressNameTagInfo {
+  nameTag?: string | null;
+  labelTag?: ADDRESS_LABEL_TAG | null;
+}
+
+// Priority: curated label tag (backend code mapped to display text), then the on-chain nameTag.
+// Unknown tag codes fall through so a raw code is never shown.
+export function getAddressNameTag({ nameTag, labelTag }: AddressNameTagInfo): string | null {
+  if (labelTag && Object.prototype.hasOwnProperty.call(ADDRESS_LABEL_TAG_TEXT, labelTag)) {
+    return ADDRESS_LABEL_TAG_TEXT[labelTag];
+  }
+
+  return nameTag || null;
 }

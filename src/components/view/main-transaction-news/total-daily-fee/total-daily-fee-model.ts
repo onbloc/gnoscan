@@ -1,4 +1,4 @@
-import { ValueWithDenomType } from "@/types/data-type";
+import { Amount } from "@/types/data-type";
 import BigNumber from "bignumber.js";
 
 interface TotalDailyFeeData {
@@ -12,7 +12,7 @@ export class TotalDailyFeeModel {
   constructor(
     responseDatas: Array<{
       date?: string;
-      fee?: ValueWithDenomType;
+      fee?: Amount;
     }>,
   ) {
     this.datas = responseDatas.map(TotalDailyFeeModel.createData);
@@ -35,7 +35,7 @@ export class TotalDailyFeeModel {
     });
   }
 
-  private static createData = ({ date, fee }: { date?: string; fee?: ValueWithDenomType }): TotalDailyFeeData => {
+  private static createData = ({ date, fee }: { date?: string; fee?: Amount }): TotalDailyFeeData => {
     const gasFee = fee?.value || "0";
     return {
       date: date ?? "",

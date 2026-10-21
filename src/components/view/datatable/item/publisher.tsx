@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
@@ -6,7 +7,7 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import Tooltip from "@/components/ui/tooltip";
+import { EllipsisTooltip } from "@/components/ui/tooltip";
 
 interface Props {
   username: string | undefined;
@@ -40,14 +41,15 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
   }, [address, username, label, ellipsisNumber]);
 
   return address && address !== "genesis" ? (
-    <Tooltip content={renderTooltip()}>
+    <EllipsisTooltip content={renderTooltip()}>
       <PublisherLink
-        className="ellipsis"
+        // Shortened addresses are already middle truncated, so only clip names and labels
+        className={username || label ? "ellipsis" : undefined}
         href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
       >
         {displayName}
       </PublisherLink>
-    </Tooltip>
+    </EllipsisTooltip>
   ) : (
     <>{displayName}</>
   );
@@ -66,6 +68,10 @@ const TooltipWrapper = styled.span`
   }
 `;
 
-const PublisherLink = styled.a`
-  max-width: 128px;
+const PublisherLink = styled(Link)`
+  white-space: nowrap;
+
+  &:not(.ellipsis) {
+    flex-shrink: 0;
+  }
 `;

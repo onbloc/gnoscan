@@ -1,5 +1,4 @@
-import { MsgAddPackage, MsgCall, MsgRun, MsgSend } from "@gnolang/gno-js-client";
-import { MsgEnablePackage, MsgRejectPackage } from "@/common/utils/tx-proto-decoder";
+import { MsgAddPackage, MsgCall, MsgEnablePackage, MsgRejectPackage, MsgRun, MsgSend } from "@gnolang/gno-js-client";
 
 export type EMessageType =
   | "/bank.MsgSend"
