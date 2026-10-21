@@ -40,7 +40,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetTokenById(tokenId);
-  const { getTokenMeta, getTokenDescription } = useTokenResourceMeta();
+  const { getTokenMeta, getTokenDescription, isFetched: isFetchedTokenResource } = useTokenResourceMeta();
   const { getPriceEntry } = useTokenPrice();
   // Same query as the Token Transfers tab, so the count comes from the shared cache.
   const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
@@ -206,7 +206,10 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
       <Field label="Transfers">
         <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
       </Field>
-      <DescriptionField description={getTokenDescription(tokenSummary?.tokenId || tokenSummary?.packagePath || "")} />
+      {/* Waits for the token resource list so a described token does not flash the add link. */}
+      {isFetchedTokenResource && (
+        <DescriptionField description={getTokenDescription(tokenSummary?.tokenId || tokenSummary?.packagePath || "")} />
+      )}
       {files && files.length > 0 && <ShowLog isTabLog={true} files={files} />}
     </DataSection>
   );
