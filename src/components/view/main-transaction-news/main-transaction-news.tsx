@@ -13,12 +13,16 @@ import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacke
 import { useGetStoragePrice, useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { Spinner } from "@/components/ui/loading";
-import { StatisticsEmptyState, StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 
 const MainTransactionNews = () => {
   const { isCustomNetwork } = useNetworkProvider();
-  const storageDepositQuery = useGetTotalDailyStroageDeposit();
+  const { apiStatisticsRepository } = useServiceProvider();
+  // Only standard networks serve this statistic. The query hoc lets `enabled` override its own repository guard.
+  const storageDepositQuery = useGetTotalDailyStroageDeposit({
+    enabled: !isCustomNetwork && !!apiStatisticsRepository,
+  });
   const { data } = storageDepositQuery;
 
   const { data: storagePriceData } = useGetStoragePrice();
@@ -78,13 +82,7 @@ const MainTransactionNews = () => {
           {"Total Storage Deposit"}
         </Text>
         <StatisticsQueryState query={storageDepositQuery}>
-          {data === undefined ? (
-            <Spinner position="center" />
-          ) : labels.length === 0 ? (
-            <StatisticsEmptyState />
-          ) : (
-            <StackedBarChart2 labels={labels} chartData={chartData} />
-          )}
+          <StackedBarChart2 labels={labels} chartData={chartData} />
         </StatisticsQueryState>
       </Card>
 
