@@ -7,7 +7,6 @@ import { DescriptionField } from "./DescriptionField";
 jest.mock("@/assets/svgs/icon-link.svg", () => "svg");
 jest.mock("./DetailField", () => ({
   Field: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  BadgeText: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 const renderField = (description?: string) =>
