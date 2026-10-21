@@ -1,12 +1,13 @@
 import React from "react";
 
 import { useNetwork } from "@/common/hooks/use-network";
+import { useGetNftCollectionMetaQuery } from "@/common/react-query/meta";
 import { useGetNftCollection, useGetNftCollections } from "@/common/react-query/token/api";
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import Badge from "@/components/ui/badge";
-import { AddressDisplayLink, Field, FieldWithTooltip } from "@/components/ui/detail-field";
+import { AddressDisplayLink, DescriptionField, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import PublicFunctions from "@/components/ui/public-functions";
 import ShowLog from "@/components/ui/show-log";
@@ -32,6 +33,8 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
   // The detail API has no transfer count; the list API filtered to this realm does.
   const { data: listData } = useGetNftCollections({ packagePath: collection?.path }, { enabled: !!collection?.path });
   const transfers = listData?.items.find(item => item.tokenId === collection?.tokenId)?.transfers;
+  const { data: collectionMetas = [] } = useGetNftCollectionMetaQuery();
+  const description = collectionMetas.find(meta => meta.pkg_path === collection?.path)?.description;
 
   const files = React.useMemo(
     () => collection?.sourceFiles?.map(file => ({ name: file.filename ?? "", body: file.content ?? "" })) ?? [],
@@ -94,6 +97,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
       <Field label="Transfers">
         <Badge>{makeDisplayNumberWithDefault(transfers)}</Badge>
       </Field>
+      <DescriptionField description={description} />
       {files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Source" />}
     </DataSection>
   );
