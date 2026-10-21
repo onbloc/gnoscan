@@ -17,8 +17,8 @@ const tokenUrl = (packagePath: string, symbol: string) =>
   `/tokens/${symbol ? `${packagePath}.${symbol}` : packagePath}`;
 
 export const TokensCount = () => {
-  const { data } = useGetSummaryTokens();
-  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} unit="tokens" />;
+  const { data, isFetched } = useGetSummaryTokens();
+  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} isFetched={isFetched} unit="tokens" />;
 };
 
 export const TokensSummary = () => {
@@ -62,34 +62,25 @@ export const TokensSummary = () => {
   );
 
   const stats = summary.data?.data;
-  // Cards backed by the summary API stay hidden until it answers, so a missing endpoint leaves no broken cards.
-  // A failed poll keeps the previous data, so cards hide only when nothing ever loaded.
-  const showStats = !(summary.isError && !summary.data);
 
   return (
     <SummaryGrid>
-      {!(recent.isError && recent.data.length === 0) && (
-        <SummaryCard title="Recently Registered" live>
-          <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
-        </SummaryCard>
-      )}
-      {showStats && (
-        <>
-          <SummaryCard title="Trending Token" caption="Most active in 24h">
-            <SummaryItemList
-              items={trendingItems}
-              isFetched={summary.isFetched}
-              emptyText="No token activity in the last 24h"
-            />
-          </SummaryCard>
-          <SummaryCard title="Unique Holders" caption="Wallets holding any GRC20">
-            <SummaryValue value={stats?.holders ?? 0} isFetched={summary.isFetched} />
-          </SummaryCard>
-          <SummaryCard title="24h Transfers" caption="Transfers in the last 24h">
-            <SummaryValue value={stats?.transfers24h ?? 0} isFetched={summary.isFetched} />
-          </SummaryCard>
-        </>
-      )}
+      <SummaryCard title="Recently Registered" live>
+        <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
+      </SummaryCard>
+      <SummaryCard title="Trending Token" caption="Most active in 24h">
+        <SummaryItemList
+          items={trendingItems}
+          isFetched={summary.isFetched}
+          emptyText="No token activity in the last 24h"
+        />
+      </SummaryCard>
+      <SummaryCard title="Unique Holders" caption="Wallets holding any GRC20">
+        <SummaryValue value={stats?.holders} isFetched={summary.isFetched} />
+      </SummaryCard>
+      <SummaryCard title="24h Transfers" caption="Transfers in the last 24h">
+        <SummaryValue value={stats?.transfers24h} isFetched={summary.isFetched} />
+      </SummaryCard>
     </SummaryGrid>
   );
 };

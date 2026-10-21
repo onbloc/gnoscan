@@ -32,10 +32,11 @@ export const SummaryCard = ({ title, caption, live, children }: SummaryCardProps
   </S.Card>
 );
 
-export const SummaryValue = ({ value, isFetched }: { value: number; isFetched: boolean }) =>
+// "-" when the request failed, so the card keeps its layout while the API is unavailable.
+export const SummaryValue = ({ value, isFetched }: { value?: number; isFetched: boolean }) =>
   isFetched ? (
     <Text type="h3" color="primary">
-      {makeDisplayNumber(value)}
+      {value === undefined ? "-" : makeDisplayNumber(value)}
     </Text>
   ) : (
     <SkeletonBar width={100} height={28} />
@@ -111,13 +112,23 @@ export const SummaryItemList = ({
 };
 
 // Total next to the page title, e.g. "32 tokens · +1 (24h)". A zero change is hidden so a quiet day does not read as a dead chain.
-export const SummaryCount = ({ total, new24h, unit }: { total?: number; new24h?: number; unit: string }) => {
-  if (total === undefined) return null;
+export const SummaryCount = ({
+  total,
+  new24h,
+  unit,
+  isFetched,
+}: {
+  total?: number;
+  new24h?: number;
+  unit: string;
+  isFetched: boolean;
+}) => {
+  if (!isFetched) return null;
 
   return (
     <S.Count>
       <Text type="p4" color="tertiary">
-        {`${makeDisplayNumber(total)} ${unit}`}
+        {`${total === undefined ? "-" : makeDisplayNumber(total)} ${unit}`}
       </Text>
       {!!new24h && (
         <Text type="p4" color="green">
