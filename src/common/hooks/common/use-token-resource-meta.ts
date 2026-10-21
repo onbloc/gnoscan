@@ -24,6 +24,7 @@ export const useTokenResourceMeta = () => {
         symbol: current.symbol,
         decimals: current.decimals,
         image: current.image ? `${GNO_TOKEN_RESOURCE_BASE_URI}${current.image}` : undefined,
+        description: current.description,
         tokenPath: current.token_path,
       };
       accum[current.id] = entry;
@@ -55,5 +56,12 @@ export const useTokenResourceMeta = () => {
     [tokenResourceMap],
   );
 
-  return { isFetched, tokenResourceMap, getTokenMeta, hasTokenResourceMeta, getTokenImage };
+  const getTokenDescription = useCallback(
+    (tokenKey: string): string | undefined => {
+      return findByTokenKey(tokenResourceMap, tokenKey)?.description;
+    },
+    [tokenResourceMap],
+  );
+
+  return { isFetched, tokenResourceMap, getTokenMeta, hasTokenResourceMeta, getTokenImage, getTokenDescription };
 };

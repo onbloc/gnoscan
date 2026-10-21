@@ -15,7 +15,7 @@ import { useFetchRemainingPages } from "@/common/hooks/common/use-fetch-remainin
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
-import { AddressLink, Field, FieldWithTooltip } from "@/components/ui/detail-field";
+import { AddressLink, DescriptionField, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
 import ShowLog from "@/components/ui/show-log";
 import Text from "@/components/ui/text";
@@ -40,7 +40,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetTokenById(tokenId);
-  const { getTokenMeta } = useTokenResourceMeta();
+  const { getTokenMeta, getTokenDescription } = useTokenResourceMeta();
   const { getPriceEntry } = useTokenPrice();
   // Same query as the Token Transfers tab, so the count comes from the shared cache.
   const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
@@ -206,6 +206,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
       <Field label="Transfers">
         <Badge>{transferCount === undefined ? "-" : makeDisplayNumber(transferCount)}</Badge>
       </Field>
+      <DescriptionField description={getTokenDescription(tokenSummary?.tokenId || tokenSummary?.packagePath || "")} />
       {files && files.length > 0 && <ShowLog isTabLog={true} files={files} />}
     </DataSection>
   );
