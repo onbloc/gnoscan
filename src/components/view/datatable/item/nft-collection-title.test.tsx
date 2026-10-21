@@ -1,5 +1,9 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { createRoot } from "react-dom/client";
+import { act } from "react-dom/test-utils";
 import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
 import { NftCollectionTitle } from "./nft-collection-title";
@@ -26,12 +30,26 @@ jest.mock("@/common/react-query/meta", () => ({
   }),
 }));
 
-const render = (packagePath: string) =>
-  renderToStaticMarkup(
-    <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-      <NftCollectionTitle tokenId={packagePath} name="Collection" packagePath={packagePath} />
-    </ThemeProvider>,
+const render = (packagePath: string, failImage = false) => {
+  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  const container = document.createElement("div");
+  const root = createRoot(container);
+  act(() =>
+    root.render(
+      <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+        <NftCollectionTitle tokenId={packagePath} name="Collection" packagePath={packagePath} />
+      </ThemeProvider>,
+    ),
   );
+  if (failImage) {
+    act(() => {
+      container.querySelector("img")!.dispatchEvent(new Event("error"));
+    });
+  }
+  const html = container.innerHTML;
+  act(() => root.unmount());
+  return html;
+};
 
 describe("NftCollectionTitle", () => {
   it("shows the token resource logo for a listed collection", () => {
@@ -42,6 +60,12 @@ describe("NftCollectionTitle", () => {
 
   it("falls back to the default icon for an unlisted collection", () => {
     const html = render("gno.land/r/demo/foonft");
+    expect(html).not.toContain("<img");
+    expect(html).toContain("default-icon");
+  });
+
+  it("falls back to the default icon when the logo fails to load", () => {
+    const html = render(GNFT, true);
     expect(html).not.toContain("<img");
     expect(html).toContain("default-icon");
   });
