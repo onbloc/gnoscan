@@ -1,10 +1,6 @@
 import React from "react";
 
-import { GNO_TOKEN_RESOURCE_URL } from "@/common/values/constant-value";
-
-import IconLink from "@/assets/svgs/icon-link.svg";
-import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
-import Text from "@/components/ui/text";
+import TokenResourceLink from "@/components/ui/token-resource-link/TokenResourceLink";
 import { BadgeText, Field } from "./DetailField";
 
 interface DescriptionFieldProps {
@@ -17,10 +13,7 @@ export const DescriptionField: React.FC<DescriptionFieldProps> = ({ description 
     {description?.trim() ? (
       <BadgeText>{description}</BadgeText>
     ) : (
-      <LinkWrapper href={GNO_TOKEN_RESOURCE_URL} target="_blank" rel="noreferrer">
-        <Text type="p4">Add in Gno.land Token Resources</Text>
-        <IconLink className="icon-link" />
-      </LinkWrapper>
+      <TokenResourceLink label="Add in Gno.land Token Resources" />
     )}
   </Field>
 );

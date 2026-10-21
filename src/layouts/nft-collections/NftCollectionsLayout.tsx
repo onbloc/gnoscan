@@ -2,9 +2,7 @@ import React from "react";
 
 import * as S from "./NftCollectionsLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
-import IconLink from "@/assets/svgs/icon-link.svg";
-import Text from "@/components/ui/text";
-import { GNO_TOKEN_RESOURCE_URL } from "@/common/values/constant-value";
+import TokenResourceLink from "@/components/ui/token-resource-link/TokenResourceLink";
 
 interface NftCollectionsLayoutProps {
   nftCollectionList: React.ReactNode;
@@ -17,12 +15,7 @@ const NftCollectionsLayout = ({ nftCollectionList }: NftCollectionsLayoutProps) 
         <S.Wrapper>
           <S.TitleWrap>
             <PageTitle title="NFTs" type="h2" />
-            <S.TokenResourceLink href={GNO_TOKEN_RESOURCE_URL} target="_blank" rel="noreferrer">
-              <Text type="p4" className="ellipsis">
-                Gno.land Token Resources
-              </Text>
-              <IconLink className="icon-link" />
-            </S.TokenResourceLink>
+            <TokenResourceLink label="Gno.land Token Resources" />
           </S.TitleWrap>
           {nftCollectionList}
         </S.Wrapper>
