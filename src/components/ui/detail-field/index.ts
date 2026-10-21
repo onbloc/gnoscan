@@ -7,4 +7,5 @@ export {
   AmountBadge,
   StorageDepositAmountBadge,
 } from "./DetailField";
+export { DescriptionField } from "./DescriptionField";
 export { AddressTextBox } from "./DetailField.styles";
