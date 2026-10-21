@@ -9,31 +9,24 @@ interface PageTitleProps {
   title: string;
   type: FontsType;
   desktopType?: FontsType;
-  // Shown next to the title, e.g. a total count.
-  suffix?: React.ReactNode;
   description?: string;
 }
 
-export const PageTitle = ({ title, type, desktopType, suffix, description }: PageTitleProps) => {
+export const PageTitle = ({ title, type, desktopType, description }: PageTitleProps) => {
   const heading = (
     <Title type={type} desktopType={desktopType} color="primary">
       {title}
     </Title>
   );
 
-  if (!suffix && !description) return heading;
+  if (!description) return heading;
 
   return (
     <Wrapper>
-      <TitleRow>
-        {heading}
-        {suffix}
-      </TitleRow>
-      {description && (
-        <Text type="p4" color="tertiary">
-          {description}
-        </Text>
-      )}
+      {heading}
+      <Text type="p4" color="tertiary">
+        {description}
+      </Text>
     </Wrapper>
   );
 };
@@ -45,11 +38,4 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-`;
-
-const TitleRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 12px;
 `;

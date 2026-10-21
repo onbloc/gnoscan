@@ -9,16 +9,11 @@ import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-token
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { toTokenKey } from "@/common/utils/sort/token-list-sort";
-import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
+import { SummaryCard, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
 
 const RECENT_TOKENS_PARAMS = { sort: "id", order: "desc" } as const;
 
 const TokenLogo = ({ src }: { src: string | null | undefined }) => (src ? <img src={src} alt="" /> : <UnknownToken />);
-
-export const TokensCount = () => {
-  const { data, isFetched } = useGetSummaryTokens();
-  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} isFetched={isFetched} unit="tokens" />;
-};
 
 export const TokensSummary = () => {
   const { getUrlWithNetwork } = useNetwork();

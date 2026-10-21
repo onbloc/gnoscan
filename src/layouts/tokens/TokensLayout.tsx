@@ -4,7 +4,7 @@ import * as S from "./TokensLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import TokenResourceLink from "@/components/ui/token-resource-link/TokenResourceLink";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { TokensCount, TokensSummary } from "@/components/view/list-summary/TokensSummary";
+import { TokensSummary } from "@/components/view/list-summary/TokensSummary";
 
 interface TokensLayoutProps {
   tokenList: React.ReactNode;
@@ -22,7 +22,6 @@ const TokensLayout = ({ tokenList }: TokensLayoutProps) => {
             <PageTitle
               title="Tokens"
               type="h2"
-              suffix={!isCustomNetwork && <TokensCount />}
               description="GRC20 tokens on gno.land. Track supply, holders, and transfer activity."
             />
             <TokenResourceLink label="Gno.land Token Resources" />

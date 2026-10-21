@@ -112,31 +112,3 @@ export const SummaryItemList = ({
     </S.Items>
   );
 };
-
-// Total next to the page title, e.g. "32 tokens · +1 (24h)". A zero change is hidden so a quiet day does not read as a dead chain.
-export const SummaryCount = ({
-  total,
-  new24h,
-  unit,
-  isFetched,
-}: {
-  total?: number;
-  new24h?: number;
-  unit: string;
-  isFetched: boolean;
-}) => {
-  if (!isFetched) return null;
-
-  return (
-    <S.Count>
-      <Text type="p4" color="tertiary">
-        {`${total === undefined ? "-" : makeDisplayNumber(total)} ${unit}`}
-      </Text>
-      {!!new24h && (
-        <Text type="p4" color="green">
-          {`+${makeDisplayNumber(new24h)} (24h)`}
-        </Text>
-      )}
-    </S.Count>
-  );
-};
