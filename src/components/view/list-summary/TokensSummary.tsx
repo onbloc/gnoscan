@@ -1,20 +1,19 @@
 import React from "react";
 
+import { LIST_SUMMARY_REFETCH_INTERVAL } from "@/common/values/query.constant";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
-import { LIST_SUMMARY_REFETCH_INTERVAL, useGetSummaryTokens } from "@/common/react-query/statistics";
+import { useGetSummaryTokens } from "@/common/react-query/statistics";
 import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-tokens";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
+import { toTokenKey } from "@/common/utils/sort/token-list-sort";
 import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
 
 const RECENT_TOKENS_PARAMS = { sort: "id", order: "desc" } as const;
 
 const TokenLogo = ({ src }: { src: string | null | undefined }) => (src ? <img src={src} alt="" /> : <UnknownToken />);
-
-const tokenUrl = (packagePath: string, symbol: string) =>
-  `/tokens/${symbol ? `${packagePath}.${symbol}` : packagePath}`;
 
 export const TokensCount = () => {
   const { data, isFetched } = useGetSummaryTokens();
@@ -31,7 +30,7 @@ export const TokensSummary = () => {
     () =>
       recent.data.slice(0, 3).map(token => ({
         key: token.tokenId || token.packagePath,
-        href: getUrlWithNetwork(tokenUrl(token.packagePath, token.symbol)),
+        href: getUrlWithNetwork(`/tokens/${toTokenKey(token)}`),
         title: token.name,
         subtitle: token.symbol,
         meta: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
@@ -51,7 +50,7 @@ export const TokensSummary = () => {
         });
         return {
           key: token.tokenId,
-          href: getUrlWithNetwork(tokenUrl(token.packagePath, token.symbol)),
+          href: getUrlWithNetwork(`/tokens/${toTokenKey(token)}`),
           title: index === 0 ? meta.name : `#${index + 1} ${meta.name}`,
           subtitle: meta.symbol,
           meta: `${makeDisplayNumber(token.transfers24h)} transfers`,

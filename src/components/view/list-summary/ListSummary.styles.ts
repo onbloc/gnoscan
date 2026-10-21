@@ -2,6 +2,7 @@ import Link from "next/link";
 import styled, { keyframes } from "styled-components";
 
 import { media } from "@/common/values/ui.constant";
+import { SearchBox as InventorySearchBox } from "@/components/view/nft/collection-inventory/NftInventoryToolbar.styles";
 
 export const Grid = styled.div`
   display: grid;
@@ -119,43 +120,8 @@ export const Count = styled.div`
   gap: 6px;
 `;
 
-export const SearchBox = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  height: 40px;
-  padding: 0 16px;
+// The collection inventory search box, on the base color so it stands out on the list page surface.
+export const SearchBox = styled(InventorySearchBox)`
   border: 1px solid ${({ theme }) => theme.colors.dimmed50};
-  border-radius: 8px;
   background-color: ${({ theme }) => theme.colors.base};
-
-  :focus-within {
-    outline: 2px solid ${({ theme }) => theme.colors.blue};
-    outline-offset: 2px;
-  }
-
-  input {
-    flex: 1 1 auto;
-    min-width: 0;
-    ${({ theme }) => theme.fonts.p4};
-    color: ${({ theme }) => theme.colors.primary};
-    background: transparent;
-    border: 0;
-    outline: none;
-
-    ::placeholder {
-      color: ${({ theme }) => theme.colors.tertiary};
-    }
-  }
-
-  svg {
-    flex: 0 0 20px;
-    width: 20px;
-    height: 20px;
-
-    path {
-      stroke: ${({ theme }) => theme.colors.primary};
-    }
-  }
 `;
