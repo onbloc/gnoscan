@@ -67,7 +67,7 @@ export const TokensSummary = () => {
       <SummaryCard title="Recently Registered" live>
         <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
       </SummaryCard>
-      <SummaryCard title="Trending Token" caption="Most active in 24h">
+      <SummaryCard title="Trending Token" caption={trendingItems.length > 0 ? "Most active in 24h" : undefined}>
         <SummaryItemList
           items={trendingItems}
           isFetched={summary.isFetched}

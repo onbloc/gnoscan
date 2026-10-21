@@ -59,7 +59,7 @@ export const NftsSummary = () => {
       <SummaryCard title="Recently Minted" live>
         <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No recent mints" />
       </SummaryCard>
-      <SummaryCard title="Trending Collection" caption="Most active in 24h">
+      <SummaryCard title="Trending Collection" caption={trendingItems.length > 0 ? "Most active in 24h" : undefined}>
         <SummaryItemList
           items={trendingItems}
           isFetched={summary.isFetched}

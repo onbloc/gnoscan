@@ -46,6 +46,7 @@ export interface SummaryItemData {
   key: string;
   href: string;
   title: string;
+  // Second line of the featured item, middle column of the rows.
   subtitle?: string;
   meta?: string;
   // Logo or artwork, shown only on the featured item.
@@ -100,11 +101,12 @@ export const SummaryItemList = ({
           <Text type="body1" color="blue" className="ellipsis">
             {item.title}
           </Text>
-          {item.meta && (
-            <Text type="body1" color="tertiary" className="row-meta">
-              {item.meta}
-            </Text>
-          )}
+          <Text type="body1" color="tertiary" className="ellipsis">
+            {item.subtitle}
+          </Text>
+          <Text type="body1" color="tertiary" className="row-meta">
+            {item.meta}
+          </Text>
         </S.Row>
       ))}
     </S.Items>
