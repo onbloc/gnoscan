@@ -15,7 +15,7 @@ import {
  * the caller's own backend/on-chain data only for tokens this list doesn't cover.
  */
 export const useTokenResourceMeta = () => {
-  const { data: tokenMetas = [], isFetched } = useGetTokenMetaQuery();
+  const { data: tokenMetas = [], isFetched, isSuccess } = useGetTokenMetaQuery();
 
   const tokenResourceMap = useMemo(() => {
     return tokenMetas.reduce<Record<string, TokenResourceEntry>>((accum, current) => {
@@ -63,5 +63,13 @@ export const useTokenResourceMeta = () => {
     [tokenResourceMap],
   );
 
-  return { isFetched, tokenResourceMap, getTokenMeta, hasTokenResourceMeta, getTokenImage, getTokenDescription };
+  return {
+    isFetched,
+    isSuccess,
+    tokenResourceMap,
+    getTokenMeta,
+    hasTokenResourceMeta,
+    getTokenImage,
+    getTokenDescription,
+  };
 };

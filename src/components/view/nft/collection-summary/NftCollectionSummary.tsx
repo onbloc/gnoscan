@@ -33,7 +33,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
   // The detail API has no transfer count; the list API filtered to this realm does.
   const { data: listData } = useGetNftCollections({ packagePath: collection?.path }, { enabled: !!collection?.path });
   const transfers = listData?.items.find(item => item.tokenId === collection?.tokenId)?.transfers;
-  const { data: collectionMetas = [], isFetched: isFetchedCollectionMetas } = useGetNftCollectionMetaQuery();
+  const { data: collectionMetas = [], isSuccess: isCollectionMetaLoaded } = useGetNftCollectionMetaQuery();
   const description = collectionMetas.find(meta => meta.pkg_path === collection?.path)?.description;
 
   const files = React.useMemo(
@@ -97,8 +97,8 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
       <Field label="Transfers">
         <Badge>{makeDisplayNumberWithDefault(transfers)}</Badge>
       </Field>
-      {/* Waits for the token resource list so a described collection does not flash the add link. */}
-      {isFetchedCollectionMetas && <DescriptionField description={description} />}
+      {/* Only once both the collection and the resource list loaded, so a failed load never shows the add link. */}
+      {collection && isCollectionMetaLoaded && <DescriptionField description={description} />}
       {files.length > 0 && <ShowLog isTabLog={true} files={files} btnTextType="Source" />}
     </DataSection>
   );
