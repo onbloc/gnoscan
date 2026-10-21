@@ -3,7 +3,7 @@ import React from "react";
 import * as S from "./RealmsLayout.styles";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
-import { RealmsCount, RealmsSummary } from "@/components/view/list-summary/RealmsSummary";
+import { RealmsSummary } from "@/components/view/list-summary/RealmsSummary";
 
 interface RealmsLayoutProps {
   realmList: React.ReactNode;
@@ -20,7 +20,6 @@ const RealmsLayout = ({ realmList }: RealmsLayoutProps) => {
           <PageTitle
             title="Realms"
             type="h2"
-            suffix={!isCustomNetwork && <RealmsCount />}
             description="Realms deployed on gno.land. See what is new, what is hot, and how busy the network is."
           />
           {!isCustomNetwork && <RealmsSummary />}

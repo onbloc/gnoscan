@@ -6,16 +6,11 @@ import { useGetNewestRealms, useGetSummaryRealms } from "@/common/react-query/st
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
-import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
+import { SummaryCard, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
 
 const realmName = (path: string) => path.split("/").pop() || path;
 
 const displayPath = (path: string) => formatDisplayPackagePath(stripGnoLandPrefix(path));
-
-export const RealmsCount = () => {
-  const { data, isFetched } = useGetSummaryRealms();
-  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} isFetched={isFetched} unit="realms" />;
-};
 
 export const RealmsSummary = () => {
   const { getUrlWithNetwork } = useNetwork();

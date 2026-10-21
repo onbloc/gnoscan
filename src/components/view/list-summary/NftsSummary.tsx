@@ -7,14 +7,9 @@ import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { makeNftTokenHash } from "@/common/utils/nft-token-hash.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import NftImage from "@/components/view/nft/nft-image/NftImage";
-import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
+import { SummaryCard, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
 
 const RECENT_MINTS_LIMIT = 3;
-
-export const NftsCount = () => {
-  const { data, isFetched } = useGetSummaryNftCollections();
-  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} isFetched={isFetched} unit="collections" />;
-};
 
 export const NftsSummary = () => {
   const { getUrlWithNetwork } = useNetwork();

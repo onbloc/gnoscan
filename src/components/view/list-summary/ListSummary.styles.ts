@@ -115,12 +115,6 @@ export const Row = styled(Link)`
   }
 `;
 
-export const Count = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`;
-
 // The collection inventory search box, on the base color so it stands out on the list page surface.
 export const SearchBox = styled(InventorySearchBox)`
   border: 1px solid ${({ theme }) => theme.colors.dimmed50};

@@ -2,7 +2,6 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
-import { SummaryCount } from "./ListSummary";
 import { RealmsSummary } from "./RealmsSummary";
 
 const mockSummary = { data: undefined as unknown, isFetched: true, isError: false };
@@ -28,22 +27,6 @@ const renderText = (element: React.ReactElement) =>
 beforeEach(() => {
   mockSummary.data = undefined;
   mockSummary.isError = false;
-});
-
-it("shows the 24h change next to the total", () => {
-  expect(renderText(<SummaryCount total={1234} new24h={12} unit="realms" isFetched />)).toBe("1,234 realms +12 (24h)");
-});
-
-it("hides a zero 24h change so a quiet day does not read as a dead chain", () => {
-  expect(renderText(<SummaryCount total={32} new24h={0} unit="tokens" isFetched />)).toBe("32 tokens");
-});
-
-it("renders nothing while the total is loading", () => {
-  expect(renderText(<SummaryCount unit="tokens" isFetched={false} />)).toBe("");
-});
-
-it("shows a dash when the total could not be loaded", () => {
-  expect(renderText(<SummaryCount unit="tokens" isFetched />)).toBe("- tokens");
 });
 
 it("keeps every card with empty values when the summary request fails", () => {
