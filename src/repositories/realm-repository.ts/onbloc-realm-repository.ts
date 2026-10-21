@@ -190,7 +190,7 @@ export class OnblocRealmRepository implements IRealmRepository {
       .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
   }
 
-  async getRealmTotalSupply(realmPath: string): Promise<number | null> {
+  async getRealmTotalSupply(realmPath: string): Promise<string | null> {
     if (!this.nodeClient) {
       return null;
     }

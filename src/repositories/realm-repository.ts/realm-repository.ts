@@ -187,7 +187,7 @@ export class RealmRepository implements IRealmRepository {
       .then(result => result?.data?.transactions || []);
   }
 
-  async getRealmTotalSupply(realmPath: string): Promise<number | null> {
+  async getRealmTotalSupply(realmPath: string): Promise<string | null> {
     if (!this.nodeClient) {
       return null;
     }

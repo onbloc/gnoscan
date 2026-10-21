@@ -322,11 +322,11 @@ export const useGetHoldersQuery = (realmPath: string | null, options?: UseQueryO
   });
 };
 
-export const useGetRealmTotalSupplyQuery = (realmPath: string | null, options?: UseQueryOptions<number, Error>) => {
+export const useGetRealmTotalSupplyQuery = (realmPath: string | null, options?: UseQueryOptions<string, Error>) => {
   const { currentNetwork } = useNetworkProvider();
   const { realmRepository } = useServiceProvider();
 
-  return useQuery<number, Error>({
+  return useQuery<string, Error>({
     queryKey: [
       QUERY_KEY.getRealmTotalSupply,
       currentNetwork?.rpcUrl || "",
@@ -335,14 +335,10 @@ export const useGetRealmTotalSupplyQuery = (realmPath: string | null, options?: 
     ],
     queryFn: async () => {
       if (!realmRepository || !realmPath) {
-        return 0;
+        return "0";
       }
       const totalSupply = await realmRepository.getRealmTotalSupply(realmPath);
-      if (!totalSupply) {
-        return 0;
-      }
-
-      return totalSupply;
+      return totalSupply || "0";
     },
     retry: 1,
     enabled: !!realmRepository && !!realmPath,

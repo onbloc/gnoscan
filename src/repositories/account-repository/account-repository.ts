@@ -45,7 +45,7 @@ export class AccountRepository implements IAccountRepository {
         response?.response?.ResponseBase?.Data
           ? {
               denom: path,
-              value: parseABCIQueryNumberResponse(response.response.ResponseBase.Data).toString(),
+              value: parseABCIQueryNumberResponse(response.response.ResponseBase.Data),
             }
           : null,
       ),

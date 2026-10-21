@@ -36,7 +36,7 @@ export interface IRealmRepository {
 
   getTokenHolders(realmPath: string): Promise<number>;
 
-  getRealmTotalSupply(realmPath: string): Promise<number | null>;
+  getRealmTotalSupply(realmPath: string): Promise<string | null>;
 
   getRealmTransactionInfos(fromHeight?: number): Promise<{ [key in string]: RealmTransactionInfo } | null>;
 
