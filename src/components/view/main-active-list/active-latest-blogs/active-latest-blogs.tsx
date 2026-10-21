@@ -100,13 +100,6 @@ const ActiveLatestBlogs = () => {
               </StyledText>
             </List>
           ))}
-          {blogsFetched && blogs.length === 0 && (
-            <StyledContentWrapper>
-              <StyledText width="fit-content" type="p4" color="tertiary">
-                No data to display
-              </StyledText>
-            </StyledContentWrapper>
-          )}
           <StatisticsErrorNotice query={failure} />
         </ActiveList>
       ) : (
@@ -123,14 +116,6 @@ const ActiveLatestBlogs = () => {
 };
 
 export default ActiveLatestBlogs;
-
-const StyledContentWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-`;
 
 const StyledTitleWrapper = styled.div<{ width: string }>`
   display: flex;
