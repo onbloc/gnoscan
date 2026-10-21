@@ -167,6 +167,9 @@ export function makeQueryParameter(data: {
   return "?" + params.join("&");
 }
 
+/** URL-encodes one free-form value for makeQueryParameter, which sends values as is. */
+export const encodeQueryValue = (value?: string) => (value ? encodeURIComponent(value) : undefined);
+
 /** Like makeQueryParameter, but URL-encodes keys and values (use for free-form user input). */
 export function makeEncodedQueryParameter(data: {
   [key in string]: string | number | bigint | boolean | null | undefined;
