@@ -1,0 +1,94 @@
+import React from "react";
+
+import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
+import { useNetwork } from "@/common/hooks/use-network";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
+import { useGetSummaryTokens } from "@/common/react-query/statistics";
+import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-tokens";
+import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
+import { makeDisplayNumber } from "@/common/utils/string-util";
+import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
+
+const RECENT_TOKENS_PARAMS = { sort: "id", order: "desc" } as const;
+
+const TokenLogo = ({ src }: { src: string | null | undefined }) => (src ? <img src={src} alt="" /> : <UnknownToken />);
+
+const tokenUrl = (packagePath: string, symbol: string) =>
+  `/tokens/${symbol ? `${packagePath}.${symbol}` : packagePath}`;
+
+export const TokensCount = () => {
+  const { data } = useGetSummaryTokens();
+  return <SummaryCount total={data?.data.total} new24h={data?.data.new24h} unit="tokens" />;
+};
+
+export const TokensSummary = () => {
+  const { getUrlWithNetwork } = useNetwork();
+  const { getTokenMeta } = useTokenResourceMeta();
+  const summary = useGetSummaryTokens();
+  const recent = useMappedApiTokens(RECENT_TOKENS_PARAMS);
+
+  const recentItems = React.useMemo(
+    () =>
+      recent.data.slice(0, 3).map(token => ({
+        key: token.tokenId || token.packagePath,
+        href: getUrlWithNetwork(tokenUrl(token.packagePath, token.symbol)),
+        title: token.name,
+        subtitle: token.symbol,
+        meta: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
+        media: <TokenLogo src={token.logoUrl} />,
+      })),
+    [recent.data, getUrlWithNetwork],
+  );
+
+  const trendingItems = React.useMemo(
+    () =>
+      (summary.data?.data.trending ?? []).slice(0, 3).map((token, index) => {
+        const meta = getTokenMeta(token.tokenId || token.packagePath, {
+          name: token.name,
+          symbol: token.symbol,
+          decimals: 0,
+          image: token.logoUrl ?? undefined,
+        });
+        return {
+          key: token.tokenId,
+          href: getUrlWithNetwork(tokenUrl(token.packagePath, token.symbol)),
+          title: index === 0 ? meta.name : `#${index + 1} ${meta.name}`,
+          subtitle: meta.symbol,
+          meta: `${makeDisplayNumber(token.transfers24h)} transfers`,
+          media: <TokenLogo src={meta.image} />,
+        };
+      }),
+    [summary.data, getTokenMeta, getUrlWithNetwork],
+  );
+
+  const stats = summary.data?.data;
+  // Cards backed by the summary API stay hidden until it answers, so a missing endpoint leaves no broken cards.
+  const showStats = !summary.isError;
+
+  return (
+    <SummaryGrid>
+      {!recent.isError && (
+        <SummaryCard title="Recently Registered" live>
+          <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
+        </SummaryCard>
+      )}
+      {showStats && (
+        <>
+          <SummaryCard title="Trending Token" caption="Most active in 24h">
+            <SummaryItemList
+              items={trendingItems}
+              isFetched={summary.isFetched}
+              emptyText="No token activity in the last 24h"
+            />
+          </SummaryCard>
+          <SummaryCard title="Unique Holders" caption="Wallets holding any GRC20">
+            <SummaryValue value={stats?.holders ?? 0} isFetched={summary.isFetched} />
+          </SummaryCard>
+          <SummaryCard title="24h Transfers" caption="Transfers in the last 24h">
+            <SummaryValue value={stats?.transfers24h ?? 0} isFetched={summary.isFetched} />
+          </SummaryCard>
+        </>
+      )}
+    </SummaryGrid>
+  );
+};
