@@ -16,7 +16,7 @@ export const StatisticsErrorNotice = ({ query, centered = false }: StatisticsErr
   const Container = centered ? CenteredNotice : Notice;
 
   return (
-    <Container role="alert">
+    <Container role="status">
       <Text type="p4" color="tertiary">
         {isStatisticsNotReady(query.error) ? "Statistics are not available yet." : "Statistics could not be loaded."}
       </Text>

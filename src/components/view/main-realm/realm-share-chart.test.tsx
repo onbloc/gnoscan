@@ -57,7 +57,7 @@ describe("RealmShareChart", () => {
   it("keeps the chart without a notice when a refresh fails", () => {
     const html = render({ failure: { ...queryState, data: {}, error: httpError(500) } });
 
-    expect(html).not.toContain("alert");
+    expect(html).not.toMatch(/role="status"/);
     expect(html).toContain("CHART");
   });
 
