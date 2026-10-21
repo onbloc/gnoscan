@@ -60,7 +60,7 @@ export class OnblocAccountRepository implements IAccountRepository {
 
   async getAccountTransactions(address: string, cursor: string | null): Promise<AccountTransactionResponse> {
     const transactions: Transaction[] = [];
-    const pageInfo = {
+    const pageInfo: AccountTransactionResponse["pageInfo"] = {
       last: null,
       hasNext: false,
     };
@@ -77,9 +77,9 @@ export class OnblocAccountRepository implements IAccountRepository {
         makeAccountTransactionsQuery(address, cursor, MAX_QUERY_SIZE),
       );
       const transactionEdges = response?.data?.transactions.edges;
-      const pageInfo = response?.data?.transactions.pageInfo;
-      pageInfo.last = pageInfo?.last || null;
-      pageInfo.hasNext = pageInfo?.hasNext || false;
+      const responsePageInfo = response?.data?.transactions.pageInfo;
+      pageInfo.last = responsePageInfo?.last || null;
+      pageInfo.hasNext = responsePageInfo?.hasNext || false;
       const mappedTransactions = transactionEdges
         .map((edge: any) => edge.transaction)
         .filter((tx: any) => {
