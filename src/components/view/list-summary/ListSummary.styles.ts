@@ -118,3 +118,44 @@ export const Count = styled.div`
   align-items: center;
   gap: 6px;
 `;
+
+export const SearchBox = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid ${({ theme }) => theme.colors.dimmed50};
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.colors.base};
+
+  :focus-within {
+    outline: 2px solid ${({ theme }) => theme.colors.blue};
+    outline-offset: 2px;
+  }
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+    ${({ theme }) => theme.fonts.p4};
+    color: ${({ theme }) => theme.colors.primary};
+    background: transparent;
+    border: 0;
+    outline: none;
+
+    ::placeholder {
+      color: ${({ theme }) => theme.colors.tertiary};
+    }
+  }
+
+  svg {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+
+    path {
+      stroke: ${({ theme }) => theme.colors.primary};
+    }
+  }
+`;

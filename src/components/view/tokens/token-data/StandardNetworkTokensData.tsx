@@ -11,10 +11,11 @@ import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-token
 interface StandardNetworkTokensDataProps {
   sortOption: TokenListSortOption;
   setSortOption: (sortOption: TokenListSortOption) => void;
+  keyword?: string;
 }
 
-const StandardNetworkTokensData = ({ sortOption, setSortOption }: StandardNetworkTokensDataProps) => {
-  const apiParams = React.useMemo(() => toTokenListApiSortParams(sortOption), [sortOption]);
+const StandardNetworkTokensData = ({ sortOption, setSortOption, keyword }: StandardNetworkTokensDataProps) => {
+  const apiParams = React.useMemo(() => ({ ...toTokenListApiSortParams(sortOption), keyword }), [sortOption, keyword]);
 
   const tokensData = useMappedApiTokens(apiParams);
   const { getPriceEntry } = useTokenPrice();
