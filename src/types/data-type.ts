@@ -65,6 +65,8 @@ export interface TokenResourceMeta {
   image: string;
 }
 
+export type NftCollectionResourceMeta = Omit<TokenResourceMeta, "denom" | "token_path" | "decimals">;
+
 export interface TokenSummary {
   tokenId: string;
   slug: string;
