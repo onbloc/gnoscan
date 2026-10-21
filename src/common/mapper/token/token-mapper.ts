@@ -7,6 +7,7 @@ export interface GRC20InfoWithLogo extends Omit<GRC20Info, "totalSupply"> {
   logoUrl: string;
   registered: boolean;
   transactionCount24h: number | null;
+  createdAt: string | null;
 }
 
 export class TokenMapper {
@@ -25,6 +26,7 @@ export class TokenMapper {
       logoUrl: response.logoUrl ?? "",
       registered: response.isRegYn === "Y",
       transactionCount24h: response.transactionCount24h ?? null,
+      createdAt: response.createdAt ?? null,
     };
   }
 

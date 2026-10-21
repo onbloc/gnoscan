@@ -14,4 +14,6 @@ export interface TokenModel {
   isRegYn: "Y" | "N";
   /** Distinct transactions touching the token in the last 24 hours (Transfer, Mint, Burn and Approval events). */
   transactionCount24h?: number;
+  /** RFC3339 registration time. */
+  createdAt?: string;
 }
