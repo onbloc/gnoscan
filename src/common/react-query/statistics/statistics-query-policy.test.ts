@@ -29,39 +29,18 @@ describe("statistics query policy", () => {
 });
 
 describe("combineStatisticsQueries", () => {
-  const healthy: StatisticsQuery = { data: {}, error: null, isError: false, isFetching: false, refetch: jest.fn() };
+  const available: StatisticsQuery = { data: {}, error: null, isError: false };
+  const unavailable404: StatisticsQuery = { data: undefined, error: httpError(404), isError: true };
+  const unavailable500: StatisticsQuery = { data: undefined, error: httpError(500), isError: true };
 
-  it("reports no error while every query is healthy", () => {
-    expect(combineStatisticsQueries([healthy, healthy]).isError).toBe(false);
+  it("reports no error while every statistic is available", () => {
+    expect(combineStatisticsQueries([available, available]).isError).toBe(false);
   });
 
-  it("merges several failures into one notice and retries all of them", () => {
-    const refetchSupply = jest.fn();
-    const refetchPrice = jest.fn();
-    const noData404: StatisticsQuery = {
-      data: undefined,
-      error: httpError(404),
-      isError: true,
-      isFetching: false,
-      refetch: refetchSupply,
-    };
-    const stale500: StatisticsQuery = {
-      data: {},
-      error: httpError(500),
-      isError: true,
-      isFetching: true,
-      refetch: refetchPrice,
-    };
+  it("reports the first unavailable statistic", () => {
+    const combined = combineStatisticsQueries([available, unavailable404, unavailable500]);
 
-    const combined = combineStatisticsQueries([stale500, healthy, noData404]);
-
-    // The failure without data wins, so the notice does not claim stale data is on screen.
-    expect(combined).toMatchObject({ isError: true, data: undefined, isFetching: true });
+    expect(combined.isError).toBe(true);
     expect(isStatisticsNotReady(combined.error)).toBe(true);
-
-    combined.refetch();
-    expect(refetchSupply).toHaveBeenCalledTimes(1);
-    expect(refetchPrice).toHaveBeenCalledTimes(1);
-    expect(healthy.refetch).not.toHaveBeenCalled();
   });
 });

@@ -5,12 +5,15 @@ import { useGetSummaryTransactions } from "@/common/react-query/statistics";
 import { SummaryTransactionsInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { DEFAULT_SUMMARY_TRANSACTIONS_INFO } from "@/common/values/default-object/summary";
-import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 export const StandardNetworkTxsCard = () => {
   const summaryTransactionsQuery = useGetSummaryTransactions();
   const { data: txsData } = summaryTransactionsQuery;
   const isFetchedTxsData = txsData !== undefined;
+  const failure = useStatisticsFailure(summaryTransactionsQuery);
+  const isError = failure.isError;
 
   const transactionSummaryInfo: SummaryTransactionsInfo = React.useMemo(() => {
     if (!txsData?.data) return DEFAULT_SUMMARY_TRANSACTIONS_INFO;
@@ -22,12 +25,13 @@ export const StandardNetworkTxsCard = () => {
   }, [txsData?.data]);
 
   return (
-    <StatisticsQueryState query={summaryTransactionsQuery}>
+    <>
       <FetchedComp
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
         isFetched={isFetchedTxsData}
+        isError={isError}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
             {makeDisplayNumber(transactionSummaryInfo.totalTransactions)}
@@ -45,6 +49,7 @@ export const StandardNetworkTxsCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isFetchedTxsData}
+              isError={isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {makeDisplayNumber(transactionSummaryInfo.transactionFeeAverage)}
@@ -64,6 +69,7 @@ export const StandardNetworkTxsCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isFetchedTxsData}
+              isError={isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {makeDisplayNumber(transactionSummaryInfo.transactionTotalFee)}
@@ -73,6 +79,7 @@ export const StandardNetworkTxsCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
-    </StatisticsQueryState>
+      <StatisticsErrorNotice query={failure} />
+    </>
   );
 };

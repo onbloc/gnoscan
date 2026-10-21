@@ -3,9 +3,10 @@ import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetGnotPrice, useGetSummarySupply } from "@/common/react-query/statistics";
 import { combineStatisticsQueries } from "@/common/react-query/statistics/statistics-query-policy";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
 import { makeCompactNumber } from "@/common/utils/string-util";
 import { formatPriceChange } from "@/common/utils/price.utility";
-import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 const formatPrice = (price: string) => `$${Number(price).toFixed(4)}`;
 
@@ -14,6 +15,7 @@ export const StandardNetworkSupplyCard = () => {
   const { data: supply, isFetched: isSupplyFetched } = supplyQuery;
   const marketQuery = useGetGnotPrice();
   const { data: market, isFetched: isMarketFetched } = marketQuery;
+  const failure = combineStatisticsQueries([useStatisticsFailure(marketQuery), useStatisticsFailure(supplyQuery)]);
   // An unpriced asset comes back with an empty price, which must not render as $0.0000.
   const price = market?.data.price || null;
   const priceChange = market?.data.changeRateOneDay;
@@ -93,8 +95,8 @@ export const StandardNetworkSupplyCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
-      {/* Notice only: price/circulating supply and max supply come from separate endpoints and stay visible. */}
-      <StatisticsQueryState query={combineStatisticsQueries([marketQuery, supplyQuery])}>{null}</StatisticsQueryState>
+      {/* One notice for both endpoints; each failed field already shows a dash. */}
+      <StatisticsErrorNotice query={failure} />
     </>
   );
 };

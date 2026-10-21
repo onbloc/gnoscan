@@ -87,14 +87,26 @@ export const FetchedComp = ({
   skeletonheight = 16,
   skeletonMargin = "",
   isFetched,
+  isError = false,
   renderComp,
 }: {
   skeletonWidth: number;
   skeletonheight?: number;
   skeletonMargin?: string;
   isFetched: boolean;
+  // The statistic is unavailable: show a dash instead of the value or the skeleton.
+  isError?: boolean;
   renderComp: React.ReactNode;
 }) => {
+  if (isError) {
+    // A skeleton taller than a row stands for the card headline.
+    return (
+      <Text type={skeletonheight > 16 ? "h3" : "p4"} color="primary" margin={skeletonMargin || undefined}>
+        -
+      </Text>
+    );
+  }
+
   return (
     <>
       {isFetched ? renderComp : <SkeletonBar width={skeletonWidth} height={skeletonheight} margin={skeletonMargin} />}

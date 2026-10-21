@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import theme from "@/styles/theme";
 import { Spinner } from "@/components/ui/loading";
-import { StatisticsEmptyState, StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
@@ -21,8 +21,8 @@ interface RealmShareChartProps {
   period: RealmSharePeriod;
   onChangePeriod: (period: RealmSharePeriod) => void;
   isFetched: boolean;
-  // When given, failed statistics requests show an unavailable/refresh-failed notice with Retry.
-  query?: React.ComponentProps<typeof StatisticsQueryState>["query"];
+  // When given, a statistic that failed without data shows an unavailable/load-failure notice instead of the chart.
+  failure?: React.ComponentProps<typeof StatisticsErrorNotice>["query"];
   labels: string[];
   datas: { [key in string]: Array<{ value: number; rate: number }> };
 }
@@ -32,7 +32,7 @@ export const RealmShareChart = ({
   period,
   onChangePeriod,
   isFetched,
-  query,
+  failure,
   labels,
   datas,
 }: RealmShareChartProps) => {
@@ -42,13 +42,10 @@ export const RealmShareChart = ({
     }
   };
 
-  const isEmpty = Object.keys(datas).length === 0;
-  const content = !isFetched ? (
-    <Spinner position="center" />
-  ) : query && isEmpty ? (
-    <StatisticsEmptyState />
-  ) : (
+  const content = isFetched ? (
     <AreaChart labels={labels} datas={datas} colors={REALM_SHARE_CHART_COLORS} />
+  ) : (
+    <Spinner position="center" />
   );
 
   return (
@@ -65,7 +62,7 @@ export const RealmShareChart = ({
           ))}
         </div>
       </div>
-      {query ? <StatisticsQueryState query={query}>{content}</StatisticsQueryState> : content}
+      {failure?.isError ? <StatisticsErrorNotice query={failure} centered /> : content}
     </Wrapper>
   );
 };

@@ -6,6 +6,7 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { dateToStr } from "@/common/utils/date-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { useGetTotalGasShare } from "@/common/react-query/statistics";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
 import { PackageInfo } from "@/repositories/api/statistics/response";
 
 export const MainRealmTotalGasShareApi = () => {
@@ -13,6 +14,7 @@ export const MainRealmTotalGasShareApi = () => {
   const query = useGetTotalGasShare({ range: period });
   const { data } = query;
   const isFetched = data !== undefined;
+  const failure = useStatisticsFailure(query);
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -70,11 +72,11 @@ export const MainRealmTotalGasShareApi = () => {
 
   return (
     <RealmShareChart
-      title="Total Fee Share by Realm in GNOT"
+      title="Total Fee Share by Realm in GNOT"
       period={period}
       onChangePeriod={setPeriod}
       isFetched={isFetched}
-      query={query}
+      failure={failure}
       labels={labels}
       datas={transactionGasData}
     />

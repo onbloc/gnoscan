@@ -5,12 +5,15 @@ import { useGetSummaryBlocks } from "@/common/react-query/statistics";
 import { SummaryBlockInfo } from "@/types/data-type";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { DEFAULT_SUMMARY_BLOCK_INFO } from "@/common/values/default-object/summary";
-import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 export const StandardNetworkBlockCard = () => {
   const summaryBlocksQuery = useGetSummaryBlocks();
   const { data } = summaryBlocksQuery;
   const isFetched = data !== undefined;
+  const failure = useStatisticsFailure(summaryBlocksQuery);
+  const isError = failure.isError;
 
   const summaryInfo: SummaryBlockInfo = React.useMemo(() => {
     if (!data?.data) return DEFAULT_SUMMARY_BLOCK_INFO;
@@ -22,12 +25,13 @@ export const StandardNetworkBlockCard = () => {
   }, [data?.data]);
 
   return (
-    <StatisticsQueryState query={summaryBlocksQuery}>
+    <>
       <FetchedComp
         skeletonWidth={130}
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
         isFetched={isFetched}
+        isError={isError}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
             {makeDisplayNumber(summaryInfo.blockHeight)}
@@ -45,6 +49,7 @@ export const StandardNetworkBlockCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isFetched}
+              isError={isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {`${summaryInfo.blockTimeAverage} seconds`}
@@ -64,6 +69,7 @@ export const StandardNetworkBlockCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isFetched}
+              isError={isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {summaryInfo.txPerBlockAverage}
@@ -73,6 +79,7 @@ export const StandardNetworkBlockCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
-    </StatisticsQueryState>
+      <StatisticsErrorNotice query={failure} />
+    </>
   );
 };

@@ -5,25 +5,16 @@ export const isStatisticsNotReady = (error: unknown): boolean => isAxiosError(er
 export const retryStatisticsQuery = (failureCount: number, error: unknown): boolean =>
   !isStatisticsNotReady(error) && failureCount < 3;
 
-// The subset of a react-query result the statistics notice reads.
+// What the statistics notice reads. `isError` means the statistic is unavailable: it failed and has no data to show.
 export interface StatisticsQuery {
   data: unknown;
   error: unknown;
   isError: boolean;
-  isFetching: boolean;
-  refetch: () => unknown;
 }
 
-// Merges queries that share one notice: it reports a failed query without data first and retries every failed one.
+// Merges queries that share one notice: the first unavailable one is reported.
 export const combineStatisticsQueries = (queries: StatisticsQuery[]): StatisticsQuery => {
-  const failed = queries.filter(query => query.isError);
-  const shown = failed.find(query => query.data === undefined) ?? failed[0];
+  const unavailable = queries.find(query => query.isError);
 
-  return {
-    data: shown?.data,
-    error: shown?.error,
-    isError: failed.length > 0,
-    isFetching: failed.some(query => query.isFetching),
-    refetch: () => Promise.all(failed.map(query => query.refetch())),
-  };
+  return { data: undefined, error: unavailable?.error, isError: unavailable !== undefined };
 };
