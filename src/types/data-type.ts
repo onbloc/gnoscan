@@ -65,6 +65,10 @@ export interface TokenResourceMeta {
   image: string;
 }
 
+/**
+ * A GRC721 collection entry of gno-token-resource, keyed by `pkg_path`.
+ * It has the GRC20 entry fields except `denom`, `token_path`, and `decimals`.
+ */
 export type NftCollectionResourceMeta = Omit<TokenResourceMeta, "denom" | "token_path" | "decimals">;
 
 export interface TokenSummary {

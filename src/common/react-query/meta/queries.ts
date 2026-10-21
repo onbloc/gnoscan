@@ -50,8 +50,13 @@ export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenResourceMeta
   });
 };
 
-// Kept apart from useGetTokenMetaQuery: GRC721 entries have no decimals, and merging them into the
-// GRC20 lookup would make token amount displays resolve undefined decimals for these collections.
+/**
+ * Loads the GRC721 collection list of gno-token-resource for the current network.
+ *
+ * Kept apart from {@link useGetTokenMetaQuery} because GRC721 entries have no decimals.
+ * Merging them into the GRC20 lookup would make token amount displays resolve undefined
+ * decimals for these collections.
+ */
 export const useGetNftCollectionMetaQuery = (options?: UseQueryOptions<NftCollectionResourceMeta[], Error>) => {
   const { currentNetwork } = useNetworkProvider();
 
