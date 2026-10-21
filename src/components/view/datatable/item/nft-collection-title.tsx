@@ -53,6 +53,7 @@ const Wrapper = styled.div`
       width: 20px;
       height: 20px;
       flex-shrink: 0;
+      object-fit: contain;
     }
   }
 `;
