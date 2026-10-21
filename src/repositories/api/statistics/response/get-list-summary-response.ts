@@ -1,24 +1,12 @@
 // Summaries shown above the tokens, NFT collections and realms lists.
 // `new24h`, `transfers24h` and the other 24h fields count activity in the last 24 hours.
 
-export interface TrendingTokenModel {
-  tokenId: string;
-  name: string;
-  symbol: string;
-  packagePath: string;
-  logoUrl: string | null;
-  transfers24h: number;
-}
-
 export interface GetSummaryTokensResponse {
   data: {
     total: number;
     new24h: number;
     /** Distinct addresses with a positive balance of any GRC20 token. */
     holders: number;
-    transfers24h: number;
-    /** Most active tokens in the last 24 hours, at most 3, most active first. */
-    trending: TrendingTokenModel[];
   };
 }
 
