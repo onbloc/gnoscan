@@ -53,11 +53,12 @@ export const NftsSummary = () => {
   }));
 
   const stats = summary.data?.data;
-  const showStats = !summary.isError;
+  // A failed poll keeps the previous data, so cards hide only when nothing ever loaded.
+  const showStats = !(summary.isError && !summary.data);
 
   return (
     <SummaryGrid>
-      {!recent.isError && (
+      {!(recent.isError && !recent.data) && (
         <SummaryCard title="Recently Minted" live>
           <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No recent mints" />
         </SummaryCard>

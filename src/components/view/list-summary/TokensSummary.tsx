@@ -3,7 +3,7 @@ import React from "react";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
-import { useGetSummaryTokens } from "@/common/react-query/statistics";
+import { LIST_SUMMARY_REFETCH_INTERVAL, useGetSummaryTokens } from "@/common/react-query/statistics";
 import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-tokens";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
@@ -25,7 +25,7 @@ export const TokensSummary = () => {
   const { getUrlWithNetwork } = useNetwork();
   const { getTokenMeta } = useTokenResourceMeta();
   const summary = useGetSummaryTokens();
-  const recent = useMappedApiTokens(RECENT_TOKENS_PARAMS);
+  const recent = useMappedApiTokens(RECENT_TOKENS_PARAMS, { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
 
   const recentItems = React.useMemo(
     () =>
@@ -63,11 +63,12 @@ export const TokensSummary = () => {
 
   const stats = summary.data?.data;
   // Cards backed by the summary API stay hidden until it answers, so a missing endpoint leaves no broken cards.
-  const showStats = !summary.isError;
+  // A failed poll keeps the previous data, so cards hide only when nothing ever loaded.
+  const showStats = !(summary.isError && !summary.data);
 
   return (
     <SummaryGrid>
-      {!recent.isError && (
+      {!(recent.isError && recent.data.length === 0) && (
         <SummaryCard title="Recently Registered" live>
           <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
         </SummaryCard>

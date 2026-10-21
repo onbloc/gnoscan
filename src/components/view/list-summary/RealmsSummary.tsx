@@ -44,11 +44,12 @@ export const RealmsSummary = () => {
   });
 
   const stats = summary.data?.data;
-  const showStats = !summary.isError;
+  // A failed poll keeps the previous data, so cards hide only when nothing ever loaded.
+  const showStats = !(summary.isError && !summary.data);
 
   return (
     <SummaryGrid>
-      {!newest.isError && (
+      {!(newest.isError && !newest.data) && (
         <SummaryCard title="Recently Deployed" live>
           <SummaryItemList items={recentItems} isFetched={newest.isFetched} emptyText="No realms deployed yet" />
         </SummaryCard>
