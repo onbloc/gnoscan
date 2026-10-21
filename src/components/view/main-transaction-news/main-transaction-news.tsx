@@ -13,10 +13,13 @@ import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacke
 import { useGetStoragePrice, useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { Spinner } from "@/components/ui/loading";
+import { StatisticsEmptyState, StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 const MainTransactionNews = () => {
   const { isCustomNetwork } = useNetworkProvider();
-  const { data } = useGetTotalDailyStroageDeposit();
+  const storageDepositQuery = useGetTotalDailyStroageDeposit();
+  const { data } = storageDepositQuery;
 
   const { data: storagePriceData } = useGetStoragePrice();
 
@@ -74,7 +77,15 @@ const MainTransactionNews = () => {
         <Text className="title" type="h6" color="primary">
           {"Total Storage Deposit"}
         </Text>
-        <StackedBarChart2 labels={labels} chartData={chartData} />
+        <StatisticsQueryState query={storageDepositQuery}>
+          {data === undefined ? (
+            <Spinner position="center" />
+          ) : labels.length === 0 ? (
+            <StatisticsEmptyState />
+          ) : (
+            <StackedBarChart2 labels={labels} chartData={chartData} />
+          )}
+        </StatisticsQueryState>
       </Card>
 
       <Card height="274px" className="card-2">

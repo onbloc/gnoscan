@@ -19,15 +19,14 @@ import { colWidth, List, listTitle, StyledAmountText, StyledCard, StyledText } f
 import Tooltip from "@/components/ui/tooltip";
 import FetchedSkeleton from "../fetched-skeleton";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 const ActiveAccountApi = () => {
   const { getUrlWithNetwork } = useNetwork();
 
-  const { data, isFetched } = useGetMonthlyActiveAccounts();
-
-  const loaded = useMemo(() => {
-    return isFetched;
-  }, [isFetched]);
+  const query = useGetMonthlyActiveAccounts();
+  const { data } = query;
+  const loaded = data !== undefined;
 
   const accountsData: ActiveAccountModel[] = useMemo(() => {
     if (!data?.items) return [];
@@ -55,45 +54,47 @@ const ActiveAccountApi = () => {
           </Text>
         )}
       </Text>
-      {loaded ? (
-        <ActiveList title={listTitle.accounts} colWidth={colWidth.accounts}>
-          {accountsData.map((account: ActiveAccountModel, index: number) => (
-            <List key={index}>
-              <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
-                {index + 1}
-              </StyledText>
-              <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
-                <Link
-                  href={getUrlWithNetwork(
-                    getAddressLinkPath({
-                      address: account.account,
-                      name: account.accountName,
-                      label: account.accountLabel,
-                      labelType: account.accountLabelType,
-                    }),
-                  )}
-                  passHref
-                >
-                  <span>
-                    <Tooltip content={account.account}>
-                      {getDisplayUsername(account.account, account.accountName, account.accountLabel)}
-                    </Tooltip>
-                  </span>
-                </Link>
-              </StyledText>
-              <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
-                {account.totalTxs}
-              </StyledText>
-              <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
-                {account.nonTransferTxs}
-              </StyledText>
-              <LazyAccountBalance address={account.account} />
-            </List>
-          ))}
-        </ActiveList>
-      ) : (
-        <FetchedSkeleton />
-      )}
+      <StatisticsQueryState query={query}>
+        {loaded ? (
+          <ActiveList title={listTitle.accounts} colWidth={colWidth.accounts}>
+            {accountsData.map((account: ActiveAccountModel, index: number) => (
+              <List key={index}>
+                <StyledText type="p4" width={colWidth.accounts[0]} color="tertiary">
+                  {index + 1}
+                </StyledText>
+                <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
+                  <Link
+                    href={getUrlWithNetwork(
+                      getAddressLinkPath({
+                        address: account.account,
+                        name: account.accountName,
+                        label: account.accountLabel,
+                        labelType: account.accountLabelType,
+                      }),
+                    )}
+                    passHref
+                  >
+                    <span>
+                      <Tooltip content={account.account}>
+                        {getDisplayUsername(account.account, account.accountName, account.accountLabel)}
+                      </Tooltip>
+                    </span>
+                  </Link>
+                </StyledText>
+                <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
+                  {account.totalTxs}
+                </StyledText>
+                <StyledText type="p4" width={colWidth.accounts[3]} color="reverse">
+                  {account.nonTransferTxs}
+                </StyledText>
+                <LazyAccountBalance address={account.account} />
+              </List>
+            ))}
+          </ActiveList>
+        ) : (
+          <FetchedSkeleton />
+        )}
+      </StatisticsQueryState>
       {loaded && (
         <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}

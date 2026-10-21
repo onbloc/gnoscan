@@ -5,6 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetLatestBlogsResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { retryStatisticsQuery } from "./statistics-query-policy";
 
 export const useGetLatestBlogs = (options?: UseQueryOptions<GetLatestBlogsResponse, Error, GetLatestBlogsResponse>) => {
   const { apiStatisticsRepository } = useServiceProvider();
@@ -14,6 +15,6 @@ export const useGetLatestBlogs = (options?: UseQueryOptions<GetLatestBlogsRespon
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getLatestBlogs(),
-    options,
+    { retry: retryStatisticsQuery, ...options },
   );
 };

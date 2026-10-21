@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import theme from "@/styles/theme";
 import { Spinner } from "@/components/ui/loading";
-import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
+import { StatisticsEmptyState, StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
@@ -46,11 +46,7 @@ export const RealmShareChart = ({
   const content = !isFetched ? (
     <Spinner position="center" />
   ) : query && isEmpty ? (
-    <EmptyStateWrapper>
-      <Text type="p4" color="tertiary">
-        No statistics for this period.
-      </Text>
-    </EmptyStateWrapper>
+    <StatisticsEmptyState />
   ) : (
     <AreaChart labels={labels} datas={datas} colors={REALM_SHARE_CHART_COLORS} />
   );
@@ -128,12 +124,4 @@ const Wrapper = styled.div`
       }
     }
   }
-`;
-
-const EmptyStateWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
 `;

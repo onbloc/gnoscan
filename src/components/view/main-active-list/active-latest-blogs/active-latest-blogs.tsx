@@ -13,6 +13,7 @@ import { Publisher } from "../../datatable/item";
 import { useGetLatestBlogs } from "@/common/react-query/statistics";
 import { Blog } from "@/types/data-type";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 interface BlogWithPublisher extends Blog {
   publisher: string;
@@ -24,7 +25,9 @@ interface BlogWithPublisher extends Blog {
 const ActiveLatestBlogs = () => {
   const { isFetched } = useUpdateTime();
 
-  const { data, isFetched: blogsFetched } = useGetLatestBlogs();
+  const query = useGetLatestBlogs();
+  const { data } = query;
+  const blogsFetched = data !== undefined;
 
   const { blogs, updatedAt }: { blogs: BlogWithPublisher[]; updatedAt: string | null } = React.useMemo(() => {
     if (!data?.items)
@@ -66,45 +69,47 @@ const ActiveLatestBlogs = () => {
           </Text>
         )}
       </Text>
-      {blogsFetched ? (
-        <ActiveList title={listTitle.blogs} colWidth={colWidth.blogs}>
-          {blogs?.map(blog => (
-            <List key={blog.index}>
-              <StyledText type="p4" width={colWidth.blogs[0]} color="tertiary">
-                {blog.index}
-              </StyledText>
-              <StyledTitleWrapper width={colWidth.blogs[1]}>
-                <Link href={getBlogUrl(blog.path)} target="_blank" rel="noreferrer">
-                  <StyledText width={colWidth.blogs[1]} type="p4" color="blue" className="with-link">
-                    <Tooltip content={blog.title}>
-                      <span className="ellipsis-text">{blog.title}</span>
-                    </Tooltip>
-                    <IconLink className="icon-link" />
-                  </StyledText>
-                </Link>
-              </StyledTitleWrapper>
-              <StyledText type="p4" width={colWidth.blogs[2]} color="blue">
-                <Publisher
-                  address={blog.publisher}
-                  username={blog.publisherName || ""}
-                  label={blog.publisherLabel}
-                  labelType={blog.publisherLabelType}
-                  ellipsisNumber={4}
-                ></Publisher>
-              </StyledText>
-            </List>
-          ))}
-          {blogs && blogs.length === 0 && (
-            <StyledContentWrapper>
-              <StyledText width="fit-content" type="p4" color="tertiary">
-                No data to display
-              </StyledText>
-            </StyledContentWrapper>
-          )}
-        </ActiveList>
-      ) : (
-        <FetchedSkeleton />
-      )}
+      <StatisticsQueryState query={query}>
+        {blogsFetched ? (
+          <ActiveList title={listTitle.blogs} colWidth={colWidth.blogs}>
+            {blogs?.map(blog => (
+              <List key={blog.index}>
+                <StyledText type="p4" width={colWidth.blogs[0]} color="tertiary">
+                  {blog.index}
+                </StyledText>
+                <StyledTitleWrapper width={colWidth.blogs[1]}>
+                  <Link href={getBlogUrl(blog.path)} target="_blank" rel="noreferrer">
+                    <StyledText width={colWidth.blogs[1]} type="p4" color="blue" className="with-link">
+                      <Tooltip content={blog.title}>
+                        <span className="ellipsis-text">{blog.title}</span>
+                      </Tooltip>
+                      <IconLink className="icon-link" />
+                    </StyledText>
+                  </Link>
+                </StyledTitleWrapper>
+                <StyledText type="p4" width={colWidth.blogs[2]} color="blue">
+                  <Publisher
+                    address={blog.publisher}
+                    username={blog.publisherName || ""}
+                    label={blog.publisherLabel}
+                    labelType={blog.publisherLabelType}
+                    ellipsisNumber={4}
+                  ></Publisher>
+                </StyledText>
+              </List>
+            ))}
+            {blogs && blogs.length === 0 && (
+              <StyledContentWrapper>
+                <StyledText width="fit-content" type="p4" color="tertiary">
+                  No data to display
+                </StyledText>
+              </StyledContentWrapper>
+            )}
+          </ActiveList>
+        ) : (
+          <FetchedSkeleton />
+        )}
+      </StatisticsQueryState>
 
       {blogsFetched && (
         <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">

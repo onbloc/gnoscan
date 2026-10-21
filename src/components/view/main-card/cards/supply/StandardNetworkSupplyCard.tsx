@@ -2,6 +2,7 @@ import React from "react";
 import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetGnotPrice, useGetSummarySupply } from "@/common/react-query/statistics";
+import { combineStatisticsQueries } from "@/common/react-query/statistics/statistics-query-policy";
 import { makeCompactNumber } from "@/common/utils/string-util";
 import { formatPriceChange } from "@/common/utils/price.utility";
 import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
@@ -11,7 +12,8 @@ const formatPrice = (price: string) => `$${Number(price).toFixed(4)}`;
 export const StandardNetworkSupplyCard = () => {
   const supplyQuery = useGetSummarySupply();
   const { data: supply, isFetched: isSupplyFetched } = supplyQuery;
-  const { data: market, isFetched: isMarketFetched } = useGetGnotPrice();
+  const marketQuery = useGetGnotPrice();
+  const { data: market, isFetched: isMarketFetched } = marketQuery;
   // An unpriced asset comes back with an empty price, which must not render as $0.0000.
   const price = market?.data.price || null;
   const priceChange = market?.data.changeRateOneDay;
@@ -91,8 +93,8 @@ export const StandardNetworkSupplyCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
-      {/* Notice only: the price and circulating supply come from a separate endpoint and stay visible. */}
-      <StatisticsQueryState query={supplyQuery}>{null}</StatisticsQueryState>
+      {/* Notice only: price/circulating supply and max supply come from separate endpoints and stay visible. */}
+      <StatisticsQueryState query={combineStatisticsQueries([marketQuery, supplyQuery])}>{null}</StatisticsQueryState>
     </>
   );
 };

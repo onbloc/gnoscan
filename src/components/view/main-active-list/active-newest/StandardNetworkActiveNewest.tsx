@@ -15,6 +15,7 @@ import ActiveList from "@/components/ui/active-list";
 import { colWidth, FitContentA, List, listTitle, StyledCard, StyledText } from "../main-active-list";
 import Tooltip from "@/components/ui/tooltip";
 import FetchedSkeleton from "../fetched-skeleton";
+import { StatisticsQueryState } from "@/components/view/statistics/statistics-query-state";
 
 function makeDisplayRealmPath(path: string, length = 11) {
   if (!path) {
@@ -27,7 +28,9 @@ function makeDisplayRealmPath(path: string, length = 11) {
 const StandardNetworkActiveNewest = () => {
   const { getUrlWithNetwork } = useNetwork();
 
-  const { data, isFetched } = useGetNewestRealms();
+  const query = useGetNewestRealms();
+  const { data } = query;
+  const isFetched = data !== undefined;
 
   const { realms, updatedAt }: { realms: NewestRealm[]; updatedAt: string } = React.useMemo(() => {
     if (!data?.items) return { realms: [], updatedAt: "" };
@@ -79,56 +82,58 @@ const StandardNetworkActiveNewest = () => {
           </Text>
         )}
       </Text>
-      {isFetched ? (
-        <ActiveList title={listTitle.newest} colWidth={colWidth.newest}>
-          {displayRealms.map((realm: NewestRealm, index: number) => (
-            <List key={index}>
-              <StyledText type="p4" width={colWidth.newest[0]} color="tertiary">
-                {index + 1}
-              </StyledText>
-              <StyledText type="p4" width={colWidth.newest[1]} color="blue">
-                <Link href={getUrlWithNetwork(`/realms/details?path=${realm.packagePath}`)}>
-                  <Tooltip content={realm.packagePath}>{makeDisplayRealmPath(realm.packagePath)}</Tooltip>
-                </Link>
-              </StyledText>
-              <StyledText type="p4" width={colWidth.newest[2]} color="blue">
-                <FitContentA>
-                  <Link
-                    href={getUrlWithNetwork(
-                      getAddressLinkPath({
-                        address: realm.creator,
-                        name: realm.creatorName,
-                        label: realm.creatorLabel,
-                        labelType: realm.creatorLabelType,
-                      }),
-                    )}
-                    passHref
-                  >
-                    <Tooltip content={realm.creator}>
-                      {getDisplayName(realm.creator, realm?.creatorName || "", realm.creatorLabel)}
-                    </Tooltip>
+      <StatisticsQueryState query={query}>
+        {isFetched ? (
+          <ActiveList title={listTitle.newest} colWidth={colWidth.newest}>
+            {displayRealms.map((realm: NewestRealm, index: number) => (
+              <List key={index}>
+                <StyledText type="p4" width={colWidth.newest[0]} color="tertiary">
+                  {index + 1}
+                </StyledText>
+                <StyledText type="p4" width={colWidth.newest[1]} color="blue">
+                  <Link href={getUrlWithNetwork(`/realms/details?path=${realm.packagePath}`)}>
+                    <Tooltip content={realm.packagePath}>{makeDisplayRealmPath(realm.packagePath)}</Tooltip>
                   </Link>
-                </FitContentA>
-              </StyledText>
-              <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
-                {realm.functionCount || 0}
-              </StyledText>
-              <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
-                {realm.totalCalls || 0}
-              </StyledText>
-              <StyledText type="p4" width={colWidth.newest[5]} color="blue">
-                <FitContentA>
-                  <Link href={getUrlWithNetwork(`/block/${realm.blockHeight}`)} passHref>
-                    {realm.blockHeight}
-                  </Link>
-                </FitContentA>
-              </StyledText>
-            </List>
-          ))}
-        </ActiveList>
-      ) : (
-        <FetchedSkeleton />
-      )}
+                </StyledText>
+                <StyledText type="p4" width={colWidth.newest[2]} color="blue">
+                  <FitContentA>
+                    <Link
+                      href={getUrlWithNetwork(
+                        getAddressLinkPath({
+                          address: realm.creator,
+                          name: realm.creatorName,
+                          label: realm.creatorLabel,
+                          labelType: realm.creatorLabelType,
+                        }),
+                      )}
+                      passHref
+                    >
+                      <Tooltip content={realm.creator}>
+                        {getDisplayName(realm.creator, realm?.creatorName || "", realm.creatorLabel)}
+                      </Tooltip>
+                    </Link>
+                  </FitContentA>
+                </StyledText>
+                <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
+                  {realm.functionCount || 0}
+                </StyledText>
+                <StyledText type="p4" width={colWidth.newest[4]} color="reverse">
+                  {realm.totalCalls || 0}
+                </StyledText>
+                <StyledText type="p4" width={colWidth.newest[5]} color="blue">
+                  <FitContentA>
+                    <Link href={getUrlWithNetwork(`/block/${realm.blockHeight}`)} passHref>
+                      {realm.blockHeight}
+                    </Link>
+                  </FitContentA>
+                </StyledText>
+              </List>
+            ))}
+          </ActiveList>
+        ) : (
+          <FetchedSkeleton />
+        )}
+      </StatisticsQueryState>
       {isFetched && (
         <Text className="only-mobile" type="body1" color="tertiary" margin="16px 0px 0px" textAlign="right">
           {`Last Updated: ${getLocalDateString(updatedAt)}`}

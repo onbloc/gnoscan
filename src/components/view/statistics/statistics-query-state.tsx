@@ -1,13 +1,10 @@
 import React from "react";
-import { UseQueryResult } from "react-query";
 import styled from "styled-components";
-import { isStatisticsNotReady } from "@/common/react-query/statistics/statistics-query-policy";
+import { isStatisticsNotReady, StatisticsQuery } from "@/common/react-query/statistics/statistics-query-policy";
 import { Button } from "@/components/ui/button";
 import Text from "@/components/ui/text";
 
-type StatisticsQueryStateProps = React.PropsWithChildren<{
-  query: Pick<UseQueryResult, "data" | "error" | "isError" | "isFetching" | "refetch">;
-}>;
+type StatisticsQueryStateProps = React.PropsWithChildren<{ query: StatisticsQuery }>;
 
 export const StatisticsQueryState = ({ query, children }: StatisticsQueryStateProps) => {
   if (!query.isError) return <>{children}</>;
@@ -34,12 +31,28 @@ export const StatisticsQueryState = ({ query, children }: StatisticsQueryStatePr
   );
 };
 
+export const StatisticsEmptyState = () => (
+  <EmptyState>
+    <Text type="p4" color="tertiary">
+      No statistics for this period.
+    </Text>
+  </EmptyState>
+);
+
 const Notice = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   margin: 12px 0;
+`;
+
+// Centered over the nearest positioned ancestor, like the loading spinner.
+const EmptyState = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const RetryButton = styled(Button)`
