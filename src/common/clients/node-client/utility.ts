@@ -78,20 +78,10 @@ export const extractStringFromResponse = (abciData: string | null): string => {
   return Buffer.from(abciData, "base64").toString();
 };
 
-export const parseABCIQueryNumberResponse = (abciData: string | null): number => {
-  const value = extractStringFromResponse(abciData);
-  const regex = /\d+/;
-  const match = value.match(regex);
-
-  if (match) {
-    try {
-      const value = match[0];
-      return parseInt(value);
-    } catch {
-      return 0;
-    }
-  }
-  return 0;
+// Returns the digits as a string so token amounts above the safe integer range keep every digit
+export const parseABCIQueryNumberResponse = (abciData: string | null): string => {
+  const match = extractStringFromResponse(abciData).match(/\d+/);
+  return match ? match[0] : "0";
 };
 
 /**
