@@ -17,8 +17,8 @@ export const Grid = styled.div`
   ${media.MOBILE} {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    // The Recently card holds a list, so it takes the full first row.
-    & > :first-child {
+    // The Recently and Trending cards hold lists, so each takes a full row and the two number cards share one.
+    & > :nth-child(-n + 2) {
       grid-column: 1 / -1;
     }
   }
@@ -102,10 +102,11 @@ export const FeaturedText = styled.div`
   min-width: 0;
 `;
 
+// Title, subtitle and meta columns, e.g. realm name, path and deploy block.
 export const Row = styled(Link)`
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   min-width: 0;
 

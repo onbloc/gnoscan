@@ -4,16 +4,13 @@ import { LIST_SUMMARY_REFETCH_INTERVAL } from "@/common/values/query.constant";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetNewestRealms, useGetSummaryRealms } from "@/common/react-query/statistics";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
-import { makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
+import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
-import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { SummaryCard, SummaryCount, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
 
-// Same name, label, address precedence as other address displays, with a long address shortened.
-const publisherText = (address: string, name?: string, label?: string | null) => {
-  const text = getAddressDisplayText({ address, name, label }) ?? "";
-  return text === address ? textEllipsis(address) : text;
-};
+const realmName = (path: string) => path.split("/").pop() || path;
+
+const displayPath = (path: string) => formatDisplayPackagePath(stripGnoLandPrefix(path));
 
 export const RealmsCount = () => {
   const { data, isFetched } = useGetSummaryRealms();
@@ -25,25 +22,23 @@ export const RealmsSummary = () => {
   const summary = useGetSummaryRealms();
   const newest = useGetNewestRealms({ refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
 
+  // Name, shortened path and deploy block, so long user namespace paths still show which realm it is.
   const recentItems = (newest.data?.items ?? []).slice(0, 3).map(realm => ({
     key: realm.path,
     href: getUrlWithNetwork(`/realms/details?path=${realm.path}`),
-    title: stripGnoLandPrefix(realm.path),
-    subtitle: publisherText(realm.publisher, realm.publisherName, realm.publisherLabel),
+    title: realmName(realm.path),
+    subtitle: displayPath(realm.path),
     // Deploy time once the API sends it, the deploy block until then.
     meta: realm.publishedAt ? formatNftRelativeTime(realm.publishedAt) : `#${makeDisplayNumber(realm.block)}`,
   }));
 
-  const trendingItems = (summary.data?.data.trending ?? []).slice(0, 3).map((realm, index) => {
-    const path = stripGnoLandPrefix(realm.path);
-    return {
-      key: realm.path,
-      href: getUrlWithNetwork(`/realms/details?path=${realm.path}`),
-      title: index === 0 ? path : `#${index + 1} ${path}`,
-      subtitle: publisherText(realm.publisher, realm.publisherName),
-      meta: `${makeDisplayNumber(realm.calls24h)} calls`,
-    };
-  });
+  const trendingItems = (summary.data?.data.trending ?? []).slice(0, 3).map((realm, index) => ({
+    key: realm.path,
+    href: getUrlWithNetwork(`/realms/details?path=${realm.path}`),
+    title: index === 0 ? realmName(realm.path) : `#${index + 1} ${realmName(realm.path)}`,
+    subtitle: displayPath(realm.path),
+    meta: `${makeDisplayNumber(realm.calls24h)} calls`,
+  }));
 
   const stats = summary.data?.data;
 
@@ -52,7 +47,7 @@ export const RealmsSummary = () => {
       <SummaryCard title="Recently Deployed" live>
         <SummaryItemList items={recentItems} isFetched={newest.isFetched} emptyText="No realms deployed yet" />
       </SummaryCard>
-      <SummaryCard title="Trending Realm" caption="Most called in 24h">
+      <SummaryCard title="Trending Realm" caption={trendingItems.length > 0 ? "Most called in 24h" : undefined}>
         <SummaryItemList
           items={trendingItems}
           isFetched={summary.isFetched}
