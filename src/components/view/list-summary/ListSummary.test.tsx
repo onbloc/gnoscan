@@ -51,6 +51,14 @@ it("hides the summary API cards when the summary request fails", () => {
   expect(text).not.toContain("24h Calls");
 });
 
+it("keeps the cards when a later poll fails after data loaded", () => {
+  mockSummary.isError = true;
+  mockSummary.data = { data: { total: 1, new24h: 0, calls24h: 8901, activeCallers24h: 321, trending: [] } };
+  const text = renderText(<RealmsSummary />);
+  expect(text).toContain("24h Calls");
+  expect(text).toContain("8,901");
+});
+
 it("shows an empty state instead of a blank trending card", () => {
   mockSummary.data = { data: { total: 1, new24h: 0, calls24h: 0, activeCallers24h: 0, trending: [] } };
   const text = renderText(<RealmsSummary />);
