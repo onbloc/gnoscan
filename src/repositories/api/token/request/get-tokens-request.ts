@@ -10,4 +10,7 @@ export interface GetTokensRequestParameters {
   sort?: "holders" | "id";
 
   order?: "asc" | "desc";
+
+  /** Matches name, symbol or package path. */
+  keyword?: string;
 }

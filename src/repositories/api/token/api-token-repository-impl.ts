@@ -28,12 +28,12 @@ import {
   GetNftTokenDetailResponse,
   GetNftTokenUrisResponse,
 } from "./response";
-import { makeEncodedQueryParameter } from "@/common/utils/string-util";
+import { encodeQueryValue, makeEncodedQueryParameter } from "@/common/utils/string-util";
 import { ApiRepository } from "../api-repository";
 
 export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRepository {
   getTokens(params: GetTokensRequestParameters): Promise<GetTokensResponse> {
-    return this.get<GetTokensResponse>("/tokens", { ...params });
+    return this.get<GetTokensResponse>("/tokens", { ...params, keyword: encodeQueryValue(params.keyword) });
   }
 
   getToken(tokenId: string): Promise<GetTokenResponse> {
