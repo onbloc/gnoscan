@@ -1,18 +1,20 @@
 import { UseQueryOptions, useQuery } from "react-query";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { QUERY_KEY } from "./types";
-import { TokenResourceMeta } from "@/types/data-type";
+import { NftCollectionResourceMeta, TokenResourceMeta } from "@/types/data-type";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 
-function makeTokenMetaURL(type: "gno-native" | "grc20", chainId: string) {
+function makeTokenMetaURL(type: "gno-native" | "grc20" | "grc721", chainId: string) {
   if (!chainId) {
     return "";
   }
   return `${GNO_TOKEN_RESOURCE_BASE_URI}/${type}/${chainId}.json`;
 }
 
-async function fetchTokenMeta(url: string): Promise<TokenResourceMeta[]> {
+async function fetchTokenMeta<T extends { id: string; denom?: string; pkg_path?: string } = TokenResourceMeta>(
+  url: string,
+): Promise<T[]> {
   if (!url) {
     return [];
   }
@@ -21,7 +23,7 @@ async function fetchTokenMeta(url: string): Promise<TokenResourceMeta[]> {
     .then(response => response.json())
     .then(
       json =>
-        json?.map((data: Omit<TokenResourceMeta, "id">) => ({
+        json?.map((data: Omit<T, "id">) => ({
           ...data,
           id: data?.denom || data?.pkg_path || "",
         })) || [],
@@ -44,6 +46,23 @@ export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenResourceMeta
       });
     },
     enabled: !!blockRepository,
+    ...options,
+  });
+};
+
+/**
+ * Loads the GRC721 collection list of gno-token-resource for the current network.
+ *
+ * Kept apart from {@link useGetTokenMetaQuery} because GRC721 entries have no decimals.
+ * Merging them into the GRC20 lookup would make token amount displays resolve undefined
+ * decimals for these collections.
+ */
+export const useGetNftCollectionMetaQuery = (options?: UseQueryOptions<NftCollectionResourceMeta[], Error>) => {
+  const { currentNetwork } = useNetworkProvider();
+
+  return useQuery<NftCollectionResourceMeta[], Error>({
+    queryKey: [QUERY_KEY.getNftCollectionMeta, currentNetwork?.chainId || ""],
+    queryFn: () => fetchTokenMeta<NftCollectionResourceMeta>(makeTokenMetaURL("grc721", currentNetwork?.chainId || "")),
     ...options,
   });
 };
