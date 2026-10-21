@@ -16,9 +16,9 @@ const descriptionBadgeStyle: React.CSSProperties = { display: "block", padding: 
 const descriptionTextStyle: React.CSSProperties = { whiteSpace: "normal", overflowWrap: "anywhere" };
 
 // The last summary row drops its bottom padding. A multi line description reads cramped against
-// the source viewer without it, so this row keeps the regular row padding.
+// the source viewer without it, so this row keeps the regular row padding while the viewer follows.
 const DescriptionRow = styled(Field)`
-  &&:last-of-type {
+  &&:last-of-type:not(:last-child) {
     padding-bottom: 12px;
 
     ${media.DESKTOP} {
