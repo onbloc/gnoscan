@@ -8,7 +8,6 @@ import { RealmsSummary } from "./RealmsSummary";
 const mockSummary = { data: undefined as unknown, isFetched: true, isError: false };
 const mockNewest = { data: { items: [], lastUpdated: "" } as unknown, isFetched: true, isError: false };
 jest.mock("@/common/react-query/statistics", () => ({
-  LIST_SUMMARY_REFETCH_INTERVAL: 60_000,
   useGetSummaryRealms: () => mockSummary,
   useGetNewestRealms: () => mockNewest,
 }));

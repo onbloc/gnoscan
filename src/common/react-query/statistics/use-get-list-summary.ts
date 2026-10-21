@@ -1,10 +1,7 @@
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
-
-// Summaries are cron aggregated every minute, so polling faster only repeats the same rows.
-export const LIST_SUMMARY_REFETCH_INTERVAL = 60_000;
+import { API_REPOSITORY_KEY, LIST_SUMMARY_REFETCH_INTERVAL } from "@/common/values/query.constant";
 
 const summaryOptions = { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL, retry: 1 };
 
