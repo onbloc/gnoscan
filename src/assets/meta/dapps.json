@@ -13,5 +13,20 @@
     "name": "wGNOT",
     "logo": "/grc20/images/gno_land_r_demo_wugnot.svg",
     "url": "https://gno.land/r/gnoland/wugnot"
+  },
+  "r/g1n4pl5uc4yt5r96m9w6fmdznx3x0jyg8l6arhmt/gnomi": {
+    "name": "Gnomi",
+    "logo": "/grc20/images/r_g1n4pl5uc4yt5r96m9w6fmdznx3x0jyg8l6arhmt_gnomi_padv3_gnomi.svg",
+    "url": "https://gnomi.fun"
+  },
+  "r/nym-thegnomic001": {
+    "name": "Gnomic",
+    "logo": "/grc20/images/gno_land_r_nym-thegnomic001_gnomic.svg",
+    "url": "https://gnomic.wtf"
+  },
+  "r/demo/wugnot": {
+    "name": "wGNOT",
+    "logo": "/grc20/images/gno_land_r_demo_wugnot.svg",
+    "url": "https://gno.land/r/demo/wugnot"
   }
 }
