@@ -73,7 +73,7 @@ export class OnblocAccountRepository implements IAccountRepository {
     }
 
     try {
-      const response = await this.indexerClient?.pageQuery(
+      const response = await this.indexerClient.pageQuery(
         makeAccountTransactionsQuery(address, cursor, MAX_QUERY_SIZE),
       );
       const transactionEdges = response?.data?.transactions.edges;
@@ -128,10 +128,6 @@ export class OnblocAccountRepository implements IAccountRepository {
       transactions.push(...mappedTransactions);
     } catch (e) {
       console.error(e);
-      return {
-        transactions,
-        pageInfo,
-      };
     }
 
     return {
