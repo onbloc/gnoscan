@@ -28,7 +28,7 @@ export const Type = ({ type, func, packagePath, msgNum }: Props) => {
       </Tooltip>
       {(msgNum || 0) > 0 && (
         <Text type="p4" color="reverse" margin="0px 0px 0px 8px">
-          {`+${msgNum || 0 - 1}`}
+          {`+${msgNum}`}
         </Text>
       )}
     </TypeWrapper>
