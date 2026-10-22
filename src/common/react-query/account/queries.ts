@@ -122,7 +122,8 @@ export const useGetAccountTransactions = (address: string, options?: UseQueryOpt
           }));
 
         transactions.push(...result.transactions);
-        hasNext = result.pageInfo.hasNext;
+        // Stop when the cursor does not advance, otherwise the first page is fetched forever
+        hasNext = result.pageInfo.hasNext && !!result.pageInfo.last && result.pageInfo.last !== lastCursor;
         lastCursor = result.pageInfo.last;
       }
 
