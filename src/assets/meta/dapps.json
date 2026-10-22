@@ -1,0 +1,12 @@
+{
+  "r/gnoswap": {
+    "name": "GnoSwap",
+    "logo": "/grc20/images/gno_land_r_gnoswap_gns.svg",
+    "url": "https://gnoswap.io"
+  },
+  "r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr": {
+    "name": "Bubble Rumble",
+    "logo": "/grc20/images/gno_land_r_g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr_wbubble.svg",
+    "url": "https://bubblerumble.net"
+  }
+}
