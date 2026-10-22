@@ -61,13 +61,18 @@ export interface DappLabel {
   url: string;
 }
 
-// The dApp of a package path, keyed by its namespace: "gno.land/r/akkadia/beta/abt" -> "r/akkadia".
+// The dApp of a package path. A key is a namespace ("r/gnoswap") or a full realm path ("r/gnoland/wugnot") for a
+// namespace shared by unrelated realms; the longest matching key wins. depth is the number of segments it covers.
 export function findDapp(
   packagePath: string,
   registry: Readonly<Record<string, DappLabel>> = DAPPS,
-): DappLabel | undefined {
-  const namespace = stripGnoLandPrefix(packagePath).split("/").slice(0, 2).join("/");
-  return registry[namespace];
+): { dapp: DappLabel; depth: number } | undefined {
+  const segments = stripGnoLandPrefix(packagePath).split("/");
+  for (let depth = segments.length; depth >= 2; depth--) {
+    const dapp = registry[segments.slice(0, depth).join("/")];
+    if (dapp) return { dapp, depth };
+  }
+  return undefined;
 }
 
 // displayPath is what the line shows; packagePath stays the full path for the realm link.
@@ -85,11 +90,13 @@ export function getFunctionRealmLabel(
     case "call": {
       if (!packagePath) return undefined;
       const path = stripGnoLandPrefix(packagePath);
-      const dapp = findDapp(packagePath);
-      // The dApp name already stands for the namespace, so only the realm under it is shown:
+      const match = findDapp(packagePath);
+      if (!match) return { kind: "call", packagePath, displayPath: path };
+      // The dApp name already stands for the key, so only the realm under it is shown:
       // "GnoSwap · gov/governance" instead of "GnoSwap · r/gnoswap/gov/governance".
-      const displayPath = dapp ? path.split("/").slice(2).join("/") || path : path;
-      return { kind: "call", packagePath, displayPath, dapp };
+      const segments = path.split("/");
+      const displayPath = segments.slice(match.depth).join("/") || segments[segments.length - 1];
+      return { kind: "call", packagePath, displayPath, dapp: match.dapp };
     }
     case "deploy":
       return packagePath ? { kind: "deploy", packagePath, displayPath: stripGnoLandPrefix(packagePath) } : undefined;

@@ -8,5 +8,10 @@
     "name": "Bubble Rumble",
     "logo": "/grc20/images/gno_land_r_g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr_wbubble.svg",
     "url": "https://bubblerumble.net"
+  },
+  "r/gnoland/wugnot": {
+    "name": "wGNOT",
+    "logo": "/grc20/images/gno_land_r_demo_wugnot.svg",
+    "url": "https://gno.land/r/gnoland/wugnot"
   }
 }
