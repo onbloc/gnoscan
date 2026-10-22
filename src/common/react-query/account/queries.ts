@@ -2,7 +2,7 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { parseTokenAmount } from "@/common/utils/token.utility";
-import { AccountTransactionResponse } from "@/repositories/account-repository";
+import { AccountTransactionResponse, IAccountRepository } from "@/repositories/account-repository";
 import { Amount, Transaction } from "@/types/data-type";
 import { UseQueryOptions, useQuery } from "react-query";
 import { QUERY_KEY } from "./types";
@@ -60,6 +60,54 @@ export const useGetGRC20TokenBalances = (address: string, options?: UseQueryOpti
   });
 };
 
+// Custom networks have no account transactions query, so the four per type queries are merged by block height
+const fetchCustomNetworkTransactions = async (
+  accountRepository: IAccountRepository,
+  address: string,
+): Promise<Transaction[]> => {
+  const transactions = await Promise.all([
+    accountRepository.getGRC20ReceivedTransactionsByAddress(address),
+    accountRepository.getNativeTokenReceivedTransactionsByAddress(address),
+    accountRepository.getNativeTokenSendTransactionsByAddress(address),
+    accountRepository.getVMTransactionsByAddress(address),
+  ])
+    .then(results => results.flatMap(result => result ?? []))
+    .catch((): Transaction[] => []);
+
+  const transactionMap = transactions.reduce<{ [key in number]: Transaction }>((accum, current) => {
+    if (!accum[current.blockHeight]) {
+      accum[current.blockHeight] = current;
+    }
+    return accum;
+  }, {});
+
+  return Object.values(transactionMap);
+};
+
+export const fetchIndexerTransactions = async (
+  accountRepository: IAccountRepository,
+  address: string,
+): Promise<Transaction[]> => {
+  const emptyPage: AccountTransactionResponse = { transactions: [], pageInfo: { last: null, hasNext: false } };
+  const transactions: Transaction[] = [];
+  let hasNext = true;
+  let lastCursor: string | null = null;
+
+  while (hasNext) {
+    const result: AccountTransactionResponse = await accountRepository
+      .getAccountTransactions(address, lastCursor)
+      .catch(() => emptyPage);
+    const { last } = result.pageInfo;
+
+    transactions.push(...result.transactions);
+    // Stop when the cursor does not advance, otherwise the first page is fetched forever
+    hasNext = result.pageInfo.hasNext && !!last && last !== lastCursor;
+    lastCursor = last;
+  }
+
+  return transactions;
+};
+
 export const useGetAccountTransactions = (address: string, options?: UseQueryOptions<Transaction[], Error>) => {
   const { currentNetwork, isCustomNetwork } = useNetworkProvider();
   const { accountRepository } = useServiceProvider();
@@ -71,63 +119,14 @@ export const useGetAccountTransactions = (address: string, options?: UseQueryOpt
       currentNetwork?.indexerUrl || "",
       address,
     ],
-    queryFn: async () => {
+    queryFn: () => {
       if (!accountRepository) {
         return [];
       }
 
-      if (isCustomNetwork) {
-        const transactions = await Promise.all([
-          accountRepository.getGRC20ReceivedTransactionsByAddress(address),
-          accountRepository.getNativeTokenReceivedTransactionsByAddress(address),
-          accountRepository.getNativeTokenSendTransactionsByAddress(address),
-          accountRepository.getVMTransactionsByAddress(address),
-        ])
-          .then(results =>
-            results.filter(result => result != null).flatMap(transactions => transactions as Transaction[]),
-          )
-          .catch(() => null);
-
-        if (!transactions) {
-          return [];
-        }
-
-        const transactionMap = transactions.reduce<{ [key in number]: Transaction }>((accum, current) => {
-          if (!accum?.[current.blockHeight]) {
-            accum[current.blockHeight] = current;
-          }
-          return accum;
-        }, {});
-
-        return Object.values(transactionMap);
-      }
-
-      let hasNext = true;
-      let lastCursor = null;
-      const transactions: Transaction[] = [];
-
-      while (hasNext) {
-        const result: AccountTransactionResponse = await accountRepository
-          .getAccountTransactions(address, lastCursor)
-          .then(result => ({
-            transactions: result.transactions,
-            pageInfo: result.pageInfo,
-          }))
-          .catch(() => ({
-            transactions: [],
-            pageInfo: {
-              last: null,
-              hasNext: false,
-            },
-          }));
-
-        transactions.push(...result.transactions);
-        // Stop when the cursor does not advance, otherwise the first page is fetched forever
-        hasNext = result.pageInfo.hasNext && !!result.pageInfo.last && result.pageInfo.last !== lastCursor;
-        lastCursor = result.pageInfo.last;
-      }
-
-      return transactions;
+      return isCustomNetwork
+        ? fetchCustomNetworkTransactions(accountRepository, address)
+        : fetchIndexerTransactions(accountRepository, address);
     },
     enabled: !!accountRepository && !!address,
     keepPreviousData: true,
