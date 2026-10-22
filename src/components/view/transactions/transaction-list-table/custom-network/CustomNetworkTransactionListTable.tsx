@@ -10,6 +10,7 @@ import { CardTableContainer } from "@/components/view/datatable/datatable.styles
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
 import { ViewMoreButton } from "@/components/ui/button";
+import { mapDisplayFunctionName } from "@/common/utils/format/format-utils";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 interface TransactionWithTime extends Transaction {
@@ -23,17 +24,6 @@ const TOOLTIP_TYPE = (
     type and package path.
   </>
 );
-
-function mapDisplayFunctionName(type: string, functionName: string) {
-  switch (type) {
-    case "MsgAddPackage":
-      return "AddPkg";
-    case "BankMsgSend":
-      return "Transfer";
-    default:
-      return functionName;
-  }
-}
 
 interface CustomNetworkTransactionListTableProps {
   transactions: Transaction[];

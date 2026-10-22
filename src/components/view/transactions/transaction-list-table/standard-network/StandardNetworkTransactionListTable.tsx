@@ -72,7 +72,7 @@ export const StandardNetworkTransactionListTable = ({
         const func = getRepresentativeTransactionFunction(data);
         if (!func) return "-";
 
-        const displayFunctionName = mapDisplayFunctionName(func.pkgPath, func.funcType);
+        const displayFunctionName = mapDisplayFunctionName(func.messageType, func.funcType);
 
         return (
           <DatatableItem.Type
