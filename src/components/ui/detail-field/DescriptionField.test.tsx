@@ -6,9 +6,7 @@ import { DescriptionField } from "./DescriptionField";
 
 jest.mock("@/assets/svgs/icon-link.svg", () => "svg");
 jest.mock("./DetailField", () => ({
-  Field: ({ className, children }: { className?: string; children: React.ReactNode }) => (
-    <dl className={className}>{children}</dl>
-  ),
+  Field: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 const renderField = (description?: string) =>
@@ -24,8 +22,6 @@ it("shows the token resource description", () => {
   expect(markup).not.toContain("Add in Gno.land Token Resources");
   // Inline, so the token layout's fixed badge height cannot clip wrapped text.
   expect(markup).toContain("height:auto");
-  // The label stays on the first line of a wrapped description.
-  expect(markup).toContain('class="top-aligned"');
 });
 
 it.each([undefined, "", "   "])("links to the token resources when the description is %p", description => {

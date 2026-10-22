@@ -18,8 +18,7 @@ interface DescriptionFieldProps {
 
 // Shows the gno-token-resource description, or a link to add one when the resource has none.
 export const DescriptionField: React.FC<DescriptionFieldProps> = ({ description }) => (
-  // top-aligned keeps the label on the first line when the description wraps.
-  <Field label="Description" className="top-aligned">
+  <Field label="Description">
     {description?.trim() ? (
       <Badge style={descriptionBadgeStyle}>
         <Text type="p4" color="primary" style={descriptionTextStyle}>
