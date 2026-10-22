@@ -64,7 +64,7 @@ export const TokenDetailDatatable = ({ path }: Props) => {
     return DatatableOption.Builder.builder<any>()
       .key("type")
       .name("Function")
-      .width(190)
+      .width(200)
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
@@ -102,7 +102,7 @@ export const TokenDetailDatatable = ({ path }: Props) => {
     return DatatableOption.Builder.builder<any>()
       .key("amount")
       .name("Amount")
-      .width(190)
+      .width(180)
       .renderOption((amount: { value: string; denom: string }, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
@@ -119,7 +119,7 @@ export const TokenDetailDatatable = ({ path }: Props) => {
     return DatatableOption.Builder.builder<any>()
       .key("time")
       .name("Time")
-      .width(160)
+      .width(130)
       .className("time")
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();

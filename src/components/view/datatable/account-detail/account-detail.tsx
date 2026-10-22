@@ -54,7 +54,7 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
     return DatatableOption.Builder.builder<Transaction>()
       .key("type")
       .name("Function")
-      .width(190)
+      .width(200)
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
@@ -116,7 +116,7 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
     return DatatableOption.Builder.builder<Transaction>()
       .key("time")
       .name("Time")
-      .width(160)
+      .width(130)
       .className("time")
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();

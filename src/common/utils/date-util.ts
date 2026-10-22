@@ -27,7 +27,7 @@ export const getDateDiff = (d: any) => {
   const diffH = now.diff(target, "hours");
   const diffD = now.diff(target, "day");
 
-  if (diff < 60) return "less than a minute ago";
+  if (diff < 60) return "≤ 1min";
   if (diffM < 2) return "1 min ago";
   if (diffM >= 2 && diffM <= 59) return `${diffM} mins ago`;
   if (diffM >= 60 && diffM <= 119) return "1 hour ago";
