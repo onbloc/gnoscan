@@ -58,6 +58,7 @@ export interface DappLabel {
   name: string;
   /** Image path in gno-token-resource, e.g. "/grc20/images/gno_land_r_gnoswap_gns.svg". */
   logo: string;
+  /** The dApp's website, opened from the realm path. */
   url: string;
 }
 
@@ -67,27 +68,24 @@ export interface DappLabel {
  *
  * @param packagePath - Package path with or without the "gno.land/" prefix
  * @param registry - dApp labels by key, the bundled dapps.json by default
- * @returns The matched dApp and `depth`, the number of path segments its key covers
+ * @returns The matched dApp, or undefined when no key matches
  */
 export function findDapp(
   packagePath: string,
   registry: Readonly<Record<string, DappLabel>> = DAPPS,
-): { dapp: DappLabel; depth: number } | undefined {
+): DappLabel | undefined {
   const segments = stripGnoLandPrefix(packagePath).split("/");
   for (let depth = segments.length; depth >= 2; depth--) {
     const dapp = registry[segments.slice(0, depth).join("/")];
-    if (dapp) return { dapp, depth };
+    if (dapp) return dapp;
   }
   return undefined;
 }
 
-/**
- * The line under the Function chip. `displayPath` is what the line shows, while `packagePath` stays the full path for
- * the realm link.
- */
+/** The line under the Function chip: a realm path with the dApp logo when registered, or the kind of message. */
 export type FunctionRealmLabel =
-  | { kind: "call"; packagePath: string; displayPath: string; dapp?: DappLabel }
-  | { kind: "deploy"; packagePath: string; displayPath: string }
+  | { kind: "call"; packagePath: string; dapp?: DappLabel }
+  | { kind: "deploy"; packagePath: string }
   | { kind: "text"; text: string };
 
 /**
@@ -102,19 +100,10 @@ export function getFunctionRealmLabel(
   packagePath: string | null | undefined,
 ): FunctionRealmLabel | undefined {
   switch (getMessageKind(messageType)) {
-    case "call": {
-      if (!packagePath) return undefined;
-      const path = stripGnoLandPrefix(packagePath);
-      const match = findDapp(packagePath);
-      if (!match) return { kind: "call", packagePath, displayPath: path };
-      // The dApp name already stands for the key, so only the realm under it is shown:
-      // "GnoSwap · gov/governance" instead of "GnoSwap · r/gnoswap/gov/governance".
-      const segments = path.split("/");
-      const displayPath = segments.slice(match.depth).join("/") || segments[segments.length - 1];
-      return { kind: "call", packagePath, displayPath, dapp: match.dapp };
-    }
+    case "call":
+      return packagePath ? { kind: "call", packagePath, dapp: findDapp(packagePath) } : undefined;
     case "deploy":
-      return packagePath ? { kind: "deploy", packagePath, displayPath: stripGnoLandPrefix(packagePath) } : undefined;
+      return packagePath ? { kind: "deploy", packagePath } : undefined;
     case "run":
       return { kind: "text", text: "run" };
     case "send":

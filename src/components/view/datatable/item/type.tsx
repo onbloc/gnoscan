@@ -4,8 +4,7 @@ import React from "react";
 import Link from "next/link";
 import styled from "styled-components";
 import Text from "@/components/ui/text";
-import PathText from "@/components/ui/path-text/PathText";
-import IconLink from "@/assets/svgs/icon-link.svg";
+import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { DappLabel, FunctionRealmLabel, getFunctionRealmLabel } from "@/common/utils/transaction-list.utility";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -61,46 +60,43 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
     );
   }
 
+  const path = stripGnoLandPrefix(label.packagePath);
+  const displayPath = formatDisplayPackagePath(path);
+
   return (
     <LabelWrapper>
-      {label.kind === "call" && label.dapp && <DappLink dapp={label.dapp} />}
+      {label.kind === "call" && label.dapp && <DappLogo dapp={label.dapp} />}
       {label.kind === "deploy" && (
         <Text type="body1" color="tertiary">
-          deploy
+          deploy ·
         </Text>
       )}
-      {(label.kind === "deploy" || label.dapp) && (
-        <Text type="body1" color="tertiary">
-          ·
-        </Text>
+      {label.kind === "call" && label.dapp ? (
+        <a className="path" href={label.dapp.url} target="_blank" rel="noreferrer" title={path}>
+          {displayPath}
+        </a>
+      ) : (
+        <Link className="path" href={getUrlWithNetwork(`/realms/details?path=${label.packagePath}`)} title={path}>
+          {displayPath}
+        </Link>
       )}
-      <Link className="path" href={getUrlWithNetwork(`/realms/details?path=${label.packagePath}`)}>
-        <PathText path={label.displayPath} />
-      </Link>
     </LabelWrapper>
   );
 };
 
-const DappLink = ({ dapp }: { dapp: DappLabel }) => {
+const DappLogo = ({ dapp }: { dapp: DappLabel }) => {
   // A logo that fails to load is left out instead of showing a broken image.
   const [logoFailed, setLogoFailed] = React.useState(false);
+  if (logoFailed) return null;
 
   return (
-    <a className="dapp" href={dapp.url} target="_blank" rel="noreferrer">
-      {!logoFailed && (
-        <img
-          className="dapp-logo"
-          src={`${GNO_TOKEN_RESOURCE_BASE_URI}${dapp.logo}`}
-          alt=""
-          onError={() => setLogoFailed(true)}
-        />
-      )}
-      <Text type="body1" color="reverse" className="dapp-name">
-        {dapp.name}
-      </Text>
-      {/* Preserve scaling when SVGO strips the asset's viewBox. */}
-      <IconLink className="icon-link" viewBox="0 0 16 16" aria-hidden="true" />
-    </a>
+    <img
+      className="dapp-logo"
+      src={`${GNO_TOKEN_RESOURCE_BASE_URI}${dapp.logo}`}
+      alt={dapp.name}
+      title={dapp.name}
+      onError={() => setLogoFailed(true)}
+    />
   );
 };
 
@@ -121,22 +117,6 @@ const LabelWrapper = styled.div`
   min-width: 0;
   white-space: nowrap;
 
-  // The realm name matters more than the dApp name, so the name gives up its room first.
-  .dapp {
-    display: flex;
-    flex-shrink: 100;
-    min-width: 0;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .dapp-name {
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
   .dapp-logo {
     width: 16px;
     height: 16px;
@@ -144,18 +124,12 @@ const LabelWrapper = styled.div`
     object-fit: contain;
   }
 
-  .icon-link {
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-    * {
-      stroke: ${({ theme }) => theme.colors.tertiary};
-    }
-  }
-
+  // Read from the namespace onward, so a path too long for the column is cut at its end.
   .path {
     flex: 0 1 auto;
     min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     ${theme.fonts.body1};
     color: ${({ theme }) => theme.colors.tertiary};
   }

@@ -5,7 +5,6 @@ describe("getFunctionRealmLabel", () => {
     expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/demo/foo")).toEqual({
       kind: "call",
       packagePath: "gno.land/r/demo/foo",
-      displayPath: "r/demo/foo",
       dapp: undefined,
     });
     expect(getFunctionRealmLabel("MsgCall", "gno.land/r/demo/foo")?.kind).toBe("call");
@@ -15,22 +14,15 @@ describe("getFunctionRealmLabel", () => {
     expect(getFunctionRealmLabel("AddPackage", "gno.land/r/demo/foo")).toEqual({
       kind: "deploy",
       packagePath: "gno.land/r/demo/foo",
-      displayPath: "r/demo/foo",
     });
   });
 
-  test("a registered dApp shows only the realm under its namespace", () => {
+  test("a call to a registered dApp carries its logo", () => {
     expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoswap/gov/governance")).toMatchObject({
-      displayPath: "gov/governance",
+      packagePath: "gno.land/r/gnoswap/gov/governance",
       dapp: { name: "GnoSwap" },
     });
-  });
-
-  test("a realm registered by its full path shows its own name", () => {
-    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoland/wugnot")).toMatchObject({
-      displayPath: "wugnot",
-      dapp: { name: "wGNOT" },
-    });
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoland/wugnot")).toMatchObject({ dapp: { name: "wGNOT" } });
   });
 
   test("messages without a realm show their kind", () => {
@@ -45,18 +37,18 @@ describe("getFunctionRealmLabel", () => {
 });
 
 describe("findDapp", () => {
-  const dapp = { name: "GnoSwap", logo: "gnoswap.svg", url: "https://gnoswap.io" };
+  const gnoswap = { name: "GnoSwap", logo: "gnoswap.svg", url: "https://gnoswap.io" };
   const wugnot = { name: "wGNOT", logo: "wugnot.svg", url: "https://gno.land/r/gnoland/wugnot" };
-  const registry = { "r/gnoswap": dapp, "r/gnoland/wugnot": wugnot };
+  const registry = { "r/gnoswap": gnoswap, "r/gnoland/wugnot": wugnot };
 
   test("matches by namespace", () => {
-    expect(findDapp("gno.land/r/gnoswap/v1/router", registry)).toEqual({ dapp, depth: 2 });
+    expect(findDapp("gno.land/r/gnoswap/v1/router", registry)).toBe(gnoswap);
     expect(findDapp("gno.land/r/gnoswapx/router", registry)).toBeUndefined();
     expect(findDapp("gno.land/p/gnoswap/uint256", registry)).toBeUndefined();
   });
 
   test("a full realm path key covers only that realm", () => {
-    expect(findDapp("gno.land/r/gnoland/wugnot", registry)).toEqual({ dapp: wugnot, depth: 3 });
+    expect(findDapp("gno.land/r/gnoland/wugnot", registry)).toBe(wugnot);
     expect(findDapp("gno.land/r/gnoland/users", registry)).toBeUndefined();
   });
 });
