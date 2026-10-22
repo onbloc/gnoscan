@@ -34,7 +34,12 @@ export function mapTransactionTypeNameByMessage(message: any): string {
     return "MsgRun";
   }
 
-  return "BankMsgSend";
+  if (isBankSendMessageValue(message)) {
+    return "BankMsgSend";
+  }
+
+  // Message types the query does not select (e.g. sessions) arrive without fields.
+  return "Unknown";
 }
 
 export function mapTransactionByRealm(tx: RealmTransaction): Transaction {
