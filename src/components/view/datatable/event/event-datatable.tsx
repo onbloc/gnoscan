@@ -9,6 +9,11 @@ import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
 import { ViewMoreButton } from "@/components/ui/button";
 
 interface Props {
+  /**
+   * Identifies the parent entity (e.g. `tx:${hash}`)
+   * so the restored page never leaks between them.
+   */
+  scope: string;
   isFetched: boolean;
   events: GnoEvent[];
 }
@@ -21,9 +26,9 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const EventDatatable = ({ isFetched, events }: Props) => {
+export const EventDatatable = ({ scope, isFetched, events }: Props) => {
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
-  const [page, setPage] = useHistoryEntryState("events:page", 0);
+  const [page, setPage] = useHistoryEntryState(`events:${scope}:page`, 0);
 
   const loaded = useMemo(() => {
     return isFetched;

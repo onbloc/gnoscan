@@ -44,7 +44,9 @@ const CustomNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoPr
           pkgPath={`${path}`}
         />
       )}
-      {currentTab === ACTIVITY_TAB.EVENTS && <EventDatatable isFetched={isFetched} events={transactionEvents} />}
+      {currentTab === ACTIVITY_TAB.EVENTS && (
+        <EventDatatable scope={`realm:${path}`} isFetched={isFetched} events={transactionEvents} />
+      )}
     </DataListSection>
   );
 };
