@@ -8,10 +8,16 @@ import Text from "@/components/ui/text";
 import TokenResourceLink from "@/components/ui/token-resource-link/TokenResourceLink";
 import { Field } from "./DetailField";
 
-// Block layout instead of the badge's inline flex: Safari keeps a fit content flex badge at its
-// single line height while the text wraps, so the description would spill out of the box.
+// The token page layout gives every badge an inline flex box with a fixed 28px height, and whether
+// that beats the summary row's auto height depends on styled components rule order. Inline styles
+// win either way, so wrapped text grows the box instead of spilling out of it.
 // The padding gives multi line text the same breathing room as single line badges.
-const descriptionBadgeStyle: React.CSSProperties = { display: "block", padding: "12px 16px", marginRight: 0 };
+const descriptionBadgeStyle: React.CSSProperties = {
+  display: "block",
+  height: "auto",
+  padding: "12px 16px",
+  marginRight: 0,
+};
 // BadgeText breaks anywhere for hashes and addresses, so prose wraps at spaces here instead.
 const descriptionTextStyle: React.CSSProperties = { whiteSpace: "normal", overflowWrap: "anywhere" };
 
