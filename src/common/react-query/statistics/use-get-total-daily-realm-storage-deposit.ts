@@ -6,6 +6,7 @@ import { GetTotalRealmStorageDepositRequest } from "@/repositories/api/statistic
 import { GetTotalRealmStorageDepositResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { retryStatisticsQuery } from "./statistics-query-policy";
 
 export const useGetTotalDailyRealmStorageDeposit = (
   request: GetTotalRealmStorageDepositRequest,
@@ -18,6 +19,6 @@ export const useGetTotalDailyRealmStorageDeposit = (
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getTotalDailyRealmStorageDeposit(request),
-    options,
+    { retry: retryStatisticsQuery, ...options },
   );
 };

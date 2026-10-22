@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import theme from "@/styles/theme";
 import { Spinner } from "@/components/ui/loading";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 const AreaChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.AreaChart), {
   ssr: false,
@@ -20,16 +21,32 @@ interface RealmShareChartProps {
   period: RealmSharePeriod;
   onChangePeriod: (period: RealmSharePeriod) => void;
   isFetched: boolean;
+  // When given, a statistic that failed without data shows an unavailable/load-failure notice instead of the chart.
+  failure?: React.ComponentProps<typeof StatisticsErrorNotice>["query"];
   labels: string[];
   datas: { [key in string]: Array<{ value: number; rate: number }> };
 }
 
-export const RealmShareChart = ({ title, period, onChangePeriod, isFetched, labels, datas }: RealmShareChartProps) => {
+export const RealmShareChart = ({
+  title,
+  period,
+  onChangePeriod,
+  isFetched,
+  failure,
+  labels,
+  datas,
+}: RealmShareChartProps) => {
   const onClickPeriod = (currentPeriod: RealmSharePeriod) => {
     if (period !== currentPeriod) {
       onChangePeriod(currentPeriod);
     }
   };
+
+  const content = isFetched ? (
+    <AreaChart labels={labels} datas={datas} colors={REALM_SHARE_CHART_COLORS} />
+  ) : (
+    <Spinner position="center" />
+  );
 
   return (
     <Wrapper>
@@ -45,11 +62,7 @@ export const RealmShareChart = ({ title, period, onChangePeriod, isFetched, labe
           ))}
         </div>
       </div>
-      {isFetched ? (
-        <AreaChart labels={labels} datas={datas} colors={REALM_SHARE_CHART_COLORS} />
-      ) : (
-        <Spinner position="center" />
-      )}
+      {failure?.isError ? <StatisticsErrorNotice query={failure} centered /> : content}
     </Wrapper>
   );
 };

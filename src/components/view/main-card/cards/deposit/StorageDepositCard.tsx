@@ -11,10 +11,16 @@ import { formatBytes } from "@/common/utils/format/format-utils";
 import { BYTE_UNITS } from "@/common/values/constant-value";
 import { useGetStorageDeposit } from "@/common/react-query/statistics/use-get-storage-deposit";
 import { DEFAULT_TOTAL_STORAGE_DEPOSIT_INFO } from "@/common/values/default-object/summary/total-storage-deposit-info";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 export const StorageDepositCard = () => {
   const { data: storagePrice, isFetched: isFetchedStoragePrice } = useGetStoragePrice();
-  const { data: storageDeposit, isFetched: isFetchedStorageDeposit } = useGetStorageDeposit();
+  const storageDepositQuery = useGetStorageDeposit();
+  const { data: storageDeposit } = storageDepositQuery;
+  const isFetchedStorageDeposit = storageDeposit !== undefined;
+  const storageDepositFailure = useStatisticsFailure(storageDepositQuery);
+  const isStorageDepositError = storageDepositFailure.isError;
 
   const totalStorageDepositInfo: TotalStorageDeposit = React.useMemo(() => {
     if (!storageDeposit?.data) return DEFAULT_TOTAL_STORAGE_DEPOSIT_INFO;
@@ -50,6 +56,7 @@ export const StorageDepositCard = () => {
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
         isFetched={isFetchedStorageDeposit}
+        isError={isStorageDepositError}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
             {makeDisplayNumber(displayStorageDeposit.value)}
@@ -70,6 +77,7 @@ export const StorageDepositCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isFetchedStorageDeposit}
+              isError={isStorageDepositError}
               renderComp={
                 <Text type="p4" color="primary">
                   {formattedBytesData.value}
@@ -104,6 +112,7 @@ export const StorageDepositCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
+      <StatisticsErrorNotice query={storageDepositFailure} />
     </>
   );
 };

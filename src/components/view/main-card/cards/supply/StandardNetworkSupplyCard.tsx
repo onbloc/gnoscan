@@ -2,14 +2,22 @@ import React from "react";
 import Text from "@/components/ui/text";
 import { BundleDl, DataBoxContainer, FetchedComp } from "../../main-card";
 import { useGetGnotPrice, useGetSummarySupply } from "@/common/react-query/statistics";
+import { combineStatisticsQueries } from "@/common/react-query/statistics/statistics-query-policy";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
 import { makeCompactNumber } from "@/common/utils/string-util";
 import { formatPriceChange } from "@/common/utils/price.utility";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 const formatPrice = (price: string) => `$${Number(price).toFixed(4)}`;
 
 export const StandardNetworkSupplyCard = () => {
-  const { data: supply, isFetched: isSupplyFetched } = useGetSummarySupply();
-  const { data: market, isFetched: isMarketFetched } = useGetGnotPrice();
+  const supplyQuery = useGetSummarySupply();
+  const { data: supply, isFetched: isSupplyFetched } = supplyQuery;
+  const marketQuery = useGetGnotPrice();
+  const { data: market, isFetched: isMarketFetched } = marketQuery;
+  const marketFailure = useStatisticsFailure(marketQuery);
+  const supplyFailure = useStatisticsFailure(supplyQuery);
+  const failure = combineStatisticsQueries([marketFailure, supplyFailure]);
   // An unpriced asset comes back with an empty price, which must not render as $0.0000.
   const price = market?.data.price || null;
   const priceChange = market?.data.changeRateOneDay;
@@ -23,6 +31,7 @@ export const StandardNetworkSupplyCard = () => {
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
         isFetched={isMarketFetched}
+        isError={marketFailure.isError}
         renderComp={
           <Text
             type="h3"
@@ -61,6 +70,7 @@ export const StandardNetworkSupplyCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isMarketFetched}
+              isError={marketFailure.isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {circulatingSupply != null ? `${makeCompactNumber(circulatingSupply)} GNOT` : "-"}
@@ -80,6 +90,7 @@ export const StandardNetworkSupplyCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isSupplyFetched}
+              isError={supplyFailure.isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {supply?.data ? `${makeCompactNumber(supply.data.total).replace(".", ",")} GNOT` : "-"}
@@ -89,6 +100,8 @@ export const StandardNetworkSupplyCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
+      {/* One notice for both endpoints; each failed field already shows a dash. */}
+      <StatisticsErrorNotice query={failure} />
     </>
   );
 };

@@ -15,6 +15,8 @@ import ActiveList from "@/components/ui/active-list";
 import { colWidth, FitContentA, List, listTitle, StyledCard, StyledText } from "../main-active-list";
 import Tooltip from "@/components/ui/tooltip";
 import FetchedSkeleton from "../fetched-skeleton";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 function makeDisplayRealmPath(path: string, length = 11) {
   if (!path) {
@@ -27,7 +29,11 @@ function makeDisplayRealmPath(path: string, length = 11) {
 const StandardNetworkActiveNewest = () => {
   const { getUrlWithNetwork } = useNetwork();
 
-  const { data, isFetched } = useGetNewestRealms();
+  const query = useGetNewestRealms();
+  const { data } = query;
+  const isFetched = data !== undefined;
+  const failure = useStatisticsFailure(query);
+  const isError = failure.isError;
 
   const { realms, updatedAt }: { realms: NewestRealm[]; updatedAt: string } = React.useMemo(() => {
     if (!data?.items) return { realms: [], updatedAt: "" };
@@ -79,7 +85,7 @@ const StandardNetworkActiveNewest = () => {
           </Text>
         )}
       </Text>
-      {isFetched ? (
+      {isFetched || isError ? (
         <ActiveList title={listTitle.newest} colWidth={colWidth.newest}>
           {displayRealms.map((realm: NewestRealm, index: number) => (
             <List key={index}>
@@ -125,6 +131,7 @@ const StandardNetworkActiveNewest = () => {
               </StyledText>
             </List>
           ))}
+          <StatisticsErrorNotice query={failure} />
         </ActiveList>
       ) : (
         <FetchedSkeleton />

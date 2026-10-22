@@ -19,15 +19,17 @@ import { colWidth, List, listTitle, StyledAmountText, StyledCard, StyledText } f
 import Tooltip from "@/components/ui/tooltip";
 import FetchedSkeleton from "../fetched-skeleton";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 const ActiveAccountApi = () => {
   const { getUrlWithNetwork } = useNetwork();
 
-  const { data, isFetched } = useGetMonthlyActiveAccounts();
-
-  const loaded = useMemo(() => {
-    return isFetched;
-  }, [isFetched]);
+  const query = useGetMonthlyActiveAccounts();
+  const { data } = query;
+  const loaded = data !== undefined;
+  const failure = useStatisticsFailure(query);
+  const isError = failure.isError;
 
   const accountsData: ActiveAccountModel[] = useMemo(() => {
     if (!data?.items) return [];
@@ -55,7 +57,7 @@ const ActiveAccountApi = () => {
           </Text>
         )}
       </Text>
-      {loaded ? (
+      {loaded || isError ? (
         <ActiveList title={listTitle.accounts} colWidth={colWidth.accounts}>
           {accountsData.map((account: ActiveAccountModel, index: number) => (
             <List key={index}>
@@ -90,6 +92,7 @@ const ActiveAccountApi = () => {
               <LazyAccountBalance address={account.account} />
             </List>
           ))}
+          <StatisticsErrorNotice query={failure} />
         </ActiveList>
       ) : (
         <FetchedSkeleton />

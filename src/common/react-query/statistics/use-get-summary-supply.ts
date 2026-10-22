@@ -5,6 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetSummarySupplyResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { retryStatisticsQuery } from "./statistics-query-policy";
 
 export const useGetSummarySupply = (
   options?: UseQueryOptions<GetSummarySupplyResponse, Error, GetSummarySupplyResponse>,
@@ -16,6 +17,6 @@ export const useGetSummarySupply = (
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getSummarySupply(),
-    options,
+    { retry: retryStatisticsQuery, ...options },
   );
 };

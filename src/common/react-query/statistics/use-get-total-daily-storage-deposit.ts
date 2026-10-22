@@ -5,6 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetTotalDailyStorageDepositResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { retryStatisticsQuery } from "./statistics-query-policy";
 
 export const useGetTotalDailyStroageDeposit = (
   options?: UseQueryOptions<GetTotalDailyStorageDepositResponse, Error, GetTotalDailyStorageDepositResponse>,
@@ -16,6 +17,6 @@ export const useGetTotalDailyStroageDeposit = (
     apiStatisticsRepository,
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getTotalDailyStorageDeposit(),
-    options,
+    { retry: retryStatisticsQuery, ...options },
   );
 };
