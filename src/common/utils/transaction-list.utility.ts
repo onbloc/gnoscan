@@ -56,13 +56,19 @@ export function getMessageKind(messageType: string | null | undefined): MessageK
 
 export interface DappLabel {
   name: string;
-  // Image path in gno-token-resource, e.g. "/grc20/images/gno_land_r_gnoswap_gns.svg".
+  /** Image path in gno-token-resource, e.g. "/grc20/images/gno_land_r_gnoswap_gns.svg". */
   logo: string;
   url: string;
 }
 
-// The dApp of a package path. A key is a namespace ("r/gnoswap") or a full realm path ("r/gnoland/wugnot") for a
-// namespace shared by unrelated realms; the longest matching key wins. depth is the number of segments it covers.
+/**
+ * Finds the dApp of a package path. A key is a namespace ("r/gnoswap") or a full realm path ("r/gnoland/wugnot") for
+ * a namespace shared by unrelated realms, and the longest matching key wins.
+ *
+ * @param packagePath - Package path with or without the "gno.land/" prefix
+ * @param registry - dApp labels by key, the bundled dapps.json by default
+ * @returns The matched dApp and `depth`, the number of path segments its key covers
+ */
 export function findDapp(
   packagePath: string,
   registry: Readonly<Record<string, DappLabel>> = DAPPS,
@@ -75,13 +81,22 @@ export function findDapp(
   return undefined;
 }
 
-// displayPath is what the line shows; packagePath stays the full path for the realm link.
+/**
+ * The line under the Function chip. `displayPath` is what the line shows, while `packagePath` stays the full path for
+ * the realm link.
+ */
 export type FunctionRealmLabel =
   | { kind: "call"; packagePath: string; displayPath: string; dapp?: DappLabel }
   | { kind: "deploy"; packagePath: string; displayPath: string }
   | { kind: "text"; text: string };
 
-// The line under the Function chip that tells which realm or kind of message the function belongs to.
+/**
+ * Builds the line under the Function chip that tells which realm or kind of message the function belongs to.
+ *
+ * @param messageType - Message type from the API ("/vm.m_call") or a custom network mapper ("MsgCall")
+ * @param packagePath - Package path of the message shown in the chip
+ * @returns The label, or undefined when the message has no realm or kind to show
+ */
 export function getFunctionRealmLabel(
   messageType: string | null | undefined,
   packagePath: string | null | undefined,
