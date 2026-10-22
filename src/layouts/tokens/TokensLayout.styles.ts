@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 import { innerLayoutCss } from "@/styles/css/inner-layout";
-import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 
 export const Container = styled.main`
   width: 100%;
@@ -36,14 +35,5 @@ export const TitleWrap = styled.div`
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
-  }
-`;
-
-export const TokenResourceLink = styled(LinkWrapper)`
-  align-self: center;
-  flex-shrink: 0;
-
-  @media (max-width: 767px) {
-    align-self: flex-start;
   }
 `;

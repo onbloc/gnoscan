@@ -12,23 +12,32 @@ function makeTokenMetaURL(type: "gno-native" | "grc20" | "grc721", chainId: stri
   return `${GNO_TOKEN_RESOURCE_BASE_URI}/${type}/${chainId}.json`;
 }
 
-async function fetchTokenMeta<T extends { id: string; denom?: string; pkg_path?: string } = TokenResourceMeta>(
+/**
+ * Rejects when the list cannot be loaded (network error, missing file, bad JSON), so callers can
+ * tell a failed load from a list without the entry. Consumers default the data to `[]`.
+ */
+export async function fetchTokenMeta<T extends { id: string; denom?: string; pkg_path?: string } = TokenResourceMeta>(
   url: string,
 ): Promise<T[]> {
   if (!url) {
     return [];
   }
 
-  return fetch(url)
-    .then(response => response.json())
-    .then(
-      json =>
-        json?.map((data: Omit<T, "id">) => ({
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to load token resource: ${response.status} ${url}`);
+  }
+
+  const json: Omit<T, "id">[] = await response.json();
+  return (
+    json?.map(
+      data =>
+        ({
           ...data,
           id: data?.denom || data?.pkg_path || "",
-        })) || [],
-    )
-    .catch(() => []);
+        } as T),
+    ) || []
+  );
 }
 
 export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenResourceMeta[], Error>) => {
@@ -46,6 +55,8 @@ export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenResourceMeta
       });
     },
     enabled: !!blockRepository,
+    // A failed load falls back to API values right away instead of waiting on retries.
+    retry: false,
     ...options,
   });
 };
@@ -63,6 +74,8 @@ export const useGetNftCollectionMetaQuery = (options?: UseQueryOptions<NftCollec
   return useQuery<NftCollectionResourceMeta[], Error>({
     queryKey: [QUERY_KEY.getNftCollectionMeta, currentNetwork?.chainId || ""],
     queryFn: () => fetchTokenMeta<NftCollectionResourceMeta>(makeTokenMetaURL("grc721", currentNetwork?.chainId || "")),
+    enabled: !!currentNetwork?.chainId,
+    retry: false,
     ...options,
   });
 };

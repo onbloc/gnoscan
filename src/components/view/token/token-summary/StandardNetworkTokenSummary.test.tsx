@@ -42,7 +42,10 @@ jest.mock("@/common/react-query/token/api", () => ({
   },
 }));
 jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
-  useTokenResourceMeta: () => ({ getTokenMeta: (_: string, meta: object) => meta }),
+  useTokenResourceMeta: () => ({
+    getTokenMeta: (_: string, meta: object) => meta,
+    getTokenDescription: () => undefined,
+  }),
 }));
 jest.mock("@/common/hooks/common/use-token-price", () => ({
   useTokenPrice: () => ({ getPriceEntry: () => ({ price: "100", change24h: 0 }) }),
@@ -54,6 +57,7 @@ jest.mock("@/components/ui/detail-field", () => ({
   Field: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   FieldWithTooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   AddressLink: () => null,
+  DescriptionField: () => null,
 }));
 jest.mock(
   "@/components/view/details-data-section",

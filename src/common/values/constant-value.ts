@@ -1,5 +1,9 @@
 export const GNO_TOKEN_RESOURCE_BASE_URI = "https://raw.githubusercontent.com/onbloc/gno-token-resource/main";
 
+// `||` so an empty value copied from .env.example still falls back to the repository.
+export const GNO_TOKEN_RESOURCE_URL =
+  process.env.NEXT_PUBLIC_GNO_TOKEN_RESOURCE_URL?.trim() || "https://github.com/onbloc/gno-token-resource";
+
 // gnoscan has no pool/position page of its own - link out to gnoswap's app instead.
 export const GNOSWAP_APP_BASE_URL = process.env.NEXT_PUBLIC_GNOSWAP_APP_BASE_URL ?? "https://gnoswap.io";
 
