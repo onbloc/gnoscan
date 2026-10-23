@@ -1,8 +1,11 @@
 import React from "react";
+import { useRecoilValue } from "recoil";
 
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import Text from "@/components/ui/text";
+import { BarChartTooltip } from "@/components/ui/chart/bar-chart/bar-chart-tooltip";
+import { themeState } from "@/states/theme";
 import * as S from "./ListSummary.styles";
 
 export const SummaryGrid = S.Grid;
@@ -85,8 +88,30 @@ export const SummaryBigNumber = ({
 
 export type BarColor = "blue" | "orange";
 
-/** 7 daily bars, oldest first. Series are stacked bottom up and today's bar is drawn at full strength. */
-export const SummaryBars = ({ series, label }: { series: { color: BarColor; values: number[] }[]; label: string }) => {
+export interface BarSeries {
+  color: BarColor;
+  // Shown in the hover tooltip when bars are stacked, e.g. "transfers".
+  name?: string;
+  values: number[];
+}
+
+const barTooltipValue = (series: BarSeries[], day: number) =>
+  series.length === 1
+    ? makeDisplayNumber(series[0].values[day] ?? 0)
+    : series.map(({ name, values }) => `${makeDisplayNumber(values[day] ?? 0)} ${name ?? ""}`.trim()).join(" · ");
+
+// Read the theme only while a tooltip is shown, so the bars render without a Recoil root.
+const SummaryBarTooltip = ({ title, value }: { title: string; value: string }) => {
+  const themeMode = useRecoilValue(themeState);
+  return <BarChartTooltip themeMode={themeMode} title={title} value={value} />;
+};
+
+/**
+ * 7 daily bars, oldest first, with the date and value shown on hover like the home page charts. Series are stacked
+ * bottom up and today's bar is drawn at full strength.
+ */
+export const SummaryBars = ({ series, dates, label }: { series: BarSeries[]; dates: string[]; label: string }) => {
+  const [hoveredDay, setHoveredDay] = React.useState<number | null>(null);
   const days = series[0]?.values.length ?? 0;
   if (days === 0) return null;
 
@@ -94,15 +119,42 @@ export const SummaryBars = ({ series, label }: { series: { color: BarColor; valu
   const max = Math.max(...totals, 1);
 
   return (
-    <S.Bars role="img" aria-label={label}>
-      {totals.map((total, day) => (
-        <S.BarColumn key={day} style={{ height: `${(total / max) * 100}%` }} $today={day === days - 1}>
-          {series.map(({ color, values }) => (
-            <S.BarSegment key={color} $color={color} style={{ flexGrow: values[day] ?? 0 }} />
-          ))}
-        </S.BarColumn>
-      ))}
-    </S.Bars>
+    <S.BarsArea>
+      <S.Bars role="group" aria-label={label}>
+        {totals.map((total, day) => (
+          <S.BarSlot
+            key={day}
+            tabIndex={0}
+            aria-label={`${dates[day] ?? ""} ${barTooltipValue(series, day)}`}
+            onMouseEnter={() => setHoveredDay(day)}
+            onMouseLeave={() => setHoveredDay(null)}
+            onFocus={() => setHoveredDay(day)}
+            onBlur={() => setHoveredDay(null)}
+          >
+            <S.BarColumn style={{ height: `${(total / max) * 100}%` }} $today={day === days - 1}>
+              {series.map(({ color, values }) => (
+                <S.BarSegment key={color} $color={color} style={{ flexGrow: values[day] ?? 0 }} />
+              ))}
+            </S.BarColumn>
+          </S.BarSlot>
+        ))}
+      </S.Bars>
+      {hoveredDay !== null && (
+        <S.BarTooltip
+          aria-hidden="true"
+          // The first and last days hug the card edge so the tooltip stays inside it.
+          style={
+            hoveredDay === 0
+              ? { left: 0 }
+              : hoveredDay === days - 1
+              ? { right: 0 }
+              : { left: `${((hoveredDay + 0.5) / days) * 100}%`, transform: "translateX(-50%)" }
+          }
+        >
+          <SummaryBarTooltip title={dates[hoveredDay] ?? ""} value={barTooltipValue(series, hoveredDay)} />
+        </S.BarTooltip>
+      )}
+    </S.BarsArea>
   );
 };
 

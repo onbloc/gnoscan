@@ -95,11 +95,30 @@ export const BigNumber = styled.div`
   gap: 4px 10px;
 `;
 
+export const BarsArea = styled.div`
+  position: relative;
+`;
+
 export const Bars = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 6px;
   height: 64px;
+`;
+
+// Full height hover target, so short bars are as easy to point at as tall ones.
+export const BarSlot = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  height: 100%;
+  cursor: default;
+  outline: none;
+
+  &:hover > div,
+  &:focus-visible > div {
+    opacity: 1;
+  }
 `;
 
 export const BarColumn = styled.div<{ $today: boolean }>`
@@ -111,6 +130,14 @@ export const BarColumn = styled.div<{ $today: boolean }>`
   border-radius: 2px;
   // Earlier days are faded so today's bar stands out.
   opacity: ${({ $today }) => ($today ? 1 : 0.3)};
+`;
+
+export const BarTooltip = styled.div`
+  position: absolute;
+  bottom: calc(100% + 8px);
+  z-index: 1;
+  pointer-events: none;
+  white-space: nowrap;
 `;
 
 export const BarSegment = styled.div<{ $color: "blue" | "orange" }>`

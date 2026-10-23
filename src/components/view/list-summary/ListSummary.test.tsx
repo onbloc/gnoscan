@@ -2,7 +2,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
-import { toCountBadge, toPctBadge } from "./ListSummary";
+import { SummaryBars, toCountBadge, toPctBadge } from "./ListSummary";
 import { RealmsSummary } from "./RealmsSummary";
 
 const mockSummary = { data: undefined as unknown, isFetched: true, isError: false };
@@ -94,4 +94,20 @@ it("shows a tiny net storage loss as +0.0 rather than -0.0", () => {
     },
   };
   expect(renderText(<RealmsSummary />)).toContain("Net +0.0 GNOT");
+});
+
+it("labels each bar with its date and value, naming stacked series", () => {
+  const markup = renderToStaticMarkup(
+    <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+      <SummaryBars
+        label="Daily NFT activity"
+        dates={["2026-10-21", "2026-10-22"]}
+        series={[
+          { color: "blue", name: "transfers", values: [50, 1263] },
+          { color: "orange", name: "mints", values: [15, 48] },
+        ]}
+      />
+    </ThemeProvider>,
+  );
+  expect(markup).toContain('aria-label="2026-10-22 1,263 transfers · 48 mints"');
 });

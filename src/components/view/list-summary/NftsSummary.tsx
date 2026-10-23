@@ -114,9 +114,10 @@ export const NftsSummary = () => {
         />
         <SummaryBars
           label="Daily NFT transfers and mints, last 7 days"
+          dates={activity?.daily.map(day => day.date) ?? []}
           series={[
-            { color: "blue", values: activity?.daily.map(day => day.transfers) ?? [] },
-            { color: "orange", values: activity?.daily.map(day => day.mints) ?? [] },
+            { color: "blue", name: "transfers", values: activity?.daily.map(day => day.transfers) ?? [] },
+            { color: "orange", name: "mints", values: activity?.daily.map(day => day.mints) ?? [] },
           ]}
         />
       </SummaryCard>
