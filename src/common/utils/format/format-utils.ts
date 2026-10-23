@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 
 import { makeDisplayNumber } from "../string-util";
+import { getMessageKind } from "@/common/utils/transaction-list.utility";
 import { BYTE_UNITS, BYTES_PER_KB } from "@/common/values/constant-value";
 
 interface ByteSizeResult {
@@ -22,10 +23,10 @@ export const formatGasString = (gasWanted: number, gasUsed: number): string => {
 };
 
 export function mapDisplayFunctionName(type: string, functionName: string) {
-  switch (type) {
-    case "MsgAddPackage":
+  switch (getMessageKind(type)) {
+    case "deploy":
       return "AddPkg";
-    case "BankMsgSend":
+    case "send":
       return "Transfer";
     default:
       return functionName;

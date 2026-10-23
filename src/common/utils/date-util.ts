@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from "dayjs";
 
 export interface TimeStamp {
@@ -6,7 +5,7 @@ export interface TimeStamp {
   passedTime?: string;
 }
 
-const getDateUtcToLocal = (d: any) => {
+const getDateUtcToLocal = (d: dayjs.ConfigType) => {
   const hasTimezone = `${d}`.includes("Z");
   const timezoneOffset = new Date().getTimezoneOffset();
   let currentDate = dayjs(d);
@@ -19,7 +18,7 @@ const getDateUtcToLocal = (d: any) => {
   };
 };
 
-export const getDateDiff = (d: any) => {
+export const getDateDiff = (d: dayjs.ConfigType) => {
   const now = dayjs();
   const target = dayjs(getDateUtcToLocal(d).value);
   const diff = now.diff(target, "seconds");
@@ -27,7 +26,7 @@ export const getDateDiff = (d: any) => {
   const diffH = now.diff(target, "hours");
   const diffD = now.diff(target, "day");
 
-  if (diff < 60) return "less than a minute ago";
+  if (diff < 60) return "≤ 1min";
   if (diffM < 2) return "1 min ago";
   if (diffM >= 2 && diffM <= 59) return `${diffM} mins ago`;
   if (diffM >= 60 && diffM <= 119) return "1 hour ago";
@@ -40,7 +39,7 @@ export const getDateDiff = (d: any) => {
   if (diffD >= 730) return `${Math.floor(diffD / 365)} years ago`;
 };
 
-export const getLocalDateString = (d: any) => {
+export const getLocalDateString = (d: dayjs.ConfigType) => {
   if (d === "" || d == null) return "-";
   const { value, offsetHours } = getDateUtcToLocal(d);
   const sign = offsetHours > 0 ? "+" : "-";

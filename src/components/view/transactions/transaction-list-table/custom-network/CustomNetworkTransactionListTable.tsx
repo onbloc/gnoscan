@@ -10,6 +10,7 @@ import { CardTableContainer } from "@/components/view/datatable/datatable.styles
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
 import { ViewMoreButton } from "@/components/ui/button";
+import { mapDisplayFunctionName } from "@/common/utils/format/format-utils";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 
 interface TransactionWithTime extends Transaction {
@@ -23,17 +24,6 @@ const TOOLTIP_TYPE = (
     type and package path.
   </>
 );
-
-function mapDisplayFunctionName(type: string, functionName: string) {
-  switch (type) {
-    case "MsgAddPackage":
-      return "AddPkg";
-    case "BankMsgSend":
-      return "Transfer";
-    default:
-      return functionName;
-  }
-}
 
 interface CustomNetworkTransactionListTableProps {
   transactions: Transaction[];
@@ -81,17 +71,17 @@ export const CustomNetworkTransactionListTable = ({
     return DatatableOption.Builder.builder<TransactionWithTime>()
       .key("type")
       .name("Function")
-      .width(190)
+      .width(200)
       .colorName("blue")
       .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => {
         const displayFunctionName = mapDisplayFunctionName(data.type, data.functionName);
         return (
           <DatatableItem.Type
-            type={data.type}
-            func={displayFunctionName}
+            messageType={data.type}
+            functionName={displayFunctionName}
             packagePath={data.packagePath}
-            msgNum={data.numOfMessage}
+            messageCount={data.numOfMessage}
           />
         );
       })
@@ -122,7 +112,7 @@ export const CustomNetworkTransactionListTable = ({
     return DatatableOption.Builder.builder<TransactionWithTime>()
       .key("amount")
       .name("Amount")
-      .width(190)
+      .width(180)
       .renderOption((_, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
@@ -139,7 +129,7 @@ export const CustomNetworkTransactionListTable = ({
     return DatatableOption.Builder.builder<TransactionWithTime>()
       .key("time")
       .name("Time")
-      .width(160)
+      .width(130)
       .className("time")
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();

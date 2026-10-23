@@ -61,10 +61,11 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
           const func = getRepresentativeTransactionFunction(row);
           return (
             <DatatableItem.Type
-              type={func?.messageType ?? ""}
-              func={func?.funcType ?? ""}
+              messageType={func?.messageType ?? ""}
+              functionName={func?.funcType ?? ""}
               packagePath={func?.pkgPath}
-              msgNum={row.messageCount - 1}
+              messageCount={row.messageCount}
+              txHash={row.txHash}
             />
           );
         })
