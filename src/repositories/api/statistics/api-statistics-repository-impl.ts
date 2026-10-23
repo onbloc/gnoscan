@@ -18,6 +18,9 @@ import {
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
   GetTotalRealmStorageDepositResponse,
+  GetSummaryTokensResponse,
+  GetSummaryNftCollectionsResponse,
+  GetSummaryRealmsResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
 
@@ -84,5 +87,17 @@ export class ApiStatisticsRepositoryImpl extends ApiRepository implements ApiSta
     params: GetTotalRealmStorageDepositRequest,
   ): Promise<GetTotalRealmStorageDepositResponse> {
     return this.get<GetTotalRealmStorageDepositResponse>("/stats/total-daily-realm-storage-deposit", { ...params });
+  }
+
+  getSummaryTokens(): Promise<GetSummaryTokensResponse> {
+    return this.get<GetSummaryTokensResponse>("/stats/summary/tokens");
+  }
+
+  getSummaryNftCollections(): Promise<GetSummaryNftCollectionsResponse> {
+    return this.get<GetSummaryNftCollectionsResponse>("/stats/summary/nft-collections");
+  }
+
+  getSummaryRealms(): Promise<GetSummaryRealmsResponse> {
+    return this.get<GetSummaryRealmsResponse>("/stats/summary/realms");
   }
 }

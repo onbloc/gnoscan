@@ -6,7 +6,11 @@ export interface GetTokensRequestParameters {
 
   limit?: number; // @default 20
 
-  sort?: "holders";
+  /** `id` orders by registration, newest last. */
+  sort?: "holders" | "id";
 
   order?: "asc" | "desc";
+
+  /** Matches name, symbol or package path. */
+  keyword?: string;
 }

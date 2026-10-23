@@ -19,9 +19,13 @@ import { TokenMapper } from "@/common/mapper/token/token-mapper";
  * you can use data that is already mapped out of the box.
  *
  * @param params - API request parameters
+ * @param options - react-query infinite query options
  * @returns Mapped tokens data and query status
  */
-export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
+export const useMappedApiTokens = (
+  params?: GetTokensRequestParameters,
+  options?: Parameters<typeof useGetTokens>[1],
+) => {
   const {
     data: apiData,
     isFetched: isApiFetched,
@@ -31,7 +35,7 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
     hasNextPage,
     isFetchingNextPage,
     isPreviousData,
-  } = useGetTokens(params, { keepPreviousData: true });
+  } = useGetTokens(params, { keepPreviousData: true, ...options });
 
   const { getTokenMeta } = useTokenResourceMeta();
 

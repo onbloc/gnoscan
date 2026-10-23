@@ -3,6 +3,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { NftCollectionListSortOption } from "@/common/types/token";
 
 import StandardNetworkNftCollectionsData from "@/components/view/nft-collections/nft-collection-data/StandardNetworkNftCollectionsData";
+import { ListSearch, useListKeyword } from "@/components/view/list-summary/ListSearch";
 
 const DEFAULT_SORT_OPTION: NftCollectionListSortOption = { field: "holders", order: "desc" };
 
@@ -14,14 +15,23 @@ const NftCollectionListContainer = () => {
     "nfts:sort",
     DEFAULT_SORT_OPTION,
   );
+  const search = useListKeyword();
 
   return isCustomNetwork ? null : (
-    // Keyed by network so rows kept across a sort change never show on another network.
-    <StandardNetworkNftCollectionsData
-      key={currentNetwork?.chainId}
-      sortOption={sortOption}
-      setSortOption={setSortOption}
-    />
+    <>
+      <ListSearch
+        value={search.value}
+        onChange={search.setValue}
+        placeholder="Search by collection name, symbol, or path"
+      />
+      {/* Keyed by network so rows kept across a sort change never show on another network. */}
+      <StandardNetworkNftCollectionsData
+        key={currentNetwork?.chainId}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
+        keyword={search.keyword}
+      />
+    </>
   );
 };
 

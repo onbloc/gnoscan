@@ -8,7 +8,7 @@ import { formatTokenDecimal } from "../token.utility";
 
 type PriceEntryLookup = (tokenKey: string) => TokenPriceEntry | null;
 
-export const toTokenKey = (token: GRC20InfoWithLogo) =>
+export const toTokenKey = (token: Pick<GRC20InfoWithLogo, "packagePath" | "symbol">) =>
   token.symbol ? `${token.packagePath}.${token.symbol}` : token.packagePath;
 
 /** Price times total supply in display units, or null when the token has no price. */
@@ -66,3 +66,12 @@ export const sortTokensOnClient = (
     })
     .map(({ token }) => token);
 };
+
+/** Sum of the per token 24h transaction counts and the 3 most active tokens, most active first. */
+export const summarizeTokenActivity24h = (tokens: GRC20InfoWithLogo[]) => ({
+  total: tokens.reduce((sum, token) => sum + (token.transactionCount24h ?? 0), 0),
+  top: tokens
+    .filter(token => (token.transactionCount24h ?? 0) > 0)
+    .sort((a, b) => (b.transactionCount24h ?? 0) - (a.transactionCount24h ?? 0))
+    .slice(0, 3),
+});
