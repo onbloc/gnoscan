@@ -16,8 +16,6 @@ import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } 
 import { QUERY_KEY } from "./types";
 import { CACHE_POLICY } from "@/common/values/query.constant";
 
-const REALM_LIST_CACHE_TIME = 10 * 60 * 1000;
-
 const mapRealmPackageTransactions = (transactions: any[] | null): NewestRealm[] => {
   if (!transactions) {
     return [];
@@ -64,8 +62,6 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
     ...options,
     retry: 1,
     keepPreviousData: true,
-    cacheTime: REALM_LIST_CACHE_TIME,
-    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 
@@ -86,8 +82,6 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
-    cacheTime: REALM_LIST_CACHE_TIME,
-    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 
@@ -503,8 +497,6 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
-    cacheTime: REALM_LIST_CACHE_TIME,
-    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 
