@@ -86,6 +86,7 @@ export function findDapp(
 export type FunctionRealmLabel =
   | { kind: "call"; packagePath: string; dapp?: DappLabel }
   | { kind: "deploy"; packagePath: string }
+  | { kind: "run"; packagePath: string; moreCount: number }
   | { kind: "text"; text: string };
 
 /**
@@ -108,4 +109,21 @@ export function getFunctionRealmLabel(messageType: string, packagePath: string):
     default:
       return undefined;
   }
+}
+
+/**
+ * Lists the realms that the run messages of a transaction called, in call order and without repeats.
+ *
+ * @param messages - Messages from the transaction contracts API
+ * @returns Realm paths, empty when no run message called a realm
+ */
+export function getRunCalledRealms(
+  messages: { messageType: string; calledFunctions?: { packagePath: string }[] | null }[],
+): string[] {
+  const paths = messages
+    .filter(message => getMessageKind(message.messageType) === "run")
+    .flatMap(message => message.calledFunctions ?? [])
+    .map(calledFunction => calledFunction.packagePath)
+    .filter(Boolean);
+  return [...new Set(paths)];
 }

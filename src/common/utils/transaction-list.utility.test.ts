@@ -1,4 +1,4 @@
-import { findDapp, getFunctionRealmLabel } from "./transaction-list.utility";
+import { findDapp, getFunctionRealmLabel, getRunCalledRealms } from "./transaction-list.utility";
 
 describe("getFunctionRealmLabel", () => {
   test("a call shows its package path, from both API and custom network type names", () => {
@@ -50,5 +50,26 @@ describe("findDapp", () => {
   test("a full realm path key covers only that realm", () => {
     expect(findDapp("gno.land/r/gnoland/wugnot", registry)).toBe(wugnot);
     expect(findDapp("gno.land/r/gnoland/users", registry)).toBeUndefined();
+  });
+});
+
+describe("getRunCalledRealms", () => {
+  const called = (...packagePaths: string[]) => packagePaths.map(packagePath => ({ packagePath, method: "Do" }));
+
+  test("lists the called realms of run messages in call order without repeats", () => {
+    expect(
+      getRunCalledRealms([
+        {
+          messageType: "/vm.m_run",
+          calledFunctions: called("gno.land/r/sys/validators/v0", "gno.land/r/gov/dao", "gno.land/r/gov/dao"),
+        },
+        { messageType: "/vm.m_call", calledFunctions: called("gno.land/r/demo/foo") },
+      ]),
+    ).toEqual(["gno.land/r/sys/validators/v0", "gno.land/r/gov/dao"]);
+  });
+
+  test("a run without called realms has none", () => {
+    expect(getRunCalledRealms([{ messageType: "/vm.m_run", calledFunctions: null }])).toEqual([]);
+    expect(getRunCalledRealms([])).toEqual([]);
   });
 });

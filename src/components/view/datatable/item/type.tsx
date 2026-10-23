@@ -6,7 +6,14 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
-import { DappLabel, FunctionRealmLabel, getFunctionRealmLabel } from "@/common/utils/transaction-list.utility";
+import {
+  DappLabel,
+  FunctionRealmLabel,
+  getFunctionRealmLabel,
+  getMessageKind,
+  getRunCalledRealms,
+} from "@/common/utils/transaction-list.utility";
+import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
 import { useNetwork } from "@/common/hooks/use-network";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 interface Props {
@@ -17,9 +24,11 @@ interface Props {
   packagePath?: string | null;
   /** Number of messages in the transaction, the ones after the first are shown as "+N". */
   messageCount?: number;
+  /** Transaction hash, used to look up the realms a run message called. Only the standard network has it. */
+  txHash?: string;
 }
 
-export const Type = ({ messageType, functionName, packagePath, messageCount = 0 }: Props) => {
+export const Type = ({ messageType, functionName, packagePath, messageCount = 0, txHash }: Props) => {
   const renderTooltip = () => {
     return (
       <TooltipWrapper>
@@ -43,10 +52,30 @@ export const Type = ({ messageType, functionName, packagePath, messageCount = 0 
           </Text>
         )}
       </TypeWrapper>
-      {realmLabel && <RealmLabel label={realmLabel} />}
+      {txHash && getMessageKind(messageType) === "run" ? (
+        <RunRealmLabel txHash={txHash} />
+      ) : (
+        realmLabel && <RealmLabel label={realmLabel} />
+      )}
     </Wrapper>
   ) : (
     <span>-</span>
+  );
+};
+
+// The list API has no path for a run message, so the realms it called come from the transaction contracts.
+const RunRealmLabel = ({ txHash }: { txHash: string }) => {
+  const { data } = useGetTransactionContractsByHeight({ txHash }, { staleTime: Infinity });
+  const realms = getRunCalledRealms(data?.pages.flatMap(page => page.items) ?? []);
+
+  return (
+    <RealmLabel
+      label={
+        realms.length > 0
+          ? { kind: "run", packagePath: realms[0], moreCount: realms.length - 1 }
+          : { kind: "text", text: "run" }
+      }
+    />
   );
 };
 
@@ -69,9 +98,9 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
   return (
     <LabelWrapper>
       {label.kind === "call" && label.dapp && <DappLogo dapp={label.dapp} />}
-      {label.kind === "deploy" && (
+      {(label.kind === "deploy" || label.kind === "run") && (
         <Text className="kind" type="body1" color="tertiary">
-          deploy ·
+          {`${label.kind} ·`}
         </Text>
       )}
       {label.kind === "call" && label.dapp ? (
@@ -82,6 +111,11 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
         <Link className="path" href={getUrlWithNetwork(`/realms/details?path=${label.packagePath}`)} title={path}>
           {displayPath}
         </Link>
+      )}
+      {label.kind === "run" && label.moreCount > 0 && (
+        <Text className="kind" type="body1" color="tertiary">
+          {`+${label.moreCount}`}
+        </Text>
       )}
     </LabelWrapper>
   );

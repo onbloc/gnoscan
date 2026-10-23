@@ -80,6 +80,7 @@ export const StandardNetworkTransactionListTable = ({
             functionName={displayFunctionName}
             packagePath={func.pkgPath}
             messageCount={data.messageCount}
+            txHash={data.txHash}
           />
         );
       })

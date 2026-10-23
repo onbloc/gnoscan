@@ -65,6 +65,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
               functionName={func?.funcType ?? ""}
               packagePath={func?.pkgPath}
               messageCount={row.messageCount}
+              txHash={row.txHash}
             />
           );
         })
