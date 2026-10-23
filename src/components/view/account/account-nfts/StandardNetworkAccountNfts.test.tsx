@@ -6,15 +6,17 @@ import StandardNetworkAccountNfts from "./StandardNetworkAccountNfts";
 
 let mockCollections: { tokenId: string; name: string; symbol: string; tokenCount: number }[] = [];
 const mockStateKeys: string[] = [];
+let mockSavedPage: number | undefined;
+const mockRequestedPages: number[] = [];
 
 jest.mock("../account-address/AccountAddress.styles", () => ({
   CardTitle: ({ children }: { children: React.ReactNode }) => <h3>{children}</h3>,
 }));
 jest.mock("./AccountNftCard", () => () => null);
 jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => ({
-  useHistoryEntryState: (key: string, initial: string) => {
+  useHistoryEntryState: (key: string, initial: unknown) => {
     mockStateKeys.push(key);
-    return [initial, jest.fn()];
+    return [key.endsWith(":nft-page") ? mockSavedPage ?? initial : initial, jest.fn()];
   },
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
@@ -25,7 +27,10 @@ jest.mock("@/common/react-query/account/api/use-get-account-grc721-collections",
   useGetAccountGRC721Collections: () => ({ data: { items: mockCollections }, isFetched: true }),
 }));
 jest.mock("@/common/react-query/account/api/use-get-account-nfts", () => ({
-  useGetAccountNfts: () => ({ data: undefined, isFetched: false }),
+  useGetAccountNfts: ({ page }: { page: number }) => {
+    mockRequestedPages.push(page);
+    return { data: undefined, isFetched: false };
+  },
 }));
 jest.mock("@/components/ui/pagination", () => ({
   Pagination: ({ totalPages }: { totalPages: number }) => <nav aria-label="Pagination">{totalPages}</nav>,
@@ -72,4 +77,14 @@ it("scopes the saved collection and page by network", () => {
     "account:chain-a:g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5:nft-collection",
     "account:chain-a:g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5:nft-page",
   ]);
+});
+
+it("clamps a restored page that is past the last page", () => {
+  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20 }];
+  mockSavedPage = 9;
+  mockRequestedPages.length = 0;
+  render();
+  mockSavedPage = undefined;
+
+  expect(mockRequestedPages).toEqual([3]);
 });

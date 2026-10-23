@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionPendingResponse } from "@/repositories/api/transaction/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 /**
  * Checks whether a transaction hash is currently sitting in the gno node's mempool.
@@ -26,6 +26,6 @@ export const useGetTransactionPending = (
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
     repository => repository.getTransactionPending(hash),
-    { enabled: !!hash, retry: false, ...options },
+    { ...CACHE_POLICY.LIVE, enabled: !!hash, retry: false, ...options },
   );
 };

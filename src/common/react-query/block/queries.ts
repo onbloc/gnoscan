@@ -6,6 +6,7 @@ import { toBech32Address } from "@/common/utils/bech32.utility";
 import { BlockResults, NodeResponseBlock } from "@/common/clients/node-client";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { BlockInfo } from "@gnolang/tm2-js-client";
+import { CACHE_POLICY } from "@/common/values/query.constant";
 
 export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | null, Error>) => {
   const { currentNetwork } = useNetworkProvider();
@@ -19,6 +20,7 @@ export const useGetLatestBlockHeightQuery = (options?: UseQueryOptions<number | 
       }
       return blockRepository.getLatestBlockHeight().catch(() => null);
     },
+    ...CACHE_POLICY.LIVE,
     ...options,
     enabled: !!blockRepository && (options?.enabled ?? true),
   });
@@ -43,6 +45,7 @@ export const useGetBlockQuery = (blockHeight: number | null, options?: UseQueryO
     retry: 1,
     enabled: !!blockRepository && !!blockHeight,
     keepPreviousData: true,
+    ...CACHE_POLICY.COLD,
     ...options,
   });
 };

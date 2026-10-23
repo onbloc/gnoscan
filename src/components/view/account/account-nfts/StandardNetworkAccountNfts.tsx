@@ -46,10 +46,12 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
   );
   const selectedCount = activeCollection?.tokenCount ?? totalCount;
   const totalPages = Math.max(1, Math.ceil(selectedCount / NFT_PAGE_SIZE));
+  // A restored page can be past the end once the saved collection is gone or the NFT count dropped.
+  const currentPage = Math.min(page, totalPages);
   const { data: nftData, isFetched: isFetchedNfts } = useGetAccountNfts({
     address,
     collections: activeCollections,
-    page,
+    page: currentPage,
     pageSize: NFT_PAGE_SIZE,
   });
   const nfts = nftData?.items ?? [];
@@ -125,7 +127,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
 
       {hasCollections && (
         <Pagination
-          page={page}
+          page={currentPage}
           totalPages={totalPages}
           hasNext={nftData?.page.hasNext}
           hideFirstPageButtonWhenDisabled
