@@ -56,7 +56,7 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
   if (label.kind === "text") {
     return (
       <LabelWrapper>
-        <Text type="body1" color="tertiary">
+        <Text className="kind" type="body1" color="tertiary">
           {label.text}
         </Text>
       </LabelWrapper>
@@ -70,7 +70,7 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
     <LabelWrapper>
       {label.kind === "call" && label.dapp && <DappLogo dapp={label.dapp} />}
       {label.kind === "deploy" && (
-        <Text type="body1" color="tertiary">
+        <Text className="kind" type="body1" color="tertiary">
           deploy ·
         </Text>
       )}
@@ -125,6 +125,11 @@ const LabelWrapper = styled.div`
     height: 16px;
     flex-shrink: 0;
     object-fit: contain;
+  }
+
+  .kind {
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   // Read from the namespace onward, so a path too long for the column is cut at its end.
