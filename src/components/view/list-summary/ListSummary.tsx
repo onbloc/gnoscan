@@ -46,9 +46,12 @@ const signed = (value: number) => `${value > 0 ? "+" : value < 0 ? "-" : ""}${Ma
  * "new". Undefined means there is no value yet, and a zero change is hidden so a quiet day does not read as a dead chain.
  */
 export const toPctBadge = (deltaPct: number | null | undefined, suffix = ""): DeltaBadgeData | undefined => {
-  if (deltaPct === undefined || deltaPct === 0) return undefined;
+  if (deltaPct === undefined) return undefined;
   if (deltaPct === null) return { label: "new", tone: "up" };
-  return { label: `${signed(Number(deltaPct.toFixed(1)))}%${suffix}`, tone: deltaPct > 0 ? "up" : "down" };
+  // Checked after rounding so a change like 0.04 reads as no change instead of "0%".
+  const rounded = Number(deltaPct.toFixed(1));
+  if (rounded === 0) return undefined;
+  return { label: `${signed(rounded)}%${suffix}`, tone: rounded > 0 ? "up" : "down" };
 };
 
 export const toCountBadge = (delta: number | undefined, suffix = ""): DeltaBadgeData | undefined => {
