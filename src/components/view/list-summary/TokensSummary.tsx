@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 import { LIST_SUMMARY_REFETCH_INTERVAL } from "@/common/values/query.constant";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
@@ -9,7 +10,17 @@ import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-token
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { summarizeTokenActivity24h, toTokenKey } from "@/common/utils/sort/token-list-sort";
-import { SummaryCard, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
+import Text from "@/components/ui/text";
+import {
+  SummaryBars,
+  SummaryBigNumber,
+  SummaryCard,
+  SummaryFacts,
+  SummaryGrid,
+  SummaryRows,
+  toCountBadge,
+  toPctBadge,
+} from "./ListSummary";
 
 const RECENT_TOKENS_PARAMS = { sort: "id", order: "desc" } as const;
 // Same params as the default table sort, so both share one cached query.
@@ -19,61 +30,111 @@ const TokenLogo = ({ src }: { src: string | null | undefined }) => (src ? <img s
 
 export const TokensSummary = () => {
   const { getUrlWithNetwork } = useNetwork();
-  const summary = useGetSummaryTokens();
+  const summaryQuery = useGetSummaryTokens();
+  const summary = summaryQuery.data?.data;
   const recent = useMappedApiTokens(RECENT_TOKENS_PARAMS, { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
 
-  const recentItems = React.useMemo(
-    () =>
-      recent.data.slice(0, 3).map(token => ({
-        key: token.tokenId || token.packagePath,
-        href: getUrlWithNetwork(`/tokens/${toTokenKey(token)}`),
-        title: token.name,
-        subtitle: token.symbol,
-        meta: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
-        media: <TokenLogo src={token.logoUrl} />,
-      })),
-    [recent.data, getUrlWithNetwork],
-  );
-
-  // 24h activity comes from the list's per token Transfers (24h) values, so the cards match the table below.
+  // Items and 24h counts come from the token list, so the cards match the table below. The summary API adds the
+  // changes, daily bars and holder totals.
   const allTokens = useMappedApiTokens(ALL_TOKENS_PARAMS, { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
   useFetchRemainingPages(allTokens, true);
-  const isActivityFetched = allTokens.isFetched && !allTokens.hasNextPage;
-
+  const isListFetched = allTokens.isFetched && !allTokens.hasNextPage;
   const activity = React.useMemo(() => summarizeTokenActivity24h(allTokens.data), [allTokens.data]);
+  const tokenUrl = (token: { packagePath: string; symbol: string }) =>
+    getUrlWithNetwork(`/tokens/${toTokenKey(token)}`);
 
-  const trendingItems = React.useMemo(
-    () =>
-      activity.top.map((token, index) => ({
-        key: token.tokenId || token.packagePath,
-        href: getUrlWithNetwork(`/tokens/${toTokenKey(token)}`),
-        title: index === 0 ? token.name : `#${index + 1} ${token.name}`,
-        subtitle: token.symbol,
-        meta: `${makeDisplayNumber(token.transactionCount24h ?? 0)} transfers`,
-        media: <TokenLogo src={token.logoUrl} />,
-      })),
-    [activity.top, getUrlWithNetwork],
+  // Unregistered tokens (backfilled ones such as xGNS) were never "added", so they stay out of this card.
+  const newlyAdded = recent.data
+    .filter(token => token.registered)
+    .slice(0, 3)
+    .map(token => ({
+      key: token.tokenId || token.packagePath,
+      href: tokenUrl(token),
+      title: token.name,
+      subtitle: token.symbol,
+      media: <TokenLogo src={token.logoUrl} />,
+      value: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
+    }));
+
+  const deltaByToken = new Map(summary?.mostActive.map(item => [item.tokenId, item.deltaPct]));
+  const mostActive = activity.top.map(token => ({
+    key: token.tokenId || token.packagePath,
+    href: tokenUrl(token),
+    title: token.name,
+    subtitle: token.symbol,
+    media: <TokenLogo src={token.logoUrl} />,
+    value: makeDisplayNumber(token.transactionCount24h ?? 0),
+    badge: toPctBadge(deltaByToken.get(token.tokenId)),
+  }));
+
+  const activeTokens = allTokens.data.filter(token => (token.transactionCount24h ?? 0) > 0).length;
+  const transferDetails = [
+    "Daily · last 7 days",
+    isListFetched && `${makeDisplayNumber(activeTokens)} tokens`,
+    summary && `${makeDisplayNumber(summary.transfers.uniqueSenders24h)} senders`,
+  ];
+
+  const mostHeld = allTokens.data.reduce<(typeof allTokens.data)[number] | undefined>(
+    (top, token) => (!top || token.holders > top.holders ? token : top),
+    undefined,
   );
-
-  const stats = summary.data?.data;
+  const fastestGrowing = summary?.holders.fastestGrowing;
 
   return (
     <SummaryGrid>
-      <SummaryCard title="Recently Registered" live>
-        <SummaryItemList items={recentItems} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
+      <SummaryCard
+        title="Newly added"
+        live
+        footer={summary && `${makeDisplayNumber(summary.weeklyNewCount)} registered this week`}
+      >
+        <SummaryRows rows={newlyAdded} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
       </SummaryCard>
-      <SummaryCard title="Trending Token" caption={trendingItems.length > 0 ? "Most active in 24h" : undefined}>
-        <SummaryItemList
-          items={trendingItems}
-          isFetched={isActivityFetched}
-          emptyText="No token activity in the last 24h"
+      <SummaryCard title="Most Active · 24h" footer="Transfers · vs previous 24h">
+        <SummaryRows rows={mostActive} isFetched={isListFetched} emptyText="No token activity in the last 24h" ranked />
+      </SummaryCard>
+      <SummaryCard title="Transfers · 24h" footer={transferDetails.filter(Boolean).join(" · ")}>
+        <SummaryBigNumber
+          value={isListFetched ? activity.total : undefined}
+          isFetched={isListFetched}
+          badge={toPctBadge(summary?.transfers.deltaPct, " vs yesterday")}
+        />
+        <SummaryBars
+          label="Daily transfers, last 7 days"
+          series={[{ color: "blue", values: summary?.transfers.daily.map(day => day.count) ?? [] }]}
         />
       </SummaryCard>
-      <SummaryCard title="Unique Holders" caption="Wallets holding any GRC20">
-        <SummaryValue value={stats?.holders} isFetched={summary.isFetched} />
-      </SummaryCard>
-      <SummaryCard title="24h Transfers" caption="Transfers in the last 24h">
-        <SummaryValue value={activity.total} isFetched={isActivityFetched} />
+      <SummaryCard title="Holders" footer="Wallets holding any GRC20">
+        <SummaryBigNumber
+          value={summary?.holders.holdersTotal}
+          isFetched={summaryQuery.isFetched}
+          badge={toCountBadge(summary?.holders.holdersDelta7d, " this week")}
+        />
+        <SummaryFacts
+          facts={[
+            {
+              label: "Most held",
+              value: mostHeld ? (
+                <Link href={tokenUrl(mostHeld)}>
+                  <Text type="p4" color="blue">{`${mostHeld.name} · ${makeDisplayNumber(mostHeld.holders)}`}</Text>
+                </Link>
+              ) : (
+                <Text type="p4">-</Text>
+              ),
+            },
+            {
+              label: "Fastest growing",
+              value: fastestGrowing ? (
+                <Link href={getUrlWithNetwork(`/tokens/${fastestGrowing.tokenId}`)}>
+                  <Text type="p4" color="blue">
+                    {`${fastestGrowing.symbol} · +${makeDisplayNumber(fastestGrowing.holdersDelta7d)}`}
+                  </Text>
+                </Link>
+              ) : (
+                <Text type="p4">-</Text>
+              ),
+            },
+          ]}
+        />
       </SummaryCard>
     </SummaryGrid>
   );
