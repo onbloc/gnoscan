@@ -28,7 +28,8 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
     isError: isApiError,
     fetchNextPage,
     hasNextPage,
-  } = useGetRealms(params);
+    isPreviousData,
+  } = useGetRealms(params, { keepPreviousData: true });
 
   const pages = apiData?.pages;
   const realms = React.useMemo<Realm[]>(
@@ -38,10 +39,13 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
 
   return {
     data: realms,
-    isFetched: isApiFetched,
+    // Rows of the previous sort stay on screen until the new sort loads.
+    isFetched: isApiFetched || isPreviousData,
+    isPreviousData,
     isLoading: isApiLoading,
     isError: isApiError,
     fetchNextPage,
-    hasNextPage,
+    // The next cursor of the previous sort does not apply to the new one.
+    hasNextPage: hasNextPage && !isPreviousData,
   };
 };

@@ -18,15 +18,22 @@ const StandardNetworkNftCollectionsData = ({ sortOption, setSortOption }: Standa
     [sortOption.field, sortOption.order],
   );
 
-  const { data, isFetched, isLoading, fetchNextPage, hasNextPage } = useGetNftCollectionsInfinite(apiParams);
+  const { data, isFetched, isLoading, isPreviousData, fetchNextPage, hasNextPage } = useGetNftCollectionsInfinite(
+    apiParams,
+    {
+      keepPreviousData: true,
+    },
+  );
 
   const collections = React.useMemo(() => data?.pages.flatMap(page => page.items) ?? [], [data]);
 
   return (
     <StandardNetworkNftCollectionListTable
       data={collections}
-      hasNextPage={hasNextPage}
-      isFetched={isFetched}
+      // The next cursor of the previous sort does not apply to the new one.
+      hasNextPage={hasNextPage && !isPreviousData}
+      // Rows of the previous sort stay on screen until the new sort loads.
+      isFetched={isFetched || isPreviousData}
       isLoading={isLoading}
       fetchNextPage={fetchNextPage}
       sortOption={sortOption}
