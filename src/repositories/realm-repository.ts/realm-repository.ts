@@ -69,12 +69,7 @@ export class RealmRepository implements IRealmRepository {
       return null;
     }
 
-    return this.indexerClient.query(makeRealmQuery(realmPath)).then(result => {
-      if (!result?.data?.transactions || result?.data?.transactions.length === 0) {
-        return null;
-      }
-      return result?.data?.transactions[0];
-    });
+    return this.indexerClient.query(makeRealmQuery(realmPath)).then(result => result?.data?.transactions?.[0] ?? null);
   }
 
   async getRealmBalance(realmPath: string): Promise<Amount | null> {
@@ -104,12 +99,12 @@ export class RealmRepository implements IRealmRepository {
     }
 
     const response = await this.nodeClient.abciQueryVMQueryFuncs(realmPath).catch(() => null);
-    if (!response || !response?.response?.ResponseBase?.Data) {
+    if (!response?.response?.ResponseBase?.Data) {
       return null;
     }
 
     try {
-      const results = parseABCI<any[]>(response?.response?.ResponseBase?.Data);
+      const results = parseABCI<any[]>(response.response.ResponseBase.Data);
       return results.map<RealmFunction>(result => ({
         functionName: result?.FuncName,
         params:
@@ -187,7 +182,7 @@ export class RealmRepository implements IRealmRepository {
       .then(result => result?.data?.transactions || []);
   }
 
-  async getRealmTotalSupply(realmPath: string): Promise<number | null> {
+  async getRealmTotalSupply(realmPath: string): Promise<string | null> {
     if (!this.nodeClient) {
       return null;
     }
@@ -323,7 +318,7 @@ export class RealmRepository implements IRealmRepository {
       .query(makeTokenQuery(packagePath))
       .then(result => (result?.data?.transactions as RealmTransaction<AddPackageValue>[]) || null)
       .catch(() => null);
-    if (!transactions || transactions?.length < 1) {
+    if (!transactions || transactions.length < 1) {
       return null;
     }
 
