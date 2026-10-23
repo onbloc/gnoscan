@@ -21,7 +21,6 @@ import {
   GetSummaryTokensResponse,
   GetSummaryNftCollectionsResponse,
   GetSummaryRealmsResponse,
-  GetRecentNftMintsResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
 
@@ -100,9 +99,5 @@ export class ApiStatisticsRepositoryImpl extends ApiRepository implements ApiSta
 
   getSummaryRealms(): Promise<GetSummaryRealmsResponse> {
     return this.get<GetSummaryRealmsResponse>("/stats/summary/realms");
-  }
-
-  getRecentNftMints(limit: number): Promise<GetRecentNftMintsResponse> {
-    return this.get<GetRecentNftMintsResponse>("/stats/recent-nft-mints", { limit });
   }
 }

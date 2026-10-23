@@ -64,7 +64,6 @@ export enum QUERY_KEY {
   getSummaryTokens = "api_get_summary_tokens",
   getSummaryNftCollections = "api_get_summary_nft_collections",
   getSummaryRealms = "api_get_summary_realms",
-  getRecentNftMints = "api_get_recent_nft_mints",
   getTotalDailyFees = "api_get_total_daily_fees",
   getTotalDailyTransactions = "api_get_total_daily_transactions",
   getTotalGasShare = "api_get_total_gas_share",

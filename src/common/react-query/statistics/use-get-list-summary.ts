@@ -40,15 +40,3 @@ export const useGetSummaryRealms = () => {
     summaryOptions,
   );
 };
-
-export const useGetRecentNftMints = (limit: number) => {
-  const { apiStatisticsRepository } = useServiceProvider();
-
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getRecentNftMints, limit],
-    apiStatisticsRepository,
-    API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
-    repository => repository.getRecentNftMints(limit),
-    summaryOptions,
-  );
-};

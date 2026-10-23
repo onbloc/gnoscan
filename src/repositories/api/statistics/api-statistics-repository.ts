@@ -17,7 +17,6 @@ import {
   GetSummaryTokensResponse,
   GetSummaryNftCollectionsResponse,
   GetSummaryRealmsResponse,
-  GetRecentNftMintsResponse,
 } from "./response";
 
 export interface ApiStatisticsRepository {
@@ -56,6 +55,4 @@ export interface ApiStatisticsRepository {
   getSummaryNftCollections(): Promise<GetSummaryNftCollectionsResponse>;
 
   getSummaryRealms(): Promise<GetSummaryRealmsResponse>;
-
-  getRecentNftMints(limit: number): Promise<GetRecentNftMintsResponse>;
 }
