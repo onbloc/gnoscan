@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetAccountGRC721Collections } from "@/common/react-query/account/api/use-get-account-grc721-collections";
 import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-account-nfts";
@@ -20,12 +21,15 @@ interface AccountNftsProps {
 }
 
 const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
+  const { currentNetwork } = useNetworkProvider();
+  // A network switch keeps the history entry, so the network is part of the name to start each network fresh.
+  const scope = `account:${currentNetwork?.chainId}:${address}`;
   const { data: collectionsData, isFetched: isFetchedCollections } = useGetAccountGRC721Collections(address);
   const [selectedCollection, setSelectedCollection] = useHistoryEntryState<string>(
-    `account:${address}:nft-collection`,
+    `${scope}:nft-collection`,
     ALL_COLLECTIONS,
   );
-  const [page, setPage] = useHistoryEntryState(`account:${address}:nft-page`, 1);
+  const [page, setPage] = useHistoryEntryState(`${scope}:nft-page`, 1);
 
   const collections = React.useMemo(() => collectionsData?.items ?? [], [collectionsData]);
   const totalCount = React.useMemo(

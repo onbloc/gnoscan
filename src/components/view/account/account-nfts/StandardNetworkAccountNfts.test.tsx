@@ -5,13 +5,20 @@ import theme from "@/styles/theme";
 import StandardNetworkAccountNfts from "./StandardNetworkAccountNfts";
 
 let mockCollections: { tokenId: string; name: string; symbol: string; tokenCount: number }[] = [];
+const mockStateKeys: string[] = [];
 
 jest.mock("../account-address/AccountAddress.styles", () => ({
   CardTitle: ({ children }: { children: React.ReactNode }) => <h3>{children}</h3>,
 }));
 jest.mock("./AccountNftCard", () => () => null);
 jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => ({
-  useHistoryEntryState: (_key: string, initial: string) => [initial, jest.fn()],
+  useHistoryEntryState: (key: string, initial: string) => {
+    mockStateKeys.push(key);
+    return [initial, jest.fn()];
+  },
+}));
+jest.mock("@/common/hooks/provider/use-network-provider", () => ({
+  useNetworkProvider: () => ({ currentNetwork: { chainId: "chain-a" } }),
 }));
 jest.mock("@/common/hooks/nft/use-nft-artwork", () => ({ useNftArtwork: () => () => ({}) }));
 jest.mock("@/common/react-query/account/api/use-get-account-grc721-collections", () => ({
@@ -54,4 +61,15 @@ it("keeps the chips, skeleton, and pagination for accounts that hold NFTs", () =
   expect(hasLabel(html, "NFT collections")).toBe(true);
   expect(hasLabel(html, "Loading NFTs")).toBe(true);
   expect(hasLabel(html, "Pagination")).toBe(true);
+});
+
+it("scopes the saved collection and page by network", () => {
+  mockCollections = [];
+  mockStateKeys.length = 0;
+  render();
+
+  expect(mockStateKeys).toEqual([
+    "account:chain-a:g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5:nft-collection",
+    "account:chain-a:g1jg8mtutu9khhfwc4nxmuhcpftf0pajdhfvsqf5:nft-page",
+  ]);
 });

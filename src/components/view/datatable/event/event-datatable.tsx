@@ -11,7 +11,7 @@ import { ViewMoreButton } from "@/components/ui/button";
 interface Props {
   /**
    * Identifies the parent entity (e.g. `tx:${hash}`)
-   * so the restored page never leaks between them.
+   * so one entity does not restore the page saved for another.
    */
   scope: string;
   isFetched: boolean;
