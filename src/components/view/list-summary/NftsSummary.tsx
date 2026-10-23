@@ -60,7 +60,7 @@ export const NftsSummary = () => {
       <SummaryCard title="Just Minted" live footer={summary && `${makeDisplayNumber(summary.mintsToday)} minted today`}>
         {query.isFetched && justMinted.length === 0 ? (
           <Text type="p4" color="tertiary">
-            No recent mints
+            {query.isError ? "-" : "No recent mints"}
           </Text>
         ) : (
           <S.Tiles>
@@ -90,6 +90,7 @@ export const NftsSummary = () => {
         <SummaryRows
           rows={rising}
           isFetched={query.isFetched}
+          isError={query.isError}
           emptyText="No collection activity in the last 24h"
           ranked
         />

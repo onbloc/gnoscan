@@ -120,17 +120,22 @@ export interface SummaryRowData {
   badge?: DeltaBadgeData;
 }
 
-/** Up to three rows, numbered when ranked. Shows skeletons while loading and emptyText when there are none. */
+/**
+ * Up to three rows, numbered when ranked. Shows skeletons while loading, "-" when the request failed with nothing
+ * to show, and emptyText when there are none.
+ */
 export const SummaryRows = ({
   rows,
   isFetched,
   emptyText,
   ranked,
+  isError,
 }: {
   rows: SummaryRowData[];
   isFetched: boolean;
   emptyText: string;
   ranked?: boolean;
+  isError?: boolean;
 }) => {
   if (!isFetched) {
     return (
@@ -145,7 +150,7 @@ export const SummaryRows = ({
   if (rows.length === 0) {
     return (
       <Text type="p4" color="tertiary">
-        {emptyText}
+        {isError ? "-" : emptyText}
       </Text>
     );
   }
