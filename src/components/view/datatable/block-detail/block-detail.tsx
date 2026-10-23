@@ -6,6 +6,7 @@ import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
 import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
 interface Props {
   transactions: Transaction[];
@@ -24,6 +25,8 @@ const TOOLTIP_TYPE = (
 
 export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nextPage }: Props) => {
   const { getTokenAmount } = useTokenMeta();
+  // Only the standard network has the API that the run label looks up by hash.
+  const { isCustomNetwork } = useNetworkProvider();
 
   const loaded = useMemo(() => {
     return isFetched;
@@ -66,6 +69,7 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
           functionName={data.functionName}
           packagePath={data.packagePath}
           messageCount={data.numOfMessage}
+          txHash={isCustomNetwork ? undefined : data.hash}
         />
       ))
       .build();

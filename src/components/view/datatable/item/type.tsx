@@ -14,6 +14,7 @@ import {
   getRunCalledRealms,
 } from "@/common/utils/transaction-list.utility";
 import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
+import { useFetchRemainingPages } from "@/common/hooks/common/use-fetch-remaining-pages";
 import { useNetwork } from "@/common/hooks/use-network";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 interface Props {
@@ -66,10 +67,13 @@ export const Type = ({ messageType, functionName, packagePath, messageCount = 0,
 // The list API has no path for a run message, so the realms it called come from the transaction contracts.
 const RunRealmLabel = ({ txHash, fallback }: { txHash: string; fallback?: FunctionRealmLabel }) => {
   // A confirmed transaction never changes, and the label is only a hint, so keep it and do not retry.
-  const { data } = useGetTransactionContractsByHeight(
+  const contractsQuery = useGetTransactionContractsByHeight(
     { txHash },
     { staleTime: Infinity, cacheTime: Infinity, retry: false },
   );
+  // A later page can hold another run message, so load them all before counting the realms.
+  useFetchRemainingPages(contractsQuery, true);
+  const { data } = contractsQuery;
   const realms = getRunCalledRealms(data?.pages.flatMap(page => page.items) ?? []);
 
   if (realms.length === 0) return fallback ? <RealmLabel label={fallback} /> : null;
