@@ -32,6 +32,10 @@ jest.mock("@/components/view/realms/realm-data/CustomNetworkRealmsData", () => (
 jest.mock("@/components/view/nft-collections/nft-collection-data/StandardNetworkNftCollectionsData", () =>
   mockData("nfts"),
 );
+jest.mock("@/components/view/list-summary/ListSearch", () => ({
+  ListSearch: () => null,
+  useListKeyword: () => ({ value: "", setValue: jest.fn(), keyword: undefined }),
+}));
 
 beforeAll(() => Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }));
 
