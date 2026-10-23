@@ -13,8 +13,9 @@ import {
 
 const summaryOptions = { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL, retry: 1 };
 
-// `?summaryMock` in the URL swaps the summary API for sample data, for reviewing the cards before the API exists.
-// ponytail: remove with the mock file once the summary API ships.
+// `?summaryMock=1` in the URL swaps the summary API for sample data, for reviewing the cards before the API exists.
+// It needs a value: the network URL sync drops query parameters without one.
+// Remove with the mock file once the summary API ships.
 const useIsSummaryMock = () => useRouter().query.summaryMock !== undefined;
 
 const withMock = <T>(query: UseQueryResult<T, Error>, isMock: boolean, mock: T) =>
