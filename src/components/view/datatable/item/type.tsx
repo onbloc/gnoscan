@@ -66,18 +66,40 @@ export const Type = ({ messageType, functionName, packagePath, messageCount = 0,
 
 // The list API has no path for a run message, so the realms it called come from the transaction contracts.
 const RunRealmLabel = ({ txHash, fallback }: { txHash: string; fallback?: FunctionRealmLabel }) => {
-  // A confirmed transaction never changes, and the label is only a hint, so keep it and do not retry.
+  const [ref, inView] = useInViewOnce<HTMLDivElement>();
+  // Each run row fetches its own contracts, so only rows that reached the screen do.
+  // A confirmed transaction never changes, and the label is only a hint, so do not refetch or retry.
   const contractsQuery = useGetTransactionContractsByHeight(
     { txHash },
-    { staleTime: Infinity, cacheTime: Infinity, retry: false },
+    { enabled: inView, staleTime: Infinity, retry: false },
   );
   // A later page can hold another run message, so load them all before counting the realms.
-  useFetchRemainingPages(contractsQuery, true);
+  useFetchRemainingPages(contractsQuery, inView);
   const { data } = contractsQuery;
   const realms = getRunCalledRealms(data?.pages.flatMap(page => page.items) ?? []);
+  const label: FunctionRealmLabel | undefined =
+    realms.length > 0 ? { kind: "run", packagePath: realms[0], moreCount: realms.length - 1 } : fallback;
 
-  if (realms.length === 0) return fallback ? <RealmLabel label={fallback} /> : null;
-  return <RealmLabel label={{ kind: "run", packagePath: realms[0], moreCount: realms.length - 1 }} />;
+  return <RunLabelWrapper ref={ref}>{label && <RealmLabel label={label} />}</RunLabelWrapper>;
+};
+
+// Turns true once the element enters the viewport and stays true. Without IntersectionObserver it is true at once.
+const useInViewOnce = <T extends Element>() => {
+  const ref = React.useRef<T>(null);
+  const [inView, setInView] = React.useState(false);
+
+  React.useEffect(() => {
+    if (inView || !ref.current) return;
+    if (typeof IntersectionObserver === "undefined") return setInView(true);
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) setInView(true);
+    });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [inView]);
+
+  return [ref, inView] as const;
 };
 
 const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
@@ -128,6 +150,11 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
+  width: 100%;
+  min-width: 0;
+`;
+
+const RunLabelWrapper = styled.div`
   width: 100%;
   min-width: 0;
 `;

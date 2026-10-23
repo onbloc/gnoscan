@@ -65,4 +65,46 @@ describe("Type", () => {
     act(() => root.unmount());
     client.clear();
   });
+
+  test("a run label fetches nothing until its row is on screen", async () => {
+    mockRepository.getTransactionContracts.mockReset();
+    mockRepository.getTransactionContracts.mockResolvedValue({
+      items: [run("gno.land/r/demo/a")],
+      page: { hasNext: false, cursor: "" },
+    });
+    let reportVisible: (entries: { isIntersecting: boolean }[]) => void = () => undefined;
+    Object.assign(globalThis, {
+      IntersectionObserver: class {
+        constructor(callback: typeof reportVisible) {
+          reportVisible = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    });
+
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    act(() =>
+      root.render(
+        <QueryClientProvider client={client}>
+          <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+            <Type messageType="/vm.m_run" functionName="MsgRun" txHash="hash" />
+          </ThemeProvider>
+        </QueryClientProvider>,
+      ),
+    );
+    await act(() => delay(10));
+    expect(mockRepository.getTransactionContracts).not.toHaveBeenCalled();
+
+    act(() => reportVisible([{ isIntersecting: true }]));
+    await act(() => delay(10));
+    expect(mockRepository.getTransactionContracts).toHaveBeenCalledTimes(1);
+    expect(container.textContent).toContain("run ·r/demo/a");
+
+    act(() => root.unmount());
+    client.clear();
+    delete (globalThis as { IntersectionObserver?: unknown }).IntersectionObserver;
+  });
 });

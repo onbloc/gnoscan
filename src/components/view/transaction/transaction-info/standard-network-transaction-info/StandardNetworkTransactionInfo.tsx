@@ -41,7 +41,8 @@ const StandardNetworkTransactionInfo = ({
   // just get back an empty success response and flash an empty tab.
   const { data: contractsData, isFetched: isFetchedContractsData } = useGetTransactionContractsByHeight(
     { txHash },
-    { enabled: apiStatus === "confirmed" },
+    // Confirmed contracts never change, so pages already loaded by the transaction list are reused.
+    { enabled: apiStatus === "confirmed", staleTime: Infinity },
   );
   const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight(
     { txHash },
