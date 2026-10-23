@@ -4,7 +4,7 @@ import {
   GetSummaryTokensResponse,
 } from "./get-list-summary-response";
 
-// Sample summaries for reviewing the cards before the summary API exists. Shown only with `?summaryMock` in the URL.
+// Sample summaries for reviewing the cards before the summary API exists. Shown only with `?summaryMock=1` in the URL.
 // IDs are real mainnet tokens, collections and realms so links and artwork resolve.
 
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
