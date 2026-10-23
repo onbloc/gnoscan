@@ -9,8 +9,6 @@ export interface NewestRealmModel {
   publisherName: string;
   publisherLabel?: string | null;
   publisherLabelType?: ADDRESS_LABEL_TYPE | null;
-  /** RFC3339 deploy time. */
-  publishedAt?: string;
 }
 
 export interface GetNewestRealmsResponse {
