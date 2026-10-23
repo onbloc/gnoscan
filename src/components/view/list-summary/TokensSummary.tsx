@@ -40,6 +40,8 @@ export const TokensSummary = () => {
   useFetchRemainingPages(allTokens, true);
   // A failed page stops the paging, so settle on the loaded pages instead of loading forever.
   const isListFetched = allTokens.isFetched && (!allTokens.hasNextPage || allTokens.isError);
+  // react-query marks a failed first page as fetched, so a failure with no rows shows "-" instead of 0.
+  const listFailed = allTokens.isError && allTokens.data.length === 0;
   const activity = React.useMemo(() => summarizeTokenActivity24h(allTokens.data), [allTokens.data]);
   const tokenUrl = (token: { packagePath: string; symbol: string }) =>
     getUrlWithNetwork(`/tokens/${toTokenKey(token)}`);
@@ -88,14 +90,25 @@ export const TokensSummary = () => {
         live
         footer={summary && `${makeDisplayNumber(summary.weeklyNewCount)} registered this week`}
       >
-        <SummaryRows rows={newlyAdded} isFetched={recent.isFetched} emptyText="No tokens registered yet" />
+        <SummaryRows
+          rows={newlyAdded}
+          isFetched={recent.isFetched}
+          isError={recent.isError}
+          emptyText="No tokens registered yet"
+        />
       </SummaryCard>
       <SummaryCard title="Most Active · 24h" footer="Transfers · vs previous 24h">
-        <SummaryRows rows={mostActive} isFetched={isListFetched} emptyText="No token activity in the last 24h" ranked />
+        <SummaryRows
+          rows={mostActive}
+          isFetched={isListFetched}
+          isError={allTokens.isError}
+          emptyText="No token activity in the last 24h"
+          ranked
+        />
       </SummaryCard>
       <SummaryCard title="Transfers · 24h" footer={transferDetails.filter(Boolean).join(" · ")}>
         <SummaryBigNumber
-          value={isListFetched ? activity.total : undefined}
+          value={isListFetched && !listFailed ? activity.total : undefined}
           isFetched={isListFetched}
           badge={toPctBadge(summary?.transfers.deltaPct, " vs yesterday")}
         />

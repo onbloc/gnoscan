@@ -28,7 +28,11 @@ const realmUrl = (path: string) => `/realms/details?path=${path}`;
 // GNOT amounts show one decimal, as in the design notes.
 const formatGnot = (value: number) => value.toFixed(1);
 
-const signedGnot = (value: number) => `${value >= 0 ? "+" : "-"}${formatGnot(Math.abs(value))}`;
+// The sign follows the rounded value, so a tiny loss reads +0.0 instead of -0.0.
+const signedGnot = (value: number) => {
+  const rounded = Number(value.toFixed(1));
+  return `${rounded >= 0 ? "+" : "-"}${formatGnot(Math.abs(rounded))}`;
+};
 
 // A publisher with no deploys in the previous week is "new" rather than "+N".
 const toBuilderBadge = (current: number, previous: number): DeltaBadgeData | undefined =>
@@ -70,10 +74,22 @@ export const RealmsSummary = () => {
         live
         footer={`Deploys · ${summary ? makeDisplayNumber(summary.publishers7d) : "-"} publishers this week`}
       >
-        <SummaryRows rows={builders} isFetched={query.isFetched} emptyText="No deploys in the last 7 days" ranked />
+        <SummaryRows
+          rows={builders}
+          isFetched={query.isFetched}
+          isError={query.isError}
+          emptyText="No deploys in the last 7 days"
+          ranked
+        />
       </SummaryCard>
       <SummaryCard title="Most Called · 24h" footer="Calls · vs previous 24h">
-        <SummaryRows rows={mostCalled} isFetched={query.isFetched} emptyText="No realm calls in the last 24h" ranked />
+        <SummaryRows
+          rows={mostCalled}
+          isFetched={query.isFetched}
+          isError={query.isError}
+          emptyText="No realm calls in the last 24h"
+          ranked
+        />
       </SummaryCard>
       <SummaryCard
         title="Calls · 24h"

@@ -52,7 +52,7 @@ it("hides a zero count change", () => {
 it("keeps every card with empty values when the summary request fails", () => {
   mockSummary.isError = true;
   const text = renderText(<RealmsSummary />);
-  expect(text).toContain("Builders · 7d No deploys in the last 7 days Deploys · - publishers this week");
+  expect(text).toContain("Builders · 7d - Deploys · - publishers this week");
   expect(text).toContain("Calls · 24h -");
   expect(text).toContain("Storage · 24h - GNOT locked - GNOT released");
 });
@@ -81,4 +81,17 @@ it("renders the realm summary from the API", () => {
   expect(text).toContain("3,982 +9% vs yesterday");
   expect(text).toContain("Daily · last 7 days · 212 callers · 38 realms");
   expect(text).toContain("Net +374.2 GNOT");
+});
+
+it("shows a tiny net storage loss as +0.0 rather than -0.0", () => {
+  mockSummary.data = {
+    data: {
+      builders: [],
+      publishers7d: 0,
+      mostCalled: [],
+      calls: { calls24h: 0, deltaPct: 0, daily: [], uniqueCallers24h: 0, realmsTouched24h: 0 },
+      storage: { locked24h: 1, released24h: 1.04, bytesDelta24h: 0, largestRealm: null },
+    },
+  };
+  expect(renderText(<RealmsSummary />)).toContain("Net +0.0 GNOT");
 });
