@@ -76,10 +76,10 @@ export const StandardNetworkTransactionListTable = ({
 
         return (
           <DatatableItem.Type
-            type={func.messageType}
-            func={displayFunctionName}
+            messageType={func.messageType}
+            functionName={displayFunctionName}
             packagePath={func.pkgPath}
-            msgNum={data.messageCount - 1}
+            messageCount={data.messageCount}
           />
         );
       })

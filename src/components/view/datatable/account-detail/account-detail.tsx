@@ -59,10 +59,10 @@ export const AccountDetailDatatable = ({ address, data, isFetched, hasNextPage, 
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
         <DatatableItem.Type
-          type={data.type}
-          func={data.functionName}
+          messageType={data.type}
+          functionName={data.functionName}
           packagePath={data.packagePath}
-          msgNum={data.numOfMessage - 1}
+          messageCount={data.numOfMessage}
         />
       ))
       .build();

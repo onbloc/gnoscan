@@ -10,33 +10,36 @@ import { DappLabel, FunctionRealmLabel, getFunctionRealmLabel } from "@/common/u
 import { useNetwork } from "@/common/hooks/use-network";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 interface Props {
-  type: string;
-  func: string;
+  /** Message type from the API ("/vm.m_call") or a custom network mapper ("MsgCall"). */
+  messageType: string;
+  /** Function name shown in the chip, "-" is shown when empty. */
+  functionName: string;
   packagePath?: string | null;
-  msgNum?: number;
+  /** Number of messages in the transaction, the ones after the first are shown as "+N". */
+  messageCount?: number;
 }
 
-export const Type = ({ type, func, packagePath, msgNum }: Props) => {
+export const Type = ({ messageType, functionName, packagePath, messageCount = 0 }: Props) => {
   const renderTooltip = () => {
     return (
       <TooltipWrapper>
-        <span className="title">{type}</span>
-        {packagePath && packagePath !== null ? <span className="info">{stripGnoLandPrefix(packagePath)}</span> : <></>}
+        <span className="title">{messageType}</span>
+        {packagePath ? <span className="info">{stripGnoLandPrefix(packagePath)}</span> : <></>}
       </TooltipWrapper>
     );
   };
 
-  const realmLabel = getFunctionRealmLabel(type, packagePath);
+  const realmLabel = getFunctionRealmLabel(messageType, packagePath ?? "");
 
-  return func ? (
+  return functionName ? (
     <Wrapper>
       <TypeWrapper>
         <Tooltip className={"ellipsis"} content={renderTooltip()}>
-          <span className="function ellipsis">{func}</span>
+          <span className="function ellipsis">{functionName}</span>
         </Tooltip>
-        {(msgNum || 0) > 0 && (
+        {messageCount > 1 && (
           <Text type="p4" color="reverse" margin="0px 0px 0px 8px">
-            {`+${msgNum}`}
+            {`+${messageCount - 1}`}
           </Text>
         )}
       </TypeWrapper>

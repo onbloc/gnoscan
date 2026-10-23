@@ -78,10 +78,10 @@ export const CustomNetworkTransactionListTable = ({
         const displayFunctionName = mapDisplayFunctionName(data.type, data.functionName);
         return (
           <DatatableItem.Type
-            type={data.type}
-            func={displayFunctionName}
+            messageType={data.type}
+            functionName={displayFunctionName}
             packagePath={data.packagePath}
-            msgNum={data.numOfMessage - 1}
+            messageCount={data.numOfMessage}
           />
         );
       })

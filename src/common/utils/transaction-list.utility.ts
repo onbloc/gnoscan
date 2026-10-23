@@ -50,8 +50,8 @@ const MESSAGE_KINDS: Readonly<Record<string, MessageKind>> = {
   BankMsgSend: "send",
 };
 
-export function getMessageKind(messageType: string | null | undefined): MessageKind | undefined {
-  return messageType ? MESSAGE_KINDS[messageType] : undefined;
+export function getMessageKind(messageType: string): MessageKind | undefined {
+  return MESSAGE_KINDS[messageType];
 }
 
 export interface DappLabel {
@@ -92,13 +92,10 @@ export type FunctionRealmLabel =
  * Builds the line under the Function chip that tells which realm or kind of message the function belongs to.
  *
  * @param messageType - Message type from the API ("/vm.m_call") or a custom network mapper ("MsgCall")
- * @param packagePath - Package path of the message shown in the chip
+ * @param packagePath - Package path of the message shown in the chip, empty when it has none
  * @returns The label, or undefined when the message has no realm or kind to show
  */
-export function getFunctionRealmLabel(
-  messageType: string | null | undefined,
-  packagePath: string | null | undefined,
-): FunctionRealmLabel | undefined {
+export function getFunctionRealmLabel(messageType: string, packagePath: string): FunctionRealmLabel | undefined {
   switch (getMessageKind(messageType)) {
     case "call":
       return packagePath ? { kind: "call", packagePath, dapp: findDapp(packagePath) } : undefined;
