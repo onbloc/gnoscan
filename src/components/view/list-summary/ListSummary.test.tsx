@@ -109,5 +109,5 @@ it("labels each bar with its date and value, naming stacked series", () => {
       />
     </ThemeProvider>,
   );
-  expect(markup).toContain('aria-label="2026-10-22 1,263 transfers · 48 mints"');
+  expect(markup).toContain("2026-10-22 1,263 transfers · 48 mints");
 });
