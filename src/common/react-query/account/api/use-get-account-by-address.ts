@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetAccountResponse } from "@/repositories/api/account/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 export const useGetAccountByAddress = (
   address: string,
@@ -17,6 +17,6 @@ export const useGetAccountByAddress = (
     apiAccountRepository,
     API_REPOSITORY_KEY.ACCOUNT_REPOSITORY,
     repository => repository.getAccount(address),
-    options,
+    { ...CACHE_POLICY.LIVE, ...options },
   );
 };

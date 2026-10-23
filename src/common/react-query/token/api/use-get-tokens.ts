@@ -5,11 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetTokensRequestParameters } from "@/repositories/api/token/request";
 import { GetTokensResponse } from "@/repositories/api/token/response";
 import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
-import {
-  API_REPOSITORY_KEY,
-  DEFAULT_LIST_ITEMS_SIZE,
-  DEFAULT_LIST_ITEMS_STALE_TIME,
-} from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get tokens list data from the API with infinite scrolling
@@ -40,9 +36,6 @@ export const useGetTokens = (
         limit: DEFAULT_LIST_ITEMS_SIZE,
         cursor,
       }),
-    {
-      staleTime: DEFAULT_LIST_ITEMS_STALE_TIME,
-      ...options,
-    },
+    options,
   );
 };

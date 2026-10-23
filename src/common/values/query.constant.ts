@@ -30,5 +30,14 @@ export const PRICES_REFETCH_INTERVAL = 10_000;
 export const DEFAULT_LIST_ITEMS_SIZE = 40 as const;
 export const ACCOUNTS_LIST_PAGE_SIZE = 100 as const;
 export const MAX_ACCOUNTS_LIST_SIZE = 1_000 as const;
-export const DEFAULT_LIST_ITEMS_CACHE_TIME = 5 * 60 * 1000;
-export const DEFAULT_LIST_ITEMS_STALE_TIME = 3 * 60 * 1000;
+/**
+ * Cache tiers by how fast the data changes. WARM is the QueryClient default, so only LIVE and COLD are set per query.
+ */
+export const CACHE_POLICY = {
+  // Changes every block
+  LIVE: { staleTime: 10_000, cacheTime: 5 * 60_000 },
+  // Aggregates that change by the minute
+  WARM: { staleTime: 60_000, cacheTime: 5 * 60_000 },
+  // Effectively immutable
+  COLD: { staleTime: 10 * 60_000, cacheTime: 15 * 60_000, refetchOnWindowFocus: false },
+} as const;

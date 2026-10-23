@@ -14,6 +14,7 @@ import { mapVMTransaction } from "@/repositories/response/transaction.mapper";
 import { NewestRealm, Transaction } from "@/types/data-type";
 import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
 import { QUERY_KEY } from "./types";
+import { CACHE_POLICY } from "@/common/values/query.constant";
 
 const REALM_LIST_CACHE_TIME = 10 * 60 * 1000;
 
@@ -141,6 +142,7 @@ export const useGetRealmFunctionsQuery = (
     },
     retry: 1,
     enabled: !!realmRepository && !!packagePath,
+    ...CACHE_POLICY.COLD,
     ...options,
   });
 };

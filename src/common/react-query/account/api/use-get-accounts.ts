@@ -5,7 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetAccountsResponse } from "@/repositories/api/account/response";
 import { GetAccountsRequest } from "@/repositories/api/account/request";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_CACHE_TIME } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hook to get the accounts list data from the API
@@ -30,7 +30,6 @@ export const useGetAccounts = (
     repository => repository.getAccounts(params),
     {
       keepPreviousData: true,
-      cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
       ...options,
     },
   );
