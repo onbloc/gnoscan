@@ -14,23 +14,29 @@ interface Props {
   packagePath: string;
 }
 
-export const NftCollectionTitle = ({ tokenId, name, packagePath }: Props) => {
-  const { getUrlWithNetwork } = useNetwork();
+/** The collection's token resource logo, or the default collection icon. */
+export const NftCollectionLogo = ({ packagePath, className }: { packagePath: string; className?: string }) => {
   const { data: collectionMetas = [] } = useGetNftCollectionMetaQuery();
   const image = collectionMetas.find(meta => meta.pkg_path === packagePath)?.image;
   const imageUrl = image ? `${GNO_TOKEN_RESOURCE_BASE_URI}${image}` : undefined;
   // A logo that fails to load falls back to the default icon instead of a broken image.
   const [failedImageUrl, setFailedImageUrl] = React.useState<string>();
 
+  return imageUrl && imageUrl !== failedImageUrl ? (
+    <img className={className} src={imageUrl} alt="" onError={() => setFailedImageUrl(imageUrl)} />
+  ) : (
+    // Preserve scaling when SVGO strips the asset's viewBox.
+    <IconNftCollectionDefault className={className} viewBox="0 0 24 24" aria-hidden="true" />
+  );
+};
+
+export const NftCollectionTitle = ({ tokenId, name, packagePath }: Props) => {
+  const { getUrlWithNetwork } = useNetwork();
+
   return (
     <Link href={getUrlWithNetwork(`/tokens/${tokenId}`)}>
       <Wrapper>
-        {imageUrl && imageUrl !== failedImageUrl ? (
-          <img className="collection-icon" src={imageUrl} alt="" onError={() => setFailedImageUrl(imageUrl)} />
-        ) : (
-          // Preserve scaling when SVGO strips the asset's viewBox.
-          <IconNftCollectionDefault className="collection-icon" viewBox="0 0 24 24" aria-hidden="true" />
-        )}
+        <NftCollectionLogo className="collection-icon" packagePath={packagePath} />
         <Text type="p4" color="blue">
           {name}
         </Text>
