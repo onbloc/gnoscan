@@ -1,6 +1,7 @@
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { toNumber, toString } from "@/common/utils/string-util";
 import { parseTokenAmount } from "@/common/utils/token.utility";
+import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { Transaction } from "@/types/data-type";
 import { isAddPackageMessageValue, isMsgCallMessageValue } from "../realm-repository.ts/mapper";
 import { getDefaultMessage } from "../utility";
@@ -143,7 +144,7 @@ export function mapVMTransaction(
       hash: tx.hash,
       success: tx.success,
       numOfMessage: tx.messages.length,
-      type: "/vm.add_pkg",
+      type: MESSAGE_TYPES.VM_ADDPKG,
       packagePath: toString(messageValue.package?.path),
       functionName: "AddPkg",
       blockHeight: toNumber(tx.block_height),
