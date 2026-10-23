@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetNftCollectionItems, useGetNftCollectionItemsInfinite } from "@/common/react-query/token/api";
 import { getAddressDisplayText } from "@/common/utils/address-label.utility";
@@ -24,7 +25,6 @@ export interface NftInventoryToolbarProps {
 }
 
 interface InventoryControlState {
-  identity: string;
   search: string;
   owner: string;
   sortOrder: NftInventorySortOrder;
@@ -38,13 +38,12 @@ interface InventoryPagination {
   anchorIndex?: number;
 }
 
-const initialControls = (identity: string): InventoryControlState => ({
-  identity,
+const INITIAL_CONTROLS: InventoryControlState = {
   search: "",
   owner: "",
   sortOrder: null,
   ownersRequested: false,
-});
+};
 
 const OWNER_SUGGESTION_LIMIT = 5;
 
@@ -69,7 +68,7 @@ function matchesOperatorSearch(item: NftCollectionItemModel, search: string): bo
 
 const tokenIdCollator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
 
-// Compare decimal IDs without converting them to Number (or losing large-ID precision).
+/** Compare decimal IDs without converting them to Number (or losing precision on large IDs). */
 export function compareNftTokenIds(left: string, right: string): number {
   if (/^\d+$/.test(left) && /^\d+$/.test(right)) {
     const leftDigits = left.replace(/^0+/, "") || "0";
@@ -91,9 +90,8 @@ export function compareNftTokenIds(left: string, right: string): number {
 export function useNftInventoryControls(collectionIdentity: string, pageSize: number, selectedNftId: string | null) {
   const { currentNetwork } = useNetworkProvider();
   const identity = JSON.stringify([currentNetwork?.chainId ?? "", collectionIdentity]);
-  const [savedControls, setControls] = React.useState(() => initialControls(identity));
-  if (savedControls.identity !== identity) setControls(initialControls(identity));
-  const controls = savedControls.identity === identity ? savedControls : initialControls(identity);
+  // Saved per history entry so Back, or returning to this tab, restores the filters and page.
+  const [controls, setControls] = useHistoryEntryState(`nft-inventory:${identity}:controls`, INITIAL_CONTROLS);
   const [completion, setCompletion] = React.useState(0);
   const flight = React.useRef<{ identity: string } | null>(null);
   const mounted = React.useRef(false);
@@ -111,33 +109,25 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   }, [identity]);
 
   const updateControls = React.useCallback(
-    (update: Partial<Omit<InventoryControlState, "identity">>) => {
-      setControls(previous => ({
-        ...(previous.identity === identity ? previous : initialControls(identity)),
-        ...update,
-      }));
-    },
-    [identity],
+    (update: Partial<InventoryControlState>) => setControls(previous => ({ ...previous, ...update })),
+    [setControls],
   );
   const onSearchChange = React.useCallback((search: string) => updateControls({ search }), [updateControls]);
   const onOwnerChange = React.useCallback((owner: string) => updateControls({ owner }), [updateControls]);
   const onOwnerOpen = React.useCallback(() => updateControls({ ownersRequested: true }), [updateControls]);
-  const onSortToggle = React.useCallback(() => {
-    setControls(previous => {
-      const current = previous.identity === identity ? previous : initialControls(identity);
-      return { ...current, sortOrder: current.sortOrder === "asc" ? "desc" : "asc" };
-    });
-  }, [identity]);
+  const onSortToggle = React.useCallback(
+    () => setControls(previous => ({ ...previous, sortOrder: previous.sortOrder === "asc" ? "desc" : "asc" })),
+    [setControls],
+  );
 
   const search = controls.search.trim().toLowerCase();
   const hasActiveControls = !!search || !!controls.owner || controls.sortOrder !== null;
   const needsAllPages = hasActiveControls || controls.ownersRequested;
   const pageScope = JSON.stringify([identity, search, controls.owner, controls.sortOrder]);
-  const [pagination, setPagination] = React.useState<InventoryPagination>(() => ({
-    scope: pageScope,
-    page: 1,
-    pageSize,
-  }));
+  const [pagination, setPagination] = useHistoryEntryState<InventoryPagination>(
+    `nft-inventory:${identity}:pagination`,
+    { scope: pageScope, page: 1, pageSize },
+  );
   const currentPagination =
     pagination.scope !== pageScope
       ? { scope: pageScope, page: 1, pageSize }

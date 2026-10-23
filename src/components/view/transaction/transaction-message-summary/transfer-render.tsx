@@ -18,6 +18,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import { CACHE_POLICY } from "@/common/values/query.constant";
 import {
   findByTokenKey,
   getFallbackTokenSymbol,
@@ -54,7 +55,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
         // for tokens it doesn't cover.
         enabled: !!apiTokenRepository && !hasResourceMeta,
         retry: 1,
-        staleTime: 5 * 60 * 1000,
+        ...CACHE_POLICY.COLD,
       };
     }),
   );

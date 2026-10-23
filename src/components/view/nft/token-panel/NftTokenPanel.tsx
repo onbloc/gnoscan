@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } from "@/common/react-query/token/api";
 import { acquireBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useSheetDragDismiss } from "@/common/hooks/common/use-sheet-drag-dismiss";
 import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
@@ -73,12 +74,7 @@ const NftTokenPanel = ({
   const { getUrlWithNetwork } = useNetwork();
   const { data: detail, isLoading, isArtworkLoading } = useGetNftTokenDetail(packagePath, nftId);
   const indexedQuery = useGetNftItemDetail(tokenKey, nftId, { keepPreviousData: false });
-  const transferIdentity = `${tokenKey}:${nftId}`;
-  const [transferPagination, setTransferPagination] = React.useState({ identity: transferIdentity, page: 1 });
-  const transferPage = transferPagination.identity === transferIdentity ? transferPagination.page : 1;
-  if (transferPagination.identity !== transferIdentity) {
-    setTransferPagination({ identity: transferIdentity, page: 1 });
-  }
+  const [transferPage, setTransferPage] = useHistoryEntryState(`nft-token:${tokenKey}:${nftId}:transfer-page`, 1);
   // Keep latest-transfer information independent of the visible history page.
   const firstTransfersQuery = useGetNftItemTransfers(
     { tokenKey, nftId, page: 1, limit: TRANSFERS_PAGE_SIZE },
@@ -95,7 +91,7 @@ const NftTokenPanel = ({
     ),
   );
   const changeTransferPage = (page: number) => {
-    setTransferPagination({ identity: transferIdentity, page: Math.min(Math.max(page, 1), totalTransferPages) });
+    setTransferPage(Math.min(Math.max(page, 1), totalTransferPages));
   };
   const indexedDetail = indexedQuery.data?.data;
   const burned = (indexedDetail?.position ?? item?.position)?.burned === true;

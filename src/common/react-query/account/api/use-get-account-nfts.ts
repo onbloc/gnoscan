@@ -28,6 +28,9 @@ export const useGetAccountNfts = (
       fetchAccountNftPage(collections, page, pageSize, (tokenId, collectionPage, limit) =>
         repository.getAccountGRC721CollectionItems({ address, tokenId, page: collectionPage, limit }),
       ),
-    { ...options, enabled: !!address && collections.length > 0 && options?.enabled !== false },
+    {
+      ...options,
+      enabled: !!address && collections.length > 0 && options?.enabled !== false,
+    },
   );
 };

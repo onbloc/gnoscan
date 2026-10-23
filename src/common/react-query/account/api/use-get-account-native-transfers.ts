@@ -5,7 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetAccountNativeTransfersRequest } from "@/repositories/api/account/request";
 import { GetAccountNativeTransfersResponse } from "@/repositories/api/account/response";
 import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 export const useGetAccountNativeTransfers = (
   params: GetAccountNativeTransfersRequest,
@@ -23,6 +23,7 @@ export const useGetAccountNativeTransfers = (
         cursor,
       }),
     {
+      ...CACHE_POLICY.LIVE,
       ...options,
       enabled: !!params.address && options?.enabled !== false,
     },

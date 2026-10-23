@@ -12,6 +12,7 @@ import DefaultChainData from "public/resource/chains.json";
 import NetworkProvider from "@/providers/network-provider";
 import ServiceProvider from "@/providers/service-provider";
 import { getNetworkConfig } from "@/common/config/network.config";
+import { CACHE_POLICY } from "@/common/values/query.constant";
 
 const App: React.FC = ({ Component, pageProps }: any) => {
   const networks = getNetworkConfig(DefaultChainData);
@@ -20,10 +21,7 @@ const App: React.FC = ({ Component, pageProps }: any) => {
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: {
-            cacheTime: 60 * 1000,
-            staleTime: 60 * 1000,
-          },
+          queries: CACHE_POLICY.WARM,
         },
       }),
   );

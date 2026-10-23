@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Amount, GnoEvent, Transaction } from "@/types/data-type";
+import { Amount } from "@/types/data-type";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 
 import DataListSection from "@/components/view/details-data-section/data-list-section";
@@ -47,10 +47,11 @@ const CustomNetworkTransactionInfo = ({
           transactionItem={transactionItem}
           getUrlWithNetwork={getUrlWithNetwork}
           getTokenAmount={getTokenAmount}
-          // getName={getName}
         />
       )}
-      {currentTab === "Events" && <EventDatatable events={transactionEvents} isFetched={isFetched} />}
+      {currentTab === "Events" && (
+        <EventDatatable scope={`tx:${txHash}`} events={transactionEvents} isFetched={isFetched} />
+      )}
     </DataListSection>
   );
 };

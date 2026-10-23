@@ -30,7 +30,8 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useGetTokens(params);
+    isPreviousData,
+  } = useGetTokens(params, { keepPreviousData: true });
 
   const { getTokenMeta } = useTokenResourceMeta();
 
@@ -60,11 +61,14 @@ export const useMappedApiTokens = (params?: GetTokensRequestParameters) => {
 
   return {
     data: tokens,
-    isFetched: isApiFetched,
+    // Rows of the previous sort stay on screen until the new sort loads.
+    isFetched: isApiFetched || isPreviousData,
+    isPreviousData,
     isLoading: isApiLoading,
     isError: isApiError,
     fetchNextPage,
-    hasNextPage,
+    // The next cursor of the previous sort does not apply to the new one.
+    hasNextPage: hasNextPage && !isPreviousData,
     isFetchingNextPage,
   };
 };

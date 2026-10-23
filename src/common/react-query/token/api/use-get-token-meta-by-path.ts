@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTokenMetaByPathResponse } from "@/repositories/api/token/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 export const useGetTokenMetaByPath = (
   path: string,
@@ -17,6 +17,6 @@ export const useGetTokenMetaByPath = (
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     repository => repository.getTokenMetaByPath(path),
-    { ...options, enabled: !!path && options?.enabled !== false, cacheTime: 60 * 60 * 1000, staleTime: 60 * 60 * 1000 },
+    { ...CACHE_POLICY.COLD, ...options, enabled: !!path && options?.enabled !== false },
   );
 };

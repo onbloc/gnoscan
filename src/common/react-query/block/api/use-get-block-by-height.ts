@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlockResponse } from "@/repositories/api/block/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 import { isValidBlockHeight } from "@/common/utils/string-util";
 
 /**
@@ -30,6 +30,6 @@ export const useGetBlockByHeight = (
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
     repository => repository.getBlock(height),
-    { enabled: isValidBlockHeight(height) && options?.enabled !== false },
+    { ...CACHE_POLICY.COLD, enabled: isValidBlockHeight(height) && options?.enabled !== false },
   );
 };

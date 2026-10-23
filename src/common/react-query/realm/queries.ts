@@ -14,8 +14,7 @@ import { mapVMTransaction } from "@/repositories/response/transaction.mapper";
 import { NewestRealm, Transaction } from "@/types/data-type";
 import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
 import { QUERY_KEY } from "./types";
-
-const REALM_LIST_CACHE_TIME = 10 * 60 * 1000;
+import { CACHE_POLICY } from "@/common/values/query.constant";
 
 const mapRealmPackageTransactions = (transactions: any[] | null): NewestRealm[] => {
   if (!transactions) {
@@ -63,8 +62,6 @@ export const useGetRealmsQuery = (options?: UseQueryOptions<any, Error>) => {
     ...options,
     retry: 1,
     keepPreviousData: true,
-    cacheTime: REALM_LIST_CACHE_TIME,
-    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 
@@ -85,8 +82,6 @@ export const useGetLatestRealmsQuery = (options?: UseQueryOptions<any, Error>) =
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
-    cacheTime: REALM_LIST_CACHE_TIME,
-    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 
@@ -141,6 +136,7 @@ export const useGetRealmFunctionsQuery = (
     },
     retry: 1,
     enabled: !!realmRepository && !!packagePath,
+    ...CACHE_POLICY.COLD,
     ...options,
   });
 };
@@ -501,8 +497,6 @@ export const useGetGRC20Tokens = (options?: UseQueryOptions<GRC20Info[], Error>)
     enabled: !!realmRepository,
     ...options,
     keepPreviousData: true,
-    cacheTime: REALM_LIST_CACHE_TIME,
-    staleTime: REALM_LIST_CACHE_TIME,
   });
 };
 

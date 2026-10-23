@@ -4,6 +4,7 @@ import { QUERY_KEY } from "./types";
 import { NftCollectionResourceMeta, TokenResourceMeta } from "@/types/data-type";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
+import { CACHE_POLICY } from "@/common/values/query.constant";
 
 function makeTokenMetaURL(type: "gno-native" | "grc20" | "grc721", chainId: string) {
   if (!chainId) {
@@ -57,6 +58,7 @@ export const useGetTokenMetaQuery = (options?: UseQueryOptions<TokenResourceMeta
     enabled: !!blockRepository,
     // A failed load falls back to API values right away instead of waiting on retries.
     retry: false,
+    ...CACHE_POLICY.COLD,
     ...options,
   });
 };
@@ -76,6 +78,7 @@ export const useGetNftCollectionMetaQuery = (options?: UseQueryOptions<NftCollec
     queryFn: () => fetchTokenMeta<NftCollectionResourceMeta>(makeTokenMetaURL("grc721", currentNetwork?.chainId || "")),
     enabled: !!currentNetwork?.chainId,
     retry: false,
+    ...CACHE_POLICY.COLD,
     ...options,
   });
 };

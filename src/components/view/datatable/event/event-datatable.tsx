@@ -4,10 +4,16 @@ import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
 import { EventDetail } from "./event-detail";
 import { GnoEvent } from "@/types/data-type";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { EVENT_TABLE_PAGE_SIZE } from "@/common/values/ui.constant";
 import { ViewMoreButton } from "@/components/ui/button";
 
 interface Props {
+  /**
+   * Identifies the parent entity (e.g. `tx:${hash}`)
+   * so one entity does not restore the page saved for another.
+   */
+  scope: string;
   isFetched: boolean;
   events: GnoEvent[];
 }
@@ -20,9 +26,9 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const EventDatatable = ({ isFetched, events }: Props) => {
+export const EventDatatable = ({ scope, isFetched, events }: Props) => {
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useHistoryEntryState(`events:${scope}:page`, 0);
 
   const loaded = useMemo(() => {
     return isFetched;
@@ -40,7 +46,7 @@ export const EventDatatable = ({ isFetched, events }: Props) => {
       return;
     }
     setPage(page => page + 1);
-  }, [hasNextPage]);
+  }, [hasNextPage, setPage]);
 
   const filteredEvents = useMemo(() => {
     const endIndex = (page + 1) * EVENT_TABLE_PAGE_SIZE;

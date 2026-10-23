@@ -122,7 +122,9 @@ const StandardNetworkTransactionInfo = ({
             />
           </>
         ))}
-      {currentTab === "Events" && !isPending && <EventDatatable events={txEvents} isFetched={isFetchedEventsData} />}
+      {currentTab === "Events" && !isPending && (
+        <EventDatatable scope={`tx:${txHash}`} events={txEvents} isFetched={isFetchedEventsData} />
+      )}
     </DataListSection>
   );
 };
