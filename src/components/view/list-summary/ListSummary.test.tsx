@@ -38,6 +38,8 @@ describe("toPctBadge", () => {
   it("shows new when the previous window was empty and hides no change", () => {
     expect(toPctBadge(null)).toEqual({ label: "new", tone: "up" });
     expect(toPctBadge(0)).toBeUndefined();
+    expect(toPctBadge(0.04)).toBeUndefined();
+    expect(toPctBadge(-0.03)).toBeUndefined();
     expect(toPctBadge(undefined)).toBeUndefined();
   });
 });

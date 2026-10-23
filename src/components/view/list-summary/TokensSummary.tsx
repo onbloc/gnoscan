@@ -38,7 +38,8 @@ export const TokensSummary = () => {
   // changes, daily bars and holder totals.
   const allTokens = useMappedApiTokens(ALL_TOKENS_PARAMS, { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
   useFetchRemainingPages(allTokens, true);
-  const isListFetched = allTokens.isFetched && !allTokens.hasNextPage;
+  // A failed page stops the paging, so settle on the loaded pages instead of loading forever.
+  const isListFetched = allTokens.isFetched && (!allTokens.hasNextPage || allTokens.isError);
   const activity = React.useMemo(() => summarizeTokenActivity24h(allTokens.data), [allTokens.data]);
   const tokenUrl = (token: { packagePath: string; symbol: string }) =>
     getUrlWithNetwork(`/tokens/${toTokenKey(token)}`);
