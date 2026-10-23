@@ -8,7 +8,7 @@ const DEFAULT_SORT_OPTION: NftCollectionListSortOption = { field: "holders", ord
 
 /** NFT collections come from the API, which custom networks do not have. */
 const NftCollectionListContainer = () => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { currentNetwork, isCustomNetwork } = useNetworkProvider();
 
   const [sortOption, setSortOption] = useHistoryEntryState<NftCollectionListSortOption>(
     "nfts:sort",
@@ -16,7 +16,12 @@ const NftCollectionListContainer = () => {
   );
 
   return isCustomNetwork ? null : (
-    <StandardNetworkNftCollectionsData sortOption={sortOption} setSortOption={setSortOption} />
+    // Keyed by network so rows kept across a sort change never show on another network.
+    <StandardNetworkNftCollectionsData
+      key={currentNetwork?.chainId}
+      sortOption={sortOption}
+      setSortOption={setSortOption}
+    />
   );
 };
 

@@ -8,14 +8,15 @@ import StandardNetworkRealmsData from "@/components/view/realms/realm-data/Stand
 const DEFAULT_SORT_OPTION: RealmListSortOption = { field: "totalCalls", order: "desc" };
 
 const RealmListContainer = () => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { currentNetwork, isCustomNetwork } = useNetworkProvider();
 
   const [sortOption, setSortOption] = useHistoryEntryState<RealmListSortOption>("realms:sort", DEFAULT_SORT_OPTION);
 
   return isCustomNetwork ? (
     <CustomNetworkRealmsData sortOption={sortOption} setSortOption={setSortOption} />
   ) : (
-    <StandardNetworkRealmsData sortOption={sortOption} setSortOption={setSortOption} />
+    // Keyed by network so rows kept across a sort change never show on another network.
+    <StandardNetworkRealmsData key={currentNetwork?.chainId} sortOption={sortOption} setSortOption={setSortOption} />
   );
 };
 

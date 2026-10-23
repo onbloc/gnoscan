@@ -8,14 +8,15 @@ import StandardNetworkTokensData from "@/components/view/tokens/token-data/Stand
 const DEFAULT_SORT_OPTION: TokenListSortOption = { field: "holders", order: "desc" };
 
 const TokenListContainer = () => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { currentNetwork, isCustomNetwork } = useNetworkProvider();
 
   const [sortOption, setSortOption] = useHistoryEntryState<TokenListSortOption>("tokens:sort", DEFAULT_SORT_OPTION);
 
   return isCustomNetwork ? (
     <CustomNetworkTokensData />
   ) : (
-    <StandardNetworkTokensData sortOption={sortOption} setSortOption={setSortOption} />
+    // Keyed by network so rows kept across a sort change never show on another network.
+    <StandardNetworkTokensData key={currentNetwork?.chainId} sortOption={sortOption} setSortOption={setSortOption} />
   );
 };
 
