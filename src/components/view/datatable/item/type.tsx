@@ -98,15 +98,9 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
     <LabelWrapper>
       {label.kind === "call" && label.dapp && <DappLogo dapp={label.dapp} />}
       {(label.kind === "deploy" || label.kind === "run") && <span className="kind">{`${label.kind} ·`}</span>}
-      {label.kind === "call" && label.dapp ? (
-        <a className="path" href={label.dapp.url} target="_blank" rel="noreferrer" title={path}>
-          {displayPath}
-        </a>
-      ) : (
-        <Link className="path" href={getUrlWithNetwork(`/realms/details?path=${label.packagePath}`)} title={path}>
-          {displayPath}
-        </Link>
-      )}
+      <Link className="path" href={getUrlWithNetwork(`/realms/details?path=${label.packagePath}`)} title={path}>
+        {displayPath}
+      </Link>
       {label.kind === "run" && label.moreCount > 0 && <span className="kind">{`+${label.moreCount}`}</span>}
     </LabelWrapper>
   );
@@ -118,13 +112,14 @@ const DappLogo = ({ dapp }: { dapp: DappLabel }) => {
   if (logoFailed) return null;
 
   return (
-    <img
-      className="dapp-logo"
-      src={`${GNO_TOKEN_RESOURCE_BASE_URI}${dapp.logo}`}
-      alt={dapp.name}
-      title={dapp.name}
-      onError={() => setLogoFailed(true)}
-    />
+    <a className="dapp-link" href={dapp.url} target="_blank" rel="noreferrer" title={dapp.name}>
+      <img
+        className="dapp-logo"
+        src={`${GNO_TOKEN_RESOURCE_BASE_URI}${dapp.logo}`}
+        alt={dapp.name}
+        onError={() => setLogoFailed(true)}
+      />
+    </a>
   );
 };
 
@@ -144,6 +139,11 @@ const LabelWrapper = styled.div`
   width: 100%;
   min-width: 0;
   white-space: nowrap;
+
+  .dapp-link {
+    display: flex;
+    flex-shrink: 0;
+  }
 
   .dapp-logo {
     width: 16px;

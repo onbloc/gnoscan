@@ -58,7 +58,7 @@ export interface DappLabel {
   name: string;
   /** Image path in gno-token-resource, e.g. "/grc20/images/gno_land_r_gnoswap_gns.svg". */
   logo: string;
-  /** The dApp's website, opened from the realm path. */
+  /** The dApp's website, opened from the logo. */
   url: string;
 }
 
