@@ -27,7 +27,7 @@ export const Grid = styled.div`
 export const Card = styled.section`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
   padding: 16px;
   border: 1px solid ${({ theme }) => theme.colors.dimmed50};
@@ -39,12 +39,24 @@ export const Card = styled.section`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  // Footers line up across the row of cards.
+  .card-footer {
+    margin-top: auto;
+  }
 `;
 
 export const CardTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+`;
+
+export const CardBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 `;
 
 const pulse = keyframes`
@@ -65,27 +77,92 @@ export const LiveDot = styled.span`
   }
 `;
 
-export const Items = styled.div`
+export const Badge = styled.span<{ $tone: "up" | "down" }>`
+  ${({ theme }) => theme.fonts.body2};
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: ${({ $tone, theme }) => ($tone === "up" ? theme.colors.green : theme.colors.failed)};
+  background-color: ${({ $tone }) => ($tone === "up" ? "rgba(0, 197, 154, 0.12)" : "rgba(255, 77, 79, 0.12)")};
+`;
+
+export const BigNumber = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+`;
+
+export const Bars = styled.div`
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 64px;
+`;
+
+export const BarColumn = styled.div<{ $today: boolean }>`
+  display: flex;
+  flex: 1;
+  flex-direction: column-reverse;
+  min-height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  // Earlier days are faded so today's bar stands out.
+  opacity: ${({ $today }) => ($today ? 1 : 0.3)};
+`;
+
+export const BarSegment = styled.div<{ $color: "blue" | "orange" }>`
+  flex-basis: 0;
+  background-color: ${({ $color, theme }) => theme.colors[$color]};
+`;
+
+export const LegendDot = styled.span<{ $color: "blue" | "orange" }>`
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px 0 8px;
+  border-radius: 2px;
+  background-color: ${({ $color, theme }) => theme.colors[$color]};
+`;
+
+export const Rows = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   min-width: 0;
 `;
 
-export const Featured = styled(Link)`
+export const Row = styled(Link)`
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
-  padding-bottom: 6px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed50};
+
+  .row-rank {
+    flex-shrink: 0;
+    width: 12px;
+  }
+
+  .row-value {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+`;
+
+export const RowText = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 `;
 
 export const Media = styled.div`
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   overflow: hidden;
 
   img,
@@ -96,22 +173,64 @@ export const Media = styled.div`
   }
 `;
 
-export const FeaturedText = styled.div`
+export const Facts = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid ${({ theme }) => theme.colors.dimmed50};
 `;
 
-// Title, subtitle and meta columns, e.g. realm name, path and deploy block.
-export const Row = styled(Link)`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+export const Fact = styled.div`
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   min-width: 0;
 
-  .row-meta {
-    flex-shrink: 0;
+  & > :last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+`;
+
+export const Tiles = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+`;
+
+export const Tile = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  & > :first-child {
+    margin-bottom: 6px;
+    border-radius: 8px;
+  }
+`;
+
+export const StorageAmounts = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+`;
+
+// Locked share of the storage moved in 24h, released fills the rest.
+export const StorageShare = styled.div`
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background-color: ${({ theme }) => theme.colors.orange};
+
+  span {
+    display: block;
+    height: 100%;
+    background-color: ${({ theme }) => theme.colors.blue};
   }
 `;
 

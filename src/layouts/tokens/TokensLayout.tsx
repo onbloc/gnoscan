@@ -22,7 +22,7 @@ const TokensLayout = ({ tokenList }: TokensLayoutProps) => {
             <PageTitle
               title="Tokens"
               type="h2"
-              description="GRC20 tokens on gno.land. Track supply, holders, and transfer activity."
+              description="GRC20 tokens on gno.land — what's new, what's moving, and who's holding."
             />
             <TokenResourceLink label="Gno.land Token Resources" />
           </S.TitleWrap>

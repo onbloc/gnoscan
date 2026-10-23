@@ -20,7 +20,7 @@ const RealmsLayout = ({ realmList }: RealmsLayoutProps) => {
           <PageTitle
             title="Realms"
             type="h2"
-            description="Realms deployed on gno.land. See what is new, what is hot, and how busy the network is."
+            description="Realms deployed on gno.land — who's building, what's being used, and what lives on-chain."
           />
           {!isCustomNetwork && <RealmsSummary />}
           {realmList}

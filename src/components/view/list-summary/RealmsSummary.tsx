@@ -1,59 +1,153 @@
 import React from "react";
+import Link from "next/link";
 
-import { LIST_SUMMARY_REFETCH_INTERVAL } from "@/common/values/query.constant";
 import { useNetwork } from "@/common/hooks/use-network";
-import { useGetNewestRealms, useGetSummaryRealms } from "@/common/react-query/statistics";
-import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
-import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
+import { useGetSummaryRealms } from "@/common/react-query/statistics";
+import { formatBytes } from "@/common/utils/format/format-utils";
+import { formatDisplayPackagePath, makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
-import { SummaryCard, SummaryGrid, SummaryItemList, SummaryValue } from "./ListSummary";
-
-const realmName = (path: string) => path.split("/").pop() || path;
+import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import Text from "@/components/ui/text";
+import {
+  DeltaBadgeData,
+  SummaryBars,
+  SummaryBigNumber,
+  SummaryCard,
+  SummaryFacts,
+  SummaryGrid,
+  SummaryRows,
+  toCountBadge,
+  toPctBadge,
+} from "./ListSummary";
+import * as S from "./ListSummary.styles";
 
 const displayPath = (path: string) => formatDisplayPackagePath(stripGnoLandPrefix(path));
 
+const realmUrl = (path: string) => `/realms/details?path=${path}`;
+
+// GNOT amounts show one decimal, as in the design notes.
+const formatGnot = (value: number) => value.toFixed(1);
+
+const signedGnot = (value: number) => `${value >= 0 ? "+" : "-"}${formatGnot(Math.abs(value))}`;
+
+// A publisher with no deploys in the previous week is "new" rather than "+N".
+const toBuilderBadge = (current: number, previous: number): DeltaBadgeData | undefined =>
+  previous === 0 && current > 0 ? { label: "new", tone: "up" } : toCountBadge(current - previous);
+
 export const RealmsSummary = () => {
   const { getUrlWithNetwork } = useNetwork();
-  const summary = useGetSummaryRealms();
-  const newest = useGetNewestRealms({ refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
+  const query = useGetSummaryRealms();
+  const summary = query.data?.data;
 
-  // Name, shortened path and deploy block, so long user namespace paths still show which realm it is.
-  const recentItems = (newest.data?.items ?? []).slice(0, 3).map(realm => ({
-    key: realm.path,
-    href: getUrlWithNetwork(`/realms/details?path=${realm.path}`),
-    title: realmName(realm.path),
-    subtitle: displayPath(realm.path),
-    // Deploy time once the API sends it, the deploy block until then.
-    meta: realm.publishedAt ? formatNftRelativeTime(realm.publishedAt) : `#${makeDisplayNumber(realm.block)}`,
+  const builders = (summary?.builders ?? []).slice(0, 3).map(builder => ({
+    key: builder.address,
+    href: getUrlWithNetwork(`/account/${builder.address}`),
+    title: textEllipsis(builder.address, 8),
+    subtitle: displayPath(builder.namespace),
+    value: makeDisplayNumber(builder.deploys7d),
+    badge: toBuilderBadge(builder.deploys7d, builder.deploysPrev7d),
   }));
 
-  const trendingItems = (summary.data?.data.trending ?? []).slice(0, 3).map((realm, index) => ({
+  const mostCalled = (summary?.mostCalled ?? []).slice(0, 3).map(realm => ({
     key: realm.path,
-    href: getUrlWithNetwork(`/realms/details?path=${realm.path}`),
-    title: index === 0 ? realmName(realm.path) : `#${index + 1} ${realmName(realm.path)}`,
-    subtitle: displayPath(realm.path),
-    meta: `${makeDisplayNumber(realm.calls24h)} calls`,
+    href: getUrlWithNetwork(realmUrl(realm.path)),
+    title: displayPath(realm.path),
+    subtitle: `${makeDisplayNumber(realm.uniqueCallers24h)} callers`,
+    value: makeDisplayNumber(realm.calls24h),
+    badge: toPctBadge(realm.deltaPct),
   }));
 
-  const stats = summary.data?.data;
+  const calls = summary?.calls;
+  const storage = summary?.storage;
+  const net = storage ? storage.locked24h - storage.released24h : undefined;
+  const bytes = storage ? formatBytes(storage.bytesDelta24h) : undefined;
+  const lockedShare = storage ? (storage.locked24h / (storage.locked24h + storage.released24h || 1)) * 100 : 0;
 
   return (
     <SummaryGrid>
-      <SummaryCard title="Recently Deployed" live>
-        <SummaryItemList items={recentItems} isFetched={newest.isFetched} emptyText="No realms deployed yet" />
+      <SummaryCard
+        title="Builders · 7d"
+        live
+        footer={`Deploys · ${summary ? makeDisplayNumber(summary.publishers7d) : "-"} publishers this week`}
+      >
+        <SummaryRows rows={builders} isFetched={query.isFetched} emptyText="No deploys in the last 7 days" ranked />
       </SummaryCard>
-      <SummaryCard title="Trending Realm" caption={trendingItems.length > 0 ? "Most called in 24h" : undefined}>
-        <SummaryItemList
-          items={trendingItems}
-          isFetched={summary.isFetched}
-          emptyText="No realm calls in the last 24h"
+      <SummaryCard title="Most Called · 24h" footer="Calls · vs previous 24h">
+        <SummaryRows rows={mostCalled} isFetched={query.isFetched} emptyText="No realm calls in the last 24h" ranked />
+      </SummaryCard>
+      <SummaryCard
+        title="Calls · 24h"
+        footer={[
+          "Daily · last 7 days",
+          calls && `${makeDisplayNumber(calls.uniqueCallers24h)} callers`,
+          calls && `${makeDisplayNumber(calls.realmsTouched24h)} realms`,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+      >
+        <SummaryBigNumber
+          value={calls?.calls24h}
+          isFetched={query.isFetched}
+          badge={toPctBadge(calls?.deltaPct, " vs yesterday")}
+        />
+        <SummaryBars
+          label="Daily realm calls, last 7 days"
+          series={[{ color: "blue", values: calls?.daily.map(day => day.count) ?? [] }]}
         />
       </SummaryCard>
-      <SummaryCard title="24h Calls" caption="Realm calls in the last 24h">
-        <SummaryValue value={stats?.calls24h} isFetched={summary.isFetched} />
-      </SummaryCard>
-      <SummaryCard title="Active Callers (24h)" caption="Unique callers in the last 24h">
-        <SummaryValue value={stats?.activeCallers24h} isFetched={summary.isFetched} />
+      <SummaryCard
+        title="Storage · 24h"
+        footer={
+          storage && net !== undefined && bytes
+            ? `Net ${signedGnot(net)} GNOT · ${storage.bytesDelta24h >= 0 ? "+" : "-"}${bytes.value} ${
+                bytes.unit
+              } on-chain`
+            : undefined
+        }
+      >
+        {query.isFetched ? (
+          <S.StorageAmounts>
+            <div>
+              <Text type="h3" color="blue">
+                {storage ? `+${formatGnot(storage.locked24h)}` : "-"}
+              </Text>
+              <Text type="body1" color="tertiary">
+                GNOT locked
+              </Text>
+            </div>
+            <div>
+              <Text type="h3" color="orange">
+                {storage ? `-${formatGnot(storage.released24h)}` : "-"}
+              </Text>
+              <Text type="body1" color="tertiary">
+                GNOT released
+              </Text>
+            </div>
+          </S.StorageAmounts>
+        ) : (
+          <SkeletonBar width={160} height={44} />
+        )}
+        {storage && (
+          <S.StorageShare aria-hidden="true">
+            <span style={{ width: `${lockedShare}%` }} />
+          </S.StorageShare>
+        )}
+        <SummaryFacts
+          facts={[
+            {
+              label: "Largest realm",
+              value: storage?.largestRealm ? (
+                <Link href={getUrlWithNetwork(realmUrl(storage.largestRealm.path))}>
+                  <Text type="p4" color="blue">
+                    {`${displayPath(storage.largestRealm.path)} · ${formatGnot(storage.largestRealm.depositGnot)}`}
+                  </Text>
+                </Link>
+              ) : (
+                <Text type="p4">-</Text>
+              ),
+            },
+          ]}
+        />
       </SummaryCard>
     </SummaryGrid>
   );
