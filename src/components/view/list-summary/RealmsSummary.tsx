@@ -108,6 +108,7 @@ export const RealmsSummary = () => {
         />
         <SummaryBars
           label="Daily realm calls, last 7 days"
+          dates={calls?.daily.map(day => day.date) ?? []}
           series={[{ color: "blue", values: calls?.daily.map(day => day.count) ?? [] }]}
         />
       </SummaryCard>

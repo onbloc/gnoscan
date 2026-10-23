@@ -114,6 +114,7 @@ export const TokensSummary = () => {
         />
         <SummaryBars
           label="Daily transfers, last 7 days"
+          dates={summary?.transfers.daily.map(day => day.date) ?? []}
           series={[{ color: "blue", values: summary?.transfers.daily.map(day => day.count) ?? [] }]}
         />
       </SummaryCard>
