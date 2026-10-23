@@ -79,8 +79,6 @@ export class OnblocAccountRepository implements IAccountRepository {
       );
       const transactionEdges = response?.data?.transactions.edges;
       const responsePageInfo = response?.data?.transactions.pageInfo;
-      pageInfo.last = responsePageInfo?.last || null;
-      pageInfo.hasNext = responsePageInfo?.hasNext || false;
       const mappedTransactions = transactionEdges
         .map((edge: any) => edge.transaction)
         .filter((tx: any) => {
@@ -127,6 +125,8 @@ export class OnblocAccountRepository implements IAccountRepository {
           return mapVMTransaction(tx);
         });
       transactions.push(...mappedTransactions);
+      pageInfo.last = responsePageInfo?.last || null;
+      pageInfo.hasNext = responsePageInfo?.hasNext || false;
     } catch (e) {
       console.error(e);
     }

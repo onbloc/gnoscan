@@ -10,9 +10,9 @@ function repositoryWith(pageQuery: jest.Mock) {
   return new OnblocAccountRepository(null, { pageQuery } as unknown as IndexerClient);
 }
 
-function frozenResponse(pageInfo?: { last: string | null; hasNext: boolean }) {
+function frozenResponse(pageInfo?: { last: string | null; hasNext: boolean }, edges: unknown[] = []) {
   return Object.freeze({
-    data: Object.freeze({ transactions: Object.freeze({ edges: [], pageInfo: pageInfo && Object.freeze(pageInfo) }) }),
+    data: Object.freeze({ transactions: Object.freeze({ edges, pageInfo: pageInfo && Object.freeze(pageInfo) }) }),
   });
 }
 
@@ -36,6 +36,18 @@ describe("OnblocAccountRepository.getAccountTransactions", () => {
   it("returns an empty result when the indexer request fails", async () => {
     jest.spyOn(console, "error").mockImplementation(() => undefined);
     const repository = repositoryWith(jest.fn().mockRejectedValue(new Error("down")));
+
+    const result = await repository.getAccountTransactions(ADDRESS, null);
+
+    expect(result).toEqual({ transactions: [], pageInfo: { last: null, hasNext: false } });
+  });
+
+  it("stops paging when a page fails to map", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => undefined);
+    const malformedEdge = { transaction: { messages: [] } };
+    const repository = repositoryWith(
+      jest.fn().mockResolvedValue(frozenResponse({ last: "c1", hasNext: true }, [malformedEdge])),
+    );
 
     const result = await repository.getAccountTransactions(ADDRESS, null);
 
