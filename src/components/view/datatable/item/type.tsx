@@ -53,7 +53,7 @@ export const Type = ({ messageType, functionName, packagePath, messageCount = 0,
         )}
       </TypeWrapper>
       {txHash && getMessageKind(messageType) === "run" ? (
-        <RunRealmLabel txHash={txHash} />
+        <RunRealmLabel txHash={txHash} fallback={realmLabel} />
       ) : (
         realmLabel && <RealmLabel label={realmLabel} />
       )}
@@ -64,19 +64,16 @@ export const Type = ({ messageType, functionName, packagePath, messageCount = 0,
 };
 
 // The list API has no path for a run message, so the realms it called come from the transaction contracts.
-const RunRealmLabel = ({ txHash }: { txHash: string }) => {
-  const { data } = useGetTransactionContractsByHeight({ txHash }, { staleTime: Infinity });
+const RunRealmLabel = ({ txHash, fallback }: { txHash: string; fallback?: FunctionRealmLabel }) => {
+  // A confirmed transaction never changes, and the label is only a hint, so keep it and do not retry.
+  const { data } = useGetTransactionContractsByHeight(
+    { txHash },
+    { staleTime: Infinity, cacheTime: Infinity, retry: false },
+  );
   const realms = getRunCalledRealms(data?.pages.flatMap(page => page.items) ?? []);
 
-  return (
-    <RealmLabel
-      label={
-        realms.length > 0
-          ? { kind: "run", packagePath: realms[0], moreCount: realms.length - 1 }
-          : { kind: "text", text: "run" }
-      }
-    />
-  );
+  if (realms.length === 0) return fallback ? <RealmLabel label={fallback} /> : null;
+  return <RealmLabel label={{ kind: "run", packagePath: realms[0], moreCount: realms.length - 1 }} />;
 };
 
 const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
@@ -85,9 +82,7 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
   if (label.kind === "text") {
     return (
       <LabelWrapper>
-        <Text className="kind" type="body1" color="tertiary">
-          {label.text}
-        </Text>
+        <span className="kind">{label.text}</span>
       </LabelWrapper>
     );
   }
@@ -98,11 +93,7 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
   return (
     <LabelWrapper>
       {label.kind === "call" && label.dapp && <DappLogo dapp={label.dapp} />}
-      {(label.kind === "deploy" || label.kind === "run") && (
-        <Text className="kind" type="body1" color="tertiary">
-          {`${label.kind} ·`}
-        </Text>
-      )}
+      {(label.kind === "deploy" || label.kind === "run") && <span className="kind">{`${label.kind} ·`}</span>}
       {label.kind === "call" && label.dapp ? (
         <a className="path" href={label.dapp.url} target="_blank" rel="noreferrer" title={path}>
           {displayPath}
@@ -112,11 +103,7 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
           {displayPath}
         </Link>
       )}
-      {label.kind === "run" && label.moreCount > 0 && (
-        <Text className="kind" type="body1" color="tertiary">
-          {`+${label.moreCount}`}
-        </Text>
-      )}
+      {label.kind === "run" && label.moreCount > 0 && <span className="kind">{`+${label.moreCount}`}</span>}
     </LabelWrapper>
   );
 };
@@ -163,7 +150,8 @@ const LabelWrapper = styled.div`
 
   .kind {
     flex-shrink: 0;
-    white-space: nowrap;
+    ${theme.fonts.body1};
+    color: ${({ theme }) => theme.colors.tertiary};
   }
 
   // Read from the namespace onward, so a path too long for the column is cut at its end.

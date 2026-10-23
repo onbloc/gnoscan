@@ -69,7 +69,7 @@ describe("getRunCalledRealms", () => {
   });
 
   test("a run without called realms has none", () => {
-    expect(getRunCalledRealms([{ messageType: "/vm.m_run", calledFunctions: null }])).toEqual([]);
+    expect(getRunCalledRealms([{ messageType: "/vm.m_run", calledFunctions: [] }])).toEqual([]);
     expect(getRunCalledRealms([])).toEqual([]);
   });
 });

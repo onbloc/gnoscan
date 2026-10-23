@@ -1,4 +1,5 @@
 import type { BaseTransactionModel } from "@/models/api/transaction/transaction-model";
+import type { TransactionContractModel } from "@/repositories/api/transaction/response";
 import { WUGNOT_PACKAGE_PATH } from "@/common/values/constant-value";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
@@ -43,7 +44,6 @@ const MESSAGE_KINDS: Readonly<Record<string, MessageKind>> = {
   MsgCall: "call",
   [MESSAGE_TYPES.VM_ADDPKG]: "deploy",
   AddPackage: "deploy",
-  MsgAddPackage: "deploy",
   [MESSAGE_TYPES.VM_RUN]: "run",
   MsgRun: "run",
   [MESSAGE_TYPES.BANK_MSG_SEND]: "send",
@@ -118,7 +118,7 @@ export function getFunctionRealmLabel(messageType: string, packagePath: string):
  * @returns Realm paths, empty when no run message called a realm
  */
 export function getRunCalledRealms(
-  messages: { messageType: string; calledFunctions?: { packagePath: string }[] | null }[],
+  messages: Pick<TransactionContractModel, "messageType" | "calledFunctions">[],
 ): string[] {
   const paths = messages
     .filter(message => getMessageKind(message.messageType) === "run")
