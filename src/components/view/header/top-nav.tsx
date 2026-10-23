@@ -1,5 +1,3 @@
-"use client";
-
 import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
 import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import { useRouter } from "@/common/hooks/common/use-router";
@@ -127,7 +125,7 @@ export const TopNav = () => {
         </Nav>
       </div>
 
-      <HeaderNetwork />
+      <HeaderNetwork entry={entry} />
       <div className="header-mobile-menu">
         <SubMenu
           entry={entry}
@@ -135,16 +133,14 @@ export const TopNav = () => {
           onClick={toggleMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
-          network={<HeaderNetwork />}
         />
       </div>
     </Wrapper>
   );
 };
 
-// Each instance keeps its own dropdown state, so the copy inside the mobile menu works independently.
-// The network button is the black one on every page and theme, in the top bar and inside the mobile menu.
-const HeaderNetwork = () => {
+// Black on the home page and in dark mode, light gray on other pages in light mode.
+const HeaderNetwork = ({ entry }: { entry: boolean }) => {
   const [toggle, setToggle] = useState<boolean>(false);
   const toggleHandler = useCallback(() => setToggle((prev: boolean) => !prev), []);
 
@@ -162,7 +158,7 @@ const HeaderNetwork = () => {
 
   return (
     <Network
-      entry
+      entry={entry}
       chains={chains}
       toggle={toggle}
       toggleHandler={toggleHandler}

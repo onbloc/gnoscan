@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionResponse } from "@/repositories/api/transaction/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get transaction data for a specific hash from the API
@@ -31,6 +31,6 @@ export const useGetTransactionByHash = (
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
     repository => repository.getTransaction(hash),
-    { enabled: !!hash, ...options },
+    { ...CACHE_POLICY.COLD, enabled: !!hash, ...options },
   );
 };

@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
@@ -66,21 +65,22 @@ export const StandardNetworkTransactionListTable = ({
     return DatatableOption.Builder.builder<TransactionModel>()
       .key("type")
       .name("Function")
-      .width(190)
+      .width(200)
       .colorName("blue")
       .tooltip(<TooltipContainer>{TOOLTIP_TYPE}</TooltipContainer>)
       .renderOption((_, data) => {
         const func = getRepresentativeTransactionFunction(data);
         if (!func) return "-";
 
-        const displayFunctionName = mapDisplayFunctionName(func.pkgPath, func.funcType);
+        const displayFunctionName = mapDisplayFunctionName(func.messageType, func.funcType);
 
         return (
           <DatatableItem.Type
-            type={func.messageType}
-            func={displayFunctionName}
+            messageType={func.messageType}
+            functionName={displayFunctionName}
             packagePath={func.pkgPath}
-            msgNum={data.messageCount - 1}
+            messageCount={data.messageCount}
+            txHash={data.txHash}
           />
         );
       })
@@ -121,7 +121,7 @@ export const StandardNetworkTransactionListTable = ({
     return DatatableOption.Builder.builder<TransactionModel>()
       .key("amount")
       .name("Amount")
-      .width(190)
+      .width(180)
       .renderOption((_, data) => {
         if (!data) return null;
         return data.messageCount > 1 ? (
@@ -137,7 +137,7 @@ export const StandardNetworkTransactionListTable = ({
     return DatatableOption.Builder.builder<TransactionModel>()
       .key("timestamp")
       .name("Time")
-      .width(160)
+      .width(130)
       .className("time")
       .renderOption(date => {
         if (!date) return null;

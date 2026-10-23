@@ -13,6 +13,8 @@ import { Publisher } from "../../datatable/item";
 import { useGetLatestBlogs } from "@/common/react-query/statistics";
 import { Blog } from "@/types/data-type";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 interface BlogWithPublisher extends Blog {
   publisher: string;
@@ -24,7 +26,11 @@ interface BlogWithPublisher extends Blog {
 const ActiveLatestBlogs = () => {
   const { isFetched } = useUpdateTime();
 
-  const { data, isFetched: blogsFetched } = useGetLatestBlogs();
+  const query = useGetLatestBlogs();
+  const { data } = query;
+  const blogsFetched = data !== undefined;
+  const failure = useStatisticsFailure(query);
+  const isError = failure.isError;
 
   const { blogs, updatedAt }: { blogs: BlogWithPublisher[]; updatedAt: string | null } = React.useMemo(() => {
     if (!data?.items)
@@ -66,7 +72,7 @@ const ActiveLatestBlogs = () => {
           </Text>
         )}
       </Text>
-      {blogsFetched ? (
+      {blogsFetched || isError ? (
         <ActiveList title={listTitle.blogs} colWidth={colWidth.blogs}>
           {blogs?.map(blog => (
             <List key={blog.index}>
@@ -94,13 +100,7 @@ const ActiveLatestBlogs = () => {
               </StyledText>
             </List>
           ))}
-          {blogs && blogs.length === 0 && (
-            <StyledContentWrapper>
-              <StyledText width="fit-content" type="p4" color="tertiary">
-                No data to display
-              </StyledText>
-            </StyledContentWrapper>
-          )}
+          <StatisticsErrorNotice query={failure} />
         </ActiveList>
       ) : (
         <FetchedSkeleton />
@@ -116,14 +116,6 @@ const ActiveLatestBlogs = () => {
 };
 
 export default ActiveLatestBlogs;
-
-const StyledContentWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-`;
 
 const StyledTitleWrapper = styled.div<{ width: string }>`
   display: flex;

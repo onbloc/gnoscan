@@ -74,17 +74,21 @@ const Tooltip = ({
   return (
     <Wrapper className={className}>
       {trigger === "click" ? (
-        <AntdTooltip
-          zIndex={zindex.tooltip}
-          trigger="click"
-          overlayInnerStyle={getTooltipStyle(width, 8)}
-          color={getCurrentTheme().base}
-          title={<TooltipWrapper>{content}</TooltipWrapper>}
-          open={isClicked}
-          onOpenChange={clickTimer}
-        >
-          <div className="tooltip-button cursor">{children}</div>
-        </AntdTooltip>
+        <>
+          <AntdTooltip
+            zIndex={zindex.tooltip}
+            trigger="click"
+            overlayInnerStyle={getTooltipStyle(width, 8)}
+            color={getCurrentTheme().base}
+            title={<TooltipWrapper>{content}</TooltipWrapper>}
+            open={isClicked}
+            onOpenChange={clickTimer}
+          >
+            <div className="tooltip-button cursor">{children}</div>
+          </AntdTooltip>
+          {/* The popup is not tied to its trigger, so announce the click result (e.g. "Copied!") here. */}
+          <ClickStatus role="status">{isClicked ? content : null}</ClickStatus>
+        </>
       ) : (
         <AntdTooltip
           zIndex={zindex.tooltip}
@@ -116,6 +120,16 @@ const Wrapper = styled.div`
       cursor: pointer;
     }
   }
+`;
+
+// Visually hidden but still read by screen readers
+const ClickStatus = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 `;
 
 const TooltipWrapper = styled.div`

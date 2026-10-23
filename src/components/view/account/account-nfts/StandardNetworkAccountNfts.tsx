@@ -1,12 +1,12 @@
 import React from "react";
 
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetAccountGRC721Collections } from "@/common/react-query/account/api/use-get-account-grc721-collections";
 import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-account-nfts";
 
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
-import Text from "@/components/ui/text";
 import { Pagination } from "@/components/ui/pagination";
 import { CardTitle } from "../account-address/AccountAddress.styles";
 import AccountNftCard from "./AccountNftCard";
@@ -21,12 +21,15 @@ interface AccountNftsProps {
 }
 
 const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
+  const { currentNetwork } = useNetworkProvider();
+  // A network switch keeps the history entry, so the network is part of the name to start each network fresh.
+  const scope = `account:${currentNetwork?.chainId}:${address}`;
   const { data: collectionsData, isFetched: isFetchedCollections } = useGetAccountGRC721Collections(address);
   const [selectedCollection, setSelectedCollection] = useHistoryEntryState<string>(
-    `account:${address}:nft-collection`,
+    `${scope}:nft-collection`,
     ALL_COLLECTIONS,
   );
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useHistoryEntryState(`${scope}:nft-page`, 1);
 
   const collections = React.useMemo(() => collectionsData?.items ?? [], [collectionsData]);
   const totalCount = React.useMemo(
@@ -43,56 +46,62 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
   );
   const selectedCount = activeCollection?.tokenCount ?? totalCount;
   const totalPages = Math.max(1, Math.ceil(selectedCount / NFT_PAGE_SIZE));
+  // A restored page can be past the end once the saved collection is gone or the NFT count dropped.
+  const currentPage = Math.min(page, totalPages);
   const { data: nftData, isFetched: isFetchedNfts } = useGetAccountNfts({
     address,
     collections: activeCollections,
-    page,
+    page: currentPage,
     pageSize: NFT_PAGE_SIZE,
   });
   const nfts = nftData?.items ?? [];
   const artwork = useNftArtwork(nfts);
 
-  // The section only appears for accounts that hold NFTs.
-  if (!isFetchedCollections || collections.length === 0) {
+  if (!isFetchedCollections) {
     return null;
   }
+
+  // Accounts without NFTs keep the card with a zero count, like the other empty sections.
+  const hasCollections = collections.length > 0;
 
   return (
     <S.Card>
       <S.Header>
         <S.TitleWrapper>
-          <CardTitle aria-label="title">NFTs</CardTitle>
+          <CardTitle>NFTs</CardTitle>
           <S.CountPill type="p4" color="primary">
             {totalCount.toLocaleString()}
           </S.CountPill>
         </S.TitleWrapper>
-        <S.Chips role="tablist" aria-label="NFT collections">
-          <CollectionChip
-            label="ALL"
-            count={totalCount}
-            selected={!activeCollection}
-            onClick={() => {
-              setSelectedCollection(ALL_COLLECTIONS);
-              setPage(1);
-            }}
-          />
-          {collections.map(collection => (
+        {hasCollections && (
+          <S.Chips role="group" aria-label="NFT collections">
             <CollectionChip
-              key={collection.tokenId}
-              label={collection.name || collection.symbol}
-              count={collection.tokenCount}
-              selected={collection === activeCollection}
+              label="ALL"
+              count={totalCount}
+              selected={!activeCollection}
               onClick={() => {
-                setSelectedCollection(collection.tokenId);
+                setSelectedCollection(ALL_COLLECTIONS);
                 setPage(1);
               }}
             />
-          ))}
-        </S.Chips>
+            {collections.map(collection => (
+              <CollectionChip
+                key={collection.tokenId}
+                label={collection.name || collection.symbol}
+                count={collection.tokenCount}
+                selected={collection === activeCollection}
+                onClick={() => {
+                  setSelectedCollection(collection.tokenId);
+                  setPage(1);
+                }}
+              />
+            ))}
+          </S.Chips>
+        )}
       </S.Header>
 
-      {!isFetchedNfts ? (
-        <S.Grid aria-label="Loading NFTs">
+      {hasCollections && !isFetchedNfts ? (
+        <S.Grid role="status" aria-label="Loading NFTs">
           {Array.from({ length: NFT_PAGE_SIZE }, (_, index) => (
             <NftCardFrame key={index} size="regular" selected={false}>
               <S.SkeletonImage>
@@ -103,29 +112,29 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
             </NftCardFrame>
           ))}
         </S.Grid>
-      ) : nfts.length > 0 ? (
-        <S.Grid>
-          {nfts.map(nft => {
-            const { src, isLoading } = artwork(nft.packagePath, nft.nftId);
-            return (
-              <AccountNftCard key={`${nft.tokenId}:${nft.nftId}`} nft={nft} imageUrl={src} imageLoading={isLoading} />
-            );
-          })}
-        </S.Grid>
       ) : (
-        <Text type="p4" color="tertiary">
-          No data to display
-        </Text>
+        nfts.length > 0 && (
+          <S.Grid>
+            {nfts.map(nft => {
+              const { src, isLoading } = artwork(nft.packagePath, nft.nftId);
+              return (
+                <AccountNftCard key={`${nft.tokenId}:${nft.nftId}`} nft={nft} imageUrl={src} imageLoading={isLoading} />
+              );
+            })}
+          </S.Grid>
+        )
       )}
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        hasNext={nftData?.page.hasNext}
-        hideFirstPageButtonWhenDisabled
-        hideLastPageButtonWhenCurrent
-        onChangePage={nextPage => setPage(Math.min(Math.max(nextPage, 1), totalPages))}
-      />
+      {hasCollections && (
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          hasNext={nftData?.page.hasNext}
+          hideFirstPageButtonWhenDisabled
+          hideLastPageButtonWhenCurrent
+          onChangePage={nextPage => setPage(Math.min(Math.max(nextPage, 1), totalPages))}
+        />
+      )}
     </S.Card>
   );
 };
@@ -138,7 +147,7 @@ interface CollectionChipProps {
 }
 
 const CollectionChip = ({ label, count, selected, onClick }: CollectionChipProps) => (
-  <S.Chip type="button" role="tab" aria-selected={selected} selected={selected} onClick={onClick}>
+  <S.Chip type="button" aria-pressed={selected} selected={selected} onClick={onClick}>
     <S.ChipLabel data-label={label}>{label}</S.ChipLabel>
     <S.ChipCount>{count.toLocaleString()}</S.ChipCount>
   </S.Chip>

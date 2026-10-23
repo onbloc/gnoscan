@@ -1,4 +1,3 @@
-"use client";
 import React, { useMemo } from "react";
 
 import { ViewMoreButton } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
 import { Transaction } from "@/types/data-type";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 
 interface Props {
   transactions: Transaction[];
@@ -25,6 +25,8 @@ const TOOLTIP_TYPE = (
 
 export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nextPage }: Props) => {
   const { getTokenAmount } = useTokenMeta();
+  // Only the standard network has the API that the run label looks up by hash.
+  const { isCustomNetwork } = useNetworkProvider();
 
   const loaded = useMemo(() => {
     return isFetched;
@@ -58,15 +60,16 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
     return DatatableOption.Builder.builder<Transaction>()
       .key("type")
       .name("Function")
-      .width(190)
+      .width(200)
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
         <DatatableItem.Type
-          type={data.type}
-          func={data.functionName}
+          messageType={data.type}
+          functionName={data.functionName}
           packagePath={data.packagePath}
-          msgNum={data.numOfMessage - 1}
+          messageCount={data.numOfMessage}
+          txHash={isCustomNetwork ? undefined : data.hash}
         />
       ))
       .build();
@@ -105,7 +108,7 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
     return DatatableOption.Builder.builder<Transaction>()
       .key("amount")
       .name("Amount")
-      .width(190)
+      .width(180)
       .renderOption((amount: { value: string; denom: string }, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
@@ -120,7 +123,7 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
     return DatatableOption.Builder.builder<Transaction>()
       .key("time")
       .name("Time")
-      .width(160)
+      .width(130)
       .className("time")
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();

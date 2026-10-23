@@ -135,7 +135,10 @@ export const useGetNftItemTransfers = (
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     repository => repository.getNftItemTransfers(request),
-    { ...options, enabled: !!apiTokenRepository && !!params.tokenKey && !!params.nftId && options?.enabled !== false },
+    {
+      ...options,
+      enabled: !!apiTokenRepository && !!params.tokenKey && !!params.nftId && options?.enabled !== false,
+    },
   );
 };
 

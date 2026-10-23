@@ -3,15 +3,18 @@ import { RealmSharePeriod, RealmShareChart } from "../realm-share-chart";
 import { DAY_TIME } from "@/common/values/constant-value";
 import BigNumber from "bignumber.js";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
-import { useTotalGasInfoApi } from "@/common/hooks/main/use-total-gas-info-api";
 import { dateToStr } from "@/common/utils/date-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { useGetTotalGasShare } from "@/common/react-query/statistics";
-import { DailyPackages, PackageInfo } from "@/repositories/api/statistics/response";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { PackageInfo } from "@/repositories/api/statistics/response";
 
 export const MainRealmTotalGasShareApi = () => {
   const [period, setPeriod] = useState<RealmSharePeriod>(7);
-  const { data, isFetched } = useGetTotalGasShare({ range: period });
+  const query = useGetTotalGasShare({ range: period });
+  const { data } = query;
+  const isFetched = data !== undefined;
+  const failure = useStatisticsFailure(query);
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -73,6 +76,7 @@ export const MainRealmTotalGasShareApi = () => {
       period={period}
       onChangePeriod={setPeriod}
       isFetched={isFetched}
+      failure={failure}
       labels={labels}
       datas={transactionGasData}
     />

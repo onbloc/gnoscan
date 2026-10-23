@@ -40,7 +40,9 @@ const CustomNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bloc
           nextPage={() => {}}
         />
       )}
-      {currentTab === "Events" && <EventDatatable isFetched={isFetched} events={events} />}
+      {currentTab === "Events" && (
+        <EventDatatable scope={`block:${blockHeight}`} isFetched={isFetched} events={events} />
+      )}
     </DataListSection>
   );
 };

@@ -102,8 +102,8 @@ export const SkeletonBox = styled(SkeletonBoxStyle)<{
   height: ${({ height }) => (height ? `${height}px` : "28px")};
 `;
 
-// h6 below desktop, h4 at weight 600 on desktop
-export const CardTitle = styled(Text).attrs({ type: "h6", desktopType: "h4", color: "primary" })`
+// Card heading: h6 below desktop, h4 at weight 600 on desktop
+export const CardTitle = styled(Text).attrs({ forwardedAs: "h2", type: "h6", desktopType: "h4", color: "primary" })`
   ${media.DESKTOP} {
     font-weight: 600;
   }

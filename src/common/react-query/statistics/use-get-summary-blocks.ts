@@ -4,7 +4,8 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetSummaryBlocksResponse } from "@/repositories/api/statistics/response";
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DASHBOARD_DATA_REFETCHING_INTERVAL } from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, CACHE_POLICY, DASHBOARD_DATA_REFETCHING_INTERVAL } from "@/common/values/query.constant";
+import { retryStatisticsQuery } from "./statistics-query-policy";
 
 export const useGetSummaryBlocks = (
   options?: UseQueryOptions<GetSummaryBlocksResponse, Error, GetSummaryBlocksResponse>,
@@ -17,6 +18,8 @@ export const useGetSummaryBlocks = (
     API_REPOSITORY_KEY.STATISTICS_REPOSITORY,
     repository => repository.getSummaryBlocks(),
     {
+      ...CACHE_POLICY.LIVE,
+      retry: retryStatisticsQuery,
       ...options,
       refetchInterval: DASHBOARD_DATA_REFETCHING_INTERVAL,
     },

@@ -2,13 +2,18 @@ import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Spinner } from "@/components/ui/loading";
 import { useGetTotalDailyTransactions } from "@/common/react-query/statistics";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 const BarChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.BarChart), {
   ssr: false,
 });
 
 export const MainTotalTransactionApi = () => {
-  const { data: transactionInfo, isFetched } = useGetTotalDailyTransactions();
+  const query = useGetTotalDailyTransactions();
+  const { data: transactionInfo } = query;
+  const isFetched = transactionInfo !== undefined;
+  const failure = useStatisticsFailure(query);
 
   const labels = useMemo(() => {
     if (!transactionInfo?.items || transactionInfo.items.length === 0) return [];
@@ -39,9 +44,7 @@ export const MainTotalTransactionApi = () => {
     });
   }, [labels, transactionInfo]);
 
-  return (
-    <React.Fragment>
-      {isFetched ? <BarChart labels={labels} datas={chartData} /> : <Spinner position="center" />}
-    </React.Fragment>
-  );
+  if (failure.isError) return <StatisticsErrorNotice query={failure} centered />;
+
+  return isFetched ? <BarChart labels={labels} datas={chartData} /> : <Spinner position="center" />;
 };

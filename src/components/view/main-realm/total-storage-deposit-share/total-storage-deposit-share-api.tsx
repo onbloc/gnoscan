@@ -6,11 +6,15 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { dateToStr } from "@/common/utils/date-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { useGetTotalDailyRealmStorageDeposit } from "@/common/react-query/statistics";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
 import { StorageDepositInfo } from "@/repositories/api/statistics/response";
 
 export const MainTotalStorageDepositShareApi = () => {
   const [period, setPeriod] = useState<RealmSharePeriod>(7);
-  const { data: data, isFetched } = useGetTotalDailyRealmStorageDeposit({ range: period });
+  const query = useGetTotalDailyRealmStorageDeposit({ range: period });
+  const { data } = query;
+  const isFetched = data !== undefined;
+  const failure = useStatisticsFailure(query);
 
   const labels = useMemo(() => {
     const now = new Date();
@@ -75,6 +79,7 @@ export const MainTotalStorageDepositShareApi = () => {
       period={period}
       onChangePeriod={setPeriod}
       isFetched={isFetched}
+      failure={failure}
       labels={labels}
       datas={transactionGasData}
     />

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import styled from "styled-components";
 import Card from "@/components/ui/card";
@@ -15,10 +13,19 @@ import { StackedBarChart2 } from "@/components/ui/chart/stacked-bar-chart/stacke
 import { useGetStoragePrice, useGetTotalDailyStroageDeposit } from "@/common/react-query/statistics";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
+import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 
 const MainTransactionNews = () => {
   const { isCustomNetwork } = useNetworkProvider();
-  const { data } = useGetTotalDailyStroageDeposit();
+  const { apiStatisticsRepository } = useServiceProvider();
+  // Only standard networks serve this statistic. The query hoc lets `enabled` override its own repository guard.
+  const storageDepositQuery = useGetTotalDailyStroageDeposit({
+    enabled: !isCustomNetwork && !!apiStatisticsRepository,
+  });
+  const { data } = storageDepositQuery;
+  const storageDepositFailure = useStatisticsFailure(storageDepositQuery);
 
   const { data: storagePriceData } = useGetStoragePrice();
 
@@ -76,7 +83,11 @@ const MainTransactionNews = () => {
         <Text className="title" type="h6" color="primary">
           {"Total Storage Deposit"}
         </Text>
-        <StackedBarChart2 labels={labels} chartData={chartData} />
+        {storageDepositFailure.isError ? (
+          <StatisticsErrorNotice query={storageDepositFailure} centered />
+        ) : (
+          <StackedBarChart2 labels={labels} chartData={chartData} />
+        )}
       </Card>
 
       <Card height="274px" className="card-2">

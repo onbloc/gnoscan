@@ -5,6 +5,6 @@ export const zindex = {
   searchResult: 4,
   headerDropdown: 5,
   modal: 6,
-  // Covers the header network button so the copy in TopNav slides in with the mobile menu.
+  // Above the header network button, so the open mobile menu covers it.
   mobileMenu: 100,
 };

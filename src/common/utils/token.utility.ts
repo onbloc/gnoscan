@@ -130,6 +130,7 @@ export interface TokenResourceEntry {
   symbol: string;
   decimals: number;
   image?: string;
+  description?: string;
   // Resource `token_path` ({packagePath}.{symbol}); identifies one token inside a multi-token realm.
   tokenPath?: string;
 }

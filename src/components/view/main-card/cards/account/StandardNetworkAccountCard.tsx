@@ -6,9 +6,15 @@ import { makeDisplayNumber } from "@/common/utils/string-util";
 import { useGetSummaryAccounts } from "@/common/react-query/statistics";
 import { SummaryAccountsInfo } from "@/types/data-type";
 import { DEFAULT_SUMMARY_ACCOUNTS_INFO } from "@/common/values/default-object/summary";
+import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
+import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
 
 export const StandardNetworkAccountCard = () => {
-  const { data, isFetched } = useGetSummaryAccounts();
+  const summaryAccountsQuery = useGetSummaryAccounts();
+  const { data } = summaryAccountsQuery;
+  const isFetched = data !== undefined;
+  const failure = useStatisticsFailure(summaryAccountsQuery);
+  const isError = failure.isError;
 
   const accountSummaryInfo: SummaryAccountsInfo = React.useMemo(() => {
     if (!data?.data) return DEFAULT_SUMMARY_ACCOUNTS_INFO;
@@ -26,6 +32,7 @@ export const StandardNetworkAccountCard = () => {
         skeletonheight={28}
         skeletonMargin="10px 0px 24px"
         isFetched={isFetched}
+        isError={isError}
         renderComp={
           <Text type="h3" color="primary" margin="10px 0px 24px">
             {makeDisplayNumber(accountSummaryInfo.totalAccounts || 0)}
@@ -43,6 +50,7 @@ export const StandardNetworkAccountCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isFetched}
+              isError={isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {makeDisplayNumber(accountSummaryInfo.numOfValidators)}
@@ -63,6 +71,7 @@ export const StandardNetworkAccountCard = () => {
             <FetchedComp
               skeletonWidth={60}
               isFetched={isFetched}
+              isError={isError}
               renderComp={
                 <Text type="p4" color="primary">
                   {makeDisplayNumber(accountSummaryInfo.totalUsers)}
@@ -72,6 +81,7 @@ export const StandardNetworkAccountCard = () => {
           </dd>
         </BundleDl>
       </DataBoxContainer>
+      <StatisticsErrorNotice query={failure} />
     </>
   );
 };

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useGetNftItemDetail, useGetNftItemTransfers, useGetNftTokenDetail } from "@/common/react-query/token/api";
 import { acquireBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useSheetDragDismiss } from "@/common/hooks/common/use-sheet-drag-dismiss";
 import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
@@ -49,6 +50,8 @@ interface NftTokenPanelProps {
   onExited?: () => void;
   onSelect: (nftId: string) => void;
   onClose: () => void;
+  // Element to focus when the sheet closes on this NFT, e.g. its inventory card
+  getReturnFocusTarget?: (nftId: string) => HTMLElement | null;
 }
 
 const NftTokenPanel = ({
@@ -64,18 +67,14 @@ const NftTokenPanel = ({
   onExited,
   onSelect,
   onClose,
+  getReturnFocusTarget,
 }: NftTokenPanelProps) => {
   const title = `Token #${nftId}`;
   const staked = !!item && isStakedNft(item);
   const { getUrlWithNetwork } = useNetwork();
   const { data: detail, isLoading, isArtworkLoading } = useGetNftTokenDetail(packagePath, nftId);
   const indexedQuery = useGetNftItemDetail(tokenKey, nftId, { keepPreviousData: false });
-  const transferIdentity = `${tokenKey}:${nftId}`;
-  const [transferPagination, setTransferPagination] = React.useState({ identity: transferIdentity, page: 1 });
-  const transferPage = transferPagination.identity === transferIdentity ? transferPagination.page : 1;
-  if (transferPagination.identity !== transferIdentity) {
-    setTransferPagination({ identity: transferIdentity, page: 1 });
-  }
+  const [transferPage, setTransferPage] = useHistoryEntryState(`nft-token:${tokenKey}:${nftId}:transfer-page`, 1);
   // Keep latest-transfer information independent of the visible history page.
   const firstTransfersQuery = useGetNftItemTransfers(
     { tokenKey, nftId, page: 1, limit: TRANSFERS_PAGE_SIZE },
@@ -92,7 +91,7 @@ const NftTokenPanel = ({
     ),
   );
   const changeTransferPage = (page: number) => {
-    setTransferPagination({ identity: transferIdentity, page: Math.min(Math.max(page, 1), totalTransferPages) });
+    setTransferPage(Math.min(Math.max(page, 1), totalTransferPages));
   };
   const indexedDetail = indexedQuery.data?.data;
   const burned = (indexedDetail?.position ?? item?.position)?.burned === true;
@@ -109,6 +108,7 @@ const NftTokenPanel = ({
   const tokenLink = nftMediaUrl(tokenUrl);
   const panelRef = React.useRef<HTMLElement>(null);
   const onExitedRef = React.useRef(onExited);
+  const returnFocusRef = React.useRef(() => getReturnFocusTarget?.(nftId) ?? null);
   const finishExitRef = React.useRef<(() => void) | null>(null);
   const [visible, setVisible] = React.useState(false);
   const interactive = open && visible;
@@ -117,6 +117,10 @@ const NftTokenPanel = ({
   useIsomorphicLayoutEffect(() => {
     onExitedRef.current = onExited;
   }, [onExited]);
+
+  useIsomorphicLayoutEffect(() => {
+    returnFocusRef.current = () => getReturnFocusTarget?.(nftId) ?? null;
+  }, [getReturnFocusTarget, nftId]);
 
   useIsomorphicLayoutEffect(() => {
     const panel = panelRef.current;
@@ -134,14 +138,19 @@ const NftTokenPanel = ({
     }
   }, [interactive]);
 
-  // Below desktop the panel is a modal bottom sheet; keep the page behind it from scrolling.
+  const [isSheet, setIsSheet] = React.useState(false);
+  // Below desktop the panel is a modal bottom sheet: keep the page behind it from scrolling and move focus into it.
   React.useEffect(() => {
     if (!interactive) return;
+    const panel = panelRef.current;
     const sheet = window.matchMedia(`(max-width: ${DEVICE_SIZE_THRESHOLDS.DESKTOP - 1}px)`);
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     let release: (() => void) | null = null;
     const sync = () => {
+      setIsSheet(sheet.matches);
       if (sheet.matches && !release) {
         release = acquireBodyScrollLock();
+        panel?.focus({ preventScroll: true });
       } else if (!sheet.matches && release) {
         release();
         release = null;
@@ -151,9 +160,44 @@ const NftTokenPanel = ({
     sheet.addEventListener("change", sync);
     return () => {
       sheet.removeEventListener("change", sync);
-      release?.();
+      if (release) {
+        release();
+        // Closing blurs the sheet, so focus goes back to the card of the NFT shown last, else to the opener.
+        const target = returnFocusRef.current() ?? opener;
+        const focused = document.activeElement;
+        if (target?.isConnected && (!focused || focused === document.body || panel?.contains(focused))) {
+          target.focus({ preventScroll: true });
+        }
+      }
     };
   }, [interactive]);
+
+  const onPanelKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === "Escape") {
+      event.stopPropagation();
+      onClose();
+      return;
+    }
+
+    if (event.key !== "Tab" || !isSheet) return;
+
+    // Keep Tab inside the sheet while it covers the page.
+    const focusables = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), input, [tabindex]"),
+    ).filter(element => element.tabIndex >= 0 && element.getClientRects().length > 0);
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (!first || !last) return;
+
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || active === event.currentTarget)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
 
   useIsomorphicLayoutEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -228,8 +272,12 @@ const NftTokenPanel = ({
         ref={panelRef}
         $visible={visible}
         $interactive={interactive}
+        role={isSheet ? "dialog" : undefined}
+        aria-modal={isSheet || undefined}
         aria-label={`${title} details`}
         aria-hidden={!interactive}
+        tabIndex={-1}
+        onKeyDown={onPanelKeyDown}
         onTransitionEnd={onTransitionEnd}
       >
         <S.DragHandle aria-hidden="true" />
@@ -264,7 +312,7 @@ const NftTokenPanel = ({
               trigger="click"
               copyText={typeof window === "undefined" ? "" : window.location.href}
             >
-              <S.IconButton as="span" role="button" aria-label="Copy token URL">
+              <S.IconButton type="button" aria-label="Copy token URL">
                 <IconCopy className="icon-stroke" viewBox="0 0 16 16" width={14} height={14} />
               </S.IconButton>
             </Tooltip>

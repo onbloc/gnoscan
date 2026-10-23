@@ -15,7 +15,6 @@ import AccountAddressSkeleton from "../account-address/AccountAddressSkeleton";
 import AccountVestingAsset from "./AccountVestingAsset";
 import AccountAssetGrid from "./AccountAssetGrid";
 import { isDisplayableAsset } from "./account-assets.utility";
-import Text from "@/components/ui/text";
 import * as S from "./AccountAssets.styles";
 import { CardTitle } from "../account-address/AccountAddress.styles";
 
@@ -61,11 +60,6 @@ const StandardNetworkAccountAssets = ({ address, breakpoint }: AccountAssetsProp
   }
 
   const vesting = data?.data.vesting;
-  // Zero balances are hidden; keep the native card while its balance loads so it can show its skeleton.
-  const showNativeAsset = vesting
-    ? !new BigNumber(vesting.total).isZero()
-    : !isFetchedNativeBalance || !new BigNumber(nativeBalance?.value || 0).isZero();
-  const hasAssets = showNativeAsset || grc20TokenAssets.length > 0;
 
   const renderGrc20Asset = (grc20TokenAsset: AccountAssetViewModel) => (
     <AccountAssetItem
@@ -82,23 +76,12 @@ const StandardNetworkAccountAssets = ({ address, breakpoint }: AccountAssetsProp
 
   return (
     <S.Card>
-      <CardTitle aria-label="title">Assets</CardTitle>
-      {hasAssets ? (
-        <AccountAssetGrid breakpoint={breakpoint}>
-          {showNativeAsset && (
-            <NativeTokenAsset
-              balance={nativeBalance?.value}
-              isFetched={isFetchedNativeBalance}
-              vesting={vesting}
-            />
-          )}
-          {grc20TokenAssets.map(renderGrc20Asset)}
-        </AccountAssetGrid>
-      ) : (
-        <Text type="p4" color="tertiary">
-          No data to display
-        </Text>
-      )}
+      <CardTitle>Assets</CardTitle>
+      {/* The native card stays even at a zero balance, so an account without assets shows GNOT 0. */}
+      <AccountAssetGrid breakpoint={breakpoint}>
+        <NativeTokenAsset balance={nativeBalance?.value} isFetched={isFetchedNativeBalance} vesting={vesting} />
+        {grc20TokenAssets.map(renderGrc20Asset)}
+      </AccountAssetGrid>
     </S.Card>
   );
 };

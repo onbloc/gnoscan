@@ -5,12 +5,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { GetTransactionsRequestParameters } from "@/repositories/api/transaction/request";
 import { GetTransactionsResponse } from "@/repositories/api/transaction/response";
 import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
-import {
-  API_REPOSITORY_KEY,
-  DEFAULT_LIST_ITEMS_SIZE,
-  DEFAULT_LIST_ITEMS_CACHE_TIME,
-  DEFAULT_LIST_ITEMS_STALE_TIME,
-} from "@/common/values/query.constant";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE, CACHE_POLICY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get transactions data from the API
@@ -42,8 +37,7 @@ export const useGetTransactions = (
         cursor,
       }),
     {
-      cacheTime: DEFAULT_LIST_ITEMS_CACHE_TIME,
-      staleTime: DEFAULT_LIST_ITEMS_STALE_TIME,
+      ...CACHE_POLICY.LIVE,
       ...options,
     },
   );

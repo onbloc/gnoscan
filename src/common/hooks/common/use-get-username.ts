@@ -2,6 +2,7 @@ import { useQuery } from "react-query";
 import { useServiceProvider } from "../provider/use-service-provider";
 import { useNetworkProvider } from "../provider/use-network-provider";
 import { useNetwork } from "../use-network";
+import { CACHE_POLICY } from "@/common/values/query.constant";
 
 export const useGetUsername = () => {
   const { currentNetwork } = useNetwork();
@@ -18,7 +19,6 @@ export const useGetUsername = () => {
       return realmRepository.getUsernames();
     },
     enabled: !!realmRepository,
-    cacheTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
+    ...CACHE_POLICY.COLD,
   });
 };

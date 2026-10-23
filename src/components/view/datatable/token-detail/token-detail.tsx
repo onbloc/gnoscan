@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import BigNumber from "bignumber.js";
 import React from "react";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -66,15 +64,15 @@ export const TokenDetailDatatable = ({ path }: Props) => {
     return DatatableOption.Builder.builder<any>()
       .key("type")
       .name("Function")
-      .width(190)
+      .width(200)
       .colorName("blue")
       .tooltip(TOOLTIP_TYPE)
       .renderOption((_, data) => (
         <DatatableItem.Type
-          type={data.type}
-          func={data.functionName}
+          messageType={data.type}
+          functionName={data.functionName}
           packagePath={data.packagePath}
-          msgNum={data.numOfMessage - 1}
+          messageCount={data.numOfMessage}
         />
       ))
       .build();
@@ -104,7 +102,7 @@ export const TokenDetailDatatable = ({ path }: Props) => {
     return DatatableOption.Builder.builder<any>()
       .key("amount")
       .name("Amount")
-      .width(190)
+      .width(180)
       .renderOption((amount: { value: string; denom: string }, data) =>
         data.numOfMessage > 1 ? (
           <DatatableItem.HasLink text="More" path={`/transactions/details?txhash=${data.hash}`} />
@@ -121,7 +119,7 @@ export const TokenDetailDatatable = ({ path }: Props) => {
     return DatatableOption.Builder.builder<any>()
       .key("time")
       .name("Time")
-      .width(160)
+      .width(130)
       .className("time")
       .renderOption(date => <DatatableItem.Date date={date} />)
       .build();

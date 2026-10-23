@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import useSearchQuery from "@/common/hooks/use-search-query";
 import { searchState } from "@/states";
 import mixins from "@/styles/mixins";

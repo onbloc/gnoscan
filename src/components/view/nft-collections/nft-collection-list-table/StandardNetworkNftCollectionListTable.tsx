@@ -38,7 +38,9 @@ export const StandardNetworkNftCollectionListTable = ({
       .key("name")
       .name("Collection Name")
       .width(229)
-      .renderOption((_, data) => <DatatableItem.NftCollectionTitle tokenId={data.tokenId} name={data.name} />)
+      .renderOption((_, data) => (
+        <DatatableItem.NftCollectionTitle tokenId={data.tokenId} name={data.name} packagePath={data.path} />
+      ))
       .build(),
     DatatableOption.Builder.builder().key("symbol").name("Symbol").width(159).build(),
     DatatableOption.Builder.builder().key("holders").name("Holders").sort().width(102).build(),
