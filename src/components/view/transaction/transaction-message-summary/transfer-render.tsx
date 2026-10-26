@@ -6,6 +6,7 @@ import BigNumber from "bignumber.js";
 
 import Text from "@/components/ui/text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
+import { PhishingWarningTooltip } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import GNOTIcon from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
 import UnknownToken from "@/assets/svgs/icon-unknown-token.svg";
 import { AmountText } from "@/components/ui/text/amount-text";
@@ -240,6 +241,7 @@ export const TransferAddress = ({
           </Text>
         </Link>
       )}
+      <PhishingWarningTooltip labelType={labelType} />
       <CopyTooltip variant="plain" iconClassName="copy-icon" copyText={address || label || ""} />
     </AddressChip>
   );

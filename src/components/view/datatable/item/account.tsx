@@ -9,6 +9,7 @@ import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
+import { WithPhishingWarning } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 
 interface Props {
   address: string | undefined;
@@ -39,16 +40,18 @@ export const Account = ({ address, addressName, label, labelType }: Props) => {
   }, [address, resolvedName, label]);
 
   return (
-    <Tooltip content={renderTooltip()}>
-      <TooltipWrapper>
-        <Link
-          className="ellipsis"
-          href={getUrlWithNetwork(getAddressLinkPath({ address, name: resolvedName, label, labelType }))}
-        >
-          {displayName}
-        </Link>
-      </TooltipWrapper>
-    </Tooltip>
+    <WithPhishingWarning labelType={labelType}>
+      <Tooltip content={renderTooltip()}>
+        <TooltipWrapper>
+          <Link
+            className="ellipsis"
+            href={getUrlWithNetwork(getAddressLinkPath({ address, name: resolvedName, label, labelType }))}
+          >
+            {displayName}
+          </Link>
+        </TooltipWrapper>
+      </Tooltip>
+    </WithPhishingWarning>
   );
 };
 

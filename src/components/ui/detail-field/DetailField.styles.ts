@@ -7,4 +7,8 @@ export const AddressTextBox = styled.div`
   .address-tooltip {
     vertical-align: text-bottom;
   }
+
+  .phishing-warning-tooltip {
+    margin-left: 5px;
+  }
 `;

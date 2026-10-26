@@ -5,6 +5,7 @@ export const ADDRESS_LABEL_TYPE = {
   REALM: "realm",
   EXCHANGE: "exchange",
   ENTITY: "entity",
+  SCAM: "scam",
 } as const;
 
 export type ADDRESS_LABEL_TYPE = ValuesType<typeof ADDRESS_LABEL_TYPE>;
@@ -16,6 +17,7 @@ export const ADDRESS_LABEL_TAG = {
   TEAM: "team",
   CEX: "cex",
   DEX: "dex",
+  PHISHING: "phishing",
 } as const;
 
 export type ADDRESS_LABEL_TAG = ValuesType<typeof ADDRESS_LABEL_TAG>;
@@ -26,4 +28,5 @@ export const ADDRESS_LABEL_TAG_TEXT: Readonly<Record<ADDRESS_LABEL_TAG, string>>
   [ADDRESS_LABEL_TAG.TEAM]: "Company/Team",
   [ADDRESS_LABEL_TAG.CEX]: "Exchange (CEX)",
   [ADDRESS_LABEL_TAG.DEX]: "Exchange (DEX)",
+  [ADDRESS_LABEL_TAG.PHISHING]: "Phishing",
 };

@@ -8,6 +8,7 @@ import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip, { EllipsisTooltip } from "@/components/ui/tooltip";
 import PathText from "@/components/ui/path-text/PathText";
+import { PhishingWarningTooltip } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 
@@ -31,6 +32,7 @@ export const AddressCopy = ({ address, label, labelType, truncateFromStart = fal
           {truncateFromStart ? <PathText path={displayLabel} align="right" /> : displayLabel}
         </Link>
       </EllipsisTooltip>
+      <PhishingWarningTooltip labelType={labelType} />
       <Tooltip className="copy-tooltip" content="Copied!" trigger="click" copyText={address} width={85}>
         <IconCopy className="svg-icon" />
       </Tooltip>

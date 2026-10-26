@@ -7,6 +7,10 @@ import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import {
+  PhishingWarningTooltip,
+  WithPhishingWarning,
+} from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import { StorageDeposit } from "@/models/storage-deposit-model";
 import { PaletteKeyType } from "@/styles";
 import { Amount } from "@/types/data-type";
@@ -118,6 +122,7 @@ export const AddressLink: React.FC<AddressLinkProps> = ({
             <FitContentSpan>{displayAccount}</FitContentSpan>
           </Link>
         </Text>
+        <PhishingWarningTooltip labelType={labelType} />
         <CopyTooltip variant="address" copyText={copyText} />
       </S.AddressTextBox>
     </Badge>
@@ -140,13 +145,15 @@ export const AddressDisplayLink: React.FC<AddressDisplayLinkProps> = ({
   labelType,
   getUrlWithNetwork,
 }) => (
-  <FitContentSpan>
-    <Link href={getUrlWithNetwork(getAddressLinkPath({ address, name, label, labelType }))} passHref>
-      <Text type="p4" color="blue" className="ellipsis">
-        {getAddressDisplayText({ address, name, label }) || ""}
-      </Text>
-    </Link>
-  </FitContentSpan>
+  <WithPhishingWarning labelType={labelType}>
+    <FitContentSpan>
+      <Link href={getUrlWithNetwork(getAddressLinkPath({ address, name, label, labelType }))} passHref>
+        <Text type="p4" color="blue" className="ellipsis">
+          {getAddressDisplayText({ address, name, label }) || ""}
+        </Text>
+      </Link>
+    </FitContentSpan>
+  </WithPhishingWarning>
 );
 
 export const AmountBadge = ({ amount }: { amount: Amount | null }) => {

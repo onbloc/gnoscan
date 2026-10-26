@@ -1,4 +1,4 @@
-import { getAddressDisplayText, getAddressLinkPath, getAddressNameTag } from "./address-label.utility";
+import { getAddressDisplayText, getAddressLinkPath, getAddressNameTag, isScamLabel } from "./address-label.utility";
 import { ADDRESS_LABEL_TAG, ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 describe("getAddressDisplayText", () => {
@@ -70,6 +70,7 @@ describe("getAddressNameTag", () => {
     [ADDRESS_LABEL_TAG.TEAM, "Company/Team"],
     [ADDRESS_LABEL_TAG.CEX, "Exchange (CEX)"],
     [ADDRESS_LABEL_TAG.DEX, "Exchange (DEX)"],
+    [ADDRESS_LABEL_TAG.PHISHING, "Phishing"],
   ])("maps labelTag %s to %s", (labelTag, text) => {
     expect(getAddressNameTag({ labelTag })).toBe(text);
   });
@@ -87,5 +88,18 @@ describe("getAddressNameTag", () => {
   it("ignores unknown tag codes, including inherited object keys", () => {
     expect(getAddressNameTag({ labelTag: "unknown" as ADDRESS_LABEL_TAG, nameTag: "alice" })).toBe("alice");
     expect(getAddressNameTag({ labelTag: "constructor" as ADDRESS_LABEL_TAG })).toBeNull();
+  });
+});
+
+describe("isScamLabel", () => {
+  it("flags a scam label type or a phishing label tag", () => {
+    expect(isScamLabel({ labelType: ADDRESS_LABEL_TYPE.SCAM })).toBe(true);
+    expect(isScamLabel({ labelTag: ADDRESS_LABEL_TAG.PHISHING })).toBe(true);
+  });
+
+  it("ignores other label types, other tags, and missing values", () => {
+    expect(isScamLabel({ labelType: ADDRESS_LABEL_TYPE.EXCHANGE, labelTag: ADDRESS_LABEL_TAG.CEX })).toBe(false);
+    expect(isScamLabel({ labelType: null, labelTag: null })).toBe(false);
+    expect(isScamLabel({})).toBe(false);
   });
 });

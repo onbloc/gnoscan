@@ -14,6 +14,7 @@ import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
 import { colWidth, FitContentA, List, listTitle, StyledCard, StyledText } from "../main-active-list";
 import Tooltip from "@/components/ui/tooltip";
+import { WithPhishingWarning } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import FetchedSkeleton from "../fetched-skeleton";
 import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
 import { StatisticsErrorNotice } from "@/components/view/statistics/statistics-error-notice";
@@ -98,23 +99,25 @@ const StandardNetworkActiveNewest = () => {
                 </Link>
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">
-                <FitContentA>
-                  <Link
-                    href={getUrlWithNetwork(
-                      getAddressLinkPath({
-                        address: realm.creator,
-                        name: realm.creatorName,
-                        label: realm.creatorLabel,
-                        labelType: realm.creatorLabelType,
-                      }),
-                    )}
-                    passHref
-                  >
-                    <Tooltip content={realm.creator}>
-                      {getDisplayName(realm.creator, realm?.creatorName || "", realm.creatorLabel)}
-                    </Tooltip>
-                  </Link>
-                </FitContentA>
+                <WithPhishingWarning labelType={realm.creatorLabelType}>
+                  <FitContentA>
+                    <Link
+                      href={getUrlWithNetwork(
+                        getAddressLinkPath({
+                          address: realm.creator,
+                          name: realm.creatorName,
+                          label: realm.creatorLabel,
+                          labelType: realm.creatorLabelType,
+                        }),
+                      )}
+                      passHref
+                    >
+                      <Tooltip content={realm.creator}>
+                        {getDisplayName(realm.creator, realm?.creatorName || "", realm.creatorLabel)}
+                      </Tooltip>
+                    </Link>
+                  </FitContentA>
+                </WithPhishingWarning>
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[3]} color="reverse">
                 {realm.functionCount || 0}

@@ -10,6 +10,7 @@ import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip from "@/components/ui/tooltip";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
+import { PhishingWarningTooltip } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import * as S from "./NftTokenPanel.styles";
 
 interface NftTransferPartyProps {
@@ -40,6 +41,7 @@ const NftTransferParty = ({ address, label, labelType }: NftTransferPartyProps) 
           )}
         </Link>
       </Tooltip>
+      <PhishingWarningTooltip labelType={resolvedLabelType} />
       <CopyTooltip copyText={address} variant="plain" iconClassName="copy-icon" />
     </S.TransferParty>
   );

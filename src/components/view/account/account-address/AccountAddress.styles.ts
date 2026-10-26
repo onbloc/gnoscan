@@ -50,6 +50,16 @@ export const AccountWrapper = styled.div`
     margin-left: 5px;
     stroke: ${({ theme }) => theme.colors.primary};
   }
+
+  /* Filled warning icon: undo the outline stroke and indent applied to copy/link icons above */
+  .phishing-warning-tooltip {
+    margin-left: 5px;
+
+    svg {
+      margin-left: 0;
+      stroke: none;
+    }
+  }
 `;
 
 const flexStyle = css`
@@ -84,6 +94,7 @@ export const Content = styled(Text)`
 
 export const CopyTooltip = styled(SharedCopyTooltip)`
   display: inline-flex;
+  vertical-align: middle;
   height: 20px;
   justify-content: center;
   align-items: center;

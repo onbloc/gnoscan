@@ -7,6 +7,7 @@ import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
+import { PhishingWarningTooltip } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import { useNetwork } from "@/common/hooks/use-network";
 
 interface Props {
@@ -27,6 +28,7 @@ export const CallerCopy = ({ caller, username, label, labelType }: Props) => {
         {textEllipsis(username ?? "", 6) || (label ? stripGnoLandPrefix(label) : textEllipsis(caller ?? "", 6))}
         <CopyTooltip variant="path" copyText={caller} />
       </Link>
+      <PhishingWarningTooltip labelType={labelType} />
     </CallerWrapper>
   );
 };
