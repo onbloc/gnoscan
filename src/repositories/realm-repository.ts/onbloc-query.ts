@@ -172,60 +172,6 @@ export const makeRealmTransactionsQuery = (packagePath: string) => gql`
   }
 `;
 
-export const makeRealmTransactionsByEventQuery = (packagePath: string, cursor: string | null) => gql`
-  {
-    transactions(
-      filter: {
-        events: [
-          {
-            pkg_path: "${packagePath}"
-          }
-        ]
-      }, 
-      after: ${cursor ? `"${cursor}"` : "null"},
-      size: 20
-      ascending: false
-  ) {
-      pageInfo {
-        hasNext
-        last
-      }
-      edges {
-        transaction {
-          hash
-          index
-          success
-          block_height
-          gas_wanted
-          gas_used
-          gas_fee {
-            amount
-            denom
-          }
-          messages {
-            value {
-              ... on MsgAddPackage {
-                creator
-                deposit
-                package {
-                  name
-                  path
-                }
-              }
-              ... on MsgCall {
-                caller
-                send
-                pkg_path
-                func
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 export const makeRealmTransactionsWithArgsQuery = (packagePath: string) => gql`
 {
   transactions(filter: {
