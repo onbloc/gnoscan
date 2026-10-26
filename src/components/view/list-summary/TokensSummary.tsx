@@ -9,7 +9,7 @@ import { useGetSummaryTokens } from "@/common/react-query/statistics";
 import { useMappedApiTokens } from "@/common/services/token/use-mapped-api-tokens";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
-import { summarizeTokenActivity24h, toTokenKey } from "@/common/utils/sort/token-list-sort";
+import { toTokenKey } from "@/common/utils/sort/token-list-sort";
 import Text from "@/components/ui/text";
 import {
   SummaryBars,
@@ -34,15 +34,16 @@ export const TokensSummary = () => {
   const summary = summaryQuery.data?.data;
   const recent = useMappedApiTokens(RECENT_TOKENS_PARAMS, { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
 
-  // Items and 24h counts come from the token list, so the cards match the table below. The summary API adds the
-  // changes, daily bars and holder totals.
+  // 24h transfer counts come from the summary API, on the same basis as its changes and daily bars. The token list
+  // supplies names and logos for those rows and the most held token.
   const allTokens = useMappedApiTokens(ALL_TOKENS_PARAMS, { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
   useFetchRemainingPages(allTokens, true);
   // A failed page stops the paging, so settle on the loaded pages instead of loading forever.
   const isListFetched = allTokens.isFetched && (!allTokens.hasNextPage || allTokens.isError);
-  // react-query marks a failed first page as fetched, so a failure with no rows shows "-" instead of 0.
-  const listFailed = allTokens.isError && allTokens.data.length === 0;
-  const activity = React.useMemo(() => summarizeTokenActivity24h(allTokens.data), [allTokens.data]);
+  const tokensById = React.useMemo(
+    () => new Map(allTokens.data.map(token => [token.tokenId, token])),
+    [allTokens.data],
+  );
   const tokenUrl = (token: { packagePath: string; symbol: string }) =>
     getUrlWithNetwork(`/tokens/${toTokenKey(token)}`);
 
@@ -59,21 +60,27 @@ export const TokensSummary = () => {
       value: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
     }));
 
-  const deltaByToken = new Map(summary?.mostActive.map(item => [item.tokenId, item.deltaPct]));
-  const mostActive = activity.top.map(token => ({
-    key: token.tokenId || token.packagePath,
-    href: tokenUrl(token),
-    title: token.name,
-    subtitle: token.symbol,
-    media: <TokenLogo src={token.logoUrl} />,
-    value: makeDisplayNumber(token.transactionCount24h ?? 0),
-    badge: toPctBadge(deltaByToken.get(token.tokenId)),
-  }));
+  // Rows the list cannot name yet are skipped, so a token missing from the list never shows as a bare id.
+  const mostActive = (summary?.mostActive ?? []).flatMap(item => {
+    const token = tokensById.get(item.tokenId);
+    return token
+      ? [
+          {
+            key: item.tokenId,
+            href: tokenUrl(token),
+            title: token.name,
+            subtitle: token.symbol,
+            media: <TokenLogo src={token.logoUrl} />,
+            value: makeDisplayNumber(item.transfers24h),
+            badge: toPctBadge(item.deltaPct),
+          },
+        ]
+      : [];
+  });
 
-  const activeTokens = allTokens.data.filter(token => (token.transactionCount24h ?? 0) > 0).length;
   const transferDetails = [
     "Daily · last 7 days",
-    isListFetched && `${makeDisplayNumber(activeTokens)} tokens`,
+    summary && `${makeDisplayNumber(summary.mostActive.length)} tokens`,
     summary && `${makeDisplayNumber(summary.transfers.uniqueSenders24h)} senders`,
   ];
 
@@ -99,17 +106,17 @@ export const TokensSummary = () => {
       </SummaryCard>
       <SummaryCard title="Most Active · 24h" footer="Transfers · vs previous 24h">
         <SummaryRows
-          rows={mostActive}
-          isFetched={isListFetched}
-          isError={allTokens.isError}
+          rows={mostActive.slice(0, 3)}
+          isFetched={summaryQuery.isFetched && isListFetched}
+          isError={summaryQuery.isError || allTokens.isError}
           emptyText="No token activity in the last 24h"
           ranked
         />
       </SummaryCard>
       <SummaryCard title="Transfers · 24h" footer={transferDetails.filter(Boolean).join(" · ")}>
         <SummaryBigNumber
-          value={isListFetched && !listFailed ? activity.total : undefined}
-          isFetched={isListFetched}
+          value={summary?.transfers.transfers24h}
+          isFetched={summaryQuery.isFetched}
           badge={toPctBadge(summary?.transfers.deltaPct, " vs yesterday")}
         />
         <SummaryBars

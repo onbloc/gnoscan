@@ -10,6 +10,8 @@ export interface DailyCountModel {
 
 export interface TokenActivityDeltaModel {
   tokenId: string;
+  /** Transfer events in the last 24h, mints and burns included. */
+  transfers24h: number;
   deltaPct: number | null;
 }
 
@@ -17,9 +19,11 @@ export interface GetSummaryTokensResponse {
   data: {
     /** Tokens registered in the last 7 days. */
     weeklyNewCount: number;
-    /** 24h change of each token's transfers, for the Most Active rows. */
+    /** Every token with transfers in the last 24h, most transfers first, for the Most Active rows. */
     mostActive: TokenActivityDeltaModel[];
     transfers: {
+      /** Transfer events in the last 24h across all tokens, mints and burns included. */
+      transfers24h: number;
       deltaPct: number | null;
       daily: DailyCountModel[];
       uniqueSenders24h: number;
