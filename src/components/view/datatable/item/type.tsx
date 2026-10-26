@@ -7,6 +7,7 @@ import Text from "@/components/ui/text";
 import { formatDisplayPackagePath } from "@/common/utils/string-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import {
+  buildTokenResourceDapps,
   DappLabel,
   FunctionRealmLabel,
   getFunctionRealmLabel,
@@ -17,6 +18,7 @@ import { useGetTransactionContractsByHeight } from "@/common/react-query/transac
 import { useFetchRemainingPages } from "@/common/hooks/common/use-fetch-remaining-pages";
 import { useNetwork } from "@/common/hooks/use-network";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
+import { useGetNftCollectionMetaQuery, useGetTokenMetaQuery } from "@/common/react-query/meta";
 interface Props {
   /** Message type from the API ("/vm.m_call") or a custom network mapper ("MsgCall"). */
   messageType: string;
@@ -39,7 +41,8 @@ export const Type = ({ messageType, functionName, packagePath, messageCount = 0,
     );
   };
 
-  const realmLabel = getFunctionRealmLabel(messageType, packagePath ?? "");
+  const tokenResourceDapps = useTokenResourceDapps();
+  const realmLabel = getFunctionRealmLabel(messageType, packagePath ?? "", tokenResourceDapps);
 
   return functionName ? (
     <Wrapper>
@@ -61,6 +64,16 @@ export const Type = ({ messageType, functionName, packagePath, messageCount = 0,
     </Wrapper>
   ) : (
     <span>-</span>
+  );
+};
+
+// GRC20 entries come before GRC721 ones, so a namespace with both is named after its token.
+const useTokenResourceDapps = () => {
+  const { data: tokenMetas } = useGetTokenMetaQuery();
+  const { data: collectionMetas } = useGetNftCollectionMetaQuery();
+  return React.useMemo(
+    () => buildTokenResourceDapps([...(tokenMetas ?? []), ...(collectionMetas ?? [])]),
+    [tokenMetas, collectionMetas],
   );
 };
 
@@ -133,14 +146,20 @@ const DappLogo = ({ dapp }: { dapp: DappLabel }) => {
   const [logoFailed, setLogoFailed] = React.useState(false);
   if (logoFailed) return null;
 
+  const logo = (
+    <img
+      className="dapp-logo"
+      src={`${GNO_TOKEN_RESOURCE_BASE_URI}${dapp.logo}`}
+      alt={dapp.name}
+      title={dapp.url ? undefined : dapp.name}
+      onError={() => setLogoFailed(true)}
+    />
+  );
+  if (!dapp.url) return logo;
+
   return (
     <a className="dapp-link" href={dapp.url} target="_blank" rel="noreferrer" title={dapp.name}>
-      <img
-        className="dapp-logo"
-        src={`${GNO_TOKEN_RESOURCE_BASE_URI}${dapp.logo}`}
-        alt={dapp.name}
-        onError={() => setLogoFailed(true)}
-      />
+      {logo}
     </a>
   );
 };

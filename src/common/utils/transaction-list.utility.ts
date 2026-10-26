@@ -58,8 +58,40 @@ export interface DappLabel {
   name: string;
   /** Image path in gno-token-resource, e.g. "/grc20/images/gno_land_r_gnoswap_gns.svg". */
   logo: string;
-  /** The dApp's website, opened from the logo. */
-  url: string;
+  /** The dApp's website, opened from the logo. The logo is not a link without it. */
+  url?: string;
+}
+
+// Namespaces shared by unrelated realms. A token there does not stand for a dApp, so these realms are labeled in
+// dapps.json.
+const SHARED_NAMESPACES: Readonly<Record<string, true>> = {
+  "r/demo": true,
+  "r/gnoland": true,
+  "r/sys": true,
+};
+
+/**
+ * Builds dApp labels from the gno-token-resource lists. A namespace with several entries takes the shortest path, then
+ * the first one listed, so "r/gnoswap/gns" stands for GnoSwap over "r/gnoswap/test_token/foo".
+ *
+ * @param entries - GRC20 and GRC721 entries of gno-token-resource, in list order
+ * @returns dApp labels by namespace, leaving out shared namespaces and entries without an image
+ */
+export function buildTokenResourceDapps(
+  entries: readonly { pkg_path?: string; name: string; image: string; website_url: string }[],
+): Record<string, DappLabel> {
+  const dapps: Record<string, DappLabel> = {};
+  const depths: Record<string, number> = {};
+  for (const entry of entries) {
+    if (!entry.pkg_path || !entry.image) continue;
+    const segments = stripGnoLandPrefix(entry.pkg_path).split("/");
+    const namespace = segments.slice(0, 2).join("/");
+    if (SHARED_NAMESPACES[namespace] || depths[namespace] <= segments.length) continue;
+
+    depths[namespace] = segments.length;
+    dapps[namespace] = { name: entry.name, logo: entry.image, url: entry.website_url || undefined };
+  }
+  return dapps;
 }
 
 /**
@@ -92,14 +124,23 @@ export type FunctionRealmLabel =
 /**
  * Builds the line under the Function chip that tells which realm or kind of message the function belongs to.
  *
+ * A dApp comes from gno-token-resource first, then from dapps.json, and is left out when neither has it.
+ *
  * @param messageType - Message type from the API ("/vm.m_call") or a custom network mapper ("MsgCall")
  * @param packagePath - Package path of the message shown in the chip, empty when it has none
+ * @param tokenResourceDapps - dApp labels built by {@link buildTokenResourceDapps}, empty until the lists load
  * @returns The label, or undefined when the message has no realm or kind to show
  */
-export function getFunctionRealmLabel(messageType: string, packagePath: string): FunctionRealmLabel | undefined {
+export function getFunctionRealmLabel(
+  messageType: string,
+  packagePath: string,
+  tokenResourceDapps: Readonly<Record<string, DappLabel>> = {},
+): FunctionRealmLabel | undefined {
   switch (getMessageKind(messageType)) {
     case "call":
-      return packagePath ? { kind: "call", packagePath, dapp: findDapp(packagePath) } : undefined;
+      return packagePath
+        ? { kind: "call", packagePath, dapp: findDapp(packagePath, tokenResourceDapps) ?? findDapp(packagePath) }
+        : undefined;
     case "deploy":
       return packagePath ? { kind: "deploy", packagePath } : undefined;
     case "run":

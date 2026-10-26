@@ -1,4 +1,16 @@
-import { findDapp, getFunctionRealmLabel, getRunCalledRealms } from "./transaction-list.utility";
+import {
+  buildTokenResourceDapps,
+  findDapp,
+  getFunctionRealmLabel,
+  getRunCalledRealms,
+} from "./transaction-list.utility";
+
+const entry = (pkgPath: string | undefined, name: string, websiteUrl = "https://example.com") => ({
+  pkg_path: pkgPath,
+  name,
+  image: `/grc20/images/${name}.svg`,
+  website_url: websiteUrl,
+});
 
 describe("getFunctionRealmLabel", () => {
   test("a call shows its package path, from both API and custom network type names", () => {
@@ -17,12 +29,31 @@ describe("getFunctionRealmLabel", () => {
     });
   });
 
-  test("a call to a registered dApp carries its logo", () => {
-    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoswap/gov/governance")).toMatchObject({
+  test("a dApp comes from gno-token-resource first, then dapps.json, and is left out when neither has it", () => {
+    const dapps = buildTokenResourceDapps([entry("gno.land/r/gnoswap/gns", "GnoSwap")]);
+
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoswap/gov/governance", dapps)).toMatchObject({
       packagePath: "gno.land/r/gnoswap/gov/governance",
       dapp: { name: "GnoSwap" },
     });
-    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoland/wugnot")).toMatchObject({ dapp: { name: "wGNOT" } });
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoland/wugnot", dapps)).toMatchObject({
+      dapp: { name: "wGNOT" },
+    });
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/akkadia/beta/craft", dapps)).toMatchObject({
+      dapp: undefined,
+    });
+  });
+
+  test("gno-token-resource wins over dapps.json for the same realm", () => {
+    const dapps = { "r/demo/wugnot": { name: "From token resource", logo: "a.svg" } };
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/demo/wugnot", dapps)).toMatchObject({
+      dapp: { name: "From token resource" },
+    });
+  });
+
+  test("only dapps.json applies before the gno-token-resource lists load", () => {
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/demo/wugnot")).toMatchObject({ dapp: { name: "wGNOT" } });
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoswap/v1/router")).toMatchObject({ dapp: undefined });
   });
 
   test("messages without a realm show their kind", () => {
@@ -50,6 +81,54 @@ describe("findDapp", () => {
   test("a full realm path key covers only that realm", () => {
     expect(findDapp("gno.land/r/gnoland/wugnot", registry)).toBe(wugnot);
     expect(findDapp("gno.land/r/gnoland/users", registry)).toBeUndefined();
+  });
+});
+
+describe("buildTokenResourceDapps", () => {
+  test("keys an entry by its namespace with its name, image and website", () => {
+    const dapps = buildTokenResourceDapps([entry("gno.land/r/gnoswap/gns", "GnoSwap", "https://gnoswap.io")]);
+
+    expect(dapps).toEqual({
+      "r/gnoswap": { name: "GnoSwap", logo: "/grc20/images/GnoSwap.svg", url: "https://gnoswap.io" },
+    });
+    expect(findDapp("gno.land/r/gnoswap/v1/router", dapps)?.name).toBe("GnoSwap");
+  });
+
+  test("a namespace takes its shortest path, then the first one listed", () => {
+    // Listed as on staging, where test tokens come before GNS.
+    const staging = buildTokenResourceDapps([
+      entry("gno.land/r/gnoswap/test_token/foo", "Foo"),
+      entry("gno.land/r/gnoswap/gns", "GnoSwap"),
+    ]);
+    // A GRC721 collection listed after the token at the same depth.
+    const mainnet = buildTokenResourceDapps([
+      entry("gno.land/r/gnoswap/gns", "GnoSwap"),
+      entry("gno.land/r/gnoswap/gnft", "GNOSWAP NFT"),
+    ]);
+
+    expect(staging["r/gnoswap"].name).toBe("GnoSwap");
+    expect(mainnet["r/gnoswap"].name).toBe("GnoSwap");
+  });
+
+  test("an address namespace is a dApp namespace", () => {
+    const dapps = buildTokenResourceDapps([entry("gno.land/r/g1leu8/wbubble", "BUBBLE (wrapped)")]);
+    expect(Object.keys(dapps)).toEqual(["r/g1leu8"]);
+  });
+
+  test("skips shared namespaces and entries without a path or image", () => {
+    const dapps = buildTokenResourceDapps([
+      entry("gno.land/r/gnoland/wugnot", "wGNOT"),
+      entry("gno.land/r/demo/defi/grc20factory", "Perun"),
+      entry("gno.land/r/sys/names", "Names"),
+      entry(undefined, "GNOT"),
+      { ...entry("gno.land/r/noimage/token", "No image"), image: "" },
+    ]);
+    expect(dapps).toEqual({});
+  });
+
+  test("an entry without a website has no url", () => {
+    const dapps = buildTokenResourceDapps([entry("gno.land/r/nosite/token", "No site", "")]);
+    expect(dapps["r/nosite"].url).toBeUndefined();
   });
 });
 

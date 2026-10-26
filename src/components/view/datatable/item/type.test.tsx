@@ -10,7 +10,7 @@ import { Type } from "./type";
 
 const mockRepository = { getTransactionContracts: jest.fn() };
 jest.mock("@/common/hooks/provider/use-service-provider", () => ({
-  useServiceProvider: () => ({ apiTransactionRepository: mockRepository }),
+  useServiceProvider: () => ({ apiTransactionRepository: mockRepository, blockRepository: {} }),
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: { chainId: "test-chain" } }),
@@ -30,6 +30,15 @@ jest.mock(
 );
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+
+// gno-token-resource lists by type, served for the "test-chain" network.
+const tokenResourceLists: Record<string, unknown[]> = {};
+Object.assign(globalThis, {
+  fetch: async (url: string) => {
+    const type = url.split("/").slice(-2)[0];
+    return { ok: true, json: async () => tokenResourceLists[type] ?? [] };
+  },
+});
 
 const run = (packagePath: string) => ({
   messageType: "/vm.m_run",
@@ -64,6 +73,33 @@ describe("Type", () => {
 
     act(() => root.unmount());
     client.clear();
+  });
+
+  test("a dApp from gno-token-resource without a website shows its logo without a link", async () => {
+    tokenResourceLists.grc20 = [
+      { pkg_path: "gno.land/r/nosite/token", name: "No site", image: "/a.svg", website_url: "" },
+    ];
+
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    act(() =>
+      root.render(
+        <QueryClientProvider client={client}>
+          <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+            <Type messageType="/vm.m_call" functionName="Swap" packagePath="gno.land/r/nosite/router" />
+          </ThemeProvider>
+        </QueryClientProvider>,
+      ),
+    );
+    await act(() => delay(10));
+
+    expect(container.querySelector("img.dapp-logo")?.getAttribute("alt")).toBe("No site");
+    expect(container.querySelector("a.dapp-link")).toBeNull();
+
+    act(() => root.unmount());
+    client.clear();
+    delete tokenResourceLists.grc20;
   });
 
   test("a run label fetches nothing until its row is on screen", async () => {
