@@ -6,8 +6,6 @@ import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { gql } from "@apollo/client";
 
 export class BlockRepository implements IBlockRepository {
-  private blockTimeMap: { [key in number]: string } = {};
-
   constructor(private nodeRPCClient: NodeRPCClient | null, private indexerClient: IndexerClient | null) {}
 
   async getLatestBlockHeight(): Promise<number | null> {
@@ -57,9 +55,6 @@ export class BlockRepository implements IBlockRepository {
       const time = this.getBlock(height)
         .then(block => block?.block_meta?.header?.time || null)
         .catch(() => null);
-      if (!time) {
-        this.blockTimeMap[height] = time;
-      }
       return time;
     }
 
@@ -77,9 +72,6 @@ export class BlockRepository implements IBlockRepository {
       )
       .then(result => result?.data?.blocks?.[0]?.time || null)
       .catch(() => null);
-    if (!time) {
-      this.blockTimeMap[height] = time;
-    }
     return time;
   }
 }
