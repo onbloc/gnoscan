@@ -94,7 +94,7 @@ export type BarColor = "blue" | "orange";
 
 export interface BarSeries {
   color: BarColor;
-  // Shown in the hover tooltip when bars are stacked, e.g. "transfers".
+  // Singular noun shown in the hover tooltip when bars are stacked, e.g. "transfer".
   name?: string;
   values: number[];
 }
@@ -102,7 +102,9 @@ export interface BarSeries {
 const barTooltipValue = (series: BarSeries[], day: number) =>
   series.length === 1
     ? makeDisplayNumber(series[0].values[day] ?? 0)
-    : series.map(({ name, values }) => `${makeDisplayNumber(values[day] ?? 0)} ${name ?? ""}`.trim()).join(" · ");
+    : series
+        .map(({ name, values }) => (name ? countLabel(values[day] ?? 0, name) : makeDisplayNumber(values[day] ?? 0)))
+        .join(" · ");
 
 // Read the theme only while a tooltip is shown, so the bars render without a Recoil root.
 const SummaryBarTooltip = ({ title, value }: { title: string; value: string }) => {

@@ -24,6 +24,11 @@ import {
 } from "./ListSummary";
 import * as S from "./ListSummary.styles";
 
+const formatAvgNfts = (average: number) => {
+  const value = average.toFixed(1);
+  return `${value} ${value === "1.0" ? "NFT" : "NFTs"}`;
+};
+
 export const NftsSummary = () => {
   const { getUrlWithNetwork } = useNetwork();
   const query = useGetSummaryNftCollections();
@@ -116,8 +121,8 @@ export const NftsSummary = () => {
           label="Daily NFT transfers and mints, last 7 days"
           dates={activity?.daily.map(day => day.date) ?? []}
           series={[
-            { color: "blue", name: "transfers", values: activity?.daily.map(day => day.transfers) ?? [] },
-            { color: "orange", name: "mints", values: activity?.daily.map(day => day.mints) ?? [] },
+            { color: "blue", name: "transfer", values: activity?.daily.map(day => day.transfers) ?? [] },
+            { color: "orange", name: "mint", values: activity?.daily.map(day => day.mints) ?? [] },
           ]}
         />
       </SummaryCard>
@@ -139,7 +144,7 @@ export const NftsSummary = () => {
             },
             {
               label: "Avg per wallet",
-              value: <Text type="p4">{summary ? `${summary.collectors.avgPerWallet.toFixed(1)} NFTs` : "-"}</Text>,
+              value: <Text type="p4">{summary ? formatAvgNfts(summary.collectors.avgPerWallet) : "-"}</Text>,
             },
             {
               label: "Held by realms",

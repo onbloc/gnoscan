@@ -144,11 +144,12 @@ it("labels each bar with its date and value, naming stacked series", () => {
         label="Daily NFT activity"
         dates={["2026-10-21", "2026-10-22"]}
         series={[
-          { color: "blue", name: "transfers", values: [50, 1263] },
-          { color: "orange", name: "mints", values: [15, 48] },
+          { color: "blue", name: "transfer", values: [1, 1263] },
+          { color: "orange", name: "mint", values: [1, 48] },
         ]}
       />
     </ThemeProvider>,
   );
   expect(markup).toContain("2026-10-22 1,263 transfers · 48 mints");
+  expect(markup).toContain("2026-10-21 1 transfer · 1 mint");
 });
