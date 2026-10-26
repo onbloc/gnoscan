@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PageInfo } from "@/common/clients/indexer-client/types";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import {
@@ -373,108 +372,6 @@ export const useGetRealmTransactionsWithArgsQuery = (
     },
     retry: 1,
     select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
-    enabled: !!realmRepository && !!realmPath,
-    ...options,
-  });
-};
-
-export const useGetRealmTransactionsByEventQuery = (
-  realmPath: string | null,
-  options?: UseQueryOptions<Transaction[], Error>,
-) => {
-  const { currentNetwork } = useNetworkProvider();
-  const { realmRepository } = useServiceProvider();
-
-  return useQuery<Transaction[], Error>({
-    queryKey: [
-      QUERY_KEY.getRealmTransactionsByEvent,
-      currentNetwork?.rpcUrl || "",
-      currentNetwork?.indexerUrl || "",
-      realmPath,
-    ],
-    queryFn: async () => {
-      if (!realmRepository || !realmPath) {
-        return [];
-      }
-      const result = await realmRepository.getRealmTransactionsByEvent(realmPath);
-      if (!result) {
-        return [];
-      }
-
-      return result.transactions.map((tx: any) => mapTransactionByRealm(tx));
-    },
-    retry: 1,
-    select: data => data.sort((item1, item2) => item2.blockHeight - item1.blockHeight),
-    enabled: !!realmRepository && !!realmPath,
-    ...options,
-  });
-};
-
-export const useGetRealmTransactionsByEventInfinityQuery = (
-  realmPath: string | null,
-  options?: UseInfiniteQueryOptions<
-    {
-      pageInfo: PageInfo;
-      transactions: Transaction[];
-    },
-    Error
-  >,
-) => {
-  const { currentNetwork } = useNetworkProvider();
-  const { realmRepository } = useServiceProvider();
-
-  return useInfiniteQuery<
-    {
-      pageInfo: PageInfo;
-      transactions: Transaction[];
-    },
-    Error
-  >({
-    queryKey: [
-      QUERY_KEY.getRealmTransactionsByEvent,
-      currentNetwork?.rpcUrl || "",
-      currentNetwork?.indexerUrl || "",
-      realmPath,
-    ],
-    getNextPageParam: lastPage => {
-      if (!lastPage?.pageInfo?.hasNext) {
-        return false;
-      }
-
-      return lastPage.pageInfo;
-    },
-    queryFn: async context => {
-      if (!realmRepository || !realmPath) {
-        return {
-          pageInfo: {
-            hasNext: false,
-            last: null,
-          },
-          transactions: [],
-        };
-      }
-
-      const cursor = context?.pageParam?.last || null;
-      const result = await realmRepository.getRealmTransactionsByEvent(realmPath, cursor);
-      if (!result) {
-        return {
-          pageInfo: {
-            hasNext: false,
-            last: null,
-          },
-          transactions: [],
-        };
-      }
-
-      return {
-        pageInfo: {
-          hasNext: result?.pageInfo?.hasNext || false,
-          last: result?.pageInfo?.last || null,
-        },
-        transactions: result.transactions.map((tx: any) => mapTransactionByRealm(tx)),
-      };
-    },
-    retry: 1,
     enabled: !!realmRepository && !!realmPath,
     ...options,
   });

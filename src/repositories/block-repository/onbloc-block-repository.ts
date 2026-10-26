@@ -6,8 +6,6 @@ import { IndexerClient } from "@/common/clients/indexer-client/indexer-client";
 import { makeBlockTimeQuery } from "./query";
 
 export class OnblocBlockRepository implements IBlockRepository {
-  private blockTimeMap: { [key in number]: string } = {};
-
   constructor(private nodeRPCClient: NodeRPCClient | null, private indexerClient: IndexerClient | null) {}
 
   async getLatestBlockHeight(): Promise<number | null> {
@@ -57,9 +55,6 @@ export class OnblocBlockRepository implements IBlockRepository {
       const time = this.getBlock(height)
         .then(block => block?.block_meta?.header?.time || null)
         .catch(() => null);
-      if (!time) {
-        this.blockTimeMap[height] = time;
-      }
       return time;
     }
 
@@ -67,9 +62,6 @@ export class OnblocBlockRepository implements IBlockRepository {
       .pageQuery(makeBlockTimeQuery(height))
       .then(result => result?.data?.blocks?.edges?.[0].block?.time || null)
       .catch(() => null);
-    if (!time) {
-      this.blockTimeMap[height] = time;
-    }
     return time;
   }
 }

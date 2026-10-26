@@ -19,11 +19,10 @@ import { GRC20_FUNCTIONS, parseBankerGRC20InfoByFile, parseGRC20InfoByFile } fro
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { TransactionWithEvent } from "../response/transaction.types";
 import { extractStringFromResponse, parseABCIQueryNumberResponse } from "@/common/clients/node-client/utility";
-import { PageInfo, PageOption, PageQueryResponse } from "@/common/clients/indexer-client/types";
+import { PageInfo, PageQueryResponse } from "@/common/clients/indexer-client/types";
 import {
   makeRealmTransactionInfoQuery,
   makeTokenQuery,
-  makeTokensQuery,
   makeUsernameQuery,
   makeRealmCallTransactionsWithArgsQuery,
   makeRealmPackagesQuery,
@@ -33,7 +32,6 @@ import {
   makeRealmTransactionsQuery,
   makeRealmTransactionsWithArgsQuery,
   makeLatestRealmsQuery,
-  makeRealmTransactionsByEventQuery,
 } from "./onbloc-query";
 import { makeRPCRequest, RPCClient } from "@/common/clients/rpc-client";
 import BigNumber from "bignumber.js";
@@ -57,7 +55,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     });
   }
 
-  async getRealms(pageOption?: PageOption): Promise<any | null> {
+  async getRealms(): Promise<any | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -131,7 +129,7 @@ export class OnblocRealmRepository implements IRealmRepository {
             value: r.Value,
           })) || [],
       }));
-    } catch (e) {
+    } catch {
       return [];
     }
   }
@@ -144,30 +142,6 @@ export class OnblocRealmRepository implements IRealmRepository {
     return this.indexerClient
       .pageQuery<TransactionWithEvent>(makeRealmTransactionsQuery(realmPath))
       .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
-  }
-
-  async getRealmTransactionsByEvent(
-    realmPath: string,
-    cursor?: string | null,
-  ): Promise<{
-    pageInfo: PageInfo;
-    transactions: TransactionWithEvent[];
-  } | null> {
-    if (!this.indexerClient) {
-      return null;
-    }
-
-    const response = await this.indexerClient.pageQuery<TransactionWithEvent>(
-      makeRealmTransactionsByEventQuery(realmPath, cursor || null),
-    );
-
-    const transactions = response?.data?.transactions.edges.map(edge => edge.transaction) || [];
-    const pageInfo = response?.data?.transactions.pageInfo;
-
-    return {
-      transactions,
-      pageInfo,
-    };
   }
 
   async getRealmTransactionsWithArgs(realmPath: string): Promise<RealmTransaction[] | null> {

@@ -19,14 +19,6 @@ export interface IRealmRepository {
 
   getRealmTransactions(realmPath: string, pageOption?: PageOption): Promise<TransactionWithEvent[] | null>;
 
-  getRealmTransactionsByEvent(
-    realmPath: string,
-    cursor?: string | null,
-  ): Promise<{
-    pageInfo: PageInfo;
-    transactions: TransactionWithEvent[];
-  } | null>;
-
   getRealmTransactionsWithArgs(realmPath: string, pageOption?: PageOption): Promise<RealmTransaction[] | null>;
 
   getRealmCallTransactionsWithArgs(
