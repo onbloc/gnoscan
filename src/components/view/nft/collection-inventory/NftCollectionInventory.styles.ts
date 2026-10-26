@@ -60,7 +60,7 @@ export const CardItem = styled.div`
   scroll-margin: 96px;
 `;
 
-// Covers the whole card; the owner link and copy icon are raised above it
+// Covers the whole card; the owner link, warning icon and copy icon are raised above it
 export const CardButton = styled.button`
   position: absolute;
   inset: 0;
@@ -99,6 +99,7 @@ export const OwnerRow = styled.div`
   }
 
   a,
+  .phishing-warning-tooltip,
   .copy-tooltip {
     position: relative;
     z-index: 1;

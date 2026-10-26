@@ -9,6 +9,15 @@ jest.mock("@/components/ui/tooltip", () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
+jest.mock("@/components/ui/tooltip/tooltip", () => ({
+  __esModule: true,
+  default: ({ children, content }: { children: React.ReactNode; content: React.ReactNode }) => (
+    <>
+      {children}
+      {content}
+    </>
+  ),
+}));
 jest.mock("@/common/hooks/use-network", () => ({
   useNetwork: () => ({ getUrlWithNetwork: (url: string) => url }),
 }));
@@ -17,6 +26,7 @@ jest.mock("@/common/hooks/account/use-username", () => ({
   useUsername: () => ({ getName: mockGetName }),
 }));
 
+const WARNING_LABEL = "Phishing warning";
 const ADDRESS = "g1abcdefghijklmnopqrstuvwxyz0123456789";
 const REALM_PATH = "gno.land/r/gnoland/wugnot";
 
@@ -48,4 +58,14 @@ it("keeps a resolved username ahead of the label", () => {
   mockGetName.mockReturnValue("alice");
   const html = render({ address: ADDRESS, label: "Kraken #1", labelType: ADDRESS_LABEL_TYPE.EXCHANGE });
   expect(html).toContain(`href="/account/${ADDRESS}">alice</a>`);
+});
+
+it("adds the phishing warning after the link for a scam label only", () => {
+  const scam = render({ address: ADDRESS, label: "Phishing #1", labelType: ADDRESS_LABEL_TYPE.SCAM });
+  expect(scam).toContain(`href="/account/${ADDRESS}">Phishing #1</a>`);
+  expect(scam.indexOf("</a>")).toBeLessThan(scam.indexOf(`aria-label="${WARNING_LABEL}`));
+
+  expect(render({ address: ADDRESS, label: "Kraken #1", labelType: ADDRESS_LABEL_TYPE.EXCHANGE })).not.toContain(
+    "Phishing warning",
+  );
 });

@@ -84,6 +84,7 @@ export const Content = styled(Text)`
 
 export const CopyTooltip = styled(SharedCopyTooltip)`
   display: inline-flex;
+  vertical-align: text-top;
   height: 20px;
   justify-content: center;
   align-items: center;

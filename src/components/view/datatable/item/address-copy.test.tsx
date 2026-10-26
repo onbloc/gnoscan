@@ -14,11 +14,22 @@ jest.mock("@/components/ui/tooltip", () => {
   );
   return { __esModule: true, default: MockTooltip, EllipsisTooltip: MockTooltip };
 });
+// The warning renders through the base tooltip; show its content inline too.
+jest.mock("@/components/ui/tooltip/tooltip", () => ({
+  __esModule: true,
+  default: ({ children, content }: { children: React.ReactNode; content: React.ReactNode }) => (
+    <>
+      <div data-part="trigger">{children}</div>
+      <div data-part="tooltip">{content}</div>
+    </>
+  ),
+}));
 jest.mock("@/assets/svgs/icon-copy.svg", () => ({ __esModule: true, default: () => null }));
 jest.mock("@/common/hooks/use-network", () => ({
   useNetwork: () => ({ getUrlWithNetwork: (url: string) => url }),
 }));
 
+const WARNING_LABEL = "Phishing warning";
 const ADDRESS = "g1abcdefghijklmnopqrstuvwxyz0123456789";
 const REALM_PATH = "gno.land/r/gnoland/wugnot";
 
@@ -51,4 +62,13 @@ it("shortens a nested realm label without changing its canonical destination", (
   });
   expect(html).toContain("r/g1t2...4sfd/gnofly/nfts/market/bazaar/v1/gnofly");
   expect(html).toContain(`href="/realms/details?path=${realmPath}"`);
+});
+
+it("adds the phishing warning for a scam label and keeps it out for other labels", () => {
+  const scam = render({ address: ADDRESS, label: "Phishing #1", labelType: "scam" });
+  expect(scam).toContain(`aria-label="${WARNING_LABEL}`);
+  expect(scam).toContain("Do not send funds to this address.");
+  expect(scam).toContain(`href="/account/${ADDRESS}">Phishing #1</a>`);
+
+  expect(render({ address: ADDRESS, label: "Kraken #1", labelType: "exchange" })).not.toContain("Phishing warning");
 });

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { GnoEvent } from "@/types/data-type";
 import Text from "@/components/ui/text";
 import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
+import { PhishingWarningTooltip } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import { useNetwork } from "@/common/hooks/use-network";
 import { getAddressDisplayText, getAddressLinkPath } from "@/common/utils/address-label.utility";
 
@@ -42,6 +43,7 @@ export const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ v
                   >
                     {getAddressDisplayText({ address: event.originCaller, label: event.originCallerLabel })}
                   </Link>
+                  <PhishingWarningTooltip labelType={event.originCallerLabelType} small marginLeft={4} />
                   <CopyTooltip variant="path" copyText={event.originCaller || ""} />
                 </Text>
               </Text>

@@ -99,4 +99,14 @@ export const GlobalStyle = createGlobalStyle`
       display: none !important;
     }
   }
+
+  /* Phishing warning tooltip: antd caps tooltips at 250px, the design bubble is 302px with an 8px radius and drop shadow */
+  .phishing-warning-overlay {
+    max-width: 302px;
+
+    .ant-tooltip-inner {
+      border-radius: 8px;
+      box-shadow: 0 4px 2px rgba(0, 0, 0, 0.25);
+    }
+  }
 `;

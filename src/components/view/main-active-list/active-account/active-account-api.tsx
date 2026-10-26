@@ -17,6 +17,7 @@ import Text from "@/components/ui/text";
 import ActiveList from "@/components/ui/active-list";
 import { colWidth, List, listTitle, StyledAmountText, StyledCard, StyledText } from "../main-active-list";
 import Tooltip from "@/components/ui/tooltip";
+import { WithPhishingWarning } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import FetchedSkeleton from "../fetched-skeleton";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { useStatisticsFailure } from "@/common/react-query/statistics/use-statistics-failure";
@@ -65,23 +66,25 @@ const ActiveAccountApi = () => {
                 {index + 1}
               </StyledText>
               <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
-                <Link
-                  href={getUrlWithNetwork(
-                    getAddressLinkPath({
-                      address: account.account,
-                      name: account.accountName,
-                      label: account.accountLabel,
-                      labelType: account.accountLabelType,
-                    }),
-                  )}
-                  passHref
-                >
-                  <span>
-                    <Tooltip content={account.account}>
-                      {getDisplayUsername(account.account, account.accountName, account.accountLabel)}
-                    </Tooltip>
-                  </span>
-                </Link>
+                <WithPhishingWarning labelType={account.accountLabelType} small>
+                  <Link
+                    href={getUrlWithNetwork(
+                      getAddressLinkPath({
+                        address: account.account,
+                        name: account.accountName,
+                        label: account.accountLabel,
+                        labelType: account.accountLabelType,
+                      }),
+                    )}
+                    passHref
+                  >
+                    <span>
+                      <Tooltip content={account.account}>
+                        {getDisplayUsername(account.account, account.accountName, account.accountLabel)}
+                      </Tooltip>
+                    </span>
+                  </Link>
+                </WithPhishingWarning>
               </StyledText>
               <StyledText type="p4" width={colWidth.accounts[2]} color="reverse">
                 {account.totalTxs}
