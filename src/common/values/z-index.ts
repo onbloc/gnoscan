@@ -5,6 +5,8 @@ export const zindex = {
   searchResult: 4,
   headerDropdown: 5,
   modal: 6,
+  // Tooltips opened from inside a modal or bottom sheet, which would otherwise render behind it.
+  modalTooltip: 7,
   // Above the header network button, so the open mobile menu covers it.
   mobileMenu: 100,
 };

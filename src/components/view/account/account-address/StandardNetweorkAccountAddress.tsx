@@ -10,6 +10,7 @@ import { LinkWrapper } from "@/components/ui/detail-page-common-styles";
 import { Divider } from "@/components/ui/divider/Divider";
 import Text from "@/components/ui/text";
 import { Username } from "@/components/ui/username/Username";
+import { PhishingWarningTooltip } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
 import * as S from "./AccountAddress.styles";
 import AccountAddressSkeleton from "./AccountAddressSkeleton";
 
@@ -49,6 +50,7 @@ const StandardNetworkAccountAddress = ({ address, validatorInfo }: AccountAddres
             <S.Content type="p4" desktopType="p3" color="primary">
               {address}
               {label && ` (${label})`}
+              <PhishingWarningTooltip labelType={data?.data?.labelType} marginLeft={5} />
               <S.CopyTooltip variant="plain" copyText={address || ""} />
             </S.Content>
             {validatorInfo?.name && (
