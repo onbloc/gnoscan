@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { isScamLabel } from "@/common/utils/address-label.utility";
+import { zindex } from "@/common/values/z-index";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { PHISHING_AFFECTED_WALLETS_URL, PHISHING_REPORT_SOURCE_URL } from "@/common/values/url.constant";
 import { IconWarning } from "@/components/icons/IconWarning";
@@ -57,6 +58,7 @@ export const PhishingWarningTooltip = ({
     <WarningTooltip
       className="phishing-warning-tooltip"
       overlayClassName={OVERLAY_CLASS_NAME}
+      zIndex={zindex.modalTooltip}
       content={<PhishingWarningContents />}
       width={302}
       openOnFocus
