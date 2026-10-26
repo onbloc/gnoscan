@@ -87,7 +87,7 @@ export const WithPhishingWarning = ({
 
 const WarningTooltip = styled(Tooltip)<{ $marginLeft: number; $marginRight: number }>`
   flex-shrink: 0;
-  vertical-align: middle;
+  vertical-align: text-bottom;
   margin-left: ${({ $marginLeft }) => $marginLeft}px;
   margin-right: ${({ $marginRight }) => $marginRight}px;
 `;
