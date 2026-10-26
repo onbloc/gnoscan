@@ -8,18 +8,36 @@ export interface DailyCountModel {
   count: number;
 }
 
-export interface TokenActivityDeltaModel {
+/** A token in a summary row, with the fields the token list item uses for its name, logo and link. */
+export interface SummaryTokenModel {
   tokenId: string;
+  packagePath: string;
+  name: string;
+  symbol: string;
+  logoUrl: string | null;
+}
+
+/** Transactions counted like the token list's transactionCount24h. */
+export interface ActiveTokenModel extends SummaryTokenModel {
+  transfers24h: number;
   deltaPct: number | null;
+}
+
+export interface MostHeldTokenModel extends SummaryTokenModel {
+  holders: number;
 }
 
 export interface GetSummaryTokensResponse {
   data: {
     /** Tokens registered in the last 7 days. */
     weeklyNewCount: number;
-    /** 24h change of each token's transfers, for the Most Active rows. */
-    mostActive: TokenActivityDeltaModel[];
+    /** Top 3 tokens by 24h transactions, most first. */
+    mostActive: ActiveTokenModel[];
     transfers: {
+      /** Sum of the per token 24h transaction counts. */
+      count24h: number;
+      /** Tokens with at least one transaction in the last 24h. */
+      activeTokens24h: number;
       deltaPct: number | null;
       daily: DailyCountModel[];
       uniqueSenders24h: number;
@@ -27,8 +45,8 @@ export interface GetSummaryTokensResponse {
     holders: {
       /** Distinct addresses with a positive balance of any GRC20 token. */
       holdersTotal: number;
-      holdersDelta7d: number;
-      fastestGrowing: { tokenId: string; symbol: string; holdersDelta7d: number } | null;
+      /** Token with the most holders, as the first row of the holders sorted list. */
+      mostHeld: MostHeldTokenModel | null;
     };
   };
 }
@@ -75,7 +93,6 @@ export interface GetSummaryNftCollectionsResponse {
     collectors: {
       /** Distinct user wallets owning at least one NFT. */
       holdersTotal: number;
-      holdersDelta7d: number;
       topCollector: { address: string; nftCount: number } | null;
       /** userHeld / holdersTotal, one decimal. */
       avgPerWallet: number;

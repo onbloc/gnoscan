@@ -4,10 +4,22 @@ import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
 import { SummaryBars, toCountBadge, toPctBadge } from "./ListSummary";
 import { RealmsSummary } from "./RealmsSummary";
+import { TokensSummary } from "./TokensSummary";
+import { MOCK_SUMMARY_TOKENS } from "@/repositories/api/statistics/response/list-summary-mock";
 
 const mockSummary = { data: undefined as unknown, isFetched: true, isError: false };
 jest.mock("@/common/react-query/statistics", () => ({
   useGetSummaryRealms: () => mockSummary,
+  useGetSummaryTokens: () => mockSummary,
+}));
+jest.mock("@/assets/svgs/icon-unknown-token.svg", () => () => null);
+jest.mock("@/common/services/token/use-mapped-api-tokens", () => ({
+  useMappedApiTokens: () => ({ data: [], isFetched: true, isError: false }),
+}));
+jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
+  useTokenResourceMeta: () => ({
+    getTokenMeta: (_: string, fallback: { name: string; symbol: string; image?: string }) => fallback,
+  }),
 }));
 jest.mock("@/common/hooks/use-network", () => ({
   useNetwork: () => ({ getUrlWithNetwork: (url: string) => url }),
@@ -81,6 +93,22 @@ it("renders the realm summary from the API", () => {
   expect(text).toContain("3,982 +9% vs yesterday");
   expect(text).toContain("Daily · last 7 days · 212 callers · 38 realms");
   expect(text).toContain("Net +374.2 GNOT");
+});
+
+it("renders the token cards from the summary alone", () => {
+  mockSummary.data = MOCK_SUMMARY_TOKENS;
+  const text = renderText(<TokensSummary />);
+  expect(text).toContain("Gnoswap GNS 126 +24%");
+  expect(text).toContain("356 +18% vs yesterday");
+  expect(text).toContain("Daily · last 7 days · 12 tokens · 92 senders");
+  expect(text).toContain("Most held Gnoswap · 587");
+});
+
+it("shows the token cards empty when the summary request fails", () => {
+  mockSummary.isError = true;
+  const text = renderText(<TokensSummary />);
+  expect(text).toContain("Transfers · 24h -");
+  expect(text).toContain("Most held -");
 });
 
 it("shows a tiny net storage loss as +0.0 rather than -0.0", () => {

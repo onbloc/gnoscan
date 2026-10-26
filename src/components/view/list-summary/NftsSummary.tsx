@@ -19,7 +19,6 @@ import {
   SummaryGrid,
   SummaryLegendDot,
   SummaryRows,
-  toCountBadge,
   toPctBadge,
 } from "./ListSummary";
 import * as S from "./ListSummary.styles";
@@ -122,11 +121,7 @@ export const NftsSummary = () => {
         />
       </SummaryCard>
       <SummaryCard title="Collectors" footer="User wallets holding any NFT">
-        <SummaryBigNumber
-          value={summary?.collectors.holdersTotal}
-          isFetched={query.isFetched}
-          badge={toCountBadge(summary?.collectors.holdersDelta7d, " this week")}
-        />
+        <SummaryBigNumber value={summary?.collectors.holdersTotal} isFetched={query.isFetched} />
         <SummaryFacts
           facts={[
             {

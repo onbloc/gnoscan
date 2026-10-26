@@ -15,27 +15,46 @@ const lastSevenDays = (counts: number[]) =>
     count,
   }));
 
+const GNS = {
+  tokenId: "gno.land/r/gnoswap/gns.GNS.0000000",
+  packagePath: "gno.land/r/gnoswap/gns",
+  name: "Gnoswap",
+  symbol: "GNS",
+  logoUrl: null,
+};
+const WUGNOT = {
+  tokenId: "gno.land/r/gnoland/wugnot.wugnot.0000000",
+  packagePath: "gno.land/r/gnoland/wugnot",
+  name: "wrapped GNOT",
+  symbol: "wugnot",
+  logoUrl: null,
+};
+const BUBBLE = {
+  tokenId: "gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble.BUBBLE.0000000",
+  packagePath: "gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble",
+  name: "Bubble Rumble BUBBLE (wrapped)",
+  symbol: "BUBBLE",
+  logoUrl: null,
+};
+
 export const MOCK_SUMMARY_TOKENS: GetSummaryTokensResponse = {
   data: {
     weeklyNewCount: 7,
     mostActive: [
-      { tokenId: "gno.land/r/gnoswap/gns.GNS.0000000", deltaPct: 24 },
-      { tokenId: "gno.land/r/gnoland/wugnot.wugnot.0000000", deltaPct: -8 },
-      { tokenId: "gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble.BUBBLE.0000000", deltaPct: 41 },
+      { ...GNS, transfers24h: 126, deltaPct: 24 },
+      { ...WUGNOT, transfers24h: 100, deltaPct: -8 },
+      { ...BUBBLE, transfers24h: 41, deltaPct: 41 },
     ],
     transfers: {
+      count24h: 356,
+      activeTokens24h: 12,
       deltaPct: 18,
       daily: lastSevenDays([180, 214, 150, 262, 240, 255, 356]),
       uniqueSenders24h: 92,
     },
     holders: {
       holdersTotal: 1204,
-      holdersDelta7d: 37,
-      fastestGrowing: {
-        tokenId: "gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble.BUBBLE.0000000",
-        symbol: "BUBBLE",
-        holdersDelta7d: 22,
-      },
+      mostHeld: { ...GNS, holders: 587 },
     },
   },
 };
@@ -82,7 +101,6 @@ export const MOCK_SUMMARY_NFT_COLLECTIONS: GetSummaryNftCollectionsResponse = {
     },
     collectors: {
       holdersTotal: 721,
-      holdersDelta7d: 15,
       topCollector: { address: "g1a72vne647vcw9uv0gy7wn8sw8ffc66agl4jdr3", nftCount: 142 },
       avgPerWallet: 7.1,
       userHeld: 5119,
