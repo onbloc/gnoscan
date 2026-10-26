@@ -31,7 +31,10 @@ export const TokensSummary = () => {
   const { getUrlWithNetwork } = useNetwork();
   const summaryQuery = useGetSummaryTokens();
   const summary = summaryQuery.data?.data;
-  const recent = useMappedApiTokens(RECENT_TOKENS_PARAMS, { refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
+  const recent = useMappedApiTokens(RECENT_TOKENS_PARAMS, {
+    refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL,
+    keepPreviousData: false,
+  });
 
   const { getTokenMeta } = useTokenResourceMeta();
   const tokenUrl = (token: { packagePath: string; symbol: string }) =>

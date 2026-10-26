@@ -13,8 +13,9 @@ jest.mock("@/common/react-query/statistics", () => ({
   useGetSummaryTokens: () => mockSummary,
 }));
 jest.mock("@/assets/svgs/icon-unknown-token.svg", () => () => null);
+const mockUseMappedApiTokens = jest.fn((..._args: unknown[]) => ({ data: [], isFetched: true, isError: false }));
 jest.mock("@/common/services/token/use-mapped-api-tokens", () => ({
-  useMappedApiTokens: () => ({ data: [], isFetched: true, isError: false }),
+  useMappedApiTokens: (...args: unknown[]) => mockUseMappedApiTokens(...args),
 }));
 jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
   useTokenResourceMeta: () => ({
@@ -106,6 +107,14 @@ it("renders the token cards from the summary alone", () => {
   expect(text).toContain("356 +18% vs yesterday");
   expect(text).toContain("Daily · last 7 days · 12 tokens · 92 senders");
   expect(text).toContain("Most held Gnoswap · 587");
+});
+
+it("does not keep another network's recent tokens while the new network loads", () => {
+  renderText(<TokensSummary />);
+  expect(mockUseMappedApiTokens).toHaveBeenCalledWith(
+    expect.objectContaining({ sort: "id" }),
+    expect.objectContaining({ keepPreviousData: false }),
+  );
 });
 
 it("shows the token cards empty when the summary request fails", () => {
