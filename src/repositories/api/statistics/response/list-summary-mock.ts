@@ -19,16 +19,11 @@ export const MOCK_SUMMARY_TOKENS: GetSummaryTokensResponse = {
   data: {
     weeklyNewCount: 7,
     mostActive: [
-      { tokenId: "gno.land/r/gnoswap/gns.GNS.0000000", transfers24h: 214, deltaPct: 24 },
-      { tokenId: "gno.land/r/gnoland/wugnot.wugnot.0000000", transfers24h: 96, deltaPct: -8 },
-      {
-        tokenId: "gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble.BUBBLE.0000000",
-        transfers24h: 46,
-        deltaPct: 41,
-      },
+      { tokenId: "gno.land/r/gnoswap/gns.GNS.0000000", deltaPct: 24 },
+      { tokenId: "gno.land/r/gnoland/wugnot.wugnot.0000000", deltaPct: -8 },
+      { tokenId: "gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble.BUBBLE.0000000", deltaPct: 41 },
     ],
     transfers: {
-      transfers24h: 356,
       deltaPct: 18,
       daily: lastSevenDays([180, 214, 150, 262, 240, 255, 356]),
       uniqueSenders24h: 92,
