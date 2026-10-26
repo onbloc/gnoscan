@@ -121,7 +121,7 @@ export const NftsSummary = () => {
           ]}
         />
       </SummaryCard>
-      <SummaryCard title="Collectors" footer="Wallets holding any NFT">
+      <SummaryCard title="Collectors" footer="User wallets holding any NFT">
         <SummaryBigNumber
           value={summary?.collectors.holdersTotal}
           isFetched={query.isFetched}
@@ -144,6 +144,10 @@ export const NftsSummary = () => {
             {
               label: "Avg per wallet",
               value: <Text type="p4">{summary ? `${summary.collectors.avgPerWallet.toFixed(1)} NFTs` : "-"}</Text>,
+            },
+            {
+              label: "Held by realms",
+              value: <Text type="p4">{summary ? `${makeDisplayNumber(summary.collectors.realmHeld)} NFTs` : "-"}</Text>,
             },
           ]}
         />

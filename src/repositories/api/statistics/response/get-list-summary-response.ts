@@ -71,12 +71,16 @@ export interface GetSummaryNftCollectionsResponse {
       mints24h: number;
       daily: DailyNftActivityModel[];
     };
+    /** User wallets only. NFTs that realms hold for users, such as staked positions, are counted in realmHeld. */
     collectors: {
-      /** Distinct addresses owning at least one NFT. */
+      /** Distinct user wallets owning at least one NFT. */
       holdersTotal: number;
       holdersDelta7d: number;
       topCollector: { address: string; nftCount: number } | null;
+      /** userHeld / holdersTotal, one decimal. */
       avgPerWallet: number;
+      userHeld: number;
+      realmHeld: number;
     };
   };
 }

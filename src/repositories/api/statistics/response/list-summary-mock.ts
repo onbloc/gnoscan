@@ -85,6 +85,8 @@ export const MOCK_SUMMARY_NFT_COLLECTIONS: GetSummaryNftCollectionsResponse = {
       holdersDelta7d: 15,
       topCollector: { address: "g1a72vne647vcw9uv0gy7wn8sw8ffc66agl4jdr3", nftCount: 142 },
       avgPerWallet: 7.1,
+      userHeld: 5119,
+      realmHeld: 2480,
     },
   },
 };
