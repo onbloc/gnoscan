@@ -57,6 +57,10 @@ export const toPctBadge = (deltaPct: number | null | undefined, suffix = ""): De
   return { label: `${signed(rounded)}%${suffix}`, tone: rounded > 0 ? "up" : "down" };
 };
 
+/** "1 caller", "2 callers": the noun is singular only for exactly one. */
+export const countLabel = (count: number, singular: string, plural = `${singular}s`) =>
+  `${makeDisplayNumber(count)} ${count === 1 ? singular : plural}`;
+
 export const toCountBadge = (delta: number | undefined, suffix = ""): DeltaBadgeData | undefined => {
   if (!delta) return undefined;
   return { label: `${signed(delta)}${suffix}`, tone: delta > 0 ? "up" : "down" };

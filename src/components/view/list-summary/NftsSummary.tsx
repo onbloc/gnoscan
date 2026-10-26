@@ -19,6 +19,7 @@ import {
   SummaryGrid,
   SummaryLegendDot,
   SummaryRows,
+  countLabel,
   toPctBadge,
 } from "./ListSummary";
 import * as S from "./ListSummary.styles";
@@ -43,10 +44,10 @@ export const NftsSummary = () => {
     href: getUrlWithNetwork(`/tokens/${collection.tokenId}`),
     title: collection.name,
     subtitle: [
-      `+${makeDisplayNumber(collection.mints24h)} mints`,
+      `+${countLabel(collection.mints24h, "mint")}`,
       collection.newHolders24h > 0
-        ? `+${makeDisplayNumber(collection.newHolders24h)} holders`
-        : `${makeDisplayNumber(collection.transfers24h)} transfers`,
+        ? `+${countLabel(collection.newHolders24h, "holder")}`
+        : countLabel(collection.transfers24h, "transfer"),
     ].join(" · "),
     media: <NftCollectionLogo packagePath={collection.packagePath} />,
   }));
@@ -100,9 +101,9 @@ export const NftsSummary = () => {
           <>
             Daily · 7d
             <SummaryLegendDot color="blue" />
-            {`${activity ? makeDisplayNumber(activity.transfers24h) : "-"} transfers`}
+            {activity ? countLabel(activity.transfers24h, "transfer") : "- transfers"}
             <SummaryLegendDot color="orange" />
-            {`${activity ? makeDisplayNumber(activity.mints24h) : "-"} mints`}
+            {activity ? countLabel(activity.mints24h, "mint") : "- mints"}
           </>
         }
       >
@@ -142,7 +143,7 @@ export const NftsSummary = () => {
             },
             {
               label: "Held by realms",
-              value: <Text type="p4">{summary ? `${makeDisplayNumber(summary.collectors.realmHeld)} NFTs` : "-"}</Text>,
+              value: <Text type="p4">{summary ? countLabel(summary.collectors.realmHeld, "NFT") : "-"}</Text>,
             },
           ]}
         />

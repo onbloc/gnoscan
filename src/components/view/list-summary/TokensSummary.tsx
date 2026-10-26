@@ -19,6 +19,7 @@ import {
   SummaryFacts,
   SummaryGrid,
   SummaryRows,
+  countLabel,
   toPctBadge,
 } from "./ListSummary";
 
@@ -74,8 +75,8 @@ export const TokensSummary = () => {
 
   const transferDetails = [
     "Daily · last 7 days",
-    summary && `${makeDisplayNumber(summary.transfers.activeTokens24h)} tokens`,
-    summary && `${makeDisplayNumber(summary.transfers.uniqueSenders24h)} senders`,
+    summary && countLabel(summary.transfers.activeTokens24h, "token"),
+    summary && countLabel(summary.transfers.uniqueSenders24h, "sender"),
   ];
 
   const mostHeld = summary?.holders.mostHeld ? resolveToken(summary.holders.mostHeld) : undefined;

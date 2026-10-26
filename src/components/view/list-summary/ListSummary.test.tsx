@@ -81,7 +81,10 @@ it("renders the realm summary from the API", () => {
         },
       ],
       publishers7d: 14,
-      mostCalled: [{ path: "gno.land/r/gnoswap/router", calls24h: 1204, deltaPct: 12, uniqueCallers24h: 212 }],
+      mostCalled: [
+        { path: "gno.land/r/gnoswap/router", calls24h: 1204, deltaPct: 12, uniqueCallers24h: 212 },
+        { path: "gno.land/r/demo/solo", calls24h: 5, deltaPct: 0, uniqueCallers24h: 1 },
+      ],
       calls: { calls24h: 3982, deltaPct: 9, daily: [], uniqueCallers24h: 212, realmsTouched24h: 38 },
       storage: { locked24h: 412.3, released24h: 38.1, bytesDelta24h: 0, largestRealm: null },
     },
@@ -90,6 +93,7 @@ it("renders the realm summary from the API", () => {
   expect(text).toContain("g1leu8d2...tztu95wr");
   expect(text).toContain("3 new");
   expect(text).toContain("r/gnoswap/router 212 callers 1,204 +12%");
+  expect(text).toContain("r/demo/solo 1 caller 5");
   expect(text).toContain("3,982 +9% vs yesterday");
   expect(text).toContain("Daily · last 7 days · 212 callers · 38 realms");
   expect(text).toContain("Net +374.2 GNOT");

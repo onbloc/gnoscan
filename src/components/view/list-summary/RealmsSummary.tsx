@@ -16,6 +16,7 @@ import {
   SummaryFacts,
   SummaryGrid,
   SummaryRows,
+  countLabel,
   toCountBadge,
   toPctBadge,
 } from "./ListSummary";
@@ -56,7 +57,7 @@ export const RealmsSummary = () => {
     key: realm.path,
     href: getUrlWithNetwork(realmUrl(realm.path)),
     title: displayPath(realm.path),
-    subtitle: `${makeDisplayNumber(realm.uniqueCallers24h)} callers`,
+    subtitle: countLabel(realm.uniqueCallers24h, "caller"),
     value: makeDisplayNumber(realm.calls24h),
     badge: toPctBadge(realm.deltaPct),
   }));
@@ -72,7 +73,7 @@ export const RealmsSummary = () => {
       <SummaryCard
         title="Builders · 7d"
         live
-        footer={`Deploys · ${summary ? makeDisplayNumber(summary.publishers7d) : "-"} publishers this week`}
+        footer={`Deploys · ${summary ? countLabel(summary.publishers7d, "publisher") : "- publishers"} this week`}
       >
         <SummaryRows
           rows={builders}
@@ -95,8 +96,8 @@ export const RealmsSummary = () => {
         title="Calls · 24h"
         footer={[
           "Daily · last 7 days",
-          calls && `${makeDisplayNumber(calls.uniqueCallers24h)} callers`,
-          calls && `${makeDisplayNumber(calls.realmsTouched24h)} realms`,
+          calls && countLabel(calls.uniqueCallers24h, "caller"),
+          calls && countLabel(calls.realmsTouched24h, "realm"),
         ]
           .filter(Boolean)
           .join(" · ")}
