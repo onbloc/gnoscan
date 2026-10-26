@@ -10,6 +10,8 @@ import Tooltip from "../tooltip";
 interface PhishingWarningTooltipProps {
   labelType?: ADDRESS_LABEL_TYPE | null;
   labelTag?: ADDRESS_LABEL_TAG | null;
+  // Compact 14x12 icon for table cells
+  small?: boolean;
 }
 
 const OVERLAY_CLASS_NAME = "phishing-warning-overlay";
@@ -52,7 +54,7 @@ const PhishingWarningContents = () => (
 );
 
 // Renders nothing unless the address is flagged as phishing, so callers can drop it in unconditionally.
-export const PhishingWarningTooltip = ({ labelType, labelTag }: PhishingWarningTooltipProps) => {
+export const PhishingWarningTooltip = ({ labelType, labelTag, small = false }: PhishingWarningTooltipProps) => {
   if (!isScamLabel({ labelType, labelTag })) return null;
 
   return (
@@ -66,7 +68,7 @@ export const PhishingWarningTooltip = ({ labelType, labelTag }: PhishingWarningT
         openOnFocus
       >
         <IconButton tabIndex={0} role="img" aria-label="Phishing warning">
-          <IconWarning />
+          {small ? <IconWarning width={14} height={12} /> : <IconWarning />}
         </IconButton>
       </WarningTooltip>
     </>
@@ -77,12 +79,13 @@ export const PhishingWarningTooltip = ({ labelType, labelTag }: PhishingWarningT
 export const WithPhishingWarning = ({
   labelType,
   labelTag,
+  small,
   children,
 }: PhishingWarningTooltipProps & { children: React.ReactNode }) =>
   isScamLabel({ labelType, labelTag }) ? (
-    <WarningRow>
+    <WarningRow $small={small}>
       {children}
-      <PhishingWarningTooltip labelType={labelType} labelTag={labelTag} />
+      <PhishingWarningTooltip labelType={labelType} labelTag={labelTag} small={small} />
     </WarningRow>
   ) : (
     <>{children}</>
@@ -93,10 +96,10 @@ const WarningTooltip = styled(Tooltip)`
   vertical-align: middle;
 `;
 
-const WarningRow = styled.span`
+const WarningRow = styled.span<{ $small?: boolean }>`
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: ${({ $small }) => ($small ? 4 : 5)}px;
   min-width: 0;
   max-width: 100%;
 `;

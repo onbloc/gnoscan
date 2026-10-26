@@ -1,10 +1,18 @@
-export const IconWarning = ({ className }: { className?: string }) => {
+export const IconWarning = ({
+  className,
+  width = 20,
+  height = 18,
+}: {
+  className?: string;
+  width?: number;
+  height?: number;
+}) => {
   return (
     <svg
       className={className}
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="18"
+      width={width}
+      height={height}
       viewBox="0 0 20 18"
       fill="none"
     >

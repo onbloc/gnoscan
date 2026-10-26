@@ -122,7 +122,7 @@ export const AddressLink: React.FC<AddressLinkProps> = ({
             <FitContentSpan>{displayAccount}</FitContentSpan>
           </Link>
         </Text>
-        <PhishingWarningTooltip labelType={labelType} />
+        <PhishingWarningTooltip labelType={labelType} small />
         <CopyTooltip variant="address" copyText={copyText} />
       </S.AddressTextBox>
     </Badge>
@@ -145,7 +145,7 @@ export const AddressDisplayLink: React.FC<AddressDisplayLinkProps> = ({
   labelType,
   getUrlWithNetwork,
 }) => (
-  <WithPhishingWarning labelType={labelType}>
+  <WithPhishingWarning labelType={labelType} small>
     <FitContentSpan>
       <Link href={getUrlWithNetwork(getAddressLinkPath({ address, name, label, labelType }))} passHref>
         <Text type="p4" color="blue" className="ellipsis">

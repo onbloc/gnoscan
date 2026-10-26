@@ -481,6 +481,11 @@ export const AddressChip = styled.span`
     cursor: pointer;
     vertical-align: middle;
   }
+
+  /* The chip gap is 6px; the design puts 5px around the warning icon */
+  .phishing-warning-tooltip {
+    margin: 0 -1px;
+  }
 `;
 
 const TokenChip = styled.span`

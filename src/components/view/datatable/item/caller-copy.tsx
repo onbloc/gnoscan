@@ -28,7 +28,7 @@ export const CallerCopy = ({ caller, username, label, labelType }: Props) => {
         {textEllipsis(username ?? "", 6) || (label ? stripGnoLandPrefix(label) : textEllipsis(caller ?? "", 6))}
         <CopyTooltip variant="path" copyText={caller} />
       </Link>
-      <PhishingWarningTooltip labelType={labelType} />
+      <PhishingWarningTooltip labelType={labelType} small />
     </CallerWrapper>
   );
 };
@@ -43,6 +43,10 @@ const CallerWrapper = styled.div`
 
     a {
       width: 100%;
+    }
+
+    .phishing-warning-tooltip {
+      margin-left: 4px;
     }
 
     .status {

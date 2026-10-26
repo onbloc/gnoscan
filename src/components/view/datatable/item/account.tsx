@@ -40,7 +40,7 @@ export const Account = ({ address, addressName, label, labelType }: Props) => {
   }, [address, resolvedName, label]);
 
   return (
-    <WithPhishingWarning labelType={labelType}>
+    <WithPhishingWarning labelType={labelType} small>
       <Tooltip content={renderTooltip()}>
         <TooltipWrapper>
           <Link

@@ -9,6 +9,6 @@ export const AddressTextBox = styled.div`
   }
 
   .phishing-warning-tooltip {
-    margin-left: 5px;
+    margin-left: 4px;
   }
 `;

@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
 import { textEllipsis } from "@/common/utils/string-util";
-import { getAddressLinkPath } from "@/common/utils/address-label.utility";
+import { getAddressLinkPath, isScamLabel } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { EllipsisTooltip } from "@/components/ui/tooltip";
@@ -42,11 +42,12 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
   }, [address, username, label, ellipsisNumber]);
 
   return address && address !== "genesis" ? (
-    <WithPhishingWarning labelType={labelType}>
+    <WithPhishingWarning labelType={labelType} small>
       <EllipsisTooltip content={renderTooltip()}>
         <PublisherLink
-          // Shortened addresses are already middle truncated, so only clip names and labels
-          className={username || label ? "ellipsis" : undefined}
+          // Shortened addresses are already middle truncated, so only clip names and labels.
+          // A flagged address is clipped too so the warning icon never overlaps the text in a narrow cell.
+          className={username || label || isScamLabel({ labelType }) ? "ellipsis" : undefined}
           href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
         >
           {displayName}
