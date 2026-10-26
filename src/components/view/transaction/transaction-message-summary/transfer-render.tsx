@@ -241,7 +241,8 @@ export const TransferAddress = ({
           </Text>
         </Link>
       )}
-      <PhishingWarningTooltip labelType={labelType} />
+      {/* The chip gap is 6px; the design puts 5px around the 20x18 icon */}
+      <PhishingWarningTooltip labelType={labelType} marginLeft={-1} marginRight={-1} />
       <CopyTooltip variant="plain" iconClassName="copy-icon" copyText={address || label || ""} />
     </AddressChip>
   );
@@ -480,11 +481,6 @@ export const AddressChip = styled.span`
     stroke: ${({ theme }) => theme.colors.primary};
     cursor: pointer;
     vertical-align: middle;
-  }
-
-  /* The chip gap is 6px; the design puts 5px around the warning icon */
-  .phishing-warning-tooltip {
-    margin: 0 -1px;
   }
 `;
 

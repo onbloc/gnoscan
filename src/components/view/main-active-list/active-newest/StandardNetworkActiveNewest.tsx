@@ -99,7 +99,7 @@ const StandardNetworkActiveNewest = () => {
                 </Link>
               </StyledText>
               <StyledText type="p4" width={colWidth.newest[2]} color="blue">
-                <WithPhishingWarning labelType={realm.creatorLabelType}>
+                <WithPhishingWarning labelType={realm.creatorLabelType} small>
                   <FitContentA>
                     <Link
                       href={getUrlWithNetwork(

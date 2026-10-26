@@ -66,7 +66,7 @@ it("shortens a nested realm label without changing its canonical destination", (
 
 it("adds the phishing warning for a scam label and keeps it out for other labels", () => {
   const scam = render({ address: ADDRESS, label: "Phishing #1", labelType: "scam" });
-  expect(scam).toContain(`aria-label="${WARNING_LABEL}"`);
+  expect(scam).toContain(`aria-label="${WARNING_LABEL}`);
   expect(scam).toContain("Do not send funds to this address.");
   expect(scam).toContain(`href="/account/${ADDRESS}">Phishing #1</a>`);
 

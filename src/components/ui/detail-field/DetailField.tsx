@@ -122,7 +122,7 @@ export const AddressLink: React.FC<AddressLinkProps> = ({
             <FitContentSpan>{displayAccount}</FitContentSpan>
           </Link>
         </Text>
-        <PhishingWarningTooltip labelType={labelType} small />
+        <PhishingWarningTooltip labelType={labelType} small marginLeft={4} />
         <CopyTooltip variant="address" copyText={copyText} />
       </S.AddressTextBox>
     </Badge>

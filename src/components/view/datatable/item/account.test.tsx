@@ -63,7 +63,7 @@ it("keeps a resolved username ahead of the label", () => {
 it("adds the phishing warning after the link for a scam label only", () => {
   const scam = render({ address: ADDRESS, label: "Phishing #1", labelType: ADDRESS_LABEL_TYPE.SCAM });
   expect(scam).toContain(`href="/account/${ADDRESS}">Phishing #1</a>`);
-  expect(scam.indexOf("</a>")).toBeLessThan(scam.indexOf(`aria-label="${WARNING_LABEL}"`));
+  expect(scam.indexOf("</a>")).toBeLessThan(scam.indexOf(`aria-label="${WARNING_LABEL}`));
 
   expect(render({ address: ADDRESS, label: "Kraken #1", labelType: ADDRESS_LABEL_TYPE.EXCHANGE })).not.toContain(
     "Phishing warning",

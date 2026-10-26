@@ -43,7 +43,7 @@ export const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ v
                   >
                     {getAddressDisplayText({ address: event.originCaller, label: event.originCallerLabel })}
                   </Link>
-                  <PhishingWarningTooltip labelType={event.originCallerLabelType} />
+                  <PhishingWarningTooltip labelType={event.originCallerLabelType} small marginLeft={4} />
                   <CopyTooltip variant="path" copyText={event.originCaller || ""} />
                 </Text>
               </Text>

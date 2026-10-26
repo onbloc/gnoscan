@@ -41,7 +41,7 @@ const NftTransferParty = ({ address, label, labelType }: NftTransferPartyProps) 
           )}
         </Link>
       </Tooltip>
-      <PhishingWarningTooltip labelType={resolvedLabelType} />
+      <PhishingWarningTooltip labelType={resolvedLabelType} small />
       <CopyTooltip copyText={address} variant="plain" iconClassName="copy-icon" />
     </S.TransferParty>
   );

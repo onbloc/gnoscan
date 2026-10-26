@@ -5,7 +5,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { RecoilRoot } from "recoil";
-import { ADDRESS_LABEL_TAG, ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { PHISHING_AFFECTED_WALLETS_URL, PHISHING_REPORT_SOURCE_URL } from "@/common/values/url.constant";
 import { PhishingWarningTooltip, WithPhishingWarning } from "./PhishingWarningTooltip";
 
@@ -38,33 +38,31 @@ afterEach(() => {
 
 it("renders nothing for an address that is not flagged", () => {
   const view = mount(<PhishingWarningTooltip labelType={ADDRESS_LABEL_TYPE.EXCHANGE} />);
-  expect(view.container.querySelector(`[aria-label="${WARNING_LABEL}"]`)).toBeNull();
+  expect(view.container.querySelector(`[aria-label^="${WARNING_LABEL}"]`)).toBeNull();
   view.unmount();
 });
 
-it.each([{ labelType: ADDRESS_LABEL_TYPE.SCAM }, { labelTag: ADDRESS_LABEL_TAG.PHISHING }])(
-  "shows the warning icon for %o and opens the report details on keyboard focus",
-  flag => {
-    jest.useFakeTimers();
-    const view = mount(<PhishingWarningTooltip {...flag} />);
-    const icon = view.container.querySelector<HTMLElement>(`[aria-label="${WARNING_LABEL}"]`);
-    expect(icon).not.toBeNull();
+it("shows the warning icon for a scam address and opens the report details on keyboard focus", () => {
+  jest.useFakeTimers();
+  const view = mount(<PhishingWarningTooltip labelType={ADDRESS_LABEL_TYPE.SCAM} />);
+  const icon = view.container.querySelector<HTMLElement>(`[aria-label^="${WARNING_LABEL}"]`);
+  expect(icon?.getAttribute("role")).toBe("button");
+  expect(icon).not.toBeNull();
 
-    act(() => {
-      icon!.focus();
-      jest.runAllTimers();
-    });
+  act(() => {
+    icon!.focus();
+    jest.runAllTimers();
+  });
 
-    expect(document.body.textContent).toContain("Do not send funds to this address.");
-    const links = Array.from(document.body.querySelectorAll<HTMLAnchorElement>(".ant-tooltip a"));
-    expect(links.map(link => link.href)).toEqual([PHISHING_REPORT_SOURCE_URL, PHISHING_AFFECTED_WALLETS_URL]);
-    links.forEach(link => {
-      expect(link.target).toBe("_blank");
-      expect(link.rel).toContain("noopener");
-    });
-    view.unmount();
-  },
-);
+  expect(document.body.textContent).toContain("Do not send funds to this address.");
+  const links = Array.from(document.body.querySelectorAll<HTMLAnchorElement>(".ant-tooltip a"));
+  expect(links.map(link => link.href)).toEqual([PHISHING_REPORT_SOURCE_URL, PHISHING_AFFECTED_WALLETS_URL]);
+  links.forEach(link => {
+    expect(link.target).toBe("_blank");
+    expect(link.rel).toContain("noopener");
+  });
+  view.unmount();
+});
 
 it("keeps the address element and appends the warning only for flagged addresses", () => {
   const flagged = mount(
@@ -73,7 +71,7 @@ it("keeps the address element and appends the warning only for flagged addresses
     </WithPhishingWarning>,
   );
   expect(
-    flagged.container.querySelector("a")?.nextElementSibling?.querySelector(`[aria-label="${WARNING_LABEL}"]`),
+    flagged.container.querySelector("a")?.nextElementSibling?.querySelector(`[aria-label^="${WARNING_LABEL}"]`),
   ).not.toBeNull();
   flagged.unmount();
 

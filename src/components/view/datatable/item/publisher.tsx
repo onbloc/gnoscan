@@ -47,7 +47,7 @@ export const Publisher = ({ address, username, ellipsisNumber = 8, label, labelT
         <PublisherLink
           // Shortened addresses are already middle truncated, so only clip names and labels.
           // A flagged address is clipped too so the warning icon never overlaps the text in a narrow cell.
-          className={username || label || isScamLabel({ labelType }) ? "ellipsis" : undefined}
+          className={username || label || isScamLabel(labelType) ? "ellipsis" : undefined}
           href={getUrlWithNetwork(getAddressLinkPath({ address, name: username, label, labelType }))}
         >
           {displayName}

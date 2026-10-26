@@ -92,14 +92,13 @@ describe("getAddressNameTag", () => {
 });
 
 describe("isScamLabel", () => {
-  it("flags a scam label type or a phishing label tag", () => {
-    expect(isScamLabel({ labelType: ADDRESS_LABEL_TYPE.SCAM })).toBe(true);
-    expect(isScamLabel({ labelTag: ADDRESS_LABEL_TAG.PHISHING })).toBe(true);
+  it("flags only the scam label type", () => {
+    expect(isScamLabel(ADDRESS_LABEL_TYPE.SCAM)).toBe(true);
   });
 
-  it("ignores other label types, other tags, and missing values", () => {
-    expect(isScamLabel({ labelType: ADDRESS_LABEL_TYPE.EXCHANGE, labelTag: ADDRESS_LABEL_TAG.CEX })).toBe(false);
-    expect(isScamLabel({ labelType: null, labelTag: null })).toBe(false);
-    expect(isScamLabel({})).toBe(false);
+  it("ignores other label types and missing values", () => {
+    expect(isScamLabel(ADDRESS_LABEL_TYPE.EXCHANGE)).toBe(false);
+    expect(isScamLabel(null)).toBe(false);
+    expect(isScamLabel()).toBe(false);
   });
 });

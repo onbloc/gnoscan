@@ -50,7 +50,7 @@ const StandardNetworkAccountAddress = ({ address, validatorInfo }: AccountAddres
             <S.Content type="p4" desktopType="p3" color="primary">
               {address}
               {label && ` (${label})`}
-              <PhishingWarningTooltip labelType={data?.data?.labelType} />
+              <PhishingWarningTooltip labelType={data?.data?.labelType} marginLeft={5} />
               <S.CopyTooltip variant="plain" copyText={address || ""} />
             </S.Content>
             {validatorInfo?.name && (

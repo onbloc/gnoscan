@@ -66,7 +66,7 @@ const ActiveAccountApi = () => {
                 {index + 1}
               </StyledText>
               <StyledText className="with-link" type="p4" width={colWidth.accounts[1]} color="blue">
-                <WithPhishingWarning labelType={account.accountLabelType}>
+                <WithPhishingWarning labelType={account.accountLabelType} small>
                   <Link
                     href={getUrlWithNetwork(
                       getAddressLinkPath({

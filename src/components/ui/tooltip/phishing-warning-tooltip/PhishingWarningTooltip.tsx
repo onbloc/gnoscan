@@ -1,32 +1,23 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 
 import { isScamLabel } from "@/common/utils/address-label.utility";
-import { ADDRESS_LABEL_TAG, ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
+import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import { PHISHING_AFFECTED_WALLETS_URL, PHISHING_REPORT_SOURCE_URL } from "@/common/values/url.constant";
 import { IconWarning } from "@/components/icons/IconWarning";
 import Tooltip from "../tooltip";
 
 interface PhishingWarningTooltipProps {
   labelType?: ADDRESS_LABEL_TYPE | null;
-  labelTag?: ADDRESS_LABEL_TAG | null;
-  // Compact 14x12 icon for table cells
+  // 14x12 icon. Only the account header and the transaction message summary use the default 20x18.
   small?: boolean;
+  // Offsets against the container's own spacing (e.g. its flex gap); negative values are allowed.
+  marginLeft?: number;
+  marginRight?: number;
 }
 
+// Rules for this overlay class live in the global style (src/styles/global-style.ts).
 const OVERLAY_CLASS_NAME = "phishing-warning-overlay";
-
-// antd caps tooltips at 250px; the design bubble is 302px (270px text + 16px padding) with a 8px radius and drop shadow.
-const OverlayStyle = createGlobalStyle`
-  .${OVERLAY_CLASS_NAME} {
-    max-width: 302px;
-
-    .ant-tooltip-inner {
-      border-radius: 8px;
-      box-shadow: 0 4px 2px rgba(0, 0, 0, 0.25);
-    }
-  }
-`;
 
 const PhishingWarningContents = () => (
   <ContentsWrapper>
@@ -54,46 +45,51 @@ const PhishingWarningContents = () => (
 );
 
 // Renders nothing unless the address is flagged as phishing, so callers can drop it in unconditionally.
-export const PhishingWarningTooltip = ({ labelType, labelTag, small = false }: PhishingWarningTooltipProps) => {
-  if (!isScamLabel({ labelType, labelTag })) return null;
+export const PhishingWarningTooltip = ({
+  labelType,
+  small = false,
+  marginLeft = 0,
+  marginRight = 0,
+}: PhishingWarningTooltipProps) => {
+  if (!isScamLabel(labelType)) return null;
 
   return (
-    <>
-      <OverlayStyle />
-      <WarningTooltip
-        className="phishing-warning-tooltip"
-        overlayClassName={OVERLAY_CLASS_NAME}
-        content={<PhishingWarningContents />}
-        width={302}
-        openOnFocus
-      >
-        <IconButton tabIndex={0} role="img" aria-label="Phishing warning">
-          {small ? <IconWarning width={14} height={12} /> : <IconWarning />}
-        </IconButton>
-      </WarningTooltip>
-    </>
+    <WarningTooltip
+      className="phishing-warning-tooltip"
+      overlayClassName={OVERLAY_CLASS_NAME}
+      content={<PhishingWarningContents />}
+      width={302}
+      openOnFocus
+      $marginLeft={marginLeft}
+      $marginRight={marginRight}
+    >
+      <IconButton tabIndex={0} role="button" aria-label="Phishing warning. Do not send funds to this address.">
+        {small ? <IconWarning width={14} height={12} /> : <IconWarning />}
+      </IconButton>
+    </WarningTooltip>
   );
 };
 
 // Puts the warning right after an address element; non-phishing addresses keep their markup untouched.
 export const WithPhishingWarning = ({
   labelType,
-  labelTag,
   small,
   children,
-}: PhishingWarningTooltipProps & { children: React.ReactNode }) =>
-  isScamLabel({ labelType, labelTag }) ? (
+}: Pick<PhishingWarningTooltipProps, "labelType" | "small"> & { children: React.ReactNode }) =>
+  isScamLabel(labelType) ? (
     <WarningRow $small={small}>
       {children}
-      <PhishingWarningTooltip labelType={labelType} labelTag={labelTag} small={small} />
+      <PhishingWarningTooltip labelType={labelType} small={small} />
     </WarningRow>
   ) : (
     <>{children}</>
   );
 
-const WarningTooltip = styled(Tooltip)`
+const WarningTooltip = styled(Tooltip)<{ $marginLeft: number; $marginRight: number }>`
   flex-shrink: 0;
   vertical-align: middle;
+  margin-left: ${({ $marginLeft }) => $marginLeft}px;
+  margin-right: ${({ $marginRight }) => $marginRight}px;
 `;
 
 const WarningRow = styled.span<{ $small?: boolean }>`

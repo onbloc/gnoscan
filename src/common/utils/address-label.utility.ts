@@ -42,13 +42,7 @@ export function getAddressNameTag({ nameTag, labelTag }: AddressNameTagInfo): st
   return nameTag || null;
 }
 
-// Backend flags a reported phishing address with labelType "scam" (and labelTag "phishing" on holder lists).
-export function isScamLabel({
-  labelType,
-  labelTag,
-}: {
-  labelType?: ADDRESS_LABEL_TYPE | null;
-  labelTag?: ADDRESS_LABEL_TAG | null;
-}): boolean {
-  return labelType === ADDRESS_LABEL_TYPE.SCAM || labelTag === ADDRESS_LABEL_TAG.PHISHING;
+// Backend flags a reported phishing address with labelType "scam".
+export function isScamLabel(labelType?: ADDRESS_LABEL_TYPE | null): boolean {
+  return labelType === ADDRESS_LABEL_TYPE.SCAM;
 }

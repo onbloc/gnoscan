@@ -32,7 +32,7 @@ export const AddressCopy = ({ address, label, labelType, truncateFromStart = fal
           {truncateFromStart ? <PathText path={displayLabel} align="right" /> : displayLabel}
         </Link>
       </EllipsisTooltip>
-      <PhishingWarningTooltip labelType={labelType} />
+      <PhishingWarningTooltip labelType={labelType} small marginLeft={-1} />
       <Tooltip className="copy-tooltip" content="Copied!" trigger="click" copyText={address} width={85}>
         <IconCopy className="svg-icon" />
       </Tooltip>
