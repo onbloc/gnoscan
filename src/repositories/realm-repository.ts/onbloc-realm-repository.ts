@@ -19,11 +19,10 @@ import { GRC20_FUNCTIONS, parseBankerGRC20InfoByFile, parseGRC20InfoByFile } fro
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { TransactionWithEvent } from "../response/transaction.types";
 import { extractStringFromResponse, parseABCIQueryNumberResponse } from "@/common/clients/node-client/utility";
-import { PageInfo, PageOption, PageQueryResponse } from "@/common/clients/indexer-client/types";
+import { PageInfo, PageQueryResponse } from "@/common/clients/indexer-client/types";
 import {
   makeRealmTransactionInfoQuery,
   makeTokenQuery,
-  makeTokensQuery,
   makeUsernameQuery,
   makeRealmCallTransactionsWithArgsQuery,
   makeRealmPackagesQuery,
@@ -56,7 +55,7 @@ export class OnblocRealmRepository implements IRealmRepository {
     });
   }
 
-  async getRealms(pageOption?: PageOption): Promise<any | null> {
+  async getRealms(): Promise<any | null> {
     if (!this.indexerClient) {
       return null;
     }
@@ -130,7 +129,7 @@ export class OnblocRealmRepository implements IRealmRepository {
             value: r.Value,
           })) || [],
       }));
-    } catch (e) {
+    } catch {
       return [];
     }
   }

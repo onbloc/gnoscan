@@ -124,7 +124,7 @@ export class RealmRepository implements IRealmRepository {
             value: r.Value,
           })) || [],
       }));
-    } catch (e) {
+    } catch {
       return [];
     }
   }

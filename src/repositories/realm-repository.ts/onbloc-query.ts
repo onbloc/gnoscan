@@ -393,36 +393,6 @@ export const makeRealmPackagesQuery = (cursor: string | null) => gql`
   }
 `;
 
-export const makeTokensQuery = () => gql`
-  {
-    transactions(filter: { success: true, message: { type_url: add_package } }) {
-      edges {
-        transaction {
-          hash
-          index
-          success
-          block_height
-          messages {
-            value {
-              ... on MsgAddPackage {
-                creator
-                package {
-                  name
-                  path
-                  files {
-                    name
-                    body
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 export const makeTokenQuery = (packagePath: string) => gql`
 {
   transactions(
