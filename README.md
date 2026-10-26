@@ -5,14 +5,14 @@ GnoScan is an opensource blockchain explorer for the Gno.land blockchain, aiming
 This repository hosts the codebase for the GnoScan Interface. The interface is built using TypeScript and comes with rich features including a real-time dashboard for the Gno.land blockchain, recent blocks and transactions, details of realms, a full list of GRC20 tokens, and more.
 
 ## Development Setup
-To set up the development environment, make sure you have Node.js version 18.14.2 installed. We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing Node.js versions. Follow these steps:
+To set up the development environment, make sure you have the Node.js version pinned in [`.nvmrc`](./.nvmrc) installed. We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing Node.js versions. Follow these steps:
 
 ```bash
-# Install Node.js version 18.14.2 (if not already installed)
-$ nvm install 18.14.2
+# Install the Node.js version from .nvmrc (if not already installed)
+$ nvm install
 
-# Use Node.js version 18.14.2
-$ nvm use 18.14.2
+# Use the Node.js version from .nvmrc
+$ nvm use
 ```
 
 This project uses `yarn` as an alternative to `npm`. If you don't have yarn installed, run the following command:
