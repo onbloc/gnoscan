@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Text from "@/components/ui/text";
 import { EMPTY_TRANSACTION_FILTER, TransactionFilterInput } from "@/common/hooks/transactions/use-transaction-filter";
+import { FunctionNameModel } from "@/repositories/api/transaction/response";
 
 const MESSAGE_TYPE_OPTIONS = [
   { value: "", label: "All Types" },
@@ -19,13 +20,17 @@ interface Props {
   dateOnly?: boolean;
   // Matching transactions, shown when the list has no other place for the count.
   resultCount?: number;
+  // Suggestions for the function input, most called first.
+  functionNames?: FunctionNameModel[];
 }
 
 /**
  * Filter controls for transaction lists: a UTC date range plus, unless dateOnly,
- * status, message type and an exact function name.
+ * status, message type and a function name. Function suggestions use a native datalist,
+ * which the browser filters by substring regardless of case.
  */
-export const TransactionFilterBar = ({ value, onChange, dateOnly = false, resultCount }: Props) => {
+export const TransactionFilterBar = ({ value, onChange, dateOnly = false, resultCount, functionNames = [] }: Props) => {
+  const functionListId = React.useId();
   const update = <K extends keyof TransactionFilterInput>(key: K, next: TransactionFilterInput[K]) =>
     onChange({ ...value, [key]: next });
 
@@ -104,10 +109,16 @@ export const TransactionFilterBar = ({ value, onChange, dateOnly = false, result
             <input
               className="filter-input function-input"
               type="text"
+              list={functionListId}
               value={value.function}
-              placeholder="Exact function name"
+              placeholder="Function name"
               onChange={event => update("function", event.target.value)}
             />
+            <datalist id={functionListId}>
+              {functionNames.map(({ name, count }) => (
+                <option key={name} value={name} label={`${count.toLocaleString()} calls`} />
+              ))}
+            </datalist>
           </label>
         </>
       )}

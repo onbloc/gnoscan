@@ -38,4 +38,21 @@ describe("toTransactionFilterParams", () => {
       toDate: "2026-10-01",
     });
   });
+
+  it("resolves a function name typed in another case to its candidate", () => {
+    const names = ["Heartbeat", "Transfer", "TransferFrom"];
+    const params = (typed: string) =>
+      toTransactionFilterParams({ ...EMPTY_TRANSACTION_FILTER, function: typed }, names).function;
+
+    expect(params("heartbeat")).toBe("Heartbeat");
+    expect(params("TRANSFERFROM")).toBe("TransferFrom");
+    expect(params("Transfer")).toBe("Transfer");
+    expect(params("Unknown")).toBe("Unknown");
+  });
+
+  it("keeps the typed name when several candidates differ only by case", () => {
+    expect(
+      toTransactionFilterParams({ ...EMPTY_TRANSACTION_FILTER, function: "mint" }, ["Mint", "MINT"]).function,
+    ).toBe("mint");
+  });
 });

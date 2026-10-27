@@ -9,6 +9,7 @@ import { useGetAccountNativeTransfers } from "@/common/react-query/account/api/u
 import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
 import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import { useTransactionFilter } from "@/common/hooks/transactions/use-transaction-filter";
+import { useGetFunctionNames } from "@/common/react-query/transaction/api";
 import { TransactionFilterBar } from "../../datatable/transaction-filter/TransactionFilterBar";
 
 interface AccountTransactionsProps {
@@ -20,7 +21,10 @@ const FILTERED_QUERY_OPTIONS = { keepPreviousData: true };
 
 const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
   // Each tab keeps its own filter, and its tab count follows it.
-  const directFilter = useTransactionFilter(`account:${address}:filter:direct`);
+  // The Transactions tab filters by functions this account called, so it suggests only those.
+  const { data: functionNameData } = useGetFunctionNames(address);
+  const functionNames = React.useMemo(() => functionNameData?.items.map(item => item.name), [functionNameData]);
+  const directFilter = useTransactionFilter(`account:${address}:filter:direct`, functionNames);
   const nativeFilter = useTransactionFilter(`account:${address}:filter:native`);
   const tokenFilter = useTransactionFilter(`account:${address}:filter:token`);
 
@@ -72,7 +76,11 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <>
-          <TransactionFilterBar value={directFilter.input} onChange={directFilter.setInput} />
+          <TransactionFilterBar
+            value={directFilter.input}
+            onChange={directFilter.setInput}
+            functionNames={functionNameData?.items}
+          />
           <ActivityDatatable
             variant="direct"
             data={directTransactions}
