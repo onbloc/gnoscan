@@ -1,4 +1,4 @@
-import React, { RefObject, useCallback, useEffect, useState } from "react";
+import React, { RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 const OPTION_SELECTOR = "[data-search-option]";
 
@@ -31,6 +31,14 @@ export const useSearchResultNavigation = ({
 }) => {
   // Tied to the results it was picked from, so new results start with nothing selected.
   const [active, setActive] = useState({ key: resetKey, index: -1 });
+  // Closing drops the selection too, so reopening on the same cached results starts clean.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (!open) setActive({ key: resetKey, index: -1 });
+  }
+  // Only arrow keys scroll the active option into view, so hovering never moves the list under the pointer.
+  const scrollToActive = useRef(false);
   const activeIndex = open && active.key === resetKey ? active.index : -1;
   const setActiveIndex = useCallback(
     (update: number | ((index: number) => number)) =>
@@ -45,7 +53,8 @@ export const useSearchResultNavigation = ({
   useEffect(() => {
     const options = getOptions(listRef.current);
     options.forEach((option, index) => option.toggleAttribute("data-active", index === activeIndex));
-    options[activeIndex]?.scrollIntoView({ block: "nearest" });
+    if (scrollToActive.current) options[activeIndex]?.scrollIntoView({ block: "nearest" });
+    scrollToActive.current = false;
   }, [listRef, activeIndex, resetKey, open]);
 
   useEffect(() => {
@@ -57,7 +66,6 @@ export const useSearchResultNavigation = ({
 
       if (event.key === "Escape") {
         event.preventDefault();
-        setActiveIndex(-1);
         close();
         return;
       }
@@ -77,6 +85,7 @@ export const useSearchResultNavigation = ({
       if ((event.key !== "ArrowDown" && event.key !== "ArrowUp") || options.length === 0) return;
       event.preventDefault();
       const step = event.key === "ArrowDown" ? 1 : -1;
+      scrollToActive.current = true;
       setActiveIndex(index => getNextOptionIndex(index, step, options.length));
     };
 

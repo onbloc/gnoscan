@@ -105,8 +105,8 @@ const AccountsList = ({ item, isMain, searchTitle, onClick }: SearchResultProps)
   const { getUrlWithNetwork } = useNetwork();
 
   return (
-    <Link href={getUrlWithNetwork(`/account/${item.address}`)} passHref>
-      <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+    <Link href={getUrlWithNetwork(`/account/${item.address}`)} passHref onClick={() => onClick(searchTitle, item)}>
+      <FitContentAStyle>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.address}
           {item.username && (
@@ -124,8 +124,12 @@ const RealmsList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) =
   const { getUrlWithNetwork } = useNetwork();
 
   return (
-    <Link href={getUrlWithNetwork(`/realms/details?path=${item.packagePath}`)} passHref>
-      <FitContentSpan onClick={() => onClick(searchTitle, item)}>
+    <Link
+      href={getUrlWithNetwork(`/realms/details?path=${item.packagePath}`)}
+      passHref
+      onClick={() => onClick(searchTitle, item)}
+    >
+      <FitContentSpan>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.packagePath}
         </Text>
@@ -139,8 +143,8 @@ const TokensList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) =
   const tokenKey = item.symbol ? `${item.packagePath}.${item.symbol}` : item.packagePath;
 
   return (
-    <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref>
-      <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+    <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref onClick={() => onClick(searchTitle, item)}>
+      <FitContentAStyle>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.name}
           <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
