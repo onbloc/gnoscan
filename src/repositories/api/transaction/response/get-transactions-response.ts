@@ -6,5 +6,7 @@ export interface GetTransactionsResponse {
   page: {
     cursor: string;
     hasNext: boolean;
+    // Set on the first page of a filtered request only.
+    totalCount?: number;
   };
 }
