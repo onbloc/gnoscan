@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Text from "@/components/ui/text";
 import { EMPTY_TRANSACTION_FILTER, TransactionFilterInput } from "@/common/hooks/transactions/use-transaction-filter";
 import { FunctionNameModel } from "@/repositories/api/transaction/response";
+import { FunctionNameCombobox } from "./FunctionNameCombobox";
 
 const MESSAGE_TYPE_OPTIONS = [
   { value: "", label: "All Types" },
@@ -26,11 +27,9 @@ interface Props {
 
 /**
  * Filter controls for transaction lists: a UTC date range plus, unless dateOnly,
- * status, message type and a function name. Function suggestions use a native datalist,
- * which the browser filters by substring regardless of case.
+ * status, message type and a function name with suggestions.
  */
 export const TransactionFilterBar = ({ value, onChange, dateOnly = false, resultCount, functionNames = [] }: Props) => {
-  const functionListId = React.useId();
   const update = <K extends keyof TransactionFilterInput>(key: K, next: TransactionFilterInput[K]) =>
     onChange({ ...value, [key]: next });
 
@@ -102,24 +101,17 @@ export const TransactionFilterBar = ({ value, onChange, dateOnly = false, result
               ))}
             </select>
           </label>
-          <label className="filter-field">
+          {/* Not a label: clicks on the suggestion list must not refocus the input. */}
+          <div className="filter-field">
             <Text type="p4" color="tertiary">
               Function
             </Text>
-            <input
-              className="filter-input function-input"
-              type="text"
-              list={functionListId}
+            <FunctionNameCombobox
               value={value.function}
-              placeholder="Function name"
-              onChange={event => update("function", event.target.value)}
+              onChange={next => update("function", next)}
+              functionNames={functionNames}
             />
-            <datalist id={functionListId}>
-              {functionNames.map(({ name, count }) => (
-                <option key={name} value={name} label={`${count.toLocaleString()} calls`} />
-              ))}
-            </datalist>
-          </label>
+          </div>
         </>
       )}
       {isFiltered && (
