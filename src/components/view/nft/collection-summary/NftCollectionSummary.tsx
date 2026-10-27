@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useNetwork } from "@/common/hooks/use-network";
+import { useNftCollectionName } from "@/common/hooks/nft/use-nft-collection-name";
 import { useGetNftCollectionMetaQuery } from "@/common/react-query/meta";
 import { useGetNftCollection, useGetNftCollections } from "@/common/react-query/token/api";
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
@@ -34,6 +35,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
   const { data: listData } = useGetNftCollections({ packagePath: collection?.path }, { enabled: !!collection?.path });
   const transfers = listData?.items.find(item => item.tokenId === collection?.tokenId)?.transfers;
   const { data: collectionMetas = [], isSuccess: isCollectionMetaLoaded } = useGetNftCollectionMetaQuery();
+  const collectionName = useNftCollectionName();
   const description = collectionMetas.find(meta => meta.pkg_path === collection?.path)?.description;
 
   const files = React.useMemo(
@@ -46,7 +48,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
   return (
     <DataSection title="Summary">
       <Field label="Name">
-        <Badge>{collection?.name || EMPTY_VALUE}</Badge>
+        <Badge>{(collection && collectionName(collection.path, collection.name)) || EMPTY_VALUE}</Badge>
       </Field>
       <Field label="Symbol">
         <Badge>{collection?.symbol || EMPTY_VALUE}</Badge>

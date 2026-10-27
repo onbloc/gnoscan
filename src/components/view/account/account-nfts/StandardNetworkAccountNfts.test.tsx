@@ -23,6 +23,9 @@ jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: { chainId: "chain-a" } }),
 }));
 jest.mock("@/common/hooks/nft/use-nft-artwork", () => ({ useNftArtwork: () => () => ({}) }));
+jest.mock("@/common/hooks/nft/use-nft-collection-name", () => ({
+  useNftCollectionName: () => (_path: string, name: string) => name,
+}));
 jest.mock("@/common/react-query/account/api/use-get-account-grc721-collections", () => ({
   useGetAccountGRC721Collections: () => ({ data: { items: mockCollections }, isFetched: true }),
 }));

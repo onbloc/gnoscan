@@ -2,6 +2,7 @@ import React from "react";
 
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useNftCollectionName } from "@/common/hooks/nft/use-nft-collection-name";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetAccountGRC721Collections } from "@/common/react-query/account/api/use-get-account-grc721-collections";
 import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-account-nfts";
@@ -22,6 +23,7 @@ interface AccountNftsProps {
 
 const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
   const { currentNetwork } = useNetworkProvider();
+  const collectionName = useNftCollectionName();
   // A network switch keeps the history entry, so the network is part of the name to start each network fresh.
   const scope = `account:${currentNetwork?.chainId}:${address}`;
   const { data: collectionsData, isFetched: isFetchedCollections } = useGetAccountGRC721Collections(address);
@@ -87,7 +89,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
             {collections.map(collection => (
               <CollectionChip
                 key={collection.tokenId}
-                label={collection.name || collection.symbol}
+                label={collectionName(collection.packagePath, collection.name) || collection.symbol}
                 count={collection.tokenCount}
                 selected={collection === activeCollection}
                 onClick={() => {

@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
+import { useNftCollectionName } from "@/common/hooks/nft/use-nft-collection-name";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetSummaryNftCollections } from "@/common/react-query/statistics";
@@ -31,6 +32,7 @@ const formatAvgNfts = (average: number) => {
 
 export const NftsSummary = () => {
   const { getUrlWithNetwork } = useNetwork();
+  const collectionName = useNftCollectionName();
   const query = useGetSummaryNftCollections();
   const summary = query.data?.data;
 
@@ -47,7 +49,7 @@ export const NftsSummary = () => {
   const rising = (summary?.rising ?? []).slice(0, 3).map(collection => ({
     key: collection.tokenId,
     href: getUrlWithNetwork(`/tokens/${collection.tokenId}`),
-    title: collection.name,
+    title: collectionName(collection.packagePath, collection.name),
     subtitle: [
       `+${countLabel(collection.mints24h, "mint")}`,
       collection.newHolders24h > 0
@@ -72,7 +74,8 @@ export const NftsSummary = () => {
             {!query.isFetched && [0, 1, 2].map(index => <SkeletonBar key={index} width="100%" height={96} />)}
             {justMinted.map(mint => {
               const artwork = getArtwork(mint.packagePath, mint.nftId);
-              const title = `${mint.collectionName} #${mint.nftId}`;
+              const name = collectionName(mint.packagePath, mint.collectionName);
+              const title = `${name} #${mint.nftId}`;
               return (
                 <S.Tile
                   key={`${mint.tokenId}:${mint.nftId}`}
@@ -80,7 +83,7 @@ export const NftsSummary = () => {
                 >
                   <NftImage src={artwork.src} isLoading={artwork.isLoading} alt={title} />
                   <Text type="body1" color="blue" className="ellipsis">
-                    {mint.collectionName}
+                    {name}
                   </Text>
                   <Text type="body1" color="tertiary">
                     {formatNftRelativeTime(mint.mintedAt)}

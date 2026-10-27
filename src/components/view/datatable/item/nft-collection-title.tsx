@@ -3,6 +3,7 @@ import Link from "next/link";
 import styled from "styled-components";
 
 import { useNetwork } from "@/common/hooks/use-network";
+import { useNftCollectionName } from "@/common/hooks/nft/use-nft-collection-name";
 import { useGetNftCollectionMetaQuery } from "@/common/react-query/meta";
 import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 import Text from "@/components/ui/text";
@@ -32,13 +33,14 @@ export const NftCollectionLogo = ({ packagePath, className }: { packagePath: str
 
 export const NftCollectionTitle = ({ tokenId, name, packagePath }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
+  const collectionName = useNftCollectionName();
 
   return (
     <Link href={getUrlWithNetwork(`/tokens/${tokenId}`)}>
       <Wrapper>
         <NftCollectionLogo className="collection-icon" packagePath={packagePath} />
         <Text type="p4" color="blue">
-          {name}
+          {collectionName(packagePath, name)}
         </Text>
       </Wrapper>
     </Link>
