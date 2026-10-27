@@ -70,6 +70,8 @@ export const HeaderRowItem = <T extends { [key in string]: any }>({
     return (
       header.sort && (
         <SortContainer
+          type="button"
+          aria-label={typeof header.name === "string" ? `Sort by ${header.name}` : "Sort"}
           active={header.key === sortOption?.field}
           order={sortOption?.order ?? ""}
           onClick={handleSortOption}
@@ -123,7 +125,7 @@ const getSortIconColor = (active: boolean, order: string, expectedOrder: string,
   return theme?.colors?.pantone ?? "";
 };
 
-const SortContainer = styled.div<{ active: boolean; order: string }>`
+const SortContainer = styled.button<{ active: boolean; order: string }>`
   & {
     display: flex;
     flex-direction: column;
