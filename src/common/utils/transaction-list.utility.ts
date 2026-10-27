@@ -70,30 +70,58 @@ const SHARED_NAMESPACES: Readonly<Record<string, true>> = {
   "r/sys": true,
 };
 
+// Compares websites without the scheme, "www." and trailing slashes. The path is kept, so two realms on gno.land do not
+// match.
+function normalizeWebsite(url: string | undefined): string {
+  if (!url) return "";
+  try {
+    const { host, pathname } = new URL(url);
+    return `${host.replace(/^www\./, "")}${pathname}`.replace(/\/+$/, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
 /**
- * Builds dApp labels from the gno-token-resource lists. A namespace with several entries takes the shortest path, then
- * the first one listed, so "r/gnoswap/gns" stands for GnoSwap over "r/gnoswap/test_token/foo".
+ * Builds dApp labels from the gno-token-resource lists. Each entry labels its namespace, and also every dapps.json key
+ * its path falls under or whose website is the same, so a project that registers in gno-token-resource ties with its
+ * dapps.json entry and wins. A key with several entries takes the shortest path, then the first one listed, so
+ * "r/gnoswap/gns" stands for GnoSwap over "r/gnoswap/test_token/foo".
  *
  * @param entries - GRC20 and GRC721 entries of gno-token-resource, in list order
- * @returns dApp labels by namespace, leaving out shared namespaces and entries without an image
+ * @param manualDapps - dApp labels by key, the bundled dapps.json by default
+ * @returns dApp labels by key, leaving out shared namespaces that dapps.json does not name and entries without an image
  */
 export function buildTokenResourceDapps(
   entries: readonly { pkg_path?: string; name: string; image: string; website_url: string }[],
+  manualDapps: Readonly<Record<string, DappLabel>> = DAPPS,
 ): Record<string, DappLabel> {
+  const manualKeysByWebsite: Record<string, string[]> = {};
+  for (const [key, dapp] of Object.entries(manualDapps)) {
+    const website = normalizeWebsite(dapp.url);
+    if (website) (manualKeysByWebsite[website] ??= []).push(key);
+  }
+
   const dapps: Record<string, DappLabel> = {};
   const depths: Record<string, number> = {};
   for (const entry of entries) {
     if (!entry.pkg_path || !entry.image) continue;
     const segments = stripGnoLandPrefix(entry.pkg_path).split("/");
-    const namespace = segments.slice(0, 2).join("/");
-    if (SHARED_NAMESPACES[namespace] || depths[namespace] <= segments.length) continue;
+    // The namespace comes first, then each longer path.
+    const prefixes = segments.slice(1).map((_, index) => segments.slice(0, index + 2).join("/"));
+    const keys = prefixes
+      .filter((key, index) => manualDapps[key] || (index === 0 && !SHARED_NAMESPACES[key]))
+      .concat(manualKeysByWebsite[normalizeWebsite(entry.website_url)] ?? []);
 
-    depths[namespace] = segments.length;
-    dapps[namespace] = {
-      name: entry.name,
-      logo: `${GNO_TOKEN_RESOURCE_BASE_URI}${entry.image}`,
-      url: entry.website_url || undefined,
-    };
+    for (const key of keys) {
+      if (depths[key] <= segments.length) continue;
+      depths[key] = segments.length;
+      dapps[key] = {
+        name: entry.name,
+        logo: `${GNO_TOKEN_RESOURCE_BASE_URI}${entry.image}`,
+        url: entry.website_url || undefined,
+      };
+    }
   }
   return dapps;
 }

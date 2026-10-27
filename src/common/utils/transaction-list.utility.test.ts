@@ -4,6 +4,7 @@ import {
   getFunctionRealmLabel,
   getRunCalledRealms,
 } from "./transaction-list.utility";
+import DAPPS from "@/assets/meta/dapps.json";
 
 const entry = (pkgPath: string | undefined, name: string, websiteUrl = "https://example.com") => ({
   pkg_path: pkgPath,
@@ -96,6 +97,22 @@ describe("findDapp", () => {
   });
 });
 
+// A project in dapps.json that later registers in gno-token-resource is labeled from gno-token-resource.
+test.each(Object.keys(DAPPS))("gno-token-resource replaces the dapps.json entry %s once the project registers", key => {
+  const dapps = buildTokenResourceDapps([entry(`gno.land/${key}/token`, "From token resource")]);
+  expect(getFunctionRealmLabel("/vm.m_call", `gno.land/${key}/token`, dapps)).toMatchObject({
+    dapp: { name: "From token resource" },
+  });
+});
+
+// The same, for a token in another realm that names the website of the dapps.json entry.
+test.each(Object.entries(DAPPS))("gno-token-resource with the website of %s replaces it", (key, dapp) => {
+  const dapps = buildTokenResourceDapps([entry("gno.land/r/elsewhere/token", "From token resource", dapp.url)]);
+  expect(getFunctionRealmLabel("/vm.m_call", `gno.land/${key}/realm`, dapps)).toMatchObject({
+    dapp: { name: "From token resource" },
+  });
+});
+
 describe("buildTokenResourceDapps", () => {
   test("keys an entry by its namespace with its name, image and website", () => {
     const dapps = buildTokenResourceDapps([entry("gno.land/r/gnoswap/gns", "GnoSwap", "https://gnoswap.io")]);
@@ -132,14 +149,46 @@ describe("buildTokenResourceDapps", () => {
   });
 
   test("skips shared namespaces and entries without a path or image", () => {
-    const dapps = buildTokenResourceDapps([
-      entry("gno.land/r/gnoland/wugnot", "wGNOT"),
-      entry("gno.land/r/demo/defi/grc20factory", "Perun"),
-      entry("gno.land/r/sys/names", "Names"),
-      entry(undefined, "GNOT"),
-      { ...entry("gno.land/r/noimage/token", "No image"), image: "" },
-    ]);
+    const dapps = buildTokenResourceDapps(
+      [
+        entry("gno.land/r/gnoland/wugnot", "wGNOT"),
+        entry("gno.land/r/demo/defi/grc20factory", "Perun"),
+        entry("gno.land/r/sys/names", "Names"),
+        entry(undefined, "GNOT"),
+        { ...entry("gno.land/r/noimage/token", "No image"), image: "" },
+      ],
+      {},
+    );
     expect(dapps).toEqual({});
+  });
+
+  test("an entry also labels the dapps.json keys its path falls under, shared namespaces included", () => {
+    const dapps = buildTokenResourceDapps(
+      [entry("gno.land/r/gnoland/wugnot", "wGNOT"), entry("gno.land/r/g1abc/gnofly/nfts/planes", "Planes")],
+      {
+        "r/gnoland/wugnot": { name: "wGNOT", logo: "w.svg", url: "https://gno.land/r/gnoland/wugnot" },
+        "r/g1abc/gnofly": { name: "gnofly", logo: "g.svg", url: "https://gnofly.xyz" },
+      },
+    );
+    expect(Object.keys(dapps).sort()).toEqual(["r/g1abc", "r/g1abc/gnofly", "r/gnoland/wugnot"]);
+  });
+
+  test("an entry also labels the dapps.json keys with the same website, wherever its path is", () => {
+    const manual = {
+      "r/g1kourt/kourt": { name: "Kourt", logo: "k.svg", url: "https://kourt.xyz" },
+      "r/g1bubble/kourtv3": { name: "Kourt", logo: "k.svg", url: "https://kourt.xyz" },
+      "r/gnoland/wugnot": { name: "wGNOT", logo: "w.svg", url: "https://gno.land/r/gnoland/wugnot" },
+    };
+    const dapps = buildTokenResourceDapps(
+      [
+        entry("gno.land/r/g1kourt/kourtcoin", "Kourt coin", "https://www.kourt.xyz/"),
+        // Another realm on gno.land does not match wGNOT, since the path is compared too.
+        entry("gno.land/r/demo/defi/grc20factory", "Perun", "https://gno.land/r/g1perun/perun"),
+      ],
+      manual,
+    );
+    expect(Object.keys(dapps).sort()).toEqual(["r/g1bubble/kourtv3", "r/g1kourt", "r/g1kourt/kourt"]);
+    expect(dapps["r/g1bubble/kourtv3"].name).toBe("Kourt coin");
   });
 
   test("an entry without a website has no url", () => {
