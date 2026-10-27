@@ -82,7 +82,7 @@ export const TopNav = () => {
   const entry = isMain || themeMode === "dark";
   const [value, setValue] = useRecoilState(searchState);
   const [open, setOpen] = useState(false);
-  const toggleMenuHandler = () => setOpen((prev: boolean) => !prev);
+  const toggleMenuHandler = useCallback(() => setOpen((prev: boolean) => !prev), []);
 
   // The mobile menu is portaled outside the header, so close it (and release its scroll lock) above mobile.
   useEffect(() => {
@@ -91,19 +91,15 @@ export const TopNav = () => {
     notMobileQuery.addEventListener("change", closeAboveMobile);
     return () => notMobileQuery.removeEventListener("change", closeAboveMobile);
   }, []);
-  const navigateToHomeHandler = () => router.push("/");
-
   const { getUrlWithNetwork } = useNetwork();
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), [setValue]);
 
   return (
     <Wrapper entry={entry}>
-      {entry ? (
-        <GnoscanLogo className="logo-icon" onClick={navigateToHomeHandler} />
-      ) : (
-        <GnoscanLogoLight className="logo-icon" onClick={navigateToHomeHandler} />
-      )}
+      <Link className="logo-icon" href={getUrlWithNetwork("/")} aria-label="Gnoscan home">
+        {entry ? <GnoscanLogo /> : <GnoscanLogoLight />}
+      </Link>
       {!isMain && (
         <div className="only-desktop">
           <SubInput className="sub-search" value={value} onChange={onChange} clearValue={() => setValue("")} />
@@ -176,8 +172,8 @@ const Wrapper = styled.div<WrapperProps>`
     fill: ${({ entry }) => (entry ? theme.darkTheme.reverse : theme.lightTheme.reverse)};
   }
   .logo-icon {
+    display: flex;
     flex-shrink: 0;
-    cursor: pointer;
   }
   // CSS picks the layout so the server HTML matches the hydrated header.
   .only-desktop,

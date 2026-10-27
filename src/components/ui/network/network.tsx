@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import GnoscanSymbol from "@/assets/svgs/icon-gnoscan-symbol.svg";
 import GnoscanSymbolLight from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
@@ -55,6 +55,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
   });
 
   const ref = useOutSideClick(() => setToggle(false));
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const { isDark, isLight } = useThemeMode();
 
@@ -122,12 +123,29 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     }
   }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
+  const onKeyDownCustomInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && !event.nativeEvent.isComposing && !isNetworkSwitching) connect();
+  };
+
   // Default network until it resolves after hydration, so the button keeps its width
   const networkName = (currentNetwork ?? getDefaultChain(chains))?.name || "";
 
   return (
-    <NetworkWrapper entry={entry} ref={ref}>
+    <NetworkWrapper
+      entry={entry}
+      ref={ref}
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key !== "Escape" || !toggle) return;
+        setToggle(false);
+        triggerRef.current?.focus();
+      }}
+      onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
+        // Close once focus leaves the whole dropdown, not when it moves between its children.
+        if (toggle && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) setToggle(false);
+      }}
+    >
       <NetworkInfoWrapper
+        ref={triggerRef}
         type="button"
         onClick={toggleHandler}
         aria-expanded={!!toggle}
@@ -178,6 +196,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                     setConnectionError("customRpcUrl", false);
                   }
                 }}
+                onKeyDown={onKeyDownCustomInput}
                 placeholder="RPC URL"
                 aria-label="RPC URL"
               />
@@ -190,6 +209,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                     setConnectionError("customIndexerUrl", false);
                   }
                 }}
+                onKeyDown={onKeyDownCustomInput}
                 placeholder="Tx Indexer URL (Optional)"
                 aria-label="Tx Indexer URL (Optional)"
               />

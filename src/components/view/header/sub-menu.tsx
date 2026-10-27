@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 import Portal from "@/components/core/portal";
 import mixins from "@/styles/mixins";
@@ -22,7 +22,7 @@ interface LinkStyleProps {
 interface SubMenuProps {
   entry: boolean;
   open: boolean;
-  onClick: (e: React.MouseEvent) => void;
+  onClick: () => void;
   selector?: string;
   darkMode?: boolean;
   currentPath: string;
@@ -38,19 +38,37 @@ export const SubMenu: React.FC<SubMenuProps> = ({
 }) => {
   const { getUrlWithNetwork } = useNetwork();
   useBodyScrollLock(open);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const close = (e: React.MouseEvent<HTMLElement>) => setTimeout(() => onClick(e), 100);
+  // Moves focus into the open menu, closes it with Escape and hands focus back to the menu button.
+  useEffect(() => {
+    if (!open) return;
+    const container = containerRef.current;
+    closeButtonRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClick();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (container?.contains(document.activeElement)) menuButtonRef.current?.focus();
+    };
+  }, [open, onClick]);
+
+  const close = () => setTimeout(onClick, 100);
 
   return (
     <>
-      <MenuButton entry={entry} onClick={onClick} aria-label="Open menu">
+      <MenuButton ref={menuButtonRef} entry={entry} onClick={onClick} aria-label="Open menu" aria-expanded={open}>
         <MenuIcon className="menu-icon" />
       </MenuButton>
       <Portal selector={selector}>
-        <Container open={open}>
+        <Container ref={containerRef} open={open}>
           <TopHeader>
             {darkMode ? <GnoscanLogo /> : <GnoscanLogoLight />}
-            <CloseButton onClick={onClick} aria-label="Close menu">
+            <CloseButton ref={closeButtonRef} onClick={onClick} aria-label="Close menu">
               <CloseIcon className="close-icon" />
             </CloseButton>
           </TopHeader>
@@ -77,10 +95,12 @@ const Container = styled.div<{ open: boolean }>`
   position: fixed;
   top: 0px;
   right: ${({ open }) => (open ? "0px" : "100%")};
+  // Hidden once it slides out, so Tab skips the links of the closed menu. Shown at once on open so focus can move in.
+  visibility: ${({ open }) => (open ? "visible" : "hidden")};
   width: 100%;
   height: 100%;
   z-index: ${zindex.mobileMenu};
-  transition: all 0.4s ease-out;
+  transition: all 0.4s ease-out, visibility 0s ${({ open }) => (open ? "0s" : "0.4s")};
   padding: 0px 18px 20px;
   overflow-x: hidden;
   overflow-y: auto;
