@@ -9,6 +9,7 @@ import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 import Tooltip, { EllipsisTooltip } from "@/components/ui/tooltip";
 import PathText from "@/components/ui/path-text/PathText";
 import { WithPhishingWarning } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
+import { CopyIconButton } from "@/components/ui/tooltip/copy-tooltip";
 import IconCopy from "@/assets/svgs/icon-copy.svg";
 import { useNetwork } from "@/common/hooks/use-network";
 
@@ -35,7 +36,9 @@ export const AddressCopy = ({ address, label, labelType, truncateFromStart = fal
         </EllipsisTooltip>
       </WithPhishingWarning>
       <Tooltip className="copy-tooltip" content="Copied!" trigger="click" copyText={address} width={85}>
-        <IconCopy className="svg-icon" />
+        <CopyIconButton>
+          <IconCopy className="svg-icon" />
+        </CopyIconButton>
       </Tooltip>
     </AddressWrapper>
   );

@@ -78,6 +78,12 @@ export const GlobalStyle = createGlobalStyle`
     border: none;
   };
 
+  // Keyboard focus only, so mouse clicks stay without a ring.
+  button:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.blue};
+    outline-offset: 2px;
+  }
+
   // CSS picks the variant so the server HTML matches the hydrated page.
   ${media.MOBILE} {
     .hide-mobile {
