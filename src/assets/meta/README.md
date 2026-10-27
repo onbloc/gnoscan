@@ -2,23 +2,24 @@
 
 dApp labels shown under the Function column of transaction tables.
 
-A realm gets its label from the first source that has it:
+A realm gets its label from the longest key that matches its path, looked up in:
 
-1. The GRC20 and GRC721 lists of [gno-token-resource](https://github.com/onbloc/gno-token-resource), matched by namespace
+1. The GRC20 and GRC721 lists of [gno-token-resource](https://github.com/onbloc/gno-token-resource), keyed by namespace
 2. `dapps.json`
-3. None, so only the realm path is shown
 
-Add an entry here only for a dApp that the lists cannot cover, such as one in a shared namespace (`r/demo`, `r/gnoland`,
-`r/sys`) or one without a token. An entry for a namespace the lists already cover is ignored.
+gno-token-resource wins when both have the same key. A realm with no match shows only its path.
+
+Add an entry here for a dApp that the lists do not cover, such as one without a token, one in a shared namespace
+(`r/demo`, `r/gnoland`, `r/sys`), or one that shares an address namespace with another dApp.
 
 ```json
-"r/gnoland/wugnot": {
-  "name": "wGNOT",
-  "logo": "/grc20/images/gno_land_r_demo_wugnot.svg",
-  "url": "https://gno.land/r/gnoland/wugnot"
+"r/g1ecsuj0q572jr0dhu29q9njtnmw03hyu7tyyvv6/kourt": {
+  "name": "Kourt",
+  "logo": "/images/dapps/kourt.svg",
+  "url": "https://kourt.xyz"
 }
 ```
 
-- Key: a namespace (`r/name`) or a full realm path. The longest matching key wins.
-- `logo`: an image path in gno-token-resource, not in this repository.
+- Key: a namespace (`r/name`) or a realm path.
+- `logo`: an image URL, or a file under `public/images/dapps/`.
 - `url`: optional. Without it, the logo is shown without a link.

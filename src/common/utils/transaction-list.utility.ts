@@ -1,6 +1,6 @@
 import type { BaseTransactionModel } from "@/models/api/transaction/transaction-model";
 import type { TransactionContractModel } from "@/repositories/api/transaction/response";
-import { WUGNOT_PACKAGE_PATH } from "@/common/values/constant-value";
+import { GNO_TOKEN_RESOURCE_BASE_URI, WUGNOT_PACKAGE_PATH } from "@/common/values/constant-value";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import DAPPS from "@/assets/meta/dapps.json";
@@ -56,7 +56,7 @@ export function getMessageKind(messageType: string): MessageKind | undefined {
 
 export interface DappLabel {
   name: string;
-  /** Image path in gno-token-resource, e.g. "/grc20/images/gno_land_r_gnoswap_gns.svg". */
+  /** Image URL, or a path under public/ such as "/images/dapps/kourt.svg". */
   logo: string;
   /** The dApp's website, opened from the logo. The logo is not a link without it. */
   url?: string;
@@ -89,27 +89,34 @@ export function buildTokenResourceDapps(
     if (SHARED_NAMESPACES[namespace] || depths[namespace] <= segments.length) continue;
 
     depths[namespace] = segments.length;
-    dapps[namespace] = { name: entry.name, logo: entry.image, url: entry.website_url || undefined };
+    dapps[namespace] = {
+      name: entry.name,
+      logo: `${GNO_TOKEN_RESOURCE_BASE_URI}${entry.image}`,
+      url: entry.website_url || undefined,
+    };
   }
   return dapps;
 }
 
 /**
- * Finds the dApp of a package path. A key is a namespace ("r/gnoswap") or a full realm path ("r/gnoland/wugnot") for
- * a namespace shared by unrelated realms, and the longest matching key wins.
+ * Finds the dApp of a package path. A key is a namespace ("r/gnoswap") or a realm path ("r/gnoland/wugnot") for a
+ * namespace shared by unrelated apps. The longest matching key wins, and the earlier registry wins a tie.
  *
  * @param packagePath - Package path with or without the "gno.land/" prefix
- * @param registry - dApp labels by key, the bundled dapps.json by default
+ * @param registries - dApp labels by key in priority order, the bundled dapps.json by default
  * @returns The matched dApp, or undefined when no key matches
  */
 export function findDapp(
   packagePath: string,
-  registry: Readonly<Record<string, DappLabel>> = DAPPS,
+  ...registries: Readonly<Record<string, DappLabel>>[]
 ): DappLabel | undefined {
+  if (registries.length === 0) registries = [DAPPS];
   const segments = stripGnoLandPrefix(packagePath).split("/");
   for (let depth = segments.length; depth >= 2; depth--) {
-    const dapp = registry[segments.slice(0, depth).join("/")];
-    if (dapp) return dapp;
+    const key = segments.slice(0, depth).join("/");
+    for (const registry of registries) {
+      if (registry[key]) return registry[key];
+    }
   }
   return undefined;
 }
@@ -124,7 +131,8 @@ export type FunctionRealmLabel =
 /**
  * Builds the line under the Function chip that tells which realm or kind of message the function belongs to.
  *
- * A dApp comes from gno-token-resource first, then from dapps.json, and is left out when neither has it.
+ * A dApp comes from the longest matching key in gno-token-resource or dapps.json, with gno-token-resource winning a
+ * tie, and is left out when neither has it.
  *
  * @param messageType - Message type from the API ("/vm.m_call") or a custom network mapper ("MsgCall")
  * @param packagePath - Package path of the message shown in the chip, empty when it has none
@@ -139,7 +147,7 @@ export function getFunctionRealmLabel(
   switch (getMessageKind(messageType)) {
     case "call":
       return packagePath
-        ? { kind: "call", packagePath, dapp: findDapp(packagePath, tokenResourceDapps) ?? findDapp(packagePath) }
+        ? { kind: "call", packagePath, dapp: findDapp(packagePath, tokenResourceDapps, DAPPS) }
         : undefined;
     case "deploy":
       return packagePath ? { kind: "deploy", packagePath } : undefined;

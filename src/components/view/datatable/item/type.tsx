@@ -17,7 +17,6 @@ import {
 import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
 import { useFetchRemainingPages } from "@/common/hooks/common/use-fetch-remaining-pages";
 import { useNetwork } from "@/common/hooks/use-network";
-import { GNO_TOKEN_RESOURCE_BASE_URI } from "@/common/values/constant-value";
 import { useGetNftCollectionMetaQuery, useGetTokenMetaQuery } from "@/common/react-query/meta";
 interface Props {
   /** Message type from the API ("/vm.m_call") or a custom network mapper ("MsgCall"). */
@@ -149,7 +148,7 @@ const DappLogo = ({ dapp }: { dapp: DappLabel }) => {
   const logo = (
     <img
       className="dapp-logo"
-      src={`${GNO_TOKEN_RESOURCE_BASE_URI}${dapp.logo}`}
+      src={dapp.logo}
       alt={dapp.name}
       title={dapp.url ? undefined : dapp.name}
       onError={() => setLogoFailed(true)}

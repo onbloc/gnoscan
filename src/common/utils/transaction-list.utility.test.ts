@@ -39,15 +39,27 @@ describe("getFunctionRealmLabel", () => {
     expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/gnoland/wugnot", dapps)).toMatchObject({
       dapp: { name: "wGNOT" },
     });
-    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/akkadia/beta/craft", dapps)).toMatchObject({
-      dapp: undefined,
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/nobody/app", dapps)).toMatchObject({ dapp: undefined });
+  });
+
+  test("gno-token-resource wins over dapps.json for the same key", () => {
+    const dapps = { "r/akkadia": { name: "From token resource", logo: "a.svg" } };
+    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/akkadia/beta/abt", dapps)).toMatchObject({
+      dapp: { name: "From token resource" },
     });
   });
 
-  test("gno-token-resource wins over dapps.json for the same realm", () => {
-    const dapps = { "r/demo/wugnot": { name: "From token resource", logo: "a.svg" } };
-    expect(getFunctionRealmLabel("/vm.m_call", "gno.land/r/demo/wugnot", dapps)).toMatchObject({
-      dapp: { name: "From token resource" },
+  test("a dapps.json realm key wins over the gno-token-resource namespace it sits in", () => {
+    const dapps = buildTokenResourceDapps([
+      entry("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble", "BUBBLE (wrapped)"),
+    ]);
+    const label = (path: string) => getFunctionRealmLabel("/vm.m_call", path, dapps);
+
+    expect(label("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/kourtv3")).toMatchObject({
+      dapp: { name: "Kourt" },
+    });
+    expect(label("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/bubblerumble5")).toMatchObject({
+      dapp: { name: "BUBBLE (wrapped)" },
     });
   });
 
@@ -89,7 +101,11 @@ describe("buildTokenResourceDapps", () => {
     const dapps = buildTokenResourceDapps([entry("gno.land/r/gnoswap/gns", "GnoSwap", "https://gnoswap.io")]);
 
     expect(dapps).toEqual({
-      "r/gnoswap": { name: "GnoSwap", logo: "/grc20/images/GnoSwap.svg", url: "https://gnoswap.io" },
+      "r/gnoswap": {
+        name: "GnoSwap",
+        logo: "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/GnoSwap.svg",
+        url: "https://gnoswap.io",
+      },
     });
     expect(findDapp("gno.land/r/gnoswap/v1/router", dapps)?.name).toBe("GnoSwap");
   });
