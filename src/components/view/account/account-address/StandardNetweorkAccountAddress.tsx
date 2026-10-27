@@ -32,10 +32,7 @@ const StandardNetworkAccountAddress = ({ address, validatorInfo }: AccountAddres
   // Realm labels hold a package path and those addresses redirect to the realm page, so skip them.
   const label = data?.data?.labelType !== ADDRESS_LABEL_TYPE.REALM ? data?.data?.label || null : null;
 
-  const handleValidatorLinkClick = React.useCallback(() => {
-    const url = `${gnoWebUrl}/r/gnops/valopers:${validatorInfo?.operationAddress}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  }, [gnoWebUrl, validatorInfo?.operationAddress]);
+  const validatorUrl = gnoWebUrl ? `${gnoWebUrl}/r/gnops/valopers:${validatorInfo?.operationAddress}` : undefined;
 
   if (isLoading || !isFetched) {
     return <AccountAddressSkeleton />;
@@ -56,7 +53,7 @@ const StandardNetworkAccountAddress = ({ address, validatorInfo }: AccountAddres
             {validatorInfo?.name && (
               <>
                 <Divider size={1} length={18} orientation="vertical" />
-                <LinkWrapper onClick={handleValidatorLinkClick} rel="noreferrer">
+                <LinkWrapper href={validatorUrl} target="_blank" rel="noreferrer">
                   <Text type="p4" color="blue">
                     {validatorInfo.name}
                   </Text>

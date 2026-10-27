@@ -56,9 +56,15 @@ export const RealmShareChart = ({
         </Text>
         <div className="period-selector">
           {PERIODS.map(item => (
-            <span key={item} className={period === item ? "active" : ""} onClick={() => onClickPeriod(item)}>
+            <button
+              type="button"
+              key={item}
+              className={period === item ? "active" : ""}
+              aria-pressed={period === item}
+              onClick={() => onClickPeriod(item)}
+            >
               {`${item}D`}
-            </span>
+            </button>
           ))}
         </div>
       </div>
@@ -93,7 +99,7 @@ const Wrapper = styled.div`
     display: flex;
     color: ${({ theme }) => theme.colors.tertiary};
 
-    span {
+    button {
       width: 60px;
       height: 30px;
       display: inline-flex;

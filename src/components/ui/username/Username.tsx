@@ -18,22 +18,15 @@ interface UsernameProps {
 export const Username = ({ username, userUrl }: UsernameProps) => {
   const { gnoWebUrl } = useNetwork();
 
-  const handleGnoWebNavigation = React.useCallback(() => {
-    if (!username) return;
+  const url = React.useMemo(() => {
+    if (!username) return undefined;
+    if (userUrl) return userUrl;
+    if (!gnoWebUrl) return undefined;
 
-    if (userUrl) {
-      window.open(userUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-
-    if (!gnoWebUrl) return;
-
-    const url = makeTemplate(GNOWEB_USER_TEMPLATE, {
+    return makeTemplate(GNOWEB_USER_TEMPLATE, {
       GNOWEB_URL: gnoWebUrl,
       USER_ADDRESS: `${GNOWEB_USER_DETAIL_PATH}${username}`,
     });
-
-    window.open(url, "_blank", "noopener,noreferrer");
   }, [gnoWebUrl, username, userUrl]);
 
   return (
@@ -41,7 +34,7 @@ export const Username = ({ username, userUrl }: UsernameProps) => {
       <S.ContentWrapper>
         <Divider size={1} length={18} orientation="vertical" />
 
-        <LinkWrapper onClick={handleGnoWebNavigation} rel="noreferrer">
+        <LinkWrapper href={url} target="_blank" rel="noreferrer">
           <S.Username type="p4" color="blue">
             {username}
             <IconLink />

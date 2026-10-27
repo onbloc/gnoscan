@@ -238,17 +238,22 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
       />
 
       <div className="legend-list-wrapper">
-        {chartData.datasets.map((dataset, index) => (
-          <LegendWrapper
-            key={index}
-            fill={`${dataset?.borderColor}`}
-            disabled={excludedDatasets.findIndex(item => item.label === dataset.label) > -1}
-            onClick={() => onClickLegend(dataset)}
-          >
-            <span className="legend-mark"></span>
-            <span className="legend-name">{makeAreaGraphDisplayLabel(dataset.label || "")}</span>
-          </LegendWrapper>
-        ))}
+        {chartData.datasets.map((dataset, index) => {
+          const excluded = excludedDatasets.some(item => item.label === dataset.label);
+          return (
+            <LegendWrapper
+              type="button"
+              key={index}
+              fill={`${dataset?.borderColor}`}
+              $excluded={excluded}
+              aria-pressed={!excluded}
+              onClick={() => onClickLegend(dataset)}
+            >
+              <span className="legend-mark"></span>
+              <span className="legend-name">{makeAreaGraphDisplayLabel(dataset.label || "")}</span>
+            </LegendWrapper>
+          );
+        })}
       </div>
     </Wrapper>
   );
@@ -290,7 +295,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const LegendWrapper = styled.div<{ fill: string; disabled: boolean }>`
+const LegendWrapper = styled.button<{ fill: string; $excluded: boolean }>`
   display: flex;
   height: 20px;
   flex-direction: row;
@@ -299,7 +304,7 @@ const LegendWrapper = styled.div<{ fill: string; disabled: boolean }>`
   cursor: pointer;
   user-select: none;
 
-  ${({ disabled }) => disabled && "text-decoration: line-through;"}
+  ${({ $excluded }) => $excluded && "text-decoration: line-through;"}
 
   .legend-mark {
     display: inline-block;
