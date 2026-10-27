@@ -6,6 +6,7 @@ import { AreaChartTooltip } from "./tooltip";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
+import mixins from "@/styles/mixins";
 import styled from "styled-components";
 import BigNumber from "bignumber.js";
 import { formatAddress } from "@/common/utils";
@@ -301,14 +302,13 @@ const LegendWrapper = styled.button<{ fill: string; $excluded: boolean }>`
   flex-direction: row;
   align-items: center;
   margin-right: 10px;
-  cursor: pointer;
   user-select: none;
 
   ${({ $excluded }) => $excluded && "text-decoration: line-through;"}
 
   /* Inset, since the legend can sit on the bottom edge of a fixed height card that clips overflow. */
   &:focus-visible {
-    outline-offset: -2px;
+    ${mixins.insetFocusRing()};
   }
 
   .legend-mark {

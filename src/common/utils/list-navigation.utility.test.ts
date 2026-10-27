@@ -1,4 +1,4 @@
-import { getNextOptionIndex } from "./use-search-result-navigation";
+import { getNextOptionIndex } from "./list-navigation.utility";
 
 describe("getNextOptionIndex", () => {
   it("starts from the first option on Down and the last on Up", () => {

@@ -133,7 +133,6 @@ const SortContainer = styled.button<{ active: boolean; order: string }>`
     height: auto;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
 
     ${theme.fonts.p4};
 

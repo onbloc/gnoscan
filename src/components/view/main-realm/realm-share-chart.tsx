@@ -107,7 +107,6 @@ const Wrapper = styled.div`
       align-items: center;
       border: 1px solid ${({ theme }) => theme.colors.tertiary};
       ${theme.fonts.p4};
-      cursor: pointer;
 
       &.active {
         cursor: auto;

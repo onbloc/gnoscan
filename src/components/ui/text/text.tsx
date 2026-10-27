@@ -2,6 +2,7 @@ import styled, { css } from "styled-components";
 import React, { CSSProperties, PropsWithChildren } from "react";
 import { FontsType } from "@/styles/theme";
 import { media } from "@/common/values/ui.constant";
+import mixins from "@/styles/mixins";
 
 export interface TextProps extends React.ComponentPropsWithoutRef<"div"> {
   className?: string;
@@ -70,8 +71,7 @@ const Wrapper = styled.div<TextProps>`
 
     /* Inset, since the overflow above would clip a ring drawn outside the link. */
     a:focus-visible {
-      outline: 2px solid ${({ theme }) => theme.colors.blue};
-      outline-offset: -2px;
+      ${mixins.insetFocusRing()};
     }
   }
 `;

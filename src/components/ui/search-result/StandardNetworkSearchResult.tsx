@@ -24,7 +24,7 @@ interface StyleProps {
   ref?: any;
 }
 
-const StandardNetworkSearchResult = ({ inputRef }: { inputRef?: RefObject<HTMLInputElement> }) => {
+const StandardNetworkSearchResult = ({ inputRef }: { inputRef: RefObject<HTMLInputElement> }) => {
   const { route } = useRouter();
 
   const [open, setOpen] = useState(false);

@@ -3,7 +3,7 @@ import React from "react";
 import IconSearch from "@/assets/svgs/icon-nft-search.svg";
 import { NftInventoryToolbarProps } from "@/common/hooks/nft/use-nft-inventory-controls";
 import useOutSideClick from "@/common/hooks/use-outside-click";
-import { getNextOptionIndex } from "@/common/hooks/use-search-result-navigation";
+import { getNextOptionIndex } from "@/common/utils/list-navigation.utility";
 
 import * as S from "./NftInventoryToolbar.styles";
 

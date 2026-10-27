@@ -1,6 +1,7 @@
-import React, { RefObject, useCallback, useEffect, useRef } from "react";
+import React, { RefObject, useCallback } from "react";
+import { flushSync } from "react-dom";
 
-import { getNextOptionIndex } from "./use-search-result-navigation";
+import { getNextOptionIndex } from "@/common/utils/list-navigation.utility";
 
 const MENU_ITEM_SELECTOR = "[data-menu-item]";
 
@@ -14,7 +15,7 @@ const focusNextItem = (menu: HTMLElement | null, step: 1 | -1) => {
 /**
  * Keyboard handling for a dropdown menu, attached to the element that wraps its trigger and list.
  * Up and Down open the menu and move focus through the `data-menu-item` elements, wrapping around at both ends.
- * Escape closes the menu and returns focus to the trigger.
+ * Escape closes the menu and returns focus to the trigger, and the menu closes once focus moves outside it.
  */
 export const useMenuKeyboard = ({
   open,
@@ -27,16 +28,7 @@ export const useMenuKeyboard = ({
   triggerRef: RefObject<HTMLElement>;
   menuRef: RefObject<HTMLElement>;
 }) => {
-  // Focus waits for the menu to render open when an arrow key opened it.
-  const pendingStep = useRef<1 | -1 | null>(null);
-
-  useEffect(() => {
-    if (!open || !pendingStep.current) return;
-    focusNextItem(menuRef.current, pendingStep.current);
-    pendingStep.current = null;
-  }, [open, menuRef]);
-
-  return useCallback(
+  const onKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === "Escape") {
         if (!open) return;
@@ -50,15 +42,21 @@ export const useMenuKeyboard = ({
       // Arrow keys keep moving the caret inside text fields such as the custom RPC inputs.
       if (event.target instanceof HTMLInputElement) return;
       event.preventDefault();
-      const step = event.key === "ArrowDown" ? 1 : -1;
-
-      if (!open) {
-        pendingStep.current = step;
-        setOpen(true);
-        return;
-      }
-      focusNextItem(menuRef.current, step);
+      // Render the menu open first, so its items can take focus.
+      if (!open) flushSync(() => setOpen(true));
+      focusNextItem(menuRef.current, event.key === "ArrowDown" ? 1 : -1);
     },
     [open, setOpen, triggerRef, menuRef],
   );
+
+  const onBlur = useCallback(
+    (event: React.FocusEvent) => {
+      // Moving between the trigger and the items keeps it open. A click on nothing focusable is left to outside click.
+      const next = event.relatedTarget;
+      if (open && next && !event.currentTarget.contains(next)) setOpen(false);
+    },
+    [open, setOpen],
+  );
+
+  return { onKeyDown, onBlur };
 };

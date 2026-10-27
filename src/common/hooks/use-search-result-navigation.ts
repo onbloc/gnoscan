@@ -1,14 +1,10 @@
 import React, { RefObject, useCallback, useEffect, useRef, useState } from "react";
 
+import { getNextOptionIndex } from "@/common/utils/list-navigation.utility";
+
 const OPTION_SELECTOR = "[data-search-option]";
 
 const getOptions = (list: HTMLElement | null) => Array.from(list?.querySelectorAll<HTMLElement>(OPTION_SELECTOR) ?? []);
-
-/** Wraps around at both ends. From no selection, Down goes to the first option and Up to the last. */
-export const getNextOptionIndex = (index: number, step: 1 | -1, count: number) => {
-  if (index === -1 && step === -1) return count - 1;
-  return (index + step + count) % count;
-};
 
 /**
  * Keyboard navigation for a search dropdown rendered next to its input.
@@ -23,32 +19,21 @@ export const useSearchResultNavigation = ({
   close,
   resetKey,
 }: {
-  inputRef?: RefObject<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement>;
   listRef: RefObject<HTMLElement>;
   open: boolean;
   close: () => void;
   resetKey: unknown;
 }) => {
-  // Tied to the results it was picked from, so new results start with nothing selected.
-  const [active, setActive] = useState({ key: resetKey, index: -1 });
-  // Closing drops the selection too, so reopening on the same cached results starts clean.
-  const [wasOpen, setWasOpen] = useState(open);
-  if (open !== wasOpen) {
-    setWasOpen(open);
-    if (!open) setActive({ key: resetKey, index: -1 });
+  const [activeIndex, setActiveIndex] = useState(-1);
+  // New results or opening and closing start with nothing selected, also when reopening on the same cached results.
+  const [selectionScope, setSelectionScope] = useState({ resetKey, open });
+  if (selectionScope.resetKey !== resetKey || selectionScope.open !== open) {
+    setSelectionScope({ resetKey, open });
+    setActiveIndex(-1);
   }
   // Only arrow keys scroll the active option into view, so hovering never moves the list under the pointer.
   const scrollToActive = useRef(false);
-  const activeIndex = open && active.key === resetKey ? active.index : -1;
-  const setActiveIndex = useCallback(
-    (update: number | ((index: number) => number)) =>
-      setActive(previous => {
-        const current = previous.key === resetKey ? previous.index : -1;
-        const index = typeof update === "function" ? update(current) : update;
-        return previous.key === resetKey && previous.index === index ? previous : { key: resetKey, index };
-      }),
-    [resetKey],
-  );
 
   useEffect(() => {
     const options = getOptions(listRef.current);
@@ -58,7 +43,7 @@ export const useSearchResultNavigation = ({
   }, [listRef, activeIndex, resetKey, open]);
 
   useEffect(() => {
-    const input = inputRef?.current;
+    const input = inputRef.current;
     if (!input || !open) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -91,17 +76,17 @@ export const useSearchResultNavigation = ({
 
     input.addEventListener("keydown", onKeyDown);
     return () => input.removeEventListener("keydown", onKeyDown);
-  }, [inputRef, listRef, open, close, setActiveIndex]);
+  }, [inputRef, listRef, open, close]);
 
   const onMouseMove = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       const option = (event.target as HTMLElement).closest<HTMLElement>(OPTION_SELECTOR);
-      if (option) setActiveIndex(getOptions(listRef.current).indexOf(option));
+      if (option && !option.hasAttribute("data-active")) setActiveIndex(getOptions(listRef.current).indexOf(option));
     },
-    [listRef, setActiveIndex],
+    [listRef],
   );
 
-  const onMouseLeave = useCallback(() => setActiveIndex(-1), [setActiveIndex]);
+  const onMouseLeave = useCallback(() => setActiveIndex(-1), []);
 
   return { onMouseMove, onMouseLeave };
 };

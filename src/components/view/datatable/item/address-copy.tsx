@@ -6,11 +6,10 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import Tooltip, { EllipsisTooltip } from "@/components/ui/tooltip";
+import { EllipsisTooltip } from "@/components/ui/tooltip";
 import PathText from "@/components/ui/path-text/PathText";
 import { WithPhishingWarning } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
-import { CopyIconButton } from "@/components/ui/tooltip/copy-tooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { useNetwork } from "@/common/hooks/use-network";
 
 const ADDRESS_ELLIPSIS_LENGTH = 8;
@@ -35,11 +34,7 @@ export const AddressCopy = ({ address, label, labelType, truncateFromStart = fal
           </Link>
         </EllipsisTooltip>
       </WithPhishingWarning>
-      <Tooltip className="copy-tooltip" content="Copied!" trigger="click" copyText={address} width={85}>
-        <CopyIconButton>
-          <IconCopy className="svg-icon" />
-        </CopyIconButton>
-      </Tooltip>
+      <CopyTooltip variant="path" className="copy-tooltip" copyText={address} />
     </AddressWrapper>
   );
 };

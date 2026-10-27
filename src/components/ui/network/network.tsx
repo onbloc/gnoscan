@@ -58,7 +58,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
   const ref = useOutSideClick(() => setToggle(false));
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const onKeyDown = useMenuKeyboard({ open: !!toggle, setOpen: setToggle, triggerRef, menuRef: listRef });
+  const { onKeyDown, onBlur } = useMenuKeyboard({ open: !!toggle, setOpen: setToggle, triggerRef, menuRef: listRef });
 
   const { isDark, isLight } = useThemeMode();
 
@@ -134,15 +134,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
   const networkName = (currentNetwork ?? getDefaultChain(chains))?.name || "";
 
   return (
-    <NetworkWrapper
-      entry={entry}
-      ref={ref}
-      onKeyDown={onKeyDown}
-      onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
-        // Close once focus leaves the whole dropdown, not when it moves between its children.
-        if (toggle && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) setToggle(false);
-      }}
-    >
+    <NetworkWrapper entry={entry} ref={ref} onKeyDown={onKeyDown} onBlur={onBlur}>
       <NetworkInfoWrapper
         ref={triggerRef}
         type="button"
@@ -275,13 +267,11 @@ const NetworkInfoWrapper = styled.button<StyleProps>`
 const NetworkList = styled.ul<StyleProps>`
   width: 280px;
   opacity: ${({ toggle }) => (toggle ? "1" : "0")};
-  visibility: ${({ toggle }) => (toggle ? "visible" : "hidden")};
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.dimmed50};
   padding: 8px;
-  // Visible at once on open so arrow keys can move focus in, hidden after the closing animation.
-  transition: all 0.3s ease, visibility 0s ${({ toggle }) => (toggle ? "0s" : "0.3s")};
+  ${({ toggle }) => mixins.revealOnOpen(!!toggle, "0.3s")};
   transform: ${({ toggle }) => (toggle ? "scale(1)" : "scale(0.5)")};
   z-index: ${zindex.scrollbar};
   ${({ toggle }) => mixins.posMoveToTopAndRight(toggle ? "50px" : "0px")};

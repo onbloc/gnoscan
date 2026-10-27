@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { useSearchResultNavigation } from "@/common/hooks/use-search-result-navigation";
+import { List } from "./search-result-item/SearchResultItem.styles";
 import { zindex } from "@/common/values/z-index";
 import { ValuesType } from "utility-types";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -34,7 +35,7 @@ export const SEARCH_TITLE = {
 } as const;
 export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
-const SearchResult = ({ inputRef }: { inputRef?: RefObject<HTMLInputElement> }) => {
+const SearchResult = ({ inputRef }: { inputRef: RefObject<HTMLInputElement> }) => {
   const [keyword, setKeyword] = useRecoilState(searchState);
   const { route } = useRouter();
   const isMain = route === "/";
@@ -164,16 +165,6 @@ const commonContentStyle = css`
 
 const ListContainer = styled.ul`
   ${commonContentStyle}
-`;
-
-const List = styled.li`
-  ${mixins.flexbox("row", "center", "flex-start")};
-  width: 100%;
-  border-radius: 4px;
-  padding: 6px 10px;
-  &[data-active] {
-    background-color: ${({ theme }) => theme.colors.dimmed50};
-  }
 `;
 
 const Section = styled.section`

@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 import { media } from "@/common/values/ui.constant";
 import { zindex } from "@/common/values/z-index";
+import mixins from "@/styles/mixins";
 
 // Figma 6565:14833: 450 × 1104px desktop box with a 16px content inset.
 // Extra content scrolls inside the box; below desktop it remains a bottom sheet.
@@ -363,8 +364,7 @@ export const TransferDescription = styled.div`
 
     /* Inset, since the overflow above would clip a ring drawn outside the link. */
     &:focus-visible {
-      outline: 2px solid ${({ theme }) => theme.colors.blue};
-      outline-offset: -2px;
+      ${mixins.insetFocusRing()};
     }
   }
 `;

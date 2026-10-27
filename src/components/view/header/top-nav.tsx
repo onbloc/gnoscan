@@ -234,7 +234,7 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
   const listRef = useRef<HTMLUListElement>(null);
   const close = useCallback(() => setOpen(false), []);
   const ref = useOutSideClick(close);
-  const onKeyDown = useMenuKeyboard({ open, setOpen, triggerRef, menuRef: listRef });
+  const { onKeyDown, onBlur } = useMenuKeyboard({ open, setOpen, triggerRef, menuRef: listRef });
 
   return (
     <DropdownWrapper
@@ -251,11 +251,8 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
         close();
       }}
       onKeyDown={onKeyDown}
-      onBlur={e => {
-        // Close once focus leaves the whole dropdown, not when it moves between its children.
-        if (mouseHovered.current || e.currentTarget.contains(e.relatedTarget)) return;
-        close();
-      }}
+      // A hovered menu stays open while focus moves elsewhere.
+      onBlur={e => !mouseHovered.current && onBlur(e)}
     >
       <DropdownButton
         ref={triggerRef}
@@ -345,11 +342,9 @@ const DropdownList = styled.ul<{ open: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.dimmed50};
   background-color: ${({ theme }) => theme.colors.surface};
   opacity: ${({ open }) => (open ? "1" : "0")};
-  visibility: ${({ open }) => (open ? "visible" : "hidden")};
   transform: ${({ open }) => (open ? "scale(1)" : "scale(0.5)")};
   transform-origin: top left;
-  // Visible at once on open so arrow keys can move focus in, hidden after the closing animation.
-  transition: all 0.3s ease, visibility 0s ${({ open }) => (open ? "0s" : "0.3s")};
+  ${({ open }) => mixins.revealOnOpen(open, "0.3s")};
   // Above the home page search box, which overlaps the bottom of the list.
   z-index: ${zindex.headerDropdown};
 

@@ -34,7 +34,6 @@ const ToggleDetailsWrapper = styled.button`
       width: 75px;
       max-width: 75px;
       border: 1px solid ${({ theme }) => theme.colors.pantone};
-      cursor: pointer;
     }
   }
 `;

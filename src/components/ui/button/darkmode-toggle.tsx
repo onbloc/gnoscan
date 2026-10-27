@@ -40,7 +40,6 @@ const Wrapper = styled.button`
   height: 32px;
   border-radius: 12px;
   background: ${({ theme }) => theme.colors.surface};
-  cursor: pointer;
 `;
 
 const ToggleButton = styled.div<ToggleButtonProps>`

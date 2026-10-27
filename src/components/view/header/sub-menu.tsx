@@ -46,6 +46,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
   useEffect(() => {
     if (!open) return;
     const container = containerRef.current;
+    const menuButton = menuButtonRef.current;
     closeButtonRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClick();
@@ -53,7 +54,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      if (container?.contains(document.activeElement)) menuButtonRef.current?.focus();
+      if (container?.contains(document.activeElement)) menuButton?.focus();
     };
   }, [open, onClick]);
 
@@ -95,12 +96,11 @@ const Container = styled.div<{ open: boolean }>`
   position: fixed;
   top: 0px;
   right: ${({ open }) => (open ? "0px" : "100%")};
-  // Hidden once it slides out, so Tab skips the links of the closed menu. Shown at once on open so focus can move in.
-  visibility: ${({ open }) => (open ? "visible" : "hidden")};
   width: 100%;
   height: 100%;
   z-index: ${zindex.mobileMenu};
-  transition: all 0.4s ease-out, visibility 0s ${({ open }) => (open ? "0s" : "0.4s")};
+  // Hidden once it slides out, so Tab skips the links of the closed menu.
+  ${({ open }) => mixins.revealOnOpen(open, "0.4s", "ease-out")};
   padding: 0px 18px 20px;
   overflow-x: hidden;
   overflow-y: auto;

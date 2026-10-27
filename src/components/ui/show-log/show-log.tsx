@@ -266,12 +266,11 @@ const List = styled.button<StyleProps>`
   color: ${({ active, theme }) => !active && theme.colors.tertiary};
   padding: 12px 16px;
   height: 44px;
-  cursor: pointer;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   /* Inset, since the scrolling tab strip would clip a ring drawn outside. */
   &:focus-visible {
-    outline-offset: -2px;
+    ${mixins.insetFocusRing()};
   }
   ${({ active, theme }) =>
     active &&
