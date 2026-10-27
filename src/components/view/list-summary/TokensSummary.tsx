@@ -74,7 +74,7 @@ export const TokensSummary = () => {
   });
 
   const transferDetails = [
-    "Daily · last 7 days",
+    "Last 7 days",
     summary && countLabel(summary.transfers.activeTokens24h, "token"),
     summary && countLabel(summary.transfers.uniqueSenders24h, "sender"),
   ];
@@ -87,7 +87,7 @@ export const TokensSummary = () => {
       <SummaryCard
         title="Newly added"
         live
-        footer={summary && `${makeDisplayNumber(summary.weeklyNewCount)} added this week`}
+        footer={summary && `${makeDisplayNumber(summary.weeklyNewCount)} added in 7 days`}
       >
         <SummaryRows
           rows={newlyAdded}
@@ -109,11 +109,11 @@ export const TokensSummary = () => {
         <SummaryBigNumber
           value={summary?.transfers.count24h}
           isFetched={summaryQuery.isFetched}
-          badge={toPctBadge(summary?.transfers.deltaPct, " vs yesterday")}
+          badge={toPctBadge(summary?.transfers.deltaPct, " vs previous 24h")}
         />
         <SummaryBars
-          label="Daily transfers, last 7 days"
-          dates={summary?.transfers.daily.map(day => day.date) ?? []}
+          label="Transfers per 24h, last 7 days"
+          periods={summary?.transfers.daily ?? []}
           series={[{ color: "blue", values: summary?.transfers.daily.map(day => day.count) ?? [] }]}
         />
       </SummaryCard>

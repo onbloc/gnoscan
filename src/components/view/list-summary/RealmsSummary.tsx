@@ -80,7 +80,7 @@ export const RealmsSummary = () => {
       <SummaryCard
         title="Builders · 7d"
         live
-        footer={`Deploys · ${summary ? countLabel(summary.publishers7d, "publisher") : "- publishers"} this week`}
+        footer={`Deploys · ${summary ? countLabel(summary.publishers7d, "publisher") : "- publishers"} in 7 days`}
       >
         <SummaryRows
           rows={builders}
@@ -102,7 +102,7 @@ export const RealmsSummary = () => {
       <SummaryCard
         title="Calls · 24h"
         footer={[
-          "Daily · last 7 days",
+          "Last 7 days",
           calls && countLabel(calls.uniqueCallers24h, "caller"),
           calls && countLabel(calls.realmsTouched24h, "realm"),
         ]
@@ -112,11 +112,11 @@ export const RealmsSummary = () => {
         <SummaryBigNumber
           value={calls?.calls24h}
           isFetched={query.isFetched}
-          badge={toPctBadge(calls?.deltaPct, " vs yesterday")}
+          badge={toPctBadge(calls?.deltaPct, " vs previous 24h")}
         />
         <SummaryBars
-          label="Daily realm calls, last 7 days"
-          dates={calls?.daily.map(day => day.date) ?? []}
+          label="Realm calls per 24h, last 7 days"
+          periods={calls?.daily ?? []}
           series={[{ color: "blue", values: calls?.daily.map(day => day.count) ?? [] }]}
         />
       </SummaryCard>

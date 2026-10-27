@@ -2,16 +2,25 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
+import dayjs from "dayjs";
 import { SummaryBars, toCountBadge, toPctBadge } from "./ListSummary";
+import { NftsSummary } from "./NftsSummary";
 import { RealmsSummary } from "./RealmsSummary";
 import { TokensSummary } from "./TokensSummary";
 import { GetSummaryTokensResponse } from "@/repositories/api/statistics/response/get-list-summary-response";
 
 const mockSummary = { data: undefined as unknown, isFetched: true, isError: false };
 jest.mock("@/common/react-query/statistics", () => ({
+  useGetSummaryNftCollections: () => mockSummary,
   useGetSummaryRealms: () => mockSummary,
   useGetSummaryTokens: () => mockSummary,
 }));
+jest.mock("@/common/hooks/nft/use-nft-collection-name", () => ({
+  useNftCollectionName: () => (_path: string | undefined, name: string) => name,
+}));
+jest.mock("@/common/hooks/nft/use-nft-artwork", () => ({ useNftArtwork: () => ({}) }));
+jest.mock("@/components/view/datatable/item/nft-collection-title", () => ({ NftCollectionLogo: () => null }));
+jest.mock("@/components/view/nft/nft-image/NftImage", () => () => null);
 jest.mock("@/assets/svgs/icon-unknown-token.svg", () => () => null);
 jest.mock("@/components/ui/tooltip", () => ({
   EllipsisTooltip: ({ children }: { children: React.ReactNode }) => children,
@@ -89,7 +98,7 @@ it("hides a zero count change", () => {
 it("keeps every card with empty values when the summary request fails", () => {
   mockSummary.isError = true;
   const text = renderText(<RealmsSummary />);
-  expect(text).toContain("Builders · 7d - Deploys · - publishers this week");
+  expect(text).toContain("Builders · 7d - Deploys · - publishers in 7 days");
   expect(text).toContain("Calls · 24h -");
   expect(text).toContain("Storage · 24h - GNOT locked - GNOT released");
 });
@@ -119,8 +128,8 @@ it("renders the realm summary from the API", () => {
   expect(text).toContain("3 new");
   expect(text).toContain("r/gnoswap/router 212 callers 1,204 +12%");
   expect(text).toContain("r/demo/solo 1 caller 5");
-  expect(text).toContain("3,982 +9% vs yesterday");
-  expect(text).toContain("Daily · last 7 days · 212 callers · 38 realms");
+  expect(text).toContain("3,982 +9% vs previous 24h");
+  expect(text).toContain("Last 7 days · 212 callers · 38 realms");
   expect(text).toContain("Net +374.2 GNOT");
 });
 
@@ -138,15 +147,15 @@ it("lists newly created tokens whether or not they are registered", () => {
   mockUseMappedApiTokens.mockImplementationOnce(() => ({ data: [fresh] as never[], isFetched: true, isError: false }));
   const text = renderText(<TokensSummary />);
   expect(text).toContain("Fresh FRSH");
-  expect(text).toContain("7 added this week");
+  expect(text).toContain("7 added in 7 days");
 });
 
 it("renders the token cards from the summary alone", () => {
   mockSummary.data = SUMMARY_TOKENS;
   const text = renderText(<TokensSummary />);
   expect(text).toContain("Gnoswap GNS 126 +24%");
-  expect(text).toContain("356 +18% vs yesterday");
-  expect(text).toContain("Daily · last 7 days · 12 tokens · 92 senders");
+  expect(text).toContain("356 +18% vs previous 24h");
+  expect(text).toContain("Last 7 days · 12 tokens · 92 senders");
   expect(text).toContain("Most held Gnoswap · 587");
   expect(text).toContain("Fastest growing BUBBLE · +22");
 });
@@ -179,12 +188,33 @@ it("shows a tiny net storage loss as +0.0 rather than -0.0", () => {
   expect(renderText(<RealmsSummary />)).toContain("Net +0.0 GNOT");
 });
 
-it("labels each bar with its date and value, naming stacked series", () => {
+// The card's 24h figures are the last bar, so Just Minted counts the same mints as Activity.
+it("counts Just Minted over the same 24h as the activity bars", () => {
+  mockSummary.data = {
+    data: {
+      justMinted: [],
+      rising: [],
+      activity: { events24h: 1489, deltaPct: 19.9, transfers24h: 1472, mints24h: 17, daily: [] },
+      collectors: { holdersTotal: 0, topCollector: null, avgPerWallet: 0, userHeld: 0, realmHeld: 0 },
+    },
+  };
+  const text = renderText(<NftsSummary />);
+  expect(text).toContain("17 minted in 24h");
+  expect(text).toContain("1,489 +19.9% vs previous 24h");
+  expect(text).toContain("Last 7 days");
+});
+
+it("labels each bar with its local 24h period and value, naming stacked series", () => {
+  const periods = [
+    { start: "2026-10-25T10:58:14Z", end: "2026-10-26T10:58:14Z" },
+    { start: "2026-10-26T10:58:14Z", end: "2026-10-27T10:58:14Z" },
+  ];
+  const local = (time: string) => dayjs(time).format("MM/DD HH:mm");
   const markup = renderToStaticMarkup(
     <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
       <SummaryBars
-        label="Daily NFT activity"
-        dates={["2026-10-21", "2026-10-22"]}
+        label="NFT activity per 24h"
+        periods={periods}
         series={[
           { color: "blue", name: "transfer", values: [1, 1263] },
           { color: "orange", name: "mint", values: [1, 48] },
@@ -192,6 +222,6 @@ it("labels each bar with its date and value, naming stacked series", () => {
       />
     </ThemeProvider>,
   );
-  expect(markup).toContain("2026-10-22 1,263 transfers · 48 mints");
-  expect(markup).toContain("2026-10-21 1 transfer · 1 mint");
+  expect(markup).toContain(`${local(periods[1].start)} ~ ${local(periods[1].end)} 1,263 transfers · 48 mints`);
+  expect(markup).toContain(`${local(periods[0].start)} ~ ${local(periods[0].end)} 1 transfer · 1 mint`);
 });

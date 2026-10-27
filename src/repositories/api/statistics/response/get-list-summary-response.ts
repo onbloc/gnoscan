@@ -1,10 +1,15 @@
 // Summaries shown above the tokens, NFT collections and realms lists.
 // 24h and 7d are rolling windows ending at the request. `deltaPct` compares with the previous window of the same
 // length, one decimal, and is null when the previous window was 0 while the current one is not ("new").
-// `daily` holds 7 UTC days, oldest first, today last (still in progress). Times are RFC3339.
+// `daily` holds the 7 back to back 24h periods ending at the request, oldest first, so the last one is the 24h figure
+// and `deltaPct` compares the last two. Times are RFC3339.
 
-export interface DailyCountModel {
-  date: string;
+export interface SummaryPeriodModel {
+  start: string;
+  end: string;
+}
+
+export interface DailyCountModel extends SummaryPeriodModel {
   count: number;
 }
 
@@ -75,8 +80,7 @@ export interface RisingNftCollectionModel {
   transfers24h: number;
 }
 
-export interface DailyNftActivityModel {
-  date: string;
+export interface DailyNftActivityModel extends SummaryPeriodModel {
   transfers: number;
   mints: number;
 }
@@ -85,7 +89,6 @@ export interface GetSummaryNftCollectionsResponse {
   data: {
     /** Newest mints across all collections, at most 3. */
     justMinted: JustMintedNftModel[];
-    mintsToday: number;
     /** Ranked by mints24h + newHolders24h, at most 3. */
     rising: RisingNftCollectionModel[];
     activity: {

@@ -64,7 +64,11 @@ export const NftsSummary = () => {
 
   return (
     <SummaryGrid>
-      <SummaryCard title="Just Minted" live footer={summary && `${makeDisplayNumber(summary.mintsToday)} minted today`}>
+      <SummaryCard
+        title="Just Minted"
+        live
+        footer={summary && `${makeDisplayNumber(summary.activity.mints24h)} minted in 24h`}
+      >
         {query.isFetched && justMinted.length === 0 ? (
           <Text type="p4" color="tertiary">
             {query.isError ? "-" : "No recent mints"}
@@ -107,7 +111,7 @@ export const NftsSummary = () => {
         title="Activity · 24h"
         footer={
           <>
-            Daily · 7d
+            Last 7 days
             <SummaryLegendDot color="blue" />
             {activity ? countLabel(activity.transfers24h, "transfer") : "- transfers"}
             <SummaryLegendDot color="orange" />
@@ -118,11 +122,11 @@ export const NftsSummary = () => {
         <SummaryBigNumber
           value={activity?.events24h}
           isFetched={query.isFetched}
-          badge={toPctBadge(activity?.deltaPct, " vs yesterday")}
+          badge={toPctBadge(activity?.deltaPct, " vs previous 24h")}
         />
         <SummaryBars
-          label="Daily NFT transfers and mints, last 7 days"
-          dates={activity?.daily.map(day => day.date) ?? []}
+          label="NFT transfers and mints per 24h, last 7 days"
+          periods={activity?.daily ?? []}
           series={[
             { color: "blue", name: "transfer", values: activity?.daily.map(day => day.transfers) ?? [] },
             { color: "orange", name: "mint", values: activity?.daily.map(day => day.mints) ?? [] },

@@ -1,10 +1,12 @@
 import React from "react";
+import dayjs from "dayjs";
 import { useRecoilValue } from "recoil";
 
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import Text from "@/components/ui/text";
 import { BarChartTooltip } from "@/components/ui/chart/bar-chart/bar-chart-tooltip";
+import { SummaryPeriodModel } from "@/repositories/api/statistics/response/get-list-summary-response";
 import { themeState } from "@/states/theme";
 import * as S from "./ListSummary.styles";
 
@@ -112,11 +114,23 @@ const SummaryBarTooltip = ({ title, value }: { title: string; value: string }) =
   return <BarChartTooltip themeMode={themeMode} title={title} value={value} />;
 };
 
+/** A bar's 24h period in the viewer's local time, e.g. "10/26 19:58 ~ 10/27 19:58". */
+export const formatSummaryPeriod = ({ start, end }: SummaryPeriodModel) =>
+  `${dayjs(start).format("MM/DD HH:mm")} ~ ${dayjs(end).format("MM/DD HH:mm")}`;
+
 /**
- * 7 daily bars, oldest first, with the date and value shown on hover like the home page charts. Series are stacked
- * bottom up and today's bar is drawn at full strength.
+ * 7 bars of back to back 24h periods, oldest first, with the period and value shown on hover like the home page
+ * charts. Series are stacked bottom up and the last bar, the card's 24h figure, is drawn at full strength.
  */
-export const SummaryBars = ({ series, dates, label }: { series: BarSeries[]; dates: string[]; label: string }) => {
+export const SummaryBars = ({
+  series,
+  periods,
+  label,
+}: {
+  series: BarSeries[];
+  periods: SummaryPeriodModel[];
+  label: string;
+}) => {
   const [hoveredDay, setHoveredDay] = React.useState<number | null>(null);
   const days = series[0]?.values.length ?? 0;
   if (days === 0) return null;
@@ -131,7 +145,7 @@ export const SummaryBars = ({ series, dates, label }: { series: BarSeries[]; dat
           <S.BarSlot
             key={day}
             tabIndex={0}
-            aria-label={`${dates[day] ?? ""} ${barTooltipValue(series, day)}`}
+            aria-label={`${periods[day] ? formatSummaryPeriod(periods[day]) : ""} ${barTooltipValue(series, day)}`}
             onMouseEnter={() => setHoveredDay(day)}
             onMouseLeave={() => setHoveredDay(null)}
             onFocus={() => setHoveredDay(day)}
@@ -157,7 +171,10 @@ export const SummaryBars = ({ series, dates, label }: { series: BarSeries[]; dat
               : { left: `${((hoveredDay + 0.5) / days) * 100}%`, transform: "translateX(-50%)" }
           }
         >
-          <SummaryBarTooltip title={dates[hoveredDay] ?? ""} value={barTooltipValue(series, hoveredDay)} />
+          <SummaryBarTooltip
+            title={periods[hoveredDay] ? formatSummaryPeriod(periods[hoveredDay]) : ""}
+            value={barTooltipValue(series, hoveredDay)}
+          />
         </S.BarTooltip>
       )}
     </S.BarsArea>
