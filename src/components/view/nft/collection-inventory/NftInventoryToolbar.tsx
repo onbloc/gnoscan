@@ -3,6 +3,7 @@ import React from "react";
 import IconSearch from "@/assets/svgs/icon-nft-search.svg";
 import { NftInventoryToolbarProps } from "@/common/hooks/nft/use-nft-inventory-controls";
 import useOutSideClick from "@/common/hooks/use-outside-click";
+import { getNextOptionIndex } from "@/common/hooks/use-search-result-navigation";
 
 import * as S from "./NftInventoryToolbar.styles";
 
@@ -116,7 +117,7 @@ const NftInventoryToolbar = ({
               if (event.key === "ArrowDown" || event.key === "ArrowUp") {
                 event.preventDefault();
                 setSuggestionIndex(index =>
-                  Math.max(0, Math.min(ownerSuggestions.length - 1, index + (event.key === "ArrowDown" ? 1 : -1))),
+                  getNextOptionIndex(index, event.key === "ArrowDown" ? 1 : -1, ownerSuggestions.length),
                 );
               } else if (event.key === "Enter") {
                 event.preventDefault();
@@ -187,7 +188,7 @@ const NftInventoryToolbar = ({
                   case "ArrowUp":
                     event.preventDefault();
                     setActiveIndex(index =>
-                      Math.max(0, Math.min(options.length - 1, index + (event.key === "ArrowDown" ? 1 : -1))),
+                      getNextOptionIndex(index, event.key === "ArrowDown" ? 1 : -1, options.length),
                     );
                     break;
                   case "Home":
