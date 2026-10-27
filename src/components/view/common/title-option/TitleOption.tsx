@@ -29,17 +29,16 @@ const TitleOption = ({ prevProps, nextProps }: TitleOptionProps) => {
     direction?: "left" | "right";
   }) => {
     const className = direction === "left" ? "icon-arrow-left" : "icon-arrow-right";
+    const label = direction === "left" ? "Next block" : "Previous block";
 
     return disabled ? (
-      <S.ArrowButton disabled>
+      <S.ArrowButton disabled aria-label={label} aria-disabled>
         <IconArrow className={className} />
       </S.ArrowButton>
     ) : (
-      <Link href={href}>
-        <S.ArrowButton>
-          <IconArrow className={className} />
-        </S.ArrowButton>
-      </Link>
+      <S.ArrowButton as={Link} href={href} aria-label={label}>
+        <IconArrow className={className} />
+      </S.ArrowButton>
     );
   };
 
