@@ -9,6 +9,7 @@ import {
   GetTransactionPendingResponse,
   GetTransactionContractsResponse,
   GetTransactionEventsResponse,
+  GetFunctionNamesResponse,
 } from "./response";
 
 export interface ApiTransactionRepository {
@@ -21,4 +22,7 @@ export interface ApiTransactionRepository {
   getTransactionContracts(params: GetTransactionContractsRequest): Promise<GetTransactionContractsResponse>;
 
   getTransactionEvents(params: GetTransactionEventsRequest): Promise<GetTransactionEventsResponse>;
+
+  // Called function names, most called first. With an address, only the functions it called.
+  getFunctionNames(address?: string): Promise<GetFunctionNamesResponse>;
 }

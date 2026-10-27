@@ -11,6 +11,7 @@ import {
   GetTransactionPendingResponse,
   GetTransactionContractsResponse,
   GetTransactionEventsResponse,
+  GetFunctionNamesResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
 
@@ -38,5 +39,9 @@ export class ApiTransactionRepositoryImpl extends ApiRepository implements ApiTr
   getTransactionEvents(params: GetTransactionEventsRequest): Promise<GetTransactionEventsResponse> {
     const { txHash, ...queryParams } = params;
     return this.get<GetTransactionEventsResponse>(`transactions/${encodeURIComponent(txHash)}/events`, queryParams);
+  }
+
+  getFunctionNames(address?: string): Promise<GetFunctionNamesResponse> {
+    return this.get<GetFunctionNamesResponse>("transactions/functions", address ? { address } : undefined);
   }
 }

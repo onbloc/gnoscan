@@ -21,6 +21,7 @@ export enum QUERY_KEY {
   getTransactionPendingByHash = "api_get_transaction_pending_by_hash",
   getTransactionEventsByHash = "api_get_transaction_events_by_hash",
   getTransactionContractsByHash = "api_get_transaction_contracts_by_hash",
+  getFunctionNames = "api_get_function_names",
 
   // realm
   getRealms = "api_get_realms",
