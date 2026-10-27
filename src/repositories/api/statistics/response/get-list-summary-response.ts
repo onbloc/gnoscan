@@ -29,7 +29,7 @@ export interface MostHeldTokenModel extends SummaryTokenModel {
 
 export interface GetSummaryTokensResponse {
   data: {
-    /** Tokens registered in the last 7 days. */
+    /** Tokens created in the last 7 days. */
     weeklyNewCount: number;
     /** Top 3 tokens by 24h transactions, most first. */
     mostActive: ActiveTokenModel[];

@@ -50,18 +50,14 @@ export const TokensSummary = () => {
     return { ...token, name: meta.name, symbol: meta.symbol, logoUrl: meta.image || "" };
   };
 
-  // Unregistered tokens (backfilled ones such as xGNS) were never "added", so they stay out of this card.
-  const newlyAdded = recent.data
-    .filter(token => token.registered)
-    .slice(0, 3)
-    .map(token => ({
-      key: token.tokenId || token.packagePath,
-      href: tokenUrl(token),
-      title: token.name,
-      subtitle: token.symbol,
-      media: <TokenLogo src={token.logoUrl} />,
-      value: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
-    }));
+  const newlyAdded = recent.data.slice(0, 3).map(token => ({
+    key: token.tokenId || token.packagePath,
+    href: tokenUrl(token),
+    title: token.name,
+    subtitle: token.symbol,
+    media: <TokenLogo src={token.logoUrl} />,
+    value: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
+  }));
 
   const mostActive = (summary?.mostActive ?? []).map(item => {
     const token = resolveToken(item);
@@ -89,13 +85,13 @@ export const TokensSummary = () => {
       <SummaryCard
         title="Newly added"
         live
-        footer={summary && `${makeDisplayNumber(summary.weeklyNewCount)} registered this week`}
+        footer={summary && `${makeDisplayNumber(summary.weeklyNewCount)} added this week`}
       >
         <SummaryRows
           rows={newlyAdded}
           isFetched={recent.isFetched}
           isError={recent.isError}
-          emptyText="No tokens registered yet"
+          emptyText="No tokens added yet"
         />
       </SummaryCard>
       <SummaryCard title="Most Active · 24h" footer="Transfers · vs previous 24h">

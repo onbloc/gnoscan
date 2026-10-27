@@ -100,6 +100,23 @@ it("renders the realm summary from the API", () => {
   expect(text).toContain("Net +374.2 GNOT");
 });
 
+it("lists newly created tokens whether or not they are registered", () => {
+  mockSummary.data = MOCK_SUMMARY_TOKENS;
+  const fresh = {
+    tokenId: "gno.land/r/demo/fresh.FRSH.0000000",
+    packagePath: "gno.land/r/demo/fresh",
+    name: "Fresh",
+    symbol: "FRSH",
+    logoUrl: "",
+    registered: false,
+    createdAt: null,
+  };
+  mockUseMappedApiTokens.mockImplementationOnce(() => ({ data: [fresh] as never[], isFetched: true, isError: false }));
+  const text = renderText(<TokensSummary />);
+  expect(text).toContain("Fresh FRSH");
+  expect(text).toContain("7 added this week");
+});
+
 it("renders the token cards from the summary alone", () => {
   mockSummary.data = MOCK_SUMMARY_TOKENS;
   const text = renderText(<TokensSummary />);
