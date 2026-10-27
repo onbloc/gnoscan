@@ -55,6 +55,9 @@ const AddressWrapper = styled.div<{ $truncateFromStart: boolean }>`
     css`
       flex: 1;
       overflow: hidden;
+      /* Room for the copy button focus ring, which overflow would otherwise clip. */
+      padding: 4px;
+      margin: -4px;
 
       > :first-child {
         flex: 1;
