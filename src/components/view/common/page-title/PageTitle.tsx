@@ -24,7 +24,7 @@ export const PageTitle = ({ title, type, desktopType, description }: PageTitlePr
   return (
     <Wrapper>
       {heading}
-      <Text type="p4" color="tertiary">
+      <Text type="p3" color="tertiary">
         {description}
       </Text>
     </Wrapper>

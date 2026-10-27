@@ -22,7 +22,7 @@ const NftCollectionsLayout = ({ nftCollectionList }: NftCollectionsLayoutProps) 
             <PageTitle
               title="NFTs"
               type="h2"
-              description="GRC721 collections on gno.land — fresh mints, rising collections, and who's collecting."
+              description="GRC721 collections on Gno.land — fresh mints, rising collections, and who's collecting."
             />
             <TokenResourceLink label="Gno.land Token Resources" />
           </S.TitleWrap>
