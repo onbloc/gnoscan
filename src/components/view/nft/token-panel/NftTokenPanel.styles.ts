@@ -360,6 +360,12 @@ export const TransferDescription = styled.div`
     overflow: hidden;
     color: ${({ theme }) => theme.colors.blue};
     text-overflow: ellipsis;
+
+    /* Inset, since the overflow above would clip a ring drawn outside the link. */
+    &:focus-visible {
+      outline: 2px solid ${({ theme }) => theme.colors.blue};
+      outline-offset: -2px;
+    }
   }
 `;
 

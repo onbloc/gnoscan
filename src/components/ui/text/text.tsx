@@ -67,6 +67,12 @@ const Wrapper = styled.div<TextProps>`
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: break-all;
+
+    /* Inset, since the overflow above would clip a ring drawn outside the link. */
+    a:focus-visible {
+      outline: 2px solid ${({ theme }) => theme.colors.blue};
+      outline-offset: -2px;
+    }
   }
 `;
 

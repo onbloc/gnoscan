@@ -306,6 +306,11 @@ const LegendWrapper = styled.button<{ fill: string; $excluded: boolean }>`
 
   ${({ $excluded }) => $excluded && "text-decoration: line-through;"}
 
+  /* Inset, since the legend can sit on the bottom edge of a fixed height card that clips overflow. */
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+
   .legend-mark {
     display: inline-block;
     width: 5px;
