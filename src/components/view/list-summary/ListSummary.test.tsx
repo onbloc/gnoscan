@@ -5,7 +5,7 @@ import theme from "@/styles/theme";
 import { SummaryBars, toCountBadge, toPctBadge } from "./ListSummary";
 import { RealmsSummary } from "./RealmsSummary";
 import { TokensSummary } from "./TokensSummary";
-import { MOCK_SUMMARY_TOKENS } from "@/repositories/api/statistics/response/list-summary-mock";
+import { GetSummaryTokensResponse } from "@/repositories/api/statistics/response/get-list-summary-response";
 
 const mockSummary = { data: undefined as unknown, isFetched: true, isError: false };
 jest.mock("@/common/react-query/statistics", () => ({
@@ -36,6 +36,19 @@ const renderText = (element: React.ReactElement) =>
     .replace(/&#x27;/g, "'")
     .replace(/\s+/g, " ")
     .trim();
+
+const GNS = { tokenId: "gno.land/r/gnoswap/gns.GNS.0000000", packagePath: "gno.land/r/gnoswap/gns", logoUrl: null };
+const SUMMARY_TOKENS: GetSummaryTokensResponse = {
+  data: {
+    weeklyNewCount: 7,
+    mostActive: [{ ...GNS, name: "Gnoswap", symbol: "GNS", transfers24h: 126, deltaPct: 24 }],
+    transfers: { count24h: 356, activeTokens24h: 12, deltaPct: 18, daily: [], uniqueSenders24h: 92 },
+    holders: {
+      holdersTotal: 1204,
+      mostHeld: { ...GNS, name: "Gnoswap", symbol: "GNS", holders: 587 },
+    },
+  },
+};
 
 beforeEach(() => {
   mockSummary.data = undefined;
@@ -101,7 +114,7 @@ it("renders the realm summary from the API", () => {
 });
 
 it("lists newly created tokens whether or not they are registered", () => {
-  mockSummary.data = MOCK_SUMMARY_TOKENS;
+  mockSummary.data = SUMMARY_TOKENS;
   const fresh = {
     tokenId: "gno.land/r/demo/fresh.FRSH.0000000",
     packagePath: "gno.land/r/demo/fresh",
@@ -118,7 +131,7 @@ it("lists newly created tokens whether or not they are registered", () => {
 });
 
 it("renders the token cards from the summary alone", () => {
-  mockSummary.data = MOCK_SUMMARY_TOKENS;
+  mockSummary.data = SUMMARY_TOKENS;
   const text = renderText(<TokensSummary />);
   expect(text).toContain("Gnoswap GNS 126 +24%");
   expect(text).toContain("356 +18% vs yesterday");
