@@ -26,8 +26,9 @@ export const CallerCopy = ({ caller, username, label, labelType }: Props) => {
         href={getUrlWithNetwork(getAddressLinkPath({ address: caller, name: username, label, labelType }))}
       >
         {textEllipsis(username ?? "", 6) || (label ? stripGnoLandPrefix(label) : textEllipsis(caller ?? "", 6))}
-        <CopyTooltip variant="path" copyText={caller} />
       </Link>
+      {/* A sibling of the link, so copying does not also open the account. */}
+      <CopyTooltip variant="path" copyText={caller} />
       <PhishingWarningTooltip labelType={labelType} small marginLeft={4} />
     </CallerWrapper>
   );
@@ -38,11 +39,11 @@ const CallerWrapper = styled.div`
     display: flex;
     width: 100%;
     height: auto;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 
     a {
-      width: 100%;
+      min-width: 0;
     }
 
     .status {

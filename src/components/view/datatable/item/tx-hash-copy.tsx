@@ -20,8 +20,9 @@ export const TxHashCopy = ({ txHash }: Props) => {
     <TxHashWrapper>
       <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${displayHash}`)}>
         {textEllipsis(displayHash, TX_HASH_ELLIPSIS_LENGTH)}
-        <CopyTooltip variant="path" copyText={displayHash} />
       </Link>
+      {/* A sibling of the link, so copying does not also open the transaction. */}
+      <CopyTooltip variant="path" copyText={displayHash} />
     </TxHashWrapper>
   );
 };
@@ -31,11 +32,11 @@ const TxHashWrapper = styled.div`
     display: flex;
     width: 100%;
     height: auto;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 
     a {
-      width: 100%;
+      min-width: 0;
     }
 
     .status {
