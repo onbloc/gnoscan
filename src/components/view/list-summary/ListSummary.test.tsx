@@ -46,6 +46,14 @@ const SUMMARY_TOKENS: GetSummaryTokensResponse = {
     holders: {
       holdersTotal: 1204,
       mostHeld: { ...GNS, name: "Gnoswap", symbol: "GNS", holders: 587 },
+      fastestGrowing: {
+        tokenId: "gno.land/r/demo/bubble.BUBBLE.0000000",
+        packagePath: "gno.land/r/demo/bubble",
+        name: "Bubble",
+        symbol: "BUBBLE",
+        logoUrl: null,
+        holdersDelta7d: 22,
+      },
     },
   },
 };
@@ -137,6 +145,7 @@ it("renders the token cards from the summary alone", () => {
   expect(text).toContain("356 +18% vs yesterday");
   expect(text).toContain("Daily · last 7 days · 12 tokens · 92 senders");
   expect(text).toContain("Most held Gnoswap · 587");
+  expect(text).toContain("Fastest growing BUBBLE · +22");
 });
 
 it("does not keep another network's recent tokens while the new network loads", () => {

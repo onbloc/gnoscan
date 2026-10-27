@@ -79,6 +79,7 @@ export const TokensSummary = () => {
   ];
 
   const mostHeld = summary?.holders.mostHeld ? resolveToken(summary.holders.mostHeld) : undefined;
+  const fastestGrowing = summary?.holders.fastestGrowing ? resolveToken(summary.holders.fastestGrowing) : undefined;
 
   return (
     <SummaryGrid>
@@ -124,6 +125,18 @@ export const TokensSummary = () => {
               value: mostHeld ? (
                 <Link href={tokenUrl(mostHeld)}>
                   <Text type="p4" color="blue">{`${mostHeld.name} · ${makeDisplayNumber(mostHeld.holders)}`}</Text>
+                </Link>
+              ) : (
+                <Text type="p4">-</Text>
+              ),
+            },
+            {
+              label: "Fastest growing",
+              value: fastestGrowing ? (
+                <Link href={tokenUrl(fastestGrowing)}>
+                  <Text type="p4" color="blue">
+                    {`${fastestGrowing.symbol} · +${makeDisplayNumber(fastestGrowing.holdersDelta7d)}`}
+                  </Text>
                 </Link>
               ) : (
                 <Text type="p4">-</Text>

@@ -23,6 +23,11 @@ export interface ActiveTokenModel extends SummaryTokenModel {
   deltaPct: number | null;
 }
 
+/** Token that gained the most holders over the last 7 days. */
+export interface FastestGrowingTokenModel extends SummaryTokenModel {
+  holdersDelta7d: number;
+}
+
 export interface MostHeldTokenModel extends SummaryTokenModel {
   holders: number;
 }
@@ -47,6 +52,8 @@ export interface GetSummaryTokensResponse {
       holdersTotal: number;
       /** Token with the most holders, as the first row of the holders sorted list. */
       mostHeld: MostHeldTokenModel | null;
+      /** null when no token gained holders over the last 7 days. */
+      fastestGrowing: FastestGrowingTokenModel | null;
     };
   };
 }
