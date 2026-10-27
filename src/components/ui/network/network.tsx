@@ -7,6 +7,7 @@ import Text from "@/components/ui/text";
 import theme from "@/styles/theme";
 import mixins from "@/styles/mixins";
 import useOutSideClick from "@/common/hooks/use-outside-click";
+import { useMenuKeyboard } from "@/common/hooks/use-menu-keyboard";
 import { zindex } from "@/common/values/z-index";
 import { ChainModel } from "@/models/chain-model";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
@@ -56,6 +57,8 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
 
   const ref = useOutSideClick(() => setToggle(false));
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const onKeyDown = useMenuKeyboard({ open: !!toggle, setOpen: setToggle, triggerRef, menuRef: listRef });
 
   const { isDark, isLight } = useThemeMode();
 
@@ -134,11 +137,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     <NetworkWrapper
       entry={entry}
       ref={ref}
-      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (e.key !== "Escape" || !toggle) return;
-        setToggle(false);
-        triggerRef.current?.focus();
-      }}
+      onKeyDown={onKeyDown}
       onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
         // Close once focus leaves the whole dropdown, not when it moves between its children.
         if (toggle && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) setToggle(false);
@@ -160,12 +159,13 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
           {networkName}
         </Text>
       </NetworkInfoWrapper>
-      <NetworkList toggle={toggle} entry={entry}>
+      <NetworkList ref={listRef} toggle={toggle} entry={entry}>
         {chains.map((chain: ChainModel, index: number) => (
           <li key={index} className={currentNetwork?.chainId === chain.chainId ? "selected" : ""}>
             <button
               type="button"
               className="item row"
+              data-menu-item
               onClick={() => networkSettingHandler(chain.chainId)}
               aria-current={currentNetwork?.chainId === chain.chainId}
             >
@@ -280,7 +280,8 @@ const NetworkList = styled.ul<StyleProps>`
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.dimmed50};
   padding: 8px;
-  transition: all 0.3s ease;
+  // Visible at once on open so arrow keys can move focus in, hidden after the closing animation.
+  transition: all 0.3s ease, visibility 0s ${({ toggle }) => (toggle ? "0s" : "0.3s")};
   transform: ${({ toggle }) => (toggle ? "scale(1)" : "scale(0.5)")};
   z-index: ${zindex.scrollbar};
   ${({ toggle }) => mixins.posMoveToTopAndRight(toggle ? "50px" : "0px")};
@@ -308,7 +309,7 @@ const NetworkList = styled.ul<StyleProps>`
     justify-content: center;
     align-items: center;
     text-align: left;
-    transition: 0.2s;
+    transition: background-color 0.2s;
     border-radius: 8px;
 
     &:hover {

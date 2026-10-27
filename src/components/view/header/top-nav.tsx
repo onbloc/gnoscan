@@ -16,6 +16,7 @@ import styled from "styled-components";
 import { media } from "@/common/values/ui.constant";
 import { SubMenu } from "./sub-menu";
 import IconChevron from "@/assets/svgs/icon-chevron.svg";
+import { useMenuKeyboard } from "@/common/hooks/use-menu-keyboard";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { zindex } from "@/common/values/z-index";
 
@@ -230,8 +231,10 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
   const [open, setOpen] = useState(false);
   const mouseHovered = useRef(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const close = useCallback(() => setOpen(false), []);
   const ref = useOutSideClick(close);
+  const onKeyDown = useMenuKeyboard({ open, setOpen, triggerRef, menuRef: listRef });
 
   return (
     <DropdownWrapper
@@ -247,11 +250,7 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
         mouseHovered.current = false;
         close();
       }}
-      onKeyDown={e => {
-        if (e.key !== "Escape" || !open) return;
-        close();
-        triggerRef.current?.focus();
-      }}
+      onKeyDown={onKeyDown}
       onBlur={e => {
         // Close once focus leaves the whole dropdown, not when it moves between its children.
         if (mouseHovered.current || e.currentTarget.contains(e.relatedTarget)) return;
@@ -273,12 +272,17 @@ const NavDropdown = ({ group, entry, currentPath }: NavDropdownProps) => {
         {/* Preserve scaling into the CSS dimensions; SVG optimization removes the asset's viewBox. */}
         <IconChevron className="chevron" viewBox="0 0 11.4674 7.18129" />
       </DropdownButton>
-      <DropdownList open={open}>
+      <DropdownList ref={listRef} open={open}>
         {group.items.map(item => {
           const selected = currentPath === item.path;
           return (
             <li key={item.path}>
-              <Link href={getUrlWithNetwork(item.path)} className={selected ? "selected" : ""} onClick={close}>
+              <Link
+                href={getUrlWithNetwork(item.path)}
+                className={selected ? "selected" : ""}
+                onClick={close}
+                data-menu-item
+              >
                 <Text type="p4" color={selected ? "primary" : "tertiary"}>
                   {item.name}
                 </Text>
@@ -344,7 +348,8 @@ const DropdownList = styled.ul<{ open: boolean }>`
   visibility: ${({ open }) => (open ? "visible" : "hidden")};
   transform: ${({ open }) => (open ? "scale(1)" : "scale(0.5)")};
   transform-origin: top left;
-  transition: all 0.3s ease;
+  // Visible at once on open so arrow keys can move focus in, hidden after the closing animation.
+  transition: all 0.3s ease, visibility 0s ${({ open }) => (open ? "0s" : "0.3s")};
   // Above the home page search box, which overlaps the bottom of the list.
   z-index: ${zindex.headerDropdown};
 
