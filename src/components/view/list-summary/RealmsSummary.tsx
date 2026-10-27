@@ -7,7 +7,9 @@ import { formatBytes } from "@/common/utils/format/format-utils";
 import { formatDisplayPackagePath, makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
+import PathText from "@/components/ui/path-text/PathText";
 import Text from "@/components/ui/text";
+import { EllipsisTooltip } from "@/components/ui/tooltip";
 import {
   DeltaBadgeData,
   SummaryBars,
@@ -39,6 +41,11 @@ const signedGnot = (value: number) => {
 const toBuilderBadge = (current: number, previous: number): DeltaBadgeData | undefined =>
   previous === 0 && current > 0 ? { label: "new", tone: "up" } : toCountBadge(current - previous);
 
+// The full address or path on hover, like the realm table.
+const withFullText = (full: string, node: React.ReactNode) => (
+  <EllipsisTooltip content={<S.TooltipText>{full}</S.TooltipText>}>{node}</EllipsisTooltip>
+);
+
 export const RealmsSummary = () => {
   const { getUrlWithNetwork } = useNetwork();
   const query = useGetSummaryRealms();
@@ -47,8 +54,8 @@ export const RealmsSummary = () => {
   const builders = (summary?.builders ?? []).slice(0, 3).map(builder => ({
     key: builder.address,
     href: getUrlWithNetwork(`/account/${builder.address}`),
-    title: textEllipsis(builder.address, 8),
-    subtitle: displayPath(builder.namespace),
+    title: withFullText(builder.address, textEllipsis(builder.address, 8)),
+    subtitle: withFullText(builder.namespace, <PathText path={stripGnoLandPrefix(builder.namespace)} />),
     value: makeDisplayNumber(builder.deploys7d),
     badge: toBuilderBadge(builder.deploys7d, builder.deploysPrev7d),
   }));
@@ -56,7 +63,7 @@ export const RealmsSummary = () => {
   const mostCalled = (summary?.mostCalled ?? []).slice(0, 3).map(realm => ({
     key: realm.path,
     href: getUrlWithNetwork(realmUrl(realm.path)),
-    title: displayPath(realm.path),
+    title: withFullText(realm.path, <PathText path={stripGnoLandPrefix(realm.path)} />),
     subtitle: countLabel(realm.uniqueCallers24h, "caller"),
     value: makeDisplayNumber(realm.calls24h),
     badge: toPctBadge(realm.deltaPct),

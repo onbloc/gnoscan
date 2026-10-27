@@ -22,6 +22,7 @@ import {
   countLabel,
   toPctBadge,
 } from "./ListSummary";
+import * as S from "./ListSummary.styles";
 
 const RECENT_TOKENS_PARAMS = { sort: "id", order: "desc" } as const;
 
@@ -124,7 +125,10 @@ export const TokensSummary = () => {
               label: "Most held",
               value: mostHeld ? (
                 <Link href={tokenUrl(mostHeld)}>
-                  <Text type="p4" color="blue">{`${mostHeld.name} · ${makeDisplayNumber(mostHeld.holders)}`}</Text>
+                  <S.FactToken>
+                    <TokenLogo src={mostHeld.logoUrl} />
+                    <Text type="p4" color="blue">{`${mostHeld.name} · ${makeDisplayNumber(mostHeld.holders)}`}</Text>
+                  </S.FactToken>
                 </Link>
               ) : (
                 <Text type="p4">-</Text>
@@ -134,9 +138,12 @@ export const TokensSummary = () => {
               label: "Fastest growing",
               value: fastestGrowing ? (
                 <Link href={tokenUrl(fastestGrowing)}>
-                  <Text type="p4" color="blue">
-                    {`${fastestGrowing.symbol} · +${makeDisplayNumber(fastestGrowing.holdersDelta7d)}`}
-                  </Text>
+                  <S.FactToken>
+                    <TokenLogo src={fastestGrowing.logoUrl} />
+                    <Text type="p4" color="blue">
+                      {`${fastestGrowing.symbol} · +${makeDisplayNumber(fastestGrowing.holdersDelta7d)}`}
+                    </Text>
+                  </S.FactToken>
                 </Link>
               ) : (
                 <Text type="p4">-</Text>

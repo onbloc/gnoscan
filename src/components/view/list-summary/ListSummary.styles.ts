@@ -200,6 +200,27 @@ export const Media = styled.div`
   }
 `;
 
+// A token logo before its name in a fact value.
+export const FactToken = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+
+  img,
+  svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+`;
+
+// Keeps a full address or path on one line in its tooltip.
+export const TooltipText = styled.span`
+  white-space: nowrap;
+`;
+
 export const Facts = styled.div`
   display: flex;
   flex-direction: column;

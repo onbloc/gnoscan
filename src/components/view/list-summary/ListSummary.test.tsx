@@ -13,6 +13,9 @@ jest.mock("@/common/react-query/statistics", () => ({
   useGetSummaryTokens: () => mockSummary,
 }));
 jest.mock("@/assets/svgs/icon-unknown-token.svg", () => () => null);
+jest.mock("@/components/ui/tooltip", () => ({
+  EllipsisTooltip: ({ children }: { children: React.ReactNode }) => children,
+}));
 const mockUseMappedApiTokens = jest.fn((..._args: unknown[]) => ({ data: [], isFetched: true, isError: false }));
 jest.mock("@/common/services/token/use-mapped-api-tokens", () => ({
   useMappedApiTokens: (...args: unknown[]) => mockUseMappedApiTokens(...args),

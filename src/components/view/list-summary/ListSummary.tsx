@@ -169,8 +169,8 @@ export const SummaryLegendDot = ({ color }: { color: BarColor }) => <S.LegendDot
 export interface SummaryRowData {
   key: string;
   href: string;
-  title: string;
-  subtitle?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
   // Logo or artwork before the title.
   media?: React.ReactNode;
   // Right side: a time, or a count with its change.
