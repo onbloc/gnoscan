@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { v1 } from "uuid";
 
 import { scrollbarStyle, useScrollbar } from "@/common/hooks/use-scroll-bar";
 import { media } from "@/common/values/ui.constant";
@@ -99,9 +98,17 @@ const ShowLog = ({ isTabLog, logData = "", files, btnTextType = "Source" }: Show
                 onMouseLeave={onDragEnd}
               >
                 {files?.map((file, i) => (
-                  <List key={v1()} active={i === index} onMouseDown={() => activeListHandler(i)} showLog={showLog}>
-                    {file.name}
-                  </List>
+                  <li key={file.name}>
+                    <List
+                      type="button"
+                      active={i === index}
+                      aria-pressed={i === index}
+                      onClick={() => activeListHandler(i)}
+                      showLog={showLog}
+                    >
+                      {file.name}
+                    </List>
+                  </li>
                 ))}
               </ul>
               {files && (
@@ -253,14 +260,19 @@ const TabLog = styled(Log)<StyleProps>`
   background-color: ${({ theme }) => theme.colors.surface};
 `;
 
-const List = styled.li<StyleProps>`
+const List = styled.button<StyleProps>`
   ${({ theme }) => theme.fonts.p4};
+  white-space: nowrap;
   color: ${({ active, theme }) => !active && theme.colors.tertiary};
   padding: 12px 16px;
   height: 44px;
   cursor: pointer;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  /* Inset, since the scrolling tab strip would clip a ring drawn outside. */
+  &:focus-visible {
+    outline-offset: -2px;
+  }
   ${({ active, theme }) =>
     active &&
     css`
