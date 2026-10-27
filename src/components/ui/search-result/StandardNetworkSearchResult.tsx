@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
+import React, { RefObject, useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { useRecoilState } from "recoil";
 
@@ -7,6 +7,7 @@ import { searchState } from "@/states";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
 import { useDebounce } from "@/common/hooks/use-debounce";
+import { useSearchResultNavigation } from "@/common/hooks/use-search-result-navigation";
 import { SEARCH_RESULT_TYPE } from "@/common/values/search.constant";
 import { useGetSearch } from "@/common/react-query/search/api/use-get-search";
 import { SearchResult } from "@/repositories/api/search/response";
@@ -23,7 +24,7 @@ interface StyleProps {
   ref?: any;
 }
 
-const StandardNetworkSearchResult = () => {
+const StandardNetworkSearchResult = ({ inputRef }: { inputRef?: RefObject<HTMLInputElement> }) => {
   const { route } = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -32,7 +33,8 @@ const StandardNetworkSearchResult = () => {
   const shouldSearch = debouncedKeyword.length > 0;
 
   const isMain = route === "/";
-  const ref = useOutSideClick(() => setOpen(false));
+  const close = useCallback(() => setOpen(false), []);
+  const ref = useOutSideClick(close);
 
   const { data: searchResult, isLoading: isLoadingSearch } = useGetSearch(debouncedKeyword, {
     enabled: shouldSearch,
@@ -63,6 +65,14 @@ const StandardNetworkSearchResult = () => {
     setOpen(false);
   }, [route]);
 
+  const { onMouseMove, onMouseLeave } = useSearchResultNavigation({
+    inputRef,
+    listRef: ref,
+    open,
+    close,
+    resetKey: searchResult,
+  });
+
   const noResults = !searchResult || searchResult.length === 0;
 
   const handleClick = () => {
@@ -72,7 +82,7 @@ const StandardNetworkSearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper isMain={isMain} ref={ref}>
+        <Wrapper isMain={isMain} ref={ref} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
           {isLoadingSearch ? (
             <Text type={isMain ? "p4" : "body1"} color="tertiary">
               Loading...

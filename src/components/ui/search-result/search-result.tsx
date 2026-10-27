@@ -2,15 +2,15 @@
 import useSearchQuery from "@/common/hooks/use-search-query";
 import { searchState } from "@/states";
 import mixins from "@/styles/mixins";
-import React, { useEffect, useState } from "react";
+import React, { RefObject, useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import styled, { css } from "styled-components";
 import Text from "@/components/ui/text";
-import { v1 } from "uuid";
 import { FitContentSpan } from "../detail-page-common-styles";
 import Link from "next/link";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
+import { useSearchResultNavigation } from "@/common/hooks/use-search-result-navigation";
 import { zindex } from "@/common/values/z-index";
 import { ValuesType } from "utility-types";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -34,14 +34,22 @@ export const SEARCH_TITLE = {
 } as const;
 export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
-const SearchResult = () => {
+const SearchResult = ({ inputRef }: { inputRef?: RefObject<HTMLInputElement> }) => {
   const [keyword, setKeyword] = useRecoilState(searchState);
   const { route } = useRouter();
   const isMain = route === "/";
   const [open, setOpen] = useState(false);
-  const ref = useOutSideClick(() => setOpen(false));
+  const close = useCallback(() => setOpen(false), []);
+  const ref = useOutSideClick(close);
 
   const { result } = useSearchQuery(keyword);
+  const { onMouseMove, onMouseLeave } = useSearchResultNavigation({
+    inputRef,
+    listRef: ref,
+    open,
+    close,
+    resetKey: result,
+  });
 
   useEffect(() => {
     setOpen(() => Boolean(keyword.length > 1));
@@ -58,16 +66,16 @@ const SearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper isMain={isMain} ref={ref}>
+        <Wrapper isMain={isMain} ref={ref} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
           {result && Object.keys(result).length !== 0 ? (
             Object.keys(result).map(searchTitle => (
-              <Section key={v1()}>
+              <Section key={searchTitle}>
                 <Text type={isMain ? "p4" : "body1"} color="tertiary">
                   {searchTitle}
                 </Text>
                 <ListContainer>
-                  {result[searchTitle].map((item: any) => (
-                    <List key={v1()}>
+                  {result[searchTitle].map((item: any, index: number) => (
+                    <List key={index} data-search-option>
                       {searchTitle === SEARCH_TITLE.ACCOUNTS && (
                         <AccountsList item={item} isMain={isMain} searchTitle={searchTitle} onClick={onClick} />
                       )}
@@ -159,7 +167,7 @@ const List = styled.li`
   width: 100%;
   border-radius: 4px;
   padding: 6px 10px;
-  &:hover {
+  &[data-active] {
     background-color: ${({ theme }) => theme.colors.dimmed50};
   }
 `;
