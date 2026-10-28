@@ -16,4 +16,6 @@ export interface TokenModel {
   transactionCount24h?: number;
   /** RFC3339 block time the token was created. */
   createdAt?: string;
+  /** Transaction the token was created in (its NewToken event), omitted when it is not indexed. */
+  createdTransactionHash?: string;
 }

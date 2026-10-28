@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import dayjs from "dayjs";
 import { useRecoilValue } from "recoil";
 
@@ -192,6 +193,8 @@ export interface SummaryRowData {
   media?: React.ReactNode;
   // Right side: a time, or a count with its change.
   value?: string;
+  // Link for the value alone, e.g. a token's age opening its creation transaction.
+  valueHref?: string;
   badge?: DeltaBadgeData;
 }
 
@@ -232,32 +235,55 @@ export const SummaryRows = ({
 
   return (
     <S.Rows>
-      {rows.map((row, index) => (
-        <S.Row key={row.key} href={row.href}>
-          {ranked && (
-            <Text type="body1" color="tertiary" className="row-rank">
-              {index + 1}
-            </Text>
-          )}
-          {row.media && <S.Media>{row.media}</S.Media>}
-          <S.RowText>
-            <Text type="p4" color="blue" className="ellipsis">
-              {row.title}
-            </Text>
-            {row.subtitle && (
-              <Text type="body1" color="tertiary" className="ellipsis">
-                {row.subtitle}
+      {rows.map((row, index) => {
+        const main = (
+          <>
+            {ranked && (
+              <Text type="body1" color="tertiary" className="row-rank">
+                {index + 1}
               </Text>
             )}
-          </S.RowText>
-          {row.value && (
-            <Text type="p4" color={row.badge ? "primary" : "tertiary"} className="row-value">
-              {row.value}
-            </Text>
-          )}
-          <DeltaBadge badge={row.badge} />
-        </S.Row>
-      ))}
+            {row.media && <S.Media>{row.media}</S.Media>}
+            <S.RowText>
+              <Text type="p4" color="blue" className="ellipsis">
+                {row.title}
+              </Text>
+              {row.subtitle && (
+                <Text type="body1" color="tertiary" className="ellipsis">
+                  {row.subtitle}
+                </Text>
+              )}
+            </S.RowText>
+          </>
+        );
+
+        // Links cannot nest, so a value with its own link sits beside the row's link.
+        if (row.valueHref) {
+          return (
+            <S.Row as="div" key={row.key}>
+              <S.RowMain href={row.href}>{main}</S.RowMain>
+              <Link href={row.valueHref} className="row-value">
+                <Text type="p4" color="blue">
+                  {row.value}
+                </Text>
+              </Link>
+              <DeltaBadge badge={row.badge} />
+            </S.Row>
+          );
+        }
+
+        return (
+          <S.Row key={row.key} href={row.href}>
+            {main}
+            {row.value && (
+              <Text type="p4" color={row.badge ? "primary" : "tertiary"} className="row-value">
+                {row.value}
+              </Text>
+            )}
+            <DeltaBadge badge={row.badge} />
+          </S.Row>
+        );
+      })}
     </S.Rows>
   );
 };

@@ -58,6 +58,9 @@ export const TokensSummary = () => {
     subtitle: token.symbol,
     media: <TokenLogo src={token.logoUrl} />,
     value: token.createdAt ? formatNftRelativeTime(token.createdAt) : undefined,
+    valueHref: token.createdTransactionHash
+      ? getUrlWithNetwork(`/transactions/details?txhash=${token.createdTransactionHash}`)
+      : undefined,
   }));
 
   const mostActive = (summary?.mostActive ?? []).map(item => {

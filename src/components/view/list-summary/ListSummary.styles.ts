@@ -179,6 +179,14 @@ export const Row = styled(Link)`
   }
 `;
 
+export const RowMain = styled(Link)`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+`;
+
 export const RowText = styled.div`
   display: flex;
   flex-direction: column;

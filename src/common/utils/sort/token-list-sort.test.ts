@@ -22,6 +22,7 @@ const token = (
   registered: true,
   transactionCount24h,
   createdAt: null,
+  createdTransactionHash: null,
 });
 
 // A has the larger supply, B the larger market cap, C has no price.

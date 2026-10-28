@@ -150,6 +150,36 @@ it("lists newly created tokens whether or not they are registered", () => {
   expect(text).toContain("7 added in 7 days");
 });
 
+// The age opens the transaction the token was created in, while the rest of the row still opens the token.
+it("links a newly added token's age to its creation transaction", () => {
+  mockSummary.data = SUMMARY_TOKENS;
+  const token = (symbol: string, createdTransactionHash: string | null) => ({
+    tokenId: `gno.land/r/demo/${symbol}.${symbol}.0000000`,
+    packagePath: `gno.land/r/demo/${symbol}`,
+    name: symbol,
+    symbol,
+    logoUrl: "",
+    registered: true,
+    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    createdTransactionHash,
+  });
+  mockUseMappedApiTokens.mockImplementationOnce(() => ({
+    data: [token("NEW", "geQ1/t8pCJ0gFOueMfw5ZznodFVkZqwkcFoJBVMUlYM="), token("OLD", null)] as never[],
+    isFetched: true,
+    isError: false,
+  }));
+  const markup = renderToStaticMarkup(
+    <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+      <TokensSummary />
+    </ThemeProvider>,
+  );
+  expect(markup).toContain('href="/tokens/gno.land/r/demo/NEW.NEW"');
+  expect(markup).toContain('href="/transactions/details?txhash=geQ1/t8pCJ0gFOueMfw5ZznodFVkZqwkcFoJBVMUlYM="');
+  expect(markup).toContain('href="/tokens/gno.land/r/demo/OLD.OLD"');
+  expect(markup.match(/txhash=/g)).toHaveLength(1);
+  expect(markup).not.toMatch(/<a[^>]*>(?:(?!<\/a>).)*<a /s);
+});
+
 it("renders the token cards from the summary alone", () => {
   mockSummary.data = SUMMARY_TOKENS;
   const text = renderText(<TokensSummary />);
