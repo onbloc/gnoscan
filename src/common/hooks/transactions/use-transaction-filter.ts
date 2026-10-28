@@ -10,6 +10,8 @@ export interface TransactionFilterInput {
   status: "" | "success" | "failed";
   messageType: string;
   function: string;
+  // Realm of the picked suggestion; cleared when the name is typed.
+  packagePath: string;
 }
 
 // Stable default, so the params memo does not change on every render.
@@ -21,6 +23,7 @@ export const EMPTY_TRANSACTION_FILTER: TransactionFilterInput = {
   status: "",
   messageType: "",
   function: "",
+  packagePath: "",
 };
 
 /**
@@ -29,7 +32,8 @@ export const EMPTY_TRANSACTION_FILTER: TransactionFilterInput = {
  */
 const resolveFunctionName = (typed: string, functionNames: string[]): string => {
   if (functionNames.includes(typed)) return typed;
-  const matches = functionNames.filter(name => name.toLowerCase() === typed.toLowerCase());
+  // A name called in several realms is listed once per realm.
+  const matches = [...new Set(functionNames)].filter(name => name.toLowerCase() === typed.toLowerCase());
   return matches.length === 1 ? matches[0] : typed;
 };
 
@@ -53,6 +57,7 @@ export const toTransactionFilterParams = (
   if (input.messageType) params.messageType = input.messageType;
   const functionName = input.function.trim();
   if (functionName) params.function = resolveFunctionName(functionName, functionNames);
+  if (functionName && input.packagePath) params.packagePath = input.packagePath;
   return params;
 };
 
@@ -64,11 +69,16 @@ export const toTransactionFilterParams = (
  */
 export const useTransactionFilter = (stateKey: string, functionNames: string[] = EMPTY_NAMES) => {
   const [input, setInput] = useHistoryEntryState<TransactionFilterInput>(stateKey, EMPTY_TRANSACTION_FILTER);
-  const debouncedFunction = useDebounce(input.function, 300);
+  // The name and its realm change together when a suggestion is picked, so they are debounced as one.
+  const call = React.useMemo(
+    () => ({ function: input.function, packagePath: input.packagePath }),
+    [input.function, input.packagePath],
+  );
+  const debouncedCall = useDebounce(call, 300);
 
   const params = React.useMemo(
-    () => toTransactionFilterParams({ ...input, function: debouncedFunction }, functionNames),
-    [input, debouncedFunction, functionNames],
+    () => toTransactionFilterParams({ ...input, ...debouncedCall }, functionNames),
+    [input, debouncedCall, functionNames],
   );
 
   return { input, setInput, params, isFiltered: Object.keys(params).length > 0 };

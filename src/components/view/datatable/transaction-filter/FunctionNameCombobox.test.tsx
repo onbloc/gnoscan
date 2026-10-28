@@ -16,9 +16,9 @@ jest.mock("@/states", () => {
 });
 
 const NAMES = [
-  { name: "Heartbeat", count: 82517 },
-  { name: "Transfer", count: 900 },
-  { name: "TransferFrom", count: 300 },
+  { name: "Heartbeat", packagePath: "gno.land/r/demo/game", count: 82517 },
+  { name: "Transfer", packagePath: "gno.land/r/demo/foo", count: 900 },
+  { name: "TransferFrom", packagePath: "gno.land/r/demo/foo", count: 300 },
 ];
 
 describe("matchFunctionNames", () => {
@@ -32,6 +32,9 @@ describe("matchFunctionNames", () => {
 describe("FunctionNameCombobox", () => {
   it("picks a suggestion with the keyboard", () => {
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    // jsdom has no scrolling; the list scrolls the active option into view.
+    const scrollIntoView = jest.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -41,7 +44,7 @@ describe("FunctionNameCombobox", () => {
       root.render(
         <RecoilRoot>
           <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-            <FunctionNameCombobox value="transfer" onChange={onChange} functionNames={NAMES} />
+            <FunctionNameCombobox value="transfer" packagePath="" onChange={onChange} functionNames={NAMES} />
           </ThemeProvider>
         </RecoilRoot>,
       ),
@@ -55,9 +58,10 @@ describe("FunctionNameCombobox", () => {
     key("ArrowDown");
     key("ArrowDown");
     expect(input.getAttribute("aria-activedescendant")).toBe(container.querySelectorAll("[role=option]")[1].id);
+    expect(scrollIntoView).toHaveBeenLastCalledWith({ block: "nearest" });
 
     key("Enter");
-    expect(onChange).toHaveBeenCalledWith("TransferFrom");
+    expect(onChange).toHaveBeenCalledWith("TransferFrom", "gno.land/r/demo/foo");
     expect(container.querySelector("[role=listbox]")).toBeNull();
 
     act(() => root.unmount());

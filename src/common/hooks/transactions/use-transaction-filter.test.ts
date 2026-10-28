@@ -11,16 +11,24 @@ describe("toTransactionFilterParams", () => {
         fromDate: "2026-10-01",
         toDate: "2026-10-02",
         status: "failed",
-        messageType: "exec",
+        messageType: "/vm.m_call",
         function: "  Transfer ",
+        packagePath: "gno.land/r/demo/foo",
       }),
     ).toEqual({
       fromDate: "2026-10-01",
       toDate: "2026-10-02",
       status: "failed",
-      messageType: "exec",
+      messageType: "/vm.m_call",
       function: "Transfer",
+      packagePath: "gno.land/r/demo/foo",
     });
+  });
+
+  it("drops the realm without a function name", () => {
+    expect(
+      toTransactionFilterParams({ ...EMPTY_TRANSACTION_FILTER, function: " ", packagePath: "gno.land/r/demo/foo" }),
+    ).toEqual({});
   });
 
   it("omits a blank function name", () => {
@@ -40,7 +48,8 @@ describe("toTransactionFilterParams", () => {
   });
 
   it("resolves a function name typed in another case to its candidate", () => {
-    const names = ["Heartbeat", "Transfer", "TransferFrom"];
+    // Transfer is called in two realms, so it is listed twice.
+    const names = ["Heartbeat", "Transfer", "Transfer", "TransferFrom"];
     const params = (typed: string) =>
       toTransactionFilterParams({ ...EMPTY_TRANSACTION_FILTER, function: typed }, names).function;
 

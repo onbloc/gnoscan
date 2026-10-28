@@ -8,10 +8,10 @@ import { FunctionNameCombobox } from "./FunctionNameCombobox";
 
 const MESSAGE_TYPE_OPTIONS = [
   { value: "", label: "All Types" },
-  { value: "exec", label: "Call" },
-  { value: "send", label: "Send" },
-  { value: "add_package", label: "Add Package" },
-  { value: "run", label: "Run" },
+  { value: "/vm.m_call", label: "Call" },
+  { value: "/bank.MsgSend", label: "Send" },
+  { value: "/vm.m_addpkg", label: "Add Package" },
+  { value: "/vm.m_run", label: "Run" },
 ];
 
 interface Props {
@@ -108,7 +108,8 @@ export const TransactionFilterBar = ({ value, onChange, dateOnly = false, result
             </Text>
             <FunctionNameCombobox
               value={value.function}
-              onChange={next => update("function", next)}
+              packagePath={value.packagePath}
+              onChange={(name, packagePath = "") => onChange({ ...value, function: name, packagePath })}
               functionNames={functionNames}
             />
           </div>
