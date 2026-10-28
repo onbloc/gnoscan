@@ -51,9 +51,12 @@ export const useMenuKeyboard = ({
 
   const onBlur = useCallback(
     (event: React.FocusEvent) => {
-      // Moving between the trigger and the items keeps it open. A click on nothing focusable is left to outside click.
+      // Moving between the trigger and the items keeps it open. With no next target it stays open only while hovered,
+      // since clicking something that takes no focus, such as a button in Safari, also blurs it.
+      if (!open) return;
       const next = event.relatedTarget;
-      if (open && next && !event.currentTarget.contains(next)) setOpen(false);
+      const leaving = next ? !event.currentTarget.contains(next) : !event.currentTarget.matches(":hover");
+      if (leaving) setOpen(false);
     },
     [open, setOpen],
   );
