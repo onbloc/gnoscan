@@ -23,7 +23,7 @@ export class TokenMapper {
       totalSupply: response.totalSupply,
       holders: response.holders,
       logoUrl: response.logoUrl ?? "",
-      registered: !!response.registeredPackagePath,
+      registered: response.isRegYn === "Y",
       transactionCount24h: response.transactionCount24h ?? null,
     };
   }

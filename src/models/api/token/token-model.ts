@@ -10,8 +10,8 @@ export interface TokenModel {
   totalSupply: string;
   path: string;
   logoUrl: string | null;
-  /** grc20reg register event path. Omitted for tokens that were never registered (backfilled ones such as xGNS). */
-  registeredPackagePath?: string;
+  /** "Y" once grc20reg emitted the token's register event. */
+  isRegYn: "Y" | "N";
   /** Distinct transactions touching the token in the last 24 hours (Transfer, Mint, Burn and Approval events). */
   transactionCount24h?: number;
 }

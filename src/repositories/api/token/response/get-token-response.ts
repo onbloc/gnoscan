@@ -9,6 +9,7 @@ export interface GetTokenResponse {
     totalSupply: string;
     decimals: number;
     path: string;
+    isRegYn: "Y" | "N";
     funcTypesList: string[];
     owner: string;
     ownerName: string;
