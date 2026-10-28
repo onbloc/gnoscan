@@ -121,11 +121,12 @@ export const BarSlot = styled.div`
   }
 `;
 
-export const BarColumn = styled.div<{ $today: boolean }>`
+// Bars keep a linear height, with a floor that tells a small count apart from none next to a much larger day.
+export const BarColumn = styled.div<{ $today: boolean; $empty: boolean }>`
   display: flex;
   flex: 1;
   flex-direction: column-reverse;
-  min-height: 2px;
+  min-height: ${({ $empty }) => ($empty ? 2 : 4)}px;
   overflow: hidden;
   border-radius: 2px;
   // Earlier days are faded so today's bar stands out.

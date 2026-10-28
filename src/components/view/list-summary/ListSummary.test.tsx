@@ -201,7 +201,7 @@ it("counts Just Minted over the same 24h as the activity bars", () => {
   const text = renderText(<NftsSummary />);
   expect(text).toContain("17 minted in 24h");
   expect(text).toContain("1,489 +19.9% vs previous 24h");
-  expect(text).toContain("Last 7 days");
+  expect(text).toContain("Last 7 days 1,472 transfers 17 mints");
 });
 
 it("labels each bar with its local 24h period and value, naming stacked series", () => {

@@ -151,7 +151,7 @@ export const SummaryBars = ({
             onFocus={() => setHoveredDay(day)}
             onBlur={() => setHoveredDay(null)}
           >
-            <S.BarColumn style={{ height: `${(total / max) * 100}%` }} $today={day === days - 1}>
+            <S.BarColumn style={{ height: `${(total / max) * 100}%` }} $today={day === days - 1} $empty={total === 0}>
               {series.map(({ color, values }) => (
                 <S.BarSegment key={color} $color={color} style={{ flexGrow: values[day] ?? 0 }} />
               ))}
