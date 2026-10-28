@@ -42,11 +42,14 @@ export const SubMenu: React.FC<SubMenuProps> = ({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Moves focus into the open menu, closes it with Escape and hands focus back to the menu button.
+  // Moves focus into the open menu, keeps it there, closes it with Escape and hands focus back to the menu button.
   useEffect(() => {
     if (!open) return;
     const container = containerRef.current;
     const menuButton = menuButtonRef.current;
+    // The menu is portaled outside the app root, so an inert root keeps Tab inside the menu.
+    const appRoot = document.getElementById("__next");
+    appRoot?.setAttribute("inert", "");
     closeButtonRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClick();
@@ -54,6 +57,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      appRoot?.removeAttribute("inert");
       if (container?.contains(document.activeElement)) menuButton?.focus();
     };
   }, [open, onClick]);

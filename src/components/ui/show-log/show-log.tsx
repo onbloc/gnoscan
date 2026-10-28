@@ -215,7 +215,8 @@ const logHeight = (height: string, desktopHeight: string) => css<StyleProps>`
 
 const logWrapCommonStyle = css<StyleProps>`
   width: 100%;
-  transition: all 0.4s ease;
+  // Hidden once collapsed, so Tab skips the file tabs and the copy button.
+  ${({ showLog }) => mixins.revealOnOpen(!!showLog, "0.4s")};
 `;
 
 const TabLogWrap = styled.div<StyleProps>`
