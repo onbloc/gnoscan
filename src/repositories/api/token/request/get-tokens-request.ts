@@ -6,8 +6,8 @@ export interface GetTokensRequestParameters {
 
   limit?: number; // @default 20
 
-  /** `id` orders by registration, newest last. */
-  sort?: "holders" | "id";
+  /** `id` orders by row id, newest last. `createdAt` orders by creation block time: backfilled tokens get later ids. */
+  sort?: "holders" | "id" | "createdAt";
 
   order?: "asc" | "desc";
 

@@ -24,7 +24,7 @@ import {
 } from "./ListSummary";
 import * as S from "./ListSummary.styles";
 
-const RECENT_TOKENS_PARAMS = { sort: "id", order: "desc" } as const;
+const RECENT_TOKENS_PARAMS = { sort: "createdAt", order: "desc" } as const;
 
 const TokenLogo = ({ src }: { src: string | null | undefined }) => (src ? <img src={src} alt="" /> : <UnknownToken />);
 

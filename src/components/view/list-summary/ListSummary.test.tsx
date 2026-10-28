@@ -160,10 +160,10 @@ it("renders the token cards from the summary alone", () => {
   expect(text).toContain("Fastest growing BUBBLE · +22");
 });
 
-it("does not keep another network's recent tokens while the new network loads", () => {
+it("lists the newest created tokens without keeping another network's while the new network loads", () => {
   renderText(<TokensSummary />);
   expect(mockUseMappedApiTokens).toHaveBeenCalledWith(
-    expect.objectContaining({ sort: "id" }),
+    expect.objectContaining({ sort: "createdAt", order: "desc" }),
     expect.objectContaining({ keepPreviousData: false }),
   );
 });
