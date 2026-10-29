@@ -72,9 +72,12 @@ const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize,
 
   if (validators.length === 0) {
     return (
-      <S.Container>
-        <S.NoDataWrapper>No data to display</S.NoDataWrapper>
-      </S.Container>
+      <S.Card>
+        <S.Container>
+          <S.NoDataWrapper>No data to display</S.NoDataWrapper>
+        </S.Container>
+        {footer}
+      </S.Card>
     );
   }
 

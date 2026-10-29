@@ -19,10 +19,16 @@ const ValidatorsContainer = () => {
   const { data, isFetched, isPreviousData } = useGetValidators({ page, limit: VALIDATORS_LIST_PAGE_SIZE });
   const { data: commitsData } = useGetValidatorCommits({ size: COMMIT_SIZE });
 
+  const totalPages = Math.max(1, Math.ceil((data?.page.totalCount ?? 0) / VALIDATORS_LIST_PAGE_SIZE));
+
+  // A saved page can exceed the current page count (e.g. validators removed, history restore).
+  const isPastLastPage = !!data && !isPreviousData && page > totalPages;
+  React.useEffect(() => {
+    if (isPastLastPage) setPage(totalPages);
+  }, [isPastLastPage, totalPages, setPage]);
+
   // Show skeleton only on initial load; keep previous rows while paging
   if (!isFetched && !isPreviousData) return <TableSkeleton />;
-
-  const totalPages = Math.max(1, Math.ceil((data?.page.totalCount ?? 0) / VALIDATORS_LIST_PAGE_SIZE));
 
   return (
     <ValidatorTable

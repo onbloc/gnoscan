@@ -88,6 +88,21 @@ it("has a single page for an empty list", () => {
   expect(view.pagination().dataset.total).toBe("1");
 });
 
+it("moves a saved page past the last page back to the last page", () => {
+  mockSavedPage = 7;
+  mockItems = [];
+  render();
+
+  expect(mockSetPage).toHaveBeenCalledWith(3);
+});
+
+it("does not reset a valid saved page", () => {
+  mockSavedPage = 3;
+  render();
+
+  expect(mockSetPage).not.toHaveBeenCalled();
+});
+
 it("clamps page changes to the last page", () => {
   const view = render();
 
