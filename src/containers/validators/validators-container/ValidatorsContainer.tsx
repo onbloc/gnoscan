@@ -11,7 +11,7 @@ import ValidatorTable from "@/components/view/validator/validator-table/Validato
 
 const COMMIT_SIZE = 20;
 
-const ValidatorsContainer = () => {
+const ValidatorsList = () => {
   const { currentNetwork } = useNetworkProvider();
   // A network switch keeps the history entry, so the network is part of the name to start each network on page 1.
   const [page, setPage] = useHistoryEntryState(`validators:${currentNetwork?.chainId}:page`, 1);
@@ -49,6 +49,13 @@ const ValidatorsContainer = () => {
       }
     />
   );
+};
+
+const ValidatorsContainer = () => {
+  const { currentNetwork } = useNetworkProvider();
+
+  // Remount on network change so keepPreviousData does not show the previous network's rows
+  return <ValidatorsList key={currentNetwork?.chainId} />;
 };
 
 export default ValidatorsContainer;

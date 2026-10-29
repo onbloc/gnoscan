@@ -9,6 +9,8 @@ let mockItems: { address: string }[] = [];
 let mockTotalCount = 0;
 let mockSavedPage = 1;
 let mockIsPreviousData = false;
+let mockChainId = "chain-a";
+let mockMounts = 0;
 const mockSetPage = jest.fn();
 const mockRequests: { page: number; limit: number }[] = [];
 
@@ -16,11 +18,14 @@ jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => ({
   useHistoryEntryState: () => [mockSavedPage, mockSetPage],
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
-  useNetworkProvider: () => ({ currentNetwork: { chainId: "chain-a" } }),
+  useNetworkProvider: () => ({ currentNetwork: { chainId: mockChainId } }),
 }));
 jest.mock("@/common/react-query/validator/api/use-get-validators", () => ({
   useGetValidators: (params: { page: number; limit: number }) => {
     mockRequests.push(params);
+    jest.requireActual("react").useEffect(() => {
+      mockMounts += 1;
+    }, []);
     return {
       data: { items: mockItems, page: { hasNext: true, totalCount: mockTotalCount } },
       isFetched: true,
@@ -55,9 +60,14 @@ jest.mock("@/components/ui/pagination", () => ({
 
 function render() {
   const container = document.createElement("div");
-  act(() => createRoot(container).render(<ValidatorsContainer />));
+  const root = createRoot(container);
+  act(() => root.render(<ValidatorsContainer />));
   const query = (id: string) => container.querySelector(`[data-testid=${id}]`) as HTMLElement;
-  return { rows: () => query("rows").textContent, pagination: () => query("pagination") };
+  return {
+    rows: () => query("rows").textContent,
+    pagination: () => query("pagination"),
+    rerender: () => act(() => root.render(<ValidatorsContainer />)),
+  };
 }
 
 beforeAll(() => {
@@ -69,6 +79,8 @@ beforeEach(() => {
   mockRequests.length = 0;
   mockSavedPage = 1;
   mockIsPreviousData = false;
+  mockChainId = "chain-a";
+  mockMounts = 0;
   mockItems = [{ address: "a1" }];
   mockTotalCount = 45;
 });
@@ -119,4 +131,14 @@ it("clamps page changes to the last page", () => {
   act(() => view.pagination().click());
 
   expect(mockSetPage).toHaveBeenCalledWith(3);
+});
+
+it("remounts the list on network change so the previous network's rows are not carried over", () => {
+  const view = render();
+  expect(mockMounts).toBe(1);
+
+  mockChainId = "chain-b";
+  view.rerender();
+
+  expect(mockMounts).toBe(2);
 });
