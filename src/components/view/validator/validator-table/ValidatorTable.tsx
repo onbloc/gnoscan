@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import IconLink from "@/assets/svgs/icon-link.svg";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -20,6 +20,7 @@ interface ValidatorTableProps {
   fromHeight: number | null;
   toHeight: number | null;
   commitSize: number;
+  footer?: React.ReactNode;
 }
 
 const COLUMN_WIDTHS = {
@@ -38,7 +39,7 @@ const STATUS_DISPLAY_MAP: Record<ValidatorStatus, string> = {
   PENDING: "Pending",
 };
 
-const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize }: ValidatorTableProps) => {
+const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize, footer }: ValidatorTableProps) => {
   const { getUrlWithNetwork, gnoWebUrl } = useNetwork();
 
   const getCommitsByAddress = useCallback(
@@ -78,59 +79,62 @@ const ValidatorTable = ({ validators, commits, fromHeight, toHeight, commitSize 
   }
 
   return (
-    <S.Container>
-      <S.Table>
-        <S.HeaderRow>
-          <S.HeaderCell width={COLUMN_WIDTHS.name}>Validator Name</S.HeaderCell>
-          <S.HeaderCell width={COLUMN_WIDTHS.status}>Status</S.HeaderCell>
-          <S.HeaderCell width={COLUMN_WIDTHS.address}>Address</S.HeaderCell>
-          <S.HeaderCell width={COLUMN_WIDTHS.shares}>V.P Shares</S.HeaderCell>
-          <S.HeaderCell width={COLUMN_WIDTHS.startTime}>Start Time</S.HeaderCell>
-          <S.HeaderCell width={COLUMN_WIDTHS.profile}>Profile</S.HeaderCell>
-          <S.HeaderCell flex align="right">
-            Last 20 blocks
-          </S.HeaderCell>
-        </S.HeaderRow>
+    <S.Card>
+      <S.Container>
+        <S.Table>
+          <S.HeaderRow>
+            <S.HeaderCell width={COLUMN_WIDTHS.name}>Validator Name</S.HeaderCell>
+            <S.HeaderCell width={COLUMN_WIDTHS.status}>Status</S.HeaderCell>
+            <S.HeaderCell width={COLUMN_WIDTHS.address}>Address</S.HeaderCell>
+            <S.HeaderCell width={COLUMN_WIDTHS.shares}>V.P Shares</S.HeaderCell>
+            <S.HeaderCell width={COLUMN_WIDTHS.startTime}>Start Time</S.HeaderCell>
+            <S.HeaderCell width={COLUMN_WIDTHS.profile}>Profile</S.HeaderCell>
+            <S.HeaderCell flex align="right">
+              Last 20 blocks
+            </S.HeaderCell>
+          </S.HeaderRow>
 
-        {validators.map(validator => {
-          const proposalUrl = getProposalUrl(validator.proposalId);
-          const profileUrl = getProfileUrl(validator.operationAddress);
+          {validators.map(validator => {
+            const proposalUrl = getProposalUrl(validator.proposalId);
+            const profileUrl = getProfileUrl(validator.operationAddress);
 
-          return (
-            <S.DataRow key={validator.address}>
-              <S.DataCell width={COLUMN_WIDTHS.name}>
-                <S.LinkText href={getUrlWithNetwork(`/account/${validator.address}`)}>
-                  {validator.monikerName || textEllipsis(validator.address, 6)}
-                </S.LinkText>
-              </S.DataCell>
-              <S.DataCell width={COLUMN_WIDTHS.status}>
-                <StatusBadgeCell status={validator.status} proposalUrl={proposalUrl} />
-              </S.DataCell>
-              <S.DataCell width={COLUMN_WIDTHS.address}>
-                <AddressCell address={validator.address} />
-              </S.DataCell>
-              <S.DataCell width={COLUMN_WIDTHS.shares}>{validator.shareRate}%</S.DataCell>
-              <S.DataCell width={COLUMN_WIDTHS.startTime}>
-                <StartTimeCell timestamp={validator.firstCommittedTime} />
-              </S.DataCell>
-              <S.DataCell width={COLUMN_WIDTHS.profile}>
-                <ProfileCell profileUrl={profileUrl} />
-              </S.DataCell>
-              <S.DataCell flex align="right">
-                <CommitBar
-                  commits={getCommitsByAddress(validator.address)}
-                  status={validator.status}
-                  getCommitColor={getCommitColor}
-                  fromHeight={fromHeight}
-                  toHeight={toHeight}
-                  commitSize={commitSize}
-                />
-              </S.DataCell>
-            </S.DataRow>
-          );
-        })}
-      </S.Table>
-    </S.Container>
+            return (
+              <S.DataRow key={validator.address}>
+                <S.DataCell width={COLUMN_WIDTHS.name}>
+                  <S.LinkText href={getUrlWithNetwork(`/account/${validator.address}`)}>
+                    {validator.monikerName || textEllipsis(validator.address, 6)}
+                  </S.LinkText>
+                </S.DataCell>
+                <S.DataCell width={COLUMN_WIDTHS.status}>
+                  <StatusBadgeCell status={validator.status} proposalUrl={proposalUrl} />
+                </S.DataCell>
+                <S.DataCell width={COLUMN_WIDTHS.address}>
+                  <AddressCell address={validator.address} />
+                </S.DataCell>
+                <S.DataCell width={COLUMN_WIDTHS.shares}>{validator.shareRate}%</S.DataCell>
+                <S.DataCell width={COLUMN_WIDTHS.startTime}>
+                  <StartTimeCell timestamp={validator.firstCommittedTime} />
+                </S.DataCell>
+                <S.DataCell width={COLUMN_WIDTHS.profile}>
+                  <ProfileCell profileUrl={profileUrl} />
+                </S.DataCell>
+                <S.DataCell flex align="right">
+                  <CommitBar
+                    commits={getCommitsByAddress(validator.address)}
+                    status={validator.status}
+                    getCommitColor={getCommitColor}
+                    fromHeight={fromHeight}
+                    toHeight={toHeight}
+                    commitSize={commitSize}
+                  />
+                </S.DataCell>
+              </S.DataRow>
+            );
+          })}
+        </S.Table>
+      </S.Container>
+      {footer}
+    </S.Card>
   );
 };
 
