@@ -5,9 +5,9 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { useGetValidators } from "@/common/react-query/validator/api/use-get-validators";
 import { useGetValidatorCommits } from "@/common/react-query/validator/api/use-get-validator-commits";
 import { VALIDATORS_LIST_PAGE_SIZE } from "@/common/values/query.constant";
+import { Pagination } from "@/components/ui/pagination";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import ValidatorTable from "@/components/view/validator/validator-table/ValidatorTable";
-import { Pagination } from "@/components/ui/pagination";
 
 const COMMIT_SIZE = 20;
 

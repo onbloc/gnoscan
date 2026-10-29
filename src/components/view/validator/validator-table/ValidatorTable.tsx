@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 
 import IconLink from "@/assets/svgs/icon-link.svg";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -20,7 +20,7 @@ interface ValidatorTableProps {
   fromHeight: number | null;
   toHeight: number | null;
   commitSize: number;
-  footer?: React.ReactNode;
+  footer?: ReactNode;
 }
 
 const COLUMN_WIDTHS = {

@@ -8,6 +8,7 @@ import ValidatorsContainer from "./ValidatorsContainer";
 let mockItems: { address: string }[] = [];
 let mockTotalCount = 0;
 let mockSavedPage = 1;
+let mockIsPreviousData = false;
 const mockSetPage = jest.fn();
 const mockRequests: { page: number; limit: number }[] = [];
 
@@ -23,7 +24,7 @@ jest.mock("@/common/react-query/validator/api/use-get-validators", () => ({
     return {
       data: { items: mockItems, page: { hasNext: true, totalCount: mockTotalCount } },
       isFetched: true,
-      isPreviousData: false,
+      isPreviousData: mockIsPreviousData,
     };
   },
 }));
@@ -67,6 +68,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockRequests.length = 0;
   mockSavedPage = 1;
+  mockIsPreviousData = false;
   mockItems = [{ address: "a1" }];
   mockTotalCount = 45;
 });
@@ -94,6 +96,14 @@ it("moves a saved page past the last page back to the last page", () => {
   render();
 
   expect(mockSetPage).toHaveBeenCalledWith(3);
+});
+
+it("does not clamp the page against stale previous-page data", () => {
+  mockSavedPage = 7;
+  mockIsPreviousData = true;
+  render();
+
+  expect(mockSetPage).not.toHaveBeenCalled();
 });
 
 it("does not reset a valid saved page", () => {
