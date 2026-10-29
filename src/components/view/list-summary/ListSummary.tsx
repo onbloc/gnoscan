@@ -134,7 +134,8 @@ export const SummaryBars = ({
 }) => {
   const [hoveredDay, setHoveredDay] = React.useState<number | null>(null);
   const days = series[0]?.values.length ?? 0;
-  if (days === 0) return null;
+  // An empty area keeps the card's height while the bars load or after a failed request.
+  if (days === 0) return <S.BarsArea />;
 
   const totals = Array.from({ length: days }, (_, day) => series.reduce((sum, s) => sum + (s.values[day] ?? 0), 0));
   const max = Math.max(...totals, 1);

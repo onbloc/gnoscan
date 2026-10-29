@@ -97,6 +97,7 @@ export const BigNumber = styled.div`
 
 export const BarsArea = styled.div`
   position: relative;
+  min-height: 64px;
 `;
 
 export const Bars = styled.div`

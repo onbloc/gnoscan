@@ -267,6 +267,15 @@ it("labels a just minted NFT with its symbol and number", () => {
   expect(text).not.toContain("GnoSwap NFT #1314 ");
 });
 
+it("keeps the bar area while there are no bars yet", () => {
+  const markup = renderToStaticMarkup(
+    <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+      <SummaryBars label="Transfers per 24h" periods={[]} series={[{ color: "blue", values: [] }]} />
+    </ThemeProvider>,
+  );
+  expect(markup).toMatch(/^<div class="[^"]+"><\/div>$/);
+});
+
 it("labels each bar with its local 24h period and value, naming stacked series", () => {
   const periods = [
     { start: "2026-10-25T10:58:14Z", end: "2026-10-26T10:58:14Z" },
