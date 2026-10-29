@@ -25,6 +25,10 @@ import {
 } from "./ListSummary";
 import * as S from "./ListSummary.styles";
 
+// A collection token id is "<packagePath>.<SYMBOL>.<sequence>". "" when it does not start with the package path.
+const collectionSymbol = (tokenId: string, packagePath: string) =>
+  tokenId.startsWith(`${packagePath}.`) ? tokenId.slice(packagePath.length + 1).replace(/\.[^.]*$/, "") : "";
+
 const formatAvgNfts = (average: number) => {
   const value = average.toFixed(1);
   return `${value} ${value === "1.0" ? "NFT" : "NFTs"}`;
@@ -80,6 +84,7 @@ export const NftsSummary = () => {
               const artwork = getArtwork(mint.packagePath, mint.nftId);
               const name = collectionName(mint.packagePath, mint.collectionName);
               const title = `${name} #${mint.nftId}`;
+              const label = `${collectionSymbol(mint.tokenId, mint.packagePath) || name} #${mint.nftId}`;
               return (
                 <S.Tile
                   key={`${mint.tokenId}:${mint.nftId}`}
@@ -87,7 +92,7 @@ export const NftsSummary = () => {
                 >
                   <NftImage src={artwork.src} isLoading={artwork.isLoading} alt={title} />
                   <Text type="body1" color="blue" className="ellipsis">
-                    {name}
+                    {label}
                   </Text>
                   <Text type="body1" color="tertiary">
                     {formatNftRelativeTime(mint.mintedAt)}

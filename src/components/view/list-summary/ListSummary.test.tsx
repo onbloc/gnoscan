@@ -18,7 +18,9 @@ jest.mock("@/common/react-query/statistics", () => ({
 jest.mock("@/common/hooks/nft/use-nft-collection-name", () => ({
   useNftCollectionName: () => (_path: string | undefined, name: string) => name,
 }));
-jest.mock("@/common/hooks/nft/use-nft-artwork", () => ({ useNftArtwork: () => ({}) }));
+jest.mock("@/common/hooks/nft/use-nft-artwork", () => ({
+  useNftArtwork: () => () => ({ src: "", isLoading: false }),
+}));
 jest.mock("@/components/view/datatable/item/nft-collection-title", () => ({ NftCollectionLogo: () => null }));
 jest.mock("@/components/view/nft/nft-image/NftImage", () => () => null);
 jest.mock("@/assets/svgs/icon-unknown-token.svg", () => () => null);
@@ -173,9 +175,9 @@ it("links a newly added token's age to its creation transaction", () => {
       <TokensSummary />
     </ThemeProvider>,
   );
-  expect(markup).toContain('href="/tokens/gno.land/r/demo/NEW.NEW"');
-  expect(markup).toContain('href="/transactions/details?txhash=geQ1/t8pCJ0gFOueMfw5ZznodFVkZqwkcFoJBVMUlYM="');
-  expect(markup).toContain('href="/tokens/gno.land/r/demo/OLD.OLD"');
+  expect(markup).toMatch(/href="\/tokens\/gno\.land\/r\/demo\/NEW\.NEW"/);
+  expect(markup).toMatch(/href="\/transactions\/details\?txhash=geQ1\/t8pCJ0gFOueMfw5ZznodFVkZqwkcFoJBVMUlYM="/);
+  expect(markup).toMatch(/href="\/tokens\/gno\.land\/r\/demo\/OLD\.OLD"/);
   expect(markup.match(/txhash=/g)).toHaveLength(1);
   expect(markup).not.toMatch(/<a[^>]*>(?:(?!<\/a>).)*<a /s);
 });
@@ -232,6 +234,37 @@ it("counts Just Minted over the same 24h as the activity bars", () => {
   expect(text).toContain("17 minted in 24h");
   expect(text).toContain("1,489 +19.9% vs previous 24h");
   expect(text).toContain("Last 7 days 1,472 transfers 17 mints");
+});
+
+// Each minted NFT reads as its collection symbol and number, falling back to the collection name.
+it("labels a just minted NFT with its symbol and number", () => {
+  mockSummary.data = {
+    data: {
+      justMinted: [
+        {
+          tokenId: "gno.land/r/gnoswap/gnft.GNFT.0000000",
+          packagePath: "gno.land/r/gnoswap/gnft",
+          collectionName: "GnoSwap NFT",
+          nftId: "1314",
+          mintedAt: new Date().toISOString(),
+        },
+        {
+          tokenId: "gno.land/r/demo/odd.ODD.000000a",
+          packagePath: "gno.land/r/demo/other",
+          collectionName: "Odd",
+          nftId: "7",
+          mintedAt: new Date().toISOString(),
+        },
+      ],
+      rising: [],
+      activity: { events24h: 0, deltaPct: 0, transfers24h: 0, mints24h: 2, daily: [] },
+      collectors: { holdersTotal: 0, topCollector: null, avgPerWallet: 0, userHeld: 0, realmHeld: 0 },
+    },
+  };
+  const text = renderText(<NftsSummary />);
+  expect(text).toContain("GNFT #1314");
+  expect(text).toContain("Odd #7");
+  expect(text).not.toContain("GnoSwap NFT #1314 ");
 });
 
 it("labels each bar with its local 24h period and value, naming stacked series", () => {
