@@ -6,4 +6,7 @@ export interface GetRealmsRequestParameters {
   sort?: "name" | "blockHeight" | "totalCallCount" | "storageDeposit" | "totalGasUsed";
 
   order?: "asc" | "desc";
+
+  /** Matches realm name or package path. */
+  keyword?: string;
 }

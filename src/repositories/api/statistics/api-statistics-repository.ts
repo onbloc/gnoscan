@@ -14,6 +14,9 @@ import {
   GetTotalDailyTransactionsResponse,
   GetTotalFeeShareResponse,
   GetTotalRealmStorageDepositResponse,
+  GetSummaryTokensResponse,
+  GetSummaryNftCollectionsResponse,
+  GetSummaryRealmsResponse,
 } from "./response";
 
 export interface ApiStatisticsRepository {
@@ -46,4 +49,10 @@ export interface ApiStatisticsRepository {
   ): Promise<GetTotalRealmStorageDepositResponse>;
 
   getTotalDailyStorageDeposit(): Promise<GetTotalDailyStorageDepositResponse>;
+
+  getSummaryTokens(): Promise<GetSummaryTokensResponse>;
+
+  getSummaryNftCollections(): Promise<GetSummaryNftCollectionsResponse>;
+
+  getSummaryRealms(): Promise<GetSummaryRealmsResponse>;
 }

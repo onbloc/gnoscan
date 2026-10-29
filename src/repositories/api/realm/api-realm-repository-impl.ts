@@ -22,7 +22,7 @@ import {
   GetRealmHoldersResponse,
 } from "./response";
 import { StorageDeposit } from "@/models/storage-deposit-model";
-import { makeEncodedQueryParameter } from "@/common/utils/string-util";
+import { encodeQueryValue, makeEncodedQueryParameter } from "@/common/utils/string-util";
 import { hasStorageDepositProperties, convertToStorageDeposit } from "@/common/utils/storage-deposit-util";
 import { CommonError } from "@/common/errors";
 import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
@@ -36,7 +36,7 @@ export class ApiRealmRepositoryImpl extends ApiRepository implements ApiRealmRep
   }
 
   getRealms(params: GetRealmsRequestParameters): Promise<GetRealmsResponse> {
-    return this.get<GetRealmsResponse>("/realms", { ...params });
+    return this.get<GetRealmsResponse>("/realms", { ...params, keyword: encodeQueryValue(params.keyword) });
   }
 
   getRealm(path: string): Promise<GetRealmResponse> {

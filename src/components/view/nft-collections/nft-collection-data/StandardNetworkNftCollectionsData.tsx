@@ -10,12 +10,17 @@ import { StandardNetworkNftCollectionListTable } from "../nft-collection-list-ta
 interface StandardNetworkNftCollectionsDataProps {
   sortOption: NftCollectionListSortOption;
   setSortOption: (sortOption: NftCollectionListSortOption) => void;
+  keyword?: string;
 }
 
-const StandardNetworkNftCollectionsData = ({ sortOption, setSortOption }: StandardNetworkNftCollectionsDataProps) => {
+const StandardNetworkNftCollectionsData = ({
+  sortOption,
+  setSortOption,
+  keyword,
+}: StandardNetworkNftCollectionsDataProps) => {
   const apiParams = React.useMemo(
-    () => ({ ...toNftCollectionListApiSortParams(sortOption), limit: DEFAULT_LIST_ITEMS_SIZE }),
-    [sortOption.field, sortOption.order],
+    () => ({ ...toNftCollectionListApiSortParams(sortOption), limit: DEFAULT_LIST_ITEMS_SIZE, keyword }),
+    [sortOption.field, sortOption.order, keyword],
   );
 
   const { data, isFetched, isLoading, isPreviousData, fetchNextPage, hasNextPage } = useGetNftCollectionsInfinite(
