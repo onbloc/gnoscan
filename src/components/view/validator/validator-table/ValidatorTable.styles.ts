@@ -2,12 +2,19 @@ import { ValidatorStatus } from "@/models/api/validator/validator-model";
 import theme from "@/styles/theme";
 import styled, { css } from "styled-components";
 
-export const Container = styled.div`
+export const Card = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.base};
   border-radius: 10px;
+  overflow: hidden;
+`;
+
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   overflow-x: auto;
   padding: 20px 24px;
 

@@ -5,5 +5,6 @@ export interface GetValidatorsResponse {
 
   page: {
     hasNext: boolean;
+    totalCount: number;
   };
 }
