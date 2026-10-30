@@ -38,6 +38,12 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     () => collections.reduce((sum, collection) => sum + collection.tokenCount, 0),
     [collections],
   );
+  // The title counts the NFTs the account owns, like the NFT summary's collectors. The ones it only operates, such as
+  // the GnoSwap positions it staked, stay in the chips and the grid.
+  const ownedCount = React.useMemo(
+    () => collections.reduce((sum, collection) => sum + collection.ownedCount, 0),
+    [collections],
+  );
 
   // ALL pages through every collection in order; a chip narrows it to one collection.
   const activeCollection = collections.find(collection => collection.tokenId === selectedCollection);
@@ -72,7 +78,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
         <S.TitleWrapper>
           <CardTitle>NFTs</CardTitle>
           <S.CountPill type="p4" color="primary">
-            {totalCount.toLocaleString()}
+            {ownedCount.toLocaleString()}
           </S.CountPill>
         </S.TitleWrapper>
         {hasCollections && (

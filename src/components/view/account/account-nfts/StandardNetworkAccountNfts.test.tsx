@@ -4,7 +4,13 @@ import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
 import StandardNetworkAccountNfts from "./StandardNetworkAccountNfts";
 
-let mockCollections: { tokenId: string; name: string; symbol: string; tokenCount: number }[] = [];
+let mockCollections: {
+  tokenId: string;
+  name: string;
+  symbol: string;
+  tokenCount: number;
+  ownedCount: number;
+}[] = [];
 const mockStateKeys: string[] = [];
 let mockSavedPage: number | undefined;
 const mockRequestedPages: number[] = [];
@@ -50,6 +56,23 @@ const render = () =>
 const texts = (html: string) => html.split(/<[^>]*>/).filter(Boolean);
 const hasLabel = (html: string, label: string) => html.includes(`aria-label="${label}"`);
 
+// The title matches the NFT summary's collector count: only the owned NFTs, while the chips count every listed one.
+it("counts only the owned NFTs in the title", () => {
+  mockCollections = [
+    {
+      tokenId: "gno.land/r/gnoswap/gnft.GNFT.0000000",
+      name: "GnoSwap NFT",
+      symbol: "GNFT",
+      tokenCount: 208,
+      ownedCount: 194,
+    },
+    { tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27 },
+  ];
+  const text = texts(render());
+  expect(text).toEqual(expect.arrayContaining(["NFTs", "221", "235"]));
+  expect(text.some(item => item.includes("staked"))).toBe(false);
+});
+
 it("shows an empty NFTs card for accounts without NFTs", () => {
   mockCollections = [];
   const html = render();
@@ -62,7 +85,7 @@ it("shows an empty NFTs card for accounts without NFTs", () => {
 });
 
 it("keeps the chips, skeleton, and pagination for accounts that hold NFTs", () => {
-  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20 }];
+  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20, ownedCount: 20 }];
   const html = render();
 
   expect(texts(html)).toEqual(expect.arrayContaining(["NFTs", "20", "Demo"]));
@@ -83,7 +106,7 @@ it("scopes the saved collection and page by network", () => {
 });
 
 it("clamps a restored page that is past the last page", () => {
-  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20 }];
+  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20, ownedCount: 20 }];
   mockSavedPage = 9;
   mockRequestedPages.length = 0;
   render();
