@@ -5,6 +5,7 @@ import { useNftCollectionName } from "@/common/hooks/nft/use-nft-collection-name
 import { useGetNftCollectionMetaQuery } from "@/common/react-query/meta";
 import { useGetNftCollection, useGetNftCollections } from "@/common/react-query/token/api";
 import { makeDisplayNumber, makeDisplayNumberWithDefault } from "@/common/utils/string-util";
+import { isNftStandardPackage, stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import Badge from "@/components/ui/badge";
@@ -31,6 +32,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
   const { data, isFetched } = useGetNftCollection(tokenKey);
   const collection = data?.data;
+  const standardPackage = collection?.standardPackage;
   // The detail API has no transfer count; the list API filtered to this realm does.
   const { data: listData } = useGetNftCollections({ packagePath: collection?.path }, { enabled: !!collection?.path });
   const transfers = listData?.items.find(item => item.tokenId === collection?.tokenId)?.transfers;
@@ -64,7 +66,7 @@ const NftCollectionSummary = ({ tokenKey }: NftCollectionSummaryProps) => {
         </Badge>
       </FieldWithTooltip>
       <Field label="NFT Standard">
-        <Badge>{collection?.standardPackage?.replace(/^gno\.land\//, "") || EMPTY_VALUE}</Badge>
+        <Badge>{isNftStandardPackage(standardPackage) ? stripGnoLandPrefix(standardPackage) : EMPTY_VALUE}</Badge>
       </Field>
       <DLWrap>
         <dt>Public Functions</dt>

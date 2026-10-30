@@ -198,3 +198,10 @@ export function stripGnoLandPrefix(path: string): string {
   const prefix = `${GNO_NETWORK_PREFIXES.GNO_LAND}/`;
   return path.startsWith(prefix) ? path.slice(prefix.length) : path;
 }
+
+// GRC721 standard package, with an optional version suffix (e.g. gno.land/p/nt/grc721/v0).
+const NFT_STANDARD_PACKAGE_PATTERN = /^gno\.land\/p\/nt\/grc721(\/v\d+)?$/;
+
+export function isNftStandardPackage(path?: string | null): path is string {
+  return !!path && NFT_STANDARD_PACKAGE_PATTERN.test(path);
+}
