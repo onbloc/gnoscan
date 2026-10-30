@@ -14,13 +14,9 @@ export const Grid = styled.div`
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  // One card per row on mobile, like the home summary cards, so the number cards have the width they need.
   ${media.MOBILE} {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    // The Recently and Trending cards hold lists, so each takes a full row and the two number cards share one.
-    & > :nth-child(-n + 2) {
-      grid-column: 1 / -1;
-    }
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
