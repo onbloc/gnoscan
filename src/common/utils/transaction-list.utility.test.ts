@@ -149,13 +149,15 @@ describe("buildTokenResourceDapps", () => {
     expect(Object.keys(dapps)).toEqual(["r/g1n4pl/gnomi"]);
   });
 
-  test("skips shared namespaces and entries without a path or image", () => {
+  test("skips shared namespaces, entries without a path or image, and one segment paths", () => {
     const dapps = buildTokenResourceDapps(
       [
         entry("gno.land/r/gnoland/wugnot", "wGNOT"),
         entry("gno.land/r/demo/defi/grc20factory", "Perun"),
         entry("gno.land/r/sys/names", "Names"),
         entry(undefined, "GNOT"),
+        entry("gno.land/r", "One segment"),
+        entry("r", "One segment"),
         { ...entry("gno.land/r/noimage/token", "No image"), image: "" },
       ],
       {},

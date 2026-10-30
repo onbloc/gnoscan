@@ -111,7 +111,7 @@ export function buildTokenResourceDapps(
     // The namespace comes first, then each longer path.
     const prefixes = segments.slice(1).map((_, index) => segments.slice(0, index + 2).join("/"));
     // One address can deploy unrelated apps, so an entry there labels its first realm instead of the whole address.
-    const ownIndex = segments[1].startsWith("g1") ? 1 : 0;
+    const ownIndex = segments[1]?.startsWith("g1") ? 1 : 0;
     const keys = prefixes
       .filter((key, index) => manualDapps[key] || (index === ownIndex && !SHARED_NAMESPACES[key]))
       .concat(manualKeysByWebsite[normalizeWebsite(entry.website_url)] ?? []);
