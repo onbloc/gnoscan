@@ -56,8 +56,9 @@ const render = () =>
 const texts = (html: string) => html.split(/<[^>]*>/).filter(Boolean);
 const hasLabel = (html: string, label: string) => html.includes(`aria-label="${label}"`);
 
-// The title matches the NFT summary's collector count: only the owned NFTs, while the chips count every listed one.
-it("counts only the owned NFTs in the title", () => {
+// The title and the chips match the NFT summary's collector count: only the owned NFTs. The grid still pages through the
+// staked ones the account operates.
+it("counts only the owned NFTs in the title and the chips", () => {
   mockCollections = [
     {
       tokenId: "gno.land/r/gnoswap/gnft.GNFT.0000000",
@@ -68,9 +69,13 @@ it("counts only the owned NFTs in the title", () => {
     },
     { tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27 },
   ];
-  const text = texts(render());
-  expect(text).toEqual(expect.arrayContaining(["NFTs", "221", "235"]));
-  expect(text.some(item => item.includes("staked"))).toBe(false);
+  const html = render();
+  const text = texts(html);
+  expect(text).toEqual(expect.arrayContaining(["NFTs", "ALL", "221", "GnoSwap NFT", "194", "Demo", "27"]));
+  expect(text).not.toContain("235");
+  expect(text).not.toContain("208");
+  // 235 listed NFTs, 8 per page.
+  expect(html).toMatch(/aria-label="Pagination">30</);
 });
 
 it("shows an empty NFTs card for accounts without NFTs", () => {

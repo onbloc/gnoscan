@@ -38,8 +38,8 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     () => collections.reduce((sum, collection) => sum + collection.tokenCount, 0),
     [collections],
   );
-  // The title counts the NFTs the account owns, like the NFT summary's collectors. The ones it only operates, such as
-  // the GnoSwap positions it staked, stay in the chips and the grid.
+  // The title and the chips count the NFTs the account owns, like the NFT summary's collectors. The ones it only
+  // operates, such as the GnoSwap positions it staked, are still listed in the grid, so paging uses tokenCount.
   const ownedCount = React.useMemo(
     () => collections.reduce((sum, collection) => sum + collection.ownedCount, 0),
     [collections],
@@ -85,7 +85,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
           <S.Chips role="group" aria-label="NFT collections">
             <CollectionChip
               label="ALL"
-              count={totalCount}
+              count={ownedCount}
               selected={!activeCollection}
               onClick={() => {
                 setSelectedCollection(ALL_COLLECTIONS);
@@ -96,7 +96,7 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
               <CollectionChip
                 key={collection.tokenId}
                 label={collectionName(collection.packagePath, collection.name) || collection.symbol}
-                count={collection.tokenCount}
+                count={collection.ownedCount}
                 selected={collection === activeCollection}
                 onClick={() => {
                   setSelectedCollection(collection.tokenId);
