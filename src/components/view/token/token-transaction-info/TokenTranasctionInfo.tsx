@@ -182,7 +182,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
 
                       return (
                         <Link key={token.tokenId} href={getUrlWithNetwork(`/tokens/${tokenKey}`)}>
-                          {token.slug}
+                          {token.symbol}
                         </Link>
                       );
                     })}
