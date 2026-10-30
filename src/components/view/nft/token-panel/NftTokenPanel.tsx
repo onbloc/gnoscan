@@ -10,7 +10,7 @@ import { DEVICE_SIZE_THRESHOLDS } from "@/common/values/ui.constant";
 import { isStakedNft } from "@/common/utils/nft-staking.utility";
 import { useNetwork } from "@/common/hooks/use-network";
 import { makeDisplayNumber, textEllipsis } from "@/common/utils/string-util";
-import { isGnftPackagePath } from "@/common/utils/token.utility";
+import { isGnftPackagePath, isNftStandardPackage } from "@/common/utils/token.utility";
 import { nftArtwork, nftMediaUrl } from "@/common/utils/nft-media.utility";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { base64HashToHex, isBase64Hash } from "@/common/utils/transaction.utility";
@@ -544,7 +544,9 @@ const NftTokenPanel = ({
               <dt title="Package that emitted the collection creation event; not a certification of standards compliance">
                 Standard
               </dt>
-              <dd title="Creation-event emitter, not standards certification">{standardPackage || EMPTY_VALUE}</dd>
+              <dd title="Creation-event emitter, not standards certification">
+                {isNftStandardPackage(standardPackage) ? standardPackage : EMPTY_VALUE}
+              </dd>
             </S.Row>
             <S.Row compact>
               <dt>Token URL</dt>
