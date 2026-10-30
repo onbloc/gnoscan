@@ -27,8 +27,11 @@ export type RPC_REPOSITORY_KEY = ValuesType<typeof RPC_REPOSITORY_KEY>;
 
 export const DASHBOARD_DATA_REFETCHING_INTERVAL = 5000;
 export const PRICES_REFETCH_INTERVAL = 10_000;
+// List summaries are cron aggregated every minute, so polling faster only repeats the same rows.
+export const LIST_SUMMARY_REFETCH_INTERVAL = 60_000;
 export const DEFAULT_LIST_ITEMS_SIZE = 40 as const;
 export const ACCOUNTS_LIST_PAGE_SIZE = 100 as const;
+export const VALIDATORS_LIST_PAGE_SIZE = 20 as const;
 export const MAX_ACCOUNTS_LIST_SIZE = 1_000 as const;
 /**
  * Cache tiers by how fast the data changes. WARM is the QueryClient default, so only LIVE and COLD are set per query.

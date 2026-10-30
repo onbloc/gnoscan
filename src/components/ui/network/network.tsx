@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import GnoscanSymbol from "@/assets/svgs/icon-gnoscan-symbol.svg";
 import GnoscanSymbolLight from "@/assets/svgs/icon-gnoscan-symbol-light.svg";
@@ -7,6 +7,7 @@ import Text from "@/components/ui/text";
 import theme from "@/styles/theme";
 import mixins from "@/styles/mixins";
 import useOutSideClick from "@/common/hooks/use-outside-click";
+import { useMenuKeyboard } from "@/common/hooks/use-menu-keyboard";
 import { zindex } from "@/common/values/z-index";
 import { ChainModel } from "@/models/chain-model";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
@@ -55,6 +56,9 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
   });
 
   const ref = useOutSideClick(() => setToggle(false));
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const { onKeyDown, onBlur } = useMenuKeyboard({ open: !!toggle, setOpen: setToggle, triggerRef, menuRef: listRef });
 
   const { isDark, isLight } = useThemeMode();
 
@@ -122,12 +126,17 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
     }
   }, [toggle, currentNetworkInfo, resetConnectionErrors]);
 
+  const onKeyDownCustomInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && !event.nativeEvent.isComposing && !isNetworkSwitching) connect();
+  };
+
   // Default network until it resolves after hydration, so the button keeps its width
   const networkName = (currentNetwork ?? getDefaultChain(chains))?.name || "";
 
   return (
-    <NetworkWrapper entry={entry} ref={ref}>
+    <NetworkWrapper entry={entry} ref={ref} onKeyDown={onKeyDown} onBlur={onBlur}>
       <NetworkInfoWrapper
+        ref={triggerRef}
         type="button"
         onClick={toggleHandler}
         aria-expanded={!!toggle}
@@ -142,12 +151,13 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
           {networkName}
         </Text>
       </NetworkInfoWrapper>
-      <NetworkList toggle={toggle} entry={entry}>
+      <NetworkList ref={listRef} toggle={toggle} entry={entry}>
         {chains.map((chain: ChainModel, index: number) => (
           <li key={index} className={currentNetwork?.chainId === chain.chainId ? "selected" : ""}>
             <button
               type="button"
               className="item row"
+              data-menu-item
               onClick={() => networkSettingHandler(chain.chainId)}
               aria-current={currentNetwork?.chainId === chain.chainId}
             >
@@ -178,6 +188,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                     setConnectionError("customRpcUrl", false);
                   }
                 }}
+                onKeyDown={onKeyDownCustomInput}
                 placeholder="RPC URL"
                 aria-label="RPC URL"
               />
@@ -190,6 +201,7 @@ const Network = ({ entry, chains, toggle, toggleHandler, networkSettingHandler, 
                     setConnectionError("customIndexerUrl", false);
                   }
                 }}
+                onKeyDown={onKeyDownCustomInput}
                 placeholder="Tx Indexer URL (Optional)"
                 aria-label="Tx Indexer URL (Optional)"
               />
@@ -255,12 +267,11 @@ const NetworkInfoWrapper = styled.button<StyleProps>`
 const NetworkList = styled.ul<StyleProps>`
   width: 280px;
   opacity: ${({ toggle }) => (toggle ? "1" : "0")};
-  visibility: ${({ toggle }) => (toggle ? "visible" : "hidden")};
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.dimmed50};
   padding: 8px;
-  transition: all 0.3s ease;
+  ${({ toggle }) => mixins.revealOnOpen(!!toggle, "0.3s")};
   transform: ${({ toggle }) => (toggle ? "scale(1)" : "scale(0.5)")};
   z-index: ${zindex.scrollbar};
   ${({ toggle }) => mixins.posMoveToTopAndRight(toggle ? "50px" : "0px")};
@@ -288,7 +299,7 @@ const NetworkList = styled.ul<StyleProps>`
     justify-content: center;
     align-items: center;
     text-align: left;
-    transition: 0.2s;
+    transition: background-color 0.2s;
     border-radius: 8px;
 
     &:hover {

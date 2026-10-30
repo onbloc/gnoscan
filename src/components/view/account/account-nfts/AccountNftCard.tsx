@@ -13,6 +13,7 @@ import {
 import React from "react";
 
 import { useNetwork } from "@/common/hooks/use-network";
+import { useNftCollectionName } from "@/common/hooks/nft/use-nft-collection-name";
 import { useGetNftItemDetail } from "@/common/react-query/token/api";
 import { formatNftRelativeTime } from "@/common/utils/nft-time.utility";
 import { isGnftPackagePath, stripGnoLandPrefix } from "@/common/utils/token.utility";
@@ -62,6 +63,8 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
   const hover = useHover(context, { mouseOnly: true });
   const { getReferenceProps, getFloatingProps } = useInteractions([clientPoint, hover]);
 
+  const collectionName = useNftCollectionName();
+  const name = collectionName(nft.packagePath, nft.name);
   const realmPath = stripGnoLandPrefix(nft.packagePath);
   // Opens the collection page on its Inventory tab with this token's detail panel. The canonical collection
   // token ID is used because the API does not resolve GRC721 collections by "path.SYMBOL".
@@ -114,11 +117,11 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
               </S.CollectionPath>
             )}
             <S.CollectionName type="p4" color="gray300">
-              {nft.name}
+              {name}
             </S.CollectionName>
           </S.CollectionRow>
         </NftCard>
-        <S.CardLink href={tokenDetailUrl} aria-label={`${nft.name} Token #${nft.nftId}`} />
+        <S.CardLink href={tokenDetailUrl} aria-label={`${name} Token #${nft.nftId}`} />
       </S.CardItem>
       {isTooltipOpen && !isOverGnoWebLink && (
         <FloatingPortal>
@@ -129,7 +132,7 @@ const AccountNftCard = ({ nft, imageUrl, imageLoading }: AccountNftCardProps) =>
             {...getFloatingProps()}
           >
             <S.TooltipTitle>
-              {nft.name} · Token #{nft.nftId}
+              {name} · Token #{nft.nftId}
             </S.TooltipTitle>
             <S.TooltipDetail>
               {activity.isError ? (

@@ -4,7 +4,13 @@ import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
 import StandardNetworkAccountNfts from "./StandardNetworkAccountNfts";
 
-let mockCollections: { tokenId: string; name: string; symbol: string; tokenCount: number }[] = [];
+let mockCollections: {
+  tokenId: string;
+  name: string;
+  symbol: string;
+  tokenCount: number;
+  ownedCount: number;
+}[] = [];
 const mockStateKeys: string[] = [];
 let mockSavedPage: number | undefined;
 const mockRequestedPages: number[] = [];
@@ -23,6 +29,9 @@ jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: { chainId: "chain-a" } }),
 }));
 jest.mock("@/common/hooks/nft/use-nft-artwork", () => ({ useNftArtwork: () => () => ({}) }));
+jest.mock("@/common/hooks/nft/use-nft-collection-name", () => ({
+  useNftCollectionName: () => (_path: string, name: string) => name,
+}));
 jest.mock("@/common/react-query/account/api/use-get-account-grc721-collections", () => ({
   useGetAccountGRC721Collections: () => ({ data: { items: mockCollections }, isFetched: true }),
 }));
@@ -47,6 +56,28 @@ const render = () =>
 const texts = (html: string) => html.split(/<[^>]*>/).filter(Boolean);
 const hasLabel = (html: string, label: string) => html.includes(`aria-label="${label}"`);
 
+// The title and the chips match the NFT summary's collector count: only the owned NFTs. The grid still pages through the
+// staked ones the account operates.
+it("counts only the owned NFTs in the title and the chips", () => {
+  mockCollections = [
+    {
+      tokenId: "gno.land/r/gnoswap/gnft.GNFT.0000000",
+      name: "GnoSwap NFT",
+      symbol: "GNFT",
+      tokenCount: 208,
+      ownedCount: 194,
+    },
+    { tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27 },
+  ];
+  const html = render();
+  const text = texts(html);
+  expect(text).toEqual(expect.arrayContaining(["NFTs", "ALL", "221", "GnoSwap NFT", "194", "Demo", "27"]));
+  expect(text).not.toContain("235");
+  expect(text).not.toContain("208");
+  // 235 listed NFTs, 8 per page.
+  expect(html).toMatch(/aria-label="Pagination">30</);
+});
+
 it("shows an empty NFTs card for accounts without NFTs", () => {
   mockCollections = [];
   const html = render();
@@ -59,7 +90,7 @@ it("shows an empty NFTs card for accounts without NFTs", () => {
 });
 
 it("keeps the chips, skeleton, and pagination for accounts that hold NFTs", () => {
-  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20 }];
+  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20, ownedCount: 20 }];
   const html = render();
 
   expect(texts(html)).toEqual(expect.arrayContaining(["NFTs", "20", "Demo"]));
@@ -80,7 +111,7 @@ it("scopes the saved collection and page by network", () => {
 });
 
 it("clamps a restored page that is past the last page", () => {
-  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20 }];
+  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 20, ownedCount: 20 }];
   mockSavedPage = 9;
   mockRequestedPages.length = 0;
   render();

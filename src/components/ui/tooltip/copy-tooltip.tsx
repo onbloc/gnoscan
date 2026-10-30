@@ -9,6 +9,12 @@ const StyledIconCopy = styled(IconCopy)`
   margin-left: 5px;
 `;
 
+export const CopyIconButton = styled.button.attrs({ type: "button", "aria-label": "Copy" })`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 /**
  * Markup presets for the copy icon.
  * badge: hash rows inside summary badges
@@ -41,7 +47,7 @@ export const CopyTooltip = ({ copyText, variant = "badge", className, iconClassN
 
   return (
     <Tooltip className={tooltipClassName} content="Copied!" trigger="click" copyText={copyText} width={preset.width}>
-      {preset.icon(iconClassName)}
+      <CopyIconButton>{preset.icon(iconClassName)}</CopyIconButton>
     </Tooltip>
   );
 };

@@ -9,12 +9,16 @@ import { useMappedApiRealms } from "@/common/services/realm/use-mapped-api-realm
 interface StandardNetworkRealmsDataProps {
   sortOption: RealmListSortOption;
   setSortOption: (sortOption: RealmListSortOption) => void;
+  keyword?: string;
 }
 
-const StandardNetworkRealmsData = ({ sortOption, setSortOption }: StandardNetworkRealmsDataProps) => {
+const StandardNetworkRealmsData = ({ sortOption, setSortOption, keyword }: StandardNetworkRealmsDataProps) => {
   // Sorting is applied server-side over the full realm set; the sort option is
   // forwarded as API params so pagination follows the server order.
-  const apiParams = React.useMemo(() => toRealmListApiSortParams(sortOption), [sortOption.field, sortOption.order]);
+  const apiParams = React.useMemo(
+    () => ({ ...toRealmListApiSortParams(sortOption), keyword }),
+    [sortOption.field, sortOption.order, keyword],
+  );
 
   const { data, isFetched, hasNextPage, fetchNextPage } = useMappedApiRealms(apiParams);
 

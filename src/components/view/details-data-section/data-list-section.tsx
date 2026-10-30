@@ -94,7 +94,13 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
         {tabs.map((tab, index) => {
           const isSelected = currentTab === tab.tabName;
           return (
-            <div className="tab-item" key={index} onClick={() => onClickTab(tab.tabName)}>
+            <button
+              type="button"
+              className="tab-item"
+              key={index}
+              aria-current={isSelected}
+              onClick={() => onClickTab(tab.tabName)}
+            >
               <Text
                 type={isSelected ? "h6" : "h7"}
                 desktopType={isSelected ? "h4" : "h6"}
@@ -109,7 +115,7 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
                   </Text>
                 </div>
               )}
-            </div>
+            </button>
           );
         })}
       </div>

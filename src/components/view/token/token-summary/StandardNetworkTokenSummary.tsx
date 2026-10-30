@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useGetTokenById, useGetTokens, useGetTokenTransfersById } from "@/common/react-query/token/api";
+import { useGetTokenById, useGetTokenTransfersById } from "@/common/react-query/token/api";
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { formatDisplayPackagePath, makeDisplayNumber } from "@/common/utils/string-util";
 import PathText from "@/components/ui/path-text/PathText";
@@ -11,7 +11,6 @@ import { formatTokenDecimal, isWugnotPackagePath } from "@/common/utils/token.ut
 import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { formatUsd, formatUsdWhole, getUsdValue } from "@/common/utils/price.utility";
 import { useTokenPrice } from "@/common/hooks/common/use-token-price";
-import { useFetchRemainingPages } from "@/common/hooks/common/use-fetch-remaining-pages";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
@@ -45,15 +44,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   // Same query as the Token Transfers tab, so the count comes from the shared cache.
   const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
   const transferCount = transfersData?.pages[0]?.page.totalCount;
-  // The detail API has no registration field, so read it from this package's row in the token list.
-  const packagePath = data?.data?.path;
-  const packageTokensQuery = useGetTokens({ packagePath }, { enabled: !!packagePath });
-  const packageTokenRow = packageTokensQuery.data?.pages
-    .flatMap(page => page.items)
-    .find(item => item.tokenId === data?.data?.tokenId);
-  const isRegistered = !!packageTokenRow?.registeredPackagePath;
-  // A package can host more tokens than one page holds, so keep loading until this token's row is found.
-  useFetchRemainingPages(packageTokensQuery, !!packagePath && !packageTokenRow);
+  const isRegistered = data?.data?.isRegYn === "Y";
 
   const tokenSummary: TokenSummary | null = React.useMemo(() => {
     const summaryData = data?.data;

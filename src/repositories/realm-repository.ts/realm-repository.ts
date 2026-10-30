@@ -19,7 +19,6 @@ import {
   makeRealmsQuery,
   makeRealmTransactionInfoQuery,
   makeRealmTransactionInfosQuery,
-  makeRealmTransactionsByEventQuery,
   makeRealmTransactionsQuery,
   makeRealmTransactionsWithArgsQuery,
   makeTokenQuery,
@@ -125,7 +124,7 @@ export class RealmRepository implements IRealmRepository {
             value: r.Value,
           })) || [],
       }));
-    } catch (e) {
+    } catch {
       return [];
     }
   }
@@ -143,28 +142,6 @@ export class RealmRepository implements IRealmRepository {
           });
         }) || [],
     );
-  }
-
-  async getRealmTransactionsByEvent(realmPath: string): Promise<{
-    pageInfo: PageInfo;
-    transactions: TransactionWithEvent[];
-  } | null> {
-    if (!this.indexerClient) {
-      return null;
-    }
-
-    const transactions = await this.indexerClient
-      .query<TransactionWithEvent>(makeRealmTransactionsByEventQuery(realmPath))
-      .then(result => result?.data?.transactions || []);
-    const pageInfo = {
-      last: null,
-      hasNext: false,
-    };
-
-    return {
-      pageInfo,
-      transactions,
-    };
   }
 
   async getRealmTransactionsWithArgs(realmPath: string, pageOption?: PageOption): Promise<RealmTransaction[] | null> {

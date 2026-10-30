@@ -2,6 +2,7 @@ import React from "react";
 
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useNftCollectionName } from "@/common/hooks/nft/use-nft-collection-name";
 import { useNftArtwork } from "@/common/hooks/nft/use-nft-artwork";
 import { useGetAccountGRC721Collections } from "@/common/react-query/account/api/use-get-account-grc721-collections";
 import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-account-nfts";
@@ -22,6 +23,7 @@ interface AccountNftsProps {
 
 const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
   const { currentNetwork } = useNetworkProvider();
+  const collectionName = useNftCollectionName();
   // A network switch keeps the history entry, so the network is part of the name to start each network fresh.
   const scope = `account:${currentNetwork?.chainId}:${address}`;
   const { data: collectionsData, isFetched: isFetchedCollections } = useGetAccountGRC721Collections(address);
@@ -34,6 +36,12 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
   const collections = React.useMemo(() => collectionsData?.items ?? [], [collectionsData]);
   const totalCount = React.useMemo(
     () => collections.reduce((sum, collection) => sum + collection.tokenCount, 0),
+    [collections],
+  );
+  // The title and the chips count the NFTs the account owns, like the NFT summary's collectors. The ones it only
+  // operates, such as the GnoSwap positions it staked, are still listed in the grid, so paging uses tokenCount.
+  const ownedCount = React.useMemo(
+    () => collections.reduce((sum, collection) => sum + collection.ownedCount, 0),
     [collections],
   );
 
@@ -70,14 +78,14 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
         <S.TitleWrapper>
           <CardTitle>NFTs</CardTitle>
           <S.CountPill type="p4" color="primary">
-            {totalCount.toLocaleString()}
+            {ownedCount.toLocaleString()}
           </S.CountPill>
         </S.TitleWrapper>
         {hasCollections && (
           <S.Chips role="group" aria-label="NFT collections">
             <CollectionChip
               label="ALL"
-              count={totalCount}
+              count={ownedCount}
               selected={!activeCollection}
               onClick={() => {
                 setSelectedCollection(ALL_COLLECTIONS);
@@ -87,8 +95,8 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
             {collections.map(collection => (
               <CollectionChip
                 key={collection.tokenId}
-                label={collection.name || collection.symbol}
-                count={collection.tokenCount}
+                label={collectionName(collection.packagePath, collection.name) || collection.symbol}
+                count={collection.ownedCount}
                 selected={collection === activeCollection}
                 onClick={() => {
                   setSelectedCollection(collection.tokenId);

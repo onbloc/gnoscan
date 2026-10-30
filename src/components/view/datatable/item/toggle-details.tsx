@@ -10,8 +10,8 @@ interface Props {
 
 export const ToggleDetails = ({ active, onClick }: Props) => {
   return (
-    <ToggleDetailsWrapper className="ellipsis">
-      <Badge className="badge" type="base" margin={"0"} onClick={onClick}>
+    <ToggleDetailsWrapper type="button" className="ellipsis" aria-expanded={active} onClick={onClick}>
+      <Badge className="badge" type="base" margin={"0"}>
         <Text type="p4" color="primary">
           {active ? "Hide" : "Details"}
         </Text>
@@ -20,7 +20,7 @@ export const ToggleDetails = ({ active, onClick }: Props) => {
   );
 };
 
-const ToggleDetailsWrapper = styled.span`
+const ToggleDetailsWrapper = styled.button`
   & {
     display: inline-flex;
     width: fit-content;
@@ -34,7 +34,6 @@ const ToggleDetailsWrapper = styled.span`
       width: 75px;
       max-width: 75px;
       border: 1px solid ${({ theme }) => theme.colors.pantone};
-      cursor: pointer;
     }
   }
 `;

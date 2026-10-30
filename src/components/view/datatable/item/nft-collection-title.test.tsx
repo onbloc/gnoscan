@@ -26,7 +26,7 @@ jest.mock(
 );
 jest.mock("@/common/react-query/meta", () => ({
   useGetNftCollectionMetaQuery: () => ({
-    data: [{ id: GNFT, pkg_path: GNFT, name: "GNOSWAP NFT", symbol: "GNFT", image: "/grc721/images/gnft.svg" }],
+    data: [{ id: GNFT, pkg_path: GNFT, name: "GnoSwap NFT", symbol: "GNFT", image: "/grc721/images/gnft.svg" }],
   }),
 }));
 
@@ -52,16 +52,19 @@ const render = (packagePath: string, failImage = false) => {
 };
 
 describe("NftCollectionTitle", () => {
-  it("shows the token resource logo for a listed collection", () => {
+  it("shows the token resource logo and name for a listed collection", () => {
     const html = render(GNFT);
     expect(html).toMatch(/<img[^>]+src="https:\/\/[^"]+\/grc721\/images\/gnft\.svg"/);
     expect(html).not.toContain("default-icon");
+    expect(html).toContain("GnoSwap NFT");
+    expect(html).not.toContain("Collection");
   });
 
-  it("falls back to the default icon for an unlisted collection", () => {
+  it("falls back to the default icon and the on-chain name for an unlisted collection", () => {
     const html = render("gno.land/r/demo/foonft");
     expect(html).not.toContain("<img");
     expect(html).toContain("default-icon");
+    expect(html).toContain("Collection");
   });
 
   it("falls back to the default icon when the logo fails to load", () => {

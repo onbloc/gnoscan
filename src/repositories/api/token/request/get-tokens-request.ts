@@ -6,7 +6,11 @@ export interface GetTokensRequestParameters {
 
   limit?: number; // @default 20
 
-  sort?: "holders";
+  /** `id` orders by row id, newest last. `createdAt` orders by creation block time: backfilled tokens get later ids. */
+  sort?: "holders" | "id" | "createdAt";
 
   order?: "asc" | "desc";
+
+  /** Matches name, symbol or package path. */
+  keyword?: string;
 }

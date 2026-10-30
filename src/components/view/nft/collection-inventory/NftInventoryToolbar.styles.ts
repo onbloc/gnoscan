@@ -174,11 +174,6 @@ export const OwnerButton = styled.button`
     top: 50%;
     transform: translateY(-50%);
   }
-
-  :focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.blue};
-    outline-offset: 2px;
-  }
 `;
 
 export const SortButton = styled.button`
@@ -192,11 +187,6 @@ export const SortButton = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.nftCardBorder};
   border-radius: 8px;
   cursor: pointer;
-
-  :focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.blue};
-    outline-offset: 2px;
-  }
 `;
 
 export const Status = styled.span`

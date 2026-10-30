@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import { useRouter } from "@/common/hooks/common/use-router";
@@ -21,6 +21,7 @@ interface SubInputProps {
 
 export const SubInput = ({ className = "", value, onChange, clearValue }: SubInputProps) => {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
   const { isCustomNetwork } = useNetworkProvider();
   const { apiSearchRepository } = useServiceProvider();
   const { getUrlWithNetwork } = useNetwork();
@@ -37,7 +38,8 @@ export const SubInput = ({ className = "", value, onChange, clearValue }: SubInp
   };
 
   const onKeyDownInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
+    // The dropdown already handled Enter by opening the selected result.
+    if (event.key === "Enter" && !event.nativeEvent.defaultPrevented) {
       moveSearchPage();
     }
   };
@@ -49,6 +51,7 @@ export const SubInput = ({ className = "", value, onChange, clearValue }: SubInp
   return (
     <Wrapper className={className}>
       <Input
+        ref={inputRef}
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDownInput}
@@ -59,7 +62,7 @@ export const SubInput = ({ className = "", value, onChange, clearValue }: SubInp
       <Button onClick={onClickSearchButton} aria-label="Search">
         <Search className="search-icon" />
       </Button>
-      {isCustomNetwork ? <SearchResult /> : <StandardNetworkSearchResult />}
+      {isCustomNetwork ? <SearchResult inputRef={inputRef} /> : <StandardNetworkSearchResult inputRef={inputRef} />}
     </Wrapper>
   );
 };

@@ -4,6 +4,9 @@ export interface GetNftCollectionsRequest {
   limit?: number;
   sort?: "id" | "holders" | "transfers" | "totalSupply";
   order?: "asc" | "desc";
+
+  /** Matches name, symbol or package path. */
+  keyword?: string;
 }
 
 // tokenKey: collection token ID (e.g. gno.land/r/gnoswap/gnft.GNFT.0000000) or its realm path

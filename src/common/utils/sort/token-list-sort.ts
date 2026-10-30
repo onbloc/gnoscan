@@ -8,7 +8,7 @@ import { formatTokenDecimal } from "../token.utility";
 
 type PriceEntryLookup = (tokenKey: string) => TokenPriceEntry | null;
 
-export const toTokenKey = (token: GRC20InfoWithLogo) =>
+export const toTokenKey = (token: Pick<GRC20InfoWithLogo, "packagePath" | "symbol">) =>
   token.symbol ? `${token.packagePath}.${token.symbol}` : token.packagePath;
 
 /** Price times total supply in display units, or null when the token has no price. */

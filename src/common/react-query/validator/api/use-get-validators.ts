@@ -7,6 +7,9 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { GetValidatorsRequest } from "@/repositories/api/validator/request";
 import { GetValidatorsResponse } from "@/repositories/api/validator/response";
 
+/**
+ * One page of the validators (and valopers) list; the previous page stays while the next one loads.
+ */
 export const useGetValidators = (
   params: GetValidatorsRequest,
   options?: UseQueryOptions<GetValidatorsResponse, Error, GetValidatorsResponse>,
@@ -18,6 +21,9 @@ export const useGetValidators = (
     apiValidatorRepository,
     API_REPOSITORY_KEY.VALIDATOR_REPOSITORY,
     repository => repository!.getValidators(params),
-    options,
+    {
+      keepPreviousData: true,
+      ...options,
+    },
   );
 };
