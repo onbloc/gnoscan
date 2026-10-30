@@ -130,7 +130,7 @@ const RealmLabel = ({ label }: { label: FunctionRealmLabel }) => {
 
   return (
     <LabelWrapper>
-      {label.kind === "call" && label.dapp && <DappLogo dapp={label.dapp} />}
+      {label.kind === "call" && label.dapp && <DappLogo key={label.dapp.logo} dapp={label.dapp} />}
       {(label.kind === "deploy" || label.kind === "run") && <span className="kind">{`${label.kind} ·`}</span>}
       <Link className="path" href={getUrlWithNetwork(`/realms/details?path=${label.packagePath}`)} title={path}>
         {displayPath}

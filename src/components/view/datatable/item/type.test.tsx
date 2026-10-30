@@ -102,6 +102,41 @@ describe("Type", () => {
     delete tokenResourceLists.grc20;
   });
 
+  test("a logo that failed to load does not hide the gno-token-resource logo that replaces it", async () => {
+    tokenResourceLists.grc20 = [
+      {
+        pkg_path: "gno.land/r/akkadia/abt",
+        name: "Akkadia",
+        image: "/akkadia.svg",
+        website_url: "https://akkadia.land",
+      },
+    ];
+
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    act(() =>
+      root.render(
+        <QueryClientProvider client={client}>
+          <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+            <Type messageType="/vm.m_call" functionName="Mint" packagePath="gno.land/r/akkadia/abt" />
+          </ThemeProvider>
+        </QueryClientProvider>,
+      ),
+    );
+    // The dapps.json logo shows until the lists load.
+    act(() => {
+      container.querySelector("img.dapp-logo")?.dispatchEvent(new Event("error"));
+    });
+    await act(() => delay(10));
+
+    expect(container.querySelector("img.dapp-logo")?.getAttribute("src")).toMatch(/gno-token-resource.*akkadia\.svg$/);
+
+    act(() => root.unmount());
+    client.clear();
+    delete tokenResourceLists.grc20;
+  });
+
   test("a run label fetches nothing until its row is on screen", async () => {
     mockRepository.getTransactionContracts.mockReset();
     mockRepository.getTransactionContracts.mockResolvedValue({

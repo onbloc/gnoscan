@@ -50,7 +50,7 @@ describe("getFunctionRealmLabel", () => {
     });
   });
 
-  test("a dapps.json realm key wins over the gno-token-resource namespace it sits in", () => {
+  test("an entry in an address namespace labels only its own realm", () => {
     const dapps = buildTokenResourceDapps([
       entry("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble", "BUBBLE (wrapped)"),
     ]);
@@ -59,9 +59,10 @@ describe("getFunctionRealmLabel", () => {
     expect(label("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/kourtv3")).toMatchObject({
       dapp: { name: "Kourt" },
     });
-    expect(label("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/bubblerumble5")).toMatchObject({
+    expect(label("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/wbubble/v2")).toMatchObject({
       dapp: { name: "BUBBLE (wrapped)" },
     });
+    expect(label("gno.land/r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/other")).toMatchObject({ dapp: undefined });
   });
 
   test("only dapps.json applies before the gno-token-resource lists load", () => {
@@ -143,9 +144,9 @@ describe("buildTokenResourceDapps", () => {
     expect(mainnet["r/gnoswap"].name).toBe("GnoSwap");
   });
 
-  test("an address namespace is a dApp namespace", () => {
-    const dapps = buildTokenResourceDapps([entry("gno.land/r/g1leu8/wbubble", "BUBBLE (wrapped)")]);
-    expect(Object.keys(dapps)).toEqual(["r/g1leu8"]);
+  test("an address namespace keys an entry by its first realm", () => {
+    const dapps = buildTokenResourceDapps([entry("gno.land/r/g1n4pl/gnomi/padv3", "Gnomi")]);
+    expect(Object.keys(dapps)).toEqual(["r/g1n4pl/gnomi"]);
   });
 
   test("skips shared namespaces and entries without a path or image", () => {
@@ -170,7 +171,7 @@ describe("buildTokenResourceDapps", () => {
         "r/g1abc/gnofly": { name: "gnofly", logo: "g.svg", url: "https://gnofly.xyz" },
       },
     );
-    expect(Object.keys(dapps).sort()).toEqual(["r/g1abc", "r/g1abc/gnofly", "r/gnoland/wugnot"]);
+    expect(Object.keys(dapps).sort()).toEqual(["r/g1abc/gnofly", "r/gnoland/wugnot"]);
   });
 
   test("an entry also labels the dapps.json keys with the same website, wherever its path is", () => {
@@ -187,7 +188,7 @@ describe("buildTokenResourceDapps", () => {
       ],
       manual,
     );
-    expect(Object.keys(dapps).sort()).toEqual(["r/g1bubble/kourtv3", "r/g1kourt", "r/g1kourt/kourt"]);
+    expect(Object.keys(dapps).sort()).toEqual(["r/g1bubble/kourtv3", "r/g1kourt/kourt", "r/g1kourt/kourtcoin"]);
     expect(dapps["r/g1bubble/kourtv3"].name).toBe("Kourt coin");
   });
 

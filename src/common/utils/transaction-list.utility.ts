@@ -83,7 +83,8 @@ function normalizeWebsite(url: string | undefined): string {
 }
 
 /**
- * Builds dApp labels from the gno-token-resource lists. Each entry labels its namespace, and also every dapps.json key
+ * Builds dApp labels from the gno-token-resource lists. Each entry labels its namespace, or its first realm under an
+ * address namespace ("r/g1.../gnomi"), and also every dapps.json key
  * its path falls under or whose website is the same, so a project that registers in gno-token-resource ties with its
  * dapps.json entry and wins. A key with several entries takes the shortest path, then the first one listed, so
  * "r/gnoswap/gns" stands for GnoSwap over "r/gnoswap/test_token/foo".
@@ -109,8 +110,10 @@ export function buildTokenResourceDapps(
     const segments = stripGnoLandPrefix(entry.pkg_path).split("/");
     // The namespace comes first, then each longer path.
     const prefixes = segments.slice(1).map((_, index) => segments.slice(0, index + 2).join("/"));
+    // One address can deploy unrelated apps, so an entry there labels its first realm instead of the whole address.
+    const ownIndex = segments[1].startsWith("g1") ? 1 : 0;
     const keys = prefixes
-      .filter((key, index) => manualDapps[key] || (index === 0 && !SHARED_NAMESPACES[key]))
+      .filter((key, index) => manualDapps[key] || (index === ownIndex && !SHARED_NAMESPACES[key]))
       .concat(manualKeysByWebsite[normalizeWebsite(entry.website_url)] ?? []);
 
     for (const key of keys) {
