@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Tooltip from "@/components/ui/tooltip";
 import { IconCopy } from "@/components/icons/IconCopy";
 import { TriggerType } from "../tooltip/tooltip";
+import { CopyIconButton } from "../tooltip/copy-tooltip";
 
 interface CopyButtonProps {
   tooltipText: string;
@@ -16,7 +17,9 @@ interface CopyButtonProps {
 export const CopyButton = ({ tooltipText, copyText, iconSize = 24, width, svgClassname, trigger }: CopyButtonProps) => {
   return (
     <Copy content={tooltipText} copyText={copyText} width={width} trigger={trigger}>
-      <IconCopy className={svgClassname} size={iconSize} />
+      <CopyIconButton>
+        <IconCopy className={svgClassname} size={iconSize} />
+      </CopyIconButton>
     </Copy>
   );
 };

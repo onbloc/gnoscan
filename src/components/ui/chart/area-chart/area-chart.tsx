@@ -6,6 +6,7 @@ import { AreaChartTooltip } from "./tooltip";
 import { useRecoilValue } from "recoil";
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
+import mixins from "@/styles/mixins";
 import styled from "styled-components";
 import BigNumber from "bignumber.js";
 import { formatAddress } from "@/common/utils";
@@ -238,17 +239,22 @@ export const AreaChart = ({ labels, datas, colors = [] }: AreaChartProps) => {
       />
 
       <div className="legend-list-wrapper">
-        {chartData.datasets.map((dataset, index) => (
-          <LegendWrapper
-            key={index}
-            fill={`${dataset?.borderColor}`}
-            disabled={excludedDatasets.findIndex(item => item.label === dataset.label) > -1}
-            onClick={() => onClickLegend(dataset)}
-          >
-            <span className="legend-mark"></span>
-            <span className="legend-name">{makeAreaGraphDisplayLabel(dataset.label || "")}</span>
-          </LegendWrapper>
-        ))}
+        {chartData.datasets.map((dataset, index) => {
+          const excluded = excludedDatasets.some(item => item.label === dataset.label);
+          return (
+            <LegendWrapper
+              type="button"
+              key={index}
+              fill={`${dataset?.borderColor}`}
+              $excluded={excluded}
+              aria-pressed={!excluded}
+              onClick={() => onClickLegend(dataset)}
+            >
+              <span className="legend-mark"></span>
+              <span className="legend-name">{makeAreaGraphDisplayLabel(dataset.label || "")}</span>
+            </LegendWrapper>
+          );
+        })}
       </div>
     </Wrapper>
   );
@@ -290,16 +296,20 @@ const Wrapper = styled.div`
   }
 `;
 
-const LegendWrapper = styled.div<{ fill: string; disabled: boolean }>`
+const LegendWrapper = styled.button<{ fill: string; $excluded: boolean }>`
   display: flex;
   height: 20px;
   flex-direction: row;
   align-items: center;
   margin-right: 10px;
-  cursor: pointer;
   user-select: none;
 
-  ${({ disabled }) => disabled && "text-decoration: line-through;"}
+  ${({ $excluded }) => $excluded && "text-decoration: line-through;"}
+
+  /* Inset, since the legend can sit on the bottom edge of a fixed height card that clips overflow. */
+  &:focus-visible {
+    ${mixins.insetFocusRing()};
+  }
 
   .legend-mark {
     display: inline-block;

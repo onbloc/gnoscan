@@ -2,15 +2,16 @@
 import useSearchQuery from "@/common/hooks/use-search-query";
 import { searchState } from "@/states";
 import mixins from "@/styles/mixins";
-import React, { useEffect, useState } from "react";
+import React, { RefObject, useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import styled, { css } from "styled-components";
 import Text from "@/components/ui/text";
-import { v1 } from "uuid";
 import { FitContentSpan } from "../detail-page-common-styles";
 import Link from "next/link";
 import { useRouter } from "@/common/hooks/common/use-router";
 import useOutSideClick from "@/common/hooks/use-outside-click";
+import { useSearchResultNavigation } from "@/common/hooks/use-search-result-navigation";
+import { List } from "./search-result-item/SearchResultItem.styles";
 import { zindex } from "@/common/values/z-index";
 import { ValuesType } from "utility-types";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -34,14 +35,22 @@ export const SEARCH_TITLE = {
 } as const;
 export type SEARCH_TITLE = ValuesType<typeof SEARCH_TITLE>;
 
-const SearchResult = () => {
+const SearchResult = ({ inputRef }: { inputRef: RefObject<HTMLInputElement> }) => {
   const [keyword, setKeyword] = useRecoilState(searchState);
   const { route } = useRouter();
   const isMain = route === "/";
   const [open, setOpen] = useState(false);
-  const ref = useOutSideClick(() => setOpen(false));
+  const close = useCallback(() => setOpen(false), []);
+  const ref = useOutSideClick(close);
 
   const { result } = useSearchQuery(keyword);
+  const { onMouseMove, onMouseLeave } = useSearchResultNavigation({
+    inputRef,
+    listRef: ref,
+    open,
+    close,
+    resetKey: result,
+  });
 
   useEffect(() => {
     setOpen(() => Boolean(keyword.length > 1));
@@ -58,16 +67,16 @@ const SearchResult = () => {
   return (
     <>
       {open && (
-        <Wrapper isMain={isMain} ref={ref}>
+        <Wrapper isMain={isMain} ref={ref} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
           {result && Object.keys(result).length !== 0 ? (
             Object.keys(result).map(searchTitle => (
-              <Section key={v1()}>
+              <Section key={searchTitle}>
                 <Text type={isMain ? "p4" : "body1"} color="tertiary">
                   {searchTitle}
                 </Text>
                 <ListContainer>
-                  {result[searchTitle].map((item: any) => (
-                    <List key={v1()}>
+                  {result[searchTitle].map((item: any, index: number) => (
+                    <List key={index} data-search-option>
                       {searchTitle === SEARCH_TITLE.ACCOUNTS && (
                         <AccountsList item={item} isMain={isMain} searchTitle={searchTitle} onClick={onClick} />
                       )}
@@ -97,8 +106,8 @@ const AccountsList = ({ item, isMain, searchTitle, onClick }: SearchResultProps)
   const { getUrlWithNetwork } = useNetwork();
 
   return (
-    <Link href={getUrlWithNetwork(`/account/${item.address}`)} passHref>
-      <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+    <Link href={getUrlWithNetwork(`/account/${item.address}`)} passHref onClick={() => onClick(searchTitle, item)}>
+      <FitContentAStyle>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.address}
           {item.username && (
@@ -116,8 +125,12 @@ const RealmsList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) =
   const { getUrlWithNetwork } = useNetwork();
 
   return (
-    <Link href={getUrlWithNetwork(`/realms/details?path=${item.packagePath}`)} passHref>
-      <FitContentSpan onClick={() => onClick(searchTitle, item)}>
+    <Link
+      href={getUrlWithNetwork(`/realms/details?path=${item.packagePath}`)}
+      passHref
+      onClick={() => onClick(searchTitle, item)}
+    >
+      <FitContentSpan>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.packagePath}
         </Text>
@@ -131,8 +144,8 @@ const TokensList = ({ item, isMain, searchTitle, onClick }: SearchResultProps) =
   const tokenKey = item.symbol ? `${item.packagePath}.${item.symbol}` : item.packagePath;
 
   return (
-    <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref>
-      <FitContentAStyle onClick={() => onClick(searchTitle, item)}>
+    <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref onClick={() => onClick(searchTitle, item)}>
+      <FitContentAStyle>
         <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
           {item.name}
           <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
@@ -152,16 +165,6 @@ const commonContentStyle = css`
 
 const ListContainer = styled.ul`
   ${commonContentStyle}
-`;
-
-const List = styled.li`
-  ${mixins.flexbox("row", "center", "flex-start")};
-  width: 100%;
-  border-radius: 4px;
-  padding: 6px 10px;
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.dimmed50};
-  }
 `;
 
 const Section = styled.section`

@@ -25,8 +25,8 @@ export const SearchResultItem = ({
     case SEARCH_RESULT_TYPE.ACCOUNT:
       return (
         <Link href={getUrlWithNetwork(`/account/${item.title}`)} passHref style={{ width: "100%" }}>
-          <S.List>
-            <S.FitContentAStyle onClick={onClick}>
+          <S.List data-search-option onClick={onClick}>
+            <S.FitContentAStyle>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {item.title}
                 {item.description && (
@@ -43,8 +43,8 @@ export const SearchResultItem = ({
     case SEARCH_RESULT_TYPE.BLOCK:
       return (
         <Link href={getUrlWithNetwork(`/block/${item.title}`)} passHref style={{ width: "100%" }}>
-          <S.List>
-            <S.FitContentAStyle onClick={onClick}>
+          <S.List data-search-option onClick={onClick}>
+            <S.FitContentAStyle>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {item.title}
                 <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
@@ -61,8 +61,8 @@ export const SearchResultItem = ({
       const tokenKey = item.description ? `${item.title}.${item.description}` : item.title;
       return (
         <Link href={getUrlWithNetwork(`/tokens/${tokenKey}`)} passHref style={{ width: "100%" }}>
-          <S.List>
-            <S.FitContentAStyle onClick={onClick}>
+          <S.List data-search-option onClick={onClick}>
+            <S.FitContentAStyle>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {formatDisplayPackagePath(stripGnoLandPrefix(item.title))}
                 {item.description && (
@@ -80,8 +80,8 @@ export const SearchResultItem = ({
     case SEARCH_RESULT_TYPE.PROPOSAL:
       return (
         <Link href={item.link} target="_blank" passHref style={{ width: "100%" }}>
-          <S.List>
-            <S.FitContentAStyle onClick={onClick}>
+          <S.List data-search-option onClick={onClick}>
+            <S.FitContentAStyle>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {item.title}
                 <Text type={isMain ? "p4" : "body1"} color="primary" display="inline-block">
@@ -96,8 +96,8 @@ export const SearchResultItem = ({
     case SEARCH_RESULT_TYPE.REALM:
       return (
         <Link href={getUrlWithNetwork(`/realms/details?path=${item.title}`)} passHref style={{ width: "100%" }}>
-          <S.List>
-            <S.FitContentAStyle onClick={onClick}>
+          <S.List data-search-option onClick={onClick}>
+            <S.FitContentAStyle>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {formatDisplayPackagePath(stripGnoLandPrefix(item.title))}
               </Text>
@@ -114,8 +114,8 @@ export const SearchResultItem = ({
           passHref
           style={{ width: "100%" }}
         >
-          <S.List>
-            <S.FitContentAStyle onClick={onClick}>
+          <S.List data-search-option onClick={onClick}>
+            <S.FitContentAStyle>
               <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
                 {displayHash}
               </Text>
@@ -127,8 +127,8 @@ export const SearchResultItem = ({
 
     default:
       return (
-        <S.List>
-          <S.FitContentAStyle onClick={onClick}>
+        <S.List data-search-option onClick={onClick}>
+          <S.FitContentAStyle>
             <Text type={isMain ? "p4" : "body1"} color="primary" className="ellipsis">
               {item.title}
               {item.description && (

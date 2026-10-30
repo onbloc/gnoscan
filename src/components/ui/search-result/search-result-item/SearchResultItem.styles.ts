@@ -8,7 +8,8 @@ export const List = styled.li`
   width: 100%;
   border-radius: 4px;
   padding: 6px 10px;
-  &:hover {
+  cursor: pointer;
+  &[data-active] {
     background-color: ${({ theme }) => theme.colors.dimmed50};
   }
 `;

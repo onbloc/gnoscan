@@ -69,11 +69,6 @@ export const CardButton = styled.button`
   background: none;
   border-radius: 10px;
   cursor: pointer;
-
-  :focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.blue};
-    outline-offset: 2px;
-  }
 `;
 
 export const OwnerRow = styled.div`

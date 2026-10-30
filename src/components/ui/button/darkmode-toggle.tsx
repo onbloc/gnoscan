@@ -22,20 +22,24 @@ export const DarkModeToggle = ({ className }: ToggleButtonProps) => {
   };
 
   return (
-    <Wrapper onClick={toggleTheme} className={className}>
+    <Wrapper
+      type="button"
+      onClick={toggleTheme}
+      className={className}
+      aria-label={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+    >
       <ToggleButton darkMode={themeMode === "dark"}>{themeMode === "dark" ? <Moon /> : <Sun />}</ToggleButton>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.button`
   ${mixins.flexbox("row", "center", "center")}
   position: relative;
   width: 60px;
   height: 32px;
   border-radius: 12px;
   background: ${({ theme }) => theme.colors.surface};
-  cursor: pointer;
 `;
 
 const ToggleButton = styled.div<ToggleButtonProps>`

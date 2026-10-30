@@ -7,7 +7,9 @@ export type MixinsKeyType =
   | "posTopCenterRight"
   | "posTopCenterLeft"
   | "posMoveToTopAndLeft"
-  | "posMoveToTopAndRight";
+  | "posMoveToTopAndRight"
+  | "insetFocusRing"
+  | "revealOnOpen";
 
 export type MixinsType = {
   [key in MixinsKeyType]: (...p: any[]) => CSSProp;
@@ -58,6 +60,16 @@ const mixins: MixinsType = {
       right: ${right};
     `;
   },
+  // The global button focus ring drawn inside, for elements whose container clips overflow.
+  insetFocusRing: () => css`
+    outline: 2px solid ${({ theme }) => theme.colors.blue};
+    outline-offset: -2px;
+  `,
+  // Visible at once on open so focus can move in, hidden only after the closing transition.
+  revealOnOpen: (open: boolean, duration: string, easing = "ease") => css`
+    visibility: ${open ? "visible" : "hidden"};
+    transition: all ${duration} ${easing}, visibility 0s ${open ? "0s" : duration};
+  `,
 } as const;
 
 export default mixins;

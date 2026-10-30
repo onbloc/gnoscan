@@ -6,10 +6,10 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { getAddressLinkPath } from "@/common/utils/address-label.utility";
 import { stripGnoLandPrefix } from "@/common/utils/token.utility";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
-import Tooltip, { EllipsisTooltip } from "@/components/ui/tooltip";
+import { EllipsisTooltip } from "@/components/ui/tooltip";
 import PathText from "@/components/ui/path-text/PathText";
 import { WithPhishingWarning } from "@/components/ui/tooltip/phishing-warning-tooltip/PhishingWarningTooltip";
-import IconCopy from "@/assets/svgs/icon-copy.svg";
+import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 import { useNetwork } from "@/common/hooks/use-network";
 
 const ADDRESS_ELLIPSIS_LENGTH = 8;
@@ -34,9 +34,7 @@ export const AddressCopy = ({ address, label, labelType, truncateFromStart = fal
           </Link>
         </EllipsisTooltip>
       </WithPhishingWarning>
-      <Tooltip className="copy-tooltip" content="Copied!" trigger="click" copyText={address} width={85}>
-        <IconCopy className="svg-icon" />
-      </Tooltip>
+      <CopyTooltip variant="path" className="copy-tooltip" copyText={address} />
     </AddressWrapper>
   );
 };
@@ -52,6 +50,9 @@ const AddressWrapper = styled.div<{ $truncateFromStart: boolean }>`
     css`
       flex: 1;
       overflow: hidden;
+      /* Room for the copy button focus ring, which overflow would otherwise clip. */
+      padding: 4px;
+      margin: -4px;
 
       > :first-child {
         flex: 1;

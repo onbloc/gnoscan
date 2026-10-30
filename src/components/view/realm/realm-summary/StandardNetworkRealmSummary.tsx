@@ -143,20 +143,19 @@ const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
     return gnoWebUrl !== null && gnoWebUrl !== "";
   }, [gnoWebUrl]);
 
-  const moveGnoWeb = React.useCallback(() => {
+  const gnoWebRealmUrl = React.useMemo(() => {
     if (!gnoWebUrl) {
-      return;
+      return undefined;
     }
 
     const packagePostPath = path.startsWith(GNO_NETWORK_PREFIXES.GNO_LAND)
       ? path.replace(GNO_NETWORK_PREFIXES.GNO_LAND, "")
       : path;
 
-    const url = makeTemplate(GNOWEB_REALM_TEMPLATE, {
+    return makeTemplate(GNOWEB_REALM_TEMPLATE, {
       GNOWEB_URL: gnoWebUrl,
       PACKAGE_POST_PATH: packagePostPath,
     });
-    window.open(url, "_blank");
   }, [path, gnoWebUrl]);
 
   const displayBlockPublished = React.useMemo(() => {
@@ -184,7 +183,7 @@ const StandardNetworkRealmSummary = ({ path }: RealmSummaryProps) => {
         {isRealmNotEnabled && <NotYetEnabledBadge />}
 
         {hasGnoWebUrl && (
-          <LinkWrapper className="hide-mobile" onClick={moveGnoWeb}>
+          <LinkWrapper className="hide-mobile" href={gnoWebRealmUrl} target="_blank" rel="noreferrer">
             <Text type="p4" className="ellipsis">
               Go to Gnoweb
             </Text>
