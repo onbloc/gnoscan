@@ -10,7 +10,6 @@ let mockCollections: {
   symbol: string;
   tokenCount: number;
   ownedCount: number;
-  stakedCount?: number;
 }[] = [];
 const mockStateKeys: string[] = [];
 let mockSavedPage: number | undefined;
@@ -57,23 +56,21 @@ const render = () =>
 const texts = (html: string) => html.split(/<[^>]*>/).filter(Boolean);
 const hasLabel = (html: string, label: string) => html.includes(`aria-label="${label}"`);
 
-// The title matches the NFT summary's collector count: owned NFTs, with the staked positions apart. An NFT the account
-// only operates through an approval is neither.
+// The title matches the NFT summary's collector count: owned NFTs, with the ones the account only operates apart.
 it("counts owned NFTs in the title and the staked ones beside it", () => {
   mockCollections = [
     {
       tokenId: "gno.land/r/gnoswap/gnft.GNFT.0000000",
       name: "GnoSwap NFT",
       symbol: "GNFT",
-      tokenCount: 209,
+      tokenCount: 208,
       ownedCount: 194,
-      stakedCount: 14,
     },
-    { tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27, stakedCount: 0 },
+    { tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27 },
   ];
   expect(texts(render())).toEqual(expect.arrayContaining(["NFTs", "221", "· 14 staked"]));
 
-  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 28, ownedCount: 27 }];
+  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27 }];
   expect(texts(render()).some(text => text.includes("staked"))).toBe(false);
 });
 

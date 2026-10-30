@@ -39,16 +39,13 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
     () => collections.reduce((sum, collection) => sum + collection.tokenCount, 0),
     [collections],
   );
-  // The title counts the NFTs the account owns, like the NFT summary's collectors, and the GnoSwap positions it
-  // staked apart, which the staker realm holds meanwhile.
+  // The title counts the NFTs the account owns, like the NFT summary's collectors. The rest it only operates, such as
+  // the GnoSwap positions it staked, which the staker realm holds meanwhile.
   const ownedCount = React.useMemo(
     () => collections.reduce((sum, collection) => sum + collection.ownedCount, 0),
     [collections],
   );
-  const stakedCount = React.useMemo(
-    () => collections.reduce((sum, collection) => sum + (collection.stakedCount ?? 0), 0),
-    [collections],
-  );
+  const stakedCount = totalCount - ownedCount;
 
   // ALL pages through every collection in order; a chip narrows it to one collection.
   const activeCollection = collections.find(collection => collection.tokenId === selectedCollection);
