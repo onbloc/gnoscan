@@ -56,8 +56,8 @@ const render = () =>
 const texts = (html: string) => html.split(/<[^>]*>/).filter(Boolean);
 const hasLabel = (html: string, label: string) => html.includes(`aria-label="${label}"`);
 
-// The title matches the NFT summary's collector count: owned NFTs, with the ones the account only operates apart.
-it("counts owned NFTs in the title and the staked ones beside it", () => {
+// The title matches the NFT summary's collector count: only the owned NFTs, while the chips count every listed one.
+it("counts only the owned NFTs in the title", () => {
   mockCollections = [
     {
       tokenId: "gno.land/r/gnoswap/gnft.GNFT.0000000",
@@ -68,10 +68,9 @@ it("counts owned NFTs in the title and the staked ones beside it", () => {
     },
     { tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27 },
   ];
-  expect(texts(render())).toEqual(expect.arrayContaining(["NFTs", "221", "· 14 staked"]));
-
-  mockCollections = [{ tokenId: "gno.land/r/demo/nft", name: "Demo", symbol: "DEMO", tokenCount: 27, ownedCount: 27 }];
-  expect(texts(render()).some(text => text.includes("staked"))).toBe(false);
+  const text = texts(render());
+  expect(text).toEqual(expect.arrayContaining(["NFTs", "221", "235"]));
+  expect(text.some(item => item.includes("staked"))).toBe(false);
 });
 
 it("shows an empty NFTs card for accounts without NFTs", () => {
