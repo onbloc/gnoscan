@@ -9,6 +9,7 @@ import { useGetAccountNfts } from "@/common/react-query/account/api/use-get-acco
 
 import { SkeletonBar } from "@/components/ui/loading/skeleton-bar";
 import { Pagination } from "@/components/ui/pagination";
+import Text from "@/components/ui/text";
 import { CardTitle } from "../account-address/AccountAddress.styles";
 import AccountNftCard from "./AccountNftCard";
 import * as S from "./AccountNfts.styles";
@@ -36,6 +37,16 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
   const collections = React.useMemo(() => collectionsData?.items ?? [], [collectionsData]);
   const totalCount = React.useMemo(
     () => collections.reduce((sum, collection) => sum + collection.tokenCount, 0),
+    [collections],
+  );
+  // The title counts the NFTs the account owns, like the NFT summary's collectors, and the GnoSwap positions it
+  // staked apart, which the staker realm holds meanwhile.
+  const ownedCount = React.useMemo(
+    () => collections.reduce((sum, collection) => sum + collection.ownedCount, 0),
+    [collections],
+  );
+  const stakedCount = React.useMemo(
+    () => collections.reduce((sum, collection) => sum + (collection.stakedCount ?? 0), 0),
     [collections],
   );
 
@@ -72,8 +83,13 @@ const StandardNetworkAccountNfts = ({ address }: AccountNftsProps) => {
         <S.TitleWrapper>
           <CardTitle>NFTs</CardTitle>
           <S.CountPill type="p4" color="primary">
-            {totalCount.toLocaleString()}
+            {ownedCount.toLocaleString()}
           </S.CountPill>
+          {stakedCount > 0 && (
+            <Text type="p4" color="tertiary">
+              {`· ${stakedCount.toLocaleString()} staked`}
+            </Text>
+          )}
         </S.TitleWrapper>
         {hasCollections && (
           <S.Chips role="group" aria-label="NFT collections">

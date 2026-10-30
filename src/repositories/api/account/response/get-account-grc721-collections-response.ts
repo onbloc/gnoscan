@@ -6,6 +6,8 @@ export interface AccountGRC721CollectionModel {
   // NFTs the account owns or operates in the collection
   tokenCount: number;
   ownedCount: number;
+  // Operated gnoswap positions that are staked, which the staker realm holds for the account
+  stakedCount?: number;
 }
 
 export interface GetAccountGRC721CollectionsResponse {
