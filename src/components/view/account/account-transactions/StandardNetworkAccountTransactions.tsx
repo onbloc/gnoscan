@@ -8,30 +8,50 @@ import { useGetAccountDirectTransactions } from "@/common/react-query/account/ap
 import { useGetAccountNativeTransfers } from "@/common/react-query/account/api/use-get-account-native-transfers";
 import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
 import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
+import { useTransactionFilter } from "@/common/hooks/transactions/use-transaction-filter";
+import { useGetFunctionNames } from "@/common/react-query/transaction/api";
+import { TransactionFilterBar } from "../../datatable/transaction-filter/TransactionFilterBar";
 
 interface AccountTransactionsProps {
   address: string;
 }
 
+// keepPreviousData keeps the tabs mounted while a new filter loads, so the filter inputs keep focus.
+const FILTERED_QUERY_OPTIONS = { keepPreviousData: true };
+
 const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
+  // Each tab keeps its own filter, and its tab count follows it.
+  // The Transactions tab filters by functions this account called, so it suggests only those.
+  const { data: functionNameData } = useGetFunctionNames(address);
+  const functionNames = React.useMemo(() => functionNameData?.items.map(item => item.name), [functionNameData]);
+  const directFilter = useTransactionFilter(`account:${address}:filter:direct`, functionNames);
+  const nativeFilter = useTransactionFilter(`account:${address}:filter:native`);
+  const tokenFilter = useTransactionFilter(`account:${address}:filter:token`);
+
   const {
     data: directData,
     isFetched: isFetchedDirect,
     hasNextPage: hasNextPageDirect,
     fetchNextPage: fetchNextPageDirect,
-  } = useGetAccountDirectTransactions({ address });
+  } = useGetAccountDirectTransactions({ address, ...directFilter.params }, FILTERED_QUERY_OPTIONS);
   const {
     data: nativeData,
     isFetched: isFetchedNative,
     hasNextPage: hasNextPageNative,
     fetchNextPage: fetchNextPageNative,
-  } = useGetAccountNativeTransfers({ address });
+  } = useGetAccountNativeTransfers(
+    { address, fromDate: nativeFilter.params.fromDate, toDate: nativeFilter.params.toDate },
+    FILTERED_QUERY_OPTIONS,
+  );
   const {
     data: tokenData,
     isFetched: isFetchedToken,
     hasNextPage: hasNextPageToken,
     fetchNextPage: fetchNextPageToken,
-  } = useGetAccountTokenTransfers({ address });
+  } = useGetAccountTokenTransfers(
+    { address, fromDate: tokenFilter.params.fromDate, toDate: tokenFilter.params.toDate },
+    FILTERED_QUERY_OPTIONS,
+  );
 
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
@@ -55,34 +75,47 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
-        <ActivityDatatable
-          variant="direct"
-          data={directTransactions}
-          isFetched={isFetchedDirect}
-          hasNextPage={hasNextPageDirect}
-          nextPage={fetchNextPageDirect}
-          moreLabel="View More Transactions"
-        />
+        <>
+          <TransactionFilterBar
+            value={directFilter.input}
+            onChange={directFilter.setInput}
+            functionNames={functionNameData?.items}
+          />
+          <ActivityDatatable
+            variant="direct"
+            data={directTransactions}
+            isFetched={isFetchedDirect}
+            hasNextPage={hasNextPageDirect}
+            nextPage={fetchNextPageDirect}
+            moreLabel="View More Transactions"
+          />
+        </>
       )}
       {currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS && (
-        <ActivityDatatable
-          variant="transfers"
-          data={nativeTransfers}
-          isFetched={isFetchedNative}
-          hasNextPage={hasNextPageNative}
-          nextPage={fetchNextPageNative}
-          moreLabel="View More Transfers"
-        />
+        <>
+          <TransactionFilterBar value={nativeFilter.input} onChange={nativeFilter.setInput} dateOnly />
+          <ActivityDatatable
+            variant="transfers"
+            data={nativeTransfers}
+            isFetched={isFetchedNative}
+            hasNextPage={hasNextPageNative}
+            nextPage={fetchNextPageNative}
+            moreLabel="View More Transfers"
+          />
+        </>
       )}
       {currentTab === ACTIVITY_TAB.TOKEN_TRANSFERS && (
-        <ActivityDatatable
-          variant="transfers"
-          data={tokenTransfers}
-          isFetched={isFetchedToken}
-          hasNextPage={hasNextPageToken}
-          nextPage={fetchNextPageToken}
-          moreLabel="View More Transfers"
-        />
+        <>
+          <TransactionFilterBar value={tokenFilter.input} onChange={tokenFilter.setInput} dateOnly />
+          <ActivityDatatable
+            variant="transfers"
+            data={tokenTransfers}
+            isFetched={isFetchedToken}
+            hasNextPage={hasNextPageToken}
+            nextPage={fetchNextPageToken}
+            moreLabel="View More Transfers"
+          />
+        </>
       )}
     </DataListSection>
   );

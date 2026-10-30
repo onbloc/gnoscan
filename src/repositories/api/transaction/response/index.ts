@@ -3,3 +3,4 @@ export * from "./get-transaction-response";
 export * from "./get-transaction-pending-response";
 export * from "./get-transaction-contracts-response";
 export * from "./get-transaction-events-response";
+export * from "./get-function-names-response";
