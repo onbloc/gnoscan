@@ -4,6 +4,7 @@ import {
   findByTokenKey,
   parseTokenKey,
   isWugnotPackagePath,
+  isNftStandardPackage,
   stripGnoLandPrefix,
 } from "./token.utility";
 
@@ -289,5 +290,25 @@ describe("isWugnotPackagePath", () => {
 
   it("does not match a different token", () => {
     expect(isWugnotPackagePath("gno.land/r/gnoswap/gns.GNS")).toBe(false);
+  });
+});
+
+describe("isNftStandardPackage", () => {
+  it.each(["gno.land/p/nt/grc721", "gno.land/p/nt/grc721/v0", "gno.land/p/nt/grc721/v12"])("accepts %s", path => {
+    expect(isNftStandardPackage(path)).toBe(true);
+  });
+
+  it.each([
+    "gno.land/r/gnoswap/gnft",
+    "gno.land/p/demo/grc/grc721",
+    "gno.land/p/nt/grc721x/v0",
+    "gno.land/p/nt/grc721/v0/extra",
+    "gno.land/p/nt/grc721/vX",
+    "p/nt/grc721/v0",
+    "",
+    null,
+    undefined,
+  ])("rejects %s", path => {
+    expect(isNftStandardPackage(path)).toBe(false);
   });
 });

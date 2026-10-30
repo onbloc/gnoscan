@@ -5,6 +5,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import { NftCollectionListSortOption } from "@/common/types/token";
 import { NftCollectionModel } from "@/repositories/api/token/response";
+import { isNftStandardPackage } from "@/common/utils/token.utility";
 import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
@@ -61,11 +62,13 @@ export const StandardNetworkNftCollectionListTable = ({
       .renderOption(path => <DatatableItem.RealmPackage packagePath={path} maxWidth={210} />)
       .build(),
     DatatableOption.Builder.builder<NftCollectionModel>()
-      .key("standardPackage")
+      .key("createdPackagePath")
       .name("NFT Standard")
       .width(174)
       .colorName("blue")
-      .renderOption((_, data) => <DatatableItem.LazyNftStandard tokenKey={data.tokenId} />)
+      .renderOption(path =>
+        isNftStandardPackage(path) ? <DatatableItem.RealmPackage packagePath={path} maxWidth={147} /> : <>-</>,
+      )
       .build(),
   ];
 

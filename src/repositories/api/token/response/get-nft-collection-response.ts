@@ -4,6 +4,8 @@ export interface NftCollectionModel {
   tokenId: string;
   name: string;
   symbol: string;
+  // Package that emitted the NewToken event; absent before the creation event is indexed
+  createdPackagePath?: string;
   path: string;
   totalSupply: string;
   // Realm publisher
