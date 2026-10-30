@@ -1,32 +1,42 @@
 {
-  "r/gnoswap": {
-    "name": "GnoSwap",
-    "logo": "/grc20/images/gno_land_r_gnoswap_gns.svg",
-    "url": "https://gnoswap.io"
-  },
-  "r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr": {
-    "name": "Bubble Rumble",
-    "logo": "/grc20/images/gno_land_r_g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr_wbubble.svg",
-    "url": "https://bubblerumble.net"
-  },
   "r/gnoland/wugnot": {
     "name": "wGNOT",
-    "logo": "/grc20/images/gno_land_r_demo_wugnot.svg",
+    "logo": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
     "url": "https://gno.land/r/gnoland/wugnot"
-  },
-  "r/g1n4pl5uc4yt5r96m9w6fmdznx3x0jyg8l6arhmt/gnomi": {
-    "name": "Gnomi",
-    "logo": "/grc20/images/r_g1n4pl5uc4yt5r96m9w6fmdznx3x0jyg8l6arhmt_gnomi_padv3_gnomi.svg",
-    "url": "https://gnomi.fun"
-  },
-  "r/nym-thegnomic001": {
-    "name": "Gnomic",
-    "logo": "/grc20/images/gno_land_r_nym-thegnomic001_gnomic.svg",
-    "url": "https://gnomic.wtf"
   },
   "r/demo/wugnot": {
     "name": "wGNOT",
-    "logo": "/grc20/images/gno_land_r_demo_wugnot.svg",
+    "logo": "https://raw.githubusercontent.com/onbloc/gno-token-resource/main/grc20/images/gno_land_r_demo_wugnot.svg",
     "url": "https://gno.land/r/demo/wugnot"
+  },
+  "r/akkadia": {
+    "name": "Akkadia",
+    "logo": "/images/dapps/akkadia.svg",
+    "url": "https://akkadia.land"
+  },
+  "r/g1nmqhha0ua730vejxqhrelldm4pga5j5ptle5ea": {
+    "name": "Guardians",
+    "logo": "/images/dapps/guardians.svg",
+    "url": "https://guardians.family"
+  },
+  "r/g1ecsuj0q572jr0dhu29q9njtnmw03hyu7tyyvv6/kourt": {
+    "name": "Kourt",
+    "logo": "/images/dapps/kourt.svg",
+    "url": "https://kourt.xyz"
+  },
+  "r/g1leu8d2vsplhehcfkjg50mwgdpxdkt8tztu95wr/kourtv3": {
+    "name": "Kourt",
+    "logo": "/images/dapps/kourt.svg",
+    "url": "https://kourt.xyz"
+  },
+  "r/g1n4pl5uc4yt5r96m9w6fmdznx3x0jyg8l6arhmt/bazaar": {
+    "name": "Nomaq",
+    "logo": "/images/dapps/nomaq.svg",
+    "url": "https://nomaq.xyz"
+  },
+  "r/samcrew": {
+    "name": "Memba",
+    "logo": "/images/dapps/memba.svg",
+    "url": "https://memba.club"
   }
 }
