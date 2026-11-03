@@ -10,7 +10,6 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { formatTokenDecimal, isWugnotPackagePath } from "@/common/utils/token.utility";
 import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { formatUsd, formatUsdWhole, getUsdValue } from "@/common/utils/price.utility";
-import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
 import Badge from "@/components/ui/badge";
@@ -40,7 +39,6 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
 
   const { data, isFetched } = useGetTokenById(tokenId);
   const { getTokenMeta, getTokenDescription, isSuccess: isTokenResourceLoaded } = useTokenResourceMeta();
-  const { getPriceEntry } = useTokenPrice();
   // Same query as the Token Transfers tab, so the count comes from the shared cache.
   const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
   const transferCount = transfersData?.pages[0]?.page.totalCount;
@@ -94,9 +92,9 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
 
   if (!isFetched) return <TableSkeleton />;
 
-  const priceEntry = tokenSummary ? getPriceEntry(tokenSummary.tokenId || tokenSummary.packagePath) : null;
-  const price = priceEntry ? formatUsd(priceEntry.price) : null;
-  const marketCap = priceEntry ? formatUsdWhole(getUsdValue(tokenSummary?.totalSupply ?? 0, priceEntry.price)) : null;
+  const priceValue = data?.data?.price;
+  const price = formatUsd(priceValue);
+  const marketCap = priceValue ? formatUsdWhole(getUsdValue(tokenSummary?.totalSupply ?? 0, priceValue)) : null;
 
   return (
     <DataSection title="Summary">
@@ -180,7 +178,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
               <span>
                 {marketCap ?? "-"} <S.Divider>|</S.Divider> {price}
               </span>
-              <PriceChangeText change={priceEntry?.changeRateOneDay} />
+              <PriceChangeText change={data?.data?.changeRateOneDay} />
             </S.PriceText>
           ) : (
             "-"

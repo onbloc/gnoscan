@@ -13,9 +13,6 @@ let mockPage: { data: unknown[]; hasNextPage: boolean; isFetchingNextPage: boole
 jest.mock("@/common/services/token/use-mapped-api-tokens", () => ({
   useMappedApiTokens: () => ({ isFetched: true, fetchNextPage: mockFetchNextPage, ...mockPage }),
 }));
-jest.mock("@/common/hooks/common/use-token-price", () => ({
-  useTokenPrice: () => ({ getPriceEntry: () => null }),
-}));
 jest.mock("../token-list-table/standard-network-token-list-table/StandardNetworkTokenListTable", () => ({
   StandardNetworkTokenListTable: () => null,
 }));

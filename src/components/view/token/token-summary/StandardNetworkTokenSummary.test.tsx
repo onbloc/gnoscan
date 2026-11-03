@@ -8,6 +8,7 @@ import { ThemeProvider } from "styled-components";
 import StandardNetworkTokenSummary from "./StandardNetworkTokenSummary";
 
 let mockIsRegYn: "Y" | "N" = "N";
+let mockPriced = true;
 
 jest.mock("@/common/react-query/token/api", () => ({
   useGetTokenById: () => ({
@@ -23,6 +24,8 @@ jest.mock("@/common/react-query/token/api", () => ({
         holders: 1,
         funcTypesList: [],
         isRegYn: mockIsRegYn,
+        price: mockPriced ? "100" : null,
+        changeRateOneDay: mockPriced ? 1.5 : null,
       },
     },
   }),
@@ -33,9 +36,6 @@ jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
     getTokenMeta: (_: string, meta: object) => meta,
     getTokenDescription: () => undefined,
   }),
-}));
-jest.mock("@/common/hooks/common/use-token-price", () => ({
-  useTokenPrice: () => ({ getPriceEntry: () => ({ price: "100", change24h: 0 }) }),
 }));
 jest.mock("@/common/hooks/use-network", () => ({
   useNetwork: () => ({ getUrlWithNetwork: (url: string) => url }),
@@ -87,13 +87,22 @@ const renderSummary = () => {
 
 beforeEach(() => {
   mockIsRegYn = "N";
+  mockPriced = true;
 });
 
-it("computes market cap from the exact supply, not a rounded number", () => {
+it("computes market cap from the exact supply and price, truncated to whole dollars", () => {
   const markup = renderSummary();
-  // Market cap is the first value in the "Market Cap | Price" field; the exact cap $99.99... truncates to $99.
+  // Market cap is the first value in the "Market Cap | Price" field.
   expect(markup).toContain("<span>$99 <");
+  expect(markup).toContain("$100");
   expect(markup).toContain("0.999999999999999999");
+});
+
+it("shows a dash for a token without a gnoswap price", () => {
+  mockPriced = false;
+  const markup = renderSummary();
+  expect(markup).not.toContain("<span>$");
+  expect(markup).not.toContain("$100");
 });
 
 it("links the grc20reg registry when the token is registered", () => {

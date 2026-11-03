@@ -3,19 +3,15 @@ import BigNumber from "bignumber.js";
 import { TokenListSortOption } from "@/common/types/token";
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { GetTokensRequestParameters } from "@/repositories/api/token/request";
-import { getUsdValue, TokenPriceEntry } from "../price.utility";
+import { getUsdValue } from "../price.utility";
 import { formatTokenDecimal } from "../token.utility";
-
-type PriceEntryLookup = (tokenKey: string) => TokenPriceEntry | null;
 
 export const toTokenKey = (token: Pick<GRC20InfoWithLogo, "packagePath" | "symbol">) =>
   token.symbol ? `${token.packagePath}.${token.symbol}` : token.packagePath;
 
 /** Price times total supply in display units, or null when the token has no price. */
-export const getTokenMarketCap = (token: GRC20InfoWithLogo, getPriceEntry: PriceEntryLookup): BigNumber | null => {
-  const price = getPriceEntry(toTokenKey(token))?.price;
-  return price ? getUsdValue(formatTokenDecimal(token.totalSupply, token.decimals), price) : null;
-};
+export const getTokenMarketCap = (token: GRC20InfoWithLogo): BigNumber | null =>
+  token.price ? getUsdValue(formatTokenDecimal(token.totalSupply, token.decimals), token.price) : null;
 
 /**
  * Translates the UI sort option into API request params. Only holders sorts on the server; the
@@ -36,7 +32,7 @@ export const toTokenListApiSortParams = (
 
 const CLIENT_SORT_FIELDS: TokenListSortOption["field"][] = ["marketCap", "totalSupply", "transfers24h"];
 
-/** Columns the API cannot sort, such as market cap, which comes from the price feed the API does not store. */
+/** Columns the API cannot sort yet (market cap, total supply, transfers); they sort on the loaded rows. */
 export const isClientSortField = (sortOption: TokenListSortOption) =>
   sortOption.order !== "none" && CLIENT_SORT_FIELDS.includes(sortOption.field);
 
@@ -44,12 +40,11 @@ export const isClientSortField = (sortOption: TokenListSortOption) =>
 export const sortTokensOnClient = (
   tokens: GRC20InfoWithLogo[],
   sortOption: TokenListSortOption,
-  getPriceEntry: PriceEntryLookup,
 ): GRC20InfoWithLogo[] => {
   if (!isClientSortField(sortOption)) return tokens;
 
   const valueOf = (token: GRC20InfoWithLogo): BigNumber | null => {
-    if (sortOption.field === "marketCap") return getTokenMarketCap(token, getPriceEntry);
+    if (sortOption.field === "marketCap") return getTokenMarketCap(token);
     if (sortOption.field === "transfers24h") {
       return token.transactionCount24h === null ? null : new BigNumber(token.transactionCount24h);
     }
