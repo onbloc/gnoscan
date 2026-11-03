@@ -1,6 +1,6 @@
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { formatUsdWhole } from "../price.utility";
-import { getTokenMarketCap, sortTokensOnClient, toTokenListApiSortParams } from "./token-list-sort";
+import { applyLivePrices, getTokenMarketCap, sortTokensOnClient, toTokenListApiSortParams } from "./token-list-sort";
 
 const token = (
   symbol: string,
@@ -89,5 +89,25 @@ describe("getTokenMarketCap", () => {
 
   it("is null for a token without a price", () => {
     expect(getTokenMarketCap(C)).toBeNull();
+  });
+});
+
+describe("applyLivePrices", () => {
+  const live: Record<string, { price: string; changeRateOneDay?: number | null }> = {
+    "gno.land/r/demo/A.A": { price: "5", changeRateOneDay: 1.5 },
+    "gno.land/r/demo/C.C": { price: "7" },
+  };
+  const lookup = (key: string) => live[key] ?? null;
+
+  it("overlays the polled price and change rate, and fills a token the API did not price", () => {
+    const [a, b, c] = applyLivePrices([A, B, C], lookup);
+    expect(a).toMatchObject({ price: "5", changeRateOneDay: 1.5 });
+    expect(c).toMatchObject({ price: "7", changeRateOneDay: null });
+    expect(getTokenMarketCap(c)?.toString()).toBe("3500");
+    expect(b).toBe(B);
+  });
+
+  it("does not change the token rows without an entry", () => {
+    expect(applyLivePrices([A, B], () => null)).toEqual([A, B]);
   });
 });
