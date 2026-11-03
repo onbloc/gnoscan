@@ -18,7 +18,8 @@ const StandardNetworkTransactions = () => {
   return (
     <StandardNetworkTransactionListTable
       transactions={data?.items ?? []}
-      isFetched={isFetched}
+      // Rows of the previous page stay on screen until the next page loads.
+      isFetched={isFetched || isPreviousData}
       isLoading={isLoading}
       footer={
         <ListPagination

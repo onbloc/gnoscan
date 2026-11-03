@@ -18,7 +18,8 @@ interface StandardNetworkRealmsDataProps {
 const StandardNetworkRealmsData = ({ sortOption, setSortOption, keyword }: StandardNetworkRealmsDataProps) => {
   // Sorting is applied server-side over the full realm set; the sort option is
   // forwarded as API params so pagination follows the server order.
-  const [page, setPage] = useListPagination("realms", `${sortOption.field}:${sortOption.order}:${keyword ?? ""}`);
+  const scope = `${sortOption.field}:${sortOption.order}:${keyword ?? ""}`;
+  const [page, setPage] = useListPagination("realms", scope);
   const apiParams = React.useMemo(
     () => ({ ...toRealmListApiSortParams(sortOption), keyword, page }),
     [sortOption.field, sortOption.order, keyword, page],
@@ -39,6 +40,7 @@ const StandardNetworkRealmsData = ({ sortOption, setSortOption, keyword }: Stand
           totalCount={totalCount}
           hasNext={hasNext}
           isSettled={!isPreviousData}
+          scope={scope}
           onChangePage={setPage}
         />
       }

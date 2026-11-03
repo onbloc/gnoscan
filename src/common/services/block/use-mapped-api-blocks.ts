@@ -34,7 +34,8 @@ export const useMappedApiBlocks = (params?: GetBlocksRequestParameters) => {
 
   return {
     data: blocks,
-    isFetched: isApiFetched,
+    // Rows of the previous page stay on screen until the next page loads.
+    isFetched: isApiFetched || isPreviousData,
     isLoading: isApiLoading,
     isError: isApiError,
     isPreviousData,

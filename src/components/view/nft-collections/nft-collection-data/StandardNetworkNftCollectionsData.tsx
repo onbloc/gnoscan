@@ -20,7 +20,8 @@ const StandardNetworkNftCollectionsData = ({
   setSortOption,
   keyword,
 }: StandardNetworkNftCollectionsDataProps) => {
-  const [page, setPage] = useListPagination("nfts", `${sortOption.field}:${sortOption.order}:${keyword ?? ""}`);
+  const scope = `${sortOption.field}:${sortOption.order}:${keyword ?? ""}`;
+  const [page, setPage] = useListPagination("nfts", scope);
   const apiParams = React.useMemo(
     () => ({ ...toNftCollectionListApiSortParams(sortOption), limit: DEFAULT_LIST_ITEMS_SIZE, keyword, page }),
     [sortOption.field, sortOption.order, keyword, page],
@@ -43,6 +44,7 @@ const StandardNetworkNftCollectionsData = ({
           totalCount={data?.page.totalCount}
           hasNext={data?.page.hasNext}
           isSettled={!isPreviousData}
+          scope={scope}
           onChangePage={setPage}
         />
       }
