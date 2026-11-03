@@ -28,6 +28,7 @@ function renderWithUpdates(props: Partial<React.ComponentProps<typeof ListPagina
         <ListPagination
           page={1}
           pageSize={40}
+          scope=""
           totalCount={100}
           isSettled
           onChangePage={onChangePage}

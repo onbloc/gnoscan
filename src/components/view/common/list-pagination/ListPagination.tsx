@@ -10,8 +10,8 @@ interface ListPaginationProps {
   hasNext?: boolean;
   // False while rows of a previous query are shown, when totalCount may not match the page.
   isSettled: boolean;
-  // What is listed (sort, keyword), same as the one of `useListPagination`
-  scope?: string;
+  // What is listed (sort, keyword), same as the one of `useListPagination`. Empty for a list with no sort or filter.
+  scope: string;
   onChangePage: (page: number) => void;
 }
 
@@ -21,7 +21,7 @@ export const ListPagination = ({
   totalCount,
   hasNext,
   isSettled,
-  scope = "",
+  scope,
   onChangePage,
 }: ListPaginationProps) => {
   // The total of the last response stays while a later request fails, so the page count remains usable.

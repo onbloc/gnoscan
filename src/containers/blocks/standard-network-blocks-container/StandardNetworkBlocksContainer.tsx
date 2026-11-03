@@ -30,6 +30,7 @@ const StandardNetworkBlocks = () => {
           totalCount={totalCount}
           hasNext={hasNext}
           isSettled={!isPreviousData}
+          scope=""
           onChangePage={setPage}
         />
       }

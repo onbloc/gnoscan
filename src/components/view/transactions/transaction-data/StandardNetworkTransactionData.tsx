@@ -28,6 +28,7 @@ const StandardNetworkTransactions = () => {
           totalCount={data?.page.totalCount}
           hasNext={data?.page.hasNext}
           isSettled={!isPreviousData}
+          scope=""
           onChangePage={setPage}
         />
       }
