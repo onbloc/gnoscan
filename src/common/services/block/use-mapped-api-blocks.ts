@@ -40,5 +40,6 @@ export const useMappedApiBlocks = (params?: GetBlocksRequestParameters) => {
     isPreviousData,
     hasNext: apiData?.page.hasNext,
     totalCount: apiData?.page.totalCount,
+    snapshotHeight: apiData?.page.snapshotHeight,
   };
 };

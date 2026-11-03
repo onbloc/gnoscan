@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useAdoptSnapshotHeight, useSnapshotHeight } from "@/common/hooks/common/use-snapshot-height";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useMappedApiBlocks } from "@/common/services/block/use-mapped-api-blocks";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
@@ -11,7 +12,10 @@ import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton
 
 const StandardNetworkBlocks = () => {
   const [page, setPage] = useListPagination("blocks");
-  const { data, isFetched, isLoading, isError, isPreviousData, hasNext, totalCount } = useMappedApiBlocks({ page });
+  const snapshot = useSnapshotHeight(page);
+  const { data, isFetched, isLoading, isError, isPreviousData, hasNext, totalCount, snapshotHeight } =
+    useMappedApiBlocks({ page, snapshotHeight: snapshot.height });
+  useAdoptSnapshotHeight(snapshot.adopt, snapshotHeight, !isPreviousData);
 
   if (isLoading || !isFetched) return <TableSkeleton />;
 

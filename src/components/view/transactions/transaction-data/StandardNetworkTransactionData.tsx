@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useAdoptSnapshotHeight, useSnapshotHeight } from "@/common/hooks/common/use-snapshot-height";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetTransactions } from "@/common/react-query/transaction/api";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
@@ -10,7 +11,9 @@ import { StandardNetworkTransactionListTable } from "../transaction-list-table/s
 
 const StandardNetworkTransactions = () => {
   const [page, setPage] = useListPagination("transactions");
-  const { data, isFetched, isLoading, isPreviousData } = useGetTransactions({ page });
+  const snapshot = useSnapshotHeight(page);
+  const { data, isFetched, isLoading, isPreviousData } = useGetTransactions({ page, snapshotHeight: snapshot.height });
+  useAdoptSnapshotHeight(snapshot.adopt, data?.page.snapshotHeight, !isPreviousData);
 
   return (
     <StandardNetworkTransactionListTable
