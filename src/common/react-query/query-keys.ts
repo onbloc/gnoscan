@@ -43,7 +43,6 @@ export enum QUERY_KEY {
   getTokenMetaInternalTransactionsById = "api_get_token_meta_internal_transactions_by_id",
   getTokenEventsById = "api_get_token_events_by_id",
   getNftCollections = "api_get_nft_collections",
-  getNftCollectionsList = "api_get_nft_collections_list",
   getNftCollection = "api_get_nft_collection",
   getNftCollectionItems = "api_get_nft_collection_items",
   getNftItemDetail = "api_get_nft_item_detail",

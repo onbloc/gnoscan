@@ -1,5 +1,5 @@
 export interface GetTransactionsRequestParameters {
-  cursor?: string;
+  page?: number;
 
   limit?: number; // @default 20
 }

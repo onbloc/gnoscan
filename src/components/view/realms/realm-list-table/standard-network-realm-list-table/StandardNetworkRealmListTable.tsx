@@ -8,7 +8,6 @@ import { toGNOTAmount } from "@/common/utils/native-token-utility";
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../../datatable";
-import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { StorageDepositText } from "@/components/ui/text/storage-deposit-text";
@@ -26,8 +25,7 @@ interface RealmListTableProps {
   sortOption: RealmListSortOption;
   realms: Realm[];
   isFetched: boolean;
-  hasNextPage?: boolean;
-  fetchNextPage: () => void;
+  footer?: React.ReactNode;
   setSortOption: (sortOption: RealmListSortOption) => void;
 }
 
@@ -36,8 +34,7 @@ export const StandardNetworkRealmListTable = ({
   setSortOption,
   realms,
   isFetched,
-  hasNextPage,
-  fetchNextPage,
+  footer,
 }: RealmListTableProps) => {
   const { indexerQueryClient } = useNetworkProvider();
 
@@ -154,11 +151,7 @@ export const StandardNetworkRealmListTable = ({
         supported={!!indexerQueryClient}
       />
 
-      {hasNextPage && (
-        <div className="button-wrapper">
-          <ViewMoreButton variant="table" text="View More Realms" onClick={() => fetchNextPage()} />
-        </div>
-      )}
+      {footer}
     </CardTableContainer>
   );
 };

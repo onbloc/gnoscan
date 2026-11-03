@@ -7,17 +7,14 @@ import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "..";
 import { CardTableContainer } from "../datatable.styles";
 import { Block } from "@/types/data-type";
-import { ViewMoreButton } from "@/components/ui/button";
 
 interface BlockDatatableProps {
   data: Block[];
   isError: boolean;
-  hasNextPage: boolean | undefined;
-
-  fetchNextPage: () => void;
+  footer?: React.ReactNode;
 }
 
-export const StandardNetworkBlockDatatable = ({ data, isError, hasNextPage, fetchNextPage }: BlockDatatableProps) => {
+export const StandardNetworkBlockDatatable = ({ data, isError, footer }: BlockDatatableProps) => {
   const createHeaders = () => {
     return [
       createHeaderBlockHash(),
@@ -91,12 +88,7 @@ export const StandardNetworkBlockDatatable = ({ data, isError, hasNextPage, fetc
   return (
     <CardTableContainer>
       <Datatable supported={!isError} headers={createHeaders()} datas={data} />
-
-      {hasNextPage && (
-        <div className="button-wrapper">
-          <ViewMoreButton variant="table" text="View More Blocks" onClick={() => fetchNextPage()} />
-        </div>
-      )}
+      {footer}
     </CardTableContainer>
   );
 };

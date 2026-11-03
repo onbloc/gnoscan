@@ -4,7 +4,7 @@ export interface GetBlocksResponse {
   items: BlockModel[];
 
   page: {
-    cursor: string;
     hasNext: boolean;
+    totalCount: number;
   };
 }

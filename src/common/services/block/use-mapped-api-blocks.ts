@@ -26,22 +26,19 @@ export const useMappedApiBlocks = (params?: GetBlocksRequestParameters) => {
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
+    isPreviousData,
   } = useGetBlocks(params);
 
-  const pages = apiData?.pages;
-  const blocks = React.useMemo<Block[]>(
-    () => (pages ? BlockMapper.blockListFromApiResponses(pages.flatMap(page => page.items)) : []),
-    [pages],
-  );
+  const items = apiData?.items;
+  const blocks = React.useMemo<Block[]>(() => (items ? BlockMapper.blockListFromApiResponses(items) : []), [items]);
 
   return {
     data: blocks,
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
+    isPreviousData,
+    hasNext: apiData?.page.hasNext,
+    totalCount: apiData?.page.totalCount,
   };
 };

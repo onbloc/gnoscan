@@ -4,7 +4,7 @@ export interface GetTransactionsResponse {
   items: TransactionModel[];
 
   page: {
-    cursor: string;
     hasNext: boolean;
+    totalCount: number;
   };
 }

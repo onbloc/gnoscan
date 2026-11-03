@@ -35,7 +35,7 @@ export const useGetNftCollection = (
   );
 };
 
-// One page of the collection list; used for list-only fields such as the transfer count.
+// One page of the collection list, for the list page and for list-only fields such as the transfer count.
 export const useGetNftCollections = (
   params: GetNftCollectionsRequest,
   options?: UseQueryOptions<GetNftCollectionsResponse, Error, GetNftCollectionsResponse>,
@@ -47,22 +47,6 @@ export const useGetNftCollections = (
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
     repository => repository.getNftCollections(params),
-    options,
-  );
-};
-
-// Cursor-paginated (infinite scroll) collection list for the NFT collections page.
-export const useGetNftCollectionsInfinite = (
-  params: GetNftCollectionsRequest = {},
-  options?: UseInfiniteQueryOptions<GetNftCollectionsResponse, Error, GetNftCollectionsResponse>,
-): UseInfiniteQueryResult<GetNftCollectionsResponse, Error> => {
-  const { apiTokenRepository } = useServiceProvider();
-
-  return useApiRepositoryInfiniteQuery<GetNftCollectionsResponse, Error, typeof apiTokenRepository>(
-    [QUERY_KEY.getNftCollectionsList, params],
-    apiTokenRepository,
-    API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, cursor) => repository!.getNftCollections({ ...params, cursor }),
     options,
   );
 };
