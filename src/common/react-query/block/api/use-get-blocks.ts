@@ -37,6 +37,8 @@ export const useGetBlocks = (
       }),
     {
       ...CACHE_POLICY.LIVE,
+      // A list pinned to a block height never changes, so it needs no refetch.
+      staleTime: params.snapshotHeight === undefined ? CACHE_POLICY.LIVE.staleTime : Infinity,
       keepPreviousData: true,
       ...options,
     },
