@@ -12,6 +12,7 @@ import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { formatUsd, formatUsdWhole, getUsdValue } from "@/common/utils/price.utility";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
+import { PRICES_REFETCH_INTERVAL } from "@/common/values/query.constant";
 import Badge from "@/components/ui/badge";
 import { AddressLink, DescriptionField, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
@@ -34,10 +35,13 @@ const TOOLTIP_PACKAGE_PATH = (
   </>
 );
 
+// The price comes with the token, so it refreshes at the old /prices cadence.
+const PRICE_REFRESH_OPTIONS = { refetchInterval: PRICES_REFETCH_INTERVAL };
+
 const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
 
-  const { data, isFetched } = useGetTokenById(tokenId);
+  const { data, isFetched } = useGetTokenById(tokenId, PRICE_REFRESH_OPTIONS);
   const { getTokenMeta, getTokenDescription, isSuccess: isTokenResourceLoaded } = useTokenResourceMeta();
   // Same query as the Token Transfers tab, so the count comes from the shared cache.
   const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
