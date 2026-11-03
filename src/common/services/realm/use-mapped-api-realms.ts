@@ -18,7 +18,7 @@ import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
  * you can use data that is already mapped out of the box.
  *
  * @param params - API request parameters
- * @returns Mapped realms data and query status
+ * @returns Mapped realms of one page, its paging info and query status
  */
 export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
   const {
@@ -26,16 +26,11 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
     isPreviousData,
-  } = useGetRealms(params, { keepPreviousData: true });
+  } = useGetRealms(params);
 
-  const pages = apiData?.pages;
-  const realms = React.useMemo<Realm[]>(
-    () => (pages ? RealmMapper.realmListFromApiResponses(pages.flatMap(page => page.items)) : []),
-    [pages],
-  );
+  const items = apiData?.items;
+  const realms = React.useMemo<Realm[]>(() => (items ? RealmMapper.realmListFromApiResponses(items) : []), [items]);
 
   return {
     data: realms,
@@ -44,8 +39,7 @@ export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
     isPreviousData,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    // The next cursor of the previous sort does not apply to the new one.
-    hasNextPage: hasNextPage && !isPreviousData,
+    hasNext: apiData?.page.hasNext,
+    totalCount: apiData?.page.totalCount,
   };
 };

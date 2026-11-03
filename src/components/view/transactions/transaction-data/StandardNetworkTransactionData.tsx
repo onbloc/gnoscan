@@ -1,29 +1,46 @@
 import React from "react";
 
+import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useAdoptSnapshotHeight, useSnapshotHeight } from "@/common/hooks/common/use-snapshot-height";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetTransactions } from "@/common/react-query/transaction/api";
+import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
+import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
 import { StandardNetworkTransactionListTable } from "../transaction-list-table/standard-network/StandardNetworkTransactionListTable";
 
-const StandardNetworkTransactionData = () => {
-  const { data, hasNextPage, isFetched, isLoading, fetchNextPage } = useGetTransactions();
-
-  const transactionListData = React.useMemo(() => {
-    if (!data) {
-      return [];
-    }
-    const allItems = data.pages.flatMap(page => page.items);
-    return allItems;
-  }, [data]);
+const StandardNetworkTransactions = () => {
+  const [page, setPage] = useListPagination("transactions");
+  const snapshot = useSnapshotHeight(page);
+  const { data, isFetched, isLoading, isPreviousData } = useGetTransactions({ page, snapshotHeight: snapshot.height });
+  useAdoptSnapshotHeight(snapshot.adopt, data?.page.snapshotHeight, !isPreviousData);
 
   return (
     <StandardNetworkTransactionListTable
-      transactions={transactionListData}
-      hasNextPage={hasNextPage}
-      isFetched={isFetched}
+      transactions={data?.items ?? []}
+      // Rows of the previous page stay on screen until the next page loads.
+      isFetched={isFetched || isPreviousData}
       isLoading={isLoading}
-      nextPage={fetchNextPage}
+      footer={
+        <ListPagination
+          page={page}
+          pageSize={DEFAULT_LIST_ITEMS_SIZE}
+          totalCount={data?.page.totalCount}
+          hasNext={data?.page.hasNext}
+          isSettled={!isPreviousData}
+          scope=""
+          onChangePage={setPage}
+        />
+      }
     />
   );
+};
+
+const StandardNetworkTransactionData = () => {
+  const { currentNetwork } = useNetworkProvider();
+
+  // Remount on network change so keepPreviousData does not show the previous network's rows
+  return <StandardNetworkTransactions key={currentNetwork?.chainId} />;
 };
 
 export default StandardNetworkTransactionData;

@@ -8,7 +8,6 @@ import { TooltipContainer } from "../TransactionListTable.styles";
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
-import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import { TransactionModel } from "@/models/api/transaction/transaction-model";
 import { getRepresentativeTransactionFunction } from "@/common/utils/transaction-list.utility";
@@ -23,18 +22,16 @@ const TOOLTIP_TYPE = (
 
 interface StandardNetworkTransactionListTableProps {
   transactions: TransactionModel[];
-  hasNextPage?: boolean;
   isFetched: boolean;
   isLoading: boolean;
-  nextPage: () => void;
+  footer?: React.ReactNode;
 }
 
 export const StandardNetworkTransactionListTable = ({
   transactions,
-  hasNextPage,
-  nextPage,
   isFetched,
   isLoading,
+  footer,
 }: StandardNetworkTransactionListTableProps) => {
   const createHeaders = () => {
     return [
@@ -164,11 +161,7 @@ export const StandardNetworkTransactionListTable = ({
   return (
     <CardTableContainer>
       <Datatable headers={createHeaders()} datas={transactions} />
-      {hasNextPage && (
-        <div className="button-wrapper">
-          <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />
-        </div>
-      )}
+      {footer}
     </CardTableContainer>
   );
 };

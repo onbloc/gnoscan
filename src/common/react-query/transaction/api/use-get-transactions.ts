@@ -1,17 +1,17 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionsRequestParameters } from "@/repositories/api/transaction/request";
 import { GetTransactionsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE, CACHE_POLICY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get transactions data from the API
  *
  * This hook fetches transactions data directly from the API and returns the data in its original format.
- * It provides a way to query transactions based on the provided parameters.
+ * Fetches one page; the previous page stays on screen while the next one loads.
  *
  * Notes: This hook provides raw transaction data from the API.
  * Use this when you need to access transaction information with specific query parameters.
@@ -22,22 +22,24 @@ import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE, CACHE_POLICY } from "@/com
  */
 export const useGetTransactions = (
   params: GetTransactionsRequestParameters = {},
-  options?: UseInfiniteQueryOptions<GetTransactionsResponse, Error, GetTransactionsResponse>,
-): UseInfiniteQueryResult<GetTransactionsResponse, Error> => {
+  options?: UseQueryOptions<GetTransactionsResponse, Error, GetTransactionsResponse>,
+): UseQueryResult<GetTransactionsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetTransactionsResponse, Error, typeof apiTransactionRepository>(
+  return useApiRepositoryQuery<GetTransactionsResponse, Error, typeof apiTransactionRepository>(
     [QUERY_KEY.getTransactions, params],
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    (repository, cursor) =>
+    repository =>
       repository!.getTransactions({
         ...params,
         limit: DEFAULT_LIST_ITEMS_SIZE,
-        cursor,
       }),
     {
       ...CACHE_POLICY.LIVE,
+      // A list pinned to a block height never changes, so it needs no refetch.
+      staleTime: params.snapshotHeight === undefined ? CACHE_POLICY.LIVE.staleTime : Infinity,
+      keepPreviousData: true,
       ...options,
     },
   );

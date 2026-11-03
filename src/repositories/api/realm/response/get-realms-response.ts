@@ -4,8 +4,7 @@ export interface GetRealmsResponse {
   items: RealmModel[];
 
   page: {
-    cursor: string;
     hasNext: boolean;
-    nextCursor: string;
+    totalCount: number;
   };
 }

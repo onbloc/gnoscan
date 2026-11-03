@@ -1,5 +1,8 @@
 export interface GetTransactionsRequestParameters {
-  cursor?: string;
+  page?: number;
+
+  /** Pins the list to a block height, from `page.snapshotHeight` of an earlier response (default: latest). */
+  snapshotHeight?: number;
 
   limit?: number; // @default 20
 }

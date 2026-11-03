@@ -11,24 +11,21 @@ import { TOOLTIP_PACKAGE_PATH } from "@/common/values/tooltip-content.constant";
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../datatable";
-import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 interface NftCollectionListTableProps {
   data: NftCollectionModel[];
-  hasNextPage?: boolean;
   isFetched: boolean;
   isLoading: boolean;
-  fetchNextPage: () => void;
+  footer?: React.ReactNode;
   sortOption: NftCollectionListSortOption;
   setSortOption: (sortOption: NftCollectionListSortOption) => void;
 }
 
 export const StandardNetworkNftCollectionListTable = ({
   data,
-  hasNextPage,
   isFetched,
-  fetchNextPage,
+  footer,
   sortOption,
   setSortOption,
 }: NftCollectionListTableProps) => {
@@ -83,11 +80,7 @@ export const StandardNetworkNftCollectionListTable = ({
         setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
-      {hasNextPage && (
-        <div className="button-wrapper">
-          <ViewMoreButton variant="table" text="View More Tokens" onClick={() => fetchNextPage()} />
-        </div>
-      )}
+      {footer}
     </CardTableContainer>
   );
 };

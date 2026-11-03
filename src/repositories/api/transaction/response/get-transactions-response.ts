@@ -4,7 +4,9 @@ export interface GetTransactionsResponse {
   items: TransactionModel[];
 
   page: {
-    cursor: string;
     hasNext: boolean;
+    totalCount: number;
+    /** Block height the list is pinned to; absent when the chain has no blocks. */
+    snapshotHeight?: number;
   };
 }
