@@ -55,7 +55,10 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
     });
   }, [data, page, decimals, symbol]);
 
-  if (!isFetchedHolders) return <TableSkeleton />;
+  // Rows of the previous page stay on screen while the next page loads.
+  const isReady = isFetchedHolders || isPreviousData;
+
+  if (!isReady) return <TableSkeleton />;
 
   const createHeaders = () => {
     return [
@@ -119,7 +122,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
 
   return (
     <FlushTableContainer>
-      <Datatable loading={!isFetchedHolders} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
+      <Datatable loading={!isReady} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
       <ListPagination
         page={page}
         pageSize={DEFAULT_LIST_ITEMS_SIZE}

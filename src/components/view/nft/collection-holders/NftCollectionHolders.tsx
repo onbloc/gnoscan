@@ -74,7 +74,8 @@ const NftCollectionHolders = ({ tokenKey }: NftCollectionHoldersProps) => {
     [data?.items, page],
   );
 
-  if (!isFetched) return <TableSkeleton />;
+  // Rows of the previous page stay on screen while the next page loads.
+  if (!isFetched && !isPreviousData) return <TableSkeleton />;
 
   return (
     <FlushTableContainer>

@@ -66,6 +66,10 @@ const StandardNetworkTransactionInfo = ({
     { enabled: apiStatus === "confirmed", staleTime: Infinity },
   );
 
+  // Rows of the previous page stay on screen while the next page loads, so only the first load shows a skeleton.
+  const isContractsReady = isFetchedContractsData || isContractsPreviousData;
+  const isEventsReady = isFetchedEventsData || isEventsPreviousData;
+
   const txContracts: TransactionContractInfo = React.useMemo(
     () => ({
       messages: contractsData?.items ?? [],
@@ -109,7 +113,7 @@ const StandardNetworkTransactionInfo = ({
   }, [isPending, currentTab, setCurrentTab]);
 
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
-  if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedSummaryContracts || !isFetchedEventsData))
+  if (apiStatus === "confirmed" && (!isContractsReady || !isFetchedSummaryContracts || !isEventsReady))
     return <TableSkeleton />;
 
   return (
@@ -151,7 +155,7 @@ const StandardNetworkTransactionInfo = ({
       {currentTab === "Events" && !isPending && (
         <StandardNetworkEventDatatable
           events={txEvents}
-          isFetched={isFetchedEventsData}
+          isFetched={isEventsReady}
           footer={
             <ListPagination
               page={eventsPage}

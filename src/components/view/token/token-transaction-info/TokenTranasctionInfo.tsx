@@ -242,7 +242,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
           />
           <StandardNetworkEventDatatable
             variant="activity"
-            isFetched={isFetchedEventData}
+            isFetched={isFetchedEventData || isEventDataPreviousData}
             events={tokenEvents}
             footer={
               <ListPagination

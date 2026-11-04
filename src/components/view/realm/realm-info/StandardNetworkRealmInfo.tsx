@@ -155,7 +155,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
           />
           <StandardNetworkEventDatatable
             variant="activity"
-            isFetched={isFetchedEventData}
+            isFetched={isFetchedEventData || isEventDataPreviousData}
             events={realmEvents}
             footer={
               <ListPagination

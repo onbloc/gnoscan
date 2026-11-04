@@ -38,6 +38,10 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
     isPreviousData: isEventsPreviousData,
   } = useMappedApiBlockEvents({ blockHeight: scope, page: eventsPage });
 
+  // Rows of the previous page stay on screen while the next page loads, so only the first load shows a skeleton.
+  const isTransactionsReady = isFetchedTransactions || isTransactionsPreviousData;
+  const isEventsReady = isFetchedEvents || isEventsPreviousData;
+
   const detailTabs = React.useMemo(() => {
     return [
       {
@@ -51,14 +55,14 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
     ];
   }, [transactions, transactionsTotalCount, events, eventsTotalCount]);
 
-  if (!isFetchedEvents || !isFetchedTransactions) return <TableSkeleton />;
+  if (!isEventsReady || !isTransactionsReady) return <TableSkeleton />;
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === "Transactions" && (
         <BlockDetailDatatable
           transactions={transactions}
-          isFetched={isFetchedTransactions}
+          isFetched={isTransactionsReady}
           footer={
             <ListPagination
               page={transactionsPage}
@@ -74,7 +78,7 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
       )}
       {currentTab === "Events" && (
         <StandardNetworkEventDatatable
-          isFetched={isFetchedEvents}
+          isFetched={isEventsReady}
           events={events}
           footer={
             <ListPagination

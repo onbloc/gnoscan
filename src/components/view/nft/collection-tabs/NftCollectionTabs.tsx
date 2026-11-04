@@ -143,7 +143,7 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
           />
           <StandardNetworkEventDatatable
             variant="activity"
-            isFetched={isFetchedEventData}
+            isFetched={isFetchedEventData || isEventDataPreviousData}
             events={collectionEvents}
             footer={
               <ListPagination
