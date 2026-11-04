@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useListPagination, useShownPage } from "@/common/hooks/common/use-list-pagination";
 import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
@@ -62,16 +62,18 @@ const NftCollectionHolders = ({ tokenKey }: NftCollectionHoldersProps) => {
   const [page, setPage] = useListPagination("nft-holders", tokenKey);
   const { data, isFetched, isPreviousData } = useGetRealmHoldersByPath({ path: tokenKey, page });
 
+  const shownPage = useShownPage(page, isPreviousData);
+
   const holders = React.useMemo(
     () =>
       data?.items.map(
         (item, index): NftHolderRow => ({
           ...item,
-          rank: (page - 1) * DEFAULT_LIST_ITEMS_SIZE + index + 1,
+          rank: (shownPage - 1) * DEFAULT_LIST_ITEMS_SIZE + index + 1,
           nameTag: getAddressNameTag(item),
         }),
       ) ?? [],
-    [data?.items, page],
+    [data?.items, shownPage],
   );
 
   // Rows of the previous page stay on screen while the next page loads.

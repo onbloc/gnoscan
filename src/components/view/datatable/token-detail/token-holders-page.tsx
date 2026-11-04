@@ -11,7 +11,7 @@ import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 import { TokenHolder } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useListPagination, useShownPage } from "@/common/hooks/common/use-list-pagination";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import { ListPagination } from "../../common/list-pagination/ListPagination";
 
@@ -36,12 +36,14 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   const [page, setPage] = useListPagination("token-holders", String(path));
   const { data, isFetched: isFetchedHolders, isPreviousData } = useGetTokenHoldersByid({ path, page });
 
+  const shownPage = useShownPage(page, isPreviousData);
+
   const tokenHolders: TokenHolder[] = React.useMemo(() => {
     if (!data) return [];
 
     return data.items.map((item: TokenHolderModel, index: number): TokenHolder => {
       return {
-        rank: (page - 1) * DEFAULT_LIST_ITEMS_SIZE + index + 1,
+        rank: (shownPage - 1) * DEFAULT_LIST_ITEMS_SIZE + index + 1,
         address: item.address,
         nameTag: getAddressNameTag(item),
         label: item.label,
@@ -53,7 +55,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
         percentage: item.percentage,
       };
     });
-  }, [data, page, decimals, symbol]);
+  }, [data, shownPage, decimals, symbol]);
 
   // Rows of the previous page stay on screen while the next page loads.
   const isReady = isFetchedHolders || isPreviousData;

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useListPagination, useShownPage } from "@/common/hooks/common/use-list-pagination";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
@@ -65,6 +65,9 @@ const StandardNetworkTransactionInfo = ({
     { txHash, page: 1 },
     { enabled: apiStatus === "confirmed", staleTime: Infinity },
   );
+
+  // Messages are numbered from the page of the rows on screen, not the one being loaded.
+  const shownContractsPage = useShownPage(contractsPage, isContractsPreviousData);
 
   // Rows of the previous page stay on screen while the next page loads, so only the first load shows a skeleton.
   const isContractsReady = isFetchedContractsData || isContractsPreviousData;
@@ -137,7 +140,7 @@ const StandardNetworkTransactionInfo = ({
               rawTransaction={transactionItem}
               getUrlWithNetwork={getUrlWithNetwork}
               storageDepositInfo={storageDepositInfo}
-              startIndex={(contractsPage - 1) * DEFAULT_LIST_ITEMS_SIZE}
+              startIndex={(shownContractsPage - 1) * DEFAULT_LIST_ITEMS_SIZE}
               footer={
                 <ListPagination
                   page={contractsPage}
