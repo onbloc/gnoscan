@@ -7,6 +7,7 @@ import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-ho
 import { ActivityDatatable } from "../../datatable/activity";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
 import {
   useGetTokenHoldersByid,
   useGetTokenMetaByPath,
@@ -20,6 +21,7 @@ import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api
 import { useNetwork } from "@/common/hooks/use-network";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
+import { useListPagination } from "@/common/hooks/common/use-list-pagination";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
@@ -70,10 +72,10 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { path: tokenPath },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
-  // "View More" widens the single first page instead of paging, so the hosted list stays one continuous list.
-  const [hostedTokensLimit, setHostedTokensLimit] = React.useState<number>(DEFAULT_LIST_ITEMS_SIZE);
-  const { data: hostedTokensData } = useGetTokens(
-    { packagePath: realmPath, limit: hostedTokensLimit },
+  // Hosted tokens are paged per realm; a different realm starts again from page 1.
+  const [hostedPage, setHostedPage] = useListPagination("hosted-tokens", realmPath);
+  const { data: hostedTokensData, isPreviousData: isHostedTokensPreviousData } = useGetTokens(
+    { packagePath: realmPath, page: hostedPage },
     {
       enabled: !isCustomNetwork && isFactoryRealm && !!realmPath && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS,
     },
@@ -188,14 +190,15 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
                   </HostedTokenList>
                 )}
               </FactorySummary>
-              {hostedTokensData?.page.hasNext && hostedTokens.length > 0 && (
-                <MoreHostedTokensButton
-                  type="button"
-                  onClick={() => setHostedTokensLimit(limit => limit + DEFAULT_LIST_ITEMS_SIZE)}
-                >
-                  View More Tokens
-                </MoreHostedTokensButton>
-              )}
+              <ListPagination
+                page={hostedPage}
+                pageSize={DEFAULT_LIST_ITEMS_SIZE}
+                totalCount={hostedTokensData?.page.totalCount}
+                hasNext={hostedTokensData?.page.hasNext}
+                isSettled={!isHostedTokensPreviousData}
+                scope={realmPath}
+                onChangePage={setHostedPage}
+              />
             </FactoryNotice>
           )}
           <ActivityDatatable
@@ -291,11 +294,4 @@ const FactorySummary = styled.div`
   flex-wrap: wrap;
   gap: 0 4px;
   min-width: 0;
-`;
-
-const MoreHostedTokensButton = styled.button`
-  align-self: flex-start;
-  color: ${({ theme }) => theme.colors.blue};
-  background: none;
-  cursor: pointer;
 `;

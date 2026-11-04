@@ -22,7 +22,7 @@ const StandardNetworkTokensData = ({ sortOption, setSortOption, keyword }: Stand
   const [page, setPage] = useListPagination("tokens", scope);
   const apiParams = React.useMemo(
     () => ({ ...toTokenListApiSortParams(sortOption), keyword, page }),
-    [sortOption.field, sortOption.order, keyword, page],
+    [sortOption, keyword, page],
   );
 
   const {
