@@ -48,7 +48,9 @@ export const usePagedList = <TResponse extends PagedResponse, TParams>(
     data,
     items: (data?.items ?? NO_ITEMS) as TResponse["items"],
     totalCount: data?.page.totalCount,
-    isFetched,
+    // Rows of the previous page stay on screen while the next page loads, so only the first load shows a skeleton.
+    // (react-query's own `isFetched` is false for a page that was never loaded, even with `keepPreviousData`.)
+    isFetched: isFetched || isPreviousData,
     isLoading,
     isPreviousData,
     /** Position of the first row of the page in the whole list, to number the rows. */

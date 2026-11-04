@@ -80,3 +80,20 @@ it("has no rows and no totals before the first response", () => {
   expect(current.items).toEqual([]);
   expect(current.totalCount).toBeUndefined();
 });
+
+it("counts as fetched while the rows of the previous page are shown", () => {
+  mockPage = 2;
+  query.mockReturnValue({
+    data: { items: [{ id: 1 }], page: { hasNext: true, totalCount: 80 } },
+    isFetched: false,
+    isPreviousData: true,
+  });
+  render();
+
+  expect(current.isFetched).toBe(true);
+
+  query.mockReturnValue({ data: undefined, isFetched: false, isPreviousData: false });
+  render();
+
+  expect(current.isFetched).toBe(false);
+});
