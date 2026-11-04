@@ -1,6 +1,6 @@
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { formatUsdWhole } from "../price.utility";
-import { applyLivePrices, getTokenMarketCap, sortTokensOnClient, toTokenListApiSortParams } from "./token-list-sort";
+import { applyLivePrices, getTokenMarketCap, toTokenListApiSortParams } from "./token-list-sort";
 
 const token = (
   symbol: string,
@@ -32,52 +32,27 @@ const token = (
 const A = token("A", 1000, 0, null, "1");
 const B = token("B", 100, 0, null, "20");
 const C = token("C", 500);
-const symbols = (tokens: GRC20InfoWithLogo[]) => tokens.map(t => t.symbol);
 
 describe("toTokenListApiSortParams", () => {
-  it("sends only the holders sort to the API", () => {
+  it("sends every sortable column to the API", () => {
     expect(toTokenListApiSortParams({ field: "holders", order: "asc" })).toEqual({ sort: "holders", order: "asc" });
-    expect(toTokenListApiSortParams({ field: "marketCap", order: "desc" })).toEqual({});
+    expect(toTokenListApiSortParams({ field: "marketCap", order: "desc" })).toEqual({
+      sort: "marketCap",
+      order: "desc",
+    });
+    expect(toTokenListApiSortParams({ field: "totalSupply", order: "asc" })).toEqual({
+      sort: "totalSupply",
+      order: "asc",
+    });
+    expect(toTokenListApiSortParams({ field: "transfers24h", order: "desc" })).toEqual({
+      sort: "transfers24h",
+      order: "desc",
+    });
+  });
+
+  it("sends no sort when unsorted", () => {
     expect(toTokenListApiSortParams({ field: "holders", order: "none" })).toEqual({});
-  });
-});
-
-describe("sortTokensOnClient", () => {
-  it("sorts by market cap and keeps unpriced tokens last in both directions", () => {
-    expect(symbols(sortTokensOnClient([A, B, C], { field: "marketCap", order: "desc" }))).toEqual(["B", "A", "C"]);
-    expect(symbols(sortTokensOnClient([C, B, A], { field: "marketCap", order: "asc" }))).toEqual(["A", "B", "C"]);
-  });
-
-  it("applies decimals to the supply before pricing it", () => {
-    const D = token("D", 2_000_000, 6, null, "1000"); // 2 tokens x 1000 = 2000
-    const E = token("E", 2_000_000, 6, null, "100"); // 2 tokens x 100 = 200
-    expect(symbols(sortTokensOnClient([E, A, D], { field: "marketCap", order: "desc" }))).toEqual(["D", "A", "E"]);
-  });
-
-  it("sorts by total supply in display units", () => {
-    const D = token("D", 2_000_000, 6); // 2 after decimals
-    expect(symbols(sortTokensOnClient([D, B, A], { field: "totalSupply", order: "desc" }))).toEqual(["A", "B", "D"]);
-  });
-
-  it("sorts by 24h transactions and keeps tokens without a count last", () => {
-    const busy = token("BUSY", 1, 0, 75);
-    const quiet = token("QUIET", 1, 0, 0);
-    const unknown = token("UNKNOWN", 1);
-    expect(symbols(sortTokensOnClient([unknown, quiet, busy], { field: "transfers24h", order: "desc" }))).toEqual([
-      "BUSY",
-      "QUIET",
-      "UNKNOWN",
-    ]);
-    expect(symbols(sortTokensOnClient([unknown, busy, quiet], { field: "transfers24h", order: "asc" }))).toEqual([
-      "QUIET",
-      "BUSY",
-      "UNKNOWN",
-    ]);
-  });
-
-  it("keeps the server order for holders and unsorted lists", () => {
-    expect(symbols(sortTokensOnClient([C, A, B], { field: "holders", order: "desc" }))).toEqual(["C", "A", "B"]);
-    expect(symbols(sortTokensOnClient([C, A, B], { field: "marketCap", order: "none" }))).toEqual(["C", "A", "B"]);
+    expect(toTokenListApiSortParams({ field: "none", order: "desc" })).toEqual({});
   });
 });
 

@@ -74,7 +74,7 @@ export const getTokensMocks: GetTokensResponse = {
     },
   ],
   page: {
-    cursor: "0x5678901234abcdef5678901234abcdef56789012",
     hasNext: true,
+    totalCount: 41,
   },
 };

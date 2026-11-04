@@ -27,13 +27,13 @@ export const applyLivePrices = (
   });
 
 /**
- * Translates the UI sort option into API request params. Only holders sorts on the server; the
- * other columns sort on the client (see {@link sortTokensOnClient}), so they request the default order.
+ * Translates the UI sort option into API request params. Every column sorts on the server over the full token set.
+ * Returns no sort/order when unsorted so the server falls back to its default.
  */
 export const toTokenListApiSortParams = (
   sortOption: TokenListSortOption,
 ): Pick<GetTokensRequestParameters, "sort" | "order"> => {
-  if (sortOption.field !== "holders" || sortOption.order === "none") {
+  if (sortOption.field === "none" || sortOption.order === "none") {
     return {};
   }
 
@@ -41,36 +41,4 @@ export const toTokenListApiSortParams = (
     sort: sortOption.field,
     order: sortOption.order,
   };
-};
-
-const CLIENT_SORT_FIELDS: TokenListSortOption["field"][] = ["marketCap", "totalSupply", "transfers24h"];
-
-/** Columns the API cannot sort yet (market cap, total supply, transfers); they sort on the loaded rows. */
-export const isClientSortField = (sortOption: TokenListSortOption) =>
-  sortOption.order !== "none" && CLIENT_SORT_FIELDS.includes(sortOption.field);
-
-/** Sorts loaded tokens by a client side column. Tokens without a value (no price or count) always go last. */
-export const sortTokensOnClient = (
-  tokens: GRC20InfoWithLogo[],
-  sortOption: TokenListSortOption,
-): GRC20InfoWithLogo[] => {
-  if (!isClientSortField(sortOption)) return tokens;
-
-  const valueOf = (token: GRC20InfoWithLogo): BigNumber | null => {
-    if (sortOption.field === "marketCap") return getTokenMarketCap(token);
-    if (sortOption.field === "transfers24h") {
-      return token.transactionCount24h === null ? null : new BigNumber(token.transactionCount24h);
-    }
-    return new BigNumber(formatTokenDecimal(token.totalSupply, token.decimals));
-  };
-  const direction = sortOption.order === "asc" ? 1 : -1;
-
-  return tokens
-    .map(token => ({ token, value: valueOf(token) }))
-    .sort((a, b) => {
-      if (!a.value) return b.value ? 1 : 0;
-      if (!b.value) return -1;
-      return a.value.comparedTo(b.value) * direction;
-    })
-    .map(({ token }) => token);
 };

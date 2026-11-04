@@ -7,7 +7,6 @@ import { TokenListSortOption } from "@/common/types/token";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../../datatable";
-import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
@@ -21,20 +20,18 @@ import * as S from "./StandardNetworkTokenListTable.styles";
 
 interface TokenListTableProps {
   data: GRC20InfoWithLogo[];
-  hasNextPage?: boolean;
+  footer?: React.ReactNode;
   isFetched: boolean;
   isLoading: boolean;
   isError: boolean;
-  fetchNextPage: () => void;
   sortOption: TokenListSortOption;
   setSortOption: (sortOption: TokenListSortOption) => void;
 }
 
 export const StandardNetworkTokenListTable = ({
   data,
-  hasNextPage,
+  footer,
   isFetched,
-  fetchNextPage,
   sortOption,
   setSortOption,
 }: TokenListTableProps) => {
@@ -176,11 +173,7 @@ export const StandardNetworkTokenListTable = ({
         setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
-      {hasNextPage && (
-        <div className="button-wrapper">
-          <ViewMoreButton variant="table" text="View More Tokens" onClick={() => fetchNextPage()} />
-        </div>
-      )}
+      {footer}
     </CardTableContainer>
   );
 };

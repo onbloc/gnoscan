@@ -22,6 +22,7 @@ import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
+import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import Text from "@/components/ui/text";
 import styled from "styled-components";
 
@@ -69,12 +70,10 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { path: tokenPath },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
-  const {
-    data: hostedTokensData,
-    hasNextPage: hasNextHostedTokensPage,
-    fetchNextPage: fetchNextHostedTokensPage,
-  } = useGetTokens(
-    { packagePath: realmPath },
+  // "View More" widens the single first page instead of paging, so the hosted list stays one continuous list.
+  const [hostedTokensLimit, setHostedTokensLimit] = React.useState<number>(DEFAULT_LIST_ITEMS_SIZE);
+  const { data: hostedTokensData } = useGetTokens(
+    { packagePath: realmPath, limit: hostedTokensLimit },
     {
       enabled: !isCustomNetwork && isFactoryRealm && !!realmPath && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS,
     },
@@ -111,7 +110,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const tokenTransfers = React.useMemo(() => transfersData?.pages.flatMap(page => page.items) ?? [], [transfersData]);
   // Guard against an API without the packagePath filter, which returns the global token list.
   const hostedTokens = React.useMemo(
-    () => hostedTokensData?.pages.flatMap(page => page.items).filter(token => token.path === realmPath) ?? [],
+    () => hostedTokensData?.items.filter(token => token.path === realmPath) ?? [],
     [hostedTokensData, realmPath],
   );
   const internalTransactions = React.useMemo(
@@ -189,8 +188,11 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
                   </HostedTokenList>
                 )}
               </FactorySummary>
-              {hasNextHostedTokensPage && hostedTokens.length > 0 && (
-                <MoreHostedTokensButton type="button" onClick={() => fetchNextHostedTokensPage()}>
+              {hostedTokensData?.page.hasNext && hostedTokens.length > 0 && (
+                <MoreHostedTokensButton
+                  type="button"
+                  onClick={() => setHostedTokensLimit(limit => limit + DEFAULT_LIST_ITEMS_SIZE)}
+                >
                   View More Tokens
                 </MoreHostedTokensButton>
               )}
