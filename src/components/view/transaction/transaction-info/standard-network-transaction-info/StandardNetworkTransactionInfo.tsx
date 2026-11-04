@@ -59,6 +59,13 @@ const StandardNetworkTransactionInfo = ({
     isPreviousData: isEventsPreviousData,
   } = useGetTransactionEventsByHeight({ txHash, page: eventsPage }, { enabled: apiStatus === "confirmed" });
 
+  // The summary card covers the whole transaction, so it keeps the first page of messages while the list pages.
+  // On page 1 this is the same query as the list above.
+  const { data: summaryContractsData, isFetched: isFetchedSummaryContracts } = useGetTransactionContractsByHeight(
+    { txHash, page: 1 },
+    { enabled: apiStatus === "confirmed", staleTime: Infinity },
+  );
+
   const txContracts: TransactionContractInfo = React.useMemo(
     () => ({
       messages: contractsData?.items ?? [],
@@ -102,7 +109,8 @@ const StandardNetworkTransactionInfo = ({
   }, [isPending, currentTab, setCurrentTab]);
 
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
-  if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
+  if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedSummaryContracts || !isFetchedEventsData))
+    return <TableSkeleton />;
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
@@ -116,7 +124,7 @@ const StandardNetworkTransactionInfo = ({
         ) : (
           <>
             <TransactionTopSummary
-              messages={txContracts.messages}
+              messages={summaryContractsData?.items ?? []}
               numOfMessage={txContracts.numOfMessage}
               summary={apiTransaction?.summary}
             />
