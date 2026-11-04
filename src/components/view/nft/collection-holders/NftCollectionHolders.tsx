@@ -1,10 +1,9 @@
 import React from "react";
 
-import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
-import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import type { RealmHolderModel } from "@/repositories/api/realm/response";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
@@ -59,35 +58,26 @@ interface NftCollectionHoldersProps {
 }
 
 const NftCollectionHolders = ({ tokenKey }: NftCollectionHoldersProps) => {
-  const [page, setPage] = useListPagination("nft-holders", tokenKey);
-  const { data, isFetched, isPreviousData } = useGetRealmHoldersByPath({ path: tokenKey, page });
+  const list = usePagedList("nft-holders", tokenKey, useGetRealmHoldersByPath, { path: tokenKey });
 
   const holders = React.useMemo(
     () =>
-      data?.items.map(
+      list.items.map(
         (item, index): NftHolderRow => ({
           ...item,
-          rank: (page - 1) * DEFAULT_LIST_ITEMS_SIZE + index + 1,
+          rank: list.startIndex + index + 1,
           nameTag: getAddressNameTag(item),
         }),
-      ) ?? [],
-    [data?.items, page],
+      ),
+    [list.items, list.startIndex],
   );
 
-  if (!isFetched) return <TableSkeleton />;
+  if (!list.isFetched) return <TableSkeleton />;
 
   return (
     <FlushTableContainer>
       <Datatable headers={HEADERS} datas={holders} />
-      <ListPagination
-        page={page}
-        pageSize={DEFAULT_LIST_ITEMS_SIZE}
-        totalCount={data?.page.totalCount}
-        hasNext={data?.page.hasNext}
-        isSettled={!isPreviousData}
-        scope={tokenKey}
-        onChangePage={setPage}
-      />
+      <ListPagination {...list.pagination} />
     </FlushTableContainer>
   );
 };

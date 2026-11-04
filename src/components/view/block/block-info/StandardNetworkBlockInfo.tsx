@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useListPagination } from "@/common/hooks/common/use-list-pagination";
-import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import { useMappedApiBlockEvents } from "@/common/services/block/use-mapped-api-block-events";
 
 import { useMappedApiBlockTransactions } from "@/common/services/block/use-mapped-api-block-transactions";
@@ -18,25 +16,20 @@ interface BlockInfoProps {
 }
 
 const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
-  const scope = String(blockHeight);
-  const [transactionsPage, setTransactionsPage] = useListPagination("block-transactions", scope);
-  const [eventsPage, setEventsPage] = useListPagination("block-events", scope);
-
+  const height = String(blockHeight);
   const {
     data: transactions,
     totalCount: transactionsTotalCount,
-    hasNext: transactionsHasNext,
     isFetched: isFetchedTransactions,
-    isPreviousData: isTransactionsPreviousData,
-  } = useMappedApiBlockTransactions({ blockHeight: scope, page: transactionsPage });
+    pagination: transactionsPagination,
+  } = useMappedApiBlockTransactions(height);
 
   const {
     data: events,
     totalCount: eventsTotalCount,
-    hasNext: eventsHasNext,
     isFetched: isFetchedEvents,
-    isPreviousData: isEventsPreviousData,
-  } = useMappedApiBlockEvents({ blockHeight: scope, page: eventsPage });
+    pagination: eventsPagination,
+  } = useMappedApiBlockEvents(height);
 
   const detailTabs = React.useMemo(() => {
     return [
@@ -59,34 +52,14 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
         <BlockDetailDatatable
           transactions={transactions}
           isFetched={isFetchedTransactions}
-          footer={
-            <ListPagination
-              page={transactionsPage}
-              pageSize={DEFAULT_LIST_ITEMS_SIZE}
-              totalCount={transactionsTotalCount}
-              hasNext={transactionsHasNext}
-              isSettled={!isTransactionsPreviousData}
-              scope={scope}
-              onChangePage={setTransactionsPage}
-            />
-          }
+          footer={<ListPagination {...transactionsPagination} />}
         />
       )}
       {currentTab === "Events" && (
         <StandardNetworkEventDatatable
           isFetched={isFetchedEvents}
           events={events}
-          footer={
-            <ListPagination
-              page={eventsPage}
-              pageSize={DEFAULT_LIST_ITEMS_SIZE}
-              totalCount={eventsTotalCount}
-              hasNext={eventsHasNext}
-              isSettled={!isEventsPreviousData}
-              scope={scope}
-              onChangePage={setEventsPage}
-            />
-          }
+          footer={<ListPagination {...eventsPagination} />}
         />
       )}
     </DataListSection>

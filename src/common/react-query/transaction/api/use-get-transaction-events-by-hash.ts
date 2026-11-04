@@ -4,8 +4,8 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionEventsRequest } from "@/repositories/api/transaction/request";
 import { GetTransactionEventsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get transaction events data for a specific transaction hash from the API
@@ -27,19 +27,12 @@ export const useGetTransactionEventsByHeight = (
 ): UseQueryResult<GetTransactionEventsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery<GetTransactionEventsResponse, Error, typeof apiTransactionRepository>(
-    [QUERY_KEY.getTransactionEventsByHash, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getTransactionEventsByHash],
+    params,
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    repository =>
-      repository!.getTransactionEvents({
-        ...params,
-        limit: params.limit ?? DEFAULT_LIST_ITEMS_SIZE,
-      }),
-    {
-      keepPreviousData: true,
-      ...options,
-      enabled: (options?.enabled ?? true) && !!params.txHash,
-    },
+    (repository, pageParams) => repository.getTransactionEvents(pageParams),
+    { ...options, enabled: (options?.enabled ?? true) && !!params.txHash },
   );
 };

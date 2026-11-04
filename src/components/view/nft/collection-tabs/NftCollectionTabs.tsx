@@ -1,8 +1,7 @@
 import React from "react";
 
-import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
-import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import {
   useGetNftCollectionItems,
   useGetTokenEventsById,
@@ -11,9 +10,7 @@ import {
   useGetTokenTransfersById,
 } from "@/common/react-query/token/api";
 import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
-import { debounce } from "@/common/utils/string-util";
 import { ACTIVITY_TAB, INVENTORY_TAB, NFT_COLLECTION_DETAIL_TABS } from "@/common/values/activity-tab.constant";
-import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 import { ListPagination } from "../../common/list-pagination/ListPagination";
 import DataListSection from "../../details-data-section/data-list-section";
@@ -53,28 +50,7 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
   } = useGetTokenMetaInternalTransactionsById({ path: tokenKey }, { enabled: !!tokenKey });
   const { data: holdersData } = useGetRealmHoldersByPath({ path: tokenKey, page: 1 });
 
-  // Events filters are restored with the history entry, so back/forward keeps the loaded list.
-  const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`nft:${tokenKey}:eventTypeInput`, "");
-  const [eventType, setEventType] = useHistoryEntryState(`nft:${tokenKey}:eventType`, "");
-  const [includeStorage, setIncludeStorage] = useHistoryEntryState(`nft:${tokenKey}:includeStorage`, false);
-  const debouncedSetEventType = React.useMemo(() => debounce(setEventType, 300), [setEventType]);
-
-  // A different collection or filter starts again from page 1.
-  const eventsScope = `${tokenKey}:${eventType}:${includeStorage}`;
-  const [eventsPage, setEventsPage] = useListPagination("nft-events", eventsScope);
-  const {
-    data: eventData,
-    isFetched: isFetchedEventData,
-    isPreviousData: isEventDataPreviousData,
-  } = useGetTokenEventsById(
-    { path: tokenKey, eventType: eventType || undefined, includeStorage, page: eventsPage },
-    { enabled: !!tokenKey },
-  );
-  // Tab badge counts every collection event, independent of the list filters.
-  const { data: eventCountData } = useGetTokenEventsById(
-    { path: tokenKey, includeStorage: true, page: 1, limit: 1 },
-    { enabled: !!tokenKey },
-  );
+  const events = useActivityEvents("nft", tokenKey, useGetTokenEventsById, { enabled: !!tokenKey });
 
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const tokenTransfers = React.useMemo(() => transfersData?.pages.flatMap(page => page.items) ?? [], [transfersData]);
@@ -82,17 +58,12 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
     () => internalData?.pages.flatMap(page => page.items) ?? [],
     [internalData],
   );
-  const collectionEvents = React.useMemo(
-    () => RealmMapper.realmEventFromApiResponses(eventData?.items ?? []),
-    [eventData?.items],
-  );
-
   const tabSizes: Record<(typeof NFT_COLLECTION_DETAIL_TABS)[number], number | undefined> = {
     [INVENTORY_TAB]: inventoryData?.page.totalCount,
     [ACTIVITY_TAB.TRANSACTIONS]: directData?.pages[0]?.page.totalCount,
     [ACTIVITY_TAB.TOKEN_TRANSFERS]: transfersData?.pages[0]?.page.totalCount,
     [ACTIVITY_TAB.INTERNAL_TRANSACTIONS]: internalData?.pages[0]?.page.totalCount,
-    [ACTIVITY_TAB.EVENTS]: eventCountData?.page.totalCount,
+    [ACTIVITY_TAB.EVENTS]: events.allCount,
     [ACTIVITY_TAB.HOLDERS]: holdersData?.page.totalCount,
   };
   const tabs = NFT_COLLECTION_DETAIL_TABS.map(tabName => ({ tabName, size: tabSizes[tabName] }));
@@ -132,30 +103,12 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
       )}
       {currentTab === ACTIVITY_TAB.EVENTS && (
         <>
-          <ActivityEventsFilterBar
-            eventType={eventTypeInput}
-            onEventTypeChange={value => {
-              setEventTypeInput(value);
-              debouncedSetEventType(value.trim());
-            }}
-            includeStorage={includeStorage}
-            onIncludeStorageChange={setIncludeStorage}
-          />
+          <ActivityEventsFilterBar {...events.filterBar} />
           <StandardNetworkEventDatatable
             variant="activity"
-            isFetched={isFetchedEventData}
-            events={collectionEvents}
-            footer={
-              <ListPagination
-                page={eventsPage}
-                pageSize={DEFAULT_LIST_ITEMS_SIZE}
-                totalCount={eventData?.page.totalCount}
-                hasNext={eventData?.page.hasNext}
-                isSettled={!isEventDataPreviousData}
-                scope={eventsScope}
-                onChangePage={setEventsPage}
-              />
-            }
+            isFetched={events.isFetched}
+            events={events.events}
+            footer={<ListPagination {...events.pagination} />}
           />
         </>
       )}

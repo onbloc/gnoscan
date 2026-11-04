@@ -19,12 +19,9 @@ import {
 } from "@/common/react-query/token/api";
 import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api";
 import { useNetwork } from "@/common/hooks/use-network";
-import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
-import { debounce } from "@/common/utils/string-util";
-import { useListPagination } from "@/common/hooks/common/use-list-pagination";
-import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
+import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
-import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import Text from "@/components/ui/text";
 import styled from "styled-components";
 
@@ -73,61 +70,32 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { enabled: !isCustomNetwork && !!tokenPath },
   );
   // Hosted tokens are paged per realm; a different realm starts again from page 1.
-  const [hostedPage, setHostedPage] = useListPagination("hosted-tokens", realmPath);
-  const { data: hostedTokensData, isPreviousData: isHostedTokensPreviousData } = useGetTokens(
-    { packagePath: realmPath, page: hostedPage },
+  const hosted = usePagedList(
+    "hosted-tokens",
+    realmPath,
+    useGetTokens,
+    { packagePath: realmPath },
     {
       enabled: !isCustomNetwork && isFactoryRealm && !!realmPath && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS,
     },
   );
 
-  // Events filters are restored with the history entry, so back/forward keeps the loaded list.
-  const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`token:${tokenPath}:eventTypeInput`, "");
-  const [eventType, setEventType] = useHistoryEntryState(`token:${tokenPath}:eventType`, "");
-  const [includeStorage, setIncludeStorage] = useHistoryEntryState(`token:${tokenPath}:includeStorage`, false);
-  const debouncedSetEventType = React.useMemo(() => debounce(setEventType, 300), [setEventType]);
-
-  const handleEventTypeChange = (value: string) => {
-    setEventTypeInput(value);
-    debouncedSetEventType(value.trim());
-  };
-
-  // A different token or filter starts again from page 1.
-  const eventsScope = `${tokenPath}:${eventType}:${includeStorage}`;
-  const [eventsPage, setEventsPage] = useListPagination("token-events", eventsScope);
-  const {
-    data: eventData,
-    isFetched: isFetchedEventData,
-    isPreviousData: isEventDataPreviousData,
-  } = useGetTokenEventsById(
-    { path: tokenPath, eventType: eventType || undefined, includeStorage, page: eventsPage },
-    { enabled: !isCustomNetwork && !!tokenPath },
-  );
-  // Tab badge counts every token event, independent of the list filters.
-  const { data: eventCountData } = useGetTokenEventsById(
-    { path: tokenPath, includeStorage: true, page: 1, limit: 1 },
-    { enabled: !isCustomNetwork && !!tokenPath },
-  );
+  const events = useActivityEvents("token", tokenPath, useGetTokenEventsById, {
+    enabled: !isCustomNetwork && !!tokenPath,
+  });
 
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
   const tokenTransfers = React.useMemo(() => transfersData?.pages.flatMap(page => page.items) ?? [], [transfersData]);
   // Guard against an API without the packagePath filter, which returns the global token list.
   const hostedTokens = React.useMemo(
-    () => hostedTokensData?.items.filter(token => token.path === realmPath) ?? [],
-    [hostedTokensData, realmPath],
+    () => hosted.items.filter(token => token.path === realmPath),
+    [hosted.items, realmPath],
   );
   const internalTransactions = React.useMemo(
     () => internalData?.pages.flatMap(page => page.items) ?? [],
     [internalData],
   );
-  const tokenEvents = React.useMemo(
-    () => (eventData ? RealmMapper.realmEventFromApiResponses(eventData.items) : []),
-    [eventData],
-  );
-
-  const totalEventCount = eventCountData?.page.totalCount;
-
   const transactionsCount = directData?.pages[0]?.page.totalCount;
   const holdersCount = holdersData?.page.totalCount;
 
@@ -141,7 +109,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
       { tabName: TOKEN_DETAIL_TABS[1], size: isNativeUnavailable ? 0 : nativeData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[2], size: transfersData?.pages[0]?.page.totalCount },
       { tabName: TOKEN_DETAIL_TABS[3], size: internalData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[4], size: totalEventCount },
+      { tabName: TOKEN_DETAIL_TABS[4], size: events.allCount },
       { tabName: TOKEN_DETAIL_TABS[5], size: holdersCount },
     ];
   }, [
@@ -152,7 +120,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     nativeData,
     transfersData,
     internalData,
-    totalEventCount,
+    events.allCount,
     holdersCount,
   ]);
 
@@ -191,15 +159,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
                   </HostedTokenList>
                 )}
               </FactorySummary>
-              <ListPagination
-                page={hostedPage}
-                pageSize={DEFAULT_LIST_ITEMS_SIZE}
-                totalCount={hostedTokensData?.page.totalCount}
-                hasNext={hostedTokensData?.page.hasNext}
-                isSettled={!isHostedTokensPreviousData}
-                scope={realmPath}
-                onChangePage={setHostedPage}
-              />
+              <ListPagination {...hosted.pagination} />
             </FactoryNotice>
           )}
           <ActivityDatatable
@@ -234,27 +194,12 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.EVENTS && (
         <>
-          <ActivityEventsFilterBar
-            eventType={eventTypeInput}
-            onEventTypeChange={handleEventTypeChange}
-            includeStorage={includeStorage}
-            onIncludeStorageChange={setIncludeStorage}
-          />
+          <ActivityEventsFilterBar {...events.filterBar} />
           <StandardNetworkEventDatatable
             variant="activity"
-            isFetched={isFetchedEventData}
-            events={tokenEvents}
-            footer={
-              <ListPagination
-                page={eventsPage}
-                pageSize={DEFAULT_LIST_ITEMS_SIZE}
-                totalCount={eventData?.page.totalCount}
-                hasNext={eventData?.page.hasNext}
-                isSettled={!isEventDataPreviousData}
-                scope={eventsScope}
-                onChangePage={setEventsPage}
-              />
-            }
+            isFetched={events.isFetched}
+            events={events.events}
+            footer={<ListPagination {...events.pagination} />}
           />
         </>
       )}

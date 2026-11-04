@@ -3,8 +3,8 @@ import { UseQueryOptions, UseQueryResult } from "react-query";
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTokenHoldersResponse } from "@/repositories/api/token/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { GetTokenHoldersRequest } from "@/repositories/api/token/request";
 
 /**
@@ -23,15 +23,12 @@ export const useGetTokenHoldersByid = (
 ): UseQueryResult<GetTokenHoldersResponse, Error> => {
   const { apiTokenRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery<GetTokenHoldersResponse, Error, typeof apiTokenRepository>(
-    [QUERY_KEY.getTokenHoldersById, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getTokenHoldersById],
+    params,
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    repository =>
-      repository!.getTokenHolders({
-        ...params,
-        limit: params.limit ?? DEFAULT_LIST_ITEMS_SIZE,
-      }),
-    { keepPreviousData: true, ...options },
+    (repository, pageParams) => repository.getTokenHolders(pageParams),
+    options,
   );
 };

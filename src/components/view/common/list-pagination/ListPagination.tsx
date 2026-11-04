@@ -2,7 +2,7 @@ import React from "react";
 
 import { Pagination } from "@/components/ui/pagination";
 
-interface ListPaginationProps {
+export interface ListPaginationProps {
   page: number;
   pageSize: number;
   // Undefined while the response is missing (loading or failed)
