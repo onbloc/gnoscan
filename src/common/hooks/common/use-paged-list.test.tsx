@@ -97,3 +97,32 @@ it("counts as fetched while the rows of the previous page are shown", () => {
 
   expect(current.isFetched).toBe(false);
 });
+
+it("numbers the rows from the page on screen while the next page loads", () => {
+  mockPage = 1;
+  query.mockReturnValue({
+    data: { items: [], page: { hasNext: true, totalCount: 80 } },
+    isFetched: true,
+    isPreviousData: false,
+  });
+  const root = createRoot(document.createElement("div"));
+  act(() => root.render(<Probe />));
+  expect(current.startIndex).toBe(0);
+
+  mockPage = 2;
+  query.mockReturnValue({
+    data: { items: [], page: { hasNext: false, totalCount: 80 } },
+    isFetched: false,
+    isPreviousData: true,
+  });
+  act(() => root.render(<Probe />));
+  expect(current.startIndex).toBe(0);
+
+  query.mockReturnValue({
+    data: { items: [], page: { hasNext: false, totalCount: 80 } },
+    isFetched: true,
+    isPreviousData: false,
+  });
+  act(() => root.render(<Probe />));
+  expect(current.startIndex).toBe(40);
+});

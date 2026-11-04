@@ -11,12 +11,17 @@ interface BlockInfoContainerProps {
 
 const BlockInfoContainer = ({ blockHeight }: BlockInfoContainerProps) => {
   const [currentTab, setCurrentTab] = React.useState("Transactions");
-  const { isCustomNetwork } = useNetworkProvider();
+  const { isCustomNetwork, currentNetwork } = useNetworkProvider();
 
   return isCustomNetwork ? (
     <CustomNetworkBlockInfo blockHeight={blockHeight} currentTab={currentTab} setCurrentTab={setCurrentTab} />
   ) : (
-    <StandardNetworkBlockInfo blockHeight={blockHeight} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+    <StandardNetworkBlockInfo
+      key={`${currentNetwork?.chainId}:${blockHeight}`}
+      blockHeight={blockHeight}
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    />
   );
 };
 

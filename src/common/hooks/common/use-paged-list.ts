@@ -1,6 +1,7 @@
 import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useShownPage } from "@/common/hooks/common/use-shown-page";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import { ListPaginationProps } from "@/components/view/common/list-pagination/ListPagination";
 
@@ -32,6 +33,7 @@ export const usePagedList = <TResponse extends PagedResponse, TParams>(
   const pageSize = params.limit ?? DEFAULT_LIST_ITEMS_SIZE;
   const [page, setPage] = useListPagination(name, scope);
   const { data, isFetched, isLoading, isPreviousData } = useQuery({ ...params, page } as TParams, options);
+  const shownPage = useShownPage(page, isPreviousData);
 
   const pagination: ListPaginationProps = {
     page,
@@ -53,8 +55,8 @@ export const usePagedList = <TResponse extends PagedResponse, TParams>(
     isFetched: isFetched || isPreviousData,
     isLoading,
     isPreviousData,
-    /** Position of the first row of the page in the whole list, to number the rows. */
-    startIndex: (page - 1) * pageSize,
+    /** Position of the first row on screen in the whole list, to number the rows (not the page being loaded). */
+    startIndex: (shownPage - 1) * pageSize,
     pagination,
   };
 };

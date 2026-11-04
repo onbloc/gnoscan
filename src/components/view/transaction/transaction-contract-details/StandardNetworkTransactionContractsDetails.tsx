@@ -80,7 +80,8 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
   return (
     <React.Fragment>
       {messages.map((message, i) => (
-        <S.ContractListBox key={i}>
+        // Keyed by position in the whole transaction, so a message of another page never reuses a viewer's state.
+        <S.ContractListBox key={startIndex + i}>
           {transactionItem.numOfMessage > 1 && (
             <Text type="h6" color="primary" margin="0px 0px 12px">{`#${startIndex + i + 1}`}</Text>
           )}
