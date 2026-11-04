@@ -21,7 +21,8 @@ import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant
  * @returns Original block data fetched from the API and the status of the query
  */
 export const useGetBlocks = (
-  params: GetBlocksRequestParameters = {},
+  // The page size is fixed: the list components number rows and pages by `DEFAULT_LIST_ITEMS_SIZE`.
+  params: Omit<GetBlocksRequestParameters, "limit"> & { limit?: never } = {},
   options?: UseQueryOptions<GetBlocksResponse, Error, GetBlocksResponse>,
 ): UseQueryResult<GetBlocksResponse, Error> => {
   const { apiBlockRepository } = useServiceProvider();

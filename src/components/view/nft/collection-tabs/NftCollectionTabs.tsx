@@ -58,6 +58,7 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
     () => internalData?.pages.flatMap(page => page.items) ?? [],
     [internalData],
   );
+
   const tabSizes: Record<(typeof NFT_COLLECTION_DETAIL_TABS)[number], number | undefined> = {
     [INVENTORY_TAB]: inventoryData?.page.totalCount,
     [ACTIVITY_TAB.TRANSACTIONS]: directData?.pages[0]?.page.totalCount,

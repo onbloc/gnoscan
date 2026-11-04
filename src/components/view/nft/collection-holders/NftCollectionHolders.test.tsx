@@ -55,6 +55,6 @@ it("requests the saved page and keeps the rank counting across pages", () => {
 
   act(() => root.render(<NftCollectionHolders tokenKey="gno.land/r/nft" />));
 
-  expect(mockUseGetRealmHoldersByPath).toHaveBeenCalledWith({ path: "gno.land/r/nft", page: 3 }, undefined);
+  expect(mockUseGetRealmHoldersByPath.mock.calls[0][0]).toEqual({ path: "gno.land/r/nft", page: 3 });
   expect(mockDatatable.mock.calls[0][0].datas.map(row => row.rank)).toEqual([81, 82]);
 });

@@ -21,7 +21,8 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  * @returns Original realms data with pagination information and the status of the query
  */
 export const useGetRealms = (
-  params: GetRealmsRequestParameters = {},
+  // The page size is fixed: the list components number rows and pages by `DEFAULT_LIST_ITEMS_SIZE`.
+  params: Omit<GetRealmsRequestParameters, "limit"> & { limit?: never } = {},
   options?: UseQueryOptions<GetRealmsResponse, Error, GetRealmsResponse>,
 ): UseQueryResult<GetRealmsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();

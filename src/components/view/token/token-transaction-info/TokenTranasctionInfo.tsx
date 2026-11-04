@@ -96,6 +96,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     () => internalData?.pages.flatMap(page => page.items) ?? [],
     [internalData],
   );
+
   const transactionsCount = directData?.pages[0]?.page.totalCount;
   const holdersCount = holdersData?.page.totalCount;
 

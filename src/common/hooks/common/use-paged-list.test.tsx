@@ -23,13 +23,24 @@ beforeAll(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 });
 
+const roots: ReturnType<typeof createRoot>[] = [];
+const mount = () => {
+  const root = createRoot(document.createElement("div"));
+  roots.push(root);
+  return root;
+};
+
 beforeEach(() => {
   mockPage = 1;
   query.mockReset();
 });
 
+afterEach(() => {
+  act(() => roots.splice(0).forEach(root => root.unmount()));
+});
+
 const render = (limit?: number) => {
-  const root = createRoot(document.createElement("div"));
+  const root = mount();
   act(() => root.render(<Probe limit={limit} />));
   return root;
 };
@@ -105,7 +116,7 @@ it("numbers the rows from the page on screen while the next page loads", () => {
     isFetched: true,
     isPreviousData: false,
   });
-  const root = createRoot(document.createElement("div"));
+  const root = mount();
   act(() => root.render(<Probe />));
   expect(current.startIndex).toBe(0);
 

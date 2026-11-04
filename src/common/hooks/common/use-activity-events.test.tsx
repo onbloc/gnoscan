@@ -36,27 +36,41 @@ beforeEach(() => {
   query.mockReturnValue({ data: { items: [], page: { hasNext: false, totalCount: 7 } } });
 });
 
-it("counts every event of the target for the tab badge, apart from the list filters", () => {
+const roots: ReturnType<typeof createRoot>[] = [];
+const mount = () => {
   const root = createRoot(document.createElement("div"));
+  roots.push(root);
+  return root;
+};
+
+afterEach(() => {
+  jest.useRealTimers();
+  act(() => roots.splice(0).forEach(root => root.unmount()));
+});
+
+it("counts every event of the target for the tab badge, apart from the list filters", () => {
+  const root = mount();
   act(() => root.render(<Probe />));
 
   expect(query).toHaveBeenCalledWith({ path: "gno.land/r/demo", includeStorage: true, page: 1, limit: 1 }, undefined);
   expect(current.allCount).toBe(7);
 });
 
-it("lists again from page 1 when a filter changes", () => {
-  const root = createRoot(document.createElement("div"));
+it("applies the event type to the list only after the debounce, trimmed", () => {
+  jest.useFakeTimers();
+  const root = mount();
   act(() => root.render(<Probe />));
-  expect(mockUsePagedList).toHaveBeenLastCalledWith(
-    "realm-events",
-    "gno.land/r/demo::false",
-    query,
-    { path: "gno.land/r/demo", eventType: undefined, includeStorage: false },
-    undefined,
-  );
 
-  act(() => current.filterBar.onIncludeStorageChange(true));
+  act(() => current.filterBar.onEventTypeChange("  Transfer "));
+  // The input shows what is typed at once; the list is not filtered yet.
+  expect(current.filterBar.eventType).toBe("  Transfer ");
+  expect(mockUsePagedList.mock.lastCall?.[3].eventType).toBeUndefined();
 
-  // The page is kept per scope, so a new scope shows page 1.
-  expect(mockUsePagedList.mock.lastCall?.[1]).toBe("gno.land/r/demo::true");
+  act(() => jest.advanceTimersByTime(299));
+  expect(mockUsePagedList.mock.lastCall?.[3].eventType).toBeUndefined();
+
+  act(() => jest.advanceTimersByTime(1));
+  expect(mockUsePagedList.mock.lastCall?.[3].eventType).toBe("Transfer");
+  // A new filter is a new scope, which starts again from page 1.
+  expect(mockUsePagedList.mock.lastCall?.[1]).toBe("gno.land/r/demo:Transfer:false");
 });

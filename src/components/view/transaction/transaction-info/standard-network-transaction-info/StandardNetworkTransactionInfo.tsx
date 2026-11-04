@@ -54,9 +54,7 @@ const StandardNetworkTransactionInfo = ({
     txHash,
     useGetTransactionEventsByHeight,
     { txHash },
-    {
-      enabled: apiStatus === "confirmed",
-    },
+    { enabled: apiStatus === "confirmed" },
   );
 
   // The summary card covers the whole transaction, so it keeps the first page of messages while the list pages.
