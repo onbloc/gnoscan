@@ -15,7 +15,6 @@ import {
   getRunCalledRealms,
 } from "@/common/utils/transaction-list.utility";
 import { useGetTransactionContractsByHeight } from "@/common/react-query/transaction/api";
-import { useFetchRemainingPages } from "@/common/hooks/common/use-fetch-remaining-pages";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useGetNftCollectionMetaQuery, useGetTokenMetaQuery } from "@/common/react-query/meta";
 interface Props {
@@ -81,14 +80,12 @@ const RunRealmLabel = ({ txHash, fallback }: { txHash: string; fallback?: Functi
   const [ref, inView] = useInViewOnce<HTMLDivElement>();
   // Each run row fetches its own contracts, so only rows that reached the screen do.
   // A confirmed transaction never changes, and the label is only a hint, so do not refetch or retry.
-  const contractsQuery = useGetTransactionContractsByHeight(
-    { txHash },
+  // Only the first page of messages is read: a run transaction has few messages.
+  const { data } = useGetTransactionContractsByHeight(
+    { txHash, page: 1 },
     { enabled: inView, staleTime: Infinity, retry: false },
   );
-  // A later page can hold another run message, so load them all before counting the realms.
-  useFetchRemainingPages(contractsQuery, inView);
-  const { data } = contractsQuery;
-  const realms = getRunCalledRealms(data?.pages.flatMap(page => page.items) ?? []);
+  const realms = getRunCalledRealms(data?.items ?? []);
   const label: FunctionRealmLabel | undefined =
     realms.length > 0 ? { kind: "run", packagePath: realms[0], moreCount: realms.length - 1 } : fallback;
 

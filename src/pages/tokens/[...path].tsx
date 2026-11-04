@@ -16,7 +16,7 @@ export default function Page() {
   const { path } = router.query;
   const tokenId = (Array.isArray(path) ? path.join("/").split("?")[0] : path?.toString()) || "";
 
-  const { isCustomNetwork } = useNetworkProvider();
+  const { isCustomNetwork, currentNetwork } = useNetworkProvider();
   // GRC721 collections share this route with GRC20 tokens; token-meta tells them apart.
   // A failed lookup must not hold GRC20 pages behind the skeleton through react-query's retries.
   const { data: tokenMeta, isFetched: isFetchedTokenMeta } = useGetTokenMetaByPath(tokenId, {
@@ -33,7 +33,13 @@ export default function Page() {
       <TokenLayout
         title="NFT Details"
         tokenSummary={<NftCollectionSummary tokenKey={tokenId} />}
-        tokenTransactionInfo={<NftCollectionTabs tokenKey={tokenId} symbol={tokenMeta.data.symbol} />}
+        tokenTransactionInfo={
+          <NftCollectionTabs
+            key={`${currentNetwork?.chainId}:${tokenId}`}
+            tokenKey={tokenId}
+            symbol={tokenMeta.data.symbol}
+          />
+        }
       />
     );
   }

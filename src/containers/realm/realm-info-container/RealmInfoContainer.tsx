@@ -15,7 +15,7 @@ interface RealmInfoContainerProps {
 }
 
 const RealmInfoContainer = ({ path }: RealmInfoContainerProps) => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { isCustomNetwork, currentNetwork } = useNetworkProvider();
 
   const [currentTab, setCurrentTab] = useHistoryEntryState<string>(`realm:${path}:tab`, ACTIVITY_TAB.TRANSACTIONS);
 
@@ -28,7 +28,12 @@ const RealmInfoContainer = ({ path }: RealmInfoContainerProps) => {
   return isCustomNetwork ? (
     <CustomNetworkRealmInfo path={path} currentTab={currentTab} setCurrentTab={setCurrentTab} />
   ) : (
-    <StandardNetworkRealmInfo path={path} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+    <StandardNetworkRealmInfo
+      key={`${currentNetwork?.chainId}:${path}`}
+      path={path}
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    />
   );
 };
 

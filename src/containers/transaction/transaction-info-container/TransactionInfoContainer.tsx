@@ -12,7 +12,7 @@ interface TransactionInfoContainerProps {
 }
 
 const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { isCustomNetwork, currentNetwork } = useNetworkProvider();
 
   const [currentTab, setCurrentTab] = React.useState("Messages");
 
@@ -29,6 +29,7 @@ const TransactionInfoContainer = ({ txHash }: TransactionInfoContainerProps) => 
     />
   ) : (
     <StandardNetworkTransactionInfo
+      key={`${currentNetwork?.chainId}:${txHash}`}
       txHash={txHash}
       currentTab={currentTab}
       setCurrentTab={setCurrentTab}

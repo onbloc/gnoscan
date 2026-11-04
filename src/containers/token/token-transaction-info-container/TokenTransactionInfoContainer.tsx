@@ -11,7 +11,7 @@ interface TokenTransactionInfoContainerProps {
 }
 
 const TokenTransactionInfoContainer = ({ tokenId }: TokenTransactionInfoContainerProps) => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { isCustomNetwork, currentNetwork } = useNetworkProvider();
   const [currentTab, setCurrentTab] = useHistoryEntryState<string>(`token:${tokenId}:tab`, ACTIVITY_TAB.TRANSACTIONS);
 
   React.useEffect(() => {
@@ -22,6 +22,7 @@ const TokenTransactionInfoContainer = ({ tokenId }: TokenTransactionInfoContaine
 
   return (
     <TokenTransactionInfo
+      key={`${currentNetwork?.chainId}:${tokenId}`}
       tokenPath={tokenId}
       isCustomNetwork={isCustomNetwork}
       currentTab={currentTab}

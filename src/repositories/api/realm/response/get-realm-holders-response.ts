@@ -12,8 +12,7 @@ export interface RealmHolderModel {
 export interface GetRealmHoldersResponse {
   items: RealmHolderModel[];
   page: {
-    cursor?: string;
     hasNext: boolean;
-    totalCount?: number;
+    totalCount: number;
   };
 }

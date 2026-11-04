@@ -29,7 +29,10 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
   rawTransaction: Transaction | null;
   getUrlWithNetwork: (uri: string) => string;
   storageDepositInfo?: StorageDeposit | null;
-}> = ({ transactionItem, getUrlWithNetwork, rawTransaction }) => {
+  // Position of the first message in the whole transaction, when only one page of messages is shown.
+  startIndex?: number;
+  footer?: React.ReactNode;
+}> = ({ transactionItem, getUrlWithNetwork, rawTransaction, startIndex = 0, footer }) => {
   const messages: TransactionContractModel[] = React.useMemo(() => {
     if (!transactionItem?.messages) {
       return [];
@@ -77,9 +80,10 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
   return (
     <React.Fragment>
       {messages.map((message, i) => (
-        <S.ContractListBox key={i}>
+        // Keyed by position in the whole transaction, so a message of another page never reuses a viewer's state.
+        <S.ContractListBox key={startIndex + i}>
           {transactionItem.numOfMessage > 1 && (
-            <Text type="h6" color="primary" margin="0px 0px 12px">{`#${i + 1}`}</Text>
+            <Text type="h6" color="primary" margin="0px 0px 12px">{`#${startIndex + i + 1}`}</Text>
           )}
 
           {message.messageType === MESSAGE_TYPES.BANK_MSG_SEND && (
@@ -93,7 +97,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           {message.messageType === MESSAGE_TYPES.VM_ADDPKG && (
             <StandardNetworkAddPackageMessage
               message={message}
-              files={getMessageFiles(i) || []}
+              files={getMessageFiles(startIndex + i) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
@@ -101,7 +105,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           {message.messageType === MESSAGE_TYPES.VM_RUN && (
             <StandardNetworkMsgRunMessage
               message={message}
-              files={getMessageFiles(i) || []}
+              files={getMessageFiles(startIndex + i) || []}
               getUrlWithNetwork={getUrlWithNetwork}
             />
           )}
@@ -124,6 +128,7 @@ export const StandardNetworkTransactionContractDetails: React.FC<{
           )}
         </S.ContractListBox>
       ))}
+      {footer}
       {showLog && <ShowLog isTabLog={false} logData={showLog} btnTextType="Logs" />}
     </React.Fragment>
   );

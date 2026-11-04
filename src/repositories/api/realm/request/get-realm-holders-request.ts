@@ -2,7 +2,7 @@
 export interface GetRealmHoldersRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

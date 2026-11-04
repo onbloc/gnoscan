@@ -1,11 +1,11 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionEventsRequest } from "@/repositories/api/transaction/request";
 import { GetTransactionEventsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get transaction events data for a specific transaction hash from the API
@@ -23,20 +23,21 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  */
 export const useGetTransactionEventsByHeight = (
   params: GetTransactionEventsRequest,
-  options?: UseInfiniteQueryOptions<GetTransactionEventsResponse, Error, GetTransactionEventsResponse>,
-): UseInfiniteQueryResult<GetTransactionEventsResponse, Error> => {
+  options?: UseQueryOptions<GetTransactionEventsResponse, Error, GetTransactionEventsResponse>,
+): UseQueryResult<GetTransactionEventsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetTransactionEventsResponse, Error, typeof apiTransactionRepository>(
+  return useApiRepositoryQuery<GetTransactionEventsResponse, Error, typeof apiTransactionRepository>(
     [QUERY_KEY.getTransactionEventsByHash, params],
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    (repository, cursor) =>
+    repository =>
       repository!.getTransactionEvents({
         ...params,
-        cursor,
+        limit: params.limit ?? DEFAULT_LIST_ITEMS_SIZE,
       }),
     {
+      keepPreviousData: true,
       ...options,
       enabled: (options?.enabled ?? true) && !!params.txHash,
     },

@@ -1,11 +1,11 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlockTransactionsRequest } from "@/repositories/api/block/request";
 import { GetBlockTransactionsResponse } from "@/repositories/api/block/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import { isValidBlockHeight } from "@/common/utils/string-util";
 
 /**
@@ -23,20 +23,21 @@ import { isValidBlockHeight } from "@/common/utils/string-util";
  */
 export const useGetBlockTransactionsByHeight = (
   params: GetBlockTransactionsRequest,
-  options?: UseInfiniteQueryOptions<GetBlockTransactionsResponse, Error, GetBlockTransactionsResponse>,
-): UseInfiniteQueryResult<GetBlockTransactionsResponse, Error> => {
+  options?: UseQueryOptions<GetBlockTransactionsResponse, Error, GetBlockTransactionsResponse>,
+): UseQueryResult<GetBlockTransactionsResponse, Error> => {
   const { apiBlockRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetBlockTransactionsResponse, Error, typeof apiBlockRepository>(
+  return useApiRepositoryQuery<GetBlockTransactionsResponse, Error, typeof apiBlockRepository>(
     [QUERY_KEY.getBlockTransactionsByHeight, params],
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    (repository, cursor) =>
+    repository =>
       repository!.getBlockTransactions({
         ...params,
-        cursor,
+        limit: params.limit ?? DEFAULT_LIST_ITEMS_SIZE,
       }),
     {
+      keepPreviousData: true,
       ...options,
       enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false,
     },

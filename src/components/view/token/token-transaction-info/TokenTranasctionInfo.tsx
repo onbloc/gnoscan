@@ -69,7 +69,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     fetchNextPage: fetchNextPageInternal,
   } = useGetTokenMetaInternalTransactionsById({ path: tokenPath }, { enabled: !isCustomNetwork && !!tokenPath });
   const { data: holdersData } = useGetTokenHoldersByid(
-    { path: tokenPath },
+    { path: tokenPath, page: 1 },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
   // Hosted tokens are paged per realm; a different realm starts again from page 1.
@@ -92,18 +92,20 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     debouncedSetEventType(value.trim());
   };
 
+  // A different token or filter starts again from page 1.
+  const eventsScope = `${tokenPath}:${eventType}:${includeStorage}`;
+  const [eventsPage, setEventsPage] = useListPagination("token-events", eventsScope);
   const {
     data: eventData,
     isFetched: isFetchedEventData,
-    hasNextPage: hasNextPageEventData,
-    fetchNextPage: fetchNextPageEventData,
+    isPreviousData: isEventDataPreviousData,
   } = useGetTokenEventsById(
-    { path: tokenPath, eventType: eventType || undefined, includeStorage },
+    { path: tokenPath, eventType: eventType || undefined, includeStorage, page: eventsPage },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
   // Tab badge counts every token event, independent of the list filters.
   const { data: eventCountData } = useGetTokenEventsById(
-    { path: tokenPath, includeStorage: true, limit: 1 },
+    { path: tokenPath, includeStorage: true, page: 1, limit: 1 },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
 
@@ -119,16 +121,15 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     () => internalData?.pages.flatMap(page => page.items) ?? [],
     [internalData],
   );
-  const tokenEvents = React.useMemo(() => {
-    if (!eventData?.pages) return [];
-    const allItems = eventData.pages.flatMap(page => page.items);
-    return RealmMapper.realmEventFromApiResponses(allItems);
-  }, [eventData?.pages]);
+  const tokenEvents = React.useMemo(
+    () => (eventData ? RealmMapper.realmEventFromApiResponses(eventData.items) : []),
+    [eventData],
+  );
 
-  const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
+  const totalEventCount = eventCountData?.page.totalCount;
 
   const transactionsCount = directData?.pages[0]?.page.totalCount;
-  const holdersCount = holdersData?.pages[0]?.page.totalCount;
+  const holdersCount = holdersData?.page.totalCount;
 
   const detailTabs = React.useMemo(() => {
     if (isCustomNetwork) {
@@ -241,10 +242,19 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
           />
           <StandardNetworkEventDatatable
             variant="activity"
-            isFetched={isFetchedEventData}
+            isFetched={isFetchedEventData || isEventDataPreviousData}
             events={tokenEvents}
-            hasNextPage={hasNextPageEventData}
-            nextPage={fetchNextPageEventData}
+            footer={
+              <ListPagination
+                page={eventsPage}
+                pageSize={DEFAULT_LIST_ITEMS_SIZE}
+                totalCount={eventData?.page.totalCount}
+                hasNext={eventData?.page.hasNext}
+                isSettled={!isEventDataPreviousData}
+                scope={eventsScope}
+                onChangePage={setEventsPage}
+              />
+            }
           />
         </>
       )}

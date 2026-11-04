@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useGetBlockTransactionsByHeight, useGetBlockTransactionsCount } from "@/common/react-query/block/api";
+import { useGetBlockTransactionsByHeight } from "@/common/react-query/block/api";
 import { Transaction } from "@/types/data-type";
 import { BlockMapper } from "@/common/mapper/block/block-mapper";
 import { GetBlockTransactionsRequest } from "@/repositories/api/block/request";
@@ -25,27 +25,22 @@ export const useMappedApiBlockTransactions = (params: GetBlockTransactionsReques
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
+    isPreviousData,
   } = useGetBlockTransactionsByHeight(params);
 
-  const { data: countData } = useGetBlockTransactionsCount(params.blockHeight);
-
-  const pages = apiData?.pages;
+  const items = apiData?.items;
   const transactions = React.useMemo<Transaction[]>(
-    () => (pages ? BlockMapper.blockTransactionsFromApiResponses(pages.flatMap(page => page.items)) : []),
-    [pages],
+    () => (items ? BlockMapper.blockTransactionsFromApiResponses(items) : []),
+    [items],
   );
-
-  const totalCount = countData?.totalCount;
 
   return {
     data: transactions,
-    totalCount,
+    totalCount: apiData?.page.totalCount,
+    hasNext: apiData?.page.hasNext,
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
+    isPreviousData,
   };
 };

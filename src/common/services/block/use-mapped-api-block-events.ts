@@ -25,26 +25,22 @@ export const useMappedApiBlockEvents = (params: GetBlockEventsRequest) => {
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
+    isPreviousData,
   } = useGetBlockEventsByHeight(params);
 
-  const pages = apiData?.pages;
+  const items = apiData?.items;
   const events = React.useMemo<GnoEvent[]>(
-    () => (pages ? BlockMapper.blockEventsFromApiResponses(pages.flatMap(page => page.items)) : []),
-    [pages],
+    () => (items ? BlockMapper.blockEventsFromApiResponses(items) : []),
+    [items],
   );
-
-  // The API returns the total event count only on the first page.
-  const totalCount = apiData?.pages?.[0]?.page?.totalCount;
 
   return {
     data: events,
-    totalCount,
+    totalCount: apiData?.page.totalCount,
+    hasNext: apiData?.page.hasNext,
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
+    isPreviousData,
   };
 };
