@@ -1,7 +1,7 @@
 export interface GetTokenMetaTransactionsRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

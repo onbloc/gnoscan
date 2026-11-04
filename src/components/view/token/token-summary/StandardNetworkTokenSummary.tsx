@@ -41,9 +41,9 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { data, isFetched } = useGetTokenById(tokenId);
   const { getPriceEntry } = useTokenPrice();
   const { getTokenMeta, getTokenDescription, isSuccess: isTokenResourceLoaded } = useTokenResourceMeta();
-  // Same query as the Token Transfers tab, so the count comes from the shared cache.
-  const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
-  const transferCount = transfersData?.pages[0]?.page.totalCount;
+  // Same query as the first page of the Token Transfers tab, so the count comes from the shared cache.
+  const { data: transfersData } = useGetTokenTransfersById({ path: tokenId, page: 1 }, { enabled: !!tokenId });
+  const transferCount = transfersData?.page.totalCount;
   const isRegistered = data?.data?.isRegYn === "Y";
 
   const tokenSummary: TokenSummary | null = React.useMemo(() => {

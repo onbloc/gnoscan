@@ -1,7 +1,7 @@
 export interface GetAccountDirectTransactionsRequest {
   address: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

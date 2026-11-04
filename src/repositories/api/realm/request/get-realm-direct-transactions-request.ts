@@ -1,7 +1,7 @@
 export interface GetRealmDirectTransactionsRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }
