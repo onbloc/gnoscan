@@ -10,9 +10,9 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { formatTokenDecimal, isWugnotPackagePath } from "@/common/utils/token.utility";
 import { getAddressDisplayText } from "@/common/utils/address-label.utility";
 import { formatUsd, formatUsdWhole, getUsdValue } from "@/common/utils/price.utility";
-import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { GRC20_REGISTRY_PATH, WUGNOT_DISPLAY_NAME } from "@/common/values/constant-value";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import Badge from "@/components/ui/badge";
 import { AddressLink, DescriptionField, Field, FieldWithTooltip } from "@/components/ui/detail-field";
 import { DLWrap } from "@/components/ui/detail-page-common-styles";
@@ -39,8 +39,8 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
 
   const { data, isFetched } = useGetTokenById(tokenId);
-  const { getTokenMeta, getTokenDescription, isSuccess: isTokenResourceLoaded } = useTokenResourceMeta();
   const { getPriceEntry } = useTokenPrice();
+  const { getTokenMeta, getTokenDescription, isSuccess: isTokenResourceLoaded } = useTokenResourceMeta();
   // Same query as the Token Transfers tab, so the count comes from the shared cache.
   const { data: transfersData } = useGetTokenTransfersById({ path: tokenId }, { enabled: !!tokenId });
   const transferCount = transfersData?.pages[0]?.page.totalCount;
@@ -94,9 +94,12 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
 
   if (!isFetched) return <TableSkeleton />;
 
+  // The polled /prices entry wins over the price returned with the token.
   const priceEntry = tokenSummary ? getPriceEntry(tokenSummary.tokenId || tokenSummary.packagePath) : null;
-  const price = priceEntry ? formatUsd(priceEntry.price) : null;
-  const marketCap = priceEntry ? formatUsdWhole(getUsdValue(tokenSummary?.totalSupply ?? 0, priceEntry.price)) : null;
+  const priceValue = priceEntry ? priceEntry.price : data?.data?.price;
+  const changeRate = priceEntry ? priceEntry.changeRateOneDay : data?.data?.changeRateOneDay;
+  const price = formatUsd(priceValue);
+  const marketCap = priceValue ? formatUsdWhole(getUsdValue(tokenSummary?.totalSupply ?? 0, priceValue)) : null;
 
   return (
     <DataSection title="Summary">
@@ -180,7 +183,7 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
               <span>
                 {marketCap ?? "-"} <S.Divider>|</S.Divider> {price}
               </span>
-              <PriceChangeText change={priceEntry?.changeRateOneDay} />
+              <PriceChangeText change={changeRate} />
             </S.PriceText>
           ) : (
             "-"
