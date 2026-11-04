@@ -1,7 +1,7 @@
 export interface GetBlockTransactionsRequest {
   blockHeight: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

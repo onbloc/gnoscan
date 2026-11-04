@@ -1,11 +1,11 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetRealmEventsRequest } from "@/repositories/api/realm/request";
 import { GetRealmEventsResponse } from "@/repositories/api/realm/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get realm events data from the API
@@ -22,20 +22,21 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  */
 export const useGetRealmEventsByPath = (
   params: GetRealmEventsRequest,
-  options?: UseInfiniteQueryOptions<GetRealmEventsResponse, Error, GetRealmEventsResponse>,
-): UseInfiniteQueryResult<GetRealmEventsResponse, Error> => {
+  options?: UseQueryOptions<GetRealmEventsResponse, Error, GetRealmEventsResponse>,
+): UseQueryResult<GetRealmEventsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetRealmEventsResponse, Error, typeof apiRealmRepository>(
+  return useApiRepositoryQuery<GetRealmEventsResponse, Error, typeof apiRealmRepository>(
     [QUERY_KEY.getRealmEventsByPath, params],
     apiRealmRepository,
     API_REPOSITORY_KEY.REALM_REPOSITORY,
-    (repository, cursor) =>
+    repository =>
       repository!.getRealmEvents({
         ...params,
-        cursor,
+        limit: params.limit ?? DEFAULT_LIST_ITEMS_SIZE,
       }),
     {
+      keepPreviousData: true,
       ...options,
       enabled: !!params.path && options?.enabled !== false,
     },

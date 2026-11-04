@@ -1,7 +1,7 @@
 export interface GetTokenHoldersRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

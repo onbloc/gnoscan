@@ -1,7 +1,7 @@
 export interface GetBlockEventsRequest {
   blockHeight: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

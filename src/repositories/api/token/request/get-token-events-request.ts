@@ -1,7 +1,7 @@
 export interface GetTokenEventsRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 

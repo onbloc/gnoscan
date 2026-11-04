@@ -9,14 +9,17 @@ import {
   useGetRealmInternalTransactionsByPath,
 } from "@/common/react-query/realm/api";
 import { debounce } from "@/common/utils/string-util";
+import { useListPagination } from "@/common/hooks/common/use-list-pagination";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 
 import DataListSection from "../../details-data-section/data-list-section";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
 import { ActivityDatatable } from "../../datatable/activity";
 import { REALM_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
+import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 interface RealmInfoProps {
   path: string;
@@ -61,14 +64,16 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     debouncedSetEventType(value.trim());
   };
 
+  // A different realm or filter starts again from page 1.
+  const eventsScope = `${path}:${eventType}:${includeStorage}`;
+  const [eventsPage, setEventsPage] = useListPagination("realm-events", eventsScope);
   const {
     data: eventData,
     isFetched: isFetchedEventData,
-    hasNextPage: hasNextPageEventData,
-    fetchNextPage: fetchNextPageEventData,
-  } = useGetRealmEventsByPath({ path, eventType: eventType || undefined, includeStorage });
+    isPreviousData: isEventDataPreviousData,
+  } = useGetRealmEventsByPath({ path, eventType: eventType || undefined, includeStorage, page: eventsPage });
   // Tab badge counts every realm event, independent of the list filters.
-  const { data: eventCountData } = useGetRealmEventsByPath({ path, includeStorage: true, limit: 1 });
+  const { data: eventCountData } = useGetRealmEventsByPath({ path, includeStorage: true, page: 1, limit: 1 });
 
   const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
   const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
@@ -78,14 +83,12 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     [internalData],
   );
 
-  const realmEvents = React.useMemo(() => {
-    if (!eventData?.pages) return [];
+  const realmEvents = React.useMemo(
+    () => (eventData ? RealmMapper.realmEventFromApiResponses(eventData.items) : []),
+    [eventData],
+  );
 
-    const allItems = eventData.pages.flatMap(page => page.items);
-    return RealmMapper.realmEventFromApiResponses(allItems);
-  }, [eventData?.pages]);
-
-  const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
+  const totalEventCount = eventCountData?.page.totalCount;
 
   const detailTabs = React.useMemo(
     () => [
@@ -154,8 +157,17 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
             variant="activity"
             isFetched={isFetchedEventData}
             events={realmEvents}
-            hasNextPage={hasNextPageEventData}
-            nextPage={fetchNextPageEventData}
+            footer={
+              <ListPagination
+                page={eventsPage}
+                pageSize={DEFAULT_LIST_ITEMS_SIZE}
+                totalCount={eventData?.page.totalCount}
+                hasNext={eventData?.page.hasNext}
+                isSettled={!isEventDataPreviousData}
+                scope={eventsScope}
+                onChangePage={setEventsPage}
+              />
+            }
           />
         </>
       )}

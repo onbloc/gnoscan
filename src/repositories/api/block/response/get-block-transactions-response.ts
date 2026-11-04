@@ -4,7 +4,7 @@ export interface GetBlockTransactionsResponse {
   items: TransactionTableModel[];
 
   page: {
-    cursor: string;
     hasNext: boolean;
+    totalCount: number;
   };
 }

@@ -4,7 +4,6 @@ import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
 import { EventDetail } from "./event-detail";
 import { GnoEvent } from "@/types/data-type";
-import { ViewMoreButton } from "@/components/ui/button";
 
 /**
  * - "default": Block page events (Identifier, Tx Hash, Block, Event Name, Caller, Time).
@@ -15,8 +14,7 @@ export type EventDatatableVariant = "default" | "activity";
 interface Props {
   isFetched: boolean;
   events: GnoEvent[];
-  hasNextPage?: boolean;
-  nextPage?: () => void;
+  footer?: React.ReactNode;
   variant?: EventDatatableVariant;
 }
 
@@ -28,13 +26,7 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const StandardNetworkEventDatatable = ({
-  isFetched,
-  events,
-  hasNextPage,
-  nextPage,
-  variant = "default",
-}: Props) => {
+export const StandardNetworkEventDatatable = ({ isFetched, events, footer, variant = "default" }: Props) => {
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   // Activity widths sum to the 1146px table min-width so columns stay evenly spaced.
   const isActivity = variant === "activity";
@@ -172,8 +164,7 @@ export const StandardNetworkEventDatatable = ({
   return (
     <FlushTableContainer>
       <Datatable loading={!loaded} headers={createHeaders()} datas={events} renderDetails={renderDetails} />
-
-      {hasNextPage && <ViewMoreButton variant="table" text="View More Events" onClick={() => nextPage?.()} />}
+      {footer}
     </FlushTableContainer>
   );
 };

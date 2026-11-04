@@ -11,7 +11,9 @@ import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 import { TokenHolder } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { ViewMoreButton } from "@/components/ui/button";
+import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
 
 interface Props {
   path: string[] | any;
@@ -31,16 +33,15 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   const decimals = resolved?.decimals ?? backendMeta.decimals;
   const symbol = resolved?.symbol ?? backendMeta.symbol;
 
-  const { data, isFetched: isFetchedHolders, hasNextPage, fetchNextPage } = useGetTokenHoldersByid({ path });
+  const [page, setPage] = useListPagination("token-holders", String(path));
+  const { data, isFetched: isFetchedHolders, isPreviousData } = useGetTokenHoldersByid({ path, page });
 
   const tokenHolders: TokenHolder[] = React.useMemo(() => {
-    if (!data?.pages) return [];
+    if (!data) return [];
 
-    const allItems = data.pages.flatMap(page => page.items);
-
-    return allItems.map((item: TokenHolderModel, index: number): TokenHolder => {
+    return data.items.map((item: TokenHolderModel, index: number): TokenHolder => {
       return {
-        rank: index + 1,
+        rank: (page - 1) * DEFAULT_LIST_ITEMS_SIZE + index + 1,
         address: item.address,
         nameTag: getAddressNameTag(item),
         label: item.label,
@@ -52,7 +53,7 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
         percentage: item.percentage,
       };
     });
-  }, [data?.pages, decimals, symbol]);
+  }, [data, page, decimals, symbol]);
 
   if (!isFetchedHolders) return <TableSkeleton />;
 
@@ -119,7 +120,15 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   return (
     <FlushTableContainer>
       <Datatable loading={!isFetchedHolders} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
-      {hasNextPage && <ViewMoreButton variant="table" text="View More Holders" onClick={() => fetchNextPage()} />}
+      <ListPagination
+        page={page}
+        pageSize={DEFAULT_LIST_ITEMS_SIZE}
+        totalCount={data?.page.totalCount}
+        hasNext={data?.page.hasNext}
+        isSettled={!isPreviousData}
+        scope={String(path)}
+        onChangePage={setPage}
+      />
     </FlushTableContainer>
   );
 };

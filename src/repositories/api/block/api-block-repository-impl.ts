@@ -1,13 +1,7 @@
 import { ApiBlockRepository } from "./api-block-repository";
 
 import { GetBlockEventsRequest, GetBlocksRequestParameters, GetBlockTransactionsRequest } from "./request";
-import {
-  GetBlocksResponse,
-  GetBlockResponse,
-  GetBlockEventsResponse,
-  GetBlockTransactionsResponse,
-  GetBlockTransactionsCountResponse,
-} from "./response";
+import { GetBlocksResponse, GetBlockResponse, GetBlockEventsResponse, GetBlockTransactionsResponse } from "./response";
 import { ApiRepository } from "../api-repository";
 
 export class ApiBlockRepositoryImpl extends ApiRepository implements ApiBlockRepository {
@@ -27,9 +21,5 @@ export class ApiBlockRepositoryImpl extends ApiRepository implements ApiBlockRep
   getBlockTransactions(params: GetBlockTransactionsRequest): Promise<GetBlockTransactionsResponse> {
     const { blockHeight, ...queryParams } = params;
     return this.get<GetBlockTransactionsResponse>(`blocks/${blockHeight}/transactions`, queryParams);
-  }
-
-  getBlockTransactionsCount(height: string): Promise<GetBlockTransactionsCountResponse> {
-    return this.get<GetBlockTransactionsCountResponse>(`blocks/${height}/transactions/count`);
   }
 }

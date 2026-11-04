@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 
-import { ViewMoreButton } from "@/components/ui/button";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "..";
 import { FlushTableContainer } from "../datatable.styles";
@@ -11,8 +10,7 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 interface Props {
   transactions: Transaction[];
   isFetched: boolean;
-  hasNextPage?: boolean;
-  nextPage: () => void;
+  footer?: React.ReactNode;
 }
 
 const TOOLTIP_TYPE = (
@@ -23,7 +21,7 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nextPage }: Props) => {
+export const BlockDetailDatatable = ({ transactions, isFetched, footer }: Props) => {
   const { getTokenAmount } = useTokenMeta();
   // Only the standard network has the API that the run label looks up by hash.
   const { isCustomNetwork } = useNetworkProvider();
@@ -144,7 +142,7 @@ export const BlockDetailDatatable = ({ transactions, isFetched, hasNextPage, nex
   return (
     <FlushTableContainer>
       <Datatable loading={!loaded} headers={createHeaders()} datas={transactions} />
-      {hasNextPage && <ViewMoreButton variant="table" text="View More Transactions" onClick={() => nextPage()} />}
+      {footer}
     </FlushTableContainer>
   );
 };

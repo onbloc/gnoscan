@@ -46,10 +46,11 @@ const run = (packagePath: string) => ({
 });
 
 describe("Type", () => {
-  test("a run label counts the realms called on every contracts page", async () => {
-    mockRepository.getTransactionContracts
-      .mockResolvedValueOnce({ items: [run("gno.land/r/demo/a")], page: { hasNext: true, cursor: "next" } })
-      .mockResolvedValueOnce({ items: [run("gno.land/r/demo/b")], page: { hasNext: false, cursor: "" } });
+  test("a run label counts the realms called in the first contracts page", async () => {
+    mockRepository.getTransactionContracts.mockResolvedValueOnce({
+      items: [run("gno.land/r/demo/a"), run("gno.land/r/demo/b")],
+      page: { hasNext: true, totalCount: 80 },
+    });
 
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const container = document.createElement("div");
@@ -63,12 +64,10 @@ describe("Type", () => {
         </QueryClientProvider>,
       ),
     );
-    for (let i = 0; i < 10 && mockRepository.getTransactionContracts.mock.calls.length < 2; i++) {
-      await act(() => delay(10));
-    }
-    await act(() => delay(10));
+    await act(() => delay(20));
 
-    expect(mockRepository.getTransactionContracts).toHaveBeenCalledTimes(2);
+    expect(mockRepository.getTransactionContracts).toHaveBeenCalledTimes(1);
+    expect(mockRepository.getTransactionContracts).toHaveBeenCalledWith({ txHash: "hash", page: 1, limit: 40 });
     expect(container.textContent).toContain("run ·r/demo/a+1");
 
     act(() => root.unmount());
