@@ -7,6 +7,7 @@ import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-ho
 import { ActivityDatatable } from "../../datatable/activity";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
 import {
   useGetTokenHoldersByid,
   useGetTokenMetaByPath,
@@ -20,8 +21,10 @@ import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api
 import { useNetwork } from "@/common/hooks/use-network";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
+import { useListPagination } from "@/common/hooks/common/use-list-pagination";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
+import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 import Text from "@/components/ui/text";
 import styled from "styled-components";
 
@@ -69,12 +72,10 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     { path: tokenPath },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
-  const {
-    data: hostedTokensData,
-    hasNextPage: hasNextHostedTokensPage,
-    fetchNextPage: fetchNextHostedTokensPage,
-  } = useGetTokens(
-    { packagePath: realmPath },
+  // Hosted tokens are paged per realm; a different realm starts again from page 1.
+  const [hostedPage, setHostedPage] = useListPagination("hosted-tokens", realmPath);
+  const { data: hostedTokensData, isPreviousData: isHostedTokensPreviousData } = useGetTokens(
+    { packagePath: realmPath, page: hostedPage },
     {
       enabled: !isCustomNetwork && isFactoryRealm && !!realmPath && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS,
     },
@@ -111,7 +112,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const tokenTransfers = React.useMemo(() => transfersData?.pages.flatMap(page => page.items) ?? [], [transfersData]);
   // Guard against an API without the packagePath filter, which returns the global token list.
   const hostedTokens = React.useMemo(
-    () => hostedTokensData?.pages.flatMap(page => page.items).filter(token => token.path === realmPath) ?? [],
+    () => hostedTokensData?.items.filter(token => token.path === realmPath) ?? [],
     [hostedTokensData, realmPath],
   );
   const internalTransactions = React.useMemo(
@@ -189,11 +190,15 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
                   </HostedTokenList>
                 )}
               </FactorySummary>
-              {hasNextHostedTokensPage && hostedTokens.length > 0 && (
-                <MoreHostedTokensButton type="button" onClick={() => fetchNextHostedTokensPage()}>
-                  View More Tokens
-                </MoreHostedTokensButton>
-              )}
+              <ListPagination
+                page={hostedPage}
+                pageSize={DEFAULT_LIST_ITEMS_SIZE}
+                totalCount={hostedTokensData?.page.totalCount}
+                hasNext={hostedTokensData?.page.hasNext}
+                isSettled={!isHostedTokensPreviousData}
+                scope={realmPath}
+                onChangePage={setHostedPage}
+              />
             </FactoryNotice>
           )}
           <ActivityDatatable
@@ -289,11 +294,4 @@ const FactorySummary = styled.div`
   flex-wrap: wrap;
   gap: 0 4px;
   min-width: 0;
-`;
-
-const MoreHostedTokensButton = styled.button`
-  align-self: flex-start;
-  color: ${({ theme }) => theme.colors.blue};
-  background: none;
-  cursor: pointer;
 `;

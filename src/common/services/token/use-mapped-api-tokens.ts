@@ -19,8 +19,8 @@ import { TokenMapper } from "@/common/mapper/token/token-mapper";
  * you can use data that is already mapped out of the box.
  *
  * @param params - API request parameters
- * @param options - react-query infinite query options
- * @returns Mapped tokens data and query status
+ * @param options - react-query options
+ * @returns Mapped tokens of one page, its paging info and query status
  */
 export const useMappedApiTokens = (
   params?: GetTokensRequestParameters,
@@ -31,22 +31,18 @@ export const useMappedApiTokens = (
     isFetched: isApiFetched,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     isPreviousData,
-  } = useGetTokens(params, { keepPreviousData: true, ...options });
+  } = useGetTokens(params, options);
 
   const { getTokenMeta } = useTokenResourceMeta();
 
-  const pages = apiData?.pages;
+  const items = apiData?.items;
   const tokens = React.useMemo<GRC20InfoWithLogo[]>(() => {
-    if (!pages) {
+    if (!items) {
       return [];
     }
 
-    const allItems = pages.flatMap(page => page.items);
-    return TokenMapper.fromApiResponses(allItems).map(token => {
+    return TokenMapper.fromApiResponses(items).map(token => {
       const resolved = getTokenMeta(token.tokenId || token.packagePath, {
         name: token.name,
         symbol: token.symbol,
@@ -61,7 +57,7 @@ export const useMappedApiTokens = (
         logoUrl: resolved.image || "",
       };
     });
-  }, [pages, getTokenMeta]);
+  }, [items, getTokenMeta]);
 
   return {
     data: tokens,
@@ -70,9 +66,7 @@ export const useMappedApiTokens = (
     isPreviousData,
     isLoading: isApiLoading,
     isError: isApiError,
-    fetchNextPage,
-    // The next cursor of the previous sort does not apply to the new one.
-    hasNextPage: hasNextPage && !isPreviousData,
-    isFetchingNextPage,
+    hasNext: apiData?.page.hasNext,
+    totalCount: apiData?.page.totalCount,
   };
 };
