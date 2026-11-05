@@ -10,12 +10,13 @@ interface AccountTransactionsContainerProps {
 }
 
 const AccountTransactionsContainer = ({ address }: AccountTransactionsContainerProps) => {
-  const { isCustomNetwork } = useNetworkProvider();
+  const { isCustomNetwork, currentNetwork } = useNetworkProvider();
 
   return isCustomNetwork ? (
     <CustomNetworkAccountTransactions address={address} />
   ) : (
-    <StandardNetworkAccountTransactions address={address} />
+    // Remount on account or network change so keepPreviousData does not show the previous identity's rows
+    <StandardNetworkAccountTransactions key={`${currentNetwork?.chainId}:${address}`} address={address} />
   );
 };
 

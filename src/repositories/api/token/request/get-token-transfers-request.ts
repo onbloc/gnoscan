@@ -1,7 +1,7 @@
 export interface GetTokenTransfersRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

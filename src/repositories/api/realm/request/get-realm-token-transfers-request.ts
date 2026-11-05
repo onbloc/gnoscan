@@ -1,7 +1,7 @@
 export interface GetRealmTokenTransfersRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

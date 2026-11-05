@@ -1,27 +1,24 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetAccountDirectTransactionsRequest } from "@/repositories/api/account/request";
 import { GetAccountDirectTransactionsResponse } from "@/repositories/api/account/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 export const useGetAccountDirectTransactions = (
   params: GetAccountDirectTransactionsRequest,
-  options?: UseInfiniteQueryOptions<GetAccountDirectTransactionsResponse, Error, GetAccountDirectTransactionsResponse>,
-): UseInfiniteQueryResult<GetAccountDirectTransactionsResponse, Error> => {
+  options?: UseQueryOptions<GetAccountDirectTransactionsResponse, Error, GetAccountDirectTransactionsResponse>,
+): UseQueryResult<GetAccountDirectTransactionsResponse, Error> => {
   const { apiAccountRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetAccountDirectTransactionsResponse, Error, typeof apiAccountRepository>(
-    [QUERY_KEY.getAccountDirectTransactions, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getAccountDirectTransactions],
+    params,
     apiAccountRepository,
     API_REPOSITORY_KEY.ACCOUNT_REPOSITORY,
-    (repository, cursor) =>
-      repository!.getAccountDirectTransactions({
-        ...params,
-        cursor,
-      }),
+    (repository, pageParams) => repository.getAccountDirectTransactions(pageParams),
     {
       ...CACHE_POLICY.LIVE,
       ...options,
