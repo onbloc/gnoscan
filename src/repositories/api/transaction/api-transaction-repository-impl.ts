@@ -3,6 +3,7 @@ import { ApiTransactionRepository } from "./api-transaction-repository";
 import {
   GetTransactionContractsRequest,
   GetTransactionEventsRequest,
+  GetTransactionFunctionNamesRequestParameters,
   GetTransactionsRequestParameters,
 } from "./request";
 import {
@@ -11,12 +12,26 @@ import {
   GetTransactionPendingResponse,
   GetTransactionContractsResponse,
   GetTransactionEventsResponse,
+  GetTransactionFunctionNamesResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
+import { encodeQueryValue } from "@/common/utils/string-util";
 
 export class ApiTransactionRepositoryImpl extends ApiRepository implements ApiTransactionRepository {
   getTransactions(params: GetTransactionsRequestParameters): Promise<GetTransactionsResponse> {
-    return this.get<GetTransactionsResponse>("transactions", { ...params });
+    return this.get<GetTransactionsResponse>("transactions", {
+      ...params,
+      function: encodeQueryValue(params.function),
+      functionKeyword: encodeQueryValue(params.functionKeyword),
+    });
+  }
+
+  getTransactionFunctionNames(
+    params: GetTransactionFunctionNamesRequestParameters,
+  ): Promise<GetTransactionFunctionNamesResponse> {
+    return this.get<GetTransactionFunctionNamesResponse>("transactions/functions", {
+      keyword: encodeQueryValue(params.keyword),
+    });
   }
 
   getTransaction(hash: string): Promise<GetTransactionResponse> {

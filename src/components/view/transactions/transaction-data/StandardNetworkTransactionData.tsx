@@ -4,15 +4,26 @@ import { useListPagination } from "@/common/hooks/common/use-list-pagination";
 import { useAdoptSnapshotHeight, useSnapshotHeight } from "@/common/hooks/common/use-snapshot-height";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetTransactions } from "@/common/react-query/transaction/api";
+import { TransactionFunctionFilter } from "@/repositories/api/transaction/request";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
 import { StandardNetworkTransactionListTable } from "../transaction-list-table/standard-network/StandardNetworkTransactionListTable";
 
-const StandardNetworkTransactions = () => {
-  const [page, setPage] = useListPagination("transactions");
+interface StandardNetworkTransactionDataProps {
+  filter?: TransactionFunctionFilter;
+}
+
+const StandardNetworkTransactions = ({ filter }: StandardNetworkTransactionDataProps) => {
+  // A different filter lists other transactions, so it starts again from page 1.
+  const scope = filter ? Object.entries(filter).join(":") : "";
+  const [page, setPage] = useListPagination("transactions", scope);
   const snapshot = useSnapshotHeight(page);
-  const { data, isFetched, isLoading, isPreviousData } = useGetTransactions({ page, snapshotHeight: snapshot.height });
+  const { data, isFetched, isLoading, isPreviousData } = useGetTransactions({
+    ...filter,
+    page,
+    snapshotHeight: snapshot.height,
+  });
   useAdoptSnapshotHeight(snapshot.adopt, data?.page.snapshotHeight, !isPreviousData);
 
   return (
@@ -28,7 +39,7 @@ const StandardNetworkTransactions = () => {
           totalCount={data?.page.totalCount}
           hasNext={data?.page.hasNext}
           isSettled={!isPreviousData}
-          scope=""
+          scope={scope}
           onChangePage={setPage}
         />
       }
@@ -36,11 +47,11 @@ const StandardNetworkTransactions = () => {
   );
 };
 
-const StandardNetworkTransactionData = () => {
+const StandardNetworkTransactionData = ({ filter }: StandardNetworkTransactionDataProps) => {
   const { currentNetwork } = useNetworkProvider();
 
   // Remount on network change so keepPreviousData does not show the previous network's rows
-  return <StandardNetworkTransactions key={currentNetwork?.chainId} />;
+  return <StandardNetworkTransactions key={currentNetwork?.chainId} filter={filter} />;
 };
 
 export default StandardNetworkTransactionData;
