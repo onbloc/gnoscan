@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import IconClose from "@/assets/svgs/icon-close.svg";
 import IconSearch from "@/assets/svgs/icon-nft-search.svg";
+import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
+import { zindex } from "@/common/values/z-index";
 import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { useGetTransactionFunctionNames } from "@/common/react-query/transaction/api";
 import {
@@ -20,6 +22,7 @@ import {
 
 import Portal from "@/components/core/portal";
 import Text from "@/components/ui/text";
+import Tooltip from "@/components/ui/tooltip";
 import { useListKeyword } from "@/components/view/list-summary/ListSearch";
 import * as S from "./TransactionFunctionFilter.styles";
 
@@ -29,6 +32,9 @@ interface TransactionFunctionFilterModalProps {
   onApply: (filter: TransactionFunctionFilterValue) => void;
   onClose: () => void;
 }
+
+const ALL_TOOLTIP =
+  "The list shows the 20 most called functions, but there are more. Search to find the others and add or exclude them.";
 
 const countText = ({ mode, labels }: TransactionFunctionFilterValue) => {
   if (labels.length > 0) return mode === "exclude" ? `All except ${labels.length}` : `${labels.length} selected`;
@@ -129,6 +135,11 @@ const FilterDialog = ({ filter, onApply, onClose }: TransactionFunctionFilterMod
                       onChange={() => setDraft(setAllFunctionsChecked(!isAll))}
                     />
                     <span>All</span>
+                    <S.InfoIcon>
+                      <Tooltip content={ALL_TOOLTIP} width={240} zIndex={zindex.modalTooltip}>
+                        <IconTooltip aria-hidden="true" />
+                      </Tooltip>
+                    </S.InfoIcon>
                   </S.Option>
                 </li>
                 <S.Divider role="separator" />

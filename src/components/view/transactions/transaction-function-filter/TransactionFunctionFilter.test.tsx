@@ -10,13 +10,17 @@ import {
   MAX_FUNCTION_LABELS,
   TransactionFunctionFilterValue,
 } from "@/repositories/api/transaction/request";
-import { TransactionFunctionChips } from "./TransactionFunctionChips";
 import { TransactionFunctionFilter } from "./TransactionFunctionFilter";
 
 const mockUseGetNames = jest.fn();
 jest.mock("@/common/react-query/transaction/api", () => ({
   useGetTransactionFunctionNames: (...args: unknown[]) => mockUseGetNames(...args),
 }));
+jest.mock("@/components/ui/tooltip", () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => children,
+}));
+jest.mock("@/assets/svgs/icon-tooltip.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-close.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-filter.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-nft-search.svg", () => () => null);
@@ -91,25 +95,6 @@ describe("TransactionFunctionFilter", () => {
 
     render(ALL_FUNCTIONS);
     expect(container.querySelector("[aria-label='Filter']")).not.toBeNull();
-  });
-
-  it("shows the listed labels as chips, marks excluded ones, and removes one", () => {
-    act(() => root.render(wrap(<TransactionFunctionChips filter={exclude("Transfer", "Mint")} onChange={onChange} />)));
-    expect(container.textContent).toContain("Transfer×Mint×");
-
-    act(() => container.querySelector<HTMLButtonElement>("[aria-label='Remove Transfer']")!.click());
-    expect(onChange).toHaveBeenCalledWith(exclude("Mint"));
-  });
-
-  it("shows no chips for a filter that lists every transaction, and none is marked for include", () => {
-    act(() => root.render(wrap(<TransactionFunctionChips filter={ALL_FUNCTIONS} onChange={onChange} />)));
-    expect(container.textContent).toBe("");
-
-    act(() => root.render(wrap(<TransactionFunctionChips filter={include("Mint")} onChange={onChange} />)));
-    expect(container.textContent).toBe("Mint×");
-
-    act(() => container.querySelector<HTMLButtonElement>("[aria-label='Remove Mint']")!.click());
-    expect(onChange).toHaveBeenCalledWith(ALL_FUNCTIONS);
   });
 
   it("opens with every label checked while all transactions are listed", () => {

@@ -4,14 +4,6 @@ import { media } from "@/common/values/ui.constant";
 import { zindex } from "@/common/values/z-index";
 import mixins from "@/styles/mixins";
 
-export const Applied = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-`;
-
 export const FilterButton = styled.button`
   ${mixins.flexbox("row", "center", "center")};
   position: relative;
@@ -236,6 +228,20 @@ export const OptionList = styled.ul`
   list-style: none;
   scrollbar-width: thin;
   scrollbar-color: ${({ theme }) => theme.colors.dimmed200} transparent;
+`;
+
+// The "i" of the table headers, with a tinted circle so it also shows on the highlighted row.
+export const InfoIcon = styled.span`
+  display: inline-flex;
+  align-items: center;
+
+  svg {
+    fill: ${({ theme }) => theme.colors.tertiary};
+
+    .icon-tooltip_svg__bg {
+      fill: ${({ theme }) => theme.colors.dimmed100};
+    }
+  }
 `;
 
 export const Divider = styled.li`

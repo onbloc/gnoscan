@@ -20,7 +20,7 @@ export default function Page() {
   return (
     <>
       <TransactionsLayout
-        transactionList={<TransactionListContainer filter={filter} onChangeFilter={setFilter} />}
+        transactionList={<TransactionListContainer filter={filter} />}
         transactionFilter={<TransactionFunctionFilter filter={filter} onChange={setFilter} />}
         transactionSearch={<TransactionSearchContainer />}
       />
