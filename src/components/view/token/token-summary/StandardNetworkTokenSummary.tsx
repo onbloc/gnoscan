@@ -42,7 +42,11 @@ const StandardNetworkTokenSummary = ({ tokenId }: TokenSummaryProps) => {
   const { getPriceEntry } = useTokenPrice();
   const { getTokenMeta, getTokenDescription, isSuccess: isTokenResourceLoaded } = useTokenResourceMeta();
   // Same query as the first page of the Token Transfers tab, so the count comes from the shared cache.
-  const { data: transfersData } = useGetTokenTransfersById({ path: tokenId, page: 1 }, { enabled: !!tokenId });
+  // Not kept across tokens or networks: this summary is not remounted, so it would show the previous count.
+  const { data: transfersData } = useGetTokenTransfersById(
+    { path: tokenId, page: 1 },
+    { enabled: !!tokenId, keepPreviousData: false },
+  );
   const transferCount = transfersData?.page.totalCount;
   const isRegistered = data?.data?.isRegYn === "Y";
 
