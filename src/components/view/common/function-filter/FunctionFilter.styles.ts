@@ -4,6 +4,9 @@ import { media } from "@/common/values/ui.constant";
 import { zindex } from "@/common/values/z-index";
 import mixins from "@/styles/mixins";
 
+// A landscape phone: the modal gives its height to the option list instead of the margins.
+const SHORT_VIEWPORT = "@media (max-height: 500px)";
+
 export const FilterButton = styled.button`
   ${mixins.flexbox("row", "center", "center")};
   position: relative;
@@ -116,6 +119,11 @@ export const Dialog = styled.div`
   border-radius: 16px;
   background-color: ${({ theme }) => theme.colors.surface};
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.24);
+
+  ${SHORT_VIEWPORT} {
+    max-height: 92vh;
+    max-height: 92dvh;
+  }
 `;
 
 export const Header = styled.div`
@@ -125,6 +133,11 @@ export const Header = styled.div`
 
   ${media.MOBILE} {
     padding: 20px 20px 12px;
+  }
+
+  ${SHORT_VIEWPORT} {
+    padding-top: 12px;
+    padding-bottom: 8px;
   }
 `;
 
@@ -156,9 +169,15 @@ export const Body = styled.div`
   gap: 12px;
   min-height: 0;
   padding: 0 24px 16px;
+  // The option list shrinks to what is left, so nothing of it reaches over the footer.
+  overflow: hidden;
 
   ${media.MOBILE} {
     padding: 0 20px 12px;
+  }
+
+  ${SHORT_VIEWPORT} {
+    padding-bottom: 8px;
   }
 `;
 
@@ -212,6 +231,10 @@ export const SelectedBox = styled.div`
   gap: 8px;
   max-height: 96px;
   overflow-y: auto;
+
+  ${SHORT_VIEWPORT} {
+    max-height: 36px;
+  }
 `;
 
 export const ListLabel = styled.div`
@@ -223,7 +246,7 @@ export const ListLabel = styled.div`
 
 export const OptionList = styled.ul`
   flex: 1 1 auto;
-  min-height: 160px;
+  min-height: 0;
   margin: 0 -8px;
   padding: 0 8px;
   overflow-y: auto;
@@ -315,6 +338,11 @@ export const Footer = styled.div`
 
   ${media.MOBILE} {
     padding: 12px 20px;
+  }
+
+  ${SHORT_VIEWPORT} {
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 `;
 
