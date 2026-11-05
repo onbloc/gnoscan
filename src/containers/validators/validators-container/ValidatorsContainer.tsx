@@ -4,7 +4,6 @@ import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetValidators } from "@/common/react-query/validator/api/use-get-validators";
 import { useGetValidatorCommits } from "@/common/react-query/validator/api/use-get-validator-commits";
-import { VALIDATORS_LIST_PAGE_SIZE } from "@/common/values/query.constant";
 import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import ValidatorTable from "@/components/view/validator/validator-table/ValidatorTable";
@@ -12,7 +11,7 @@ import ValidatorTable from "@/components/view/validator/validator-table/Validato
 const COMMIT_SIZE = 20;
 
 const ValidatorsList = () => {
-  const validators = usePagedList("validators", "", useGetValidators, { limit: VALIDATORS_LIST_PAGE_SIZE });
+  const validators = usePagedList("validators", "", useGetValidators, {});
   const { data: commitsData } = useGetValidatorCommits({ size: COMMIT_SIZE });
 
   // Show skeleton only on initial load; keep previous rows while paging
