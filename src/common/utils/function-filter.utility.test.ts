@@ -1,12 +1,14 @@
-import { ALL_FUNCTIONS, MAX_FUNCTION_LABELS } from "@/repositories/api/transaction/request";
+import { ALL_FUNCTIONS, MAX_FUNCTION_LABELS } from "@/common/values/function-filter.constant";
 import {
   canToggleFunction,
+  getFunctionFilterScope,
   isFunctionChecked,
   isFunctionFilterApplicable,
   removeFunctionLabel,
   setAllFunctionsChecked,
   setFunctionChecked,
-} from "./transaction-function-filter.utility";
+  toFunctionFilterApiParams,
+} from "./function-filter.utility";
 
 const include = (...labels: string[]) => ({ mode: "include" as const, labels });
 const exclude = (...labels: string[]) => ({ mode: "exclude" as const, labels });
@@ -57,5 +59,18 @@ describe("transaction function filter", () => {
     expect(canToggleFunction(exclude(...labels), "Fn1")).toBe(true);
     expect(canToggleFunction(exclude(...labels), "Other")).toBe(false);
     expect(canToggleFunction(include(...labels.slice(1)), "Other")).toBe(true);
+  });
+
+  it("sends the labels as function in include mode and as excludeFunction in exclude mode, nothing without labels", () => {
+    expect(toFunctionFilterApiParams(include("Mint", "Swap"))).toEqual({ function: ["Mint", "Swap"] });
+    expect(toFunctionFilterApiParams(exclude("Mint"))).toEqual({ excludeFunction: ["Mint"] });
+    expect(toFunctionFilterApiParams(ALL_FUNCTIONS)).toEqual({});
+    expect(toFunctionFilterApiParams(include())).toEqual({});
+  });
+
+  it("tells filters apart by mode and labels, not by the order of the labels", () => {
+    expect(getFunctionFilterScope(include("Mint", "Swap"))).toBe(getFunctionFilterScope(include("Swap", "Mint")));
+    expect(getFunctionFilterScope(include("Mint"))).not.toBe(getFunctionFilterScope(exclude("Mint")));
+    expect(getFunctionFilterScope(ALL_FUNCTIONS)).not.toBe(getFunctionFilterScope(include("Mint")));
   });
 });

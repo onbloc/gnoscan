@@ -6,11 +6,8 @@ import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { zindex } from "@/common/values/z-index";
 import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { useGetTransactionFunctionNames } from "@/common/react-query/transaction/api";
-import {
-  ALL_FUNCTIONS,
-  MAX_FUNCTION_LABELS,
-  TransactionFunctionFilterValue,
-} from "@/repositories/api/transaction/request";
+import { FunctionFilterValue } from "@/common/types/function-filter";
+import { ALL_FUNCTIONS, MAX_FUNCTION_LABELS } from "@/common/values/function-filter.constant";
 import {
   canToggleFunction,
   isFunctionChecked,
@@ -18,30 +15,30 @@ import {
   removeFunctionLabel,
   setAllFunctionsChecked,
   setFunctionChecked,
-} from "@/common/utils/transaction-function-filter.utility";
+} from "@/common/utils/function-filter.utility";
 
 import Portal from "@/components/core/portal";
 import Text from "@/components/ui/text";
 import Tooltip from "@/components/ui/tooltip";
 import { useListKeyword } from "@/components/view/list-summary/ListSearch";
-import * as S from "./TransactionFunctionFilter.styles";
+import * as S from "./FunctionFilter.styles";
 
-interface TransactionFunctionFilterModalProps {
+interface FunctionFilterModalProps {
   /** Filter applied to the list now. */
-  filter: TransactionFunctionFilterValue;
-  onApply: (filter: TransactionFunctionFilterValue) => void;
+  filter: FunctionFilterValue;
+  onApply: (filter: FunctionFilterValue) => void;
   onClose: () => void;
 }
 
 const ALL_TOOLTIP =
   "The list shows the 20 most called functions, but there are more. Search to find the others and add or exclude them.";
 
-const countText = ({ mode, labels }: TransactionFunctionFilterValue) => {
+const countText = ({ mode, labels }: FunctionFilterValue) => {
   if (labels.length > 0) return mode === "exclude" ? `All except ${labels.length}` : `${labels.length} selected`;
   return mode === "exclude" ? "All functions" : "None selected";
 };
 
-const FilterDialog = ({ filter, onApply, onClose }: TransactionFunctionFilterModalProps) => {
+const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) => {
   const [draft, setDraft] = useState(filter);
   const { value, setValue, keyword } = useListKeyword();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -198,7 +195,7 @@ const FilterDialog = ({ filter, onApply, onClose }: TransactionFunctionFilterMod
  * Labels come from the function name suggestions and are kept apart from them, so a search never drops a check.
  * Nothing changes in the list until OK; closing the modal discards the picks.
  */
-export const TransactionFunctionFilterModal = (props: TransactionFunctionFilterModalProps) => (
+export const FunctionFilterModal = (props: FunctionFilterModalProps) => (
   // The dialog mounts once the portal target is found, so its focus handling runs inside the portal.
   <Portal selector="modal-root">
     <FilterDialog {...props} />

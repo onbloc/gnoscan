@@ -5,12 +5,9 @@ import { act } from "react-dom/test-utils";
 import { ThemeProvider } from "styled-components";
 
 import theme from "@/styles/theme";
-import {
-  ALL_FUNCTIONS,
-  MAX_FUNCTION_LABELS,
-  TransactionFunctionFilterValue,
-} from "@/repositories/api/transaction/request";
-import { TransactionFunctionFilter } from "./TransactionFunctionFilter";
+import { FunctionFilterValue } from "@/common/types/function-filter";
+import { ALL_FUNCTIONS, MAX_FUNCTION_LABELS } from "@/common/values/function-filter.constant";
+import { FunctionFilter } from "./FunctionFilter";
 
 const mockUseGetNames = jest.fn();
 jest.mock("@/common/react-query/transaction/api", () => ({
@@ -45,8 +42,8 @@ const chips = () =>
     c => c.textContent,
   );
 
-const include = (...labels: string[]): TransactionFunctionFilterValue => ({ mode: "include", labels });
-const exclude = (...labels: string[]): TransactionFunctionFilterValue => ({ mode: "exclude", labels });
+const include = (...labels: string[]): FunctionFilterValue => ({ mode: "include", labels });
+const exclude = (...labels: string[]): FunctionFilterValue => ({ mode: "exclude", labels });
 
 const wrap = (children: React.ReactNode) => (
   <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
@@ -54,8 +51,8 @@ const wrap = (children: React.ReactNode) => (
   </ThemeProvider>
 );
 
-function render(filter: TransactionFunctionFilterValue) {
-  act(() => root.render(wrap(<TransactionFunctionFilter filter={filter} onChange={onChange} />)));
+function render(filter: FunctionFilterValue) {
+  act(() => root.render(wrap(<FunctionFilter filter={filter} onChange={onChange} />)));
 }
 
 // The portal finds its target in an effect, so the modal appears after a second pass.
@@ -85,7 +82,7 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-describe("TransactionFunctionFilter", () => {
+describe("FunctionFilter", () => {
   it("shows the count of listed labels on the filter button", () => {
     render(exclude("Transfer", "Mint"));
     expect(container.querySelector("[aria-label='Filter, 2 excluded']")).not.toBeNull();

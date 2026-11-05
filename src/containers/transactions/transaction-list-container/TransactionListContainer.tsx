@@ -4,10 +4,10 @@ import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider
 
 import StandardNetworkTransactionData from "@/components/view/transactions/transaction-data/StandardNetworkTransactionData";
 import CustomNetworkTransactionData from "@/components/view/transactions/transaction-data/CustomNetworkTransactionData";
-import { TransactionFunctionFilterValue } from "@/repositories/api/transaction/request";
+import { FunctionFilterValue } from "@/common/types/function-filter";
 
 interface TransactionListContainerProps {
-  filter: TransactionFunctionFilterValue;
+  filter: FunctionFilterValue;
 }
 
 const TransactionListContainer = ({ filter }: TransactionListContainerProps) => {
