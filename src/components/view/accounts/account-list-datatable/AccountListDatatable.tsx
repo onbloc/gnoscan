@@ -4,14 +4,13 @@ import styled from "styled-components";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "@/components/view/datatable";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
-import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
-import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useGetAccounts } from "@/common/react-query/account/api/use-get-accounts";
 import { AccountListItemModel } from "@/models/api/account/account-list-item-model";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { ACCOUNTS_LIST_PAGE_SIZE, MAX_ACCOUNTS_LIST_SIZE } from "@/common/values/query.constant";
 import { AccountListItem } from "@/types/data-type";
-import { Pagination } from "@/components/ui/pagination";
+import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
 import Tooltip from "@/components/ui/tooltip";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
 import { formatVestingDate, parseVestingTime } from "@/common/utils/vesting.utility";
@@ -22,65 +21,49 @@ interface AccountListDatatableProps {
 }
 
 export const AccountListDatatable = ({ isCustomNetwork }: AccountListDatatableProps) => {
-  const { currentNetwork } = useNetworkProvider();
-  // A network switch keeps the history entry, so the network is part of the name to start each network on page 1.
-  const [page, setPage] = useHistoryEntryState(`accounts:${currentNetwork?.chainId}:page`, 1);
-
-  const { data, isFetched, isPreviousData } = useGetAccounts(
-    { denom: "ugnot", page, limit: ACCOUNTS_LIST_PAGE_SIZE },
+  const list = usePagedList(
+    "accounts",
+    "",
+    useGetAccounts,
+    { denom: "ugnot", limit: ACCOUNTS_LIST_PAGE_SIZE },
     { enabled: !isCustomNetwork },
   );
 
-  // Page of the rows currently shown (lags behind `page` while the next page loads)
-  const [dataPage, setDataPage] = React.useState(page);
-  if (data && !isPreviousData && dataPage !== page) setDataPage(page);
-
   // Cap at top MAX_ACCOUNTS_LIST_SIZE accounts
-  const totalCount = Math.min(data?.page.totalCount ?? 0, MAX_ACCOUNTS_LIST_SIZE);
-  const totalPages = Math.max(1, Math.ceil(totalCount / ACCOUNTS_LIST_PAGE_SIZE));
+  const { totalCount } = list.pagination;
+  const cappedTotalCount = totalCount === undefined ? undefined : Math.min(totalCount, MAX_ACCOUNTS_LIST_SIZE);
 
-  const accounts: AccountListItem[] = React.useMemo(() => {
-    if (!data?.items) return [];
-
-    return data.items.map((item: AccountListItemModel, index: number): AccountListItem => {
-      return {
-        rank: (dataPage - 1) * ACCOUNTS_LIST_PAGE_SIZE + index + 1,
-        address: item.address,
-        nameTag: getAddressNameTag(item),
-        label: item.label,
-        labelType: item.labelType,
-        // Keep the raw ugnot denom: StandardNetworkAmount converts it without a token-meta lookup.
-        balance: { value: item.balance, denom: GNOTToken.denom },
-        percentage: item.percentage,
-        txCount: item.txCount,
-        isVesting: item.isVesting === true,
-        vestingEndTime: item.vestingEndTime,
-      };
-    });
-  }, [data?.items, dataPage]);
-
-  const handleChangePage = (nextPage: number) => {
-    setPage(Math.min(Math.max(nextPage, 1), totalPages));
-  };
+  const accounts: AccountListItem[] = React.useMemo(
+    () =>
+      list.items.map(
+        (item: AccountListItemModel, index: number): AccountListItem => ({
+          rank: list.startIndex + index + 1,
+          address: item.address,
+          nameTag: getAddressNameTag(item),
+          label: item.label,
+          labelType: item.labelType,
+          // Keep the raw ugnot denom: StandardNetworkAmount converts it without a token-meta lookup.
+          balance: { value: item.balance, denom: GNOTToken.denom },
+          percentage: item.percentage,
+          txCount: item.txCount,
+          isVesting: item.isVesting === true,
+          vestingEndTime: item.vestingEndTime,
+        }),
+      ),
+    [list.items, list.startIndex],
+  );
 
   if (isCustomNetwork) {
     return <Datatable headers={createHeaders()} datas={[]} supported={false} />;
   }
 
   // Show skeleton only on initial load; keep previous rows while paging
-  if (!isFetched && !isPreviousData) return <TableSkeleton />;
+  if (!list.isFetched) return <TableSkeleton />;
 
   return (
     <Container>
       <Datatable headers={createHeaders()} datas={accounts} />
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        hasNext={data?.page.hasNext}
-        hideFirstPageButtonWhenDisabled
-        hideLastPageButtonWhenCurrent
-        onChangePage={handleChangePage}
-      />
+      <ListPagination {...list.pagination} totalCount={cappedTotalCount} />
     </Container>
   );
 };

@@ -4,7 +4,7 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetAccountsResponse } from "@/repositories/api/account/response";
 import { GetAccountsRequest } from "@/repositories/api/account/request";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
@@ -23,14 +23,12 @@ export const useGetAccounts = (
 ) => {
   const { apiAccountRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery(
-    [QUERY_KEY.getAccounts, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getAccounts],
+    params,
     apiAccountRepository,
     API_REPOSITORY_KEY.ACCOUNT_REPOSITORY,
-    repository => repository.getAccounts(params),
-    {
-      keepPreviousData: true,
-      ...options,
-    },
+    (repository, pageParams) => repository.getAccounts(pageParams),
+    options,
   );
 };
