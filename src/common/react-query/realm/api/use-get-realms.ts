@@ -4,8 +4,8 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetRealmsRequestParameters } from "@/repositories/api/realm/request";
 import { GetRealmsResponse } from "@/repositories/api/realm/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get realms data from the API
@@ -21,20 +21,18 @@ import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/que
  * @returns Original realms data with pagination information and the status of the query
  */
 export const useGetRealms = (
-  params: GetRealmsRequestParameters = {},
+  // The page size is fixed: the list components number rows and pages by `DEFAULT_LIST_ITEMS_SIZE`.
+  params: Omit<GetRealmsRequestParameters, "limit"> & { limit?: never } = {},
   options?: UseQueryOptions<GetRealmsResponse, Error, GetRealmsResponse>,
 ): UseQueryResult<GetRealmsResponse, Error> => {
   const { apiRealmRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery<GetRealmsResponse, Error, typeof apiRealmRepository>(
-    [QUERY_KEY.getRealms, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getRealms],
+    params,
     apiRealmRepository,
     API_REPOSITORY_KEY.REALM_REPOSITORY,
-    repository =>
-      repository!.getRealms({
-        ...params,
-        limit: DEFAULT_LIST_ITEMS_SIZE,
-      }),
-    { keepPreviousData: true, ...options },
+    (repository, pageParams) => repository.getRealms(pageParams),
+    options,
   );
 };

@@ -20,7 +20,7 @@ import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
  * @param params - API request parameters
  * @returns Mapped realms of one page, its paging info and query status
  */
-export const useMappedApiRealms = (params?: GetRealmsRequestParameters) => {
+export const useMappedApiRealms = (params?: Omit<GetRealmsRequestParameters, "limit"> & { limit?: never }) => {
   const {
     data: apiData,
     isFetched: isApiFetched,

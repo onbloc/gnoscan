@@ -4,8 +4,8 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlocksRequestParameters } from "@/repositories/api/block/request";
 import { GetBlocksResponse } from "@/repositories/api/block/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE, CACHE_POLICY } from "@/common/values/query.constant";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get block data from the API
@@ -21,25 +21,22 @@ import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE, CACHE_POLICY } from "@/com
  * @returns Original block data fetched from the API and the status of the query
  */
 export const useGetBlocks = (
-  params: GetBlocksRequestParameters = {},
+  // The page size is fixed: the list components number rows and pages by `DEFAULT_LIST_ITEMS_SIZE`.
+  params: Omit<GetBlocksRequestParameters, "limit"> & { limit?: never } = {},
   options?: UseQueryOptions<GetBlocksResponse, Error, GetBlocksResponse>,
 ): UseQueryResult<GetBlocksResponse, Error> => {
   const { apiBlockRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery<GetBlocksResponse, Error, typeof apiBlockRepository>(
-    [QUERY_KEY.getBlocks, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getBlocks],
+    params,
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    repository =>
-      repository!.getBlocks({
-        ...params,
-        limit: DEFAULT_LIST_ITEMS_SIZE,
-      }),
+    (repository, pageParams) => repository.getBlocks(pageParams),
     {
       ...CACHE_POLICY.LIVE,
       // A list pinned to a block height never changes, so it needs no refetch.
       staleTime: params.snapshotHeight === undefined ? CACHE_POLICY.LIVE.staleTime : Infinity,
-      keepPreviousData: true,
       ...options,
     },
   );

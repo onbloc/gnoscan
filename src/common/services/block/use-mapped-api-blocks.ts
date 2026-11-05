@@ -20,7 +20,7 @@ import { BlockMapper } from "@/common/mapper/block/block-mapper";
  * @param params - API request parameters
  * @returns Mapped block data and query status
  */
-export const useMappedApiBlocks = (params?: GetBlocksRequestParameters) => {
+export const useMappedApiBlocks = (params?: Omit<GetBlocksRequestParameters, "limit"> & { limit?: never }) => {
   const {
     data: apiData,
     isFetched: isApiFetched,

@@ -4,8 +4,8 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTokensRequestParameters } from "@/repositories/api/token/request";
 import { GetTokensResponse } from "@/repositories/api/token/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get tokens list data from the API
@@ -26,15 +26,12 @@ export const useGetTokens = (
 ): UseQueryResult<GetTokensResponse, Error> => {
   const { apiTokenRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery<GetTokensResponse, Error, typeof apiTokenRepository>(
-    [QUERY_KEY.getTokens, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getTokens],
+    params,
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    repository =>
-      repository!.getTokens({
-        limit: DEFAULT_LIST_ITEMS_SIZE,
-        ...params,
-      }),
-    { keepPreviousData: true, ...options },
+    (repository, pageParams) => repository.getTokens(pageParams),
+    options,
   );
 };

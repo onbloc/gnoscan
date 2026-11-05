@@ -4,8 +4,8 @@ import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionsRequestParameters } from "@/repositories/api/transaction/request";
 import { GetTransactionsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryQuery } from "@/common/react-query/hoc/api";
-import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE, CACHE_POLICY } from "@/common/values/query.constant";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
+import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 /**
  * Basic hooks to get transactions data from the API
@@ -21,25 +21,22 @@ import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE, CACHE_POLICY } from "@/com
  * @returns Original transactions data fetched from the API and the status of the query
  */
 export const useGetTransactions = (
-  params: GetTransactionsRequestParameters = {},
+  // The page size is fixed: the list components number rows and pages by `DEFAULT_LIST_ITEMS_SIZE`.
+  params: Omit<GetTransactionsRequestParameters, "limit"> & { limit?: never } = {},
   options?: UseQueryOptions<GetTransactionsResponse, Error, GetTransactionsResponse>,
 ): UseQueryResult<GetTransactionsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryQuery<GetTransactionsResponse, Error, typeof apiTransactionRepository>(
-    [QUERY_KEY.getTransactions, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getTransactions],
+    params,
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    repository =>
-      repository!.getTransactions({
-        ...params,
-        limit: DEFAULT_LIST_ITEMS_SIZE,
-      }),
+    (repository, pageParams) => repository.getTransactions(pageParams),
     {
       ...CACHE_POLICY.LIVE,
       // A list pinned to a block height never changes, so it needs no refetch.
       staleTime: params.snapshotHeight === undefined ? CACHE_POLICY.LIVE.staleTime : Infinity,
-      keepPreviousData: true,
       ...options,
     },
   );

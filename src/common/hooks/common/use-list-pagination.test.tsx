@@ -3,7 +3,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 
-import { useListPagination, useShownPage } from "./use-list-pagination";
+import { useListPagination } from "./use-list-pagination";
 
 let mockChainId = "chain-a";
 
@@ -81,34 +81,4 @@ it("starts each network on page 1", () => {
   mockChainId = "chain-b";
   render();
   expect(current[0]).toBe(1);
-});
-
-describe("useShownPage", () => {
-  let shown: number;
-  const ShownProbe = ({ page, isPreviousData }: { page: number; isPreviousData: boolean }) => {
-    shown = useShownPage(page, isPreviousData);
-    return null;
-  };
-  const renderShown = (page: number, isPreviousData: boolean) =>
-    act(() => root.render(<ShownProbe page={page} isPreviousData={isPreviousData} />));
-
-  it("keeps the page of the rows on screen while the next page loads", () => {
-    renderShown(1, false);
-    renderShown(2, true);
-    expect(shown).toBe(1);
-
-    // Another request starts before the first one settles: the rows are still the ones of page 1.
-    renderShown(3, true);
-    expect(shown).toBe(1);
-
-    renderShown(3, false);
-    expect(shown).toBe(3);
-  });
-
-  it("follows the page at once when its rows are already loaded", () => {
-    renderShown(1, false);
-    renderShown(2, false);
-
-    expect(shown).toBe(2);
-  });
 });

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
@@ -26,15 +26,4 @@ export const useListPagination = (name: string, scope = "") => {
   const setPage = useCallback((nextPage: number) => setState({ scope, page: nextPage }), [setState, scope]);
 
   return [page, setPage] as const;
-};
-
-/**
- * Page of the rows on screen. `page` moves at once, but the rows of the previous page stay until the next one loads,
- * so anything numbered by page (rank, message number) must use this instead of `page`.
- */
-export const useShownPage = (page: number, isPreviousData: boolean) => {
-  const [shown, setShown] = useState(page);
-  if (!isPreviousData && shown !== page) setShown(page);
-
-  return isPreviousData ? shown : page;
 };
