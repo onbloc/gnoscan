@@ -64,12 +64,14 @@ export const Chip = styled.span<{ $excluded?: boolean }>`
   background-color: ${({ theme, $excluded }) => ($excluded ? `${theme.colors.failed}1A` : theme.colors.dimmed50)};
   color: ${({ theme }) => theme.colors.primary};
   ${({ theme }) => theme.fonts.p4};
+`;
 
-  > span:first-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+// Its own element, as an excluded chip starts with the mark.
+export const ChipName = styled.span`
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const ChipRemove = styled.button`

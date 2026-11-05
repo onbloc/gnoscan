@@ -68,6 +68,11 @@ describe("transaction function filter", () => {
     expect(toFunctionFilterApiParams(include())).toEqual({});
   });
 
+  it("sends the labels in the same order whatever the order they were picked in", () => {
+    expect(toFunctionFilterApiParams(include("Swap", "Mint"))).toEqual({ function: ["Mint", "Swap"] });
+    expect(toFunctionFilterApiParams(exclude("Swap", "Mint"))).toEqual({ excludeFunction: ["Mint", "Swap"] });
+  });
+
   it("tells filters apart by mode and labels, not by the order of the labels", () => {
     expect(getFunctionFilterScope(include("Mint", "Swap"))).toBe(getFunctionFilterScope(include("Swap", "Mint")));
     expect(getFunctionFilterScope(include("Mint"))).not.toBe(getFunctionFilterScope(exclude("Mint")));

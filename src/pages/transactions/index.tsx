@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import useLoading from "@/common/hooks/use-loading";
 
 import TransactionsLayout from "@/layouts/transactions/TransactionsLayout";
@@ -11,8 +13,12 @@ import { FunctionFilter } from "@/components/view/common/function-filter/Functio
 
 export default function Page() {
   const { loading } = useLoading();
-  // Function filter of the list; the button sits on the title line, the list reads it.
-  const [filter, setFilter] = React.useState<FunctionFilterValue>(ALL_FUNCTIONS);
+  const { currentNetwork } = useNetworkProvider();
+  // Function filter of the list, kept per history entry and network (labels differ per network).
+  const [filter, setFilter] = useHistoryEntryState<FunctionFilterValue>(
+    `transactions:${currentNetwork?.chainId}:function-filter`,
+    ALL_FUNCTIONS,
+  );
 
   React.useEffect(() => {
     window?.dispatchEvent(new Event("resize"));

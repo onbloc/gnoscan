@@ -44,13 +44,14 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
   const searchRef = useRef<HTMLInputElement>(null);
 
   // Without a keyword the API lists the most used labels. The previous list stays while a new search loads.
-  const { data, isLoading } = useGetTransactionFunctionNames({ keyword }, { keepPreviousData: true });
+  const { data, isLoading, isError } = useGetTransactionFunctionNames({ keyword }, { keepPreviousData: true });
   const names = data?.items.map(item => item.name) ?? [];
 
   const isExclude = draft.mode === "exclude";
   const isAll = isExclude && draft.labels.length === 0;
   const isAtLimit = draft.labels.length >= MAX_FUNCTION_LABELS;
-  const isSearching = value.trim() !== "";
+  // Follows the debounced keyword, so "All" hides together with the unfiltered list it belongs to.
+  const isSearching = keyword !== undefined;
 
   useBodyScrollLock(true);
 
@@ -104,7 +105,7 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
               {draft.labels.map(name => (
                 <S.Chip key={name} $excluded={isExclude}>
                   {isExclude && <S.ExcludeMark aria-hidden="true" />}
-                  <span>{name}</span>
+                  <S.ChipName>{name}</S.ChipName>
                   <S.ChipRemove
                     type="button"
                     aria-label={`Remove ${name}`}
@@ -132,7 +133,8 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
                       onChange={() => setDraft(setAllFunctionsChecked(!isAll))}
                     />
                     <span>All</span>
-                    <S.InfoIcon>
+                    {/* Inside the label, a click on the icon would toggle All. */}
+                    <S.InfoIcon onClick={event => event.preventDefault()}>
                       <Tooltip content={ALL_TOOLTIP} width={240} zIndex={zindex.modalTooltip}>
                         <IconTooltip aria-hidden="true" />
                       </Tooltip>
@@ -144,6 +146,8 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
             )}
             {isLoading ? (
               <S.ListLabel as="li">Loading...</S.ListLabel>
+            ) : isError && names.length === 0 ? (
+              <S.ListLabel as="li">Failed to load functions. Try again later.</S.ListLabel>
             ) : names.length === 0 ? (
               <S.ListLabel as="li">No match found</S.ListLabel>
             ) : (

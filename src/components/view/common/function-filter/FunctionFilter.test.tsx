@@ -229,6 +229,42 @@ describe("FunctionFilter", () => {
     expect(document.body.textContent).toContain(`Up to ${MAX_FUNCTION_LABELS} functions can be excluded`);
   });
 
+  it("does not toggle All when the info icon next to it is clicked", () => {
+    render(exclude("Mint"));
+    openModal();
+    expect(allBox().indeterminate).toBe(true);
+
+    act(() => q("ul label > span:last-child").click());
+
+    expect(allBox().indeterminate).toBe(true);
+    expect(allBox().checked).toBe(false);
+    expect(optionBox("Mint").checked).toBe(false);
+  });
+
+  it("keeps All until the search keyword is applied", () => {
+    render(ALL_FUNCTIONS);
+    openModal();
+
+    const input = q<HTMLInputElement>("input[type=search]");
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, "mi");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    expect(document.querySelectorAll("ul label")).toHaveLength(4);
+
+    act(() => void jest.advanceTimersByTime(300));
+    expect(document.querySelectorAll("ul label")).toHaveLength(3);
+  });
+
+  it("tells a failed label request apart from an empty search", () => {
+    mockUseGetNames.mockReturnValue({ data: undefined, isLoading: false, isError: true });
+    render(ALL_FUNCTIONS);
+    openModal();
+
+    expect(document.body.textContent).toContain("Failed to load functions");
+    expect(document.body.textContent).not.toContain("No match found");
+  });
+
   it("closes on Escape", () => {
     render(ALL_FUNCTIONS);
     openModal();

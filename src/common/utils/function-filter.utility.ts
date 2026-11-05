@@ -36,11 +36,13 @@ export const removeFunctionLabel = (filter: FunctionFilterValue, label: string):
   return isFunctionFilterApplicable(next) ? next : ALL_FUNCTIONS;
 };
 
-/** Request parameters of the filter: the labels to keep or to drop, none while every transaction is listed. */
+/** Request parameters of the filter: the labels to keep or to drop, none while every transaction is listed. Sorted, so the order of the picks does not change the query key. */
 export const toFunctionFilterApiParams = ({ mode, labels }: FunctionFilterValue): FunctionFilterApiParams => {
   if (labels.length === 0) return {};
 
-  return mode === "include" ? { function: labels } : { excludeFunction: labels };
+  const sorted = [...labels].sort();
+
+  return mode === "include" ? { function: sorted } : { excludeFunction: sorted };
 };
 
 /** Identifies what the filter lists, for a list that starts again from page 1 when it changes. The label order is not part of it. */
