@@ -56,7 +56,6 @@ it("requests the saved page and exposes the totals for the footer and the tab co
 
   expect(query).toHaveBeenCalledWith({ path: "gno.land/r/demo", limit: undefined, page: 3 }, undefined);
   expect(current.items).toHaveLength(1);
-  expect(current.totalCount).toBe(130);
   expect(current.pagination).toMatchObject({ page: 3, hasNext: true, totalCount: 130, isSettled: true });
 });
 
@@ -89,7 +88,7 @@ it("has no rows and no totals before the first response", () => {
   render();
 
   expect(current.items).toEqual([]);
-  expect(current.totalCount).toBeUndefined();
+  expect(current.pagination.totalCount).toBeUndefined();
 });
 
 it("counts as fetched while the rows of the previous page are shown", () => {

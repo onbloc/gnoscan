@@ -19,14 +19,12 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
   const height = String(blockHeight);
   const {
     data: transactions,
-    totalCount: transactionsTotalCount,
     isFetched: isFetchedTransactions,
     pagination: transactionsPagination,
   } = useMappedApiBlockTransactions(height);
 
   const {
     data: events,
-    totalCount: eventsTotalCount,
     isFetched: isFetchedEvents,
     pagination: eventsPagination,
   } = useMappedApiBlockEvents(height);
@@ -35,14 +33,14 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
     return [
       {
         tabName: "Transactions",
-        size: transactionsTotalCount ?? transactions.length,
+        size: transactionsPagination.totalCount ?? transactions.length,
       },
       {
         tabName: "Events",
-        size: eventsTotalCount ?? events.length,
+        size: eventsPagination.totalCount ?? events.length,
       },
     ];
-  }, [transactions, transactionsTotalCount, events, eventsTotalCount]);
+  }, [transactions, transactionsPagination.totalCount, events, eventsPagination.totalCount]);
 
   if (!isFetchedEvents || !isFetchedTransactions) return <TableSkeleton />;
 

@@ -1,7 +1,7 @@
 import React from "react";
-import { UseQueryOptions, UseQueryResult } from "react-query";
+import { UseQueryOptions } from "react-query";
 
-import { usePagedList } from "@/common/hooks/common/use-paged-list";
+import { PagedQuery, PagedResponse, usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
 import { debounce } from "@/common/utils/string-util";
@@ -9,30 +9,27 @@ import { RealmEventModel } from "@/models/api/realm/realm-model";
 
 interface EventsParams {
   path: string;
+  page?: number;
   limit?: number;
   eventType?: string;
   includeStorage?: boolean;
 }
 
-interface EventsResponse {
+interface EventsResponse extends PagedResponse {
   items: RealmEventModel[];
-  page: { hasNext: boolean; totalCount: number };
 }
 
-type EventsQuery<TParams> = (
-  params: TParams,
-  options?: UseQueryOptions<EventsResponse, Error, EventsResponse>,
-) => UseQueryResult<EventsResponse, Error>;
+type EventsQuery = PagedQuery<EventsParams, EventsResponse>;
 
 /**
  * The Events tab of a realm, token or NFT collection: its filters, page, rows and `ListPagination` props.
  * `name` and `id` key the state kept per history entry, so back/forward keeps the filters and the page.
  * A different target or filter starts again from page 1.
  */
-export const useActivityEvents = <TParams extends EventsParams & { page?: number }>(
+export const useActivityEvents = (
   name: string,
   id: string,
-  useQuery: EventsQuery<TParams>,
+  useQuery: EventsQuery,
   options?: UseQueryOptions<EventsResponse, Error, EventsResponse>,
 ) => {
   const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`${name}:${id}:eventTypeInput`, "");
@@ -44,12 +41,12 @@ export const useActivityEvents = <TParams extends EventsParams & { page?: number
     `${name}-events`,
     `${id}:${eventType}:${includeStorage}`,
     useQuery,
-    { path: id, eventType: eventType || undefined, includeStorage } as Omit<TParams, "page">,
+    { path: id, eventType: eventType || undefined, includeStorage },
     options,
   );
 
   // Tab badge counts every event, independent of the list filters.
-  const { data: allEvents } = useQuery({ path: id, includeStorage: true, page: 1, limit: 1 } as TParams, options);
+  const { data: allEvents } = useQuery({ path: id, includeStorage: true, page: 1, limit: 1 }, options);
 
   const events = React.useMemo(() => RealmMapper.realmEventFromApiResponses(list.items), [list.items]);
 

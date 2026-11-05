@@ -65,8 +65,8 @@ const StandardNetworkTransactionInfo = ({
   );
 
   const txContracts: TransactionContractInfo = React.useMemo(
-    () => ({ messages: contracts.items, numOfMessage: contracts.totalCount ?? 0, rawContent: "" }),
-    [contracts.items, contracts.totalCount],
+    () => ({ messages: contracts.items, numOfMessage: contracts.pagination.totalCount ?? 0, rawContent: "" }),
+    [contracts.items, contracts.pagination.totalCount],
   );
 
   const txEvents: GnoEvent[] = React.useMemo(
@@ -88,11 +88,11 @@ const StandardNetworkTransactionInfo = ({
     const tabs: { tabName: string; size?: number }[] = [{ tabName: "Messages" }];
 
     if (!isPending) {
-      tabs.push({ tabName: "Events", size: events.totalCount ?? txEvents.length });
+      tabs.push({ tabName: "Events", size: events.pagination.totalCount ?? txEvents.length });
     }
 
     return tabs;
-  }, [isPending, events.totalCount, txEvents.length]);
+  }, [isPending, events.pagination.totalCount, txEvents.length]);
 
   React.useEffect(() => {
     if (isPending && currentTab === "Events") {

@@ -26,9 +26,7 @@ export const useMappedApiBlockTransactions = (blockHeight: string) => {
 
   return {
     data: transactions,
-    totalCount: list.totalCount,
     isFetched: list.isFetched,
-    isLoading: list.isLoading,
     pagination: list.pagination,
   };
 };

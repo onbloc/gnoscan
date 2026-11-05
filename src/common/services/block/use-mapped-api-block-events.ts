@@ -23,9 +23,7 @@ export const useMappedApiBlockEvents = (blockHeight: string) => {
 
   return {
     data: events,
-    totalCount: list.totalCount,
     isFetched: list.isFetched,
-    isLoading: list.isLoading,
     pagination: list.pagination,
   };
 };
