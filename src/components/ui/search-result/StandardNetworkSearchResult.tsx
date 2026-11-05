@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { RefObject, useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { useRecoilState } from "recoil";
@@ -13,9 +14,15 @@ import { SearchResult } from "@/repositories/api/search/response";
 import { SEARCH_TYPE_TITLES } from "@/common/values/search.constant";
 
 import mixins from "@/styles/mixins";
+import { zindex } from "@/common/values/z-index";
 import Text from "@/components/ui/text";
 import { SearchResultItem } from "./search-result-item/SearchResultItem";
-import { SearchResultWrapper } from "./SearchResultWrapper";
+import { scrollbarStyle } from "@/common/hooks/use-scroll-bar";
+
+interface StyleProps {
+  isMain?: boolean;
+  ref?: any;
+}
 
 const StandardNetworkSearchResult = ({ inputRef }: { inputRef: RefObject<HTMLInputElement> }) => {
   const { route } = useRouter();
@@ -75,7 +82,7 @@ const StandardNetworkSearchResult = ({ inputRef }: { inputRef: RefObject<HTMLInp
   return (
     <>
       {open && (
-        <SearchResultWrapper isMain={isMain} ref={ref} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+        <Wrapper isMain={isMain} ref={ref} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
           {isLoadingSearch ? (
             <Text type={isMain ? "p4" : "body1"} color="tertiary">
               Loading...
@@ -98,7 +105,7 @@ const StandardNetworkSearchResult = ({ inputRef }: { inputRef: RefObject<HTMLInp
               </Section>
             ))
           )}
-        </SearchResultWrapper>
+        </Wrapper>
       )}
     </>
   );
@@ -118,4 +125,21 @@ const Section = styled.section`
   ${commonContentStyle};
 `;
 
+const Wrapper = styled.div<StyleProps>`
+  ${scrollbarStyle};
+  ${mixins.flexbox("column", "center", "flex-start")};
+  width: ${({ isMain }) => (isMain ? "calc(100% - 20px)" : "100%")};
+  max-height: 276px;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.colors.surface};
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  position: absolute;
+  top: ${({ isMain }) => (isMain ? "93%" : "calc(100% + 6px)")};
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: ${zindex.searchResult};
+  padding: 16px;
+  overflow-y: auto;
+  gap: 8px;
+`;
 export default StandardNetworkSearchResult;

@@ -4,23 +4,25 @@ import { useListPagination } from "@/common/hooks/common/use-list-pagination";
 import { useAdoptSnapshotHeight, useSnapshotHeight } from "@/common/hooks/common/use-snapshot-height";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetTransactions } from "@/common/react-query/transaction/api";
-import { TransactionFunctionFilter } from "@/repositories/api/transaction/request";
+import { TransactionFunctionFilterValue } from "@/repositories/api/transaction/request";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
 import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
 import { StandardNetworkTransactionListTable } from "../transaction-list-table/standard-network/StandardNetworkTransactionListTable";
 
 interface StandardNetworkTransactionDataProps {
-  filter?: TransactionFunctionFilter;
+  filter: TransactionFunctionFilterValue;
 }
 
 const StandardNetworkTransactions = ({ filter }: StandardNetworkTransactionDataProps) => {
-  // A different filter lists other transactions, so it starts again from page 1.
-  const scope = filter ? Object.entries(filter).join(":") : "";
+  // A different filter lists other transactions, so it starts again from page 1. The order of the labels is not part of it.
+  const scope = JSON.stringify([filter.mode, [...filter.labels].sort()]);
+  const hasLabels = filter.labels.length > 0;
   const [page, setPage] = useListPagination("transactions", scope);
   const snapshot = useSnapshotHeight(page);
   const { data, isFetched, isLoading, isPreviousData } = useGetTransactions({
-    ...filter,
+    function: hasLabels && filter.mode === "include" ? filter.labels : undefined,
+    excludeFunction: hasLabels && filter.mode === "exclude" ? filter.labels : undefined,
     page,
     snapshotHeight: snapshot.height,
   });
