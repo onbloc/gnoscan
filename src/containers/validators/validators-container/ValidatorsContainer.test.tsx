@@ -14,8 +14,8 @@ let mockMounts = 0;
 const mockSetPage = jest.fn();
 const mockRequests: { page: number; limit: number }[] = [];
 
-jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => ({
-  useHistoryEntryState: () => [mockSavedPage, mockSetPage],
+jest.mock("@/common/hooks/common/use-list-pagination", () => ({
+  useListPagination: () => [mockSavedPage, mockSetPage],
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: { chainId: mockChainId } }),
