@@ -15,6 +15,39 @@ export interface ListPaginationProps {
   onChangePage: (page: number) => void;
 }
 
+// useLayoutEffect warns during SSR; it only matters on the client.
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
+/**
+ * Keeps the footer where it was on screen when a chosen page replaces the rows.
+ * A shorter page shrinks the document and the browser moves the scroll up with it, so the footer stays under the
+ * pointer; coming back to a longer page keeps the scroll, so the footer is pushed away and the view jumps.
+ * The footer is measured when the page is chosen, and the scroll is corrected before paint once its rows are in.
+ */
+const useFooterInPlace = (scope: string, page: number, isSettled: boolean) => {
+  const footerRef = React.useRef<HTMLDivElement>(null);
+  const chosen = React.useRef<{ page: number; footerTop: number } | null>(null);
+  const shown = React.useRef(`${scope}|${page}`);
+
+  useIsomorphicLayoutEffect(() => {
+    const key = `${scope}|${page}`;
+    if (!isSettled || shown.current === key) return;
+
+    shown.current = key;
+    const footerTop = footerRef.current?.getBoundingClientRect().top;
+    const shift = chosen.current?.page === page && footerTop !== undefined ? footerTop - chosen.current.footerTop : 0;
+    if (shift !== 0) window.scrollTo(0, window.scrollY + shift);
+    chosen.current = null;
+  }, [scope, page, isSettled]);
+
+  const choosePage = (nextPage: number) => {
+    const footerTop = footerRef.current?.getBoundingClientRect().top;
+    chosen.current = footerTop === undefined ? null : { page: nextPage, footerTop };
+  };
+
+  return { footerRef, choosePage };
+};
+
 export const ListPagination = ({
   page,
   pageSize,
@@ -24,6 +57,8 @@ export const ListPagination = ({
   scope,
   onChangePage,
 }: ListPaginationProps) => {
+  const { footerRef, choosePage } = useFooterInPlace(scope, page, isSettled);
+
   // The total of the last response stays while a later request fails, so the page count remains usable.
   // It is dropped when the scope changes, as another sort or keyword has another total.
   const [known, setKnown] = React.useState({ scope, total: isSettled ? totalCount : undefined });
@@ -47,7 +82,12 @@ export const ListPagination = ({
       hasNext={hasNext}
       hideFirstPageButtonWhenDisabled
       hideLastPageButtonWhenCurrent
-      onChangePage={nextPage => onChangePage(Math.min(Math.max(nextPage, 1), totalPages ?? nextPage))}
+      wrapperRef={footerRef}
+      onChangePage={nextPage => {
+        const target = Math.min(Math.max(nextPage, 1), totalPages ?? nextPage);
+        choosePage(target);
+        onChangePage(target);
+      }}
     />
   );
 };
