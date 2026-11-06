@@ -2,6 +2,8 @@ import {
   BALANCE_RANGE,
   findBalanceExtremes,
   makeBalanceHistoryRequest,
+  makeRecentRange,
+  validateCustomRange,
   toBalanceChartPoints,
 } from "./account-balance-chart.utility";
 
@@ -24,6 +26,14 @@ describe("makeBalanceHistoryRequest", () => {
       address,
       from: "2025-11-07",
       to: "2026-11-06",
+    });
+  });
+
+  it("requests a picked range as it is", () => {
+    expect(makeBalanceHistoryRequest(address, { from: "2026-01-01", to: "2026-02-01" }, now)).toEqual({
+      address,
+      from: "2026-01-01",
+      to: "2026-02-01",
     });
   });
 
@@ -56,5 +66,38 @@ describe("findBalanceExtremes", () => {
 
   it("is null without points", () => {
     expect(findBalanceExtremes([])).toBeNull();
+  });
+});
+
+describe("makeRecentRange", () => {
+  it("ends on the UTC day of now", () => {
+    expect(makeRecentRange(now, 30)).toEqual({ from: "2026-10-08", to: "2026-11-06" });
+  });
+});
+
+describe("validateCustomRange", () => {
+  const today = "2026-11-06";
+
+  it("accepts a range within 365 days up to today", () => {
+    expect(validateCustomRange({ from: "2025-11-07", to: today }, today)).toBeNull();
+    expect(validateCustomRange({ from: today, to: today }, today)).toBeNull();
+  });
+
+  it("rejects a missing date", () => {
+    expect(validateCustomRange({ from: "", to: today }, today)).toBe("Select both dates.");
+  });
+
+  it("rejects a start after the end", () => {
+    expect(validateCustomRange({ from: "2026-11-02", to: "2026-11-01" }, today)).toMatch(/must not be after/);
+  });
+
+  it("rejects an end after today, as the API reports no later day", () => {
+    expect(validateCustomRange({ from: "2026-11-01", to: "2026-11-07" }, today)).toMatch(/future/);
+  });
+
+  it("rejects 366 days, counting both ends, across a leap day", () => {
+    expect(validateCustomRange({ from: "2025-11-06", to: today }, today)).toMatch(/365 days/);
+    expect(validateCustomRange({ from: "2023-03-02", to: "2024-02-29" }, today)).toBeNull();
+    expect(validateCustomRange({ from: "2023-03-01", to: "2024-02-29" }, today)).toMatch(/365 days/);
   });
 });

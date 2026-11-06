@@ -15,28 +15,66 @@ export type BalanceRange = (typeof BALANCE_RANGE)[keyof typeof BALANCE_RANGE];
 
 export const BALANCE_RANGES: BalanceRange[] = Object.values(BALANCE_RANGE);
 
-// The API bounds an explicit range to 365 days, so 1Y is the longest bounded range.
+// The API bounds an explicit range to 365 days, so 1Y is the longest preset.
+export const MAX_RANGE_DAYS = 365;
+
 const RANGE_DAYS: Record<Exclude<BalanceRange, "All">, number> = {
   "1M": 30,
   "6M": 180,
-  "1Y": 365,
+  "1Y": MAX_RANGE_DAYS,
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const toUtcDate = (time: number) => new Date(time).toISOString().slice(0, 10);
 
-/** Builds the request of a range, counting UTC days back from `now` (the API buckets by UTC day). */
+/** Inclusive UTC dates (YYYY-MM-DD) picked by the user. */
+export interface BalanceCustomRange {
+  from: string;
+  to: string;
+}
+
+export type BalanceRangeSelection = BalanceRange | BalanceCustomRange;
+
+export const isCustomRange = (selection: BalanceRangeSelection): selection is BalanceCustomRange =>
+  typeof selection === "object";
+
+/** The UTC day of `now`, which is the latest day the API reports. */
+export const getBalanceToday = (now: number) => toUtcDate(now);
+
+/** A range of the last `days` UTC days up to the day of `now`, inclusive. */
+export const makeRecentRange = (now: number, days: number): BalanceCustomRange => ({
+  from: toUtcDate(now - (days - 1) * DAY_MS),
+  to: toUtcDate(now),
+});
+
+/** Why a picked range cannot be requested, or null when it can. Dates compare as strings (YYYY-MM-DD). */
+export const validateCustomRange = ({ from, to }: BalanceCustomRange, today: string): string | null => {
+  if (!from || !to) return "Select both dates.";
+  if (from > to) return "The start date must not be after the end date.";
+  if (to > today) return "The end date must not be in the future.";
+
+  const days = (Date.parse(to) - Date.parse(from)) / DAY_MS + 1;
+  if (days > MAX_RANGE_DAYS) return `The range must not exceed ${MAX_RANGE_DAYS} days.`;
+
+  return null;
+};
+
+/** Builds the request of a selection, counting UTC days back from `now` (the API buckets by UTC day). */
 export const makeBalanceHistoryRequest = (
   address: string,
-  range: BalanceRange,
+  selection: BalanceRangeSelection,
   now: number,
 ): GetAccountNativeBalanceHistoryRequest => {
-  if (range === BALANCE_RANGE.ALL) {
+  if (isCustomRange(selection)) {
+    return { address, from: selection.from, to: selection.to };
+  }
+
+  if (selection === BALANCE_RANGE.ALL) {
     return { address, range: "all" };
   }
 
-  return { address, from: toUtcDate(now - (RANGE_DAYS[range] - 1) * DAY_MS), to: toUtcDate(now) };
+  return { address, ...makeRecentRange(now, RANGE_DAYS[selection]) };
 };
 
 export interface BalanceChartPoint {

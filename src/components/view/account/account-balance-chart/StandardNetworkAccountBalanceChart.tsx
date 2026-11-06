@@ -1,4 +1,5 @@
 import React from "react";
+import BigNumber from "bignumber.js";
 import dynamic from "next/dynamic";
 
 import { useGetAccountNativeBalanceHistory } from "@/common/react-query/account/api/use-get-account-native-balance-history";
@@ -8,15 +9,18 @@ import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { UsdValueText } from "@/components/ui/text/usd-value-text";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import {
   BALANCE_RANGE,
   BALANCE_RANGES,
   BalanceExtreme,
-  BalanceRange,
+  BalanceRangeSelection,
   findBalanceExtremes,
+  isCustomRange,
   makeBalanceHistoryRequest,
   toBalanceChartPoints,
 } from "./account-balance-chart.utility";
+import { BalanceDateFilter } from "./BalanceDateFilter";
 import * as S from "./AccountBalanceChart.styles";
 
 const BalanceChart = dynamic(() => import("@/components/ui/chart").then(mod => mod.BalanceChart), {
@@ -30,12 +34,18 @@ interface AccountBalanceChartProps {
 const DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", year: "numeric" };
 
 const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProps) => {
-  const [range, setRange] = React.useState<BalanceRange>(BALANCE_RANGE.ONE_MONTH);
+  const [selection, setSelection] = React.useState<BalanceRangeSelection>(BALANCE_RANGE.ONE_MONTH);
   // The day is fixed per mount so the query key stays stable while the page is open.
   const [now] = React.useState(() => Date.now());
-  const request = React.useMemo(() => makeBalanceHistoryRequest(address, range, now), [address, range, now]);
+  const request = React.useMemo(() => makeBalanceHistoryRequest(address, selection, now), [address, selection, now]);
 
   const { data, isError } = useGetAccountNativeBalanceHistory(request);
+  const { getUsdDisplay } = useTokenPrice();
+  // Valued at the current GNOT price, like the summary cards; a zero balance shows no value.
+  const getUsd = React.useCallback(
+    (balance: string) => (BigNumber(balance).isZero() ? null : getUsdDisplay(GNOTToken.denom, balance)),
+    [getUsdDisplay],
+  );
 
   const items = data?.items;
   const points = React.useMemo(() => toBalanceChartPoints(items ?? []), [items]);
@@ -46,7 +56,7 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
     if (!items)
       return isError ? <Notice message="Balance history could not be loaded." /> : <Spinner position="center" />;
     if (!hasBalance) return <Notice message="No balance in this period." />;
-    return <BalanceChart datas={points} />;
+    return <BalanceChart datas={points} getUsd={getUsd} />;
   };
 
   return (
@@ -60,13 +70,14 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
             <S.RangeButton
               key={item}
               type="button"
-              $selected={item === range}
-              aria-pressed={item === range}
-              onClick={() => setRange(item)}
+              $selected={item === selection}
+              aria-pressed={item === selection}
+              onClick={() => setSelection(item)}
             >
               {item}
             </S.RangeButton>
           ))}
+          <BalanceDateFilter range={isCustomRange(selection) ? selection : null} onChange={setSelection} />
         </S.RangeTabs>
       </S.Header>
 

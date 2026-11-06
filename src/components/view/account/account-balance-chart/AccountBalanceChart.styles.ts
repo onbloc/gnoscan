@@ -24,6 +24,11 @@ export const RangeTabs = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+
+  // Sets the date filter button apart from the preset ranges.
+  & > button:last-child {
+    margin-left: 4px;
+  }
 `;
 
 export const RangeButton = styled.button<{ $selected: boolean }>`

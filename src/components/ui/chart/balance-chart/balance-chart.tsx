@@ -6,7 +6,7 @@ import { useRecoilValue } from "recoil";
 import { styled } from "@/styles";
 import { themeState } from "@/states";
 import { zindex } from "@/common/values/z-index";
-import { BarChartTooltip } from "../bar-chart/bar-chart-tooltip";
+import { BalanceChartTooltip } from "./balance-chart-tooltip";
 import {
   createBaseChartOptions,
   createExternalTooltipPlugins,
@@ -21,8 +21,12 @@ import {
 interface BalanceChartProps {
   // Daily closing balances in GNOT, oldest first. `date` is a UTC day (YYYY-MM-DD).
   datas: Array<{ date: string; value: number }>;
+  // Display value of a balance (an exact decimal in GNOT) in USD; null when there is no price.
+  getUsd?: (balance: string) => string | null;
 }
 
+// Space between the hovered point and the tooltip.
+const TOOLTIP_GAP = 12;
 const DAY_MS = 24 * 60 * 60 * 1000;
 // A range longer than this labels the axis by month, as day labels would crowd it.
 const DAY_LABEL_MAX_SPAN_DAYS = 180;
@@ -35,28 +39,31 @@ const spanInDays = (datas: BalanceChartProps["datas"]) => {
   return (Date.parse(datas[datas.length - 1].date) - Date.parse(datas[0].date)) / DAY_MS;
 };
 
-export const BalanceChart = ({ datas }: BalanceChartProps) => {
+export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
   const chartRef = useRef<Chart<"line">>(null);
   const themeMode = useRecoilValue(themeState);
   const palette = getChartPalette(themeMode);
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({ title: "", value: "" });
-  const anchorRef = useRef({ left: 0, chartWidth: 0 });
+  const anchorRef = useRef({ caretX: 0, caretY: 0, chartWidth: 0 });
 
   useHideTooltipOnScroll(tooltipRef);
 
-  // Measures the tooltip as currently rendered so a wider value is clamped by its real width.
+  // Sits above the hovered point, or below it with no room above, and stays within the chart. It is measured as
+  // currently rendered, so a wider value is clamped by its real size.
   const positionTooltip = () => {
     const tooltipElement = tooltipRef.current;
-    const { left, chartWidth } = anchorRef.current;
+    const { caretX, caretY, chartWidth } = anchorRef.current;
     if (!tooltipElement || !chartWidth) {
       return;
     }
 
-    const { width } = tooltipElement.getBoundingClientRect();
-    const maxLeft = Math.max(chartWidth - width, 0);
-    tooltipElement.style.left = Math.min(Math.max(left, 0), maxLeft) + "px";
+    const { width, height } = tooltipElement.getBoundingClientRect();
+    const left = Math.min(Math.max(caretX - width / 2, 0), Math.max(chartWidth - width, 0));
+    const above = caretY - height - TOOLTIP_GAP;
+    tooltipElement.style.left = left + "px";
+    tooltipElement.style.top = (above >= 0 ? above : caretY + TOOLTIP_GAP) + "px";
   };
 
   // Runs after a new value renders and before paint, so the clamp uses the updated width.
@@ -91,11 +98,11 @@ export const BalanceChart = ({ datas }: BalanceChartProps) => {
 
     currentTooltip.style.opacity = "1";
 
-    const position = chart.canvas.getBoundingClientRect();
-    currentTooltip.style.position = "absolute";
-    currentTooltip.style.marginTop = -position.height + "px";
-
-    anchorRef.current = { left: tooltip.caretX - tooltip.width / 2, chartWidth: position.width };
+    anchorRef.current = {
+      caretX: tooltip.caretX,
+      caretY: tooltip.caretY,
+      chartWidth: chart.canvas.getBoundingClientRect().width,
+    };
     positionTooltip();
   };
 
@@ -152,7 +159,12 @@ export const BalanceChart = ({ datas }: BalanceChartProps) => {
   return (
     <Wrapper>
       <div className="tooltip-container" ref={tooltipRef} style={{ opacity: 0 }}>
-        <BarChartTooltip isDenom themeMode={`${themeMode}`} title={currentValue.title} value={currentValue.value} />
+        <BalanceChartTooltip
+          themeMode={`${themeMode}`}
+          title={currentValue.title}
+          value={currentValue.value}
+          usd={currentValue.value ? getUsd?.(currentValue.value) : null}
+        />
       </div>
       <Line ref={chartRef} width={"100%"} height={"100%"} options={options} data={chartData} />
     </Wrapper>
@@ -161,6 +173,7 @@ export const BalanceChart = ({ datas }: BalanceChartProps) => {
 
 const Wrapper = styled.div`
   & {
+    position: relative;
     display: flex;
     width: 100%;
     height: 100%;
@@ -171,6 +184,9 @@ const Wrapper = styled.div`
     .tooltip-container {
       ${tooltipAnchorStyle};
       z-index: ${zindex.tooltip};
+      top: 0;
+      left: 0;
+      pointer-events: none;
     }
   }
 `;
