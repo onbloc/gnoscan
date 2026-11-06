@@ -1,6 +1,5 @@
 import React from "react";
 
-import { useFunctionFilterState } from "@/common/hooks/common/use-function-filtered-paged-list";
 import { useMappedApiBlockEvents } from "@/common/services/block/use-mapped-api-block-events";
 
 import { useMappedApiBlockTransactions } from "@/common/services/block/use-mapped-api-block-transactions";
@@ -19,12 +18,13 @@ interface BlockInfoProps {
 
 const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
   const height = String(blockHeight);
-  const [filter, setFilter] = useFunctionFilterState(`block:${height}`);
   const {
     data: transactions,
     isFetched: isFetchedTransactions,
     pagination: transactionsPagination,
-  } = useMappedApiBlockTransactions(height, filter);
+    filter,
+    setFilter,
+  } = useMappedApiBlockTransactions(height);
 
   const { data: events, isFetched: isFetchedEvents, pagination: eventsPagination } = useMappedApiBlockEvents(height);
 

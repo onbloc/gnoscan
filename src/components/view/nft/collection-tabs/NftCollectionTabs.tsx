@@ -1,10 +1,7 @@
 import React from "react";
 
 import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
-import {
-  useFunctionFilteredPagedList,
-  useFunctionFilterState,
-} from "@/common/hooks/common/use-function-filtered-paged-list";
+import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function-filtered-paged-list";
 import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import {
@@ -37,11 +34,9 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
   // Same query as the Inventory grid, so the tab count shares its first page.
   const { data: inventoryData } = useGetNftCollectionItems({ tokenKey, limit: NFT_INVENTORY_PAGE_SIZE });
   const enabled = !!tokenKey;
-  const [filter, setFilter] = useFunctionFilterState(`nft:${tokenKey}`);
   const direct = useFunctionFilteredPagedList(
     "nft-direct",
     tokenKey,
-    filter,
     useGetTokenMetaTransactionsById,
     { path: tokenKey },
     { enabled },
@@ -73,7 +68,7 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
       {currentTab === INVENTORY_TAB && <NftCollectionInventory key={tokenKey} tokenKey={tokenKey} symbol={symbol} />}
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <>
-          <FunctionFilterBar filter={filter} onChange={setFilter} />
+          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
           <ActivityDatatable
             variant="direct"
             data={direct.items}

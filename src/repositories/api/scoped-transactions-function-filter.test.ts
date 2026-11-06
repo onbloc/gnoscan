@@ -52,7 +52,7 @@ describe.each(lists)("$name", ({ request, url }) => {
     await request({ function: ["Mint", "a&b c"], excludeFunction: ["Vote"] });
 
     expect(get).toHaveBeenCalledWith({
-      url: `${url}?page=2&function=Mint&function=a%26b%20c&excludeFunction=Vote`,
+      url: `${url}?page=2&function=Mint&function=a%26b+c&excludeFunction=Vote`,
     });
   });
 });

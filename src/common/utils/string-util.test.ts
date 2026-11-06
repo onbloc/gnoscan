@@ -1,10 +1,4 @@
-import {
-  fitPathToWidth,
-  formatDisplayPackagePath,
-  makeCompactNumber,
-  makeEncodedQueryParameter,
-  makeRepeatedQueryParameter,
-} from "./string-util";
+import { fitPathToWidth, formatDisplayPackagePath, makeCompactNumber, makeEncodedQueryParameter } from "./string-util";
 
 describe("formatDisplayPackagePath", () => {
   const ADDRESS = "g1t2kg2vtr3fukg43eujkn6x53gfdyakhngt4sfd";
@@ -85,19 +79,20 @@ describe("makeEncodedQueryParameter", () => {
     expect(params.get("includeStorage")).toBe("false");
     expect(params.has("limit")).toBe(false);
   });
-});
 
-describe("makeRepeatedQueryParameter", () => {
-  it("repeats the key once per value and encodes each value", () => {
-    expect(makeRepeatedQueryParameter("function", ["Transfer", "a&b=c d"])).toEqual([
-      "function=Transfer",
-      "function=a%26b%3Dc%20d",
-    ]);
+  it("repeats the key once per item of an array and encodes each item", () => {
+    const query = makeEncodedQueryParameter({ page: 2, function: ["Mint", "a&b=c d"], excludeFunction: ["Vote"] });
+    const params = new URLSearchParams(query.slice(1));
+
+    expect(params.getAll("function")).toEqual(["Mint", "a&b=c d"]);
+    expect(params.getAll("excludeFunction")).toEqual(["Vote"]);
+    expect(params.get("page")).toBe("2");
+    expect(query).not.toContain("&b=c");
   });
 
-  it("gives nothing without values", () => {
-    expect(makeRepeatedQueryParameter("function")).toEqual([]);
-    expect(makeRepeatedQueryParameter("function", [])).toEqual([]);
+  it("leaves out an empty array", () => {
+    expect(makeEncodedQueryParameter({ page: 1, function: [] })).toBe("?page=1");
+    expect(makeEncodedQueryParameter({ function: [] })).toBe("");
   });
 });
 

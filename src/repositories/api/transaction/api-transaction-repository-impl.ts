@@ -15,12 +15,11 @@ import {
   GetTransactionFunctionNamesResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
-import { makeFunctionFilterQueryParameter } from "@/common/utils/function-filter.utility";
-import { encodeQueryValue } from "@/common/utils/string-util";
+import { encodeQueryValue, makeEncodedQueryParameter } from "@/common/utils/string-util";
 
 export class ApiTransactionRepositoryImpl extends ApiRepository implements ApiTransactionRepository {
   getTransactions(params: GetTransactionsRequestParameters): Promise<GetTransactionsResponse> {
-    return this.get<GetTransactionsResponse>(`transactions${makeFunctionFilterQueryParameter(params)}`);
+    return this.get<GetTransactionsResponse>(`transactions${makeEncodedQueryParameter({ ...params })}`);
   }
 
   getTransactionFunctionNames(

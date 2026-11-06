@@ -2,10 +2,7 @@ import React from "react";
 
 import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
-import {
-  useFunctionFilteredPagedList,
-  useFunctionFilterState,
-} from "@/common/hooks/common/use-function-filtered-paged-list";
+import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function-filtered-paged-list";
 import DataListSection from "../../details-data-section/data-list-section";
 import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { ListPagination } from "../../common/list-pagination/ListPagination";
@@ -21,8 +18,7 @@ interface AccountTransactionsProps {
 }
 
 const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
-  const [filter, setFilter] = useFunctionFilterState(`account:${address}`);
-  const direct = useFunctionFilteredPagedList("account-direct", address, filter, useGetAccountDirectTransactions, {
+  const direct = useFunctionFilteredPagedList("account-direct", address, useGetAccountDirectTransactions, {
     address,
   });
   const native = usePagedList("account-native", address, useGetAccountNativeTransfers, { address });
@@ -47,7 +43,7 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <>
-          <FunctionFilterBar filter={filter} onChange={setFilter} />
+          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
           <ActivityDatatable
             variant="direct"
             data={direct.items}

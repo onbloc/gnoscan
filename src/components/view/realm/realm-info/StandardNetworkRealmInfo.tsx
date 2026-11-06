@@ -8,10 +8,7 @@ import {
   useGetRealmInternalTransactionsByPath,
 } from "@/common/react-query/realm/api";
 import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
-import {
-  useFunctionFilteredPagedList,
-  useFunctionFilterState,
-} from "@/common/hooks/common/use-function-filtered-paged-list";
+import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function-filtered-paged-list";
 import { usePagedList } from "@/common/hooks/common/use-paged-list";
 
 import DataListSection from "../../details-data-section/data-list-section";
@@ -30,8 +27,7 @@ interface RealmInfoProps {
 }
 
 const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfoProps) => {
-  const [filter, setFilter] = useFunctionFilterState(`realm:${path}`);
-  const direct = useFunctionFilteredPagedList("realm-direct", path, filter, useGetRealmDirectTransactionsByPath, {
+  const direct = useFunctionFilteredPagedList("realm-direct", path, useGetRealmDirectTransactionsByPath, {
     path,
   });
   const native = usePagedList("realm-native", path, useGetRealmNativeTransfersByPath, { path });
@@ -63,7 +59,7 @@ const StandardNetworkRealmInfo = ({ path, currentTab, setCurrentTab }: RealmInfo
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <>
-          <FunctionFilterBar filter={filter} onChange={setFilter} />
+          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
           <ActivityDatatable
             variant="direct"
             data={direct.items}

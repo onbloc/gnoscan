@@ -27,7 +27,6 @@ import { hasStorageDepositProperties, convertToStorageDeposit } from "@/common/u
 import { CommonError } from "@/common/errors";
 import { parseABCIKeyValueResponse } from "@/common/clients/node-client/utility";
 import { ApiRepository } from "../api-repository";
-import { makeFunctionFilterQueryParameter } from "@/common/utils/function-filter.utility";
 
 export class ApiRealmRepositoryImpl extends ApiRepository implements ApiRealmRepository {
   private nodeClient: NodeRPCClient | null;
@@ -52,8 +51,9 @@ export class ApiRealmRepositoryImpl extends ApiRepository implements ApiRealmRep
 
   getRealmDirectTransactions(params: GetRealmDirectTransactionsRequest): Promise<GetRealmDirectTransactionsResponse> {
     const { path, ...queryParams } = params;
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
     return this.get<GetRealmDirectTransactionsResponse>(
-      `/realms/${encodeURIComponent(path)}/direct-transactions${makeFunctionFilterQueryParameter(queryParams)}`,
+      `/realms/${encodeURIComponent(path)}/direct-transactions${requestParams}`,
     );
   }
 

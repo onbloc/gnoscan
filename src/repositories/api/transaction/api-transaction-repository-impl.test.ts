@@ -9,7 +9,7 @@ beforeEach(() => get.mockClear());
 describe("ApiTransactionRepositoryImpl", () => {
   it("sends one function parameter per label, encoded", async () => {
     await repository.getTransactions({ page: 2, function: ["Transfer", "a&b=c d"] });
-    expect(get).toHaveBeenCalledWith({ url: "transactions?page=2&function=Transfer&function=a%26b%3Dc%20d" });
+    expect(get).toHaveBeenCalledWith({ url: "transactions?page=2&function=Transfer&function=a%26b%3Dc+d" });
 
     get.mockClear();
     await repository.getTransactions({ function: ["Transfer"] });
@@ -18,7 +18,7 @@ describe("ApiTransactionRepositoryImpl", () => {
 
   it("sends the excluded labels as excludeFunction, after the kept ones", async () => {
     await repository.getTransactions({ function: ["Mint"], excludeFunction: ["Vote", "a b"] });
-    expect(get).toHaveBeenCalledWith({ url: "transactions?function=Mint&excludeFunction=Vote&excludeFunction=a%20b" });
+    expect(get).toHaveBeenCalledWith({ url: "transactions?function=Mint&excludeFunction=Vote&excludeFunction=a+b" });
   });
 
   it("sends no function parameter without labels", async () => {

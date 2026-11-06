@@ -17,7 +17,7 @@ import {
   GetAccountsResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
-import { makeFunctionFilterQueryParameter } from "@/common/utils/function-filter.utility";
+import { makeEncodedQueryParameter } from "@/common/utils/string-util";
 
 export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccountRepository {
   getAccount(address: string): Promise<GetAccountResponse> {
@@ -32,9 +32,8 @@ export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccoun
     params: GetAccountDirectTransactionsRequest,
   ): Promise<GetAccountDirectTransactionsResponse> {
     const { address, ...queryParams } = params;
-    return this.get<GetAccountDirectTransactionsResponse>(
-      `accounts/${address}/direct-transactions${makeFunctionFilterQueryParameter(queryParams)}`,
-    );
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
+    return this.get<GetAccountDirectTransactionsResponse>(`accounts/${address}/direct-transactions${requestParams}`);
   }
 
   getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse> {

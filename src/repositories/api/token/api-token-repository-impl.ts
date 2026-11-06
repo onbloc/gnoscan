@@ -30,7 +30,6 @@ import {
 } from "./response";
 import { encodeQueryValue, makeEncodedQueryParameter } from "@/common/utils/string-util";
 import { ApiRepository } from "../api-repository";
-import { makeFunctionFilterQueryParameter } from "@/common/utils/function-filter.utility";
 
 export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRepository {
   getTokens(params: GetTokensRequestParameters): Promise<GetTokensResponse> {
@@ -57,8 +56,9 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
 
   getTokenMetaTransactions(params: GetTokenMetaTransactionsRequest): Promise<GetTokenMetaTransactionsResponse> {
     const { path, ...queryParams } = params;
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
     return this.get<GetTokenMetaTransactionsResponse>(
-      `token-meta/${encodeURIComponent(path)}/transactions${makeFunctionFilterQueryParameter(queryParams)}`,
+      `token-meta/${encodeURIComponent(path)}/transactions${requestParams}`,
     );
   }
 

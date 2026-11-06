@@ -170,17 +170,14 @@ export function makeQueryParameter(data: {
 /** URL-encodes one free-form value for makeQueryParameter, which sends values as is. */
 export const encodeQueryValue = (value?: string) => (value ? encodeURIComponent(value) : undefined);
 
-/** `key=value` pairs of a query parameter sent once per value, with every value URL-encoded. */
-export const makeRepeatedQueryParameter = (key: string, values: string[] = []) =>
-  values.map(value => `${key}=${encodeURIComponent(value)}`);
-
-/** Like makeQueryParameter, but URL-encodes keys and values (use for free-form user input). */
+/** Like makeQueryParameter, but URL-encodes keys and values (use for free-form user input). An array repeats its key once per item. */
 export function makeEncodedQueryParameter(data: {
-  [key in string]: string | number | bigint | boolean | null | undefined;
+  [key in string]: string | number | bigint | boolean | null | undefined | string[];
 }) {
   const params = new URLSearchParams();
   Object.entries(data).forEach(([key, value]) => {
-    if (value !== null && value !== undefined) params.append(key, value.toString());
+    if (value === null || value === undefined) return;
+    [value].flat().forEach(item => params.append(key, item.toString()));
   });
 
   const query = params.toString();

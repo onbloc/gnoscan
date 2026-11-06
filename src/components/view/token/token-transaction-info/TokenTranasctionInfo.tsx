@@ -21,10 +21,7 @@ import {
 import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
-import {
-  useFunctionFilteredPagedList,
-  useFunctionFilterState,
-} from "@/common/hooks/common/use-function-filtered-paged-list";
+import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function-filtered-paged-list";
 import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import Text from "@/components/ui/text";
@@ -47,11 +44,9 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const isNativeUnavailable = isFetchedTokenMeta && !realmPath;
 
   const enabled = !isCustomNetwork && !!tokenPath;
-  const [filter, setFilter] = useFunctionFilterState(`token:${tokenPath}`);
   const direct = useFunctionFilteredPagedList(
     "token-direct",
     tokenPath,
-    filter,
     useGetTokenMetaTransactionsById,
     { path: tokenPath },
     { enabled },
@@ -137,7 +132,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <>
-          <FunctionFilterBar filter={filter} onChange={setFilter} />
+          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
           <ActivityDatatable
             variant="direct"
             data={direct.items}

@@ -32,17 +32,18 @@ export const useFirstPageOnFilterChange = (filterScope: string, setPage: (page: 
 };
 
 /**
- * `usePagedList` of a list that takes the function filter (`function` / `excludeFunction`).
- * A different filter lists other rows, so it starts again from page 1; `scope` is what the list belongs to.
+ * `usePagedList` of a list that takes the function filter (`function` / `excludeFunction`), with the filter state
+ * (`filter`, `setFilter`) kept per history entry and network. A different filter lists other rows, so it starts
+ * again from page 1; `scope` is what the list belongs to.
  */
 export const useFunctionFilteredPagedList = <TResponse extends PagedResponse, TParams extends FunctionFilterApiParams>(
   name: string,
   scope: string,
-  filter: FunctionFilterValue,
   useQuery: PagedQuery<TParams, TResponse>,
   params: Omit<NonNullable<TParams>, "page" | keyof FunctionFilterApiParams> & { limit?: number },
   options?: UseQueryOptions<TResponse, Error, TResponse>,
 ) => {
+  const [filter, setFilter] = useFunctionFilterState(`${name}:${scope}`);
   const filterScope = getFunctionFilterScope(filter);
   const list = usePagedList(
     name,
@@ -53,5 +54,5 @@ export const useFunctionFilteredPagedList = <TResponse extends PagedResponse, TP
   );
   useFirstPageOnFilterChange(filterScope, list.pagination.onChangePage);
 
-  return list;
+  return { ...list, filter, setFilter };
 };

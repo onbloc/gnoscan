@@ -1,7 +1,6 @@
 import React from "react";
 
 import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function-filtered-paged-list";
-import { FunctionFilterValue } from "@/common/types/function-filter";
 import { useGetBlockTransactionsByHeight } from "@/common/react-query/block/api";
 import { Transaction } from "@/types/data-type";
 import { BlockMapper } from "@/common/mapper/block/block-mapper";
@@ -15,19 +14,12 @@ import { BlockMapper } from "@/common/mapper/block/block-mapper";
  * 3. return the mapped data, the footer props of the page and the correct loading status
  *
  * @param blockHeight - The height of the block to fetch the transactions of
- * @param filter - Function filter of the list
- * @returns Mapped block transactions and query status
+ * @returns Mapped block transactions, query status and the function filter of the list
  */
-export const useMappedApiBlockTransactions = (blockHeight: string, filter: FunctionFilterValue) => {
-  const list = useFunctionFilteredPagedList(
-    "block-transactions",
+export const useMappedApiBlockTransactions = (blockHeight: string) => {
+  const list = useFunctionFilteredPagedList("block-transactions", blockHeight, useGetBlockTransactionsByHeight, {
     blockHeight,
-    filter,
-    useGetBlockTransactionsByHeight,
-    {
-      blockHeight,
-    },
-  );
+  });
 
   const transactions = React.useMemo<Transaction[]>(
     () => BlockMapper.blockTransactionsFromApiResponses(list.items),
@@ -38,5 +30,7 @@ export const useMappedApiBlockTransactions = (blockHeight: string, filter: Funct
     data: transactions,
     isFetched: list.isFetched,
     pagination: list.pagination,
+    filter: list.filter,
+    setFilter: list.setFilter,
   };
 };
