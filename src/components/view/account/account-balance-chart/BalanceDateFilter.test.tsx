@@ -38,7 +38,7 @@ const render = (range: { from: string; to: string } | null) =>
     root.render(
       <RecoilRoot>
         <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-          <BalanceDateFilter range={range} onChange={onChange} />
+          <BalanceDateFilter now={Date.UTC(2026, 10, 6, 12)} range={range} onChange={onChange} />
         </ThemeProvider>
       </RecoilRoot>,
     ),

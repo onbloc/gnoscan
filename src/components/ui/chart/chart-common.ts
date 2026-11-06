@@ -93,6 +93,9 @@ export const ChartTooltipContainer = styled.div<{ light: boolean }>`
   border-radius: 8px;
 `;
 
+/** The date of a chart point, e.g. "Nov 6, 2026". */
+export const CHART_FULL_DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", year: "numeric" };
+
 /** Formats a UTC date (YYYY-MM-DD) for a chart, in UTC so the day never shifts with the viewer's time zone. */
 export const formatChartDate = (date: string, options: Intl.DateTimeFormatOptions): string => {
   const time = new Date(`${date}T00:00:00Z`);

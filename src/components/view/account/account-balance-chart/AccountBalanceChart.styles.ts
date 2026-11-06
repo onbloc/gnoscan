@@ -44,8 +44,10 @@ export const RangeButton = styled.button<{ $selected: boolean }>`
   }
 `;
 
-export const SummaryList = styled.div`
+export const SummaryList = styled.div<{ $loading?: boolean }>`
   display: grid;
+  opacity: ${({ $loading }) => ($loading ? 0.4 : 1)};
+  transition: opacity 0.15s ease;
   grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   width: 100%;
@@ -76,7 +78,7 @@ export const SummaryAmount = styled.div`
   align-items: baseline;
 `;
 
-export const ChartArea = styled.div`
+export const ChartArea = styled.div<{ $loading?: boolean }>`
   position: relative;
   width: 100%;
   height: 240px;
@@ -84,6 +86,12 @@ export const ChartArea = styled.div`
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 4px;
   overflow: hidden;
+
+  // The chart of the previous range, behind the spinner.
+  & > div:first-child {
+    opacity: ${({ $loading }) => ($loading ? 0.4 : 1)};
+    transition: opacity 0.15s ease;
+  }
 
   ${media.DESKTOP} {
     height: 300px;

@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 
+import { DAY_TIME } from "@/common/values/constant-value";
 import { GNOTToken } from "@/common/hooks/common/use-token-meta";
 import { GetAccountNativeBalanceHistoryRequest } from "@/repositories/api/account/request";
 import { AccountNativeBalancePoint } from "@/repositories/api/account/response";
@@ -24,8 +25,6 @@ const RANGE_DAYS: Record<Exclude<BalanceRange, "All">, number> = {
   "1Y": MAX_RANGE_DAYS,
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 const toUtcDate = (time: number) => new Date(time).toISOString().slice(0, 10);
 
 /** Inclusive UTC dates (YYYY-MM-DD) picked by the user. */
@@ -44,7 +43,7 @@ export const getBalanceToday = (now: number) => toUtcDate(now);
 
 /** A range of the last `days` UTC days up to the day of `now`, inclusive. */
 export const makeRecentRange = (now: number, days: number): BalanceCustomRange => ({
-  from: toUtcDate(now - (days - 1) * DAY_MS),
+  from: toUtcDate(now - (days - 1) * DAY_TIME),
   to: toUtcDate(now),
 });
 
@@ -54,7 +53,7 @@ export const validateCustomRange = ({ from, to }: BalanceCustomRange, today: str
   if (from > to) return "The start date must not be after the end date.";
   if (to > today) return "The end date must not be in the future.";
 
-  const days = (Date.parse(to) - Date.parse(from)) / DAY_MS + 1;
+  const days = (Date.parse(to) - Date.parse(from)) / DAY_TIME + 1;
   if (days > MAX_RANGE_DAYS) return `The range must not exceed ${MAX_RANGE_DAYS} days.`;
 
   return null;

@@ -3,8 +3,8 @@ import BigNumber from "bignumber.js";
 import dynamic from "next/dynamic";
 
 import { useGetAccountNativeBalanceHistory } from "@/common/react-query/account/api/use-get-account-native-balance-history";
-import { formatChartDate } from "@/components/ui/chart/chart-common";
-import { Spinner } from "@/components/ui/loading";
+import { CHART_FULL_DATE_FORMAT, formatChartDate } from "@/components/ui/chart/chart-common";
+import { Spinner } from "@/components/ui/loading/spinner";
 import Text from "@/components/ui/text";
 import { AmountText } from "@/components/ui/text/amount-text";
 import { UsdValueText } from "@/components/ui/text/usd-value-text";
@@ -31,15 +31,14 @@ interface AccountBalanceChartProps {
   address: string;
 }
 
-const DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", year: "numeric" };
-
 const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProps) => {
   const [selection, setSelection] = React.useState<BalanceRangeSelection>(BALANCE_RANGE.ONE_MONTH);
   // The day is fixed per mount so the query key stays stable while the page is open.
   const [now] = React.useState(() => Date.now());
   const request = React.useMemo(() => makeBalanceHistoryRequest(address, selection, now), [address, selection, now]);
 
-  const { data, isError } = useGetAccountNativeBalanceHistory(request);
+  // The previous range stays (dimmed) while the next loads, so the cards do not drop out and shift the page.
+  const { data, isError, isPreviousData } = useGetAccountNativeBalanceHistory(request, { keepPreviousData: true });
   const { getUsdDisplay } = useTokenPrice();
   // Valued at the current GNOT price, like the summary cards; a zero balance shows no value.
   const getUsd = React.useCallback(
@@ -56,7 +55,12 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
     if (!items)
       return isError ? <Notice message="Balance history could not be loaded." /> : <Spinner position="center" />;
     if (!hasBalance) return <Notice message="No balance in this period." />;
-    return <BalanceChart datas={points} getUsd={getUsd} />;
+    return (
+      <>
+        <BalanceChart datas={points} getUsd={getUsd} />
+        {isPreviousData && <Spinner position="center" />}
+      </>
+    );
   };
 
   return (
@@ -77,18 +81,18 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
               {item}
             </S.RangeButton>
           ))}
-          <BalanceDateFilter range={isCustomRange(selection) ? selection : null} onChange={setSelection} />
+          <BalanceDateFilter now={now} range={isCustomRange(selection) ? selection : null} onChange={setSelection} />
         </S.RangeTabs>
       </S.Header>
 
       {hasBalance && extremes && (
-        <S.SummaryList>
+        <S.SummaryList $loading={isPreviousData}>
           <Summary title="Highest Balance" extreme={extremes.highest} />
           <Summary title="Lowest Balance" extreme={extremes.lowest} />
         </S.SummaryList>
       )}
 
-      <S.ChartArea>{renderChart()}</S.ChartArea>
+      <S.ChartArea $loading={isPreviousData}>{renderChart()}</S.ChartArea>
     </S.Content>
   );
 };
@@ -104,7 +108,7 @@ const Summary = ({ title, extreme }: { title: string; extreme: BalanceExtreme })
       <UsdValueText tokenKey={GNOTToken.denom} amount={extreme.value} />
     </S.SummaryAmount>
     <Text type="body1" color="tertiary">
-      {`on ${formatChartDate(extreme.date, DATE_FORMAT)}`}
+      {`on ${formatChartDate(extreme.date, CHART_FULL_DATE_FORMAT)}`}
     </Text>
   </S.SummaryBox>
 );

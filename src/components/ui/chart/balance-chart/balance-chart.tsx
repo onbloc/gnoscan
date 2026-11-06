@@ -5,9 +5,11 @@ import BigNumber from "bignumber.js";
 import { useRecoilValue } from "recoil";
 import { styled } from "@/styles";
 import { themeState } from "@/states";
+import { DAY_TIME } from "@/common/values/constant-value";
 import { zindex } from "@/common/values/z-index";
 import { BalanceChartTooltip } from "./balance-chart-tooltip";
 import {
+  CHART_FULL_DATE_FORMAT,
   createBaseChartOptions,
   createExternalTooltipPlugins,
   createValueAxisStyle,
@@ -27,20 +29,17 @@ interface BalanceChartProps {
 
 // Space between the hovered point and the tooltip.
 const TOOLTIP_GAP = 12;
-const DAY_MS = 24 * 60 * 60 * 1000;
 // A range longer than this labels the axis by month, as day labels would crowd it.
 const DAY_LABEL_MAX_SPAN_DAYS = 180;
 
-const TOOLTIP_DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", year: "numeric" };
 const compactNumber = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 });
 
 const spanInDays = (datas: BalanceChartProps["datas"]) => {
   if (datas.length < 2) return 0;
-  return (Date.parse(datas[datas.length - 1].date) - Date.parse(datas[0].date)) / DAY_MS;
+  return (Date.parse(datas[datas.length - 1].date) - Date.parse(datas[0].date)) / DAY_TIME;
 };
 
 export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
-  const chartRef = useRef<Chart<"line">>(null);
   const themeMode = useRecoilValue(themeState);
   const palette = getChartPalette(themeMode);
 
@@ -90,7 +89,7 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
     }
 
     // The exact decimal, as the chart's own formatted value keeps three decimals at most.
-    const title = formatChartDate(point.date, TOOLTIP_DATE_FORMAT);
+    const title = formatChartDate(point.date, CHART_FULL_DATE_FORMAT);
     const value = BigNumber(point.value).toFixed();
     if (title !== currentValue.title || value !== currentValue.value) {
       setCurrentValue({ title, value });
@@ -166,7 +165,7 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
           usd={currentValue.value ? getUsd?.(currentValue.value) : null}
         />
       </div>
-      <Line ref={chartRef} width={"100%"} height={"100%"} options={options} data={chartData} />
+      <Line width={"100%"} height={"100%"} options={options} data={chartData} />
     </Wrapper>
   );
 };

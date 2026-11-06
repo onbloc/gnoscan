@@ -8,7 +8,7 @@ import { useModalFocus } from "@/common/hooks/common/use-modal-focus";
 import { themeState } from "@/states";
 import Portal from "@/components/core/portal";
 import Text from "@/components/ui/text";
-import { formatChartDate } from "@/components/ui/chart/chart-common";
+import { CHART_FULL_DATE_FORMAT, formatChartDate } from "@/components/ui/chart/chart-common";
 import * as F from "../../common/function-filter/FunctionFilter.styles";
 import {
   BalanceCustomRange,
@@ -19,21 +19,20 @@ import {
 import * as S from "./BalanceDateFilter.styles";
 
 const DEFAULT_DAYS = 30;
-const DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", year: "numeric" };
 
 const formatRange = ({ from, to }: BalanceCustomRange) =>
-  `${formatChartDate(from, DATE_FORMAT)} - ${formatChartDate(to, DATE_FORMAT)}`;
+  `${formatChartDate(from, CHART_FULL_DATE_FORMAT)} - ${formatChartDate(to, CHART_FULL_DATE_FORMAT)}`;
 
 interface DialogProps {
+  // The time the chart treats as now, so both agree on the latest day.
+  now: number;
   // The range applied now, or null while a preset range is selected.
   range: BalanceCustomRange | null;
   onApply: (range: BalanceCustomRange) => void;
   onClose: () => void;
 }
 
-const DateDialog = ({ range, onApply, onClose }: DialogProps) => {
-  // Read once on open, so the latest pickable day does not move under the dialog.
-  const [now] = useState(() => Date.now());
+const DateDialog = ({ now, range, onApply, onClose }: DialogProps) => {
   const today = getBalanceToday(now);
   const [draft, setDraft] = useState<BalanceCustomRange>(() => range ?? makeRecentRange(now, DEFAULT_DAYS));
   const fromRef = useRef<HTMLInputElement>(null);
@@ -100,13 +99,15 @@ const DateDialog = ({ range, onApply, onClose }: DialogProps) => {
 };
 
 interface BalanceDateFilterProps {
+  // The time the chart treats as now, so both agree on the latest day.
+  now: number;
   // The range applied now, or null while a preset range is selected.
   range: BalanceCustomRange | null;
   onChange: (range: BalanceCustomRange) => void;
 }
 
 /** Filter button, highlighted while a picked range is applied, that opens the date filter modal. */
-export const BalanceDateFilter = ({ range, onChange }: BalanceDateFilterProps) => {
+export const BalanceDateFilter = ({ now, range, onChange }: BalanceDateFilterProps) => {
   const [open, setOpen] = useState(false);
   const close = React.useCallback(() => setOpen(false), []);
 
@@ -124,6 +125,7 @@ export const BalanceDateFilter = ({ range, onChange }: BalanceDateFilterProps) =
       {open && (
         <Portal selector="modal-root">
           <DateDialog
+            now={now}
             range={range}
             onApply={next => {
               onChange(next);
