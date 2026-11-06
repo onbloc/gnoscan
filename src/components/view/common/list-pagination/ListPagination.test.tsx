@@ -5,6 +5,9 @@ import { act } from "react-dom/test-utils";
 
 import { ListPagination } from "./ListPagination";
 
+// Page the mock footer asks for; 99 is the last page.
+let mockRequestedPage = 99;
+
 jest.mock("@/components/ui/pagination", () => ({
   Pagination: ({
     page,
@@ -16,7 +19,9 @@ jest.mock("@/components/ui/pagination", () => ({
     totalPages?: number;
     onChangePage: (page: number) => void;
     wrapperRef?: React.Ref<HTMLButtonElement>;
-  }) => <button ref={wrapperRef} data-page={page} data-total={totalPages} onClick={() => onChangePage(99)} />,
+  }) => (
+    <button ref={wrapperRef} data-page={page} data-total={totalPages} onClick={() => onChangePage(mockRequestedPage)} />
+  ),
 }));
 
 const onChangePage = jest.fn();
@@ -63,6 +68,7 @@ beforeAll(() => {
 beforeEach(() => {
   jest.clearAllMocks();
   footerTop = 0;
+  mockRequestedPage = 99;
   scrollY = 0;
 });
 
@@ -202,6 +208,40 @@ describe("keeping the footer in place", () => {
     footerTop = 2456;
     view.update({ page: 2 });
     view.update({ page: 3 });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("forgets a choice when the page returns to the one on screen before the other rows arrived", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1, scope: "name:asc" });
+
+    // Next, then Prev before the response of page 2.
+    mockRequestedPage = 2;
+    act(() => view.button().click());
+    view.update({ page: 2, isSettled: false });
+    mockRequestedPage = 1;
+    act(() => view.button().click());
+    view.update({ page: 1, isSettled: true });
+
+    // Another sort shows its page 1.
+    footerTop = 2456;
+    view.update({ scope: "name:desc", page: 1 });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("forgets a choice that never settled when another sort shows its page 1", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 3, scope: "name:asc" });
+
+    // First page of the sort is chosen, but its request keeps the rows of page 3 on screen.
+    mockRequestedPage = 1;
+    act(() => view.button().click());
+    view.update({ page: 1, isSettled: false });
+
+    footerTop = 2456;
+    view.update({ scope: "name:desc", page: 1, isSettled: true });
     expect(scrollTo).not.toHaveBeenCalled();
   });
 });

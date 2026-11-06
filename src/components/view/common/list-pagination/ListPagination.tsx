@@ -26,23 +26,27 @@ const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffec
  */
 const useFooterInPlace = (scope: string, page: number, isSettled: boolean) => {
   const footerRef = React.useRef<HTMLDivElement>(null);
-  const chosen = React.useRef<{ page: number; footerTop: number } | null>(null);
+  const chosen = React.useRef<{ scope: string; page: number; footerTop: number } | null>(null);
   const shown = React.useRef(`${scope}|${page}`);
 
   useIsomorphicLayoutEffect(() => {
     const key = `${scope}|${page}`;
+    // Back on the page on screen: the choice never replaced any rows.
+    if (shown.current === key) chosen.current = null;
     if (!isSettled || shown.current === key) return;
 
     shown.current = key;
     const footerTop = footerRef.current?.getBoundingClientRect().top;
-    const shift = chosen.current?.page === page && footerTop !== undefined ? footerTop - chosen.current.footerTop : 0;
-    if (shift !== 0) window.scrollTo(0, window.scrollY + shift);
+    const choice = chosen.current;
+    const isChosen = choice?.scope === scope && choice.page === page && footerTop !== undefined;
+    const shift = isChosen ? footerTop - choice.footerTop : 0;
+    if (shift !== 0) window.scrollTo(window.scrollX, window.scrollY + shift);
     chosen.current = null;
   }, [scope, page, isSettled]);
 
   const choosePage = (nextPage: number) => {
     const footerTop = footerRef.current?.getBoundingClientRect().top;
-    chosen.current = footerTop === undefined ? null : { page: nextPage, footerTop };
+    chosen.current = footerTop === undefined ? null : { scope, page: nextPage, footerTop };
   };
 
   return { footerRef, choosePage };
