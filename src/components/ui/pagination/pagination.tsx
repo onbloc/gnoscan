@@ -15,6 +15,8 @@ interface PaginationProps {
   allowLastPage?: boolean;
   hideFirstPageButtonWhenDisabled?: boolean;
   hideLastPageButtonWhenCurrent?: boolean;
+  // Root element, for callers that need to know where the pagination is on screen.
+  wrapperRef?: React.Ref<HTMLDivElement>;
 }
 
 export const Pagination = ({
@@ -25,6 +27,7 @@ export const Pagination = ({
   allowLastPage = true,
   hideFirstPageButtonWhenDisabled = false,
   hideLastPageButtonWhenCurrent = false,
+  wrapperRef,
 }: PaginationProps) => {
   const isTotalKnown = totalPages !== undefined;
   if (isTotalKnown ? totalPages <= 1 : page <= 1) {
@@ -36,7 +39,7 @@ export const Pagination = ({
   const canGoLast = isTotalKnown && allowLastPage && canGoNext;
 
   return (
-    <Wrapper>
+    <Wrapper ref={wrapperRef}>
       {!(hideFirstPageButtonWhenDisabled && !hasPrev) && (
         <ArrowButton aria-label="First page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(1)}>
           <IconFirstPage />

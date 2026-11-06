@@ -5,19 +5,30 @@ import { act } from "react-dom/test-utils";
 
 import { ListPagination } from "./ListPagination";
 
+// Page the mock footer asks for; 99 is the last page.
+let mockRequestedPage = 99;
+
 jest.mock("@/components/ui/pagination", () => ({
   Pagination: ({
     page,
     totalPages,
     onChangePage,
+    wrapperRef,
   }: {
     page: number;
     totalPages?: number;
     onChangePage: (page: number) => void;
-  }) => <button data-page={page} data-total={totalPages} onClick={() => onChangePage(99)} />,
+    wrapperRef?: React.Ref<HTMLButtonElement>;
+  }) => (
+    <button ref={wrapperRef} data-page={page} data-total={totalPages} onClick={() => onChangePage(mockRequestedPage)} />
+  ),
 }));
 
 const onChangePage = jest.fn();
+const scrollTo = jest.fn();
+// Where the footer and the scroll are on screen.
+let footerTop = 0;
+let scrollY = 0;
 
 function renderWithUpdates(props: Partial<React.ComponentProps<typeof ListPagination>> = {}) {
   const container = document.createElement("div");
@@ -38,7 +49,10 @@ function renderWithUpdates(props: Partial<React.ComponentProps<typeof ListPagina
       ),
     );
   update({});
-  return { button: () => container.querySelector("button") as HTMLButtonElement, update };
+  // jsdom cannot lay out the page: the footer is where the test says.
+  const button = () => container.querySelector("button") as HTMLButtonElement;
+  button().getBoundingClientRect = () => ({ top: footerTop } as DOMRect);
+  return { button, update };
 }
 
 function render(props: Partial<React.ComponentProps<typeof ListPagination>> = {}) {
@@ -47,9 +61,16 @@ function render(props: Partial<React.ComponentProps<typeof ListPagination>> = {}
 
 beforeAll(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  Object.defineProperty(window, "scrollTo", { configurable: true, value: scrollTo });
+  Object.defineProperty(window, "scrollY", { configurable: true, get: () => scrollY });
 });
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  footerTop = 0;
+  mockRequestedPage = 99;
+  scrollY = 0;
+});
 
 it("derives the page count from totalCount and the page size", () => {
   expect(render({ totalCount: 81 }).dataset.total).toBe("3");
@@ -126,5 +147,146 @@ describe("when a later response is missing", () => {
 
     view.update({ scope: "name:asc:abc", totalCount: undefined });
     expect(view.button().dataset.total).toBeUndefined();
+  });
+});
+
+describe("keeping the footer in place", () => {
+  // The mock footer asks for page 99, which is the last page (3).
+  const chooseLastPage = (button: HTMLButtonElement) => act(() => button.click());
+
+  it("scrolls by how far the footer was pushed when the chosen page replaces the rows", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    chooseLastPage(view.button());
+
+    footerTop = 2456;
+    view.update({ page: 3 });
+    expect(scrollTo).toHaveBeenCalledWith(0, 1104 + 2456 - 674);
+  });
+
+  it("leaves the scroll alone when the footer did not move", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    chooseLastPage(view.button());
+
+    view.update({ page: 3 });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("waits for the rows of the chosen page while the previous ones are still shown", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    chooseLastPage(view.button());
+
+    footerTop = 2456;
+    view.update({ page: 3, isSettled: false });
+    expect(scrollTo).not.toHaveBeenCalled();
+
+    view.update({ page: 3, isSettled: true });
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not move the scroll for a page that was not chosen with the footer", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+
+    footerTop = 2456;
+    view.update({ page: 3 });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("forgets a choice that ended on another page", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    chooseLastPage(view.button());
+
+    footerTop = 2456;
+    view.update({ page: 2 });
+    view.update({ page: 3 });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("forgets a choice when the page returns to the one on screen before the other rows arrived", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1, scope: "name:asc" });
+
+    // Next, then Prev before the response of page 2.
+    mockRequestedPage = 2;
+    act(() => view.button().click());
+    view.update({ page: 2, isSettled: false });
+    mockRequestedPage = 1;
+    act(() => view.button().click());
+    view.update({ page: 1, isSettled: true });
+
+    // Another sort shows its page 1.
+    footerTop = 2456;
+    view.update({ scope: "name:desc", page: 1 });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("forgets a choice that never settled when another sort shows its page 1", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 3, scope: "name:asc" });
+
+    // First page of the sort is chosen, but its request keeps the rows of page 3 on screen.
+    mockRequestedPage = 1;
+    act(() => view.button().click());
+    view.update({ page: 1, isSettled: false });
+
+    footerTop = 2456;
+    view.update({ scope: "name:desc", page: 1, isSettled: true });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("does not revive a choice when the sort is switched back before the rows arrive", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 3, scope: "name:asc" });
+
+    mockRequestedPage = 1;
+    act(() => view.button().click());
+    view.update({ page: 1, isSettled: false });
+    view.update({ scope: "name:desc", page: 1, isSettled: false });
+
+    footerTop = 2456;
+    view.update({ scope: "name:asc", page: 1, isSettled: true });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("leaves the scroll to the user once they scroll while the rows are loading", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    act(() => view.button().click());
+    view.update({ page: 3, isSettled: false });
+
+    act(() => {
+      window.dispatchEvent(new Event("wheel"));
+    });
+    footerTop = 2456;
+    view.update({ page: 3, isSettled: true });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("still corrects when only the browser moved the scroll while the rows were loading", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    act(() => view.button().click());
+    view.update({ page: 3, isSettled: false });
+
+    act(() => {
+      window.dispatchEvent(new Event("scroll"));
+    });
+    footerTop = 2456;
+    view.update({ page: 3, isSettled: true });
+    expect(scrollTo).toHaveBeenCalledWith(0, 1104 + 2456 - 674);
   });
 });
