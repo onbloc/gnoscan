@@ -244,4 +244,49 @@ describe("keeping the footer in place", () => {
     view.update({ scope: "name:desc", page: 1, isSettled: true });
     expect(scrollTo).not.toHaveBeenCalled();
   });
+
+  it("does not revive a choice when the sort is switched back before the rows arrive", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 3, scope: "name:asc" });
+
+    mockRequestedPage = 1;
+    act(() => view.button().click());
+    view.update({ page: 1, isSettled: false });
+    view.update({ scope: "name:desc", page: 1, isSettled: false });
+
+    footerTop = 2456;
+    view.update({ scope: "name:asc", page: 1, isSettled: true });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("leaves the scroll to the user once they scroll while the rows are loading", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    act(() => view.button().click());
+    view.update({ page: 3, isSettled: false });
+
+    act(() => {
+      window.dispatchEvent(new Event("wheel"));
+    });
+    footerTop = 2456;
+    view.update({ page: 3, isSettled: true });
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("still corrects when only the browser moved the scroll while the rows were loading", () => {
+    scrollY = 1104;
+    footerTop = 674;
+    const view = renderWithUpdates({ page: 1 });
+    act(() => view.button().click());
+    view.update({ page: 3, isSettled: false });
+
+    act(() => {
+      window.dispatchEvent(new Event("scroll"));
+    });
+    footerTop = 2456;
+    view.update({ page: 3, isSettled: true });
+    expect(scrollTo).toHaveBeenCalledWith(0, 1104 + 2456 - 674);
+  });
 });
