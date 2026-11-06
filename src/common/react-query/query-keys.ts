@@ -4,6 +4,7 @@ export enum QUERY_KEY {
   getAccounts = "api_get_accounts",
   getAccountDirectTransactions = "api_get_account_direct_transactions",
   getAccountNativeTransfers = "api_get_account_native_transfers",
+  getAccountNativeBalanceHistory = "api_get_account_native_balance_history",
   getAccountTokenTransfers = "api_get_account_token_transfers",
   getAccountGRC721Collections = "api_get_account_grc721_collections",
   getAccountNfts = "api_get_account_nfts",

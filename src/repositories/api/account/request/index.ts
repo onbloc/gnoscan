@@ -3,3 +3,4 @@ export * from "./get-account-native-transfers-request";
 export * from "./get-account-token-transfers-request";
 export * from "./get-accounts-request";
 export * from "./get-account-grc721-collection-items-request";
+export * from "./get-account-native-balance-history-request";
