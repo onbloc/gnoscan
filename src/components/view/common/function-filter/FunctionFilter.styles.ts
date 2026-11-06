@@ -393,3 +393,11 @@ export const ApplyButton = styled.button`
     cursor: not-allowed;
   }
 `;
+
+// Row above a detail tab's list that holds the filter button.
+export const Bar = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 16px 0;
+`;

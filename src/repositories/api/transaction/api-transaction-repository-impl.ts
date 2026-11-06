@@ -15,21 +15,11 @@ import {
   GetTransactionFunctionNamesResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
-import { encodeQueryValue, makeQueryParameter, makeRepeatedQueryParameter } from "@/common/utils/string-util";
+import { encodeQueryValue, makeEncodedQueryParameter } from "@/common/utils/string-util";
 
 export class ApiTransactionRepositoryImpl extends ApiRepository implements ApiTransactionRepository {
   getTransactions(params: GetTransactionsRequestParameters): Promise<GetTransactionsResponse> {
-    // `function` and `excludeFunction` repeat once per label, which makeQueryParameter cannot send.
-    const { function: included, excludeFunction: excluded, ...rest } = params;
-    const query = [
-      makeQueryParameter(rest).slice(1),
-      ...makeRepeatedQueryParameter("function", included),
-      ...makeRepeatedQueryParameter("excludeFunction", excluded),
-    ]
-      .filter(Boolean)
-      .join("&");
-
-    return this.get<GetTransactionsResponse>(query ? `transactions?${query}` : "transactions");
+    return this.get<GetTransactionsResponse>(`transactions${makeEncodedQueryParameter({ ...params })}`);
   }
 
   getTransactionFunctionNames(

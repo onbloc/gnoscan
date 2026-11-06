@@ -8,6 +8,7 @@ import { ActivityDatatable } from "../../datatable/activity";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
 import { ListPagination } from "../../common/list-pagination/ListPagination";
+import { FunctionFilterBar } from "../../common/function-filter/FunctionFilterBar";
 import {
   useGetTokenHoldersByid,
   useGetTokenMetaByPath,
@@ -20,6 +21,7 @@ import {
 import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api";
 import { useNetwork } from "@/common/hooks/use-network";
 import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
+import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function-filtered-paged-list";
 import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import Text from "@/components/ui/text";
@@ -42,7 +44,7 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   const isNativeUnavailable = isFetchedTokenMeta && !realmPath;
 
   const enabled = !isCustomNetwork && !!tokenPath;
-  const direct = usePagedList(
+  const direct = useFunctionFilteredPagedList(
     "token-direct",
     tokenPath,
     useGetTokenMetaTransactionsById,
@@ -129,12 +131,15 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
         <TokenDetailDatatable path={tokenPath} />
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.TRANSACTIONS && (
-        <ActivityDatatable
-          variant="direct"
-          data={direct.items}
-          isFetched={direct.isFetched}
-          footer={<ListPagination {...direct.pagination} />}
-        />
+        <>
+          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
+          <ActivityDatatable
+            variant="direct"
+            data={direct.items}
+            isFetched={direct.isFetched}
+            footer={<ListPagination {...direct.pagination} />}
+          />
+        </>
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS && (
         <>

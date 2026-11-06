@@ -51,9 +51,9 @@ export class ApiRealmRepositoryImpl extends ApiRepository implements ApiRealmRep
 
   getRealmDirectTransactions(params: GetRealmDirectTransactionsRequest): Promise<GetRealmDirectTransactionsResponse> {
     const { path, ...queryParams } = params;
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
     return this.get<GetRealmDirectTransactionsResponse>(
-      `/realms/${encodeURIComponent(path)}/direct-transactions`,
-      queryParams,
+      `/realms/${encodeURIComponent(path)}/direct-transactions${requestParams}`,
     );
   }
 
