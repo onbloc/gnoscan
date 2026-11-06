@@ -50,15 +50,17 @@ export const toFunctionFilterApiParams = ({ mode, labels }: FunctionFilterValue)
 export const getFunctionFilterScope = ({ mode, labels }: FunctionFilterValue) =>
   JSON.stringify([mode, [...labels].sort()]);
 
+type QueryValue = Parameters<typeof makeQueryParameter>[0][string];
+
 /**
  * Query string (`?…`, empty without parameters) of a list request: the plain parameters, then `function` and
- * `excludeFunction` once per label, URL-encoded. `makeQueryParameter` alone cannot send a list of values.
+ * `excludeFunction` once per label, URL-encoded. `makeQueryParameter` alone cannot send a list of values, so
+ * every other field of the request has to be a plain value.
  */
-export const makeFunctionFilterQueryParameter = <T extends FunctionFilterApiParams>({
-  function: included,
-  excludeFunction: excluded,
-  ...rest
-}: T) => {
+export const makeFunctionFilterQueryParameter = <T extends FunctionFilterApiParams>(
+  params: T & { [K in Exclude<keyof T, keyof FunctionFilterApiParams>]?: QueryValue },
+) => {
+  const { function: included, excludeFunction: excluded, ...rest } = params;
   const query = [
     makeQueryParameter(rest as Parameters<typeof makeQueryParameter>[0]).slice(1),
     ...makeRepeatedQueryParameter("function", included),
