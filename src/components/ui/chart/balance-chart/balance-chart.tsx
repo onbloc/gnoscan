@@ -1,7 +1,6 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, ChartData, ChartOptions, TooltipModel } from "chart.js";
-import BigNumber from "bignumber.js";
 import { useRecoilValue } from "recoil";
 import { styled } from "@/styles";
 import { themeState } from "@/states";
@@ -21,8 +20,9 @@ import {
 } from "../chart-common";
 
 interface BalanceChartProps {
-  // Daily closing balances in GNOT, oldest first. `date` is a UTC day (YYYY-MM-DD).
-  datas: Array<{ date: string; value: number }>;
+  // Daily closing balances in GNOT, oldest first. `date` is a UTC day (YYYY-MM-DD); `balance` is the exact decimal
+  // shown in the tooltip and `value` is its plotting value.
+  datas: Array<{ date: string; balance: string; value: number }>;
   // Display value of a balance (an exact decimal in GNOT) in USD; null when there is no price.
   getUsd?: (balance: string) => string | null;
 }
@@ -33,6 +33,35 @@ const TOOLTIP_GAP = 12;
 const DAY_LABEL_MAX_SPAN_DAYS = 180;
 
 const compactNumber = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 });
+
+// GNOT has six decimal places.
+const MAX_AXIS_FRACTION_DIGITS = 6;
+const Y_TICK_COUNT = 5;
+// Radius of the point of a history with a single day, which has no line to show.
+const SINGLE_POINT_RADIUS = 3;
+
+/**
+ * Formats a Y-axis tick, keeping enough decimals to tell apart ticks `step` apart. Compact notation hides
+ * fractions, so it is used only when the ticks are at least 1 apart.
+ */
+export const formatBalanceAxisTick = (value: number, step: number) => {
+  if (!(step > 0) || step >= 1) {
+    return compactNumber.format(value);
+  }
+
+  const digits = Math.min(Math.max(Math.ceil(-Math.log10(step)) + 1, 0), MAX_AXIS_FRACTION_DIGITS);
+  return value.toLocaleString("en-US", { maximumFractionDigits: digits });
+};
+
+/**
+ * The number of Y ticks. Ticks split the range evenly, so a range of a few ugnot would put ticks between two
+ * ugnots, which no label can tell apart; it gets one tick per ugnot instead.
+ */
+export const getBalanceTickCount = (values: number[]) => {
+  const range = values.length === 0 ? 0 : Math.max(...values) - Math.min(...values);
+  const ugnots = Math.round(range * 10 ** MAX_AXIS_FRACTION_DIGITS);
+  return ugnots > 0 ? Math.min(Y_TICK_COUNT, ugnots + 1) : Y_TICK_COUNT;
+};
 
 const spanInDays = (datas: BalanceChartProps["datas"]) => {
   if (datas.length < 2) return 0;
@@ -68,6 +97,8 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
   // Runs after a new value renders and before paint, so the clamp uses the updated width.
   useLayoutEffect(positionTooltip, [currentValue]);
 
+  const tickCount = useMemo(() => getBalanceTickCount(datas.map(data => data.value)), [datas]);
+
   const axisDateFormat = useMemo<Intl.DateTimeFormatOptions>(
     () =>
       spanInDays(datas) > DAY_LABEL_MAX_SPAN_DAYS
@@ -88,9 +119,9 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
       return;
     }
 
-    // The exact decimal, as the chart's own formatted value keeps three decimals at most.
     const title = formatChartDate(point.date, CHART_FULL_DATE_FORMAT);
-    const value = BigNumber(point.value).toFixed();
+    // The exact decimal, not the plotting value, which has lost precision.
+    const value = point.balance;
     if (title !== currentValue.title || value !== currentValue.value) {
       setCurrentValue({ title, value });
     }
@@ -112,8 +143,11 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
         ...createValueAxisStyle(palette),
         ticks: {
           color: palette.tertiary,
-          count: 5,
-          callback: tickValue => compactNumber.format(Number(tickValue)),
+          count: tickCount,
+          callback: (tickValue, index, ticks) => {
+            const step = ticks.length > 1 ? Math.abs(ticks[1].value - ticks[0].value) : 0;
+            return formatBalanceAxisTick(Number(tickValue), step);
+          },
         },
       },
       xAxis: {
@@ -144,7 +178,7 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
         borderColor: palette.blue,
         backgroundColor: `${palette.blue}26`,
         cubicInterpolationMode: "monotone",
-        pointRadius: 0,
+        pointRadius: datas.length === 1 ? SINGLE_POINT_RADIUS : 0,
         pointBorderWidth: 0,
         pointHitRadius: 0,
         pointHoverRadius: 2,

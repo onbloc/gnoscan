@@ -45,8 +45,15 @@ describe("makeBalanceHistoryRequest", () => {
 describe("toBalanceChartPoints", () => {
   it("converts ugnot to GNOT", () => {
     expect(toBalanceChartPoints([{ date: "2026-11-06", balance: "1500000" }])).toEqual([
-      { date: "2026-11-06", value: 1.5 },
+      { date: "2026-11-06", balance: "1.5", value: 1.5 },
     ]);
+  });
+
+  it("keeps the exact balance where the plotting value loses it", () => {
+    const [point] = toBalanceChartPoints([{ date: "2026-11-06", balance: "10000000000000001" }]);
+
+    expect(point.balance).toBe("10000000000.000001");
+    expect(point.value.toString()).not.toBe(point.balance);
   });
 });
 

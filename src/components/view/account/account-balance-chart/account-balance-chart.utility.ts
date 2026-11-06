@@ -78,16 +78,18 @@ export const makeBalanceHistoryRequest = (
 
 export interface BalanceChartPoint {
   date: string;
-  // Balance in GNOT
+  // Balance in GNOT, as an exact decimal string
+  balance: string;
+  // Balance in GNOT for plotting only; it loses precision beyond 2^53 ugnot
   value: number;
 }
 
 /** Converts closing balances from ugnot to GNOT. */
 export const toBalanceChartPoints = (items: AccountNativeBalancePoint[]): BalanceChartPoint[] =>
-  items.map(item => ({
-    date: item.date,
-    value: BigNumber(item.balance).shiftedBy(-GNOTToken.decimals).toNumber(),
-  }));
+  items.map(item => {
+    const gnot = BigNumber(item.balance).shiftedBy(-GNOTToken.decimals);
+    return { date: item.date, balance: gnot.toFixed(), value: gnot.toNumber() };
+  });
 
 export interface BalanceExtreme {
   date: string;
