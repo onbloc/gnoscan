@@ -11,6 +11,7 @@ import { ActivityDatatable } from "../../datatable/activity";
 import { useGetAccountDirectTransactions } from "@/common/react-query/account/api/use-get-account-direct-transactions";
 import { useGetAccountNativeTransfers } from "@/common/react-query/account/api/use-get-account-native-transfers";
 import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
+import StandardNetworkAccountBalanceChart from "../account-balance-chart/StandardNetworkAccountBalanceChart";
 import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 
 interface AccountTransactionsProps {
@@ -31,6 +32,7 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
       { tabName: ACCOUNT_DETAIL_TABS[0], size: direct.pagination.totalCount },
       { tabName: ACCOUNT_DETAIL_TABS[1], size: native.pagination.totalCount },
       { tabName: ACCOUNT_DETAIL_TABS[2], size: token.pagination.totalCount },
+      { tabName: ACCOUNT_DETAIL_TABS[3] },
     ],
     [direct.pagination.totalCount, native.pagination.totalCount, token.pagination.totalCount],
   );
@@ -68,6 +70,7 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
           footer={<ListPagination {...token.pagination} />}
         />
       )}
+      {currentTab === ACTIVITY_TAB.ANALYTICS && <StandardNetworkAccountBalanceChart address={address} />}
     </DataListSection>
   );
 };

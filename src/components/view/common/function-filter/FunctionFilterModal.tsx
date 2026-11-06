@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import IconClose from "@/assets/svgs/icon-close.svg";
 import IconSearch from "@/assets/svgs/icon-nft-search.svg";
 import IconTooltip from "@/assets/svgs/icon-tooltip.svg";
 import { zindex } from "@/common/values/z-index";
 import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
+import { useModalFocus } from "@/common/hooks/common/use-modal-focus";
 import { useGetTransactionFunctionNames } from "@/common/react-query/transaction/api";
 import { FunctionFilterValue } from "@/common/types/function-filter";
 import { ALL_FUNCTIONS, MAX_FUNCTION_LABELS } from "@/common/values/function-filter.constant";
@@ -55,23 +56,7 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
 
   useBodyScrollLock(true);
 
-  // Focus moves into the dialog, Tab stays in it, Escape closes it and focus goes back to where it came from.
-  useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
-    // The dialog is portaled outside the app root, so an inert root keeps Tab inside it.
-    const appRoot = document.getElementById("__next");
-    appRoot?.setAttribute("inert", "");
-    searchRef.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      appRoot?.removeAttribute("inert");
-      opener?.focus();
-    };
-  }, [onClose]);
+  useModalFocus(onClose, searchRef);
 
   const toggle = (name: string, checked: boolean) => setDraft(current => setFunctionChecked(current, name, checked));
 

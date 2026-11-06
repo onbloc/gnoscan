@@ -3,6 +3,7 @@ import { ApiAccountRepository } from "./api-account-repository";
 import {
   GetAccountDirectTransactionsRequest,
   GetAccountGRC721CollectionItemsRequest,
+  GetAccountNativeBalanceHistoryRequest,
   GetAccountNativeTransfersRequest,
   GetAccountTokenTransfersRequest,
   GetAccountsRequest,
@@ -11,6 +12,7 @@ import {
   GetAccountDirectTransactionsResponse,
   GetAccountGRC721CollectionItemsResponse,
   GetAccountGRC721CollectionsResponse,
+  GetAccountNativeBalanceHistoryResponse,
   GetAccountNativeTransfersResponse,
   GetAccountResponse,
   GetAccountTokenTransfersResponse,
@@ -39,6 +41,16 @@ export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccoun
   getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse> {
     const { address, ...queryParams } = params;
     return this.get<GetAccountNativeTransfersResponse>(`accounts/${address}/native-transfers`, queryParams);
+  }
+
+  getAccountNativeBalanceHistory(
+    params: GetAccountNativeBalanceHistoryRequest,
+  ): Promise<GetAccountNativeBalanceHistoryResponse> {
+    const { address, ...queryParams } = params;
+    return this.get<GetAccountNativeBalanceHistoryResponse>(
+      `accounts/${address}/native-analytics/balance`,
+      queryParams,
+    );
   }
 
   getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse> {

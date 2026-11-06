@@ -5,3 +5,4 @@ export * from "./get-account-token-transfers-response";
 export * from "./get-accounts-response";
 export * from "./get-account-grc721-collections-response";
 export * from "./get-account-grc721-collection-items-response";
+export * from "./get-account-native-balance-history-response";
