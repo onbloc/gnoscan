@@ -10,13 +10,23 @@ export const Grid = styled.div`
   gap: 16px;
   width: 100%;
 
-  ${media.TABLET} {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  // Cards slide sideways on tablet and mobile, like the Gnoswap position cards, instead of stacking into a long column.
+  ${media.NOT_DESKTOP} {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: min(320px, calc(100% - 32px));
+    gap: 12px;
+    overflow-x: auto;
+    // Keeps the scrollbar below the card borders.
+    padding-bottom: 8px;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
 
-  // One card per row on mobile, like the home summary cards, so the number cards have the width they need.
-  ${media.MOBILE} {
-    grid-template-columns: minmax(0, 1fr);
+    & > * {
+      scroll-snap-align: start;
+    }
   }
 `;
 
