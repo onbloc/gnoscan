@@ -145,7 +145,7 @@ describe("FunctionFilter", () => {
     expect(optionBox("Mint").checked).toBe(true);
   });
 
-  it("starts from nothing checked when All is unchecked, and cannot apply an empty selection", () => {
+  it("starts from nothing checked when All is unchecked, and applies the picks that follow", () => {
     render(ALL_FUNCTIONS);
     openModal();
 
@@ -153,28 +153,63 @@ describe("FunctionFilter", () => {
 
     expect(allBox().checked).toBe(false);
     expect(optionBox("Transfer").checked).toBe(false);
-    expect(button("OK").disabled).toBe(true);
-    expect(document.body.textContent).toContain("None selected");
+    expect(document.body.textContent).toContain("All functions");
 
     act(() => optionBox("Swap").click());
     act(() => optionBox("Transfer").click());
-    expect(button("OK").disabled).toBe(false);
+    expect(document.body.textContent).toContain("2 selected");
 
     act(() => button("OK").click());
     expect(onChange).toHaveBeenCalledWith(include("Swap", "Transfer"));
   });
 
-  it("starts from the applied filter, and Clear lists every transaction again", () => {
+  it("applies nothing checked as it is, and OK stays available", () => {
+    render(include("Mint"));
+    openModal();
+
+    act(() => optionBox("Mint").click());
+    expect(button("OK").disabled).toBe(false);
+    act(() => button("OK").click());
+
+    expect(onChange).toHaveBeenCalledWith(include());
+  });
+
+  it("opens with nothing checked after Clear was applied", () => {
+    render(include());
+    openModal();
+
+    expect(allBox().checked).toBe(false);
+    expect(allBox().indeterminate).toBe(false);
+    ["Transfer", "Mint", "Swap"].forEach(name => expect(optionBox(name).checked).toBe(false));
+    expect(container.querySelector("[aria-label='Filter']")).not.toBeNull();
+  });
+
+  it.each([
+    ["an include filter", include("Mint", "Swap")],
+    ["an exclude filter", exclude("Mint", "Swap")],
+  ])("unchecks everything on Clear for %s, and applies it", (_name, applied) => {
+    render(applied);
+    openModal();
+
+    act(() => button("Clear").click());
+
+    expect(allBox().checked).toBe(false);
+    expect(allBox().indeterminate).toBe(false);
+    ["Transfer", "Mint", "Swap"].forEach(name => expect(optionBox(name).checked).toBe(false));
+    expect(document.querySelector("[role=group]")).toBeNull();
+    expect(document.body.textContent).toContain("All functions");
+
+    act(() => button("OK").click());
+    expect(onChange).toHaveBeenCalledWith(include());
+  });
+
+  it("starts from the applied filter", () => {
     render(include("Mint", "Swap"));
     openModal();
+
     expect(chips()).toEqual(["Mint", "Swap"]);
     expect(optionBox("Mint").checked).toBe(true);
     expect(optionBox("Transfer").checked).toBe(false);
-
-    act(() => button("Clear").click());
-    act(() => button("OK").click());
-
-    expect(onChange).toHaveBeenCalledWith(ALL_FUNCTIONS);
   });
 
   it("discards the changes when the modal is closed", () => {

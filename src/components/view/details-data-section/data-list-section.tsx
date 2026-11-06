@@ -22,9 +22,11 @@ interface DataListSectionProps {
   }[];
   currentTab: string;
   setCurrentTab: (tab: string) => void;
+  /** Controls at the right end of the tab row, e.g. a filter button. */
+  tabActions?: React.ReactNode;
 }
 
-const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataListSectionProps) => {
+const DataListSection = ({ children, tabs, tabActions, currentTab, setCurrentTab }: DataListSectionProps) => {
   const { contentRef, contentStyle, selectTab, setPadding } = useSteadyTabSwitch<HTMLDivElement>(
     currentTab,
     setCurrentTab,
@@ -90,35 +92,38 @@ const DataListSection = ({ children, tabs, currentTab, setCurrentTab }: DataList
 
   return (
     <DetailsContainer>
-      <div className="tab-area" ref={tabAreaRef}>
-        {tabs.map((tab, index) => {
-          const isSelected = currentTab === tab.tabName;
-          return (
-            <button
-              type="button"
-              className="tab-item"
-              key={index}
-              aria-current={isSelected}
-              onClick={() => onClickTab(tab.tabName)}
-            >
-              <Text
-                type={isSelected ? "h6" : "h7"}
-                desktopType={isSelected ? "h4" : "h6"}
-                color={isSelected ? "primary" : "tertiary"}
+      <TabRow>
+        <div className="tab-area" ref={tabAreaRef}>
+          {tabs.map((tab, index) => {
+            const isSelected = currentTab === tab.tabName;
+            return (
+              <button
+                type="button"
+                className="tab-item"
+                key={index}
+                aria-current={isSelected}
+                onClick={() => onClickTab(tab.tabName)}
               >
-                {tab.tabName}
-              </Text>
-              {tab.size !== undefined && (
-                <div className="badge">
-                  <Text type={"p4"} color={"primary"}>
-                    {makeDisplayNumber(tab.size)}
-                  </Text>
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
+                <Text
+                  type={isSelected ? "h6" : "h7"}
+                  desktopType={isSelected ? "h4" : "h6"}
+                  color={isSelected ? "primary" : "tertiary"}
+                >
+                  {tab.tabName}
+                </Text>
+                {tab.size !== undefined && (
+                  <div className="badge">
+                    <Text type={"p4"} color={"primary"}>
+                      {makeDisplayNumber(tab.size)}
+                    </Text>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {tabActions && <TabActions>{tabActions}</TabActions>}
+      </TabRow>
       <TabContent ref={contentRef} style={contentStyle}>
         {children}
       </TabContent>
@@ -137,4 +142,23 @@ const TabContent = styled.div`
   align-items: flex-start;
   width: 100%;
   overflow-anchor: none;
+`;
+
+// Tabs on the left, tabActions on the right. The 16px below the row is the gap to the tab content.
+const TabRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
+// Zero height, so the row is as tall with the actions as without them; the flex centering lets
+// an action taller than the tabs overflow evenly above and below the tab line.
+const TabActions = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 0;
 `;

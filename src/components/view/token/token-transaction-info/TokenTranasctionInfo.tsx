@@ -8,7 +8,7 @@ import { ActivityDatatable } from "../../datatable/activity";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
 import { ListPagination } from "../../common/list-pagination/ListPagination";
-import { FunctionFilterBar } from "../../common/function-filter/FunctionFilterBar";
+import { FunctionFilter } from "../../common/function-filter/FunctionFilter";
 import {
   useGetTokenHoldersByid,
   useGetTokenMetaByPath,
@@ -126,20 +126,28 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   ]);
 
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection
+      tabs={detailTabs}
+      tabActions={
+        tokenPath &&
+        !isCustomNetwork &&
+        currentTab === ACTIVITY_TAB.TRANSACTIONS && (
+          <FunctionFilter filter={direct.filter} onChange={direct.setFilter} />
+        )
+      }
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    >
       {tokenPath && isCustomNetwork && currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <TokenDetailDatatable path={tokenPath} />
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.TRANSACTIONS && (
-        <>
-          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
-          <ActivityDatatable
-            variant="direct"
-            data={direct.items}
-            isFetched={direct.isFetched}
-            footer={<ListPagination {...direct.pagination} />}
-          />
-        </>
+        <ActivityDatatable
+          variant="direct"
+          data={direct.items}
+          isFetched={direct.isFetched}
+          footer={<ListPagination {...direct.pagination} />}
+        />
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS && (
         <>

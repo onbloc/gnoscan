@@ -1,6 +1,7 @@
 /**
- * Function label filter of a transaction list. `exclude` lists every transaction but those with one of the labels
- * (no labels: every transaction); `include` lists only the transactions with one of them.
+ * Function label filter of a transaction list. `exclude` lists every transaction but those with one of the labels;
+ * `include` lists only the transactions with one of them. With no labels either lists every transaction: a cleared
+ * filter (nothing checked) is `include` with no labels.
  */
 export interface FunctionFilterValue {
   mode: "include" | "exclude";

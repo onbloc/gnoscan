@@ -17,24 +17,19 @@ export const setFunctionChecked = (
   return { mode: filter.mode, labels: listed ? [...rest, label] : rest };
 };
 
-/** The All row: checking lists every transaction, unchecking starts an include list with nothing checked. */
+/** The All row: checking lists every transaction, unchecking leaves nothing checked, which filters nothing either. */
 export const setAllFunctionsChecked = (checked: boolean): FunctionFilterValue =>
   checked ? ALL_FUNCTIONS : { mode: "include", labels: [] };
-
-/** An include filter with no labels matches nothing, so it cannot be applied. */
-export const isFunctionFilterApplicable = (filter: FunctionFilterValue) =>
-  filter.mode === "exclude" || filter.labels.length > 0;
 
 /** Once the list is full, a label can only be taken out of it. */
 export const canToggleFunction = (filter: FunctionFilterValue, label: string) =>
   filter.labels.length < MAX_FUNCTION_LABELS || filter.labels.includes(label);
 
-/** Drops a label from the list of the filter; an include filter left with no label lists every transaction. */
-export const removeFunctionLabel = (filter: FunctionFilterValue, label: string): FunctionFilterValue => {
-  const next = { mode: filter.mode, labels: filter.labels.filter(item => item !== label) };
-
-  return isFunctionFilterApplicable(next) ? next : ALL_FUNCTIONS;
-};
+/** Drops a label from the list of the filter, which unchecks it in include mode and checks it again in exclude mode. */
+export const removeFunctionLabel = (filter: FunctionFilterValue, label: string): FunctionFilterValue => ({
+  mode: filter.mode,
+  labels: filter.labels.filter(item => item !== label),
+});
 
 /** Request parameters of the filter: the labels to keep or to drop, none while every transaction is listed. Sorted, so the order of the picks does not change the query key. */
 export const toFunctionFilterApiParams = ({ mode, labels }: FunctionFilterValue): FunctionFilterApiParams => {
@@ -45,6 +40,9 @@ export const toFunctionFilterApiParams = ({ mode, labels }: FunctionFilterValue)
   return mode === "include" ? { function: sorted } : { excludeFunction: sorted };
 };
 
-/** Identifies what the filter lists, for a list that starts again from page 1 when it changes. The label order is not part of it. */
+/**
+ * Identifies what the filter lists, for a list that starts again from page 1 when it changes. The label order is not
+ * part of it, and neither is the mode without labels: every transaction is listed either way.
+ */
 export const getFunctionFilterScope = ({ mode, labels }: FunctionFilterValue) =>
-  JSON.stringify([mode, [...labels].sort()]);
+  labels.length === 0 ? "all" : JSON.stringify([mode, [...labels].sort()]);

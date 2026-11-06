@@ -115,6 +115,19 @@ describe("useFunctionFilteredPagedList", () => {
     expect(lastRequest()).toMatchObject({ page: 3 });
   });
 
+  it("keeps the page when the filter changes between nothing checked and all checked", () => {
+    mount();
+    setPage(3);
+    query.mockClear();
+
+    setFilter(include());
+    expect(lastRequest()).toEqual({ path: "gno.land/r/demo", page: 3 });
+
+    setFilter(exclude());
+    expect(lastRequest()).toEqual({ path: "gno.land/r/demo", page: 3 });
+    expect(requests().every(params => params.page === 3)).toBe(true);
+  });
+
   it("keeps the filter and page restored by history navigation when it mounts", () => {
     mount();
     setFilter(exclude("Mint"));
