@@ -32,7 +32,13 @@ const TOOLTIP_GAP = 12;
 // A range longer than this labels the axis by month, as day labels would crowd it.
 const DAY_LABEL_MAX_SPAN_DAYS = 180;
 
-const compactNumber = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 });
+const COMPACT_FRACTION_DIGITS = 2;
+// The compact notation has no unit above T (10^12), which is the fourth step of 10^3.
+const MAX_COMPACT_UNIT_EXP = 4;
+const compactNumber = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: COMPACT_FRACTION_DIGITS,
+});
 
 // GNOT has six decimal places.
 const MAX_AXIS_FRACTION_DIGITS = 6;
@@ -41,15 +47,25 @@ const Y_TICK_COUNT = 5;
 const SINGLE_POINT_RADIUS = 3;
 
 /**
- * Formats a Y-axis tick, keeping enough decimals to tell apart ticks `step` apart. Compact notation hides
- * fractions, so it is used only when the ticks are at least 1 apart.
+ * Formats a Y-axis tick so that the ticks of the axis stay distinct. The compact notation (1.5M) is used only when
+ * the tick interval is at least one step of its precision, else it would round neighbouring ticks to the same
+ * label (30,305 and 30,306 are both 30.31K); the labels are then plain decimals.
  */
-export const formatBalanceAxisTick = (value: number, step: number) => {
-  if (!(step > 0) || step >= 1) {
+export const formatBalanceAxisTick = (value: number, tickValues: number[]) => {
+  const step = tickValues.length > 1 ? Math.abs(tickValues[1] - tickValues[0]) : 0;
+  if (!(step > 0)) {
     return compactNumber.format(value);
   }
 
-  const digits = Math.min(Math.max(Math.ceil(-Math.log10(step)) + 1, 0), MAX_AXIS_FRACTION_DIGITS);
+  // The unit (1K, 1M, ...) the compact notation gives the largest tick, which the axis shares.
+  const magnitude = Math.max(...tickValues.map(Math.abs));
+  const unit =
+    magnitude >= 1000 ? 10 ** (3 * Math.min(Math.floor(Math.log10(magnitude) / 3), MAX_COMPACT_UNIT_EXP)) : 1;
+  if (step >= 1 && step >= unit * 10 ** -COMPACT_FRACTION_DIGITS) {
+    return compactNumber.format(value);
+  }
+
+  const digits = step >= 1 ? 0 : Math.min(Math.ceil(-Math.log10(step)) + 1, MAX_AXIS_FRACTION_DIGITS);
   return value.toLocaleString("en-US", { maximumFractionDigits: digits });
 };
 
@@ -145,8 +161,8 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
           color: palette.tertiary,
           count: tickCount,
           callback: (tickValue, index, ticks) => {
-            const step = ticks.length > 1 ? Math.abs(ticks[1].value - ticks[0].value) : 0;
-            return formatBalanceAxisTick(Number(tickValue), step);
+            const values = ticks.map(tick => tick.value);
+            return formatBalanceAxisTick(Number(tickValue), values);
           },
         },
       },

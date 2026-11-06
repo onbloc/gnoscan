@@ -148,12 +148,16 @@ it("shows the point of a history with a single day, and no point otherwise", () 
   expect(chartProps.data.datasets[0].pointRadius).toBe(0);
 });
 
+// The package exports only ESM, which jest does not load, so its UMD build is reached by path.
+const CHART_JS_UMD = "../../../../../node_modules/chart.js/dist/chart.umd.js";
+
 describe("Y axis", () => {
   it("labels every ugnot of a history of a few ugnot with its own value", () => {
     // A history from 1 to 2 ugnot
     const count = getBalanceTickCount([0.000001, 0.000002]);
     const step = 0.000001 / (count - 1);
-    const labels = Array.from({ length: count }, (_, i) => formatBalanceAxisTick(0.000001 + i * step, step));
+    const values = Array.from({ length: count }, (_, i) => 0.000001 + i * step);
+    const labels = values.map(value => formatBalanceAxisTick(value, values));
 
     expect(labels).toEqual(["0.000001", "0.000002"]);
   });
@@ -166,13 +170,27 @@ describe("Y axis", () => {
   });
 
   it("keeps the decimals a fractional step needs", () => {
-    expect(formatBalanceAxisTick(0.25, 0.25)).toBe("0.25");
-    expect(formatBalanceAxisTick(1000.5, 0.5)).toBe("1,000.5");
+    expect(formatBalanceAxisTick(0.25, [0, 0.25, 0.5])).toBe("0.25");
+    expect(formatBalanceAxisTick(1000.5, [1000, 1000.5, 1001])).toBe("1,000.5");
   });
 
-  it("uses the compact notation once ticks are at least 1 apart", () => {
-    expect(formatBalanceAxisTick(1500000, 500000)).toBe("1.5M");
-    expect(formatBalanceAxisTick(0, 1)).toBe("0");
+  it("uses the compact notation while it keeps the ticks apart", () => {
+    expect(formatBalanceAxisTick(1500000, [1000000, 1500000, 2000000])).toBe("1.5M");
+    expect(formatBalanceAxisTick(0, [0, 1, 2])).toBe("0");
+    expect(formatBalanceAxisTick(30310, [30000, 30010, 30020])).toBe("30.31K");
+  });
+
+  it("falls back to plain labels where the compact unit would round ticks to one label", () => {
+    const labels = (values: number[]) => values.map(value => formatBalanceAxisTick(value, values));
+
+    expect(labels([30305, 30306, 30307, 30308, 30309])).toEqual(["30,305", "30,306", "30,307", "30,308", "30,309"]);
+    expect(labels([1000000, 1000001, 1000002, 1000003, 1000004])).toEqual([
+      "1,000,000",
+      "1,000,001",
+      "1,000,002",
+      "1,000,003",
+      "1,000,004",
+    ]);
   });
 
   it("is wired to the axis with the tick count and the step between ticks", () => {
@@ -188,5 +206,57 @@ describe("Y axis", () => {
 
     expect(ticks.count).toBe(2);
     expect(ticks.callback(0.000002, 1, [{ value: 0.000001 }, { value: 0.000002 }])).toBe("0.000002");
+  });
+
+  // Builds the real Chart.js axis from the options the chart gets, with a stub canvas, and reads its tick labels.
+  const realAxisLabels = (balances: string[]) => {
+    // The UMD build registers every controller and scale itself.
+    const RealChart = jest.requireActual(CHART_JS_UMD);
+    const datas = balances.map((balance, index) => ({
+      date: `2026-11-0${index + 1}`,
+      balance,
+      value: Number(balance),
+    }));
+    render(<BalanceChart datas={datas} />);
+
+    // jsdom has no 2d context, so the canvas gets a stub one that draws nothing.
+    const canvas = document.createElement("canvas");
+    const context = new Proxy(
+      {},
+      {
+        get: (_, key) => {
+          if (key === "canvas") return canvas;
+          return key === "measureText" ? () => ({ width: 10 }) : () => undefined;
+        },
+        set: () => true,
+      },
+    );
+    canvas.getContext = (() => context) as unknown as typeof canvas.getContext;
+    document.body.appendChild(canvas);
+    const chart = new RealChart(canvas, {
+      type: "line",
+      data: chartProps.data,
+      options: { ...chartProps.options, animation: false, responsive: false, plugins: {} },
+    });
+    const labels = chart.scales.yAxis.ticks.map((tick: { label: string }) => tick.label);
+    chart.destroy();
+    return labels;
+  };
+
+  it.each([
+    [
+      ["30305", "30309"],
+      ["30,305", "30,306", "30,307", "30,308", "30,309"],
+    ],
+    [
+      ["1000000", "1000004"],
+      ["1,000,000", "1,000,001", "1,000,002", "1,000,003", "1,000,004"],
+    ],
+    [
+      ["0.000001", "0.000002"],
+      ["0.000001", "0.000002"],
+    ],
+  ])("labels the real axis of %j with distinct ticks", (balances, expected) => {
+    expect(realAxisLabels(balances)).toEqual(expected);
   });
 });
