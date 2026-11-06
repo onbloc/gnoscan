@@ -1,6 +1,10 @@
 import React from "react";
 
 import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
+import {
+  useFunctionFilteredPagedList,
+  useFunctionFilterState,
+} from "@/common/hooks/common/use-function-filtered-paged-list";
 import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import {
@@ -14,6 +18,7 @@ import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { ACTIVITY_TAB, INVENTORY_TAB, NFT_COLLECTION_DETAIL_TABS } from "@/common/values/activity-tab.constant";
 
 import { ListPagination } from "../../common/list-pagination/ListPagination";
+import { FunctionFilterBar } from "../../common/function-filter/FunctionFilterBar";
 import DataListSection from "../../details-data-section/data-list-section";
 import { ActivityDatatable } from "../../datatable/activity";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
@@ -32,7 +37,15 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
   // Same query as the Inventory grid, so the tab count shares its first page.
   const { data: inventoryData } = useGetNftCollectionItems({ tokenKey, limit: NFT_INVENTORY_PAGE_SIZE });
   const enabled = !!tokenKey;
-  const direct = usePagedList("nft-direct", tokenKey, useGetTokenMetaTransactionsById, { path: tokenKey }, { enabled });
+  const [filter, setFilter] = useFunctionFilterState(`nft:${tokenKey}`);
+  const direct = useFunctionFilteredPagedList(
+    "nft-direct",
+    tokenKey,
+    filter,
+    useGetTokenMetaTransactionsById,
+    { path: tokenKey },
+    { enabled },
+  );
   const transfers = usePagedList("nft-transfers", tokenKey, useGetTokenTransfersById, { path: tokenKey }, { enabled });
   const internal = usePagedList(
     "nft-internal",
@@ -59,12 +72,15 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
     <DataListSection tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
       {currentTab === INVENTORY_TAB && <NftCollectionInventory key={tokenKey} tokenKey={tokenKey} symbol={symbol} />}
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
-        <ActivityDatatable
-          variant="direct"
-          data={direct.items}
-          isFetched={direct.isFetched}
-          footer={<ListPagination {...direct.pagination} />}
-        />
+        <>
+          <FunctionFilterBar filter={filter} onChange={setFilter} />
+          <ActivityDatatable
+            variant="direct"
+            data={direct.items}
+            isFetched={direct.isFetched}
+            footer={<ListPagination {...direct.pagination} />}
+          />
+        </>
       )}
       {currentTab === ACTIVITY_TAB.TOKEN_TRANSFERS && (
         <ActivityDatatable

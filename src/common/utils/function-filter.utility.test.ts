@@ -4,6 +4,7 @@ import {
   getFunctionFilterScope,
   isFunctionChecked,
   isFunctionFilterApplicable,
+  makeFunctionFilterQueryParameter,
   removeFunctionLabel,
   setAllFunctionsChecked,
   setFunctionChecked,
@@ -77,5 +78,19 @@ describe("transaction function filter", () => {
     expect(getFunctionFilterScope(include("Mint", "Swap"))).toBe(getFunctionFilterScope(include("Swap", "Mint")));
     expect(getFunctionFilterScope(include("Mint"))).not.toBe(getFunctionFilterScope(exclude("Mint")));
     expect(getFunctionFilterScope(ALL_FUNCTIONS)).not.toBe(getFunctionFilterScope(include("Mint")));
+  });
+});
+
+describe("makeFunctionFilterQueryParameter", () => {
+  it("sends the plain parameters, then one encoded function and excludeFunction per label", () => {
+    expect(
+      makeFunctionFilterQueryParameter({ page: 2, limit: 20, function: ["Mint", "a&b c"], excludeFunction: ["Vote"] }),
+    ).toBe("?page=2&limit=20&function=Mint&function=a%26b%20c&excludeFunction=Vote");
+  });
+
+  it("leaves out empty label lists and returns an empty string without any parameter", () => {
+    expect(makeFunctionFilterQueryParameter({ page: 1, function: [], excludeFunction: [] })).toBe("?page=1");
+    expect(makeFunctionFilterQueryParameter({ excludeFunction: ["Mint"] })).toBe("?excludeFunction=Mint");
+    expect(makeFunctionFilterQueryParameter({})).toBe("");
   });
 });

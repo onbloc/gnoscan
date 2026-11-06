@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
+import { useFirstPageOnFilterChange } from "@/common/hooks/common/use-function-filtered-paged-list";
 import { useListPagination } from "@/common/hooks/common/use-list-pagination";
 import { useAdoptSnapshotHeight, useSnapshotHeight } from "@/common/hooks/common/use-snapshot-height";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
@@ -20,16 +21,7 @@ const StandardNetworkTransactions = ({ filter }: StandardNetworkTransactionDataP
   const scope = getFunctionFilterScope(filter);
   const [page, setPage] = useListPagination("transactions", scope);
 
-  // The hook shows page 1 for a new scope but keeps the page of the old one stored, so applying the earlier filter
-  // again would bring that page back. Commit page 1 once the user changes the filter; the first render keeps the
-  // page restored by history navigation.
-  const shownScope = useRef(scope);
-  useEffect(() => {
-    if (shownScope.current === scope) return;
-
-    shownScope.current = scope;
-    setPage(1);
-  }, [scope, setPage]);
+  useFirstPageOnFilterChange(scope, setPage);
   const snapshot = useSnapshotHeight(page);
   const { data, isFetched, isLoading, isPreviousData } = useGetTransactions({
     ...toFunctionFilterApiParams(filter),

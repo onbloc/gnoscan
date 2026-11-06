@@ -1,3 +1,4 @@
+import { makeQueryParameter, makeRepeatedQueryParameter } from "@/common/utils/string-util";
 import { FunctionFilterApiParams, FunctionFilterValue } from "@/common/types/function-filter";
 import { ALL_FUNCTIONS, MAX_FUNCTION_LABELS } from "@/common/values/function-filter.constant";
 
@@ -48,3 +49,23 @@ export const toFunctionFilterApiParams = ({ mode, labels }: FunctionFilterValue)
 /** Identifies what the filter lists, for a list that starts again from page 1 when it changes. The label order is not part of it. */
 export const getFunctionFilterScope = ({ mode, labels }: FunctionFilterValue) =>
   JSON.stringify([mode, [...labels].sort()]);
+
+/**
+ * Query string (`?…`, empty without parameters) of a list request: the plain parameters, then `function` and
+ * `excludeFunction` once per label, URL-encoded. `makeQueryParameter` alone cannot send a list of values.
+ */
+export const makeFunctionFilterQueryParameter = <T extends FunctionFilterApiParams>({
+  function: included,
+  excludeFunction: excluded,
+  ...rest
+}: T) => {
+  const query = [
+    makeQueryParameter(rest as Parameters<typeof makeQueryParameter>[0]).slice(1),
+    ...makeRepeatedQueryParameter("function", included),
+    ...makeRepeatedQueryParameter("excludeFunction", excluded),
+  ]
+    .filter(Boolean)
+    .join("&");
+
+  return query ? `?${query}` : "";
+};
