@@ -22,15 +22,14 @@ export const DetailsContainer = styled.div<StyleProps>`
     flex-direction: row;
     align-items: center;
     gap: 24px;
-    margin-bottom: 16px;
+    flex: 1 1 auto;
+    min-width: 0;
 
     @media (max-width: 1279px) {
-      min-width: 0;
       overflow-x: auto;
       /* Room for the tab focus ring, which the scrolling would otherwise clip. Margins keep the layout. */
-      width: calc(100% + 8px);
       padding: 4px;
-      margin: -4px -4px 12px;
+      margin: -4px;
 
       ::-webkit-scrollbar {
         width: 0px;

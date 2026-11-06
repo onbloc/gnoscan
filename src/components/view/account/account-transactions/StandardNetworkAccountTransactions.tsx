@@ -6,7 +6,7 @@ import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function
 import DataListSection from "../../details-data-section/data-list-section";
 import AccountTransactionsSkeleton from "./AccountTransactionsSkeleton";
 import { ListPagination } from "../../common/list-pagination/ListPagination";
-import { FunctionFilterBar } from "../../common/function-filter/FunctionFilterBar";
+import { FunctionFilter } from "../../common/function-filter/FunctionFilter";
 import { ActivityDatatable } from "../../datatable/activity";
 import { useGetAccountDirectTransactions } from "@/common/react-query/account/api/use-get-account-direct-transactions";
 import { useGetAccountNativeTransfers } from "@/common/react-query/account/api/use-get-account-native-transfers";
@@ -40,17 +40,23 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
   }
 
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection
+      tabs={detailTabs}
+      tabActions={
+        currentTab === ACTIVITY_TAB.TRANSACTIONS && (
+          <FunctionFilter filter={direct.filter} onChange={direct.setFilter} />
+        )
+      }
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    >
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
-        <>
-          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
-          <ActivityDatatable
-            variant="direct"
-            data={direct.items}
-            isFetched={direct.isFetched}
-            footer={<ListPagination {...direct.pagination} />}
-          />
-        </>
+        <ActivityDatatable
+          variant="direct"
+          data={direct.items}
+          isFetched={direct.isFetched}
+          footer={<ListPagination {...direct.pagination} />}
+        />
       )}
       {currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS && (
         <ActivityDatatable

@@ -15,7 +15,7 @@ import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { ACTIVITY_TAB, INVENTORY_TAB, NFT_COLLECTION_DETAIL_TABS } from "@/common/values/activity-tab.constant";
 
 import { ListPagination } from "../../common/list-pagination/ListPagination";
-import { FunctionFilterBar } from "../../common/function-filter/FunctionFilterBar";
+import { FunctionFilter } from "../../common/function-filter/FunctionFilter";
 import DataListSection from "../../details-data-section/data-list-section";
 import { ActivityDatatable } from "../../datatable/activity";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
@@ -64,18 +64,24 @@ const NftCollectionTabs = ({ tokenKey, symbol }: NftCollectionTabsProps) => {
   const tabs = NFT_COLLECTION_DETAIL_TABS.map(tabName => ({ tabName, size: tabSizes[tabName] }));
 
   return (
-    <DataListSection tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection
+      tabs={tabs}
+      tabActions={
+        currentTab === ACTIVITY_TAB.TRANSACTIONS && (
+          <FunctionFilter filter={direct.filter} onChange={direct.setFilter} />
+        )
+      }
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    >
       {currentTab === INVENTORY_TAB && <NftCollectionInventory key={tokenKey} tokenKey={tokenKey} symbol={symbol} />}
       {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
-        <>
-          <FunctionFilterBar filter={direct.filter} onChange={direct.setFilter} />
-          <ActivityDatatable
-            variant="direct"
-            data={direct.items}
-            isFetched={direct.isFetched}
-            footer={<ListPagination {...direct.pagination} />}
-          />
-        </>
+        <ActivityDatatable
+          variant="direct"
+          data={direct.items}
+          isFetched={direct.isFetched}
+          footer={<ListPagination {...direct.pagination} />}
+        />
       )}
       {currentTab === ACTIVITY_TAB.TOKEN_TRANSFERS && (
         <ActivityDatatable

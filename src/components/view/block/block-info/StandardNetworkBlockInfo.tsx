@@ -3,7 +3,7 @@ import React from "react";
 import { useMappedApiBlockEvents } from "@/common/services/block/use-mapped-api-block-events";
 
 import { useMappedApiBlockTransactions } from "@/common/services/block/use-mapped-api-block-transactions";
-import { FunctionFilterBar } from "../../common/function-filter/FunctionFilterBar";
+import { FunctionFilter } from "../../common/function-filter/FunctionFilter";
 import { ListPagination } from "../../common/list-pagination/ListPagination";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { BlockDetailDatatable } from "../../datatable";
@@ -44,16 +44,18 @@ const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: Bl
   if (!isFetchedEvents || !isFetchedTransactions) return <TableSkeleton />;
 
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection
+      tabs={detailTabs}
+      tabActions={currentTab === "Transactions" && <FunctionFilter filter={filter} onChange={setFilter} />}
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    >
       {currentTab === "Transactions" && (
-        <>
-          <FunctionFilterBar filter={filter} onChange={setFilter} />
-          <BlockDetailDatatable
-            transactions={transactions}
-            isFetched={isFetchedTransactions}
-            footer={<ListPagination {...transactionsPagination} />}
-          />
-        </>
+        <BlockDetailDatatable
+          transactions={transactions}
+          isFetched={isFetchedTransactions}
+          footer={<ListPagination {...transactionsPagination} />}
+        />
       )}
       {currentTab === "Events" && (
         <StandardNetworkEventDatatable
