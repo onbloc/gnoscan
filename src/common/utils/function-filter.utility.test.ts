@@ -3,7 +3,6 @@ import {
   canToggleFunction,
   getFunctionFilterScope,
   isFunctionChecked,
-  isFunctionFilterApplicable,
   removeFunctionLabel,
   setAllFunctionsChecked,
   setFunctionChecked,
@@ -34,21 +33,15 @@ describe("transaction function filter", () => {
     expect(setFunctionChecked(include("Mint"), "Mint", true)).toEqual(include("Mint"));
   });
 
-  it("starts an include list with nothing checked when All is unchecked, and lists everything when it is checked", () => {
+  it("leaves nothing checked when All is unchecked, and lists everything when it is checked", () => {
     expect(setAllFunctionsChecked(false)).toEqual(include());
     expect(setAllFunctionsChecked(true)).toEqual(ALL_FUNCTIONS);
   });
 
-  it("cannot apply an include filter with no label", () => {
-    expect(isFunctionFilterApplicable(include())).toBe(false);
-    expect(isFunctionFilterApplicable(include("Mint"))).toBe(true);
-    expect(isFunctionFilterApplicable(ALL_FUNCTIONS)).toBe(true);
-  });
-
-  it("falls back to every transaction when removing the last label of an include filter", () => {
-    expect(removeFunctionLabel(include("Mint"), "Mint")).toEqual(ALL_FUNCTIONS);
+  it("unchecks a label of an include filter and checks a label of an exclude filter when it is removed", () => {
     expect(removeFunctionLabel(include("Mint", "Swap"), "Mint")).toEqual(include("Swap"));
-    expect(removeFunctionLabel(exclude("Mint"), "Mint")).toEqual(ALL_FUNCTIONS);
+    expect(removeFunctionLabel(include("Mint"), "Mint")).toEqual(include());
+    expect(removeFunctionLabel(exclude("Mint"), "Mint")).toEqual(exclude());
   });
 
   it("only lets a label out of a full list", () => {
@@ -77,5 +70,9 @@ describe("transaction function filter", () => {
     expect(getFunctionFilterScope(include("Mint", "Swap"))).toBe(getFunctionFilterScope(include("Swap", "Mint")));
     expect(getFunctionFilterScope(include("Mint"))).not.toBe(getFunctionFilterScope(exclude("Mint")));
     expect(getFunctionFilterScope(ALL_FUNCTIONS)).not.toBe(getFunctionFilterScope(include("Mint")));
+  });
+
+  it("does not tell the filters that list every transaction apart", () => {
+    expect(getFunctionFilterScope(include())).toBe(getFunctionFilterScope(ALL_FUNCTIONS));
   });
 });

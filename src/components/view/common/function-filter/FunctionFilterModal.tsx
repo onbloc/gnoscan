@@ -7,11 +7,10 @@ import { zindex } from "@/common/values/z-index";
 import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { useGetTransactionFunctionNames } from "@/common/react-query/transaction/api";
 import { FunctionFilterValue } from "@/common/types/function-filter";
-import { ALL_FUNCTIONS, MAX_FUNCTION_LABELS } from "@/common/values/function-filter.constant";
+import { MAX_FUNCTION_LABELS } from "@/common/values/function-filter.constant";
 import {
   canToggleFunction,
   isFunctionChecked,
-  isFunctionFilterApplicable,
   removeFunctionLabel,
   setAllFunctionsChecked,
   setFunctionChecked,
@@ -33,9 +32,10 @@ interface FunctionFilterModalProps {
 const ALL_TOOLTIP =
   "The list shows the 20 most called functions, but there are more. Search to find the others and add or exclude them.";
 
+// Nothing checked filters nothing, so it reads as every function.
 const countText = ({ mode, labels }: FunctionFilterValue) => {
-  if (labels.length > 0) return mode === "exclude" ? `All except ${labels.length}` : `${labels.length} selected`;
-  return mode === "exclude" ? "All functions" : "None selected";
+  if (labels.length === 0) return "All functions";
+  return mode === "exclude" ? `All except ${labels.length}` : `${labels.length} selected`;
 };
 
 const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) => {
@@ -181,10 +181,10 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
         <S.Footer>
           <S.Count>{countText(draft)}</S.Count>
           <S.Actions>
-            <S.ClearButton type="button" onClick={() => setDraft(ALL_FUNCTIONS)}>
+            <S.ClearButton type="button" onClick={() => setDraft(setAllFunctionsChecked(false))}>
               Clear
             </S.ClearButton>
-            <S.ApplyButton type="button" disabled={!isFunctionFilterApplicable(draft)} onClick={() => onApply(draft)}>
+            <S.ApplyButton type="button" onClick={() => onApply(draft)}>
               OK
             </S.ApplyButton>
           </S.Actions>
