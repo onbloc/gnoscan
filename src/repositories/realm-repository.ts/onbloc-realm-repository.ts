@@ -108,12 +108,12 @@ export class OnblocRealmRepository implements IRealmRepository {
     }
 
     const response = await this.nodeClient.abciQueryVMQueryFuncs(realmPath).catch(() => null);
-    if (!response || !response?.response?.ResponseBase?.Data) {
+    if (!response?.response?.ResponseBase?.Data) {
       return null;
     }
 
     try {
-      const results = parseABCI<any[]>(response?.response?.ResponseBase?.Data);
+      const results = parseABCI<any[]>(response.response.ResponseBase.Data);
       return results.map<RealmFunction>(result => ({
         functionName: result?.FuncName,
         params:
@@ -164,7 +164,7 @@ export class OnblocRealmRepository implements IRealmRepository {
       .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || []);
   }
 
-  async getRealmTotalSupply(realmPath: string): Promise<number | null> {
+  async getRealmTotalSupply(realmPath: string): Promise<string | null> {
     if (!this.nodeClient) {
       return null;
     }
@@ -310,7 +310,7 @@ export class OnblocRealmRepository implements IRealmRepository {
       .pageQuery<RealmTransaction<AddPackageValue>>(makeTokenQuery(packagePath))
       .then(result => result?.data?.transactions.edges.map(edge => edge.transaction) || [])
       .catch(() => null);
-    if (!transactions || transactions?.length < 1) {
+    if (!transactions || transactions.length < 1) {
       return null;
     }
 

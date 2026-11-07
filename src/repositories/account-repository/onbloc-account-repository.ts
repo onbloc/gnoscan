@@ -41,16 +41,17 @@ export class OnblocAccountRepository implements IAccountRepository {
   }
 
   async getGRC20TokensBalances(address: string, tokenPaths: string[]): Promise<any> {
-    if (!this.nodeRPCClient) {
+    const { nodeRPCClient } = this;
+    if (!nodeRPCClient) {
       return null;
     }
 
     const fetchers = tokenPaths.map(path =>
-      this.nodeRPCClient?.abciQueryVMQueryEvaluation(path, "BalanceOf", [address]).then(response =>
+      nodeRPCClient.abciQueryVMQueryEvaluation(path, "BalanceOf", [address]).then(response =>
         response?.response?.ResponseBase?.Data
           ? {
               denom: path,
-              value: parseABCIQueryNumberResponse(response.response.ResponseBase.Data).toString(),
+              value: parseABCIQueryNumberResponse(response.response.ResponseBase.Data),
             }
           : null,
       ),
@@ -60,7 +61,7 @@ export class OnblocAccountRepository implements IAccountRepository {
 
   async getAccountTransactions(address: string, cursor: string | null): Promise<AccountTransactionResponse> {
     const transactions: Transaction[] = [];
-    const pageInfo = {
+    const pageInfo: AccountTransactionResponse["pageInfo"] = {
       last: null,
       hasNext: false,
     };
@@ -73,13 +74,11 @@ export class OnblocAccountRepository implements IAccountRepository {
     }
 
     try {
-      const response = await this.indexerClient?.pageQuery(
+      const response = await this.indexerClient.pageQuery(
         makeAccountTransactionsQuery(address, cursor, MAX_QUERY_SIZE),
       );
       const transactionEdges = response?.data?.transactions.edges;
-      const pageInfo = response?.data?.transactions.pageInfo;
-      pageInfo.last = pageInfo?.last || null;
-      pageInfo.hasNext = pageInfo?.hasNext || false;
+      const responsePageInfo = response?.data?.transactions.pageInfo;
       const mappedTransactions = transactionEdges
         .map((edge: any) => edge.transaction)
         .filter((tx: any) => {
@@ -126,12 +125,10 @@ export class OnblocAccountRepository implements IAccountRepository {
           return mapVMTransaction(tx);
         });
       transactions.push(...mappedTransactions);
+      pageInfo.last = responsePageInfo?.last || null;
+      pageInfo.hasNext = responsePageInfo?.hasNext || false;
     } catch (e) {
       console.error(e);
-      return {
-        transactions,
-        pageInfo,
-      };
     }
 
     return {
@@ -178,7 +175,7 @@ export class OnblocAccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.pageQuery(makeGRC20ReceivedTransactionsByAddressQuery(address))
+      .pageQuery(makeGRC20ReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions.edges.map(edge => edge.transaction) || [])
       .then(transactions =>
         transactions.map(mapReceivedTransactionByMsgCall).filter((tx: Transaction) => tx.to === address),
@@ -191,7 +188,7 @@ export class OnblocAccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.query(makeNativeTokenSendTransactionsByAddressQuery(address))
+      .query(makeNativeTokenSendTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
       .then(transactions => transactions.map(mapSendTransactionByBankMsgSend));
   }
@@ -202,7 +199,7 @@ export class OnblocAccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.query(makeNativeTokenReceivedTransactionsByAddressQuery(address))
+      .query(makeNativeTokenReceivedTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
       .then(transactions => transactions.map(mapReceivedTransactionByBankMsgSend));
   }
@@ -213,7 +210,7 @@ export class OnblocAccountRepository implements IAccountRepository {
     }
 
     return this.indexerClient
-      ?.query(makeVMTransactionsByAddressQuery(address))
+      .query(makeVMTransactionsByAddressQuery(address))
       .then(result => result.data?.transactions || [])
       .then(transactions => transactions.map(mapVMTransaction));
   }

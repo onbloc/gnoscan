@@ -1,4 +1,4 @@
-import { parseABCIKeyValueResponse, stringToBase64 } from "./utility";
+import { parseABCIKeyValueResponse, parseABCIQueryNumberResponse, stringToBase64 } from "./utility";
 
 describe("parseABCIKeyValueResponse", () => {
   it("should return empty object for null input", () => {
@@ -317,5 +317,23 @@ describe("parseABCIKeyValueResponse", () => {
       valid: "100",
       storage: "300",
     });
+  });
+});
+
+describe("parseABCIQueryNumberResponse", () => {
+  it("keeps every digit of values above the safe integer range", () => {
+    expect(parseABCIQueryNumberResponse(stringToBase64("(1000000000000000001 uint64)"))).toBe("1000000000000000001");
+  });
+
+  it("returns the first number in the response", () => {
+    expect(parseABCIQueryNumberResponse(stringToBase64("(1000 uint64)"))).toBe("1000");
+  });
+
+  it("returns zero when the response has no number", () => {
+    expect(parseABCIQueryNumberResponse(stringToBase64("(nil)"))).toBe("0");
+  });
+
+  it("throws when the response is not initialized", () => {
+    expect(() => parseABCIQueryNumberResponse(null)).toThrow();
   });
 });
