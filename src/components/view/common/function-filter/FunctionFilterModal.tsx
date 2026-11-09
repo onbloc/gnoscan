@@ -52,6 +52,7 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
   const isAtLimit = draft.labels.length >= MAX_FUNCTION_LABELS;
   // Follows the debounced keyword, so "All" hides together with the unfiltered list it belongs to.
   const isSearching = keyword !== undefined;
+  const count = countText(draft);
 
   useBodyScrollLock(true);
 
@@ -163,7 +164,7 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
         </S.Body>
 
         <S.Footer>
-          {countText(draft) && <S.Count>{countText(draft)}</S.Count>}
+          {count && <S.Count>{count}</S.Count>}
           <S.Actions>
             <S.ClearButton type="button" onClick={() => setDraft(setAllFunctionsChecked(false))}>
               Clear
