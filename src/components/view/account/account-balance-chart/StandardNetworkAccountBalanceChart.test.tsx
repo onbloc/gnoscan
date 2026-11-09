@@ -85,12 +85,12 @@ const rangeButton = (name: string) =>
 // The request the hook was last called with
 const lastRequest = () => mockUseHistory.mock.calls[mockUseHistory.mock.calls.length - 1][0];
 
-const render = (query: object) => {
+const render = (query: object, account = address) => {
   mockUseHistory.mockReturnValue({ data: undefined, isError: false, isPreviousData: false, ...query });
   act(() =>
     root.render(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-        <StandardNetworkAccountBalanceChart address={address} />
+        <StandardNetworkAccountBalanceChart address={account} />
       </ThemeProvider>,
     ),
   );
@@ -248,7 +248,7 @@ describe("StandardNetworkAccountBalanceChart", () => {
       expect(text()).toContain("Select a day on the chart");
     });
 
-    it("restores per account and network", () => {
+    it("restores per network", () => {
       render({ data: { items } });
       act(() => dayButton("2026-11-05").click());
 
@@ -257,6 +257,18 @@ describe("StandardNetworkAccountBalanceChart", () => {
       root = createRoot(container);
       render({ data: { items } });
       expect(table()).toBeNull();
+    });
+
+    it("restores per account", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-05").click());
+
+      // Another account reuses the mounted chart, as when going from one account to another.
+      render({ data: { items } }, "g1otheraccount");
+      expect(table()).toBeNull();
+
+      render({ data: { items } });
+      expect(table()!.textContent).toBe("2026-11-05");
     });
   });
 
