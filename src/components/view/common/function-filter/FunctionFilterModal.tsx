@@ -30,12 +30,11 @@ interface FunctionFilterModalProps {
   onClose: () => void;
 }
 
-const ALL_TOOLTIP =
-  "The list shows the 20 most called functions, but there are more. Search to find the others and add or exclude them.";
+const ALL_TOOLTIP = "The list shows the top 20 most called functions. Search to find the others not on the list.";
 
-// Nothing checked filters nothing, so it reads as every function.
+// Nothing checked filters nothing, so there is nothing to count.
 const countText = ({ mode, labels }: FunctionFilterValue) => {
-  if (labels.length === 0) return "All functions";
+  if (labels.length === 0) return null;
   return mode === "exclude" ? `All except ${labels.length}` : `${labels.length} selected`;
 };
 
@@ -164,7 +163,7 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
         </S.Body>
 
         <S.Footer>
-          <S.Count>{countText(draft)}</S.Count>
+          {countText(draft) && <S.Count>{countText(draft)}</S.Count>}
           <S.Actions>
             <S.ClearButton type="button" onClick={() => setDraft(setAllFunctionsChecked(false))}>
               Clear
