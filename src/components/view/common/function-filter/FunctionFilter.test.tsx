@@ -114,7 +114,6 @@ describe("FunctionFilter", () => {
     expect(allBox().indeterminate).toBe(true);
     expect(optionBox("Transfer").checked).toBe(true);
     expect(chips()).toEqual(["Mint", "Swap"]);
-    expect(document.body.textContent).toContain("All except 2");
     expect(onChange).not.toHaveBeenCalled();
 
     act(() => button("OK").click());
@@ -155,7 +154,6 @@ describe("FunctionFilter", () => {
 
     act(() => optionBox("Swap").click());
     act(() => optionBox("Transfer").click());
-    expect(document.body.textContent).toContain("2 selected");
 
     act(() => button("OK").click());
     expect(onChange).toHaveBeenCalledWith(include("Swap", "Transfer"));

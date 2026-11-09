@@ -32,12 +32,6 @@ interface FunctionFilterModalProps {
 
 const ALL_TOOLTIP = "The list shows the top 20 most called functions. Search to find the others not on the list.";
 
-// Nothing checked filters nothing, so there is nothing to count.
-const countText = ({ mode, labels }: FunctionFilterValue) => {
-  if (labels.length === 0) return null;
-  return mode === "exclude" ? `All except ${labels.length}` : `${labels.length} selected`;
-};
-
 const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) => {
   const [draft, setDraft] = useState(filter);
   const { value, setValue, keyword } = useListKeyword();
@@ -52,7 +46,6 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
   const isAtLimit = draft.labels.length >= MAX_FUNCTION_LABELS;
   // Follows the debounced keyword, so "All" hides together with the unfiltered list it belongs to.
   const isSearching = keyword !== undefined;
-  const count = countText(draft);
 
   useBodyScrollLock(true);
 
@@ -164,7 +157,6 @@ const FilterDialog = ({ filter, onApply, onClose }: FunctionFilterModalProps) =>
         </S.Body>
 
         <S.Footer>
-          {count && <S.Count>{count}</S.Count>}
           <S.Actions>
             <S.ClearButton type="button" onClick={() => setDraft(setAllFunctionsChecked(false))}>
               Clear
