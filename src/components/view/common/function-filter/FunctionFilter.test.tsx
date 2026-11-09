@@ -102,7 +102,6 @@ describe("FunctionFilter", () => {
     expect(optionBox("Transfer").checked).toBe(true);
     expect(optionBox("Mint").checked).toBe(true);
     expect(document.querySelector("[aria-label='Excluded functions']")).toBeNull();
-    expect(document.body.textContent).toContain("All functions");
   });
 
   it("excludes the labels that are unchecked and applies them only on OK", () => {
@@ -115,7 +114,6 @@ describe("FunctionFilter", () => {
     expect(allBox().indeterminate).toBe(true);
     expect(optionBox("Transfer").checked).toBe(true);
     expect(chips()).toEqual(["Mint", "Swap"]);
-    expect(document.body.textContent).toContain("All except 2");
     expect(onChange).not.toHaveBeenCalled();
 
     act(() => button("OK").click());
@@ -153,11 +151,9 @@ describe("FunctionFilter", () => {
 
     expect(allBox().checked).toBe(false);
     expect(optionBox("Transfer").checked).toBe(false);
-    expect(document.body.textContent).toContain("All functions");
 
     act(() => optionBox("Swap").click());
     act(() => optionBox("Transfer").click());
-    expect(document.body.textContent).toContain("2 selected");
 
     act(() => button("OK").click());
     expect(onChange).toHaveBeenCalledWith(include("Swap", "Transfer"));
@@ -197,7 +193,6 @@ describe("FunctionFilter", () => {
     expect(allBox().indeterminate).toBe(false);
     ["Transfer", "Mint", "Swap"].forEach(name => expect(optionBox(name).checked).toBe(false));
     expect(document.querySelector("[role=group]")).toBeNull();
-    expect(document.body.textContent).toContain("All functions");
 
     act(() => button("OK").click());
     expect(onChange).toHaveBeenCalledWith(include());

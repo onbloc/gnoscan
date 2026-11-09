@@ -354,6 +354,7 @@ export const Count = styled.span`
 export const Actions = styled.div`
   ${mixins.flexbox("row", "center", "flex-end")};
   gap: 8px;
+  margin-left: auto;
 `;
 
 export const ClearButton = styled.button`
