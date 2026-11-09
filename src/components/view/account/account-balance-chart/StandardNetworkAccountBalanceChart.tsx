@@ -2,6 +2,8 @@ import React from "react";
 import BigNumber from "bignumber.js";
 import dynamic from "next/dynamic";
 
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { useGetAccountNativeBalanceHistory } from "@/common/react-query/account/api/use-get-account-native-balance-history";
 import { CHART_FULL_DATE_FORMAT, formatChartDate } from "@/components/ui/chart/chart-common";
 import { Spinner } from "@/components/ui/loading/spinner";
@@ -32,8 +34,22 @@ interface AccountBalanceChartProps {
   address: string;
 }
 
+interface BalanceChartView {
+  selection: BalanceRangeSelection;
+  // UTC day, YYYY-MM-DD
+  selectedDate: string | null;
+}
+
+const INITIAL_VIEW: BalanceChartView = { selection: BALANCE_RANGE.ONE_MONTH, selectedDate: null };
+
 const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProps) => {
-  const [selection, setSelection] = React.useState<BalanceRangeSelection>(BALANCE_RANGE.ONE_MONTH);
+  const { currentNetwork } = useNetworkProvider();
+  // Kept per history entry, so Back from a transaction restores the range and the day with its rows.
+  const [view, setView] = useHistoryEntryState<BalanceChartView>(
+    `account-balance:${currentNetwork?.chainId}:${address}:view`,
+    INITIAL_VIEW,
+  );
+  const { selection, selectedDate } = view;
   // The day is fixed per mount so the query key stays stable while the page is open.
   const [now] = React.useState(() => Date.now());
   const request = React.useMemo(() => makeBalanceHistoryRequest(address, selection, now), [address, selection, now]);
@@ -54,19 +70,18 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
 
   // Clicking the selected day again clears it, and so does another range. A day that the range on screen does not
   // have, or one of a range without balance, is not selected.
-  const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
   const activeDate = hasBalance && items?.some(item => item.date === selectedDate) ? selectedDate : null;
   // A selection that went away stays gone when the day comes back.
   if (items && selectedDate && !activeDate) {
-    setSelectedDate(null);
+    setView(current => ({ ...current, selectedDate: null }));
   }
-  const changeSelection = React.useCallback((next: BalanceRangeSelection) => {
-    setSelection(next);
-    setSelectedDate(null);
-  }, []);
+  const changeSelection = React.useCallback(
+    (next: BalanceRangeSelection) => setView({ selection: next, selectedDate: null }),
+    [setView],
+  );
   const toggleDate = React.useCallback(
-    (date: string) => setSelectedDate(current => (current === date ? null : date)),
-    [],
+    (date: string) => setView(current => ({ ...current, selectedDate: current.selectedDate === date ? null : date })),
+    [setView],
   );
 
   const renderChart = () => {
