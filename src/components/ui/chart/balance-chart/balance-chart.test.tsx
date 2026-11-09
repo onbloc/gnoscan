@@ -53,8 +53,17 @@ const datas = [
   { date: "2026-11-02", balance: "2", value: 2 },
 ];
 
+const canvas = { getBoundingClientRect: () => ({ width: 400, height: 200 }), style: { cursor: "" } };
+
+const unhover = () => {
+  act(() => {
+    chartProps.options.plugins.tooltip.external({ chart: { canvas }, tooltip: { opacity: 0, dataPoints: [] } });
+  });
+};
+
+const click = () => act(() => chartProps.options.onClick());
+
 const hover = (dataIndex: number, caretY = 100) => {
-  const canvas = { getBoundingClientRect: () => ({ width: 400, height: 200 }) };
   act(() => {
     chartProps.options.plugins.tooltip.external({
       chart: { canvas },
@@ -142,10 +151,90 @@ it("keeps the exact balance in the tooltip where the plotting value has lost it"
 
 it("shows the point of a history with a single day, and no point otherwise", () => {
   render(<BalanceChart datas={[datas[0]]} />);
-  expect(chartProps.data.datasets[0].pointRadius).toBeGreaterThan(0);
+  expect(chartProps.data.datasets[0].pointRadius({ dataIndex: 0 })).toBeGreaterThan(0);
 
   render(<BalanceChart datas={datas} />);
-  expect(chartProps.data.datasets[0].pointRadius).toBe(0);
+  expect(chartProps.data.datasets[0].pointRadius({ dataIndex: 0 })).toBe(0);
+});
+
+describe("day selection", () => {
+  beforeEach(() => {
+    jest.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(() => ({
+      width: 120,
+      height: 60,
+      top: 0,
+      left: 0,
+      right: 120,
+      bottom: 60,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }));
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it("tells that a click opens the transactions of the day", () => {
+    const { container } = render(<BalanceChart datas={datas} onSelectDate={jest.fn()} />);
+    hover(0);
+
+    expect(container.querySelector(".tooltip-hint")!.textContent).toBe("Click to view transactions");
+  });
+
+  it("has no hint when a day cannot be selected", () => {
+    const { container } = render(<BalanceChart datas={datas} />);
+    hover(0);
+
+    expect(container.querySelector(".tooltip-hint")).toBeNull();
+  });
+
+  it("selects the day whose tooltip is shown on click", () => {
+    const onSelectDate = jest.fn();
+    render(<BalanceChart datas={datas} onSelectDate={onSelectDate} />);
+    hover(1);
+    click();
+
+    expect(onSelectDate).toHaveBeenCalledTimes(1);
+    expect(onSelectDate).toHaveBeenCalledWith("2026-11-02");
+  });
+
+  it("selects nothing without a day under the pointer, as on an axis or after leaving the chart", () => {
+    const onSelectDate = jest.fn();
+    render(<BalanceChart datas={datas} onSelectDate={onSelectDate} />);
+    click();
+    hover(0);
+    unhover();
+    click();
+
+    expect(onSelectDate).not.toHaveBeenCalled();
+  });
+
+  it("shows a pointer over the days only when they can be selected", () => {
+    render(<BalanceChart datas={datas} onSelectDate={jest.fn()} />);
+    hover(0);
+    expect(canvas.style.cursor).toBe("pointer");
+    unhover();
+    expect(canvas.style.cursor).toBe("default");
+
+    render(<BalanceChart datas={datas} />);
+    hover(0);
+    expect(canvas.style.cursor).toBe("default");
+  });
+
+  it("marks the point of the selected day, and no other, also under the pointer", () => {
+    render(<BalanceChart datas={datas} selectedDate="2026-11-02" />);
+    const { pointRadius, pointHoverRadius } = chartProps.data.datasets[0];
+
+    expect(pointRadius({ dataIndex: 1 })).toBeGreaterThan(pointRadius({ dataIndex: 0 }));
+    expect(pointHoverRadius({ dataIndex: 1 })).toBeGreaterThan(pointHoverRadius({ dataIndex: 0 }));
+  });
+
+  it("marks no point for a day that is not in the history", () => {
+    render(<BalanceChart datas={datas} selectedDate="2026-10-01" />);
+
+    expect(chartProps.data.datasets[0].pointRadius({ dataIndex: 0 })).toBe(0);
+    expect(chartProps.data.datasets[0].pointRadius({ dataIndex: 1 })).toBe(0);
+  });
 });
 
 // The package exports only ESM, which jest does not load, so its UMD build is reached by path.

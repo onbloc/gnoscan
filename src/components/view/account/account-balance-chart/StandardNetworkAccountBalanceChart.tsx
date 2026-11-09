@@ -20,6 +20,7 @@ import {
   makeBalanceHistoryRequest,
   toBalanceChartPoints,
 } from "./account-balance-chart.utility";
+import { AccountBalanceDayTransactions } from "./AccountBalanceDayTransactions";
 import { BalanceDateFilter } from "./BalanceDateFilter";
 import * as S from "./AccountBalanceChart.styles";
 
@@ -51,13 +52,30 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
   const extremes = React.useMemo(() => findBalanceExtremes(items ?? []), [items]);
   const hasBalance = !!items?.some(item => item.balance !== "0");
 
+  // Clicking the selected day again clears it, and so does another range. A day that the range on screen does not
+  // have, or one of a range without balance, is not selected.
+  const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
+  const activeDate = hasBalance && items?.some(item => item.date === selectedDate) ? selectedDate : null;
+  // A selection that went away stays gone when the day comes back.
+  if (items && selectedDate && !activeDate) {
+    setSelectedDate(null);
+  }
+  const changeSelection = React.useCallback((next: BalanceRangeSelection) => {
+    setSelection(next);
+    setSelectedDate(null);
+  }, []);
+  const toggleDate = React.useCallback(
+    (date: string) => setSelectedDate(current => (current === date ? null : date)),
+    [],
+  );
+
   const renderChart = () => {
     if (!items)
       return isError ? <Notice message="Balance history could not be loaded." /> : <Spinner position="center" />;
     if (!hasBalance) return <Notice message="No balance in this period." />;
     return (
       <>
-        <BalanceChart datas={points} getUsd={getUsd} />
+        <BalanceChart datas={points} getUsd={getUsd} selectedDate={activeDate} onSelectDate={toggleDate} />
         {isPreviousData && <Spinner position="center" />}
       </>
     );
@@ -76,12 +94,12 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
               type="button"
               $selected={item === selection}
               aria-pressed={item === selection}
-              onClick={() => setSelection(item)}
+              onClick={() => changeSelection(item)}
             >
               {item}
             </S.RangeButton>
           ))}
-          <BalanceDateFilter now={now} range={isCustomRange(selection) ? selection : null} onChange={setSelection} />
+          <BalanceDateFilter now={now} range={isCustomRange(selection) ? selection : null} onChange={changeSelection} />
         </S.RangeTabs>
       </S.Header>
 
@@ -93,6 +111,13 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
       )}
 
       <S.ChartArea $loading={isPreviousData}>{renderChart()}</S.ChartArea>
+
+      {hasBalance && !activeDate && (
+        <Text type="body1" color="tertiary">
+          Select a day on the chart to see its transactions.
+        </Text>
+      )}
+      {activeDate && <AccountBalanceDayTransactions key={activeDate} address={address} date={activeDate} />}
     </S.Content>
   );
 };

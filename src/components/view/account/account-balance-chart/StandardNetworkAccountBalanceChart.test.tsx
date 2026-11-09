@@ -20,10 +20,28 @@ jest.mock("@/common/hooks/common/use-token-price", () => ({
 jest.mock(
   "next/dynamic",
   () => () =>
-    function Chart({ datas }: { datas: unknown[] }) {
-      return <div data-testid="chart">{datas.length} points</div>;
+    function Chart({
+      datas,
+      selectedDate,
+      onSelectDate,
+    }: {
+      datas: { date: string }[];
+      selectedDate: string | null;
+      onSelectDate: (date: string) => void;
+    }) {
+      return (
+        <div data-testid="chart" data-selected={selectedDate ?? ""}>
+          {datas.length} points
+          {datas.map(data => (
+            <button key={data.date} data-day={data.date} onClick={() => onSelectDate(data.date)} />
+          ))}
+        </div>
+      );
     },
 );
+jest.mock("./AccountBalanceDayTransactions", () => ({
+  AccountBalanceDayTransactions: ({ date }: { date: string }) => <div data-testid="day-table">{date}</div>,
+}));
 jest.mock("./BalanceDateFilter", () => ({ BalanceDateFilter: () => null }));
 
 const address = "g1juss2tuc97sr77rn6vprhh9lr7d9e07uu68x59";
@@ -101,6 +119,74 @@ describe("StandardNetworkAccountBalanceChart", () => {
     // The amount and its unit are spaced by CSS, so they join in the text.
     expect(text()).toContain("Highest Balance5GNOT($5)on Nov 5, 2026");
     expect(text()).toContain("Lowest Balance1GNOT($1)on Nov 4, 2026");
+  });
+
+  describe("selecting a day", () => {
+    const dayButton = (date: string) => container.querySelector<HTMLButtonElement>(`[data-day="${date}"]`)!;
+    const table = () => container.querySelector("[data-testid=day-table]");
+
+    it("asks to select a day until one is, then lists its transactions under the chart", () => {
+      render({ data: { items } });
+      expect(text()).toContain("Select a day on the chart to see its transactions.");
+      expect(table()).toBeNull();
+
+      act(() => dayButton("2026-11-05").click());
+      expect(table()!.textContent).toBe("2026-11-05");
+      expect(chart()!.getAttribute("data-selected")).toBe("2026-11-05");
+      expect(text()).not.toContain("Select a day");
+    });
+
+    it("switches to another day, and clears the day that is clicked again", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-05").click());
+      act(() => dayButton("2026-11-06").click());
+      expect(table()!.textContent).toBe("2026-11-06");
+
+      act(() => dayButton("2026-11-06").click());
+      expect(table()).toBeNull();
+      expect(chart()!.getAttribute("data-selected")).toBe("");
+    });
+
+    it("drops a selected day that the range on screen no longer has, for good", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-04").click());
+      render({ data: { items: items.slice(1) } });
+      expect(table()).toBeNull();
+      expect(text()).toContain("Select a day on the chart");
+
+      // The range that has the day again does not bring the selection back.
+      render({ data: { items } });
+      expect(table()).toBeNull();
+      expect(chart()!.getAttribute("data-selected")).toBe("");
+    });
+
+    it("clears the selection when the range is changed, also back to a range with the day", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-05").click());
+      expect(table()).not.toBeNull();
+
+      act(() => rangeButton("All").click());
+      expect(table()).toBeNull();
+      act(() => rangeButton("1M").click());
+      expect(table()).toBeNull();
+      expect(text()).toContain("Select a day on the chart");
+    });
+
+    it("shows no table under the notice of a range without balance", () => {
+      render({ data: { items: [items[0], { date: "2026-11-05", balance: "0" }] } });
+      act(() => dayButton("2026-11-05").click());
+      expect(table()).not.toBeNull();
+
+      render({ data: { items: [{ date: "2026-11-05", balance: "0" }] } });
+      expect(text()).toContain("No balance in this period.");
+      expect(table()).toBeNull();
+    });
+
+    it("has nothing to select without a balance", () => {
+      render({ data: { items: [{ date: "2026-11-06", balance: "0" }] } });
+
+      expect(text()).not.toContain("Select a day");
+    });
   });
 
   it("requests the last 30 days first, then the range of the clicked button", () => {

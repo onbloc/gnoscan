@@ -106,3 +106,11 @@ export const Notice = styled.div`
   transform: translate(-50%, -50%);
   text-align: center;
 `;
+
+// The table of the selected day under the chart.
+export const TransactionSection = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+`;
