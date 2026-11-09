@@ -1,6 +1,7 @@
 import {
   GetAccountDirectTransactionsRequest,
   GetAccountGRC721CollectionItemsRequest,
+  GetAccountNativeBalanceChangesRequest,
   GetAccountNativeBalanceHistoryRequest,
   GetAccountNativeTransfersRequest,
   GetAccountTokenTransfersRequest,
@@ -10,6 +11,7 @@ import {
   GetAccountDirectTransactionsResponse,
   GetAccountGRC721CollectionItemsResponse,
   GetAccountGRC721CollectionsResponse,
+  GetAccountNativeBalanceChangesResponse,
   GetAccountNativeBalanceHistoryResponse,
   GetAccountNativeTransfersResponse,
   GetAccountResponse,
@@ -31,6 +33,10 @@ export interface ApiAccountRepository {
   getAccountNativeBalanceHistory(
     params: GetAccountNativeBalanceHistoryRequest,
   ): Promise<GetAccountNativeBalanceHistoryResponse>;
+
+  getAccountNativeBalanceChanges(
+    params: GetAccountNativeBalanceChangesRequest,
+  ): Promise<GetAccountNativeBalanceChangesResponse>;
 
   getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse>;
 

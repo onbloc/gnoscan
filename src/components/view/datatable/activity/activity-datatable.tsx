@@ -24,7 +24,7 @@ interface Props {
   footer?: React.ReactNode;
 }
 
-const TOOLTIP_TYPE = (
+export const TOOLTIP_TYPE = (
   <>
     Hover on each value to <br />
     view the raw transaction <br />

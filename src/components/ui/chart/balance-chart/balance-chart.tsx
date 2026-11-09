@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { Chart, ChartData, ChartOptions, TooltipModel } from "chart.js";
+import { Chart, ChartData, ChartOptions, ScriptableContext, TooltipModel } from "chart.js";
 import { useRecoilValue } from "recoil";
 import { styled } from "@/styles";
 import { themeState } from "@/states";
@@ -25,6 +25,9 @@ interface BalanceChartProps {
   datas: Array<{ date: string; balance: string; value: number }>;
   // Display value of a balance (an exact decimal in GNOT) in USD; null when there is no price.
   getUsd?: (balance: string) => string | null;
+  // The UTC day (YYYY-MM-DD) marked on the chart, and what a click on a day's point selects.
+  selectedDate?: string | null;
+  onSelectDate?: (date: string) => void;
 }
 
 // Space between the hovered point and the tooltip.
@@ -45,6 +48,8 @@ const MAX_AXIS_FRACTION_DIGITS = 6;
 const Y_TICK_COUNT = 5;
 // Radius of the point of a history with a single day, which has no line to show.
 const SINGLE_POINT_RADIUS = 3;
+// Radius of the point of the selected day.
+const SELECTED_POINT_RADIUS = 5;
 
 /**
  * Formats a Y-axis tick so that the ticks of the axis stay distinct. The compact notation (1.5M) is used only when
@@ -84,13 +89,15 @@ const spanInDays = (datas: BalanceChartProps["datas"]) => {
   return (Date.parse(datas[datas.length - 1].date) - Date.parse(datas[0].date)) / DAY_TIME;
 };
 
-export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
+export const BalanceChart = ({ datas, getUsd, selectedDate, onSelectDate }: BalanceChartProps) => {
   const themeMode = useRecoilValue(themeState);
   const palette = getChartPalette(themeMode);
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState({ title: "", value: "" });
   const anchorRef = useRef({ caretX: 0, caretY: 0, chartWidth: 0 });
+  // The index of the day whose tooltip is shown, which is the day a click selects.
+  const hoveredIndexRef = useRef<number | null>(null);
 
   useHideTooltipOnScroll(tooltipRef);
 
@@ -127,10 +134,13 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
     const { chart, tooltip } = context;
     const currentTooltip = getActiveTooltipElement(tooltipRef, tooltip);
     if (!currentTooltip) {
+      hoveredIndexRef.current = null;
+      chart.canvas.style.cursor = "default";
       return;
     }
 
-    const point = datas[tooltip.dataPoints[0]?.dataIndex];
+    const dataIndex = tooltip.dataPoints[0]?.dataIndex;
+    const point = datas[dataIndex];
     if (!point) {
       return;
     }
@@ -142,6 +152,8 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
       setCurrentValue({ title, value });
     }
 
+    hoveredIndexRef.current = dataIndex;
+    chart.canvas.style.cursor = onSelectDate ? "pointer" : "default";
     currentTooltip.style.opacity = "1";
 
     anchorRef.current = {
@@ -180,7 +192,15 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
       },
     },
     plugins: createExternalTooltipPlugins(renderExternalTooltip),
+    onClick: () => {
+      const point = hoveredIndexRef.current === null ? undefined : datas[hoveredIndexRef.current];
+      if (point) {
+        onSelectDate?.(point.date);
+      }
+    },
   };
+
+  const selectedIndex = selectedDate ? datas.findIndex(data => data.date === selectedDate) : -1;
 
   const chartData: ChartData<"line"> = {
     labels: datas.map(data => data.date),
@@ -194,11 +214,15 @@ export const BalanceChart = ({ datas, getUsd }: BalanceChartProps) => {
         borderColor: palette.blue,
         backgroundColor: `${palette.blue}26`,
         cubicInterpolationMode: "monotone",
-        pointRadius: datas.length === 1 ? SINGLE_POINT_RADIUS : 0,
-        pointBorderWidth: 0,
+        pointRadius: (context: ScriptableContext<"line">) =>
+          context.dataIndex === selectedIndex ? SELECTED_POINT_RADIUS : datas.length === 1 ? SINGLE_POINT_RADIUS : 0,
+        pointBorderWidth: (context: ScriptableContext<"line">) => (context.dataIndex === selectedIndex ? 2 : 0),
+        pointBorderColor: "#FFFFFF",
         pointHitRadius: 0,
-        pointHoverRadius: 2,
+        pointHoverRadius: (context: ScriptableContext<"line">) =>
+          context.dataIndex === selectedIndex ? SELECTED_POINT_RADIUS : 2,
         pointHoverBorderWidth: 1,
+        pointHoverBorderColor: palette.blue,
         pointHoverBackgroundColor: "#FFFFFF",
         pointBackgroundColor: palette.blue,
       },
