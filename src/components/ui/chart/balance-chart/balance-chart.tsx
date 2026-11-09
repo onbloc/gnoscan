@@ -237,6 +237,7 @@ export const BalanceChart = ({ datas, getUsd, selectedDate, onSelectDate }: Bala
           title={currentValue.title}
           value={currentValue.value}
           usd={currentValue.value ? getUsd?.(currentValue.value) : null}
+          hint={onSelectDate ? "Click to view transactions" : null}
         />
       </div>
       <Line width={"100%"} height={"100%"} options={options} data={chartData} />

@@ -174,6 +174,20 @@ describe("day selection", () => {
 
   afterEach(() => jest.restoreAllMocks());
 
+  it("tells that a click opens the transactions of the day", () => {
+    const { container } = render(<BalanceChart datas={datas} onSelectDate={jest.fn()} />);
+    hover(0);
+
+    expect(container.querySelector(".tooltip-hint")!.textContent).toBe("Click to view transactions");
+  });
+
+  it("has no hint when a day cannot be selected", () => {
+    const { container } = render(<BalanceChart datas={datas} />);
+    hover(0);
+
+    expect(container.querySelector(".tooltip-hint")).toBeNull();
+  });
+
   it("selects the day whose tooltip is shown on click", () => {
     const onSelectDate = jest.fn();
     render(<BalanceChart datas={datas} onSelectDate={onSelectDate} />);
