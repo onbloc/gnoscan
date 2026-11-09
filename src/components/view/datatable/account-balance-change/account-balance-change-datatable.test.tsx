@@ -2,6 +2,9 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
+import { ThemeProvider } from "styled-components";
+
+import theme from "@/styles/theme";
 
 import { AccountNativeBalanceChange } from "@/repositories/api/account/response";
 import { AccountBalanceChangeDatatable } from "./account-balance-change-datatable";
@@ -25,8 +28,8 @@ jest.mock("@/components/ui/datatable", () => ({
         </tr>
       </thead>
       <tbody>
-        {datas.map(row => (
-          <tr key={row.txHash as string}>
+        {datas.map((row, rowIndex) => (
+          <tr key={rowIndex}>
             {headers.map((header, index) => (
               <td key={index}>{header.renderOption(row[header.key], row)}</td>
             ))}
@@ -81,7 +84,13 @@ beforeEach(() => {
 afterEach(() => act(() => root.unmount()));
 
 const rowsOf = (data: AccountNativeBalanceChange[]) => {
-  act(() => root.render(<AccountBalanceChangeDatatable data={data} isFetched />));
+  act(() =>
+    root.render(
+      <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
+        <AccountBalanceChangeDatatable data={data} isFetched />
+      </ThemeProvider>,
+    ),
+  );
   return Array.from(container.querySelectorAll("tbody tr")).map(row =>
     Array.from(row.querySelectorAll("td")).map(cell => cell.textContent),
   );
@@ -129,6 +138,24 @@ describe("AccountBalanceChangeDatatable", () => {
 
     // The approval only prepares the swap, so the swap names the transaction.
     expect(rows[0][1]).toBe("Swap/3");
+  });
+
+  it("shows a reconciliation of a block, which has no transaction, as an adjustment without a link", () => {
+    const rows = rowsOf([
+      change({
+        txHash: null,
+        blockHeight: 77,
+        amount: "1500000",
+        messageCount: 0,
+        func: [],
+        changes: [{ type: "RECONCILE", amount: "1500000" }],
+      }),
+      change({ txHash: "tx", blockHeight: 77, amount: "-5" }),
+    ]);
+
+    expect(rows[0]).toEqual(["-", "Balance adjustment", "#77", "1.5 GNOT", "-", "2026-10-25T10:00:00Z"]);
+    // The transaction of the same block is a row as before.
+    expect(rows[1].slice(0, 3)).toEqual(["tx:success", "Do/1", "#77"]);
   });
 
   it("leaves the function empty instead of failing for a row without messages", () => {

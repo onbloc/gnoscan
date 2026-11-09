@@ -9,9 +9,13 @@ export interface AccountNativeBalanceChangePart {
   amount: string;
 }
 
-/** A transaction that changed the balance. */
+/**
+ * A transaction that changed the balance, or the reconciliation of a block. A reconciliation is a row of its own,
+ * as the processor cannot tell which transaction it was for: its txHash is null, it has a single RECONCILE change,
+ * and it has no messages (messageCount 0, func empty).
+ */
 export interface AccountNativeBalanceChange {
-  txHash: string;
+  txHash: string | null;
   blockHeight: number;
   timestamp: string;
   successYn: boolean;

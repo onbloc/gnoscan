@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import BigNumber from "bignumber.js";
+import styled from "styled-components";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { GNOTToken, useTokenMeta } from "@/common/hooks/common/use-token-meta";
@@ -35,9 +36,14 @@ export const AccountBalanceChangeDatatable = ({ data, isFetched, footer }: Props
         .name("Tx Hash")
         .width(200)
         .colorName("blue")
-        .renderOption((value, row) => (
-          <DatatableItem.TxHash txHash={value} status={row.successYn ? "success" : "failure"} />
-        ))
+        .renderOption((value, row) =>
+          // A reconciliation of a block has no transaction to link.
+          value ? (
+            <DatatableItem.TxHash txHash={value} status={row.successYn ? "success" : "failure"} />
+          ) : (
+            <span>-</span>
+          ),
+        )
         .build(),
       DatatableOption.Builder.builder<AccountNativeBalanceChange>()
         .key("func")
@@ -46,6 +52,10 @@ export const AccountBalanceChangeDatatable = ({ data, isFetched, footer }: Props
         .colorName("blue")
         .tooltip(TOOLTIP_TYPE)
         .renderOption((_, row) => {
+          if (row.txHash === null) {
+            return <AdjustmentLabel>Balance adjustment</AdjustmentLabel>;
+          }
+
           // A server that lacks the messages (an older one) leaves the chip empty instead of failing the page.
           const messageCount = row.messageCount ?? 0;
           const func = getRepresentativeTransactionFunction({ messageCount, func: row.func ?? [] });
@@ -96,3 +106,16 @@ export const AccountBalanceChangeDatatable = ({ data, isFetched, footer }: Props
     </FlushTableContainer>
   );
 };
+
+// The name of a reconciliation in the Function column, which it has no function for. It is plain, unlike the chip of a
+// function.
+const AdjustmentLabel = styled.span`
+  & {
+    display: block;
+    width: fit-content;
+    padding: 4px 16px;
+    color: ${({ theme }) => theme.colors.primary};
+    background-color: ${({ theme }) => theme.colors.pantone};
+    border-radius: 4px;
+  }
+`;
