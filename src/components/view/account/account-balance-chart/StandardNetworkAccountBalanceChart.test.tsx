@@ -147,13 +147,39 @@ describe("StandardNetworkAccountBalanceChart", () => {
       expect(chart()!.getAttribute("data-selected")).toBe("");
     });
 
-    it("drops a selected day that the range on screen no longer has", () => {
+    it("drops a selected day that the range on screen no longer has, for good", () => {
       render({ data: { items } });
       act(() => dayButton("2026-11-04").click());
       render({ data: { items: items.slice(1) } });
-
       expect(table()).toBeNull();
       expect(text()).toContain("Select a day on the chart");
+
+      // The range that has the day again does not bring the selection back.
+      render({ data: { items } });
+      expect(table()).toBeNull();
+      expect(chart()!.getAttribute("data-selected")).toBe("");
+    });
+
+    it("clears the selection when the range is changed, also back to a range with the day", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-05").click());
+      expect(table()).not.toBeNull();
+
+      act(() => rangeButton("All").click());
+      expect(table()).toBeNull();
+      act(() => rangeButton("1M").click());
+      expect(table()).toBeNull();
+      expect(text()).toContain("Select a day on the chart");
+    });
+
+    it("shows no table under the notice of a range without balance", () => {
+      render({ data: { items: [items[0], { date: "2026-11-05", balance: "0" }] } });
+      act(() => dayButton("2026-11-05").click());
+      expect(table()).not.toBeNull();
+
+      render({ data: { items: [{ date: "2026-11-05", balance: "0" }] } });
+      expect(text()).toContain("No balance in this period.");
+      expect(table()).toBeNull();
     });
 
     it("has nothing to select without a balance", () => {

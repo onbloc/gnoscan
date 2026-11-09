@@ -16,14 +16,12 @@ interface AccountBalanceDayTransactionsProps {
 
 /** The transactions that changed the balance on one UTC day. */
 export const AccountBalanceDayTransactions = ({ address, date }: AccountBalanceDayTransactionsProps) => {
-  // The rows of another day are not kept on screen while this one loads, as they would sit under the wrong date.
-  const list = usePagedList(
-    "account-balance-day",
-    `${address}:${date}`,
-    useGetAccountNativeBalanceChanges,
-    { address, from: date, to: date },
-    { keepPreviousData: false },
-  );
+  // The parent keys this by the day, so the rows of another day never sit under this date while it loads.
+  const list = usePagedList("account-balance-day", `${address}:${date}`, useGetAccountNativeBalanceChanges, {
+    address,
+    from: date,
+    to: date,
+  });
 
   return (
     <S.TransactionSection>

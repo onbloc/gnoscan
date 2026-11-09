@@ -46,13 +46,15 @@ export const AccountBalanceChangeDatatable = ({ data, isFetched, footer }: Props
         .colorName("blue")
         .tooltip(TOOLTIP_TYPE)
         .renderOption((_, row) => {
-          const func = getRepresentativeTransactionFunction(row);
+          // A server that lacks the messages (an older one) leaves the chip empty instead of failing the page.
+          const messageCount = row.messageCount ?? 0;
+          const func = getRepresentativeTransactionFunction({ messageCount, func: row.func ?? [] });
           return (
             <DatatableItem.Type
               messageType={func?.messageType ?? ""}
               functionName={func?.funcType ?? ""}
               packagePath={func?.pkgPath}
-              messageCount={row.messageCount}
+              messageCount={messageCount}
               txHash={row.txHash}
             />
           );

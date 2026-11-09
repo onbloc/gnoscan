@@ -47,12 +47,11 @@ describe("AccountBalanceDayTransactions", () => {
     expect(container.querySelector("[data-testid=table]")!.textContent).toBe("2");
   });
 
-  it("asks for that UTC day alone, apart from the lists of other days, and drops the rows of the previous day", () => {
-    const [name, scope, , params, options] = mockUsePagedList.mock.calls[0];
+  it("asks for that UTC day alone, apart from the lists of other days", () => {
+    const [name, scope, , params] = mockUsePagedList.mock.calls[0];
 
     expect(params).toEqual({ address, from: "2026-10-23", to: "2026-10-23" });
     expect(scope).toBe(`${address}:2026-10-23`);
     expect(name).toBe("account-balance-day");
-    expect(options).toEqual({ keepPreviousData: false });
   });
 });

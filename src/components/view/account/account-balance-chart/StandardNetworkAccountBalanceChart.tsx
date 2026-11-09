@@ -52,9 +52,18 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
   const extremes = React.useMemo(() => findBalanceExtremes(items ?? []), [items]);
   const hasBalance = !!items?.some(item => item.balance !== "0");
 
-  // Clicking the selected day again clears it. A day outside the range on screen is not selected.
+  // Clicking the selected day again clears it, and so does another range. A day that the range on screen does not
+  // have, or one of a range without balance, is not selected.
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
-  const activeDate = items?.some(item => item.date === selectedDate) ? selectedDate : null;
+  const activeDate = hasBalance && items?.some(item => item.date === selectedDate) ? selectedDate : null;
+  // A selection that went away stays gone when the day comes back.
+  if (items && selectedDate && !activeDate) {
+    setSelectedDate(null);
+  }
+  const changeSelection = React.useCallback((next: BalanceRangeSelection) => {
+    setSelection(next);
+    setSelectedDate(null);
+  }, []);
   const toggleDate = React.useCallback(
     (date: string) => setSelectedDate(current => (current === date ? null : date)),
     [],
@@ -85,12 +94,12 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
               type="button"
               $selected={item === selection}
               aria-pressed={item === selection}
-              onClick={() => setSelection(item)}
+              onClick={() => changeSelection(item)}
             >
               {item}
             </S.RangeButton>
           ))}
-          <BalanceDateFilter now={now} range={isCustomRange(selection) ? selection : null} onChange={setSelection} />
+          <BalanceDateFilter now={now} range={isCustomRange(selection) ? selection : null} onChange={changeSelection} />
         </S.RangeTabs>
       </S.Header>
 
@@ -108,7 +117,7 @@ const StandardNetworkAccountBalanceChart = ({ address }: AccountBalanceChartProp
           Select a day on the chart to see its transactions.
         </Text>
       )}
-      {activeDate && <AccountBalanceDayTransactions address={address} date={activeDate} />}
+      {activeDate && <AccountBalanceDayTransactions key={activeDate} address={address} date={activeDate} />}
     </S.Content>
   );
 };
