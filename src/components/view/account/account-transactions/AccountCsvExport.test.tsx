@@ -186,6 +186,13 @@ it("keeps over-limit feedback in the dialog so the dates can be narrowed and dow
     setDate(0, "2026-11-02");
     setDate(1, "2026-11-02");
   });
+  expect(apply().disabled).toBe(true);
+  expect(
+    Array.from(document.querySelectorAll<HTMLInputElement>("input[type=date]")).every(input => !input.disabled),
+  ).toBe(true);
+  act(() => apply().click());
+  expect(mockRepository.getAccountDirectTransactions).toHaveBeenCalledTimes(1);
+  act(() => jest.advanceTimersByTime(5000));
   await act(async () => apply().click());
   expect(downloaded.map(item => item.filename)).toEqual(["account-g1account_transactions_2026-11-02_2026-11-02.csv"]);
   expect(document.querySelector("[role=alert]")).toBeNull();
@@ -221,17 +228,23 @@ it("prevents duplicate downloads and date edits while a request is pending", asy
   expect(mockRepository.getAccountDirectTransactions).toHaveBeenCalledTimes(1);
   await act(async () => result.resolve(page([row(1)])));
   expect(downloaded).toHaveLength(1);
+  expect(apply().disabled).toBe(true);
+  act(() => jest.advanceTimersByTime(5000));
   expect(apply().disabled).toBe(false);
 });
 
-it("cancels a closed dialog export without disrupting a new pending export", async () => {
+it("keeps the submit button locked after closing until the old request actually finishes", async () => {
   const old = deferred<ActivityListResponse>();
   const current = deferred<ActivityListResponse>();
   mockRepository.getAccountDirectTransactions.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise);
   render();
   await pickRange();
   act(() => button("Close").click());
-  await pickRange();
+  act(() => button("Download CSV").click());
+  act(() => jest.advanceTimersByTime(5000));
+  expect(apply().disabled).toBe(true);
+  act(() => apply().click());
+  expect(mockRepository.getAccountDirectTransactions).toHaveBeenCalledTimes(1);
   await act(async () =>
     old.resolve(
       page(
@@ -241,9 +254,10 @@ it("cancels a closed dialog export without disrupting a new pending export", asy
       ),
     ),
   );
-  expect(mockRepository.getAccountDirectTransactions).toHaveBeenCalledTimes(2);
   expect(downloaded).toEqual([]);
-  expect(apply().disabled).toBe(true);
+  expect(mockRepository.getAccountDirectTransactions).toHaveBeenCalledTimes(1);
+  expect(apply().disabled).toBe(false);
+  await act(async () => apply().click());
   await act(async () => current.resolve(page([row(1)])));
   expect(downloaded).toHaveLength(1);
 });
@@ -275,7 +289,42 @@ it("shows empty results and request failures inside the dialog without downloadi
   expect(document.querySelector("[role=dialog] [role=status]")?.textContent).toMatch(/No transactions/);
   expect(downloaded).toEqual([]);
   mockRepository.getAccountDirectTransactions.mockRejectedValueOnce(new Error("network"));
+  act(() => jest.advanceTimersByTime(5000));
   await act(async () => apply().click());
   expect(document.querySelector("[role=dialog] [role=alert]")).not.toBeNull();
   expect(downloaded).toEqual([]);
 });
+
+it.each(["success", "empty", "failure", "over-limit"])(
+  "blocks rapid retries after %s, including after reopening, until five seconds have passed",
+  async outcome => {
+    const request = mockRepository.getAccountDirectTransactions;
+    if (outcome === "failure") request.mockRejectedValueOnce(new Error("network"));
+    else
+      request.mockResolvedValueOnce(
+        outcome === "over-limit"
+          ? page([row(1)], ACCOUNT_CSV_LIMIT + 1, true)
+          : page(outcome === "empty" ? [] : [row(1)]),
+      );
+    render();
+    act(() => button("Download CSV").click());
+    await act(async () => {
+      apply().click();
+      apply().click();
+      apply().click();
+    });
+    expect(request).toHaveBeenCalledTimes(1);
+    act(() => button("Close").click());
+    act(() => button("Download CSV").click());
+    expect(apply().disabled).toBe(true);
+    act(() => jest.advanceTimersByTime(4999));
+    act(() => apply().click());
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(apply().disabled).toBe(true);
+    act(() => jest.advanceTimersByTime(1));
+    expect(apply().disabled).toBe(false);
+    request.mockResolvedValueOnce(page([row(2)]));
+    await act(async () => apply().click());
+    expect(request).toHaveBeenCalledTimes(2);
+  },
+);

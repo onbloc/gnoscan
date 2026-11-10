@@ -18,6 +18,7 @@ interface DateFilterDialogProps {
   maxRangeDays?: number;
   applyLabel?: string;
   isApplying?: boolean;
+  isApplyDisabled?: boolean;
   feedback?: React.ReactNode;
 }
 
@@ -32,6 +33,7 @@ export const DateFilterDialog = ({
   maxRangeDays,
   applyLabel = "OK",
   isApplying = false,
+  isApplyDisabled = false,
   feedback,
 }: DateFilterDialogProps) => {
   const today = toUtcDate(now);
@@ -97,7 +99,7 @@ export const DateFilterDialog = ({
           <F.Actions>
             <F.ApplyButton
               type="button"
-              disabled={error !== null || isApplying}
+              disabled={error !== null || isApplying || isApplyDisabled}
               aria-busy={isApplying}
               onClick={() => onApply(draft)}
             >

@@ -25,6 +25,8 @@ interface Props {
   filter: FunctionFilterApiParams;
 }
 
+const CSV_CLICK_INTERVAL_MS = 5000;
+
 /** Export state belongs to the account, network, tab and applied function filter. */
 export const AccountCsvExport = ({ address, kind, filter }: Props) => {
   const { apiAccountRepository } = useServiceProvider();
@@ -35,13 +37,14 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
   const [dialog, setDialog] = useState<{ now: number } | null>(null);
   const [notice, setNotice] = useState<{ type: "info" | "error"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const retryAt = useRef(0);
+  const coolingDown = remainingSeconds > 0;
   const active = useRef(true);
   const pending = useRef(false);
   const requestId = useRef(0);
   const close = useCallback(() => {
     requestId.current += 1;
-    pending.current = false;
-    setBusy(false);
     setDialog(null);
     setNotice(null);
   }, []);
@@ -53,11 +56,22 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!coolingDown) return;
+    const timer = window.setInterval(() => {
+      setRemainingSeconds(Math.max(0, Math.ceil((retryAt.current - Date.now()) / 1000)));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [coolingDown]);
+
   const download = async (selected: DateFilterRange) => {
-    if (!apiAccountRepository || !amountsReady || pending.current) return;
+    const now = Date.now();
+    if (!apiAccountRepository || !amountsReady || pending.current || now < retryAt.current) return;
     const id = ++requestId.current;
     const isCurrent = () => active.current && requestId.current === id;
     pending.current = true;
+    retryAt.current = now + CSV_CLICK_INTERVAL_MS;
+    setRemainingSeconds(CSV_CLICK_INTERVAL_MS / 1000);
     setRange(selected);
     setBusy(true);
     setNotice(null);
@@ -98,10 +112,8 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
             : "Could not export CSV. Please try again.",
       });
     } finally {
-      if (isCurrent()) {
-        pending.current = false;
-        setBusy(false);
-      }
+      pending.current = false;
+      if (active.current) setBusy(false);
     }
   };
 
@@ -125,8 +137,9 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
             range={range}
             onClose={close}
             onApply={download}
-            applyLabel={busy ? "Preparing CSV…" : "Download CSV"}
+            applyLabel={busy ? "Preparing CSV…" : coolingDown ? `Try again in ${remainingSeconds}s` : "Download CSV"}
             isApplying={busy}
+            isApplyDisabled={coolingDown || !apiAccountRepository || !amountsReady}
             feedback={
               notice && (
                 <S.Notice role={notice.type === "error" ? "alert" : "status"} $error={notice.type === "error"}>
