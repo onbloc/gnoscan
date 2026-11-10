@@ -17,11 +17,13 @@ export const ListCsvButton = ({ csv }: ListCsvButtonProps) => {
   return (
     <S.CsvButton
       type="button"
+      aria-label="Download CSV"
+      title="Download CSV"
       disabled={!canDownload}
       onClick={() => csv && downloadCsv(`${csv.name}_page-${csv.page}.csv`, toCsv(csv.header, csv.rows))}
     >
       <IconDownload aria-hidden="true" />
-      Download CSV
+      <span>Download CSV</span>
     </S.CsvButton>
   );
 };

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
+import { media } from "@/common/values/ui.constant";
 import { FilterButton } from "../function-filter/FunctionFilter.styles";
 
 export const CsvButton = styled(FilterButton)`
@@ -12,6 +13,21 @@ export const CsvButton = styled(FilterButton)`
   svg {
     width: 14px;
     height: 14px;
+  }
+
+  ${media.NOT_DESKTOP} {
+    width: 40px;
+    padding: 0;
+    gap: 0;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    span {
+      display: none;
+    }
   }
 
   :disabled {

@@ -33,6 +33,7 @@ export const TitleRow = styled.div`
 
 export const Actions = styled.div`
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 8px;
 `;
