@@ -8,16 +8,21 @@ import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 interface BlocksLayoutProps {
   standardNetworkBlocks: React.ReactNode;
   customNetworkBlocks: React.ReactNode;
+  // Controls at the right end of the title line; standard networks only.
+  blockActions: React.ReactNode;
 }
 
-const BlocksLayout = ({ standardNetworkBlocks, customNetworkBlocks }: BlocksLayoutProps) => {
+const BlocksLayout = ({ standardNetworkBlocks, customNetworkBlocks, blockActions }: BlocksLayoutProps) => {
   const { isCustomNetwork } = useNetworkProvider();
 
   return (
     <S.Container>
       <S.InnerLayout>
         <S.Wrapper>
-          <PageTitle title="Blocks" type="h2" />
+          <S.TitleRow>
+            <PageTitle title="Blocks" type="h2" />
+            {!isCustomNetwork && blockActions}
+          </S.TitleRow>
           {isCustomNetwork ? customNetworkBlocks : standardNetworkBlocks}
         </S.Wrapper>
       </S.InnerLayout>
