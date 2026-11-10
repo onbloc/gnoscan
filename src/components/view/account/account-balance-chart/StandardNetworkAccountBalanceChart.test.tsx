@@ -44,6 +44,30 @@ jest.mock("./AccountBalanceDayTransactions", () => ({
 }));
 jest.mock("./BalanceDateFilter", () => ({ BalanceDateFilter: () => null }));
 
+let mockChainId = "chain-a";
+jest.mock("@/common/hooks/provider/use-network-provider", () => ({
+  useNetworkProvider: () => ({ currentNetwork: { chainId: mockChainId } }),
+}));
+// Outlives the unmounted chart, like the history entry does.
+jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => {
+  const { useState } = jest.requireActual("react");
+  const store = new Map<string, unknown>();
+  return {
+    useHistoryEntryState: (name: string, initial: unknown) => {
+      const [, rerender] = useState(0);
+      return [
+        store.has(name) ? store.get(name) : initial,
+        (action: unknown) => {
+          const base = store.has(name) ? store.get(name) : initial;
+          store.set(name, typeof action === "function" ? action(base) : action);
+          rerender((n: number) => n + 1);
+        },
+      ];
+    },
+    __store: store,
+  };
+});
+
 const address = "g1juss2tuc97sr77rn6vprhh9lr7d9e07uu68x59";
 const items = [
   { date: "2026-11-04", balance: "1000000" },
@@ -61,12 +85,12 @@ const rangeButton = (name: string) =>
 // The request the hook was last called with
 const lastRequest = () => mockUseHistory.mock.calls[mockUseHistory.mock.calls.length - 1][0];
 
-const render = (query: object) => {
+const render = (query: object, account = address) => {
   mockUseHistory.mockReturnValue({ data: undefined, isError: false, isPreviousData: false, ...query });
   act(() =>
     root.render(
       <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
-        <StandardNetworkAccountBalanceChart address={address} />
+        <StandardNetworkAccountBalanceChart address={account} />
       </ThemeProvider>,
     ),
   );
@@ -76,6 +100,8 @@ beforeAll(() => Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }));
 
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(Date.UTC(2026, 10, 6, 12));
+  mockChainId = "chain-a";
+  jest.requireMock("@/common/hooks/detail-tabs/use-history-entry-state").__store.clear();
   mockUseHistory.mockReset();
   container = document.createElement("div");
   document.body.appendChild(container);
@@ -186,6 +212,63 @@ describe("StandardNetworkAccountBalanceChart", () => {
       render({ data: { items: [{ date: "2026-11-06", balance: "0" }] } });
 
       expect(text()).not.toContain("Select a day");
+    });
+
+    it("restores the range and the day, with its table, after the chart is mounted again", () => {
+      render({ data: { items } });
+      act(() => rangeButton("All").click());
+      act(() => dayButton("2026-11-05").click());
+
+      // Back from a transaction mounts the chart again in the same history entry.
+      act(() => root.unmount());
+      root = createRoot(container);
+      render({ data: { items } });
+
+      expect(lastRequest()).toEqual({ address, range: "all" });
+      expect(rangeButton("All").getAttribute("aria-pressed")).toBe("true");
+      expect(table()!.textContent).toBe("2026-11-05");
+      expect(chart()!.getAttribute("data-selected")).toBe("2026-11-05");
+    });
+
+    it("keeps a restored day while its range loads, and drops it once the range lacks the day", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-04").click());
+      act(() => root.unmount());
+      root = createRoot(container);
+
+      render({});
+      expect(table()).toBeNull();
+      render({ data: { items } });
+      expect(table()!.textContent).toBe("2026-11-04");
+
+      act(() => root.unmount());
+      root = createRoot(container);
+      render({ data: { items: items.slice(1) } });
+      expect(table()).toBeNull();
+      expect(text()).toContain("Select a day on the chart");
+    });
+
+    it("restores per network", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-05").click());
+
+      mockChainId = "chain-b";
+      act(() => root.unmount());
+      root = createRoot(container);
+      render({ data: { items } });
+      expect(table()).toBeNull();
+    });
+
+    it("restores per account", () => {
+      render({ data: { items } });
+      act(() => dayButton("2026-11-05").click());
+
+      // Another account reuses the mounted chart, as when going from one account to another.
+      render({ data: { items } }, "g1otheraccount");
+      expect(table()).toBeNull();
+
+      render({ data: { items } });
+      expect(table()!.textContent).toBe("2026-11-05");
     });
   });
 
