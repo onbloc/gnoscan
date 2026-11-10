@@ -9,6 +9,7 @@ import StandardNetworkTransactionData from "./StandardNetworkTransactionData";
 
 const mockUseGetTransactions = jest.fn();
 let mockOnChangePage: (page: number) => void;
+let mockOnChangePageSize: (pageSize: number) => void;
 
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: { chainId: "chain-a" } }),
@@ -37,11 +38,15 @@ jest.mock("@/common/react-query/transaction/api", () => ({
 jest.mock("../transaction-list-table/standard-network/StandardNetworkTransactionListTable", () => ({
   StandardNetworkTransactionListTable: ({ footer }: { footer: React.ReactNode }) => footer,
 }));
-jest.mock("@/components/view/common/list-pagination/ListPagination", () => ({
-  ListPagination: ({ onChangePage }: { onChangePage: (page: number) => void }) => {
-    mockOnChangePage = onChangePage;
+jest.mock("@/components/view/common/list-footer/ListFooter", () => ({
+  ListFooter: (props: { onChangePage: (page: number) => void; onChangePageSize: (pageSize: number) => void }) => {
+    mockOnChangePage = props.onChangePage;
+    mockOnChangePageSize = props.onChangePageSize;
     return null;
   },
+}));
+jest.mock("@/common/hooks/common/use-token-meta", () => ({
+  GNOTToken: { symbol: "GNOT", denom: "ugnot", decimals: 6 },
 }));
 
 const include = (...labels: string[]): FunctionFilterValue => ({ mode: "include", labels });
@@ -76,7 +81,29 @@ describe("StandardNetworkTransactionData", () => {
 
     render(exclude("Mint"));
 
-    expect(lastRequest()).toEqual({ excludeFunction: ["Mint"], page: 1, snapshotHeight: undefined });
+    expect(lastRequest()).toEqual({ excludeFunction: ["Mint"], page: 1, limit: 50, snapshotHeight: undefined });
+  });
+
+  it("lists the first page, unpinned, of the page size chosen", () => {
+    render(ALL_FUNCTIONS);
+    act(() => mockOnChangePage(4));
+    expect(lastRequest()).toMatchObject({ page: 4, limit: 50, snapshotHeight: 200 });
+
+    act(() => mockOnChangePageSize(25));
+
+    expect(lastRequest()).toEqual({ page: 1, limit: 25, snapshotHeight: undefined });
+  });
+
+  it("starts again from the first page when the earlier page size is chosen back", () => {
+    render(ALL_FUNCTIONS);
+    act(() => mockOnChangePage(4));
+    act(() => mockOnChangePageSize(25));
+    mockUseGetTransactions.mockClear();
+
+    act(() => mockOnChangePageSize(50));
+
+    expect(requests().every(params => params.page === 1 && params.snapshotHeight === undefined)).toBe(true);
+    expect(lastRequest()).toMatchObject({ page: 1, limit: 50 });
   });
 
   it("starts again from the first page when the earlier filter is applied back", () => {

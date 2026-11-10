@@ -33,6 +33,11 @@ $ yarn dev
 ```
 
 
+## List Page Exports
+On indexed networks, the Blocks and Transactions pages provide a **Show:** selector for 10, 25, 50, or 100 rows per page. **Download CSV** exports only the currently displayed page, respecting the active transaction function filter.
+
+CSV files include full hashes and addresses, UTC timestamps, and exact decimal amounts. Date-range exports and account-detail CSV downloads are not included.
+
 ## Contributing & Support
 If you would like to contribute to GnoScan or need support, please consider the following options:
 - Read our contributing guidelines: The [CONTRIBUTING.md](./CONTRIBUTING.md) file provides detailed information on how to contribute to the project, including submitting pull requests, reporting issues, and suggesting improvements. Start contribution branches from `develop` and submit pull requests against `develop`.

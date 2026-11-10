@@ -8,11 +8,11 @@ import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 interface TransactionsLayoutProps {
   transactionList: React.ReactNode;
   transactionSearch: React.ReactNode;
-  // Filter button on the title line; standard networks only.
-  transactionFilter: React.ReactNode;
+  // Controls at the right end of the title line; standard networks only.
+  transactionActions: React.ReactNode;
 }
 
-const TransactionsLayout = ({ transactionList, transactionSearch, transactionFilter }: TransactionsLayoutProps) => {
+const TransactionsLayout = ({ transactionList, transactionSearch, transactionActions }: TransactionsLayoutProps) => {
   const { indexerQueryClient, isCustomNetwork } = useNetworkProvider();
   const hasIndexerClient = Boolean(indexerQueryClient);
 
@@ -22,7 +22,7 @@ const TransactionsLayout = ({ transactionList, transactionSearch, transactionFil
         <S.Wrapper>
           <S.TitleRow>
             <PageTitle title="Transactions" type="h2" />
-            {hasIndexerClient && !isCustomNetwork && transactionFilter}
+            {hasIndexerClient && !isCustomNetwork && <S.Actions>{transactionActions}</S.Actions>}
           </S.TitleRow>
           {hasIndexerClient ? transactionList : transactionSearch}
         </S.Wrapper>

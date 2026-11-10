@@ -21,8 +21,7 @@ import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant
  * @returns Original transactions data fetched from the API and the status of the query
  */
 export const useGetTransactions = (
-  // The page size is fixed: the list components number rows and pages by `DEFAULT_LIST_ITEMS_SIZE`.
-  params: Omit<GetTransactionsRequestParameters, "limit"> & { limit?: never } = {},
+  params: GetTransactionsRequestParameters = {},
   options?: UseQueryOptions<GetTransactionsResponse, Error, GetTransactionsResponse>,
 ): UseQueryResult<GetTransactionsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
