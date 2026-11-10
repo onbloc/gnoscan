@@ -13,12 +13,17 @@ import { useGetAccountNativeTransfers } from "@/common/react-query/account/api/u
 import { useGetAccountTokenTransfers } from "@/common/react-query/account/api/use-get-account-token-transfers";
 import StandardNetworkAccountBalanceChart from "../account-balance-chart/StandardNetworkAccountBalanceChart";
 import { ACCOUNT_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
+import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { getFunctionFilterScope, toFunctionFilterApiParams } from "@/common/utils/function-filter.utility";
+import { AccountCsvExport, AccountCsvKind } from "./AccountCsvExport";
+import * as S from "./AccountCsvExport.styles";
 
 interface AccountTransactionsProps {
   address: string;
 }
 
 const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProps) => {
+  const { currentNetwork } = useNetworkProvider();
   const direct = useFunctionFilteredPagedList("account-direct", address, useGetAccountDirectTransactions, {
     address,
   });
@@ -26,6 +31,21 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
   const token = usePagedList("account-token", address, useGetAccountTokenTransfers, { address });
 
   const [currentTab, setCurrentTab] = useHistoryEntryState<string>(`account:${address}:tab`, ACTIVITY_TAB.TRANSACTIONS);
+  const csvKind: AccountCsvKind | null =
+    currentTab === ACTIVITY_TAB.TRANSACTIONS
+      ? "transactions"
+      : currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS
+      ? "native-transfers"
+      : currentTab === ACTIVITY_TAB.TOKEN_TRANSFERS
+      ? "token-transfers"
+      : null;
+  const csvScope = JSON.stringify([
+    currentNetwork?.chainId,
+    currentNetwork?.apiUrl,
+    address,
+    csvKind,
+    csvKind === "transactions" ? getFunctionFilterScope(direct.filter) : "all",
+  ]);
 
   const detailTabs = React.useMemo(
     () => [
@@ -45,8 +65,18 @@ const StandardNetworkAccountTransactions = ({ address }: AccountTransactionsProp
     <DataListSection
       tabs={detailTabs}
       tabActions={
-        currentTab === ACTIVITY_TAB.TRANSACTIONS && (
-          <FunctionFilter filter={direct.filter} onChange={direct.setFilter} />
+        csvKind && (
+          <S.Controls>
+            <AccountCsvExport
+              key={csvScope}
+              address={address}
+              kind={csvKind}
+              filter={csvKind === "transactions" ? toFunctionFilterApiParams(direct.filter) : {}}
+            />
+            {currentTab === ACTIVITY_TAB.TRANSACTIONS && (
+              <FunctionFilter filter={direct.filter} onChange={direct.setFilter} />
+            )}
+          </S.Controls>
         )
       }
       currentTab={currentTab}

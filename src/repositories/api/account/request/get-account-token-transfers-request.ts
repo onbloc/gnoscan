@@ -4,4 +4,8 @@ export interface GetAccountTokenTransfersRequest {
   page?: number;
 
   limit?: number;
+
+  from?: string;
+
+  to?: string;
 }
