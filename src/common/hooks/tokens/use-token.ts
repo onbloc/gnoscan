@@ -22,7 +22,7 @@ export const useToken = (path: string[] | string | undefined) => {
 
     return path;
   }, [path]);
-  const { data: totalSupply = 0 } = useGetRealmTotalSupplyQuery(packagePath);
+  const { data: totalSupply = "0" } = useGetRealmTotalSupplyQuery(packagePath);
   const { data, isFetched } = useGetGRC20Token(packagePath);
   const { data: holders = 0 } = useGetHoldersQuery(packagePath);
   const { data: realmFunctions, isFetched: isFetchedRealmFunctions } = useGetRealmFunctionsQuery(packagePath);

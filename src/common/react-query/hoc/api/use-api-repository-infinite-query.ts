@@ -45,7 +45,7 @@ export function useApiRepositoryInfiniteQuery<TData extends CursorPageResponse, 
       return queryFn(repository, pageParam as string | undefined);
     },
     getNextPageParam: lastPage => (lastPage.page.hasNext ? lastPage.page.cursor : undefined),
-    enabled: !!repository && options?.enabled !== false,
     ...options,
+    enabled: !!repository && options?.enabled !== false,
   });
 }
