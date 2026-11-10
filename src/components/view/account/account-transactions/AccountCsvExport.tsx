@@ -10,6 +10,8 @@ import { DateFilterDialog } from "../../common/date-filter/DateFilterDialog";
 import { DateFilterRange } from "../../common/date-filter/date-filter.utility";
 import { CsvButton } from "../../common/list-csv/ListCsvButton.styles";
 import * as S from "./AccountCsvExport.styles";
+import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
+import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 
 export type AccountCsvKind = "transactions" | "native-transfers" | "token-transfers";
 
@@ -22,6 +24,9 @@ interface Props {
 /** Export state belongs to the account, network, tab and applied function filter. */
 export const AccountCsvExport = ({ address, kind, filter }: Props) => {
   const { apiAccountRepository } = useServiceProvider();
+  const { getTokenMeta, isFetched: isResourceFetched } = useTokenResourceMeta();
+  const { getTokenAmount, isFetchedGRC20Tokens } = useTokenMeta();
+  const amountsReady = isResourceFetched && isFetchedGRC20Tokens;
   const [range, setRange] = useState<DateFilterRange | null>(null);
   const [dialog, setDialog] = useState<{ now: number } | null>(null);
   const [notice, setNotice] = useState<{ type: "info" | "error"; text: string } | null>(null);
@@ -45,7 +50,7 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
   }, []);
 
   const download = async (selected: DateFilterRange) => {
-    if (!apiAccountRepository || pending.current) return;
+    if (!apiAccountRepository || !amountsReady || pending.current) return;
     const id = ++requestId.current;
     const isCurrent = () => active.current && requestId.current === id;
     pending.current = true;
@@ -68,6 +73,7 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
           return result;
         },
         kind === "transactions" ? "direct" : "transfers",
+        { getTokenMeta, getFeeAmount: fee => getTokenAmount(fee.denom, fee.value) },
       );
       if (!isCurrent()) return;
       if (csv.rows.length === 0) {
@@ -100,7 +106,7 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
         aria-label="Download CSV"
         aria-haspopup="dialog"
         title="Download CSV"
-        disabled={!apiAccountRepository}
+        disabled={!apiAccountRepository || !amountsReady}
         onClick={() => setDialog({ now: Date.now() })}
       >
         <IconDownload aria-hidden="true" />

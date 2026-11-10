@@ -15,6 +15,18 @@ const toIsoTime = (timestamp: string) => {
   return Number.isNaN(time.getTime()) ? timestamp : time.toISOString();
 };
 
+// Match AmountText's six fractional digits without grouping or rounding.
+export const toCsvAmountValue = (value: string): string => {
+  const ungrouped = value.replace(/,/g, "");
+  const amount = BigNumber(ungrouped);
+  if (!ungrouped || amount.isNaN()) return "";
+
+  const decimalValue = /e/i.test(ungrouped) ? amount.toFixed() : ungrouped;
+  const [integer, fraction = "0"] = decimalValue.split(".");
+
+  return `${BigNumber(integer).toFixed(0)}${fraction && fraction !== "0" ? `.${fraction.slice(0, 6)}` : ""}`;
+};
+
 export const BLOCK_CSV_HEADER = [
   "Block Hash",
   "Height",
@@ -33,9 +45,11 @@ export const toBlockCsvRow = (block: BlockModel): CsvCell[] => [
   block.blockProposer,
   block.blockProposerLabel,
   // Exact decimal: a float could not hold a large total.
-  BigNumber(block.totalFees || 0)
-    .shiftedBy(-GNOTToken.decimals)
-    .toFixed(),
+  toCsvAmountValue(
+    BigNumber(block.totalFees || 0)
+      .shiftedBy(-GNOTToken.decimals)
+      .toFixed(),
+  ),
 ];
 
 export const TRANSACTION_CSV_HEADER = [
@@ -53,16 +67,26 @@ export const TRANSACTION_CSV_HEADER = [
   "Fee Denom",
 ];
 
-// The native token in GNOT; any other denom as it is. Empty when there is no amount.
-const toAmountCells = (amount?: { value: string; denom: string }): CsvCell[] => {
+const toFeeCells = (amount?: { value: string; denom: string }): CsvCell[] => {
   if (!amount?.value || !amount.denom) return ["", ""];
   const { value, denom } = toGNOTAmount(amount.value, amount.denom);
 
-  return [value, denom];
+  return [toCsvAmountValue(value), denom];
 };
 
-export const toTransactionCsvRow = (tx: TransactionModel): CsvCell[] => {
+export const toTransactionCsvRow = (
+  tx: TransactionModel,
+  resolvedAmount: { value: string; denom: string } | null,
+): CsvCell[] => {
   const func = getRepresentativeTransactionFunction(tx);
+  const amountCells: CsvCell[] =
+    tx.messageCount > 1
+      ? ["More", ""]
+      : tx.amount?.value && BigNumber(tx.amount.value).isZero()
+      ? ["-", ""]
+      : resolvedAmount
+      ? [toCsvAmountValue(resolvedAmount.value), resolvedAmount.denom]
+      : ["", ""];
 
   return [
     tx.txHash,
@@ -73,7 +97,7 @@ export const toTransactionCsvRow = (tx: TransactionModel): CsvCell[] => {
     toIsoTime(tx.timestamp),
     tx.fromAddress,
     tx.toAddress,
-    ...toAmountCells(tx.amount),
-    ...toAmountCells(tx.fee),
+    ...amountCells,
+    ...toFeeCells(tx.fee),
   ];
 };

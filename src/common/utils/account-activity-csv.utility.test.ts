@@ -1,5 +1,17 @@
 import { ActivityListResponse, ActivityRow } from "@/models/api/activity/activity-model";
-import { ACCOUNT_CSV_LIMIT, AccountCsvLimitError, fetchAccountActivityCsv } from "./account-activity-csv.utility";
+import {
+  ACCOUNT_CSV_LIMIT,
+  AccountCsvLimitError,
+  AccountCsvAmountFormatters,
+  fetchAccountActivityCsv,
+} from "./account-activity-csv.utility";
+import { resolveTokenMeta, TokenResourceEntry } from "./token.utility";
+import { toGNOTAmount } from "./native-token-utility";
+
+const formatters: AccountCsvAmountFormatters = {
+  getTokenMeta: (denom, fallback) => resolveTokenMeta({}, denom, fallback),
+  getFeeAmount: fee => toGNOTAmount(fee.value, fee.denom),
+};
 
 jest.mock("@/common/hooks/common/use-token-meta", () => ({
   GNOTToken: { symbol: "GNOT", denom: "ugnot", decimals: 6 },
@@ -45,14 +57,14 @@ describe("fetchAccountActivityCsv pagination", () => {
   it("rejects more than 3000 before requesting another page", async () => {
     const fetchPage = jest.fn().mockResolvedValue(pageResponse([], ACCOUNT_CSV_LIMIT + 1, true));
 
-    await expect(fetchAccountActivityCsv(fetchPage, "direct")).rejects.toBeInstanceOf(AccountCsvLimitError);
+    await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toBeInstanceOf(AccountCsvLimitError);
     expect(fetchPage).toHaveBeenCalledTimes(1);
     expect(fetchPage).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
   it("allows exactly 3000 through the last page without a 31st request", async () => {
     const fetchPage = paginatedFetcher(ACCOUNT_CSV_LIMIT);
-    const { rows } = await fetchAccountActivityCsv(fetchPage, "direct");
+    const { rows } = await fetchAccountActivityCsv(fetchPage, "direct", formatters);
 
     expect(rows).toHaveLength(ACCOUNT_CSV_LIMIT);
     expect(rows[0][0]).toBe("tx-0");
@@ -63,7 +75,7 @@ describe("fetchAccountActivityCsv pagination", () => {
 
   it.each([0, 1, 100, 101, 251, 2999])("retrieves every row for total %i", async total => {
     const fetchPage = paginatedFetcher(total);
-    const { header, rows } = await fetchAccountActivityCsv(fetchPage, "transfers");
+    const { header, rows } = await fetchAccountActivityCsv(fetchPage, "transfers", formatters);
 
     expect(rows.map(row => row[0])).toEqual(Array.from({ length: total }, (_, index) => `tx-${index}`));
     expect(rows.every(row => row.length === header.length)).toBe(true);
@@ -86,7 +98,7 @@ describe("fetchAccountActivityCsv pagination", () => {
       )
       .mockRejectedValueOnce(error);
 
-    await expect(fetchAccountActivityCsv(fetchPage, "direct")).rejects.toBe(error);
+    await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toBe(error);
     expect(fetchPage).toHaveBeenCalledTimes(2);
   });
 
@@ -102,14 +114,14 @@ describe("fetchAccountActivityCsv pagination", () => {
       )
       .mockResolvedValueOnce(pageResponse([], ACCOUNT_CSV_LIMIT + 1, true));
 
-    await expect(fetchAccountActivityCsv(fetchPage, "direct")).rejects.toBeInstanceOf(AccountCsvLimitError);
+    await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toBeInstanceOf(AccountCsvLimitError);
     expect(fetchPage).toHaveBeenCalledTimes(2);
   });
 
   it.each([-1, 1.5, NaN, Infinity])("rejects invalid totalCount %s", async totalCount => {
     const fetchPage = jest.fn().mockResolvedValue(pageResponse([], totalCount));
 
-    await expect(fetchAccountActivityCsv(fetchPage, "direct")).rejects.toThrow("pagination");
+    await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toThrow("pagination");
     expect(fetchPage).toHaveBeenCalledTimes(1);
   });
 
@@ -146,7 +158,7 @@ describe("fetchAccountActivityCsv pagination", () => {
   ])("rejects %s", async (_, response) => {
     const fetchPage = jest.fn().mockResolvedValue(response);
 
-    await expect(fetchAccountActivityCsv(fetchPage, "direct")).rejects.toThrow("pagination");
+    await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toThrow("pagination");
     expect(fetchPage).toHaveBeenCalledTimes(1);
   });
 
@@ -167,7 +179,7 @@ describe("fetchAccountActivityCsv pagination", () => {
       )
       .mockResolvedValueOnce(response);
 
-    await expect(fetchAccountActivityCsv(fetchPage, "direct")).rejects.toThrow("pagination");
+    await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toThrow("pagination");
     expect(fetchPage).toHaveBeenCalledTimes(2);
   });
 
@@ -183,7 +195,7 @@ describe("fetchAccountActivityCsv pagination", () => {
       )
       .mockResolvedValueOnce(pageResponse([activity(0)], 101));
 
-    await expect(fetchAccountActivityCsv(fetchPage, "direct")).rejects.toThrow("Repeated");
+    await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toThrow("Repeated");
     expect(fetchPage).toHaveBeenCalledTimes(2);
   });
 
@@ -199,7 +211,7 @@ describe("fetchAccountActivityCsv pagination", () => {
       )
       .mockResolvedValueOnce(pageResponse([activity(100, { txHash: "tx-0" })], 101));
 
-    const { rows } = await fetchAccountActivityCsv(fetchPage, "direct");
+    const { rows } = await fetchAccountActivityCsv(fetchPage, "direct", formatters);
     expect(rows).toHaveLength(101);
     expect(rows[0].slice(0, 5)).toEqual(["tx-0", "Success", "Transfer", 1, 0]);
     expect(rows[100].slice(0, 5)).toEqual(["tx-0", "Success", "Transfer", 1, 100]);
@@ -218,7 +230,7 @@ describe("fetchAccountActivityCsv mapping", () => {
       nativeValue: { value: "900719925474099312345678", denom: "ugnot", decimals: 6, symbol: "GNOT" },
       fee: { value: "900719925474099312345679", denom: "ugnot" },
     });
-    const { header, rows } = await fetchAccountActivityCsv(async () => pageResponse([item], 1), "direct");
+    const { header, rows } = await fetchAccountActivityCsv(async () => pageResponse([item], 1), "direct", formatters);
 
     expect(header).toEqual([
       "Tx Hash",
@@ -251,7 +263,7 @@ describe("fetchAccountActivityCsv mapping", () => {
     expect(rows[0]).toHaveLength(header.length);
   });
 
-  it("keeps mixed token identities, tiny and huge exact amounts, and repeated NFT IDs in JSON cells", async () => {
+  it("matches visible precision while retaining raw amounts, asset identities and repeated NFT IDs", async () => {
     const item = activity(1, {
       amountsIn: [
         {
@@ -271,7 +283,11 @@ describe("fetchAccountActivityCsv mapping", () => {
       ],
       amountsOut: [{ value: "0", decimals: 6, symbol: "GNOT", denom: "ugnot" }],
     });
-    const { header, rows } = await fetchAccountActivityCsv(async () => pageResponse([item], 1), "transfers");
+    const { header, rows } = await fetchAccountActivityCsv(
+      async () => pageResponse([item], 1),
+      "transfers",
+      formatters,
+    );
 
     expect(header).toEqual([
       "Tx Hash",
@@ -288,14 +304,14 @@ describe("fetchAccountActivityCsv mapping", () => {
     expect(rows[0].slice(0, 6)).toEqual(["tx-1", "Success", "Transfer", 1, 1, "2026-11-06T03:00:00.000Z"]);
     expect(JSON.parse(rows[0][6] as string)).toEqual([
       {
-        value: "900719925474099312.34567890123456789",
+        value: "900719925474099312.345678",
         rawValue: "900719925474099312345678901234567890",
         decimals: 18,
         symbol: "SAME",
         denom: "gno.land/r/demo/token-a.SAME.0000000",
       },
       {
-        value: "0.000000000000000000000001",
+        value: "0",
         rawValue: "1",
         decimals: 24,
         symbol: "SAME",
@@ -310,18 +326,68 @@ describe("fetchAccountActivityCsv mapping", () => {
         tokenIds: ["9007199254740993", "2", "2"],
       },
     ]);
-    expect(JSON.parse(rows[0][7] as string)).toEqual([
-      { value: "0", rawValue: "0", decimals: 6, symbol: "GNOT", denom: "ugnot" },
-    ]);
+    expect(JSON.parse(rows[0][7] as string)).toEqual([]);
     expect(rows[0].slice(8)).toEqual(["1", "GNOT"]);
     expect(rows[0]).toHaveLength(header.length);
   });
 
   it("writes empty transfers and an empty function without inventing activity", async () => {
     const item = activity(0, { func: [], fee: { value: "7", denom: "other" } });
-    const { rows } = await fetchAccountActivityCsv(async () => pageResponse([item], 1), "transfers");
+    const { rows } = await fetchAccountActivityCsv(async () => pageResponse([item], 1), "transfers", formatters);
 
     expect(rows[0][2]).toBe("");
     expect(rows[0].slice(6)).toEqual(["[]", "[]", "7", "other"]);
+  });
+
+  it.each([
+    "gno.land/r/gnoland/wugnot",
+    "gno.land/r/gnoland/wugnot.wugnot",
+    "gno.land/r/gnoland/wugnot.wugnot.0000000",
+  ])("uses the screen wugnot correction for %s while keeping the original integer", async denom => {
+    const item = activity(1, { amountsIn: [{ value: "5000000", denom, decimals: 0, symbol: "wugnot" }] });
+    const { rows } = await fetchAccountActivityCsv(async () => pageResponse([item], 1), "transfers", formatters);
+    expect(JSON.parse(rows[0][6] as string)).toEqual([
+      {
+        value: "5",
+        rawValue: "5000000",
+        decimals: 6,
+        symbol: "wugnot",
+        denom,
+      },
+    ]);
+  });
+
+  it("prefers per-token resource metadata over conflicting backend values", async () => {
+    const a = "gno.land/r/demo/factory.A.0000001";
+    const b = "gno.land/r/demo/factory.B.0000002";
+    const resources: Record<string, TokenResourceEntry> = {
+      "gno.land/r/demo/factory.A": { name: "A", symbol: "RESOURCE-A", decimals: 6 },
+      "gno.land/r/demo/factory.B": { name: "B", symbol: "RESOURCE-B", decimals: 9 },
+    };
+    const item = activity(1, {
+      amountsIn: [a, b].map(denom => ({ value: "5000000", denom, decimals: 0, symbol: "BACKEND" })),
+    });
+    const { rows } = await fetchAccountActivityCsv(async () => pageResponse([item], 1), "transfers", {
+      ...formatters,
+      getTokenMeta: (denom, fallback) => resolveTokenMeta(resources, denom, fallback),
+    });
+    expect(JSON.parse(rows[0][6] as string)).toEqual([
+      { value: "5", rawValue: "5000000", decimals: 6, symbol: "RESOURCE-A", denom: a },
+      { value: "0.005", rawValue: "5000000", decimals: 9, symbol: "RESOURCE-B", denom: b },
+    ]);
+  });
+
+  it("exports the displayed direct native value even for multi-message transactions, and a dash for zero", async () => {
+    const items = [
+      activity(0, { messageCount: 2 }),
+      activity(1, {
+        nativeValue: { value: "0", denom: "ugnot", decimals: 6, symbol: "GNOT" },
+      }),
+    ];
+    const { rows } = await fetchAccountActivityCsv(async () => pageResponse(items, 2), "direct", formatters);
+    expect(rows.map(row => row.slice(7, 9))).toEqual([
+      ["2.5", "GNOT"],
+      ["-", ""],
+    ]);
   });
 });

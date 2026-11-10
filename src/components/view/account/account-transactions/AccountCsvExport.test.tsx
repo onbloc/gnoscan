@@ -9,6 +9,9 @@ import theme from "@/styles/theme";
 import { ActivityListResponse, ActivityRow } from "@/models/api/activity/activity-model";
 import { AccountCsvExport, AccountCsvKind } from "./AccountCsvExport";
 
+let mockResourceFetched = true;
+let mockGrc20Fetched = true;
+
 const mockRepository = {
   getAccountDirectTransactions: jest.fn(),
   getAccountNativeTransfers: jest.fn(),
@@ -23,6 +26,18 @@ jest.mock("@/states", () => {
 });
 jest.mock("@/common/hooks/common/use-token-meta", () => ({
   GNOTToken: { symbol: "GNOT", denom: "ugnot", decimals: 6 },
+  useTokenMeta: () => ({
+    isFetchedGRC20Tokens: mockGrc20Fetched,
+    getTokenAmount: (denom: string, value: string) =>
+      jest.requireActual("@/common/utils/native-token-utility").toGNOTAmount(value, denom),
+  }),
+}));
+jest.mock("@/common/hooks/common/use-token-resource-meta", () => ({
+  useTokenResourceMeta: () => ({
+    isFetched: mockResourceFetched,
+    getTokenMeta: (denom: string, fallback: { name: string; symbol: string; decimals: number }) =>
+      jest.requireActual("@/common/utils/token.utility").resolveTokenMeta({}, denom, fallback),
+  }),
 }));
 jest.mock("@/assets/svgs/icon-close.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-download.svg", () => () => null);
@@ -91,6 +106,8 @@ beforeAll(() => Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }));
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(Date.UTC(2026, 10, 10));
   jest.clearAllMocks();
+  mockResourceFetched = true;
+  mockGrc20Fetched = true;
   downloaded = [];
   Object.defineProperty(URL, "createObjectURL", {
     configurable: true,
@@ -115,6 +132,23 @@ afterEach(() => {
   modal.remove();
   jest.restoreAllMocks();
   jest.useRealTimers();
+});
+
+it("waits for display metadata before enabling an export", async () => {
+  mockResourceFetched = false;
+  mockGrc20Fetched = false;
+  render();
+  act(() => button("Download CSV").click());
+  expect(button("Download CSV").disabled).toBe(true);
+  expect(document.querySelector("[role=dialog]")).toBeNull();
+  mockResourceFetched = true;
+  render();
+  expect(button("Download CSV").disabled).toBe(true);
+  mockGrc20Fetched = true;
+  mockRepository.getAccountDirectTransactions.mockResolvedValueOnce(page([row(1)]));
+  render();
+  await pickRange();
+  expect(downloaded.map(item => item.filename)).toEqual(["account-g1account_transactions_2026-11-01_2026-11-01.csv"]);
 });
 
 it("always opens the date dialog before export, including after a previous download", async () => {
