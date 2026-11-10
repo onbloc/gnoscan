@@ -1,5 +1,15 @@
 import styled from "styled-components";
 
+import { Body as FilterBody } from "../function-filter/FunctionFilter.styles";
+
+export const Body = styled(FilterBody)`
+  overflow-y: auto;
+
+  > * {
+    flex-shrink: 0;
+  }
+`;
+
 export const Fields = styled.div`
   display: flex;
   flex-direction: column;

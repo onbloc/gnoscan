@@ -8,6 +8,7 @@ import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";
 import { ActivityListResponse, ActivityRow } from "@/models/api/activity/activity-model";
 import { AccountCsvExport, AccountCsvKind } from "./AccountCsvExport";
+import { ACCOUNT_CSV_LIMIT } from "@/common/utils/account-activity-csv.utility";
 
 let mockResourceFetched = true;
 let mockGrc20Fetched = true;
@@ -172,10 +173,12 @@ it("always opens the date dialog before export, including after a previous downl
 });
 
 it("keeps over-limit feedback in the dialog so the dates can be narrowed and downloaded", async () => {
-  mockRepository.getAccountDirectTransactions.mockResolvedValueOnce(page([row(1)], 3001, true));
+  mockRepository.getAccountDirectTransactions.mockResolvedValueOnce(page([row(1)], ACCOUNT_CSV_LIMIT + 1, true));
   render();
   await pickRange();
-  expect(document.querySelector("[role=dialog] [role=alert]")?.textContent).toMatch(/3,000.*smaller date range/);
+  const warning = document.querySelector("[role=dialog] [role=alert]")?.textContent;
+  expect(warning).toContain(ACCOUNT_CSV_LIMIT.toLocaleString("en-US"));
+  expect(warning).toMatch(/smaller date range/);
   expect(downloaded).toEqual([]);
 
   mockRepository.getAccountDirectTransactions.mockResolvedValueOnce(page([row(1)]));

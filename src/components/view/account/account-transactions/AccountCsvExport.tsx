@@ -3,7 +3,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import IconDownload from "@/assets/svgs/icon-download.svg";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { FunctionFilterApiParams } from "@/common/types/function-filter";
-import { AccountCsvLimitError, fetchAccountActivityCsv } from "@/common/utils/account-activity-csv.utility";
+import {
+  ACCOUNT_CSV_LIMIT,
+  AccountCsvLimitError,
+  fetchAccountActivityCsv,
+} from "@/common/utils/account-activity-csv.utility";
 import { downloadCsv, toCsv } from "@/common/utils/csv.utility";
 import Portal from "@/components/core/portal";
 import { DateFilterDialog } from "../../common/date-filter/DateFilterDialog";
@@ -88,7 +92,9 @@ export const AccountCsvExport = ({ address, kind, filter }: Props) => {
         type: "error",
         text:
           error instanceof AccountCsvLimitError
-            ? "More than 3,000 transactions match this date range. Please choose a smaller date range."
+            ? `More than ${ACCOUNT_CSV_LIMIT.toLocaleString(
+                "en-US",
+              )} transactions match this date range. Please choose a smaller date range.`
             : "Could not export CSV. Please try again.",
       });
     } finally {

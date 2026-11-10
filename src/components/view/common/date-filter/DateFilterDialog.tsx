@@ -60,7 +60,7 @@ export const DateFilterDialog = ({
           </F.CloseButton>
         </F.Header>
 
-        <F.Body>
+        <S.Body>
           <S.Fields>
             <S.Field>
               From
@@ -90,7 +90,7 @@ export const DateFilterDialog = ({
           </S.Fields>
           {showError && <S.ErrorText role="alert">{error}</S.ErrorText>}
           {feedback}
-        </F.Body>
+        </S.Body>
 
         <F.Footer>
           <F.Count>{maxRangeDays === undefined ? "UTC dates" : `UTC dates, up to ${maxRangeDays} days`}</F.Count>

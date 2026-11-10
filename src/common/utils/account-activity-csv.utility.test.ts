@@ -54,7 +54,7 @@ const paginatedFetcher = (total: number) =>
   });
 
 describe("fetchAccountActivityCsv pagination", () => {
-  it("rejects more than 3000 before requesting another page", async () => {
+  it("rejects results above the export limit before requesting another page", async () => {
     const fetchPage = jest.fn().mockResolvedValue(pageResponse([], ACCOUNT_CSV_LIMIT + 1, true));
 
     await expect(fetchAccountActivityCsv(fetchPage, "direct", formatters)).rejects.toBeInstanceOf(AccountCsvLimitError);
@@ -62,18 +62,19 @@ describe("fetchAccountActivityCsv pagination", () => {
     expect(fetchPage).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
-  it("allows exactly 3000 through the last page without a 31st request", async () => {
+  it("allows the exact export limit through its final page without an extra request", async () => {
     const fetchPage = paginatedFetcher(ACCOUNT_CSV_LIMIT);
     const { rows } = await fetchAccountActivityCsv(fetchPage, "direct", formatters);
 
     expect(rows).toHaveLength(ACCOUNT_CSV_LIMIT);
     expect(rows[0][0]).toBe("tx-0");
-    expect(rows[ACCOUNT_CSV_LIMIT - 1][0]).toBe("tx-2999");
-    expect(fetchPage).toHaveBeenCalledTimes(30);
-    expect(fetchPage).toHaveBeenLastCalledWith({ page: 30, limit: 100 });
+    expect(rows[ACCOUNT_CSV_LIMIT - 1][0]).toBe(`tx-${ACCOUNT_CSV_LIMIT - 1}`);
+    const pages = Math.ceil(ACCOUNT_CSV_LIMIT / 100);
+    expect(fetchPage).toHaveBeenCalledTimes(pages);
+    expect(fetchPage).toHaveBeenLastCalledWith({ page: pages, limit: 100 });
   });
 
-  it.each([0, 1, 100, 101, 251, 2999])("retrieves every row for total %i", async total => {
+  it.each([0, 1, 100, 101, 251, ACCOUNT_CSV_LIMIT - 1])("retrieves every row for total %i", async total => {
     const fetchPage = paginatedFetcher(total);
     const { header, rows } = await fetchAccountActivityCsv(fetchPage, "transfers", formatters);
 
@@ -102,7 +103,7 @@ describe("fetchAccountActivityCsv pagination", () => {
     expect(fetchPage).toHaveBeenCalledTimes(2);
   });
 
-  it("blocks a later page reporting more than 3000 without requesting a third page", async () => {
+  it("blocks a later page exceeding the export limit without requesting a third page", async () => {
     const fetchPage = jest
       .fn()
       .mockResolvedValueOnce(
