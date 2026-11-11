@@ -1,6 +1,6 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { ThemeProvider } from "styled-components";
+import { ServerStyleSheet, ThemeProvider } from "styled-components";
 
 import theme from "@/styles/theme";
 import AccountAssetItem from "./AccountAssetItem";
@@ -89,5 +89,55 @@ describe("AccountAssetItem", () => {
     expect(markup).not.toContain("$");
     expect(markup).not.toContain("-512.12");
     expect(markup).toContain("512.12");
+  });
+});
+
+// Distinct values so the amount color can be told apart from every other text color.
+const PRICED_COLOR = "#111111";
+const UNPRICED_COLOR = "#222222";
+
+const amountColor = (element: React.ReactElement, integer: string) => {
+  const sheet = new ServerStyleSheet();
+  try {
+    const html = renderToStaticMarkup(
+      sheet.collectStyles(
+        <ThemeProvider
+          theme={{
+            colors: { ...theme.lightTheme, gray300: PRICED_COLOR, primary: UNPRICED_COLOR },
+            fonts: theme.fonts,
+            device: theme.device,
+          }}
+        >
+          {element}
+        </ThemeProvider>,
+      ),
+    );
+    const css = sheet.getStyleTags();
+    const classes = html.match(new RegExp(`class="([^"]+)"[^>]*>${integer}<`))?.[1].split(" ") ?? [];
+    return classes
+      .map(c => css.match(new RegExp(`\\.${c}\\s*\\{[^}]*?(?:^|[;{\\s])color:\\s*([^;}\\s]+)`))?.[1])
+      .find(Boolean);
+  } finally {
+    sheet.seal();
+  }
+};
+
+describe("AccountAssetItem amount color", () => {
+  it("mutes the amount of a token with a fiat value", () => {
+    const color = amountColor(
+      <AccountAssetItem {...baseProps} amount={{ value: "512120000", denom: "ugnot" }} secondaryLabel="GNOT" />,
+      "512",
+    );
+
+    expect(color).toBe(PRICED_COLOR);
+  });
+
+  it("keeps the primary color for a token without a fiat value", () => {
+    const color = amountColor(
+      <AccountAssetItem {...baseProps} amount={{ value: "100", denom: "FOO" }} priceTokenKey="gno.land/r/demo/foo" />,
+      "100",
+    );
+
+    expect(color).toBe(UNPRICED_COLOR);
   });
 });

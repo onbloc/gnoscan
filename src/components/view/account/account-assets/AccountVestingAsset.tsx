@@ -59,7 +59,7 @@ const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
             </Text>
           </S.TokenDetails>
         </S.TokenInfo>
-        <S.Balance>
+        <S.Balance $priced={!!usdValue}>
           <S.AmountInfo>
             {isLoadingPrice ? (
               <SkeletonBar width={80} height={20} />
@@ -70,7 +70,14 @@ const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
             )}
             <S.Quantity>
               <IconLockAsset className="vesting-lock" aria-hidden="true" />
-              <AmountText minSize="body1" maxSize="p4" color="tertiary" lineHeight="24px" {...total} wrap={false} />
+              <AmountText
+                minSize="body1"
+                maxSize="p4"
+                color={usdValue ? "gray300" : "primary"}
+                lineHeight="24px"
+                {...total}
+                wrap={false}
+              />
               <S.Chevron $isExpanded={isExpanded}>
                 <IconChevron />
               </S.Chevron>
