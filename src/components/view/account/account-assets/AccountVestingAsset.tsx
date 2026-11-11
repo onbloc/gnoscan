@@ -70,7 +70,7 @@ const AccountVestingAsset = ({ vesting }: AccountVestingAssetProps) => {
             )}
             <S.Quantity>
               <IconLockAsset className="vesting-lock" aria-hidden="true" />
-              <AmountText minSize="body1" maxSize="p4" color="tertiary" lineHeight="24px" {...total} wrap={false} />
+              <AmountText minSize="body1" maxSize="p4" color="gray300" lineHeight="24px" {...total} wrap={false} />
               <S.Chevron $isExpanded={isExpanded}>
                 <IconChevron />
               </S.Chevron>
