@@ -4,4 +4,8 @@ export interface GetAccountNativeTransfersRequest {
   page?: number;
 
   limit?: number;
+
+  from?: string;
+
+  to?: string;
 }

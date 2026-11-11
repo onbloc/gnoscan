@@ -6,4 +6,8 @@ export interface GetAccountDirectTransactionsRequest extends FunctionFilterApiPa
   page?: number;
 
   limit?: number;
+
+  from?: string;
+
+  to?: string;
 }
