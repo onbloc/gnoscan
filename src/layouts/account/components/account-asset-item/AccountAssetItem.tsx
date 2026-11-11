@@ -118,7 +118,14 @@ const AccountAssetItem = ({
             {usdValue || "-"}
           </Text>
         )}
-        <AmountText minSize="body1" maxSize="p4" lineHeight="24px" wrap={false} {...tokenAmount} />
+        <AmountText
+          minSize="body1"
+          maxSize="p4"
+          color={usdValue ? "gray300" : "primary"}
+          lineHeight="24px"
+          wrap={false}
+          {...tokenAmount}
+        />
       </S.AmountInfo>
     </S.Box>
   );

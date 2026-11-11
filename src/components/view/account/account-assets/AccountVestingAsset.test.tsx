@@ -1,6 +1,6 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { ThemeProvider } from "styled-components";
+import { ServerStyleSheet, ThemeProvider } from "styled-components";
 
 import theme from "@/styles/theme";
 import AccountVestingAsset from "./AccountVestingAsset";
@@ -65,5 +65,51 @@ describe("AccountVestingAsset", () => {
 
     expect(markup).not.toContain("$");
     expect(markup).toContain("-512.12");
+  });
+});
+
+// Distinct values so the amount color can be told apart from every other text color.
+const PRICED_COLOR = "#111111";
+const UNPRICED_COLOR = "#222222";
+
+const amountAndLockColor = () => {
+  const sheet = new ServerStyleSheet();
+  try {
+    const html = renderToStaticMarkup(
+      sheet.collectStyles(
+        <ThemeProvider
+          theme={{
+            colors: { ...theme.lightTheme, gray300: PRICED_COLOR, primary: UNPRICED_COLOR },
+            fonts: theme.fonts,
+            device: theme.device,
+          }}
+        >
+          <AccountVestingAsset vesting={vesting} />
+        </ThemeProvider>,
+      ),
+    );
+    const css = sheet.getStyleTags();
+    const classes = html.match(/class="([^"]+)"[^>]*>512</)?.[1].split(" ") ?? [];
+    const amount = classes
+      .map(c => css.match(new RegExp(`\\.${c}\\s*\\{[^}]*?(?:^|[;{\\s])color:\\s*([^;}\\s]+)`))?.[1])
+      .find(Boolean);
+    const lock = css.match(/\.vesting-lock path\s*\{\s*stroke:\s*([^;}\s]+)/)?.[1];
+    return { amount, lock };
+  } finally {
+    sheet.seal();
+  }
+};
+
+describe("AccountVestingAsset amount and lock color", () => {
+  it("mutes the amount and lock of a token with a fiat value", () => {
+    mockPrices.data = { ugnot: { price: "0.024" } };
+
+    expect(amountAndLockColor()).toEqual({ amount: PRICED_COLOR, lock: PRICED_COLOR });
+  });
+
+  it("keeps the primary color for the amount and lock of a token without a fiat value", () => {
+    mockPrices.data = {};
+
+    expect(amountAndLockColor()).toEqual({ amount: UNPRICED_COLOR, lock: UNPRICED_COLOR });
   });
 });

@@ -49,12 +49,12 @@ export const HeaderButton = styled.button`
   }
 `;
 
-export const Balance = styled.div`
+export const Balance = styled.div<{ $priced: boolean }>`
   display: flex;
   flex: 0 0 auto;
 
   .vesting-lock path {
-    stroke: ${({ theme }) => theme.colors.gray300};
+    stroke: ${({ theme, $priced }) => ($priced ? theme.colors.gray300 : theme.colors.primary)};
   }
 `;
 
