@@ -54,7 +54,7 @@ export const Balance = styled.div`
   flex: 0 0 auto;
 
   .vesting-lock path {
-    stroke: ${({ theme }) => theme.colors.tertiary};
+    stroke: ${({ theme }) => theme.colors.gray300};
   }
 `;
 
