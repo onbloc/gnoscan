@@ -1,7 +1,10 @@
 import { BaseSyntheticEvent, useEffect, useRef } from "react";
 
-const useOutSideClick = (callback: (e?: CustomEvent<MouseEvent | TouchEvent>) => void) => {
-  const ref = useRef<HTMLElement>(null);
+// `T` is the element the ref goes on; HTMLElement unless the element type of the JSX tag is needed.
+const useOutSideClick = <T extends HTMLElement = HTMLElement>(
+  callback: (e?: CustomEvent<MouseEvent | TouchEvent>) => void,
+) => {
+  const ref = useRef<T>(null);
   useEffect(() => {
     const listener = (event: BaseSyntheticEvent | MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target)) {

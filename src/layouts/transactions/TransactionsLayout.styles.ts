@@ -23,3 +23,17 @@ export const Wrapper = styled.div`
 
   background-color: ${({ theme }) => theme.colors.surface};
 `;
+
+export const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+`;

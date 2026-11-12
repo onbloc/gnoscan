@@ -9,6 +9,10 @@ export interface GRC20InfoWithLogo extends Omit<GRC20Info, "totalSupply"> {
   transactionCount24h: number | null;
   createdAt: string | null;
   createdTransactionHash: string | null;
+  /** USD price, null when the token has no gnoswap price. */
+  price: string | null;
+  /** Percent change against the price 24 hours earlier. */
+  changeRateOneDay: number | null;
 }
 
 export class TokenMapper {
@@ -29,6 +33,8 @@ export class TokenMapper {
       transactionCount24h: response.transactionCount24h ?? null,
       createdAt: response.createdAt ?? null,
       createdTransactionHash: response.createdTransactionHash ?? null,
+      price: response.price ?? null,
+      changeRateOneDay: response.changeRateOneDay ?? null,
     };
   }
 

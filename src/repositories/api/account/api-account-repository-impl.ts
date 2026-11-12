@@ -3,6 +3,8 @@ import { ApiAccountRepository } from "./api-account-repository";
 import {
   GetAccountDirectTransactionsRequest,
   GetAccountGRC721CollectionItemsRequest,
+  GetAccountNativeBalanceChangesRequest,
+  GetAccountNativeBalanceHistoryRequest,
   GetAccountNativeTransfersRequest,
   GetAccountTokenTransfersRequest,
   GetAccountsRequest,
@@ -11,12 +13,15 @@ import {
   GetAccountDirectTransactionsResponse,
   GetAccountGRC721CollectionItemsResponse,
   GetAccountGRC721CollectionsResponse,
+  GetAccountNativeBalanceChangesResponse,
+  GetAccountNativeBalanceHistoryResponse,
   GetAccountNativeTransfersResponse,
   GetAccountResponse,
   GetAccountTokenTransfersResponse,
   GetAccountsResponse,
 } from "./response";
 import { ApiRepository } from "../api-repository";
+import { makeEncodedQueryParameter } from "@/common/utils/string-util";
 
 export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccountRepository {
   getAccount(address: string): Promise<GetAccountResponse> {
@@ -31,12 +36,33 @@ export class ApiAccountRepositoryImpl extends ApiRepository implements ApiAccoun
     params: GetAccountDirectTransactionsRequest,
   ): Promise<GetAccountDirectTransactionsResponse> {
     const { address, ...queryParams } = params;
-    return this.get<GetAccountDirectTransactionsResponse>(`accounts/${address}/direct-transactions`, queryParams);
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
+    return this.get<GetAccountDirectTransactionsResponse>(`accounts/${address}/direct-transactions${requestParams}`);
   }
 
   getAccountNativeTransfers(params: GetAccountNativeTransfersRequest): Promise<GetAccountNativeTransfersResponse> {
     const { address, ...queryParams } = params;
     return this.get<GetAccountNativeTransfersResponse>(`accounts/${address}/native-transfers`, queryParams);
+  }
+
+  getAccountNativeBalanceHistory(
+    params: GetAccountNativeBalanceHistoryRequest,
+  ): Promise<GetAccountNativeBalanceHistoryResponse> {
+    const { address, ...queryParams } = params;
+    return this.get<GetAccountNativeBalanceHistoryResponse>(
+      `accounts/${address}/native-analytics/balance`,
+      queryParams,
+    );
+  }
+
+  getAccountNativeBalanceChanges(
+    params: GetAccountNativeBalanceChangesRequest,
+  ): Promise<GetAccountNativeBalanceChangesResponse> {
+    const { address, ...queryParams } = params;
+    return this.get<GetAccountNativeBalanceChangesResponse>(
+      `accounts/${address}/native-analytics/balance/changes`,
+      queryParams,
+    );
   }
 
   getAccountTokenTransfers(params: GetAccountTokenTransfersRequest): Promise<GetAccountTokenTransfersResponse> {

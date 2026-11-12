@@ -1,14 +1,15 @@
 import React from "react";
 
+import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useGetRealmHoldersByPath } from "@/common/react-query/realm/api";
 import { getAddressNameTag } from "@/common/utils/address-label.utility";
 import { makeDisplayNumber } from "@/common/utils/string-util";
 import type { RealmHolderModel } from "@/repositories/api/realm/response";
 
-import { ViewMoreButton } from "@/components/ui/button";
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../datatable";
 import { FlushTableContainer } from "../../datatable/datatable.styles";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 
 type NftHolderRow = Omit<RealmHolderModel, "nameTag"> & {
@@ -57,28 +58,26 @@ interface NftCollectionHoldersProps {
 }
 
 const NftCollectionHolders = ({ tokenKey }: NftCollectionHoldersProps) => {
-  const { data, isFetched, hasNextPage, fetchNextPage } = useGetRealmHoldersByPath({ path: tokenKey });
+  const list = usePagedList("nft-holders", tokenKey, useGetRealmHoldersByPath, { path: tokenKey });
 
   const holders = React.useMemo(
     () =>
-      data?.pages
-        .flatMap(page => page.items)
-        .map(
-          (item, index): NftHolderRow => ({
-            ...item,
-            rank: index + 1,
-            nameTag: getAddressNameTag(item),
-          }),
-        ) ?? [],
-    [data?.pages],
+      list.items.map(
+        (item, index): NftHolderRow => ({
+          ...item,
+          rank: list.startIndex + index + 1,
+          nameTag: getAddressNameTag(item),
+        }),
+      ),
+    [list.items, list.startIndex],
   );
 
-  if (!isFetched) return <TableSkeleton />;
+  if (!list.isFetched) return <TableSkeleton />;
 
   return (
     <FlushTableContainer>
       <Datatable headers={HEADERS} datas={holders} />
-      {hasNextPage && <ViewMoreButton variant="table" text="View More Holders" onClick={() => fetchNextPage()} />}
+      <ListPagination {...list.pagination} />
     </FlushTableContainer>
   );
 };

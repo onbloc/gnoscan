@@ -1,11 +1,5 @@
 import { GetBlocksRequestParameters, GetBlockEventsRequest, GetBlockTransactionsRequest } from "./request";
-import {
-  GetBlockEventsResponse,
-  GetBlockResponse,
-  GetBlocksResponse,
-  GetBlockTransactionsResponse,
-  GetBlockTransactionsCountResponse,
-} from "./response";
+import { GetBlockEventsResponse, GetBlockResponse, GetBlocksResponse, GetBlockTransactionsResponse } from "./response";
 
 export interface ApiBlockRepository {
   getBlocks(params: GetBlocksRequestParameters): Promise<GetBlocksResponse>;
@@ -15,6 +9,4 @@ export interface ApiBlockRepository {
   getBlockEvents(params: GetBlockEventsRequest): Promise<GetBlockEventsResponse>;
 
   getBlockTransactions(params: GetBlockTransactionsRequest): Promise<GetBlockTransactionsResponse>;
-
-  getBlockTransactionsCount(height: string): Promise<GetBlockTransactionsCountResponse>;
 }

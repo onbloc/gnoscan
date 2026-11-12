@@ -2,65 +2,80 @@
  * @jest-environment jsdom
  */
 import React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { TokenListSortOption } from "@/common/types/token";
 import StandardNetworkTokensData from "./StandardNetworkTokensData";
 
-const mockFetchNextPage = jest.fn();
-let mockPage: { data: unknown[]; hasNextPage: boolean; isFetchingNextPage: boolean; isError?: boolean };
+const mockUseMappedApiTokens = jest.fn();
+let mockPageState = { scope: "", page: 1 };
+const mockSetState = jest.fn((next: typeof mockPageState) => {
+  mockPageState = next;
+});
 
 jest.mock("@/common/services/token/use-mapped-api-tokens", () => ({
-  useMappedApiTokens: () => ({ isFetched: true, fetchNextPage: mockFetchNextPage, ...mockPage }),
+  useMappedApiTokens: (...args: unknown[]) => mockUseMappedApiTokens(...args),
 }));
 jest.mock("@/common/hooks/common/use-token-price", () => ({
   useTokenPrice: () => ({ getPriceEntry: () => null }),
 }));
+jest.mock("@/common/hooks/provider/use-network-provider", () => ({
+  useNetworkProvider: () => ({ currentNetwork: { chainId: "test" } }),
+}));
+jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => ({
+  useHistoryEntryState: () => [mockPageState, mockSetState],
+}));
+jest.mock("@/components/view/common/list-pagination/ListPagination", () => ({ ListPagination: () => null }));
 jest.mock("../token-list-table/standard-network-token-list-table/StandardNetworkTokenListTable", () => ({
   StandardNetworkTokenListTable: () => null,
 }));
 
-const sortOption: TokenListSortOption = { field: "marketCap", order: "desc" };
-const page1: unknown[] = [];
-const page2: unknown[] = [];
-
-let root: ReturnType<typeof createRoot>;
-const render = (page: typeof mockPage) => {
-  mockPage = page;
-  act(() => root.render(<StandardNetworkTokensData sortOption={sortOption} setSortOption={jest.fn()} />));
-};
+let root: Root;
+const render = (sortOption: TokenListSortOption, keyword?: string) =>
+  act(() =>
+    root.render(<StandardNetworkTokensData sortOption={sortOption} setSortOption={jest.fn()} keyword={keyword} />),
+  );
 
 beforeEach(() => {
-  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  mockFetchNextPage.mockClear();
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  mockPageState = { scope: "", page: 1 };
+  mockUseMappedApiTokens.mockReset();
+  mockUseMappedApiTokens.mockReturnValue({
+    data: [],
+    isFetched: true,
+    isLoading: false,
+    isError: false,
+    isPreviousData: false,
+    hasNext: false,
+    totalCount: 0,
+  });
   root = createRoot(document.createElement("div"));
 });
 afterEach(() => act(() => root.unmount()));
 
-it("keeps loading pages until every token is loaded for a client side sort", () => {
-  render({ data: page1, hasNextPage: true, isFetchingNextPage: false });
-  expect(mockFetchNextPage).toHaveBeenCalledTimes(1);
+it("requests the saved page with the server sort of the selected column", () => {
+  mockPageState = { scope: "marketCap:desc:", page: 3 };
+  render({ field: "marketCap", order: "desc" });
 
-  render({ data: page1, hasNextPage: true, isFetchingNextPage: true });
-  expect(mockFetchNextPage).toHaveBeenCalledTimes(1);
-
-  // Page 2 loaded and still reports a successor.
-  render({ data: page2, hasNextPage: true, isFetchingNextPage: false });
-  expect(mockFetchNextPage).toHaveBeenCalledTimes(2);
-
-  render({ data: page2, hasNextPage: true, isFetchingNextPage: true });
-  render({ data: page2, hasNextPage: false, isFetchingNextPage: false });
-  expect(mockFetchNextPage).toHaveBeenCalledTimes(2);
+  expect(mockUseMappedApiTokens).toHaveBeenLastCalledWith({
+    sort: "marketCap",
+    order: "desc",
+    keyword: undefined,
+    page: 3,
+  });
 });
 
-it("loads the next page even when the in-flight render is batched away", () => {
-  render({ data: page1, hasNextPage: true, isFetchingNextPage: false });
-  // A fast response: React never renders isFetchingNextPage=true, only the new page.
-  render({ data: page2, hasNextPage: true, isFetchingNextPage: false });
-  expect(mockFetchNextPage).toHaveBeenCalledTimes(2);
-});
+it("starts again from page 1 when the sort or keyword changes", () => {
+  mockPageState = { scope: "holders:desc:", page: 3 };
 
-it("stops loading after a next page request fails", () => {
-  render({ data: page1, hasNextPage: true, isFetchingNextPage: false, isError: true });
-  expect(mockFetchNextPage).not.toHaveBeenCalled();
+  render({ field: "holders", order: "desc" });
+  expect(mockUseMappedApiTokens).toHaveBeenLastCalledWith(expect.objectContaining({ page: 3 }));
+
+  render({ field: "totalSupply", order: "asc" });
+  expect(mockUseMappedApiTokens).toHaveBeenLastCalledWith(
+    expect.objectContaining({ sort: "totalSupply", order: "asc", page: 1 }),
+  );
+
+  render({ field: "holders", order: "desc" }, "gns");
+  expect(mockUseMappedApiTokens).toHaveBeenLastCalledWith(expect.objectContaining({ keyword: "gns", page: 1 }));
 });

@@ -89,9 +89,8 @@ export interface ActivityRow {
 }
 
 export interface ActivityPage {
-  cursor: string;
   hasNext: boolean;
-  totalCount?: number;
+  totalCount: number;
 }
 
 export interface ActivityListResponse {

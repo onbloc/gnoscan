@@ -1,10 +1,10 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlockEventsRequest } from "@/repositories/api/block/request";
 import { GetBlockEventsResponse } from "@/repositories/api/block/response";
-import { useApiRepositoryQuery, useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { isValidBlockHeight } from "@/common/utils/string-util";
 /**
@@ -22,22 +22,16 @@ import { isValidBlockHeight } from "@/common/utils/string-util";
  */
 export const useGetBlockEventsByHeight = (
   params: GetBlockEventsRequest,
-  options?: UseInfiniteQueryOptions<GetBlockEventsResponse, Error, GetBlockEventsResponse>,
+  options?: UseQueryOptions<GetBlockEventsResponse, Error, GetBlockEventsResponse>,
 ) => {
   const { apiBlockRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetBlockEventsResponse, Error, typeof apiBlockRepository>(
-    [QUERY_KEY.getBlockEventsByHeight, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getBlockEventsByHeight],
+    params,
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    (repository, cursor) =>
-      repository!.getBlockEvents({
-        ...params,
-        cursor,
-      }),
-    {
-      ...options,
-      enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false,
-    },
+    (repository, pageParams) => repository.getBlockEvents(pageParams),
+    { ...options, enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false },
   );
 };

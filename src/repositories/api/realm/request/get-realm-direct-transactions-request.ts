@@ -1,7 +1,9 @@
-export interface GetRealmDirectTransactionsRequest {
+import { FunctionFilterApiParams } from "@/common/types/function-filter";
+
+export interface GetRealmDirectTransactionsRequest extends FunctionFilterApiParams {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

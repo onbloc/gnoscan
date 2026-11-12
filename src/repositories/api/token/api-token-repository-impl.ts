@@ -56,9 +56,9 @@ export class ApiTokenRepositoryImpl extends ApiRepository implements ApiTokenRep
 
   getTokenMetaTransactions(params: GetTokenMetaTransactionsRequest): Promise<GetTokenMetaTransactionsResponse> {
     const { path, ...queryParams } = params;
+    const requestParams = makeEncodedQueryParameter({ ...queryParams });
     return this.get<GetTokenMetaTransactionsResponse>(
-      `token-meta/${encodeURIComponent(path)}/transactions`,
-      queryParams,
+      `token-meta/${encodeURIComponent(path)}/transactions${requestParams}`,
     );
   }
 

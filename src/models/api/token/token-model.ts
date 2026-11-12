@@ -1,4 +1,14 @@
-export interface TokenModel {
+/** gnoswap price fields of the token APIs; all null for a token gnoswap does not price. */
+export interface TokenPriceModel {
+  /** USD price of one whole token. */
+  price?: string | null;
+  /** USD price 24 hours earlier. */
+  oneDayAgoPrice?: string | null;
+  /** Percent change from oneDayAgoPrice to price. */
+  changeRateOneDay?: number | null;
+}
+
+export interface TokenModel extends TokenPriceModel {
   tokenId: string;
   slug: string;
   name: string;

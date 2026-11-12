@@ -4,5 +4,5 @@ import { RealmEventModel } from "@/models/api/realm/realm-model";
 export interface GetTokenEventsResponse {
   items: RealmEventModel[];
 
-  page: { hasNext: boolean; cursor: string; totalCount?: number };
+  page: { hasNext: boolean; totalCount: number };
 }

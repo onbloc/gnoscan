@@ -1,10 +1,10 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionContractsRequest } from "@/repositories/api/transaction/request";
 import { GetTransactionContractsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
@@ -23,22 +23,16 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  */
 export const useGetTransactionContractsByHeight = (
   params: GetTransactionContractsRequest,
-  options?: UseInfiniteQueryOptions<GetTransactionContractsResponse, Error, GetTransactionContractsResponse>,
-): UseInfiniteQueryResult<GetTransactionContractsResponse, Error> => {
+  options?: UseQueryOptions<GetTransactionContractsResponse, Error, GetTransactionContractsResponse>,
+): UseQueryResult<GetTransactionContractsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetTransactionContractsResponse, Error, typeof apiTransactionRepository>(
-    [QUERY_KEY.getTransactionContractsByHash, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getTransactionContractsByHash],
+    params,
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    (repository, cursor) =>
-      repository!.getTransactionContracts({
-        ...params,
-        cursor,
-      }),
-    {
-      ...options,
-      enabled: (options?.enabled ?? true) && !!params.txHash,
-    },
+    (repository, pageParams) => repository.getTransactionContracts(pageParams),
+    { ...options, enabled: (options?.enabled ?? true) && !!params.txHash },
   );
 };

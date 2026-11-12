@@ -1,10 +1,10 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetBlockTransactionsRequest } from "@/repositories/api/block/request";
 import { GetBlockTransactionsResponse } from "@/repositories/api/block/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { isValidBlockHeight } from "@/common/utils/string-util";
 
@@ -23,22 +23,16 @@ import { isValidBlockHeight } from "@/common/utils/string-util";
  */
 export const useGetBlockTransactionsByHeight = (
   params: GetBlockTransactionsRequest,
-  options?: UseInfiniteQueryOptions<GetBlockTransactionsResponse, Error, GetBlockTransactionsResponse>,
-): UseInfiniteQueryResult<GetBlockTransactionsResponse, Error> => {
+  options?: UseQueryOptions<GetBlockTransactionsResponse, Error, GetBlockTransactionsResponse>,
+): UseQueryResult<GetBlockTransactionsResponse, Error> => {
   const { apiBlockRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetBlockTransactionsResponse, Error, typeof apiBlockRepository>(
-    [QUERY_KEY.getBlockTransactionsByHeight, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getBlockTransactionsByHeight],
+    params,
     apiBlockRepository,
     API_REPOSITORY_KEY.BLOCK_REPOSITORY,
-    (repository, cursor) =>
-      repository!.getBlockTransactions({
-        ...params,
-        cursor,
-      }),
-    {
-      ...options,
-      enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false,
-    },
+    (repository, pageParams) => repository.getBlockTransactions(pageParams),
+    { ...options, enabled: isValidBlockHeight(params.blockHeight) && options?.enabled !== false },
   );
 };

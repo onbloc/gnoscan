@@ -1,27 +1,24 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetAccountNativeTransfersRequest } from "@/repositories/api/account/request";
 import { GetAccountNativeTransfersResponse } from "@/repositories/api/account/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY, CACHE_POLICY } from "@/common/values/query.constant";
 
 export const useGetAccountNativeTransfers = (
   params: GetAccountNativeTransfersRequest,
-  options?: UseInfiniteQueryOptions<GetAccountNativeTransfersResponse, Error, GetAccountNativeTransfersResponse>,
-): UseInfiniteQueryResult<GetAccountNativeTransfersResponse, Error> => {
+  options?: UseQueryOptions<GetAccountNativeTransfersResponse, Error, GetAccountNativeTransfersResponse>,
+): UseQueryResult<GetAccountNativeTransfersResponse, Error> => {
   const { apiAccountRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetAccountNativeTransfersResponse, Error, typeof apiAccountRepository>(
-    [QUERY_KEY.getAccountNativeTransfers, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getAccountNativeTransfers],
+    params,
     apiAccountRepository,
     API_REPOSITORY_KEY.ACCOUNT_REPOSITORY,
-    (repository, cursor) =>
-      repository!.getAccountNativeTransfers({
-        ...params,
-        cursor,
-      }),
+    (repository, pageParams) => repository.getAccountNativeTransfers(pageParams),
     {
       ...CACHE_POLICY.LIVE,
       ...options,

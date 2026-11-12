@@ -20,8 +20,8 @@ export interface NftCollectionModel {
 export interface GetNftCollectionsResponse {
   items: NftCollectionModel[];
   page: {
-    cursor?: string;
     hasNext: boolean;
+    totalCount: number;
   };
 }
 

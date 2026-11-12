@@ -12,16 +12,16 @@ let mockIsPreviousData = false;
 let mockChainId = "chain-a";
 let mockMounts = 0;
 const mockSetPage = jest.fn();
-const mockRequests: { page: number; limit: number }[] = [];
+const mockRequests: { page: number; limit?: number }[] = [];
 
-jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => ({
-  useHistoryEntryState: () => [mockSavedPage, mockSetPage],
+jest.mock("@/common/hooks/common/use-list-pagination", () => ({
+  useListPagination: () => [mockSavedPage, mockSetPage],
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: { chainId: mockChainId } }),
 }));
 jest.mock("@/common/react-query/validator/api/use-get-validators", () => ({
-  useGetValidators: (params: { page: number; limit: number }) => {
+  useGetValidators: (params: { page: number; limit?: number }) => {
     mockRequests.push(params);
     jest.requireActual("react").useEffect(() => {
       mockMounts += 1;
@@ -85,14 +85,14 @@ beforeEach(() => {
   mockTotalCount = 45;
 });
 
-it("requests the saved page and derives the page count from totalCount", () => {
+it("requests the saved page and derives the page count from totalCount (40 per page)", () => {
   mockSavedPage = 2;
   const view = render();
 
-  expect(mockRequests[0]).toEqual({ page: 2, limit: 20 });
+  expect(mockRequests[0]).toEqual({ page: 2 });
   expect(view.rows()).toBe("a1");
   expect(view.pagination().dataset.page).toBe("2");
-  expect(view.pagination().dataset.total).toBe("3");
+  expect(view.pagination().dataset.total).toBe("2");
 });
 
 it("has a single page for an empty list", () => {
@@ -107,7 +107,7 @@ it("moves a saved page past the last page back to the last page", () => {
   mockItems = [];
   render();
 
-  expect(mockSetPage).toHaveBeenCalledWith(3);
+  expect(mockSetPage).toHaveBeenCalledWith(2);
 });
 
 it("does not clamp the page against stale previous-page data", () => {
@@ -119,7 +119,7 @@ it("does not clamp the page against stale previous-page data", () => {
 });
 
 it("does not reset a valid saved page", () => {
-  mockSavedPage = 3;
+  mockSavedPage = 2;
   render();
 
   expect(mockSetPage).not.toHaveBeenCalled();
@@ -130,7 +130,7 @@ it("clamps page changes to the last page", () => {
 
   act(() => view.pagination().click());
 
-  expect(mockSetPage).toHaveBeenCalledWith(3);
+  expect(mockSetPage).toHaveBeenCalledWith(2);
 });
 
 it("remounts the list on network change so the previous network's rows are not carried over", () => {

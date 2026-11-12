@@ -1,10 +1,10 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTransactionEventsRequest } from "@/repositories/api/transaction/request";
 import { GetTransactionEventsResponse } from "@/repositories/api/transaction/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 
 /**
@@ -23,22 +23,16 @@ import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
  */
 export const useGetTransactionEventsByHeight = (
   params: GetTransactionEventsRequest,
-  options?: UseInfiniteQueryOptions<GetTransactionEventsResponse, Error, GetTransactionEventsResponse>,
-): UseInfiniteQueryResult<GetTransactionEventsResponse, Error> => {
+  options?: UseQueryOptions<GetTransactionEventsResponse, Error, GetTransactionEventsResponse>,
+): UseQueryResult<GetTransactionEventsResponse, Error> => {
   const { apiTransactionRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetTransactionEventsResponse, Error, typeof apiTransactionRepository>(
-    [QUERY_KEY.getTransactionEventsByHash, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getTransactionEventsByHash],
+    params,
     apiTransactionRepository,
     API_REPOSITORY_KEY.TRANSACTION_REPOSITORY,
-    (repository, cursor) =>
-      repository!.getTransactionEvents({
-        ...params,
-        cursor,
-      }),
-    {
-      ...options,
-      enabled: (options?.enabled ?? true) && !!params.txHash,
-    },
+    (repository, pageParams) => repository.getTransactionEvents(pageParams),
+    { ...options, enabled: (options?.enabled ?? true) && !!params.txHash },
   );
 };

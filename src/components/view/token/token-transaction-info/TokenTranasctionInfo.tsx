@@ -7,6 +7,8 @@ import { TokenHoldersDatatablePage } from "../../datatable/token-detail/token-ho
 import { ActivityDatatable } from "../../datatable/activity";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
 import { ActivityEventsFilterBar } from "../../datatable/event/ActivityEventsFilterBar";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
+import { FunctionFilter } from "../../common/function-filter/FunctionFilter";
 import {
   useGetTokenHoldersByid,
   useGetTokenMetaByPath,
@@ -18,9 +20,9 @@ import {
 } from "@/common/react-query/token/api";
 import { useGetRealmNativeTransfersByPath } from "@/common/react-query/realm/api";
 import { useNetwork } from "@/common/hooks/use-network";
-import { RealmMapper } from "@/common/mapper/realm/realm-mapper";
-import { debounce } from "@/common/utils/string-util";
-import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
+import { useActivityEvents } from "@/common/hooks/common/use-activity-events";
+import { useFunctionFilteredPagedList } from "@/common/hooks/common/use-function-filtered-paged-list";
+import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { TOKEN_DETAIL_TABS, ACTIVITY_TAB } from "@/common/values/activity-tab.constant";
 import Text from "@/components/ui/text";
 import styled from "styled-components";
@@ -41,93 +43,62 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
   // Token meta settled without a realm path (404 or error): the native query never runs, so show it as empty.
   const isNativeUnavailable = isFetchedTokenMeta && !realmPath;
 
-  const {
-    data: directData,
-    isFetched: isFetchedDirect,
-    hasNextPage: hasNextPageDirect,
-    fetchNextPage: fetchNextPageDirect,
-  } = useGetTokenMetaTransactionsById({ path: tokenPath }, { enabled: !isCustomNetwork && !!tokenPath });
-  const {
-    data: nativeData,
-    isFetched: isFetchedNative,
-    hasNextPage: hasNextPageNative,
-    fetchNextPage: fetchNextPageNative,
-  } = useGetRealmNativeTransfersByPath({ path: realmPath }, { enabled: !isCustomNetwork && !!realmPath });
-  const {
-    data: transfersData,
-    isFetched: isFetchedTransfers,
-    hasNextPage: hasNextPageTransfers,
-    fetchNextPage: fetchNextPageTransfers,
-  } = useGetTokenTransfersById({ path: tokenPath }, { enabled: !isCustomNetwork && !!tokenPath });
-  const {
-    data: internalData,
-    isFetched: isFetchedInternal,
-    hasNextPage: hasNextPageInternal,
-    fetchNextPage: fetchNextPageInternal,
-  } = useGetTokenMetaInternalTransactionsById({ path: tokenPath }, { enabled: !isCustomNetwork && !!tokenPath });
-  const { data: holdersData } = useGetTokenHoldersByid(
+  const enabled = !isCustomNetwork && !!tokenPath;
+  const direct = useFunctionFilteredPagedList(
+    "token-direct",
+    tokenPath,
+    useGetTokenMetaTransactionsById,
     { path: tokenPath },
+    { enabled },
+  );
+  const native = usePagedList(
+    "token-native",
+    realmPath,
+    useGetRealmNativeTransfersByPath,
+    { path: realmPath },
+    { enabled: !isCustomNetwork && !!realmPath },
+  );
+  const transfers = usePagedList(
+    "token-transfers",
+    tokenPath,
+    useGetTokenTransfersById,
+    { path: tokenPath },
+    { enabled },
+  );
+  const internal = usePagedList(
+    "token-internal",
+    tokenPath,
+    useGetTokenMetaInternalTransactionsById,
+    { path: tokenPath },
+    { enabled },
+  );
+  const { data: holdersData } = useGetTokenHoldersByid(
+    { path: tokenPath, page: 1 },
     { enabled: !isCustomNetwork && !!tokenPath },
   );
-  const {
-    data: hostedTokensData,
-    hasNextPage: hasNextHostedTokensPage,
-    fetchNextPage: fetchNextHostedTokensPage,
-  } = useGetTokens(
+  // Hosted tokens are paged per realm; a different realm starts again from page 1.
+  const hosted = usePagedList(
+    "hosted-tokens",
+    realmPath,
+    useGetTokens,
     { packagePath: realmPath },
     {
       enabled: !isCustomNetwork && isFactoryRealm && !!realmPath && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS,
     },
   );
 
-  // Events filters are restored with the history entry, so back/forward keeps the loaded list.
-  const [eventTypeInput, setEventTypeInput] = useHistoryEntryState(`token:${tokenPath}:eventTypeInput`, "");
-  const [eventType, setEventType] = useHistoryEntryState(`token:${tokenPath}:eventType`, "");
-  const [includeStorage, setIncludeStorage] = useHistoryEntryState(`token:${tokenPath}:includeStorage`, false);
-  const debouncedSetEventType = React.useMemo(() => debounce(setEventType, 300), [setEventType]);
+  const events = useActivityEvents("token", tokenPath, useGetTokenEventsById, {
+    enabled: !isCustomNetwork && !!tokenPath,
+  });
 
-  const handleEventTypeChange = (value: string) => {
-    setEventTypeInput(value);
-    debouncedSetEventType(value.trim());
-  };
-
-  const {
-    data: eventData,
-    isFetched: isFetchedEventData,
-    hasNextPage: hasNextPageEventData,
-    fetchNextPage: fetchNextPageEventData,
-  } = useGetTokenEventsById(
-    { path: tokenPath, eventType: eventType || undefined, includeStorage },
-    { enabled: !isCustomNetwork && !!tokenPath },
-  );
-  // Tab badge counts every token event, independent of the list filters.
-  const { data: eventCountData } = useGetTokenEventsById(
-    { path: tokenPath, includeStorage: true, limit: 1 },
-    { enabled: !isCustomNetwork && !!tokenPath },
-  );
-
-  const directTransactions = React.useMemo(() => directData?.pages.flatMap(page => page.items) ?? [], [directData]);
-  const nativeTransfers = React.useMemo(() => nativeData?.pages.flatMap(page => page.items) ?? [], [nativeData]);
-  const tokenTransfers = React.useMemo(() => transfersData?.pages.flatMap(page => page.items) ?? [], [transfersData]);
   // Guard against an API without the packagePath filter, which returns the global token list.
   const hostedTokens = React.useMemo(
-    () => hostedTokensData?.pages.flatMap(page => page.items).filter(token => token.path === realmPath) ?? [],
-    [hostedTokensData, realmPath],
+    () => hosted.items.filter(token => token.path === realmPath),
+    [hosted.items, realmPath],
   );
-  const internalTransactions = React.useMemo(
-    () => internalData?.pages.flatMap(page => page.items) ?? [],
-    [internalData],
-  );
-  const tokenEvents = React.useMemo(() => {
-    if (!eventData?.pages) return [];
-    const allItems = eventData.pages.flatMap(page => page.items);
-    return RealmMapper.realmEventFromApiResponses(allItems);
-  }, [eventData?.pages]);
 
-  const totalEventCount = eventCountData?.pages[0]?.page.totalCount;
-
-  const transactionsCount = directData?.pages[0]?.page.totalCount;
-  const holdersCount = holdersData?.pages[0]?.page.totalCount;
+  const transactionsCount = direct.pagination.totalCount;
+  const holdersCount = holdersData?.page.totalCount;
 
   const detailTabs = React.useMemo(() => {
     if (isCustomNetwork) {
@@ -135,38 +106,47 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
     }
 
     return [
-      { tabName: TOKEN_DETAIL_TABS[0], size: directData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[1], size: isNativeUnavailable ? 0 : nativeData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[2], size: transfersData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[3], size: internalData?.pages[0]?.page.totalCount },
-      { tabName: TOKEN_DETAIL_TABS[4], size: totalEventCount },
+      { tabName: TOKEN_DETAIL_TABS[0], size: direct.pagination.totalCount },
+      { tabName: TOKEN_DETAIL_TABS[1], size: isNativeUnavailable ? 0 : native.pagination.totalCount },
+      { tabName: TOKEN_DETAIL_TABS[2], size: transfers.pagination.totalCount },
+      { tabName: TOKEN_DETAIL_TABS[3], size: internal.pagination.totalCount },
+      { tabName: TOKEN_DETAIL_TABS[4], size: events.allCount },
       { tabName: TOKEN_DETAIL_TABS[5], size: holdersCount },
     ];
   }, [
     isCustomNetwork,
     transactionsCount,
-    directData,
+    direct.pagination.totalCount,
     isNativeUnavailable,
-    nativeData,
-    transfersData,
-    internalData,
-    totalEventCount,
+    native.pagination.totalCount,
+    transfers.pagination.totalCount,
+    internal.pagination.totalCount,
+    events.allCount,
     holdersCount,
   ]);
 
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection
+      tabs={detailTabs}
+      tabActions={
+        tokenPath &&
+        !isCustomNetwork &&
+        currentTab === ACTIVITY_TAB.TRANSACTIONS && (
+          <FunctionFilter filter={direct.filter} onChange={direct.setFilter} />
+        )
+      }
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    >
       {tokenPath && isCustomNetwork && currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <TokenDetailDatatable path={tokenPath} />
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.TRANSACTIONS && (
         <ActivityDatatable
           variant="direct"
-          data={directTransactions}
-          isFetched={isFetchedDirect}
-          hasNextPage={hasNextPageDirect}
-          nextPage={fetchNextPageDirect}
-          moreLabel="View More Transactions"
+          data={direct.items}
+          isFetched={direct.isFetched}
+          footer={<ListPagination {...direct.pagination} />}
         />
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.NATIVE_TRANSFERS && (
@@ -189,57 +169,41 @@ const TokenTransactionInfo = ({ tokenPath, isCustomNetwork, currentTab, setCurre
                   </HostedTokenList>
                 )}
               </FactorySummary>
-              {hasNextHostedTokensPage && hostedTokens.length > 0 && (
-                <MoreHostedTokensButton type="button" onClick={() => fetchNextHostedTokensPage()}>
-                  View More Tokens
-                </MoreHostedTokensButton>
-              )}
+              <ListPagination {...hosted.pagination} />
             </FactoryNotice>
           )}
           <ActivityDatatable
             variant="transfers"
-            data={nativeTransfers}
-            isFetched={isFetchedNative || isNativeUnavailable}
-            hasNextPage={hasNextPageNative}
-            nextPage={fetchNextPageNative}
-            moreLabel="View More Transfers"
+            data={native.items}
+            isFetched={native.isFetched || isNativeUnavailable}
+            footer={<ListPagination {...native.pagination} />}
           />
         </>
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.TOKEN_TRANSFERS && (
         <ActivityDatatable
           variant="token-volume"
-          data={tokenTransfers}
-          isFetched={isFetchedTransfers}
-          hasNextPage={hasNextPageTransfers}
-          nextPage={fetchNextPageTransfers}
-          moreLabel="View More Transfers"
+          data={transfers.items}
+          isFetched={transfers.isFetched}
+          footer={<ListPagination {...transfers.pagination} />}
         />
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.INTERNAL_TRANSACTIONS && (
         <ActivityDatatable
           variant="internal"
-          data={internalTransactions}
-          isFetched={isFetchedInternal}
-          hasNextPage={hasNextPageInternal}
-          nextPage={fetchNextPageInternal}
-          moreLabel="View More Transactions"
+          data={internal.items}
+          isFetched={internal.isFetched}
+          footer={<ListPagination {...internal.pagination} />}
         />
       )}
       {tokenPath && !isCustomNetwork && currentTab === ACTIVITY_TAB.EVENTS && (
         <>
-          <ActivityEventsFilterBar
-            eventType={eventTypeInput}
-            onEventTypeChange={handleEventTypeChange}
-            includeStorage={includeStorage}
-            onIncludeStorageChange={setIncludeStorage}
-          />
+          <ActivityEventsFilterBar {...events.filterBar} />
           <StandardNetworkEventDatatable
             variant="activity"
-            isFetched={isFetchedEventData}
-            events={tokenEvents}
-            hasNextPage={hasNextPageEventData}
-            nextPage={fetchNextPageEventData}
+            isFetched={events.isFetched}
+            events={events.events}
+            footer={<ListPagination {...events.pagination} />}
           />
         </>
       )}
@@ -289,11 +253,4 @@ const FactorySummary = styled.div`
   flex-wrap: wrap;
   gap: 0 4px;
   min-width: 0;
-`;
-
-const MoreHostedTokensButton = styled.button`
-  align-self: flex-start;
-  color: ${({ theme }) => theme.colors.blue};
-  background: none;
-  cursor: pointer;
 `;

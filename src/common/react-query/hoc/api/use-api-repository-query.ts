@@ -33,7 +33,7 @@ export function useApiRepositoryQuery<TData, TError = Error, TRepository = unkno
       }
       return queryFn(repository);
     },
-    enabled: !!repository && options?.enabled !== false,
     ...options,
+    enabled: !!repository && options?.enabled !== false,
   });
 }

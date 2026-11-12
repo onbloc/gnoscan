@@ -1,5 +1,6 @@
 import React from "react";
 
+import { usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useTransaction } from "@/common/hooks/transactions/use-transaction";
 import { useMappedApiTransaction } from "@/common/services/transaction/use-mapped-api-transaction";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
@@ -10,7 +11,8 @@ import { GnoEvent, TransactionContractInfo } from "@/types/data-type";
 
 import { extractStorageDepositFromTxEvents } from "@/common/utils/transaction.utility";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
-import { EventDatatable } from "@/components/view/datatable/event";
+import { StandardNetworkEventDatatable } from "@/components/view/datatable/event/StandardNetworkEventDatatable";
+import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
 import DataListSection from "@/components/view/details-data-section/data-list-section";
 import { StandardNetworkTransactionContractDetails } from "../../transaction-contract-details/StandardNetworkTransactionContractsDetails";
 import { TransactionContractDetails } from "../../transaction-contract-details/TransactionContractDetails";
@@ -39,33 +41,38 @@ const StandardNetworkTransactionInfo = ({
   // Contracts/events only exist once the tx is confirmed and indexed — fetching them
   // any earlier (e.g. during the not-yet-settled grace window right after a 404) would
   // just get back an empty success response and flash an empty tab.
-  const { data: contractsData, isFetched: isFetchedContractsData } = useGetTransactionContractsByHeight(
+  const contracts = usePagedList(
+    "tx-contracts",
+    txHash,
+    useGetTransactionContractsByHeight,
     { txHash },
     // Confirmed contracts never change, so pages already loaded by the transaction list are reused.
     { enabled: apiStatus === "confirmed", staleTime: Infinity },
   );
-  const { data: eventsData, isFetched: isFetchedEventsData } = useGetTransactionEventsByHeight(
+  const events = usePagedList(
+    "tx-events",
+    txHash,
+    useGetTransactionEventsByHeight,
     { txHash },
     { enabled: apiStatus === "confirmed" },
   );
 
-  const txContracts: TransactionContractInfo = React.useMemo(() => {
-    if (!contractsData?.pages) return { messages: [], numOfMessage: 0, rawContent: "" };
+  // The summary card covers the whole transaction, so it keeps the first page of messages while the list pages.
+  // On page 1 this is the same query as the list above.
+  const { data: summaryContractsData, isFetched: isFetchedSummaryContracts } = useGetTransactionContractsByHeight(
+    { txHash, page: 1 },
+    { enabled: apiStatus === "confirmed", staleTime: Infinity },
+  );
 
-    const allItems = contractsData.pages.flatMap(page => page.items);
-    return {
-      messages: allItems,
-      numOfMessage: allItems.length,
-      rawContent: "",
-    };
-  }, [contractsData?.pages]);
+  const txContracts: TransactionContractInfo = React.useMemo(
+    () => ({ messages: contracts.items, numOfMessage: contracts.pagination.totalCount ?? 0, rawContent: "" }),
+    [contracts.items, contracts.pagination.totalCount],
+  );
 
-  const txEvents: GnoEvent[] = React.useMemo(() => {
-    if (!eventsData?.pages) return [];
-
-    const allItems = eventsData.pages.flatMap(page => page.items);
-    return TransactionMapper.transactionEventsFromApiResponses(allItems || []);
-  }, [eventsData?.pages]);
+  const txEvents: GnoEvent[] = React.useMemo(
+    () => TransactionMapper.transactionEventsFromApiResponses(events.items),
+    [events.items],
+  );
 
   const storageDepositInfo = React.useMemo(() => {
     if (!transactionEvents || transactionEvents.length === 0) {
@@ -74,9 +81,6 @@ const StandardNetworkTransactionInfo = ({
     return extractStorageDepositFromTxEvents(transactionEvents);
   }, [transactionEvents]);
 
-  // The API returns the total event count only on the first page.
-  const eventTotalCount = eventsData?.pages?.[0]?.page?.totalCount;
-
   // Events only exist once a tx has actually executed, so there's nothing to show —
   // or even a meaningful "0" for — while it's still pending. Drop the tab entirely
   // rather than rendering an empty table that reads as "confirmed, zero events".
@@ -84,11 +88,11 @@ const StandardNetworkTransactionInfo = ({
     const tabs: { tabName: string; size?: number }[] = [{ tabName: "Messages" }];
 
     if (!isPending) {
-      tabs.push({ tabName: "Events", size: eventTotalCount ?? txEvents.length });
+      tabs.push({ tabName: "Events", size: events.pagination.totalCount ?? txEvents.length });
     }
 
     return tabs;
-  }, [isPending, eventsData, eventTotalCount, txEvents.length]);
+  }, [isPending, events.pagination.totalCount, txEvents.length]);
 
   React.useEffect(() => {
     if (isPending && currentTab === "Events") {
@@ -97,7 +101,8 @@ const StandardNetworkTransactionInfo = ({
   }, [isPending, currentTab, setCurrentTab]);
 
   if (apiStatus !== "confirmed" && apiStatus !== "pending") return <TableSkeleton />;
-  if (apiStatus === "confirmed" && (!isFetchedContractsData || !isFetchedEventsData)) return <TableSkeleton />;
+  if (apiStatus === "confirmed" && (!contracts.isFetched || !isFetchedSummaryContracts || !events.isFetched))
+    return <TableSkeleton />;
 
   return (
     <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
@@ -111,7 +116,7 @@ const StandardNetworkTransactionInfo = ({
         ) : (
           <>
             <TransactionTopSummary
-              messages={txContracts.messages}
+              messages={summaryContractsData?.items ?? []}
               numOfMessage={txContracts.numOfMessage}
               summary={apiTransaction?.summary}
             />
@@ -120,11 +125,17 @@ const StandardNetworkTransactionInfo = ({
               rawTransaction={transactionItem}
               getUrlWithNetwork={getUrlWithNetwork}
               storageDepositInfo={storageDepositInfo}
+              startIndex={contracts.startIndex}
+              footer={<ListPagination {...contracts.pagination} />}
             />
           </>
         ))}
       {currentTab === "Events" && !isPending && (
-        <EventDatatable scope={`tx:${txHash}`} events={txEvents} isFetched={isFetchedEventsData} />
+        <StandardNetworkEventDatatable
+          events={txEvents}
+          isFetched={events.isFetched}
+          footer={<ListPagination {...events.pagination} />}
+        />
       )}
     </DataListSection>
   );

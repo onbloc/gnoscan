@@ -8,12 +8,15 @@ import IconPreviousPage from "@/assets/svgs/icon-pagination-previous.svg";
 
 interface PaginationProps {
   page: number;
-  totalPages: number;
+  // Omit when the total is unknown: only the current page is shown and the last page is not offered.
+  totalPages?: number;
   onChangePage: (page: number) => void;
   hasNext?: boolean;
   allowLastPage?: boolean;
   hideFirstPageButtonWhenDisabled?: boolean;
   hideLastPageButtonWhenCurrent?: boolean;
+  // Root element, for callers that need to know where the pagination is on screen.
+  wrapperRef?: React.Ref<HTMLDivElement>;
 }
 
 export const Pagination = ({
@@ -24,17 +27,19 @@ export const Pagination = ({
   allowLastPage = true,
   hideFirstPageButtonWhenDisabled = false,
   hideLastPageButtonWhenCurrent = false,
+  wrapperRef,
 }: PaginationProps) => {
-  if (totalPages <= 1) {
+  const isTotalKnown = totalPages !== undefined;
+  if (isTotalKnown ? totalPages <= 1 : page <= 1) {
     return null;
   }
 
   const hasPrev = page > 1;
-  const canGoNext = page < totalPages && (hasNext ?? true);
-  const canGoLast = allowLastPage && canGoNext;
+  const canGoNext = isTotalKnown ? page < totalPages && (hasNext ?? true) : hasNext === true;
+  const canGoLast = isTotalKnown && allowLastPage && canGoNext;
 
   return (
-    <Wrapper>
+    <Wrapper ref={wrapperRef}>
       {!(hideFirstPageButtonWhenDisabled && !hasPrev) && (
         <ArrowButton aria-label="First page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(1)}>
           <IconFirstPage />
@@ -43,11 +48,11 @@ export const Pagination = ({
       <ArrowButton aria-label="Previous page" disabled={!hasPrev} onClick={() => hasPrev && onChangePage(page - 1)}>
         <IconPreviousPage />
       </ArrowButton>
-      <PageText>{`Page ${page} of ${totalPages}`}</PageText>
+      <PageText>{isTotalKnown ? `Page ${page} of ${totalPages}` : `Page ${page}`}</PageText>
       <ArrowButton aria-label="Next page" disabled={!canGoNext} onClick={() => canGoNext && onChangePage(page + 1)}>
         <IconPreviousPage className="icon-arrow-right" />
       </ArrowButton>
-      {!(hideLastPageButtonWhenCurrent && page === totalPages) && (
+      {isTotalKnown && !(hideLastPageButtonWhenCurrent && page === totalPages) && (
         <ArrowButton aria-label="Last page" disabled={!canGoLast} onClick={() => canGoLast && onChangePage(totalPages)}>
           <IconFirstPage className="icon-arrow-right" />
         </ArrowButton>

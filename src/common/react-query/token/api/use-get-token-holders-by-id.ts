@@ -1,9 +1,9 @@
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { GetTokenHoldersResponse } from "@/repositories/api/token/response";
-import { useApiRepositoryInfiniteQuery } from "@/common/react-query/hoc/api";
+import { useApiRepositoryPageQuery } from "@/common/react-query/hoc/api";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
 import { GetTokenHoldersRequest } from "@/repositories/api/token/request";
 
@@ -19,19 +19,16 @@ import { GetTokenHoldersRequest } from "@/repositories/api/token/request";
  */
 export const useGetTokenHoldersByid = (
   params: GetTokenHoldersRequest,
-  options?: UseInfiniteQueryOptions<GetTokenHoldersResponse, Error, GetTokenHoldersResponse>,
-): UseInfiniteQueryResult<GetTokenHoldersResponse, Error> => {
+  options?: UseQueryOptions<GetTokenHoldersResponse, Error, GetTokenHoldersResponse>,
+): UseQueryResult<GetTokenHoldersResponse, Error> => {
   const { apiTokenRepository } = useServiceProvider();
 
-  return useApiRepositoryInfiniteQuery<GetTokenHoldersResponse, Error, typeof apiTokenRepository>(
-    [QUERY_KEY.getTokenHoldersById, params],
+  return useApiRepositoryPageQuery(
+    [QUERY_KEY.getTokenHoldersById],
+    params,
     apiTokenRepository,
     API_REPOSITORY_KEY.TOKEN_REPOSITORY,
-    (repository, cursor) =>
-      repository!.getTokenHolders({
-        ...params,
-        cursor,
-      }),
+    (repository, pageParams) => repository.getTokenHolders(pageParams),
     options,
   );
 };

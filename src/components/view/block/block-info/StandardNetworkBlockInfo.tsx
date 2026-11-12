@@ -3,6 +3,8 @@ import React from "react";
 import { useMappedApiBlockEvents } from "@/common/services/block/use-mapped-api-block-events";
 
 import { useMappedApiBlockTransactions } from "@/common/services/block/use-mapped-api-block-transactions";
+import { FunctionFilter } from "../../common/function-filter/FunctionFilter";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
 import { BlockDetailDatatable } from "../../datatable";
 import { StandardNetworkEventDatatable } from "../../datatable/event/StandardNetworkEventDatatable";
@@ -15,55 +17,51 @@ interface BlockInfoProps {
 }
 
 const StandardNetworkBlockInfo = ({ blockHeight, currentTab, setCurrentTab }: BlockInfoProps) => {
+  const height = String(blockHeight);
   const {
     data: transactions,
-    totalCount: transactionsTotalCount,
     isFetched: isFetchedTransactions,
-    hasNextPage: transactionsHasNextPage,
-    fetchNextPage: transactionsFetchNextPage,
-  } = useMappedApiBlockTransactions({
-    blockHeight: String(blockHeight),
-  });
+    pagination: transactionsPagination,
+    filter,
+    setFilter,
+  } = useMappedApiBlockTransactions(height);
 
-  const {
-    data: events,
-    totalCount: eventsTotalCount,
-    isFetched: isFetchedEvents,
-    hasNextPage: eventsHasNextpage,
-    fetchNextPage: eventsFetchNextPage,
-  } = useMappedApiBlockEvents({ blockHeight: String(blockHeight) });
+  const { data: events, isFetched: isFetchedEvents, pagination: eventsPagination } = useMappedApiBlockEvents(height);
 
   const detailTabs = React.useMemo(() => {
     return [
       {
         tabName: "Transactions",
-        size: transactionsTotalCount ?? transactions.length,
+        size: transactionsPagination.totalCount ?? transactions.length,
       },
       {
         tabName: "Events",
-        size: eventsTotalCount ?? events.length,
+        size: eventsPagination.totalCount ?? events.length,
       },
     ];
-  }, [transactions, transactionsTotalCount, events, eventsTotalCount]);
+  }, [transactions, transactionsPagination.totalCount, events, eventsPagination.totalCount]);
 
   if (!isFetchedEvents || !isFetchedTransactions) return <TableSkeleton />;
 
   return (
-    <DataListSection tabs={detailTabs} currentTab={currentTab} setCurrentTab={setCurrentTab}>
+    <DataListSection
+      tabs={detailTabs}
+      tabActions={currentTab === "Transactions" && <FunctionFilter filter={filter} onChange={setFilter} />}
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+    >
       {currentTab === "Transactions" && (
         <BlockDetailDatatable
           transactions={transactions}
           isFetched={isFetchedTransactions}
-          hasNextPage={transactionsHasNextPage}
-          nextPage={transactionsFetchNextPage}
+          footer={<ListPagination {...transactionsPagination} />}
         />
       )}
       {currentTab === "Events" && (
         <StandardNetworkEventDatatable
           isFetched={isFetchedEvents}
           events={events}
-          hasNextPage={eventsHasNextpage}
-          nextPage={eventsFetchNextPage}
+          footer={<ListPagination {...eventsPagination} />}
         />
       )}
     </DataListSection>

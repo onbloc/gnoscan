@@ -1,7 +1,11 @@
 export interface GetAccountTokenTransfersRequest {
   address: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
+
+  from?: string;
+
+  to?: string;
 }

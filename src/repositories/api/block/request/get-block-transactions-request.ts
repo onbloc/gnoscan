@@ -1,7 +1,9 @@
-export interface GetBlockTransactionsRequest {
+import { FunctionFilterApiParams } from "@/common/types/function-filter";
+
+export interface GetBlockTransactionsRequest extends FunctionFilterApiParams {
   blockHeight: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

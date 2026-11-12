@@ -2,9 +2,11 @@ import React from "react";
 
 import { NftCollectionListSortOption } from "@/common/types/token";
 import { toNftCollectionListApiSortParams } from "@/common/utils/sort/nft-collection-list-sort";
-import { useGetNftCollectionsInfinite } from "@/common/react-query/token/api";
+import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useGetNftCollections } from "@/common/react-query/token/api";
 import { DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";
 
+import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
 import { StandardNetworkNftCollectionListTable } from "../nft-collection-list-table/StandardNetworkNftCollectionListTable";
 
 interface StandardNetworkNftCollectionsDataProps {
@@ -18,31 +20,34 @@ const StandardNetworkNftCollectionsData = ({
   setSortOption,
   keyword,
 }: StandardNetworkNftCollectionsDataProps) => {
+  const scope = `${sortOption.field}:${sortOption.order}:${keyword ?? ""}`;
+  const [page, setPage] = useListPagination("nfts", scope);
   const apiParams = React.useMemo(
-    () => ({ ...toNftCollectionListApiSortParams(sortOption), limit: DEFAULT_LIST_ITEMS_SIZE, keyword }),
-    [sortOption.field, sortOption.order, keyword],
+    () => ({ ...toNftCollectionListApiSortParams(sortOption), limit: DEFAULT_LIST_ITEMS_SIZE, keyword, page }),
+    [sortOption.field, sortOption.order, keyword, page],
   );
 
-  const { data, isFetched, isLoading, isPreviousData, fetchNextPage, hasNextPage } = useGetNftCollectionsInfinite(
-    apiParams,
-    {
-      keepPreviousData: true,
-    },
-  );
-
-  const collections = React.useMemo(() => data?.pages.flatMap(page => page.items) ?? [], [data]);
+  const { data, isFetched, isLoading, isPreviousData } = useGetNftCollections(apiParams, { keepPreviousData: true });
 
   return (
     <StandardNetworkNftCollectionListTable
-      data={collections}
-      // The next cursor of the previous sort does not apply to the new one.
-      hasNextPage={hasNextPage && !isPreviousData}
+      data={data?.items ?? []}
       // Rows of the previous sort stay on screen until the new sort loads.
       isFetched={isFetched || isPreviousData}
       isLoading={isLoading}
-      fetchNextPage={fetchNextPage}
       sortOption={sortOption}
       setSortOption={setSortOption}
+      footer={
+        <ListPagination
+          page={page}
+          pageSize={DEFAULT_LIST_ITEMS_SIZE}
+          totalCount={data?.page.totalCount}
+          hasNext={data?.page.hasNext}
+          isSettled={!isPreviousData}
+          scope={scope}
+          onChangePage={setPage}
+        />
+      }
     />
   );
 };

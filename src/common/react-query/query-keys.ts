@@ -4,6 +4,8 @@ export enum QUERY_KEY {
   getAccounts = "api_get_accounts",
   getAccountDirectTransactions = "api_get_account_direct_transactions",
   getAccountNativeTransfers = "api_get_account_native_transfers",
+  getAccountNativeBalanceHistory = "api_get_account_native_balance_history",
+  getAccountNativeBalanceChanges = "api_get_account_native_balance_changes",
   getAccountTokenTransfers = "api_get_account_token_transfers",
   getAccountGRC721Collections = "api_get_account_grc721_collections",
   getAccountNfts = "api_get_account_nfts",
@@ -13,10 +15,10 @@ export enum QUERY_KEY {
   getBlockByHeight = "api_get_block_by_height",
   getBlockEventsByHeight = "api_get_block_events_by_height",
   getBlockTransactionsByHeight = "api_get_block_transactions_by_height",
-  getBlockTransactionsCountByHeight = "api_get_block_transactions_count_by_height",
 
   // transaction
   getTransactions = "api_get_transactions",
+  getTransactionFunctionNames = "api_get_transaction_function_names",
   getTransactionByHash = "api_get_transaction_by_hash",
   getTransactionPendingByHash = "api_get_transaction_pending_by_hash",
   getTransactionEventsByHash = "api_get_transaction_events_by_hash",
@@ -43,7 +45,6 @@ export enum QUERY_KEY {
   getTokenMetaInternalTransactionsById = "api_get_token_meta_internal_transactions_by_id",
   getTokenEventsById = "api_get_token_events_by_id",
   getNftCollections = "api_get_nft_collections",
-  getNftCollectionsList = "api_get_nft_collections_list",
   getNftCollection = "api_get_nft_collection",
   getNftCollectionItems = "api_get_nft_collection_items",
   getNftItemDetail = "api_get_nft_item_detail",

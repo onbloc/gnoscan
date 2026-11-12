@@ -1,7 +1,7 @@
 export interface GetRealmNativeTransfersRequest {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

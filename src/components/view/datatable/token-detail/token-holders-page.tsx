@@ -11,7 +11,8 @@ import { getAddressNameTag } from "@/common/utils/address-label.utility";
 
 import { TokenHolder } from "@/types/data-type";
 import TableSkeleton from "../../common/table-skeleton/TableSkeleton";
-import { ViewMoreButton } from "@/components/ui/button";
+import { usePagedList } from "@/common/hooks/common/use-paged-list";
+import { ListPagination } from "../../common/list-pagination/ListPagination";
 
 interface Props {
   path: string[] | any;
@@ -31,30 +32,28 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
   const decimals = resolved?.decimals ?? backendMeta.decimals;
   const symbol = resolved?.symbol ?? backendMeta.symbol;
 
-  const { data, isFetched: isFetchedHolders, hasNextPage, fetchNextPage } = useGetTokenHoldersByid({ path });
+  const holders = usePagedList("token-holders", String(path), useGetTokenHoldersByid, { path });
 
-  const tokenHolders: TokenHolder[] = React.useMemo(() => {
-    if (!data?.pages) return [];
+  const tokenHolders: TokenHolder[] = React.useMemo(
+    () =>
+      holders.items.map(
+        (item: TokenHolderModel, index: number): TokenHolder => ({
+          rank: holders.startIndex + index + 1,
+          address: item.address,
+          nameTag: getAddressNameTag(item),
+          label: item.label,
+          labelType: item.labelType,
+          balance: {
+            value: formatTokenDecimal(item.balance, decimals),
+            denom: symbol,
+          },
+          percentage: item.percentage,
+        }),
+      ),
+    [holders.items, holders.startIndex, decimals, symbol],
+  );
 
-    const allItems = data.pages.flatMap(page => page.items);
-
-    return allItems.map((item: TokenHolderModel, index: number): TokenHolder => {
-      return {
-        rank: index + 1,
-        address: item.address,
-        nameTag: getAddressNameTag(item),
-        label: item.label,
-        labelType: item.labelType,
-        balance: {
-          value: formatTokenDecimal(item.balance, decimals),
-          denom: symbol,
-        },
-        percentage: item.percentage,
-      };
-    });
-  }, [data?.pages, decimals, symbol]);
-
-  if (!isFetchedHolders) return <TableSkeleton />;
+  if (!holders.isFetched) return <TableSkeleton />;
 
   const createHeaders = () => {
     return [
@@ -118,8 +117,8 @@ export const TokenHoldersDatatablePage = ({ path }: Props) => {
 
   return (
     <FlushTableContainer>
-      <Datatable loading={!isFetchedHolders} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
-      {hasNextPage && <ViewMoreButton variant="table" text="View More Holders" onClick={() => fetchNextPage()} />}
+      <Datatable loading={!holders.isFetched} headers={createHeaders()} datas={tokenHolders as TokenHolder[]} />
+      <ListPagination {...holders.pagination} />
     </FlushTableContainer>
   );
 };

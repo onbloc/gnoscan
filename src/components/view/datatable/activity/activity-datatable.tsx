@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
-import { ViewMoreButton } from "@/components/ui/button";
 import { useTokenMeta } from "@/common/hooks/common/use-token-meta";
 import { ActivityRow } from "@/models/api/activity/activity-model";
 import { DatatableItem } from "..";
@@ -22,12 +21,10 @@ interface Props {
   variant: ActivityDatatableVariant;
   data: ActivityRow[];
   isFetched: boolean;
-  hasNextPage?: boolean;
-  nextPage?: () => void;
-  moreLabel: string;
+  footer?: React.ReactNode;
 }
 
-const TOOLTIP_TYPE = (
+export const TOOLTIP_TYPE = (
   <>
     Hover on each value to <br />
     view the raw transaction <br />
@@ -35,7 +32,7 @@ const TOOLTIP_TYPE = (
   </>
 );
 
-export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextPage, moreLabel }: Props) => {
+export const ActivityDatatable = ({ variant, data, isFetched, footer }: Props) => {
   const { getTokenAmount } = useTokenMeta();
 
   const headers = useMemo(() => {
@@ -220,7 +217,7 @@ export const ActivityDatatable = ({ variant, data, isFetched, hasNextPage, nextP
   return (
     <FlushTableContainer>
       <Datatable loading={!isFetched} headers={headers} datas={data} />
-      {hasNextPage && nextPage && <ViewMoreButton variant="table" text={moreLabel} onClick={() => nextPage()} />}
+      {footer}
     </FlushTableContainer>
   );
 };

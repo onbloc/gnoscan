@@ -1,7 +1,11 @@
 export interface GetAccountNativeTransfersRequest {
   address: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
+
+  from?: string;
+
+  to?: string;
 }

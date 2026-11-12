@@ -1,7 +1,9 @@
-export interface GetTokenMetaTransactionsRequest {
+import { FunctionFilterApiParams } from "@/common/types/function-filter";
+
+export interface GetTokenMetaTransactionsRequest extends FunctionFilterApiParams {
   path: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

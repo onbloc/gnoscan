@@ -1,7 +1,8 @@
+import { TokenPriceModel } from "@/models/api/token/token-model";
 import { ADDRESS_LABEL_TYPE } from "@/common/values/address-label.constant";
 
 export interface GetTokenResponse {
-  data: {
+  data: TokenPriceModel & {
     tokenId: string;
     slug: string;
     name: string;

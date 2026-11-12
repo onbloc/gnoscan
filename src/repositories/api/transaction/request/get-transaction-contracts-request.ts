@@ -1,7 +1,7 @@
 export interface GetTransactionContractsRequest {
   txHash: string;
 
-  cursor?: string;
+  page?: number;
 
   limit?: number;
 }

@@ -79,6 +79,21 @@ describe("makeEncodedQueryParameter", () => {
     expect(params.get("includeStorage")).toBe("false");
     expect(params.has("limit")).toBe(false);
   });
+
+  it("repeats the key once per item of an array and encodes each item", () => {
+    const query = makeEncodedQueryParameter({ page: 2, function: ["Mint", "a&b=c d"], excludeFunction: ["Vote"] });
+    const params = new URLSearchParams(query.slice(1));
+
+    expect(params.getAll("function")).toEqual(["Mint", "a&b=c d"]);
+    expect(params.getAll("excludeFunction")).toEqual(["Vote"]);
+    expect(params.get("page")).toBe("2");
+    expect(query).not.toContain("&b=c");
+  });
+
+  it("leaves out an empty array", () => {
+    expect(makeEncodedQueryParameter({ page: 1, function: [] })).toBe("?page=1");
+    expect(makeEncodedQueryParameter({ function: [] })).toBe("");
+  });
 });
 
 describe("makeCompactNumber", () => {

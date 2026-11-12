@@ -7,14 +7,12 @@ import { TokenListSortOption } from "@/common/types/token";
 
 import Datatable, { DatatableOption } from "@/components/ui/datatable";
 import { DatatableItem } from "../../../datatable";
-import { ViewMoreButton } from "@/components/ui/button";
 import TableSkeleton from "../../../common/table-skeleton/TableSkeleton";
 import { GRC20InfoWithLogo } from "@/common/mapper/token/token-mapper";
 import { formatTokenDecimal } from "@/common/utils/token.utility";
 import { GRC20_REGISTRY_PATH } from "@/common/values/constant-value";
 import { formatUsd, formatUsdWhole } from "@/common/utils/price.utility";
-import { getTokenMarketCap, toTokenKey } from "@/common/utils/sort/token-list-sort";
-import { useTokenPrice } from "@/common/hooks/common/use-token-price";
+import { getTokenMarketCap } from "@/common/utils/sort/token-list-sort";
 import Text from "@/components/ui/text";
 import { PriceChangeText } from "@/components/ui/text/price-change-text";
 import { CardTableContainer } from "@/components/view/datatable/datatable.styles";
@@ -22,26 +20,22 @@ import * as S from "./StandardNetworkTokenListTable.styles";
 
 interface TokenListTableProps {
   data: GRC20InfoWithLogo[];
-  hasNextPage?: boolean;
+  footer?: React.ReactNode;
   isFetched: boolean;
   isLoading: boolean;
   isError: boolean;
-  fetchNextPage: () => void;
   sortOption: TokenListSortOption;
   setSortOption: (sortOption: TokenListSortOption) => void;
 }
 
 export const StandardNetworkTokenListTable = ({
   data,
-  hasNextPage,
+  footer,
   isFetched,
-  fetchNextPage,
   sortOption,
   setSortOption,
 }: TokenListTableProps) => {
   const { indexerQueryClient } = useNetworkProvider();
-
-  const { getPriceEntry } = useTokenPrice();
 
   const createHeaders = () => {
     return [
@@ -79,13 +73,12 @@ export const StandardNetworkTokenListTable = ({
       .name("Price (24h)")
       .width(131)
       .renderOption((_, data) => {
-        const entry = getPriceEntry(toTokenKey(data));
-        const price = entry ? formatUsd(entry.price) : null;
+        const price = formatUsd(data.price);
         if (!price) return <>-</>;
         return (
           <S.PriceCell>
             {price}
-            <PriceChangeText change={entry?.changeRateOneDay} />
+            <PriceChangeText change={data.changeRateOneDay} />
           </S.PriceCell>
         );
       })
@@ -98,7 +91,7 @@ export const StandardNetworkTokenListTable = ({
       .name("Market Cap")
       .sort()
       .width(128)
-      .renderOption((_, data) => <>{formatUsdWhole(getTokenMarketCap(data, getPriceEntry)) ?? "-"}</>)
+      .renderOption((_, data) => <>{formatUsdWhole(getTokenMarketCap(data)) ?? "-"}</>)
       .build();
   };
 
@@ -180,11 +173,7 @@ export const StandardNetworkTokenListTable = ({
         setSortOption={setSortOption}
         supported={!!indexerQueryClient}
       />
-      {hasNextPage && (
-        <div className="button-wrapper">
-          <ViewMoreButton variant="table" text="View More Tokens" onClick={() => fetchNextPage()} />
-        </div>
-      )}
+      {footer}
     </CardTableContainer>
   );
 };
