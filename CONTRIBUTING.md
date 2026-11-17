@@ -17,7 +17,7 @@ Thank you for considering contributing to GnoScan! We value and appreciate your 
 - Before submitting, verify that the PR base is `develop` and the commit list and diff contain only the intended changes.
 
 **Release**
-- Production is deployed only by the `release` workflow, run from `main` by maintainers. It creates a `vX.Y.Z` tag, publishes release notes since the previous `v*` tag, and deploys that commit to Vercel Production. To redeploy an existing release, run the workflow from that tag (Use workflow from: Tags → `vX.Y.Z`) with `redeploy` enabled.
+- Production is deployed only by the `release` workflow, run from `main` by maintainers. Select the `bump` level (`patch`/`minor`/`major`); the next `vX.Y.Z` tag is derived from the latest `v*` tag. It creates the tag, publishes release notes since the previous `v*` tag, and deploys that commit to Vercel Production. To redeploy an existing release, run the workflow from that tag (Use workflow from: Tags → `vX.Y.Z`) with `redeploy` enabled (`bump` is ignored).
 - Add the `skip-changelog` label to pull requests that should not appear in release notes.
 
 **Pull Request Language**
