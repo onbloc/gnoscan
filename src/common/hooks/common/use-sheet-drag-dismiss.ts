@@ -38,6 +38,7 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
     };
 
     const onTouchCancel = () => {
+      if (!tracking && !dragging) return;
       tracking = false;
       dragging = false;
       reset();
