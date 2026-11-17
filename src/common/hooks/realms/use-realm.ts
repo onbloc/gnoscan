@@ -3,7 +3,7 @@ import { useGetRealmFunctionsQuery, useGetRealmQuery, useGetRealmTransactionsQue
 import { toBech32AddressByPackagePath } from "@/common/utils/bech32.utility";
 import { toNumber, toString } from "@/common/utils/string-util";
 import { useMemo, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useServiceProvider } from "../provider/use-service-provider";
 import { RealmSummary, Transaction } from "@/types/data-type";
 

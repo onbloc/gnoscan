@@ -1,5 +1,5 @@
 import React from "react";
-import { UseQueryOptions } from "react-query";
+import { UseQueryOptions } from "@tanstack/react-query";
 
 import { PagedQuery, PagedResponse, usePagedList } from "@/common/hooks/common/use-paged-list";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";

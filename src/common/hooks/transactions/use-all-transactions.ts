@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useGetTransactionsQuery } from "@/common/react-query/transaction";
 import { useGetLatestBlock } from "../common/use-get-latest-block";
 import { useServiceProvider } from "../provider/use-service-provider";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Transaction } from "@/types/data-type";
 
 export const useAllTransactions = ({ enabled = true }) => {

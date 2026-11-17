@@ -1,4 +1,4 @@
-import { UseQueryOptions, UseQueryResult } from "react-query";
+import { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 
 import { useApiRepositoryQuery } from "@/common/react-query/hoc/api/use-api-repository-query";
 import { API_REPOSITORY_KEY, DEFAULT_LIST_ITEMS_SIZE } from "@/common/values/query.constant";

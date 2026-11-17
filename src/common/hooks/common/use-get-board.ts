@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useServiceProvider } from "../provider/use-service-provider";
 import { Blog } from "@/types/data-type";
 

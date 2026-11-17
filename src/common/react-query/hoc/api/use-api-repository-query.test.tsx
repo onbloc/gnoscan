@@ -2,15 +2,20 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setTimeout as delay } from "node:timers/promises";
 
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";
+import { useTokenPrice } from "@/common/hooks/common/use-token-price";
 import { useApiRepositoryInfiniteQuery } from "./use-api-repository-infinite-query";
 import { useApiRepositoryQuery } from "./use-api-repository-query";
 
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: { chainId: "test-chain" } }),
+}));
+
+jest.mock("@/common/hooks/provider/use-service-provider", () => ({
+  useServiceProvider: () => ({ apiPriceRepository: null }),
 }));
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
@@ -22,7 +27,8 @@ afterEach(() => cleanups.splice(0).forEach(cleanup => cleanup()));
 
 async function render(element: React.ReactElement) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const root = createRoot(document.createElement("div"));
+  const container = document.createElement("div");
+  const root = createRoot(container);
   act(() => root.render(<QueryClientProvider client={client}>{element}</QueryClientProvider>));
   await act(async () => {
     await delay(0);
@@ -32,6 +38,7 @@ async function render(element: React.ReactElement) {
     act(() => root.unmount());
     client.clear();
   });
+  return container;
 }
 
 const cases = [
@@ -79,4 +86,15 @@ describe("useApiRepositoryInfiniteQuery", () => {
     expect(queryFn).toHaveBeenCalledTimes(c.calls);
     expect(statuses).not.toContain("error");
   });
+});
+
+it("shows an unpriced value instead of a permanent loading state without a price repository", async () => {
+  function Price() {
+    const { isLoading, getUsdDisplay } = useTokenPrice();
+    return <output>{isLoading ? "Loading price" : getUsdDisplay("ugnot", "1") ?? "Unpriced"}</output>;
+  }
+
+  const container = await render(<Price />);
+
+  expect(container.textContent).toBe("Unpriced");
 });

@@ -1,7 +1,7 @@
 import React, { CSSProperties } from "react";
 import Link from "next/link";
 import styled, { css } from "styled-components";
-import { useQueries } from "react-query";
+import { useQueries } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 
 import Text from "@/components/ui/text";
@@ -43,8 +43,8 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
 
   const queryKeys = React.useMemo(() => getTokenInfoQueryKeys(tokenKeys), [tokenKeys]);
 
-  const tokenQueries = useQueries(
-    queryKeys.map(tokenKey => {
+  const tokenQueries = useQueries({
+    queries: queryKeys.map(tokenKey => {
       const hasResourceMeta = hasTokenResourceMeta(tokenKey);
       return {
         queryKey: [currentNetwork?.chainId || "", "transferSummaryTokenDecimals", tokenKey],
@@ -59,7 +59,7 @@ export const useTokenInfosByKeys = (tokenKeys: string[]): Record<string, TokenDi
         ...CACHE_POLICY.COLD,
       };
     }),
-  );
+  });
 
   return React.useMemo(() => {
     const map: Record<string, TokenDisplayInfo> = {};

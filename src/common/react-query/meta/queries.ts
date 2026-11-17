@@ -1,4 +1,4 @@
-import { UseQueryOptions, useQuery } from "react-query";
+import { UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { QUERY_KEY } from "./types";
 import { NftCollectionResourceMeta, TokenResourceMeta } from "@/types/data-type";

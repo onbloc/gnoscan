@@ -1,9 +1,10 @@
 /** @jest-environment jsdom */
 import React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { QueryClient, QueryClientProvider, useQuery } from "react-query";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { setTimeout as delay } from "node:timers/promises";
 
 import { StatisticsQuery, isStatisticsNotReady } from "./statistics-query-policy";
 import { useStatisticsFailure } from "./use-statistics-failure";
@@ -24,21 +25,28 @@ function deferred<T>() {
 const httpError = (status: number) =>
   new AxiosError("failed", "ERR_BAD_RESPONSE", undefined, undefined, { status } as never);
 
+async function settle(update?: () => void) {
+  await act(async () => {
+    update?.();
+    await delay(0);
+    await delay(0);
+  });
+}
+
 describe("useStatisticsFailure", () => {
   let queryClient: QueryClient;
-  let latest: { failure: StatisticsQuery; isLoading: boolean };
-  let container: HTMLDivElement;
+  let latest: { failure: StatisticsQuery };
+  let root: Root;
 
   const Probe = ({ queryKey, queryFn }: { queryKey: string; queryFn: () => Promise<unknown> }) => {
-    const query = useQuery(queryKey, queryFn, { retry: false });
-    latest = { failure: useStatisticsFailure(query), isLoading: query.isLoading };
+    const query = useQuery([queryKey], queryFn, { retry: false });
+    latest = { failure: useStatisticsFailure(query) };
     return null;
   };
 
   const mount = async (queryKey: string, queryFn: () => Promise<unknown>) => {
-    const root = createRoot(container);
     const render = (key: string, fn: () => Promise<unknown>) =>
-      act(async () => {
+      act(() => {
         root.render(
           <QueryClientProvider client={queryClient}>
             <Probe queryKey={key} queryFn={fn} />
@@ -46,12 +54,18 @@ describe("useStatisticsFailure", () => {
         );
       });
     await render(queryKey, queryFn);
+    await settle();
     return render;
   };
 
   beforeEach(() => {
     queryClient = new QueryClient();
-    container = document.createElement("div");
+    root = createRoot(document.createElement("div"));
+  });
+
+  afterEach(() => {
+    act(() => root.unmount());
+    queryClient.clear();
   });
 
   it("keeps the failure while a polled data-less query refetches, so the notice does not flash a skeleton", async () => {
@@ -65,18 +79,14 @@ describe("useStatisticsFailure", () => {
     expect(latest.failure.isError).toBe(true);
     expect(isStatisticsNotReady(latest.failure.error)).toBe(true);
 
-    await act(async () => {
-      queryClient.refetchQueries("polled");
+    await settle(() => {
+      void queryClient.refetchQueries(["polled"]);
     });
 
-    // react-query is back to loading and has dropped the error, but the failure is still reported.
-    expect(latest.isLoading).toBe(true);
     expect(latest.failure.isError).toBe(true);
     expect(isStatisticsNotReady(latest.failure.error)).toBe(true);
 
-    await act(async () => {
-      refetch.resolve({ ok: true });
-    });
+    await settle(() => refetch.resolve({ ok: true }));
 
     expect(latest.failure).toMatchObject({ isError: false, data: { ok: true } });
   });
@@ -87,7 +97,6 @@ describe("useStatisticsFailure", () => {
 
     await render("second", () => new Promise(() => undefined));
 
-    expect(latest.isLoading).toBe(true);
     expect(latest.failure.isError).toBe(false);
   });
 
@@ -99,8 +108,9 @@ describe("useStatisticsFailure", () => {
     });
 
     await act(async () => {
-      await queryClient.refetchQueries("stale");
+      await queryClient.refetchQueries(["stale"]);
     });
+    await settle();
 
     expect(latest.failure).toMatchObject({ isError: false, data: { ok: true } });
   });

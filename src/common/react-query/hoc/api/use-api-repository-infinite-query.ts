@@ -1,4 +1,4 @@
-import { useInfiniteQuery, UseInfiniteQueryOptions, UseInfiniteQueryResult } from "react-query";
+import { useInfiniteQuery, UseInfiniteQueryOptions, UseInfiniteQueryResult } from "@tanstack/react-query";
 import { CommonError } from "@/common/errors";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { API_REPOSITORY_KEY } from "@/common/values/query.constant";

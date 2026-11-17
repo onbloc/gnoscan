@@ -1,5 +1,5 @@
 import React from "react";
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, useQueryClient } from "react-query";
+import { UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, useQueryClient } from "@tanstack/react-query";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";

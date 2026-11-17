@@ -2,7 +2,7 @@
 import React from "react";
 import { RecoilRoot } from "recoil";
 import { GlobalStyle } from "../styles";
-import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
+import { Hydrate, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Layout } from "@/components/core/layout";
 import { ErrorBoundary } from "@/components/core/error-boundary";
 import "antd/dist/reset.css";
