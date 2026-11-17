@@ -22,7 +22,8 @@ interface LinkStyleProps {
 interface SubMenuProps {
   entry: boolean;
   open: boolean;
-  onClick: () => void;
+  onOpen: () => void;
+  onClose: () => void;
   selector?: string;
   darkMode?: boolean;
   currentPath: string;
@@ -31,7 +32,8 @@ interface SubMenuProps {
 export const SubMenu: React.FC<SubMenuProps> = ({
   entry,
   open,
-  onClick,
+  onOpen,
+  onClose,
   selector = "modal-root",
   darkMode,
   currentPath,
@@ -52,7 +54,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
     appRoot?.setAttribute("inert", "");
     closeButtonRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClick();
+      if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => {
@@ -60,26 +62,24 @@ export const SubMenu: React.FC<SubMenuProps> = ({
       appRoot?.removeAttribute("inert");
       if (container?.contains(document.activeElement)) menuButton?.focus();
     };
-  }, [open, onClick]);
-
-  const close = () => setTimeout(onClick, 100);
+  }, [open, onClose]);
 
   return (
     <>
-      <MenuButton ref={menuButtonRef} entry={entry} onClick={onClick} aria-label="Open menu" aria-expanded={open}>
+      <MenuButton ref={menuButtonRef} entry={entry} onClick={onOpen} aria-label="Open menu" aria-expanded={open}>
         <MenuIcon className="menu-icon" />
       </MenuButton>
       <Portal selector={selector}>
         <Container ref={containerRef} open={open}>
           <TopHeader>
             {darkMode ? <GnoscanLogo /> : <GnoscanLogoLight />}
-            <CloseButton ref={closeButtonRef} onClick={onClick} aria-label="Close menu">
+            <CloseButton ref={closeButtonRef} onClick={onClose} aria-label="Close menu">
               <CloseIcon className="close-icon" />
             </CloseButton>
           </TopHeader>
           <Nav>
             {mobileNavItems.map(v => (
-              <Link href={getUrlWithNetwork(v.path)} passHref key={v1()} onClick={close}>
+              <Link href={getUrlWithNetwork(v.path)} passHref key={v1()} onClick={onClose}>
                 <StyledA current={currentPath === v.path}>
                   <Text type="h4" color="primary">
                     {v.name}

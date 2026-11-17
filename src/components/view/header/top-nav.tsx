@@ -83,7 +83,8 @@ export const TopNav = () => {
   const entry = isMain || themeMode === "dark";
   const [value, setValue] = useRecoilState(searchState);
   const [open, setOpen] = useState(false);
-  const toggleMenuHandler = useCallback(() => setOpen((prev: boolean) => !prev), []);
+  const openMenuHandler = useCallback(() => setOpen(true), []);
+  const closeMenuHandler = useCallback(() => setOpen(false), []);
 
   // The mobile menu is portaled outside the header, so close it (and release its scroll lock) above mobile.
   useEffect(() => {
@@ -127,7 +128,8 @@ export const TopNav = () => {
         <SubMenu
           entry={entry}
           open={open}
-          onClick={toggleMenuHandler}
+          onOpen={openMenuHandler}
+          onClose={closeMenuHandler}
           darkMode={themeMode === "dark"}
           currentPath={router.route}
         />
