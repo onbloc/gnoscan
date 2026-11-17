@@ -9,6 +9,7 @@ const SETTLE_FALLBACK_MS = 600;
 /**
  * Lets a bottom sheet be dragged down to close it. A drag only takes over when the sheet's own
  * content is scrolled to the top, so scrolling the content up and down keeps working.
+ * Multiple touches cancel the drag without dismissing; a fresh single touch can start another drag.
  * Below desktop only; the sheet's CSS transition animates the snap back and the dismissal.
  */
 export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, enabled: boolean, onClose: () => void) {
@@ -36,11 +37,21 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
       sheet.style.transform = "";
     };
 
+    const onTouchCancel = () => {
+      tracking = false;
+      dragging = false;
+      reset();
+    };
+
     const onTouchStart = (event: TouchEvent) => {
-      tracking = event.touches.length === 1 && isSheetLayout();
+      if (event.touches.length !== 1 || !isSheetLayout()) {
+        onTouchCancel();
+        return;
+      }
+      if (!sheet.contains(event.target as Node)) return;
+      tracking = true;
       dragging = false;
       offset = 0;
-      if (!tracking) return;
       startedAtTop = sheet.scrollTop <= 0;
       startX = event.touches[0].clientX;
       startY = event.touches[0].clientY;
@@ -89,18 +100,13 @@ export function useSheetDragDismiss(ref: React.RefObject<HTMLElement | null>, en
       }
     };
 
-    const onTouchCancel = () => {
-      tracking = false;
-      dragging = false;
-      reset();
-    };
-
-    sheet.addEventListener("touchstart", onTouchStart, { passive: true });
+    // Catch extra fingers even when they land outside the sheet.
+    document.addEventListener("touchstart", onTouchStart, { passive: true, capture: true });
     sheet.addEventListener("touchmove", onTouchMove, { passive: false });
     sheet.addEventListener("touchend", onTouchEnd);
     sheet.addEventListener("touchcancel", onTouchCancel);
     return () => {
-      sheet.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchstart", onTouchStart, true);
       sheet.removeEventListener("touchmove", onTouchMove);
       sheet.removeEventListener("touchend", onTouchEnd);
       sheet.removeEventListener("touchcancel", onTouchCancel);
