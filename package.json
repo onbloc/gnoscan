@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.10.6",
-    "@floating-ui/react": "0.21.1",
+    "@floating-ui/react": "0.27.20",
     "@gnolang/gno-js-client": "3.1.0",
     "@gnolang/tm2-js-client": "3.3.0",
     "@popperjs/core": "^2.11.6",
@@ -49,7 +49,7 @@
     "recoil": "^0.7.6",
     "styled-components": "^5.3.6",
     "styled-reset": "^4.4.2",
-    "typescript": "4.9.3",
+    "typescript": "4.9.5",
     "utility-types": "^3.10.0",
     "ws": "^8.16.0"
   },
@@ -74,8 +74,8 @@
     "globals": "^16.4.0",
     "husky": "^9.1.4",
     "jest-environment-jsdom": "^30.0.5",
-    "lint-staged": "13.1.2",
-    "prettier": "2.8.4",
+    "lint-staged": "13.3.0",
+    "prettier": "2.8.8",
     "storybook": "^9.1.20",
     "uuid": "^11.1.0"
   },
