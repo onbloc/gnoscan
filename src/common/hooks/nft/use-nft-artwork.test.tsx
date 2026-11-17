@@ -4,7 +4,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { QueryClient, QueryClientProvider, focusManager, onlineManager } from "react-query";
+import { QueryClient, QueryClientProvider, focusManager, onlineManager } from "@tanstack/react-query";
 import { setTimeout as delay } from "node:timers/promises";
 
 import { QUERY_KEY } from "@/common/react-query/query-keys";
@@ -12,12 +12,13 @@ import type { GetNftTokenUrisResponse, NftTokenUriModel } from "@/repositories/a
 import { useNftArtwork } from "./use-nft-artwork";
 
 const mockRepository = { getNftTokenUris: jest.fn() };
+let mockRepositoryAvailable = true;
 const mockNodeClient = { abciQuery: jest.fn(), abciQueryVMQueryFuncs: jest.fn() };
 const mockRequestNftTokenUri = jest.fn();
 let mockNetwork = { chainId: "chain-a", rpcUrl: "https://rpc-a.example", apiUrl: "https://api-a.example" };
 
 jest.mock("@/common/hooks/provider/use-service-provider", () => ({
-  useServiceProvider: () => ({ apiTokenRepository: mockRepository }),
+  useServiceProvider: () => ({ apiTokenRepository: mockRepositoryAvailable ? mockRepository : null }),
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: mockNetwork, nodeRPCClient: mockNodeClient }),
@@ -157,6 +158,7 @@ async function settle(update?: () => void) {
 
 beforeEach(() => {
   mockNetwork = { chainId: "chain-a", rpcUrl: "https://rpc-a.example", apiUrl: "https://api-a.example" };
+  mockRepositoryAvailable = true;
   mockRepository.getNftTokenUris.mockReset().mockResolvedValue({ items: [] });
   mockRequestNftTokenUri.mockReset();
 });
@@ -165,6 +167,34 @@ afterEach(() => {
   cleanups.splice(0).forEach(cleanup => cleanup());
   focusManager.setFocused(undefined);
   onlineManager.setOnline(true);
+});
+
+it("does not show pending artwork while the API repository is unavailable and starts when it becomes available", async () => {
+  const view = createView();
+  const nfts = tokens(1);
+  const backend = deferred<GetNftTokenUrisResponse>();
+  mockRepository.getNftTokenUris.mockReturnValue(backend.promise);
+  mockRepositoryAvailable = false;
+
+  view.render(nfts);
+  await settle();
+  expect(view.artwork("1")).toBe("Default artwork");
+  expect(view.loading("1")).toBe(false);
+  expect(mockRepository.getNftTokenUris).not.toHaveBeenCalled();
+  expect(mockRequestNftTokenUri).not.toHaveBeenCalled();
+
+  mockRepositoryAvailable = true;
+  view.render(nfts);
+  expect(view.artwork("1")).toBe("Loading artwork");
+  expect(mockRepository.getNftTokenUris.mock.calls).toEqual([[PATH, ["1"]]]);
+  await settle(() =>
+    backend.resolve({
+      items: [entry("1", { uri: "https://images.example/available.png", status: "found", needsRefetch: false })],
+    }),
+  );
+  expect(view.artwork("1")).toBe("https://images.example/available.png");
+  expect(view.loading("1")).toBe(false);
+  expect(mockRequestNftTokenUri).not.toHaveBeenCalled();
 });
 
 it("completes only flagged visible entries and keeps fresh API artwork authoritative over RPC cache", async () => {
@@ -213,6 +243,9 @@ it("batches only round-trippable IDs and resolves exact unsafe IDs alongside ord
     return request.promise;
   });
 
+  view.render([]);
+  expect(mockRepository.getNftTokenUris).not.toHaveBeenCalled();
+  expect(mockRequestNftTokenUri).not.toHaveBeenCalled();
   view.render(nfts);
   expect(mockRepository.getNftTokenUris.mock.calls).toEqual([[PATH, safeIds]]);
   for (const tokenId of [...safeIds, ...unsafeIds]) {
@@ -239,13 +272,26 @@ it("batches only round-trippable IDs and resolves exact unsafe IDs alongside ord
     expect(view.loading(tokenId)).toBe(true);
   }
 
+  const firstToken = "amp&ersand";
+  const rpcImage = (tokenId: string) => `https://images.example/rpc-${encodeURIComponent(tokenId)}.png`;
+  await settle(() =>
+    requests
+      .get(firstToken)!
+      .resolve(entry(firstToken, { uri: rpcImage(firstToken), status: "found", needsRefetch: false })),
+  );
+  expect(view.artwork(firstToken)).toBe(rpcImage(firstToken));
+  expect(view.loading(firstToken)).toBe(false);
+  expect(view.artwork("fallback")).toBe("Loading artwork");
+  expect(view.artwork(unsafeIds[0])).toBe("Loading artwork");
+
   await settle(() => {
     for (const [tokenId, request] of requests) {
-      request.resolve(entry(tokenId, { uri: "https://images.example/rpc.png", status: "found", needsRefetch: false }));
+      if (tokenId === firstToken) continue;
+      request.resolve(entry(tokenId, { uri: rpcImage(tokenId), status: "found", needsRefetch: false }));
     }
   });
   for (const tokenId of ["fallback", ...unsafeIds]) {
-    expect(view.artwork(tokenId)).toBe("https://images.example/rpc.png");
+    expect(view.artwork(tokenId)).toBe(rpcImage(tokenId));
     expect(view.loading(tokenId)).toBe(false);
   }
   expect(mockRepository.getNftTokenUris.mock.calls).toEqual([[PATH, safeIds]]);

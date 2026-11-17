@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useGetRealmTransactionsWithArgsQuery } from "@/common/react-query/realm";
 import { useServiceProvider } from "../provider/use-service-provider";
 

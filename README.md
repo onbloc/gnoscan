@@ -4,6 +4,8 @@ GnoScan is an opensource blockchain explorer for the Gno.land blockchain, aiming
 ## Project Overview
 This repository hosts the codebase for the GnoScan Interface. The interface is built using TypeScript and comes with rich features including a real-time dashboard for the Gno.land blockchain, recent blocks and transactions, details of realms, a full list of GRC20 tokens, and more.
 
+Client-side data fetching uses TanStack Query v4 (`@tanstack/react-query`). Query keys must be arrays, and parallel queries use `useQueries({ queries: [...] })`. Use `isInitialLoading` for loading indicators that should stay off when a query is disabled; `isLoading` also includes disabled queries without cached data.
+
 ## Development Setup
 To set up the development environment, make sure you have the Node.js version pinned in [`.nvmrc`](./.nvmrc) installed. We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing Node.js versions. Follow these steps:
 

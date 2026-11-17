@@ -2,7 +2,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setTimeout as delay } from "node:timers/promises";
 import { ThemeProvider } from "styled-components";
 import theme from "@/styles/theme";

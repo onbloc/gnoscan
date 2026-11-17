@@ -8,7 +8,7 @@ import AccountAssetItem from "./AccountAssetItem";
 jest.mock("@/assets/svgs/icon-unknown-token.svg", () => "svg");
 jest.mock("@/assets/svgs/icon-link.svg", () => "svg");
 
-const mockPrices = { data: undefined as unknown, isLoading: false };
+const mockPrices = { data: undefined as unknown, isInitialLoading: false };
 
 // Mirrors useTokenMeta: ugnot is shifted by 6 decimals, symbols of already-shifted GRC20 amounts pass through.
 jest.mock("@/common/hooks/common/use-token-meta", () => ({
@@ -40,7 +40,7 @@ const render = (element: React.ReactElement) =>
   ).replace(/<[^>]*>/g, "");
 
 beforeEach(() => {
-  mockPrices.isLoading = false;
+  mockPrices.isInitialLoading = false;
   mockPrices.data = {
     ugnot: { price: "0.024" },
     "gno.land/r/gnoswap/gns.GNS": { price: "0.5", tokenPath: "gno.land/r/gnoswap/gns.GNS" },
@@ -82,7 +82,7 @@ describe("AccountAssetItem", () => {
 
   it("renders neither a fiat value nor a dash while prices load", () => {
     mockPrices.data = undefined;
-    mockPrices.isLoading = true;
+    mockPrices.isInitialLoading = true;
 
     const markup = render(<AccountAssetItem {...baseProps} amount={{ value: "512120000", denom: "ugnot" }} />);
 

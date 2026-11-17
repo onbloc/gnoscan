@@ -1,5 +1,5 @@
 import React from "react";
-import { useQueries, useQueryClient } from "react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 
 import { requestNftTokenUri } from "@/common/clients/node-client/nft-artwork";
 
@@ -129,7 +129,7 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
     [flagged, chainId, rpcUrl, nodeRPCClient, queryClient],
   );
   // Disabled observers publish each fetchQuery completion independently, without automatic refetches.
-  const rpcResults = useQueries(rpcQueries);
+  const rpcResults = useQueries({ queries: rpcQueries });
   // Structural sharing keeps `data` identical across equivalent refetches; each successful API fetch
   // starts a new generation so transient RPC failures can be retried.
   const generation = query.dataUpdatedAt;
@@ -200,7 +200,7 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
             !scheduled?.has(`${generation}:${JSON.stringify(rpcQueries[index].queryKey)}`)));
       return {
         src,
-        isLoading: !src && (query.isFetching || (batches.length > 0 && query.isLoading) || rpcPending),
+        isLoading: !src && (query.isFetching || (batches.length > 0 && query.isInitialLoading) || rpcPending),
       };
     },
     [
@@ -213,7 +213,7 @@ export function useNftArtwork(nfts: readonly ArtworkToken[]) {
       nodeRPCClient,
       batches.length,
       query.isFetching,
-      query.isLoading,
+      query.isInitialLoading,
       query.isPlaceholderData,
     ],
   );

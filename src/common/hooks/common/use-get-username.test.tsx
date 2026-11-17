@@ -1,11 +1,11 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useServiceProvider } from "../provider/use-service-provider";
 import { useNetworkProvider } from "../provider/use-network-provider";
 import { useGetUsername } from "./use-get-username";
 
-jest.mock("react-query", () => ({ useQuery: jest.fn() }));
+jest.mock("@tanstack/react-query", () => ({ useQuery: jest.fn() }));
 jest.mock("../provider/use-service-provider", () => ({ useServiceProvider: jest.fn() }));
 jest.mock("../provider/use-network-provider", () => ({ useNetworkProvider: jest.fn() }));
 jest.mock("../use-network", () => ({ useNetwork: () => ({ currentNetwork: { chainId: "gnoland1" } }) }));

@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo } from "react";
-import { useQueries, useQueryClient } from "react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 
 import { useTokenResourceMeta } from "@/common/hooks/common/use-token-resource-meta";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
@@ -33,15 +33,15 @@ export function useCsvTokenAmounts(amounts: Amount[]): CsvTokenAmounts {
     () => (isResourceFetched ? denoms.filter(denom => !hasTokenResourceMeta(denom)) : []),
     [denoms, isResourceFetched, hasTokenResourceMeta],
   );
-  const queries = useQueries(
-    missingDenoms.map(denom => ({
+  const queries = useQueries({
+    queries: missingDenoms.map(denom => ({
       queryKey: [chainId, QUERY_KEY.getTokenMetaByPath, denom],
       queryFn: () => apiTokenRepository!.getTokenMetaByPath(denom),
       enabled: !!apiTokenRepository,
       ...CACHE_POLICY.COLD,
       retry: retryTokenMetaRequest,
     })),
-  );
+  });
   // Keep the resolver stable across unrelated renders, but refresh CSV rows when cached metadata changes.
   const metadataUpdatedAt = queries.map(query => query.dataUpdatedAt).join(",");
   const resolveAmount = useCallback(

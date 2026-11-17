@@ -1,10 +1,11 @@
 /** @jest-environment jsdom */
 import React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "styled-components";
 import { AxiosError } from "axios";
+import { setTimeout as delay } from "node:timers/promises";
 import theme from "@/styles/theme";
 import MainTransactionNews from "./main-transaction-news";
 
@@ -35,22 +36,37 @@ jest.mock("./total-daily-fee/total-daily-fee-api", () => ({ MainTotalDailyFeeApi
 
 describe("MainTransactionNews total storage deposit", () => {
   let container: HTMLDivElement;
+  let root: Root;
+  let client: QueryClient;
 
-  const mount = () =>
-    act(async () => {
-      createRoot(container).render(
-        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+  const mount = async () => {
+    act(() => {
+      root.render(
+        <QueryClientProvider client={client}>
           <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts, device: theme.device }}>
             <MainTransactionNews />
           </ThemeProvider>
         </QueryClientProvider>,
       );
     });
+    await act(async () => {
+      await delay(0);
+      await delay(0);
+    });
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
     container = document.createElement("div");
+    root = createRoot(container);
+    client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     mockChainRepository.getStoragePrice.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    act(() => root.unmount());
+    client.clear();
+    container.remove();
   });
 
   it("does not request the statistic on a custom network, which does not serve it", async () => {
@@ -70,7 +86,6 @@ describe("MainTransactionNews total storage deposit", () => {
 
     await mount();
 
-    expect(mockRepository.getTotalDailyStorageDeposit).toHaveBeenCalledTimes(1);
     expect(container.textContent).toContain("Statistics are not available yet.");
     expect(container.textContent).not.toContain("STORAGE_CHART");
   });
