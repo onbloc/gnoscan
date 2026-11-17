@@ -9,6 +9,7 @@ import {
   isBase64Hash,
   isHash,
   isHexHash,
+  makeHash,
   makeSafeBase64Hash,
   makeTransactionMessageInfo,
   parseTxHash,
@@ -188,5 +189,15 @@ describe("findTransactionResult", () => {
 
   it("returns null when results are shorter than the tx list", () => {
     expect(findTransactionResult(transactions, deliverTxs.slice(0, 1), "tx-b")).toBeNull();
+  });
+});
+
+describe("makeHash", () => {
+  it("returns base64 sha256 of the bytes", () => {
+    expect(makeHash(new Uint8Array([1, 2, 3]))).toBe("A5BYxvLAy0ksUzsKTRTvd8wPeKvMztUofYShogEc+4E=");
+  });
+
+  it("handles empty input", () => {
+    expect(makeHash(new Uint8Array([]))).toBe("47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=");
   });
 });

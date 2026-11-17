@@ -11,7 +11,7 @@ import {
   MsgSend,
 } from "@gnolang/gno-js-client";
 import { base64ToUint8Array, Tx, uint8ArrayToBase64 } from "@gnolang/tm2-js-client";
-import crypto from "crypto";
+import { sha256 } from "@noble/hashes/sha2.js";
 import { GNOTToken } from "../hooks/common/use-token-meta";
 import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
@@ -154,7 +154,7 @@ export function toDisplayHash(hash: string): string {
 }
 
 export function makeHash(bytes: Uint8Array) {
-  return crypto.createHash("sha256").setEncoding("utf-8").update(bytes).digest("base64");
+  return uint8ArrayToBase64(sha256(bytes));
 }
 
 /**
