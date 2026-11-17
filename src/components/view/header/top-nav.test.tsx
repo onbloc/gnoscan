@@ -145,3 +145,12 @@ it.each(["button", "Escape"])("closes with %s and returns focus to the menu trig
   expectUnlocked();
   expect(document.activeElement).toBe(trigger());
 });
+
+it.each(["click", "Escape"])("returns focus to the menu trigger when %s closes from a focused link", action => {
+  const link = modalRoot.querySelector<HTMLAnchorElement>("a[href='/accounts']")!;
+  act(() => link.focus());
+  if (action === "click") click("#modal-root a[href='/accounts']");
+  else escape();
+  expectUnlocked();
+  expect(document.activeElement).toBe(trigger());
+});

@@ -8,7 +8,6 @@ import GnoscanLogo from "@/assets/svgs/icon-gnoscan-logo.svg";
 import GnoscanLogoLight from "@/assets/svgs/icon-gnoscan-logo-light.svg";
 import { mobileNavItems } from "./top-nav";
 import Link from "next/link";
-import { v1 } from "uuid";
 import Text from "@/components/ui/text";
 import { useBodyScrollLock } from "@/common/hooks/common/use-body-scroll-lock";
 import { useNetwork } from "@/common/hooks/use-network";
@@ -79,7 +78,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
           </TopHeader>
           <Nav>
             {mobileNavItems.map(v => (
-              <Link href={getUrlWithNetwork(v.path)} passHref key={v1()} onClick={onClose}>
+              <Link href={getUrlWithNetwork(v.path)} passHref key={v.path} onClick={onClose}>
                 <StyledA current={currentPath === v.path}>
                   <Text type="h4" color="primary">
                     {v.name}
