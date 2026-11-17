@@ -22,7 +22,7 @@
     "@popperjs/core": "^2.11.6",
     "@tanstack/react-query": "^4.0.5",
     "@types/jest": "^30.0.0",
-    "@types/node": "18.11.9",
+    "@types/node": "18.19.130",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "antd": "^5.0.5",
