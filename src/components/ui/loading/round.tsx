@@ -12,7 +12,7 @@ interface RoundProps {
 }
 
 const RoundStyle = styled.div<RoundProps>`
-  ${({ children }) => children && mixins.flexbox("row", "center", "center")};
+  ${({ children }) => !!children && mixins.flexbox("row", "center", "center")};
   width: ${({ width }) => (width ? width : "100%")};
   height: ${({ height }) => height && height};
   background-color: ${({ theme, bgColor }) => (bgColor ? bgColor : theme.colors.dimmed50)};

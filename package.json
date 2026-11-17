@@ -80,6 +80,7 @@
     "uuid": "^11.1.0"
   },
   "resolutions": {
+    "@types/react": "18.3.31",
     "graphql": "^16.9.0"
   },
   "lint-staged": {
