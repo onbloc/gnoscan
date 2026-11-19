@@ -83,11 +83,14 @@ jobs:
             exit 0
           fi
           tags=$(git tag --list "v*" --sort=-v:refname | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" || true)
-          # A re-run reuses the tag its earlier attempt pushed for this commit instead of bumping again
+          # A re-run reuses the tag its own earlier attempt pushed (annotated with this run id) instead of bumping again
           tag=""
           if [ "${GITHUB_RUN_ATTEMPT:-1}" -gt 1 ]; then
-            tag=$(git tag --points-at "$GITHUB_SHA" --list "v*" --sort=-v:refname \
-              | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | head -n1 || true)
+            while read -r t; do
+              if [ "$(git tag --list --format='%(contents:subject)' "$t")" = "run ${GITHUB_RUN_ID}" ]; then
+                tag="$t"; break
+              fi
+            done < <(git tag --points-at "$GITHUB_SHA" --list "v*" | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" || true)
           fi
           if [ -n "$tag" ]; then
             reused=true
@@ -127,7 +130,9 @@ jobs:
         env:
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          git tag "$TAG" "$GITHUB_SHA"
+          # Annotated with the run id so a re-run can tell this run's tag from an older release of the same commit
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            tag -a "$TAG" -m "run ${GITHUB_RUN_ID}" "$GITHUB_SHA"
           git push origin "refs/tags/${TAG}"
 
       - name: Create GitHub Release
