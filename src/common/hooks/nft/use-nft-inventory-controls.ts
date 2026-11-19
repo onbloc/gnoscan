@@ -158,7 +158,8 @@ export function useNftInventoryControls(collectionIdentity: string, pageSize: nu
   if (pageQuery.data && (previousPage?.scope !== pageScope || previousPage.data !== pageQuery.data)) {
     setPreviousPage({ scope: pageScope, page, pageSize, data: pageQuery.data });
   }
-  const isResizing = pageQuery.isLoading && previousPage?.scope === pageScope && previousPage.pageSize !== pageSize;
+  const isResizing =
+    pageQuery.isInitialLoading && previousPage?.scope === pageScope && previousPage.pageSize !== pageSize;
   const pageData = pageQuery.data ?? (isResizing ? previousPage?.data : undefined);
   const selectionScope = JSON.stringify([identity, selectedNftId]);
   const [resolvedSelection, setResolvedSelection] = React.useState<string | null>(null);

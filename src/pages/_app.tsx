@@ -2,7 +2,7 @@
 import React from "react";
 import { RecoilRoot } from "recoil";
 import { GlobalStyle } from "../styles";
-import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
+import { Hydrate, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Layout } from "@/components/core/layout";
 import { ErrorBoundary } from "@/components/core/error-boundary";
 import "antd/dist/reset.css";
@@ -21,7 +21,8 @@ const App: React.FC = ({ Component, pageProps }: any) => {
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: CACHE_POLICY.WARM,
+          // Try the first fetch even when navigator reports offline (v3 behavior), so reachable custom RPCs still load.
+          queries: { ...CACHE_POLICY.WARM, networkMode: "offlineFirst" },
         },
       }),
   );

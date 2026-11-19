@@ -23,6 +23,7 @@ interface TooltipProps {
   // Hover tooltip only: class on the antd overlay, for per-tooltip overrides
   overlayClassName?: string;
   // Hover tooltip only: stacking level of the antd overlay, for tooltips opened from inside a modal
+  // (click tooltips always sit above modals so "Copied!" is visible inside sheets)
   zIndex?: number;
 }
 
@@ -82,7 +83,7 @@ const Tooltip = ({
       {trigger === "click" ? (
         <>
           <AntdTooltip
-            zIndex={zindex.tooltip}
+            zIndex={zindex.modalTooltip}
             trigger="click"
             overlayInnerStyle={getTooltipStyle(width, 8)}
             color={getCurrentTheme().base}

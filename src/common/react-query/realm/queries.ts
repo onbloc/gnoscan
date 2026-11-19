@@ -11,7 +11,7 @@ import {
 import { mapTransactionByRealm } from "@/repositories/realm-repository.ts/mapper";
 import { mapVMTransaction } from "@/repositories/response/transaction.mapper";
 import { NewestRealm, Transaction } from "@/types/data-type";
-import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
+import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { QUERY_KEY } from "./types";
 import { CACHE_POLICY } from "@/common/values/query.constant";
 

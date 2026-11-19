@@ -1,4 +1,4 @@
-import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "react-query";
+import { UseInfiniteQueryOptions, UseQueryOptions, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { QUERY_KEY } from "./types";
 import { TotalTransactionStatInfo, Transaction } from "@/types/data-type";

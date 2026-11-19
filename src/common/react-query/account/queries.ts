@@ -4,7 +4,7 @@ import { useServiceProvider } from "@/common/hooks/provider/use-service-provider
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import { AccountTransactionResponse, IAccountRepository } from "@/repositories/account-repository";
 import { Amount, Transaction } from "@/types/data-type";
-import { UseQueryOptions, useQuery } from "react-query";
+import { UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { QUERY_KEY } from "./types";
 
 export const useGetNativeTokenBalance = (address: string, options?: UseQueryOptions<Amount, Error>) => {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SEARCH_TITLE } from "@/components/ui/search-result/search-result";
-import { useQuery, UseQueryResult } from "react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useGetGRC20Tokens, useGetRealmsQuery } from "../react-query/realm";
 import { useUsername } from "./account/use-username";
 export interface keyOfSearch {

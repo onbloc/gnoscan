@@ -2,7 +2,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setTimeout as delay } from "node:timers/promises";
 import { AxiosError, AxiosResponse } from "axios";
 
@@ -14,9 +14,13 @@ import { useGetTokenMetaByPath } from "@/common/react-query/token/api/use-get-to
 import { CsvTokenAmounts, useCsvTokenAmounts } from "./use-csv-token-amounts";
 
 const mockRepository = { getTokenMetaByPath: jest.fn() };
+let mockRepositoryEnabled = true;
 const mockEnvironment = React.createContext({ chainId: "chain-a" });
 jest.mock("@/common/hooks/provider/use-service-provider", () => ({
-  useServiceProvider: () => ({ apiTokenRepository: mockRepository, blockRepository: {} }),
+  useServiceProvider: () => ({
+    apiTokenRepository: mockRepositoryEnabled ? mockRepository : undefined,
+    blockRepository: {},
+  }),
 }));
 jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => ({ currentNetwork: jest.requireActual("react").useContext(mockEnvironment) }),
@@ -112,6 +116,7 @@ async function settle() {
 
 beforeAll(() => Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }));
 beforeEach(() => {
+  mockRepositoryEnabled = true;
   mockRepository.getTokenMetaByPath.mockReset();
 });
 afterEach(() => {
@@ -186,6 +191,24 @@ it("waits for each distinct backend token and shares full-denom cache keys with 
   expect(current.resolveAmount(second)).toEqual({ value: "3.75", denom: "THIRD" });
   expect(client.getQueryData(["chain-a", QUERY_KEY.getTokenMetaByPath, first.denom])).toEqual(backend("SECOND", 6));
   expect(client.getQueryData(["chain-a", QUERY_KEY.getTokenMetaByPath, second.denom])).toEqual(backend("THIRD", 2));
+});
+
+it("waits for an unavailable repository before exporting backend-adjusted amounts", async () => {
+  mockRepositoryEnabled = false;
+  const amount = { value: "1230000", denom: `${FACTORY}.TOKEN` };
+  mockRepository.getTokenMetaByPath.mockResolvedValue(backend("TOKEN", 6));
+  const { update } = mount([amount]);
+  await settle();
+
+  expect(current.isSettled).toBe(false);
+  expect(mockRepository.getTokenMetaByPath).not.toHaveBeenCalled();
+
+  mockRepositoryEnabled = true;
+  update();
+  await settle();
+
+  expect(current.isSettled).toBe(true);
+  expect(current.resolveAmount(amount)).toEqual({ value: "1.23", denom: "TOKEN" });
 });
 
 it.each(["resource", "backend", "fallback"])(

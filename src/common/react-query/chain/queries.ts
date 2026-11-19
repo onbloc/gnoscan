@@ -1,4 +1,4 @@
-import { UseQueryOptions, useQuery } from "react-query";
+import { UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { TokenSupplyInfo, ValidatorInfo } from "@/repositories/chain-repository";
 import { QUERY_KEY } from "./types";

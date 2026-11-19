@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions, UseQueryResult } from "react-query";
+import { useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import { CommonError } from "@/common/errors";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import { API_REPOSITORY_KEY, RPC_REPOSITORY_KEY } from "@/common/values/query.constant";

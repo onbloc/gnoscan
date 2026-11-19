@@ -9,7 +9,7 @@ const EMPTY_PRICE_MAP: TokenPriceMap = {};
 /** USD values from the shared /prices query. */
 export const useTokenPrice = () => {
   // isLoading: first fetch in flight. Stays false when the query is disabled (no API client) or failed.
-  const { data: priceMap = EMPTY_PRICE_MAP, isLoading } = useGetPrices();
+  const { data: priceMap = EMPTY_PRICE_MAP, isInitialLoading: isLoading } = useGetPrices();
 
   // amount is in display units (decimals already applied), e.g. "512.12" GNOT.
   const getUsdDisplay = useCallback(

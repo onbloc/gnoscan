@@ -3,10 +3,15 @@ name: release
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: Version (X.Y.Z)
-        required: false
-        type: string
+      bump:
+        description: Version component to increment (ignored on redeploy)
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
       redeploy:
         description: Redeploy the existing tag selected in 'Use workflow from' (skips tag and release creation)
         required: false
@@ -35,7 +40,7 @@ jobs:
     steps:
       - name: Issue release App token
         id: app
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -53,15 +58,15 @@ jobs:
             echo "::error::${ACTOR} is not an active member of ${ORG}/${TEAM}"; exit 1
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ steps.app.outputs.token }}
 
-      - name: Validate tag
+      - name: Resolve tag
         id: tag
         env:
-          VERSION: ${{ inputs.version }}
+          BUMP: ${{ inputs.bump }}
           REDEPLOY: ${{ inputs.redeploy }}
         run: |
           if [ "$REDEPLOY" = "true" ]; then
@@ -77,21 +82,39 @@ jobs:
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::Version must be X.Y.Z"; exit 1
+          tags=$(git tag --list "v*" --sort=-v:refname | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" || true)
+          # A re-run reuses the tag its own earlier attempt pushed (annotated with this run id) instead of bumping again
+          tag=""
+          if [ "${GITHUB_RUN_ATTEMPT:-1}" -gt 1 ]; then
+            while read -r t; do
+              if [ "$(git tag --list --format='%(contents:subject)' "$t")" = "run ${GITHUB_RUN_ID}" ]; then
+                tag="$t"; break
+              fi
+            done < <(git tag --points-at "$GITHUB_SHA" --list "v*" | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" || true)
           fi
-          tag="v${VERSION}"
-          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
-            echo "::error::Tag ${tag} already exists"; exit 1
-          fi
-          # Previous release tag
-          prev=$(git tag --list "v*" --sort=-v:refname \
-            | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | head -n1 || true)
-          if [ -n "$prev" ]; then
-            prev_ver="${prev#v}"
-            top=$(printf '%s\n%s\n' "$prev_ver" "$VERSION" | sort -V | tail -n1)
-            if [ "$top" != "$VERSION" ] || [ "$prev_ver" = "$VERSION" ]; then
-              echo "::error::${VERSION} must be higher than ${prev}"; exit 1
+          if [ -n "$tag" ]; then
+            reused=true
+            VERSION="${tag#v}"
+            prev=$(echo "$tags" | grep -A1 -Fx "$tag" | sed -n 2p || true)
+          else
+            reused=false
+            # Previous release tag
+            prev=$(echo "$tags" | head -n1)
+            if [ -z "$prev" ]; then
+              major=0; minor=1; patch=0
+            else
+              IFS=. read -r major minor patch <<< "${prev#v}"
+              case "$BUMP" in
+                major) major=$((major + 1)); minor=0; patch=0 ;;
+                minor) minor=$((minor + 1)); patch=0 ;;
+                patch) patch=$((patch + 1)) ;;
+                *) echo "::error::bump must be patch, minor or major"; exit 1 ;;
+              esac
+            fi
+            VERSION="${major}.${minor}.${patch}"
+            tag="v${VERSION}"
+            if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+              echo "::error::Tag ${tag} already exists"; exit 1
             fi
           fi
           {
@@ -99,14 +122,17 @@ jobs:
             echo "version=${VERSION}"
             echo "prev=${prev}"
             echo "redeploy=false"
+            echo "reused=${reused}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Push tag
-        if: steps.tag.outputs.redeploy != 'true'
+        if: steps.tag.outputs.redeploy != 'true' && steps.tag.outputs.reused != 'true'
         env:
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          git tag "$TAG" "$GITHUB_SHA"
+          # Annotated with the run id so a re-run can tell this run's tag from an older release of the same commit
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            tag -a "$TAG" -m "run ${GITHUB_RUN_ID}" "$GITHUB_SHA"
           git push origin "refs/tags/${TAG}"
 
       - name: Create GitHub Release
@@ -116,6 +142,10 @@ jobs:
           TAG: ${{ steps.tag.outputs.tag }}
           PREV: ${{ steps.tag.outputs.prev }}
         run: |
+          # A re-run may find the release created by an earlier attempt
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release ${TAG} already exists, skipping"; exit 0
+          fi
           args=(--verify-tag --title "$TAG" --generate-notes)
           if [ -n "$PREV" ]; then args+=(--notes-start-tag "$PREV"); fi
           gh release create "$TAG" "${args[@]}"
@@ -171,11 +201,11 @@ jobs:
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.prepare.outputs.tag }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
 

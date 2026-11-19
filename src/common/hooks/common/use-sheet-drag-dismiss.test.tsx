@@ -5,6 +5,10 @@ import { act } from "react-dom/test-utils";
 
 import { useSheetDragDismiss } from "./use-sheet-drag-dismiss";
 
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+
+const cleanups = new Set<() => void>();
+
 function mountSheet(onClose: () => void, enabled = true) {
   const container = document.createElement("div");
   document.body.appendChild(container);
@@ -16,12 +20,27 @@ function mountSheet(onClose: () => void, enabled = true) {
   }
   act(() => root.render(<Sheet />));
   const sheet = container.firstElementChild as HTMLElement;
-  return { sheet, unmount: () => act(() => root.unmount()) };
+  const unmount = () => {
+    act(() => root.unmount());
+    container.remove();
+    cleanups.delete(unmount);
+  };
+  cleanups.add(unmount);
+  return { sheet, unmount };
 }
 
-function touch(sheet: HTMLElement, type: string, clientY: number, timeStamp?: number, clientX = 100) {
+function touch(
+  sheet: HTMLElement,
+  type: string,
+  clientY: number,
+  timeStamp?: number,
+  clientX = 100,
+  touchCount = type === "touchend" || type === "touchcancel" ? 0 : 1,
+) {
   const event = new Event(type, { bubbles: true, cancelable: true });
-  Object.defineProperty(event, "touches", { value: type === "touchend" ? [] : [{ clientX, clientY }] });
+  Object.defineProperty(event, "touches", {
+    value: Array.from({ length: touchCount }, (_, index) => ({ clientX: clientX + index * 30, clientY })),
+  });
   if (timeStamp !== undefined) Object.defineProperty(event, "timeStamp", { value: timeStamp });
   act(() => {
     sheet.dispatchEvent(event);
@@ -31,6 +50,10 @@ function touch(sheet: HTMLElement, type: string, clientY: number, timeStamp?: nu
 
 beforeEach(() => {
   window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
+});
+
+afterEach(() => {
+  for (const unmount of cleanups) unmount();
 });
 
 it("follows a downward drag from the top of the content and closes past the threshold", () => {
@@ -55,8 +78,10 @@ it("snaps back a short, slow drag without closing", () => {
   const { sheet } = mountSheet(onClose);
 
   touch(sheet, "touchstart", 100, 0);
-  touch(sheet, "touchmove", 140, 1000);
-  touch(sheet, "touchend", 140, 1000);
+  touch(sheet, "touchmove", 110, 1000);
+  touch(sheet, "touchmove", 160, 2000);
+  expect(sheet.style.transform).toBe("translateY(50px)");
+  touch(sheet, "touchend", 160, 2000);
 
   expect(onClose).not.toHaveBeenCalled();
   expect(sheet.style.transform).toBe("");
@@ -156,5 +181,81 @@ it("snaps back when the caller keeps the sheet open after a dismiss drag", () =>
     expect(sheet.style.transform).toBe("");
   } finally {
     jest.useRealTimers();
+  }
+});
+
+it("snaps back when another finger joins and waits for a fresh gesture before dismissing", () => {
+  const onClose = jest.fn();
+  const { sheet, unmount } = mountSheet(onClose);
+  try {
+    touch(sheet, "touchstart", 100, 0);
+    touch(sheet, "touchmove", 110, 100);
+    touch(sheet, "touchmove", 270, 500);
+    touch(sheet, "touchstart", 270, 600, 100, 2);
+
+    expect(sheet.style.transform).toBe("");
+    expect(sheet.style.transition).toBe("");
+    touch(sheet, "touchend", 270, 700, 100, 1);
+    const remainingFinger = touch(sheet, "touchmove", 400, 800);
+    touch(sheet, "touchend", 400, 900);
+    expect(remainingFinger.defaultPrevented).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(sheet.style.transform).toBe("");
+
+    touch(sheet, "touchstart", 100, 1000);
+    touch(sheet, "touchmove", 110, 1100);
+    touch(sheet, "touchmove", 270, 1500);
+    touch(sheet, "touchend", 270, 1500);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  } finally {
+    unmount();
+  }
+});
+
+it("cancels when an outside finger joins and lifts before the dragging finger", () => {
+  const onClose = jest.fn();
+  const { sheet } = mountSheet(onClose);
+
+  touch(sheet, "touchstart", 100, 0);
+  touch(sheet, "touchmove", 110, 100);
+  touch(sheet, "touchmove", 270, 500);
+  touch(document.body, "touchstart", 270, 600, 200, 2);
+  touch(document.body, "touchend", 270, 700, 200, 1);
+  touch(sheet, "touchend", 270, 800);
+
+  expect(onClose).not.toHaveBeenCalled();
+  expect(sheet.style.transform).toBe("");
+  expect(sheet.style.transition).toBe("");
+});
+
+it("leaves a gesture that begins with multiple fingers to the browser", () => {
+  const onClose = jest.fn();
+  const { sheet, unmount } = mountSheet(onClose);
+  try {
+    touch(sheet, "touchstart", 100, 0, 100, 2);
+    const move = touch(sheet, "touchmove", 300, 100, 100, 2);
+    touch(sheet, "touchend", 300, 200, 100, 1);
+    touch(sheet, "touchend", 300, 300);
+
+    expect(move.defaultPrevented).toBe(false);
+    expect(sheet.style.transform).toBe("");
+    expect(onClose).not.toHaveBeenCalled();
+  } finally {
+    unmount();
+  }
+});
+
+it("still dismisses a short single-finger flick above the velocity threshold", () => {
+  const onClose = jest.fn();
+  const { sheet, unmount } = mountSheet(onClose);
+  try {
+    touch(sheet, "touchstart", 100, 0);
+    touch(sheet, "touchmove", 110, 100);
+    touch(sheet, "touchmove", 170, 150);
+    touch(sheet, "touchend", 170, 150);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  } finally {
+    unmount();
   }
 });
