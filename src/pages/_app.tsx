@@ -21,7 +21,8 @@ const App: React.FC = ({ Component, pageProps }: any) => {
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: CACHE_POLICY.WARM,
+          // Try the first fetch even when navigator reports offline (v3 behavior), so reachable custom RPCs still load.
+          queries: { ...CACHE_POLICY.WARM, networkMode: "offlineFirst" },
         },
       }),
   );
