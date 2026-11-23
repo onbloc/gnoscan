@@ -16,34 +16,6 @@ import { GNOTToken } from "../hooks/common/use-token-meta";
 import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
-import { gnoCodec, std } from "@gnolang/amino-ts/gno";
-
-const aminoCodec = gnoCodec();
-
-function toAminoJSON(rawTx: string): string | undefined {
-  return tryOrDefault(() => {
-    const txBytes = base64ToUint8Array(rawTx);
-    const json = aminoCodec.marshalJSON(std.Tx, aminoCodec.unmarshal(std.Tx, txBytes));
-    return JSON.stringify(JSON.parse(json), null, 2);
-  }, undefined);
-}
-
-export function makeTransactionRawContent(transaction: DecodedTransaction): string {
-  return (
-    toAminoJSON(transaction.rawTx) ??
-    JSON.stringify(
-      {
-        messages: transaction?.messages || "",
-        fee: transaction?.fee || "",
-        signatures: transaction?.signatures || "",
-        memo: transaction?.memo || "",
-      },
-      // BigInt values from the decoded transaction are not serializable by default.
-      (_key, value) => (typeof value === "bigint" ? value.toString() : value),
-      2,
-    )
-  );
-}
 
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);

@@ -2,6 +2,7 @@ import { TransactionMapper } from "./transaction-mapper";
 import { BlockInfo, Tx } from "@gnolang/tm2-js-client";
 import { BlockResults } from "@/common/clients/node-client";
 import { makeHash, decodeTransaction } from "@/common/utils/transaction.utility";
+import { GNOLAND1_TX, GNOLAND1_TX_PUB_KEY } from "@/common/utils/__fixtures__/gnoland1-tx";
 
 jest.mock("@gnolang/tm2-js-client", () => ({
   Tx: jest.requireActual("../../../../node_modules/@gnolang/tm2-js-client/dist/proto/tm2/tx.cjs").Tx,
@@ -61,8 +62,13 @@ describe("TransactionMapper", () => {
 });
 
 describe("transactionFromRpcBlock", () => {
-  const GNOLAND1_TX =
-    "CoYBCgovdm0ubV9jYWxsEngKKGcxOGRkNW1zdGpxbGNnOW5ncXBnMjZhemV5YTZ3cWc3dXBkOXQ4eGEiQWduby5sYW5kL3IvZzFsZXU4ZDJ2c3BsaGVoY2Zramc1MG13Z2RweGRrdDh0enR1OTV3ci9idWJibGVydW1ibGU0KglIZWFydGJlYXQSEAiAv9YGEgk3MDAwdWdub3QaqAEKOgoTL3RtLlB1YktleVNlY3AyNTZrMRIjCiEDj1rKTtK1tGBXlnzB7slX8zV08lbfuJ7gUEQNLwNEuKkSQPvT3WKlzFRAVN4vTQQDlOzDamees7Yu6xQURX6JKAUYEA0EOlQz7p8B7Q+FSmPl6IVP6l8kIfDdFN3oT9+WMr8aKGcxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxbHV1eGU=";
+  beforeEach(() => {
+    // transactionFromPendingRawTx tests reset this mock, so the real decoder is restored here.
+    mockedDecodeTransaction.mockImplementation(
+      jest.requireActual("@/common/utils/transaction.utility").decodeTransaction,
+    );
+  });
+
   const hash = makeHash(Buffer.from(GNOLAND1_TX, "base64"));
   const block = {
     block_meta: { header: { time: "2026-01-01T00:00:00Z" } },
@@ -104,10 +110,7 @@ describe("transactionFromRpcBlock", () => {
       blockHeight: 123,
       fee: { denom: "ugnot", value: "7000" },
     });
-    expect(JSON.parse(result.transactionItem!.rawContent!).signatures[0].pub_key).toEqual({
-      "@type": "/tm.PubKeySecp256k1",
-      value: "A49ayk7StbRgV5Z8we7JV/M1dPJW37ie4FBEDS8DRLip",
-    });
+    expect(JSON.parse(result.transactionItem!.rawContent!).signatures[0].pub_key).toEqual(GNOLAND1_TX_PUB_KEY);
   });
 
   it("returns no transaction when the hash is absent from the block", () => {

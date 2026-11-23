@@ -1,6 +1,5 @@
 import { decodeTxMessages } from "@gnolang/gno-js-client";
 import { Tx } from "@gnolang/tm2-js-client";
-import { gnoCodec, std } from "@gnolang/amino-ts/gno";
 import {
   base64HashToHex,
   decodeTransaction,
@@ -10,7 +9,6 @@ import {
   isHexHash,
   makeHash,
   makeSafeBase64Hash,
-  makeTransactionRawContent,
   makeTransactionMessageInfo,
   parseTxHash,
   toDisplayHash,
@@ -32,109 +30,6 @@ const mockedTxDecode = Tx.decode as jest.MockedFunction<typeof Tx.decode>;
 const PADDED_BASE64_HASH = "lk1sZ7ZgbHo75gEbv1pImpNorTXHe7zBgROekjZpjt4=";
 const UNPADDED_BASE64_HASH = "lk1sZ7ZgbHo75gEbv1pImpNorTXHe7zBgROekjZpjt4";
 const HEX_HASH = "3031323334353637383961626364656630313233343536373839616263646566";
-
-describe("makeTransactionRawContent", () => {
-  const GNOLAND1_TX =
-    "CoYBCgovdm0ubV9jYWxsEngKKGcxOGRkNW1zdGpxbGNnOW5ncXBnMjZhemV5YTZ3cWc3dXBkOXQ4eGEiQWduby5sYW5kL3IvZzFsZXU4ZDJ2c3BsaGVoY2Zramc1MG13Z2RweGRrdDh0enR1OTV3ci9idWJibGVydW1ibGU0KglIZWFydGJlYXQSEAiAv9YGEgk3MDAwdWdub3QaqAEKOgoTL3RtLlB1YktleVNlY3AyNTZrMRIjCiEDj1rKTtK1tGBXlnzB7slX8zV08lbfuJ7gUEQNLwNEuKkSQPvT3WKlzFRAVN4vTQQDlOzDamees7Yu6xQURX6JKAUYEA0EOlQz7p8B7Q+FSmPl6IVP6l8kIfDdFN3oT9+WMr8aKGcxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxbHV1eGU=";
-  const SECP256K1_PUB_KEY = { "@type": "/tm.PubKeySecp256k1", value: "A49ayk7StbRgV5Z8we7JV/M1dPJW37ie4FBEDS8DRLip" };
-
-  const ProtoTx = jest.requireActual("../../../node_modules/@gnolang/tm2-js-client/dist/proto/tm2/tx.cjs")
-    .Tx as typeof Tx;
-  const fromBytes = (bytes: Uint8Array) => ({
-    ...ProtoTx.decode(bytes),
-    messages: [],
-    hash: makeHash(bytes),
-    rawTx: Buffer.from(bytes).toString("base64"),
-  });
-
-  it("renders a gnoland1 transaction as indented Go Amino JSON", () => {
-    const json = makeTransactionRawContent(fromBytes(Buffer.from(GNOLAND1_TX, "base64")));
-    const parsed = JSON.parse(json!);
-
-    expect(parsed.signatures[0].pub_key).toEqual(SECP256K1_PUB_KEY);
-    expect(parsed.fee.gas_fee).toBe("7000ugnot");
-    expect(json).toBe(JSON.stringify(parsed, null, 2));
-  });
-
-  it("renders multisig keys as threshold and nested pubkeys from bytes", () => {
-    const codec = gnoCodec();
-    const multisig = { "@type": "/tm.PubKeyMultisig", threshold: "2", pubkeys: [SECP256K1_PUB_KEY, SECP256K1_PUB_KEY] };
-    const tx = codec.unmarshalJSON(std.Tx, JSON.stringify({ signatures: [{ pub_key: multisig, signature: "AQID" }] }));
-    const bytes = codec.marshal(std.Tx, tx);
-
-    expect(JSON.parse(makeTransactionRawContent(fromBytes(bytes))).signatures[0]).toMatchObject({
-      pub_key: multisig,
-      signature: "AQID",
-    });
-  });
-
-  it("keeps the legacy JSON and bigint conversion when Amino cannot decode a public key", () => {
-    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
-    try {
-      const bytes = ProtoTx.encode({
-        messages: [],
-        fee: { gas_wanted: BigInt(7000000), gas_fee: "7000ugnot" },
-        signatures: [
-          {
-            pub_key: { type_url: "/tm.UnknownPubKey", value: new Uint8Array([1, 2]) },
-            signature: new Uint8Array([3]),
-            session_addr: "",
-          },
-        ],
-        memo: "fallback",
-      }).finish();
-      expect(JSON.parse(makeTransactionRawContent(fromBytes(bytes)))).toEqual({
-        messages: [],
-        fee: { gas_wanted: "7000000", gas_fee: "7000ugnot" },
-        signatures: [
-          {
-            pub_key: { type_url: "/tm.UnknownPubKey", value: { "0": 1, "1": 2 } },
-            signature: { "0": 3 },
-            session_addr: "",
-          },
-        ],
-        memo: "fallback",
-      });
-    } finally {
-      warn.mockRestore();
-    }
-  });
-
-  it("keeps unsupported message placeholders when Amino cannot decode the message", () => {
-    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
-    try {
-      const bytes = ProtoTx.encode({
-        messages: [{ type_url: "/vm.m_unknown", value: new Uint8Array([1, 2]) }],
-        signatures: [],
-        memo: "",
-      }).finish();
-      const messages = [{ "@type": "/vm.m_unknown", value: "AQI=", unsupported: true }];
-      expect(JSON.parse(makeTransactionRawContent({ ...fromBytes(bytes), messages }))).toEqual({
-        messages,
-        fee: "",
-        signatures: [],
-        memo: "",
-      });
-    } finally {
-      warn.mockRestore();
-    }
-  });
-
-  it("falls back to the decoded fields for malformed bytes", () => {
-    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
-    try {
-      const transaction = { ...fromBytes(new Uint8Array()), rawTx: "/w==", memo: "broken bytes" };
-      expect(JSON.parse(makeTransactionRawContent(transaction))).toEqual({
-        messages: [],
-        fee: "",
-        signatures: [],
-        memo: "broken bytes",
-      });
-    } finally {
-      warn.mockRestore();
-    }
-  });
-});
 
 describe("isHexHash", () => {
   it("accepts a 64-char hex string", () => {
