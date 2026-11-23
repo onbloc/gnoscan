@@ -17,6 +17,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.6",
     "@floating-ui/react": "0.27.20",
+    "@gnolang/amino-ts": "0.3.0",
     "@gnolang/gno-js-client": "3.1.0",
     "@gnolang/tm2-js-client": "3.3.0",
     "@noble/hashes": "^2.4.0",
@@ -47,7 +48,7 @@
     "recoil": "^0.7.6",
     "styled-components": "^5.3.6",
     "styled-reset": "^4.4.2",
-    "typescript": "4.9.5",
+    "typescript": "5.9.3",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {

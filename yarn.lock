@@ -1534,6 +1534,11 @@
   resolved "https://registry.npmjs.org/@floating-ui/utils/-/utils-0.2.12.tgz"
   integrity sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==
 
+"@gnolang/amino-ts@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@gnolang/amino-ts/-/amino-ts-0.3.0.tgz#3739b7bfca9355c56f6e5ffc05cd74521c106784"
+  integrity sha512-gd/im1cG1Ugtlgtn9aC0oBS05Qhs6JsUFMUJGmgNSAAfJfetVnpVeuzA9uCr7R4AkdMqSpAo9CeWmRIbVDW//w==
+
 "@gnolang/gno-js-client@3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@gnolang/gno-js-client/-/gno-js-client-3.1.0.tgz#03d04a593ea92756dbc4639defb5cbe27ea96ca6"
@@ -9921,10 +9926,10 @@ typescript-eslint@^8.56.0:
     "@typescript-eslint/typescript-estree" "8.72.0"
     "@typescript-eslint/utils" "8.72.0"
 
-typescript@4.9.5:
-  version "4.9.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
-  integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
+typescript@5.9.3:
+  version "5.9.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.9.3.tgz#5b4f59e15310ab17a216f5d6cf53ee476ede670f"
+  integrity sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==
 
 unbox-primitive@^1.1.0:
   version "1.1.0"

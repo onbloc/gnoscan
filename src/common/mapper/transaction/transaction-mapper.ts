@@ -1,14 +1,91 @@
-import { TransactionContractModel, TransactionSummary } from "@/repositories/api/transaction/response";
-import { GnoEvent, Transaction, TransactionContractInfo, TransactionSummaryInfo } from "@/types/data-type";
+import { TransactionSummary } from "@/repositories/api/transaction/response";
+import { Amount, GnoEvent, Transaction, TransactionSummaryInfo } from "@/types/data-type";
 
+import { BlockInfo, base64ToUint8Array } from "@gnolang/tm2-js-client";
+import { BlockResults, DeliverTx } from "@/common/clients/node-client";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
 import { getTimeStamp } from "@/common/utils/date-util";
 import { tryOrDefault } from "@/common/utils/common.utility";
 import { formatGasString } from "@/common/utils/format/format-utils";
-import { base64HashToHex, decodeTransaction } from "@/common/utils/transaction.utility";
+import {
+  base64HashToHex,
+  DecodedTransaction,
+  decodeTransaction,
+  makeHash,
+  makeTransactionMessageInfo,
+} from "@/common/utils/transaction.utility";
+import { makeTransactionRawContent } from "@/common/utils/amino-json.utility";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import { EventModel } from "@/models/api/event/event-model";
 
 export class TransactionMapper {
+  public static transactionFromRpcBlock(
+    block: BlockInfo | null | undefined,
+    blockResult: BlockResults | null | undefined,
+    hash: string,
+    getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount,
+  ): TransactionSummaryInfo {
+    const txs = block?.block.data.txs ?? [];
+    const txIndex = txs.findIndex(rawTx => tryOrDefault(() => makeHash(base64ToUint8Array(rawTx)) === hash, false));
+    const rawTx = txs[txIndex];
+    const transaction =
+      rawTx === undefined ? null : tryOrDefault<DecodedTransaction | null>(() => decodeTransaction(rawTx), null);
+    const txResult = transaction ? blockResult?.deliver_tx[txIndex] || null : null;
+    const transactionItem =
+      block && transaction && txResult
+        ? this.transactionItemFromRpc(block, transaction, txResult, getTokenAmount)
+        : null;
+
+    return {
+      network: block?.block.header.chain_id ?? "-",
+      timeStamp: block ? getTimeStamp(block.block_meta.header.time) : { time: "-", passedTime: "" },
+      txResult,
+      gas: formatGasString(Number(txResult?.GasWanted ?? 0), Number(txResult?.GasUsed ?? 0)),
+      transactionItem,
+      transactionEvents: transactionItem?.events || [],
+    };
+  }
+
+  private static transactionItemFromRpc(
+    block: BlockInfo,
+    transaction: DecodedTransaction,
+    txResult: DeliverTx,
+    getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount,
+  ): Transaction {
+    const blockHeight = Number(block.block.header.height);
+    const firstMessage = makeTransactionMessageInfo(transaction.messages[0]);
+    const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
+
+    return {
+      hash: transaction.hash,
+      messages: transaction.messages,
+      success: !txResult.ResponseBase.Error,
+      numOfMessage: transaction.messages.length,
+      type: firstMessage?.type || "",
+      packagePath: firstMessage?.packagePath || "",
+      functionName: firstMessage?.functionName || "",
+      blockHeight,
+      from: firstMessage?.from || "",
+      to: firstMessage?.to || "",
+      amount: firstMessage?.amount || {
+        value: "0",
+        denom: GNOTToken.denom,
+      },
+      time: block.block_meta.header.time,
+      fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
+      memo: transaction.memo || "-",
+      events: parseTransactionEvents(
+        txResult.ResponseBase.Events ?? [],
+        transaction.hash,
+        blockHeight,
+        block.block.header.time,
+        firstMessage?.from || "",
+      ),
+      rawContent: makeTransactionRawContent(transaction),
+    };
+  }
+
   public static transactionFromApiResponse(response: TransactionSummary): TransactionSummaryInfo {
     const timeStamp = getTimeStamp(response.timestamp);
 
@@ -61,7 +138,7 @@ export class TransactionMapper {
   public static transactionFromPendingRawTx(rawTx: string): TransactionSummaryInfo | null {
     // Malformed raw tx bytes from the pending endpoint fall back to null, so the
     // caller treats it as a miss and keeps polling instead of showing a broken page.
-    const decoded = tryOrDefault<ReturnType<typeof decodeTransaction> | null>(() => decodeTransaction(rawTx), null);
+    const decoded = tryOrDefault<DecodedTransaction | null>(() => decodeTransaction(rawTx), null);
     if (!decoded) {
       return null;
     }
