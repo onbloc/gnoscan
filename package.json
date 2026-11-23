@@ -17,6 +17,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.6",
     "@floating-ui/react": "0.27.20",
+    "@gnolang/amino-ts": "0.3.0",
     "@gnolang/gno-js-client": "3.1.0",
     "@gnolang/tm2-js-client": "3.3.0",
     "@noble/hashes": "^2.4.0",

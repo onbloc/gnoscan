@@ -11,6 +11,7 @@ import {
   decodeTransactionSafely,
   findTransactionResult,
   makeSafeBase64Hash,
+  makeTransactionAminoJSON,
   makeTransactionMessageInfo,
 } from "@/common/utils/transaction.utility";
 import { Transaction, TransactionSummaryInfo } from "@/types/data-type";
@@ -112,17 +113,19 @@ export const useTransaction = (hash: string) => {
         block?.block.header.time || "",
         firstMessage?.from || "",
       ),
-      rawContent: JSON.stringify(
-        {
-          messages: transaction?.messages || "",
-          fee: transaction?.fee || "",
-          signatures: transaction?.signatures || "",
-          memo: transaction?.memo || "",
-        },
-        // BigInt values from the decoded transaction are not serializable by default.
-        (_key, value) => (typeof value === "bigint" ? value.toString() : value),
-        2,
-      ),
+      rawContent:
+        makeTransactionAminoJSON(transaction.rawTx) ??
+        JSON.stringify(
+          {
+            messages: transaction?.messages || "",
+            fee: transaction?.fee || "",
+            signatures: transaction?.signatures || "",
+            memo: transaction?.memo || "",
+          },
+          // BigInt values from the decoded transaction are not serializable by default.
+          (_key, value) => (typeof value === "bigint" ? value.toString() : value),
+          2,
+        ),
     };
   }, [block, transactions, txResult, getTokenAmount]);
 

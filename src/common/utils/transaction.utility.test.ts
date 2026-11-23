@@ -1,6 +1,7 @@
 import { DeliverTx } from "@/common/clients/node-client";
 import { decodeTxMessages } from "@gnolang/gno-js-client";
 import { Tx } from "@gnolang/tm2-js-client";
+import { gnoCodec, std } from "@gnolang/amino-ts/gno";
 import {
   base64HashToHex,
   decodeTransaction,
@@ -11,6 +12,7 @@ import {
   isHexHash,
   makeHash,
   makeSafeBase64Hash,
+  makeTransactionAminoJSON,
   makeTransactionMessageInfo,
   parseTxHash,
   toDisplayHash,
@@ -32,6 +34,45 @@ const mockedTxDecode = Tx.decode as jest.MockedFunction<typeof Tx.decode>;
 const PADDED_BASE64_HASH = "lk1sZ7ZgbHo75gEbv1pImpNorTXHe7zBgROekjZpjt4=";
 const UNPADDED_BASE64_HASH = "lk1sZ7ZgbHo75gEbv1pImpNorTXHe7zBgROekjZpjt4";
 const HEX_HASH = "3031323334353637383961626364656630313233343536373839616263646566";
+
+describe("makeTransactionAminoJSON", () => {
+  const realTx =
+    "CoYBCgovdm0ubV9jYWxsEngKKGcxOGRkNW1zdGpxbGNnOW5ncXBnMjZhemV5YTZ3cWc3dXBkOXQ4eGEiQWduby5sYW5kL3IvZzFsZXU4ZDJ2c3BsaGVoY2Zramc1MG13Z2RweGRrdDh0enR1OTV3ci9idWJibGVydW1ibGU0KglIZWFydGJlYXQSEAiAv9YGEgk3MDAwdWdub3QaqAEKOgoTL3RtLlB1YktleVNlY3AyNTZrMRIjCiEDj1rKTtK1tGBXlnzB7slX8zV08lbfuJ7gUEQNLwNEuKkSQPvT3WKlzFRAVN4vTQQDlOzDamees7Yu6xQURX6JKAUYEA0EOlQz7p8B7Q+FSmPl6IVP6l8kIfDdFN3oT9+WMr8aKGcxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxbHV1eGU=";
+  const publicKey = { "@type": "/tm.PubKeySecp256k1", value: "A49ayk7StbRgV5Z8we7JV/M1dPJW37ie4FBEDS8DRLip" };
+
+  it("renders a gnoland1 transaction as indented Go Amino JSON", () => {
+    const json = makeTransactionAminoJSON(realTx);
+    const parsed = JSON.parse(json!);
+
+    expect(parsed.signatures[0].pub_key).toEqual(publicKey);
+    expect(parsed.fee.gas_fee).toBe("7000ugnot");
+    expect(json).toBe(JSON.stringify(parsed, null, 2));
+  });
+
+  it("renders multisig keys as threshold and nested pubkeys from bytes", () => {
+    const codec = gnoCodec();
+    const multisig = { "@type": "/tm.PubKeyMultisig", threshold: "2", pubkeys: [publicKey, publicKey] };
+    const tx = codec.unmarshalJSON(std.Tx, JSON.stringify({ signatures: [{ pub_key: multisig, signature: "AQID" }] }));
+    const bytes = codec.marshal(std.Tx, tx);
+
+    expect(JSON.parse(makeTransactionAminoJSON(bytes)!).signatures[0]).toMatchObject({
+      pub_key: multisig,
+      signature: "AQID",
+    });
+  });
+
+  it("returns undefined for malformed bytes and unregistered messages without throwing", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+    const unknownTx = jest.requireActual("../../../node_modules/@gnolang/tm2-js-client/dist/proto/tm2/tx.cjs").Tx;
+    const bytes = unknownTx
+      .encode({ messages: [{ type_url: "/vm.m_unknown", value: new Uint8Array() }], signatures: [], memo: "" })
+      .finish();
+
+    expect(makeTransactionAminoJSON(new Uint8Array([255]))).toBeUndefined();
+    expect(makeTransactionAminoJSON(bytes)).toBeUndefined();
+    warn.mockRestore();
+  });
+});
 
 describe("isHexHash", () => {
   it("accepts a 64-char hex string", () => {

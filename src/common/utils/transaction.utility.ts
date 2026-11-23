@@ -17,6 +17,17 @@ import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
 import { DeliverTx } from "@/common/clients/node-client";
+import { gnoCodec, std } from "@gnolang/amino-ts/gno";
+
+const aminoCodec = gnoCodec();
+
+export function makeTransactionAminoJSON(tx: string | Uint8Array): string | undefined {
+  return tryOrDefault(() => {
+    const txBytes = typeof tx === "string" ? base64ToUint8Array(tx) : tx;
+    const json = aminoCodec.marshalJSON(std.Tx, aminoCodec.unmarshal(std.Tx, txBytes));
+    return JSON.stringify(JSON.parse(json), null, 2);
+  }, undefined);
+}
 
 export function decodeTransaction(tx: string) {
   const txBytes = base64ToUint8Array(tx);
@@ -27,10 +38,12 @@ export function decodeTransaction(tx: string) {
     ...decodedTx,
     hash,
     messages,
+    rawTx: tx,
   };
 }
 
 const EMPTY_DECODED_TRANSACTION = {
+  rawTx: "",
   hash: "",
   messages: [] as any[],
   memo: "",

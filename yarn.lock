@@ -1534,6 +1534,11 @@
   resolved "https://registry.npmjs.org/@floating-ui/utils/-/utils-0.2.12.tgz"
   integrity sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==
 
+"@gnolang/amino-ts@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@gnolang/amino-ts/-/amino-ts-0.3.0.tgz#3739b7bfca9355c56f6e5ffc05cd74521c106784"
+  integrity sha512-gd/im1cG1Ugtlgtn9aC0oBS05Qhs6JsUFMUJGmgNSAAfJfetVnpVeuzA9uCr7R4AkdMqSpAo9CeWmRIbVDW//w==
+
 "@gnolang/gno-js-client@3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@gnolang/gno-js-client/-/gno-js-client-3.1.0.tgz#03d04a593ea92756dbc4639defb5cbe27ea96ca6"
