@@ -1,14 +1,89 @@
-import { TransactionContractModel, TransactionSummary } from "@/repositories/api/transaction/response";
-import { GnoEvent, Transaction, TransactionContractInfo, TransactionSummaryInfo } from "@/types/data-type";
+import { TransactionSummary } from "@/repositories/api/transaction/response";
+import { Amount, GnoEvent, Transaction, TransactionSummaryInfo } from "@/types/data-type";
 
-import { getTimeStamp } from "@/common/utils/date-util";
+import BigNumber from "bignumber.js";
+import { BlockInfo, base64ToUint8Array } from "@gnolang/tm2-js-client";
+import { BlockResults } from "@/common/clients/node-client";
+import { GNOTToken } from "@/common/hooks/common/use-token-meta";
+import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
+import { makeDisplayNumber } from "@/common/utils/string-util";
+import { getDateDiff, getLocalDateString, getTimeStamp } from "@/common/utils/date-util";
 import { tryOrDefault } from "@/common/utils/common.utility";
 import { formatGasString } from "@/common/utils/format/format-utils";
-import { base64HashToHex, decodeTransaction } from "@/common/utils/transaction.utility";
+import {
+  base64HashToHex,
+  decodeTransaction,
+  decodeTransactionSafely,
+  makeHash,
+  makeTransactionMessageInfo,
+  makeTransactionRawContent,
+} from "@/common/utils/transaction.utility";
 import { parseTokenAmount } from "@/common/utils/token.utility";
 import { EventModel } from "@/models/api/event/event-model";
 
 export class TransactionMapper {
+  public static transactionFromRpcBlock(
+    block: BlockInfo | null | undefined,
+    blockResult: BlockResults | null | undefined,
+    hash: string,
+    getTokenAmount: (tokenId: string, amountRaw: string | number) => Amount,
+  ): TransactionSummaryInfo {
+    const timeStamp = block
+      ? {
+          time: getLocalDateString(block.block_meta.header.time),
+          passedTime: getDateDiff(block.block_meta.header.time),
+        }
+      : { time: "-", passedTime: "" };
+    const network = block?.block.header.chain_id ?? "-";
+    const blockHeight = block ? Number(block.block.header.height) : null;
+    const txIndex =
+      block?.block.data.txs?.findIndex(rawTx =>
+        tryOrDefault(() => makeHash(base64ToUint8Array(rawTx)) === hash, false),
+      ) ?? -1;
+    const rawTx = txIndex >= 0 ? block?.block.data.txs?.[txIndex] : undefined;
+    const transaction = rawTx === undefined ? null : decodeTransactionSafely(rawTx);
+    const txResult = transaction?.hash === hash ? blockResult?.deliver_tx[txIndex] || null : null;
+    let transactionItem: Transaction | null = null;
+    if (transaction && txResult) {
+      const firstMessage = makeTransactionMessageInfo(transaction.messages[0]);
+      const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
+
+      transactionItem = {
+        hash: transaction.hash,
+        messages: transaction?.messages,
+        success: !txResult?.ResponseBase?.Error,
+        numOfMessage: transaction.messages.length,
+        type: firstMessage?.type || "",
+        packagePath: firstMessage?.packagePath || "",
+        functionName: firstMessage?.functionName || "",
+        blockHeight: blockHeight || 0,
+        from: firstMessage?.from || "",
+        to: firstMessage?.to || "",
+        amount: firstMessage?.amount || {
+          value: "0",
+          denom: GNOTToken.denom,
+        },
+        time: block?.block_meta.header.time || "",
+        fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
+        memo: transaction.memo || "-",
+        events: parseTransactionEvents(
+          txResult?.ResponseBase?.Events ?? [],
+          transaction.hash,
+          blockHeight || 0,
+          block?.block.header.time || "",
+          firstMessage?.from || "",
+        ),
+        rawContent: makeTransactionRawContent(transaction),
+      };
+    }
+    const gasWanted = txResult ? Number(txResult.GasWanted) : 0;
+    const gasUsed = txResult ? Number(txResult.GasUsed) : 0;
+    const rate = gasWanted === 0 ? 0 : BigNumber(gasUsed).dividedBy(gasWanted).shiftedBy(2).toFixed(2);
+    const gas = `${makeDisplayNumber(gasUsed)}/${makeDisplayNumber(gasWanted)} (${rate}%)`;
+
+    return { network, timeStamp, txResult, gas, transactionItem, transactionEvents: transactionItem?.events || [] };
+  }
+
   public static transactionFromApiResponse(response: TransactionSummary): TransactionSummaryInfo {
     const timeStamp = getTimeStamp(response.timestamp);
 

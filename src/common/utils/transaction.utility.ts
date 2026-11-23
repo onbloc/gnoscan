@@ -16,17 +16,33 @@ import { GNOTToken } from "../hooks/common/use-token-meta";
 import { tryOrDefault } from "./common.utility";
 import { parseTokenAmount } from "./token.utility";
 import { MESSAGE_TYPES } from "@/common/values/message-types.constant";
-import { DeliverTx } from "@/common/clients/node-client";
 import { gnoCodec, std } from "@gnolang/amino-ts/gno";
 
 const aminoCodec = gnoCodec();
 
-export function makeTransactionAminoJSON(tx: string | Uint8Array): string | undefined {
+function toAminoJSON(rawTx: string): string | undefined {
   return tryOrDefault(() => {
-    const txBytes = typeof tx === "string" ? base64ToUint8Array(tx) : tx;
+    const txBytes = base64ToUint8Array(rawTx);
     const json = aminoCodec.marshalJSON(std.Tx, aminoCodec.unmarshal(std.Tx, txBytes));
     return JSON.stringify(JSON.parse(json), null, 2);
   }, undefined);
+}
+
+export function makeTransactionRawContent(transaction: DecodedTransaction): string {
+  return (
+    toAminoJSON(transaction.rawTx) ??
+    JSON.stringify(
+      {
+        messages: transaction?.messages || "",
+        fee: transaction?.fee || "",
+        signatures: transaction?.signatures || "",
+        memo: transaction?.memo || "",
+      },
+      // BigInt values from the decoded transaction are not serializable by default.
+      (_key, value) => (typeof value === "bigint" ? value.toString() : value),
+      2,
+    )
+  );
 }
 
 export function decodeTransaction(tx: string) {
@@ -42,13 +58,15 @@ export function decodeTransaction(tx: string) {
   };
 }
 
-const EMPTY_DECODED_TRANSACTION = {
+export type DecodedTransaction = ReturnType<typeof decodeTransaction>;
+
+const EMPTY_DECODED_TRANSACTION: DecodedTransaction = {
   rawTx: "",
   hash: "",
-  messages: [] as any[],
+  messages: [],
   memo: "",
   fee: undefined,
-  signatures: [] as any[],
+  signatures: [],
 };
 
 /**
@@ -371,20 +389,4 @@ export function extractStorageDepositFromTxEvents(txEvents: GnoEvent[]): Storage
     deposit: finalDepositValue,
     storage: finalStorageValue,
   };
-}
-
-/**
- * Returns the deliver_tx result of the given tx. block_results.deliver_tx is
- * ordered the same as the block's txs, so the tx's index maps to its result.
- */
-export function findTransactionResult(
-  transactions: { hash: string }[],
-  deliverTxs: DeliverTx[],
-  hash: string,
-): DeliverTx | null {
-  const txIndex = transactions.findIndex(tx => tx.hash === hash);
-  if (txIndex < 0) {
-    return null;
-  }
-  return deliverTxs[txIndex] || null;
 }

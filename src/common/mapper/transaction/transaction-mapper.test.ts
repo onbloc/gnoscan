@@ -1,13 +1,21 @@
 import { TransactionMapper } from "./transaction-mapper";
-import { decodeTransaction } from "@/common/utils/transaction.utility";
+import { BlockInfo, Tx } from "@gnolang/tm2-js-client";
+import { BlockResults } from "@/common/clients/node-client";
+import { makeHash, decodeTransaction } from "@/common/utils/transaction.utility";
 
-jest.mock("@/common/utils/transaction.utility", () => ({
-  decodeTransaction: jest.fn(),
-  // Real implementation reimplemented here (rather than jest.requireActual) since the
-  // real module transitively pulls in @gnolang/gno-js-client -> tm2-js-client, whose
-  // uuid dependency ships ESM that jest's default transform can't parse.
-  base64HashToHex: (base64: string) => Buffer.from(base64, "base64").toString("hex"),
+jest.mock("@gnolang/tm2-js-client", () => ({
+  Tx: jest.requireActual("../../../../node_modules/@gnolang/tm2-js-client/dist/proto/tm2/tx.cjs").Tx,
+  base64ToUint8Array: (value: string) => Uint8Array.from(Buffer.from(value, "base64")),
+  uint8ArrayToBase64: (value: Uint8Array) => Buffer.from(value).toString("base64"),
 }));
+jest.mock("@gnolang/gno-js-client", () =>
+  jest.requireActual("../../../../node_modules/@gnolang/gno-js-client/dist/wallet/utility/utility.cjs"),
+);
+jest.mock("@/common/hooks/common/use-token-meta", () => ({ GNOTToken: { denom: "ugnot" } }));
+jest.mock("@/common/utils/transaction.utility", () => {
+  const actual = jest.requireActual("@/common/utils/transaction.utility");
+  return { ...actual, decodeTransaction: jest.fn(actual.decodeTransaction) };
+});
 
 const mockedDecodeTransaction = decodeTransaction as jest.MockedFunction<typeof decodeTransaction>;
 
@@ -49,5 +57,81 @@ describe("TransactionMapper", () => {
       expect(() => TransactionMapper.transactionFromPendingRawTx("not-valid-base64")).not.toThrow();
       expect(TransactionMapper.transactionFromPendingRawTx("not-valid-base64")).toBeNull();
     });
+  });
+});
+
+describe("transactionFromRpcBlock", () => {
+  const GNOLAND1_TX =
+    "CoYBCgovdm0ubV9jYWxsEngKKGcxOGRkNW1zdGpxbGNnOW5ncXBnMjZhemV5YTZ3cWc3dXBkOXQ4eGEiQWduby5sYW5kL3IvZzFsZXU4ZDJ2c3BsaGVoY2Zramc1MG13Z2RweGRrdDh0enR1OTV3ci9idWJibGVydW1ibGU0KglIZWFydGJlYXQSEAiAv9YGEgk3MDAwdWdub3QaqAEKOgoTL3RtLlB1YktleVNlY3AyNTZrMRIjCiEDj1rKTtK1tGBXlnzB7slX8zV08lbfuJ7gUEQNLwNEuKkSQPvT3WKlzFRAVN4vTQQDlOzDamees7Yu6xQURX6JKAUYEA0EOlQz7p8B7Q+FSmPl6IVP6l8kIfDdFN3oT9+WMr8aKGcxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxbHV1eGU=";
+  const hash = makeHash(Buffer.from(GNOLAND1_TX, "base64"));
+  const block = {
+    block_meta: { header: { time: "2026-01-01T00:00:00Z" } },
+    block: {
+      header: { chain_id: "gnoland1", height: "123", time: "2026-01-01T00:00:00Z" },
+      data: { txs: ["/w==", GNOLAND1_TX] },
+    },
+  } as unknown as BlockInfo;
+  const blockResult = {
+    deliver_tx: [
+      { ResponseBase: { Error: { message: "other tx failed" } }, GasWanted: "10", GasUsed: "10" },
+      { ResponseBase: { Error: null, Events: null }, GasWanted: "7000000", GasUsed: "3500000" },
+    ],
+  } as unknown as BlockResults;
+  const getTokenAmount = (denom: string, value: string | number) => ({ denom, value: String(value) });
+
+  it("returns the existing defaults when no block is available", () => {
+    expect(TransactionMapper.transactionFromRpcBlock(null, null, hash, getTokenAmount)).toEqual({
+      network: "-",
+      timeStamp: { time: "-", passedTime: "" },
+      txResult: null,
+      gas: "0/0 (0%)",
+      transactionItem: null,
+      transactionEvents: [],
+    });
+  });
+
+  it("maps the real transaction and its result at the same block index", () => {
+    const decode = jest.spyOn(Tx, "decode");
+    const result = TransactionMapper.transactionFromRpcBlock(block, blockResult, hash, getTokenAmount);
+    expect(decode).toHaveBeenCalledTimes(1);
+    decode.mockRestore();
+    expect(result.network).toBe("gnoland1");
+    expect(result.txResult).toBe(blockResult.deliver_tx[1]);
+    expect(result.gas).toBe("3,500,000/7,000,000 (50.00%)");
+    expect(result.transactionItem).toMatchObject({
+      hash,
+      success: true,
+      blockHeight: 123,
+      fee: { denom: "ugnot", value: "7000" },
+    });
+    expect(JSON.parse(result.transactionItem!.rawContent!).signatures[0].pub_key).toEqual({
+      "@type": "/tm.PubKeySecp256k1",
+      value: "A49ayk7StbRgV5Z8we7JV/M1dPJW37ie4FBEDS8DRLip",
+    });
+  });
+
+  it("returns no transaction when the hash is absent from the block", () => {
+    const result = TransactionMapper.transactionFromRpcBlock(block, blockResult, "missing", getTokenAmount);
+    expect(result.transactionItem).toBeNull();
+    expect(result.txResult).toBeNull();
+    expect(result.gas).toBe("0/0 (0%)");
+  });
+
+  it("keeps block metadata but no transaction when block results are unavailable", () => {
+    const result = TransactionMapper.transactionFromRpcBlock(block, null, hash, getTokenAmount);
+    expect(result.network).toBe("gnoland1");
+    expect(result.transactionItem).toBeNull();
+    expect(result.gas).toBe("0/0 (0%)");
+  });
+
+  it("does not match a transaction whose bytes cannot be decoded", () => {
+    const result = TransactionMapper.transactionFromRpcBlock(
+      block,
+      blockResult,
+      makeHash(Buffer.from([255])),
+      getTokenAmount,
+    );
+    expect(result.transactionItem).toBeNull();
+    expect(result.txResult).toBeNull();
   });
 });

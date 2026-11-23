@@ -1,185 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import BigNumber from "bignumber.js";
 import { useMemo } from "react";
 
+import { TransactionMapper } from "@/common/mapper/transaction/transaction-mapper";
 import { useGetTransactionBlockHeightQuery } from "@/common/react-query/transaction";
-import { getDateDiff, getLocalDateString } from "@/common/utils/date-util";
-import { parseTransactionEvents } from "@/common/utils/event-parser.utility";
-import { makeDisplayNumber } from "@/common/utils/string-util";
-import { parseTokenAmount } from "@/common/utils/token.utility";
-import {
-  decodeTransactionSafely,
-  findTransactionResult,
-  makeSafeBase64Hash,
-  makeTransactionAminoJSON,
-  makeTransactionMessageInfo,
-} from "@/common/utils/transaction.utility";
-import { Transaction, TransactionSummaryInfo } from "@/types/data-type";
-import { GNOTToken, useTokenMeta } from "../common/use-token-meta";
+import { makeSafeBase64Hash } from "@/common/utils/transaction.utility";
+import { useTokenMeta } from "../common/use-token-meta";
 
 export const useTransaction = (hash: string) => {
-  const safetyHash = makeSafeBase64Hash(hash);
+  const safeHash = makeSafeBase64Hash(hash);
   const { getTokenAmount } = useTokenMeta();
-  const { data, isFetched, isError: isErrorTxHash } = useGetTransactionBlockHeightQuery(safetyHash);
+  const { data, isFetched, isError: isErrorTxHash } = useGetTransactionBlockHeightQuery(safeHash);
 
-  const block = useMemo(() => {
-    return data?.block || null;
-  }, [data?.block]);
+  const transaction = useMemo(
+    () => TransactionMapper.transactionFromRpcBlock(data?.block, data?.blockResult, safeHash, getTokenAmount),
+    [data?.block, data?.blockResult, safeHash, getTokenAmount],
+  );
+  const isError = isFetched && (data?.block === null || isErrorTxHash);
 
-  const blockResult = useMemo(() => {
-    return data?.blockResult || null;
-  }, [data?.blockResult]);
-
-  const timeStamp = useMemo(() => {
-    if (!block) {
-      return {
-        time: "-",
-        passedTime: "",
-      };
-    }
-
-    return {
-      time: getLocalDateString(block.block_meta.header.time),
-      passedTime: getDateDiff(block.block_meta.header.time),
-    };
-  }, [block]);
-
-  const network = useMemo(() => {
-    if (!block) {
-      return "-";
-    }
-    return block.block.header.chain_id;
-  }, [block]);
-
-  const blockHeight = useMemo(() => {
-    if (!block) {
-      return null;
-    }
-    return Number(block.block.header.height);
-  }, [block]);
-
-  const transactions = useMemo(() => {
-    if (!block) {
-      return [];
-    }
-    return block.block.data.txs?.map(decodeTransactionSafely);
-  }, [block]);
-
-  const txResult = useMemo(() => {
-    if (!transactions || !blockResult) {
-      return null;
-    }
-
-    return findTransactionResult(transactions, blockResult.deliver_tx, safetyHash);
-  }, [transactions, blockResult, safetyHash]);
-
-  const transactionItem: Transaction | null = useMemo(() => {
-    if (!transactions) return null;
-
-    const transaction = transactions.find((tx: any) => tx.hash === safetyHash) || null;
-    if (!transaction || !txResult) {
-      return null;
-    }
-
-    const firstMessage = makeTransactionMessageInfo(transaction.messages[0]);
-    const feeAmount = parseTokenAmount(transaction.fee?.gas_fee || "0ugnot");
-
-    return {
-      hash: transaction.hash,
-      messages: transaction?.messages,
-      success: !txResult?.ResponseBase?.Error,
-      numOfMessage: transaction.messages.length,
-      type: firstMessage?.type || "",
-      packagePath: firstMessage?.packagePath || "",
-      functionName: firstMessage?.functionName || "",
-      blockHeight: blockHeight || 0,
-      from: firstMessage?.from || "",
-      to: firstMessage?.to || "",
-      amount: firstMessage?.amount || {
-        value: "0",
-        denom: GNOTToken.denom,
-      },
-      time: block?.block_meta.header.time || "",
-      fee: getTokenAmount(GNOTToken.denom, feeAmount.toString()),
-      max_deposit: firstMessage?.max_deposit || {
-        value: "0",
-        denom: GNOTToken.denom,
-      },
-      memo: transaction.memo || "-",
-      events: parseTransactionEvents(
-        (txResult?.ResponseBase?.Events as any[]) || [],
-        transaction.hash,
-        blockHeight || 0,
-        block?.block.header.time || "",
-        firstMessage?.from || "",
-      ),
-      rawContent:
-        makeTransactionAminoJSON(transaction.rawTx) ??
-        JSON.stringify(
-          {
-            messages: transaction?.messages || "",
-            fee: transaction?.fee || "",
-            signatures: transaction?.signatures || "",
-            memo: transaction?.memo || "",
-          },
-          // BigInt values from the decoded transaction are not serializable by default.
-          (_key, value) => (typeof value === "bigint" ? value.toString() : value),
-          2,
-        ),
-    };
-  }, [block, transactions, txResult, getTokenAmount]);
-
-  const transactionGasInfo = useMemo(() => {
-    if (!txResult) {
-      return {
-        gasWanted: 0,
-        gasUsed: 0,
-      };
-    }
-    return {
-      gasWanted: Number(txResult.GasWanted),
-      gasUsed: Number(txResult.GasUsed),
-    };
-  }, [txResult]);
-
-  const gas = useMemo(() => {
-    const gasWanted = makeDisplayNumber(transactionGasInfo.gasWanted);
-    const gasUsed = makeDisplayNumber(transactionGasInfo.gasUsed);
-    const rate =
-      transactionGasInfo.gasWanted === 0
-        ? 0
-        : BigNumber(transactionGasInfo.gasUsed).dividedBy(transactionGasInfo.gasWanted).shiftedBy(2).toFixed(2);
-    return `${gasUsed}/${gasWanted} (${rate}%)`;
-  }, [transactionGasInfo]);
-
-  const transactionEvents = useMemo(() => {
-    if (!transactionItem?.events) {
-      return [];
-    }
-    return transactionItem.events;
-  }, [transactionItem?.events]);
-
-  const isError = useMemo(() => {
-    if (!isFetched) {
-      return false;
-    }
-    return data?.block === null || isErrorTxHash;
-  }, [data?.block, isErrorTxHash, isFetched]);
-
-  const transactionSummaryInfo: TransactionSummaryInfo = useMemo(() => {
-    return {
-      network,
-      timeStamp,
-      txResult,
-      gas,
-      transactionItem,
-      transactionEvents,
-    };
-  }, [network, timeStamp, txResult, gas, transactionItem, transactionEvents]);
-
-  return {
-    transaction: transactionSummaryInfo,
-    isFetched,
-    isError,
-  };
+  return { transaction, isFetched, isError };
 };
