@@ -56,12 +56,10 @@ const render = (props: Partial<React.ComponentProps<typeof GovernanceSummaryCard
 const button = (direction: string) =>
   container.querySelector<HTMLButtonElement>(`button[aria-label='${direction} live proposal']`);
 const viewport = () => container.querySelector<HTMLElement>("[aria-roledescription='carousel']")!;
+const liveLink = (id: number) =>
+  viewport().querySelector<HTMLAnchorElement>(`a[href='/governance/${id}?chainId=mainnet']`)!;
 const scroll = (left: number) => {
   const element = viewport();
-  Object.defineProperty(element, "clientWidth", { configurable: true, value: 400 });
-  Array.from(element.children).forEach((slide, index) => {
-    Object.defineProperty(slide, "offsetLeft", { configurable: true, value: 100 + index * 416 });
-  });
   act(() => {
     element.scrollLeft = left;
     element.dispatchEvent(new Event("scroll"));
@@ -71,6 +69,13 @@ const scroll = (left: number) => {
 beforeAll(() => Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }));
 beforeEach(() => {
   mockPush.mockClear();
+  jest.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(400);
+  jest.spyOn(HTMLElement.prototype, "offsetLeft", "get").mockImplementation(function (this: HTMLElement) {
+    const parent = this.parentElement;
+    return parent?.getAttribute("aria-roledescription") === "carousel"
+      ? 100 + Array.from(parent.children).indexOf(this) * 416
+      : 0;
+  });
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -78,6 +83,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  jest.restoreAllMocks();
 });
 
 it("disables the correct navigation boundary after forward and backward swipes", () => {
@@ -116,14 +122,129 @@ it("keeps navigation bounded during touch overscroll", () => {
   expect(button("Next")?.disabled).toBe(true);
 });
 
-it("returns to the first available proposal when the active list changes", () => {
+it.each([
+  {
+    change: "an insertion before it",
+    live: [{ ...proposals[0], id: 34 }, ...proposals],
+    index: 2,
+  },
+  { change: "a removal before it", live: proposals.slice(1), index: 0 },
+  { change: "a reorder", live: [proposals[2], proposals[0], proposals[1]], index: 2 },
+])("preserves a surviving proposal's DOM, focus and selection after $change", ({ live, index }) => {
   render();
-  scroll(832);
-  render({ live: proposals.slice(1) });
-  expect(viewport().scrollLeft).toBe(0);
-  expect(button("Previous")?.disabled).toBe(true);
+  const element = viewport();
+  const focusedLink = liveLink(32);
+  scroll(416);
+  focusedLink.focus();
+
+  render({ live });
+
+  expect(viewport()).toBe(element);
+  expect(liveLink(32)).toBe(focusedLink);
+  expect(focusedLink.isConnected).toBe(true);
+  expect(document.activeElement).toBe(focusedLink);
+  expect(element.children[index].contains(focusedLink)).toBe(true);
+  expect(element.scrollLeft).toBe(index * 416);
+  expect(button("Previous")?.disabled).toBe(index === 0);
+  expect(button("Next")?.disabled).toBe(index === live.length - 1);
+});
+
+it.each([
+  { selectedIndex: 0, live: proposals.slice(1), fallbackId: 32, fallbackIndex: 0 },
+  { selectedIndex: 1, live: [proposals[0], proposals[2]], fallbackId: 33, fallbackIndex: 1 },
+  { selectedIndex: 2, live: proposals.slice(0, 2), fallbackId: 32, fallbackIndex: 1 },
+  { selectedIndex: 2, live: [proposals[0]], fallbackId: 31, fallbackIndex: 0 },
+])(
+  "moves removed selection $selectedIndex to its adjacent surviving slot",
+  ({ selectedIndex, live, fallbackId, fallbackIndex }) => {
+    render();
+    const element = viewport();
+    const removedLink = liveLink(proposals[selectedIndex].id);
+    scroll(selectedIndex * 416);
+    removedLink.focus();
+
+    render({ live });
+
+    expect(viewport()).toBe(element);
+    expect(removedLink.isConnected).toBe(false);
+    expect(document.activeElement).toBe(liveLink(fallbackId));
+    expect(element.children[fallbackIndex].contains(document.activeElement)).toBe(true);
+    expect(element.scrollLeft).toBe(fallbackIndex * 416);
+    if (live.length === 1) {
+      expect(button("Previous")).toBeNull();
+      expect(button("Next")).toBeNull();
+    } else {
+      expect(button("Previous")?.disabled).toBe(fallbackIndex === 0);
+      expect(button("Next")?.disabled).toBe(fallbackIndex === live.length - 1);
+    }
+  },
+);
+
+it("does not steal focus from an external search input when the selected proposal disappears", () => {
+  render();
+  scroll(416);
+  liveLink(32).focus();
+  const input = document.createElement("input");
+  document.body.append(input);
+  input.focus();
+
+  render({ live: [proposals[0], proposals[2]] });
+
+  expect(document.activeElement).toBe(input);
+  expect(button("Next")?.disabled).toBe(true);
+  input.remove();
+});
+
+it("leaves votes-only updates at the user's current scroll position without replacing the focused link", () => {
+  render();
+  const element = viewport();
+  const focusedLink = liveLink(32);
+  scroll(450);
+  focusedLink.focus();
+
+  render({
+    live: proposals.map(proposal => ({
+      ...proposal,
+      votes: { ...proposal.votes, yes: { ...proposal.votes.yes, percent: 45 } },
+    })),
+  });
+
+  expect(viewport()).toBe(element);
+  expect(liveLink(32)).toBe(focusedLink);
+  expect(document.activeElement).toBe(focusedLink);
+  expect(element.scrollLeft).toBe(450);
+  expect(focusedLink.closest("article")?.querySelector("[role='img']")?.getAttribute("aria-label")).toContain(
+    "Yes 45%",
+  );
+  expect(button("Previous")?.disabled).toBe(false);
   expect(button("Next")?.disabled).toBe(false);
-  expect(viewport().querySelector("a")?.textContent).toBe("#32 Proposal 32 & members");
+});
+
+it("ignores transient old-offset scroll events while preserving the selected proposal", () => {
+  render();
+  scroll(416);
+  const element = viewport();
+  const focusedLink = liveLink(32);
+  focusedLink.focus();
+  let left = element.scrollLeft;
+  Object.defineProperty(element, "scrollLeft", {
+    configurable: true,
+    get: () => left,
+    set: (next: number) => {
+      element.dispatchEvent(new Event("scroll"));
+      left = next;
+      element.dispatchEvent(new Event("scroll"));
+    },
+  });
+
+  render({ live: [proposals[2], proposals[0], proposals[1]] });
+
+  expect(liveLink(32)).toBe(focusedLink);
+  expect(document.activeElement).toBe(focusedLink);
+  expect(button("Previous")?.disabled).toBe(false);
+  expect(button("Next")?.disabled).toBe(true);
+  act(() => element.dispatchEvent(new Event("scroll")));
+  expect(button("Next")?.disabled).toBe(true);
 });
 
 it("keeps a single proposal linked without showing unnecessary navigation", () => {
@@ -141,6 +262,34 @@ it("keeps the empty live state and latest proposal link without carousel control
   expect(viewport()).toBeNull();
   expect(button("Previous")).toBeNull();
   expect(button("Next")).toBeNull();
+});
+
+it("transitions through the latest state and initializes a later live list without stealing external focus", () => {
+  render({ live: [proposals[2]] });
+  const oldViewport = viewport();
+  const oldLink = liveLink(33);
+  oldLink.focus();
+
+  render({ live: [], latest: [{ ...proposals[2], status: "ACCEPTED" }] });
+
+  expect(oldViewport.isConnected).toBe(false);
+  expect(oldLink.isConnected).toBe(false);
+  expect(viewport()).toBeNull();
+  expect(button("Previous")).toBeNull();
+  expect(button("Next")).toBeNull();
+  expect(container.querySelector("a")?.textContent).toBe("Latest #33 Proposal 33 & members");
+
+  const input = document.createElement("input");
+  document.body.append(input);
+  input.focus();
+
+  render({ live: [proposals[1], proposals[0]] });
+
+  expect(viewport().querySelector("a")).toBe(liveLink(32));
+  expect(button("Previous")?.disabled).toBe(true);
+  expect(button("Next")?.disabled).toBe(false);
+  expect(document.activeElement).toBe(input);
+  input.remove();
 });
 
 it.each([

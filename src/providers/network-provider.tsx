@@ -1,5 +1,5 @@
 import { useRecoilState } from "recoil";
-import { useRouter } from "@/common/hooks/common/use-router";
+import { useRouter } from "next/router";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { createContext, useEffect, useMemo } from "react";
 
@@ -14,7 +14,7 @@ import { ChainModel, getChainSupportType } from "@/models/chain-model";
 import { NetworkState } from "@/states";
 import { getDefaultChain } from "@/common/config/network.config";
 
-interface NetworkContextProps {
+export interface NetworkContextProps {
   chains: ChainModel[];
 
   currentNetwork: ChainModel | null;
@@ -44,73 +44,87 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
   const [, setChainData] = useRecoilState(NetworkState.chainData);
 
-  useEffect(() => {
-    setChainData(chains);
-  }, [chains, setChainData]);
-
-  useEffect(() => {
-    // Wait until the router is ready (before query parameter parsing is complete)
-    if (!router.isReady) return;
-
-    // If the network is already configured, prevent duplicate execution
-    if (currentNetwork) return;
-
-    // Custom Network Type Handling
-    if (router.query?.type === "custom") {
-      setCurrentNetwork({
+  const requestedChainId = router.query.chainId?.toString();
+  const networkType = router.query.type === "custom" ? "custom" : null;
+  const rpcUrl = networkType === "custom" ? router.query.rpcUrl?.toString() || "" : "";
+  const indexerUrl = networkType === "custom" ? router.query.indexerUrl?.toString() || "" : "";
+  const selectedChain = useMemo(
+    () =>
+      networkType === "custom"
+        ? undefined
+        : chains.find(chain => chain.chainId === requestedChainId) || getDefaultChain(chains),
+    [chains, networkType, requestedChainId],
+  );
+  const routeNetwork = useMemo(() => {
+    if (!router.isReady) return null;
+    if (networkType === "custom") {
+      return {
         isCustom: true,
         chainId: "",
         apiUrl: "",
-        rpcUrl: router.query?.rpcUrl?.toString() || "",
-        indexerUrl: router.query?.indexerUrl?.toString() || "",
+        rpcUrl,
+        indexerUrl,
         gnoWebUrl: null,
-      });
-      return;
+      };
     }
-
-    // Extract the requested chainId from the URL
-    const requestedChainId = router.query?.chainId?.toString();
-    // Find the chain matching the requested chainId
-    const chain = requestedChainId ? chains.find(chain => chain.chainId === requestedChainId) : null;
-
-    // If no valid chain exists, use the configured default (NEXT_PUBLIC_DEFAULT_CHAIN_ID) or fall back to chains[0]
-    const selectedChain = chain || getDefaultChain(chains) || chains[0];
-
-    // Warning log when an invalid chainId is entered
-    if (requestedChainId && !chain) {
-      console.warn(`Invalid ChainId: ${requestedChainId}, using default chain: ${chains[0].chainId}`);
-    }
-
-    // Network settings for the selected chain
-    setCurrentNetwork({
+    if (!selectedChain) return null;
+    return {
       isCustom: false,
       chainId: selectedChain.chainId,
       apiUrl: selectedChain.apiUrl || "",
       rpcUrl: selectedChain.rpcUrl || "",
       indexerUrl: selectedChain.indexerUrl || "",
-      gnoWebUrl: selectedChain?.gnoWebUrl || null,
-    });
-  }, [router.isReady, router.query, chains]);
+      gnoWebUrl: selectedChain.gnoWebUrl || null,
+    };
+  }, [router.isReady, networkType, rpcUrl, indexerUrl, selectedChain]);
+  const isNetworkReady =
+    !!routeNetwork &&
+    !!currentNetwork &&
+    currentNetwork.isCustom === routeNetwork.isCustom &&
+    currentNetwork.chainId === routeNetwork.chainId &&
+    currentNetwork.apiUrl === routeNetwork.apiUrl &&
+    currentNetwork.rpcUrl === routeNetwork.rpcUrl &&
+    currentNetwork.indexerUrl === routeNetwork.indexerUrl &&
+    (currentNetwork.gnoWebUrl || null) === routeNetwork.gnoWebUrl;
+
+  useEffect(() => {
+    setChainData(chains);
+  }, [chains, setChainData]);
+
+  useEffect(() => {
+    if (routeNetwork && !isNetworkReady) {
+      setCurrentNetwork(routeNetwork);
+    }
+  }, [routeNetwork, isNetworkReady, setCurrentNetwork]);
+
+  useEffect(() => {
+    if (
+      router.isReady &&
+      networkType !== "custom" &&
+      requestedChainId &&
+      selectedChain &&
+      requestedChainId !== selectedChain.chainId
+    ) {
+      console.warn(`Invalid ChainId: ${requestedChainId}, using default chain: ${selectedChain.chainId}`);
+    }
+  }, [router.isReady, networkType, requestedChainId, selectedChain]);
 
   const currentNetworkModel: ChainModel | null = useMemo(() => {
-    if (!currentNetwork) {
-      return null;
-    }
-
-    if (currentNetwork?.isCustom) {
+    // Keep the layout mounted, but never expose the previous route's network.
+    if (!isNetworkReady || !routeNetwork) return null;
+    if (routeNetwork.isCustom) {
       return {
         name: "Custom Network",
         chainId: "",
         apiUrl: null,
-        rpcUrl: decodeURIComponent(currentNetwork.rpcUrl) || null,
+        rpcUrl: decodeURIComponent(routeNetwork.rpcUrl) || null,
         // A user-supplied endpoint has no fallback to rotate to.
         fallbackRpcUrl: null,
-        indexerUrl: decodeURIComponent(currentNetwork.indexerUrl) || null,
+        indexerUrl: decodeURIComponent(routeNetwork.indexerUrl) || null,
       };
     }
-    const chain = chains.find(chain => chain.chainId === currentNetwork?.chainId?.toString()) || chains[0];
-    return chain;
-  }, [currentNetwork]);
+    return selectedChain || null;
+  }, [isNetworkReady, routeNetwork, selectedChain]);
 
   const isCustomNetwork = useMemo(() => {
     if (!currentNetworkModel) {
@@ -179,13 +193,14 @@ const NetworkProvider: React.FC<React.PropsWithChildren<NetworkProviderPros>> = 
   }, [currentNetworkModel]);
 
   const mainNodeRPCClient = useMemo(() => {
+    if (!currentNetworkModel) return null;
     const mainNetwork = chains.find(chain => chain.chainId === "staging");
     if (!mainNetwork) {
       return null;
     }
 
     return new NodeRPCClient(mainNetwork.rpcUrl || "", mainNetwork.chainId, mainNetwork.fallbackRpcUrl);
-  }, [chains]);
+  }, [chains, currentNetworkModel]);
 
   const apolloClient = useMemo(() => {
     if (!indexerQueryClient) {

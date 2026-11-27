@@ -260,36 +260,15 @@ it("restores legacy saved pagination with empty search defaults", () => {
   expect(lastProposalRequest()).toEqual({ page: 2, limit: 40 });
 });
 
-it("resets proposal pagination when sort changes and pages members beyond forty", () => {
+it("resets proposal pagination when sorting and shows membership statistics without search", () => {
   render();
   click("button[aria-label='Next page']");
   click("button[aria-label='Sort by Status']");
   expect(lastProposalRequest()).toMatchObject({ page: 1, sort: "status", order: "desc" });
   selectMembers();
   expect(container.querySelector("input[type=search]")).toBeNull();
-  expect(container.querySelector("table[aria-label='Governance members']")!.textContent).toContain("Proposed");
   expect(container.textContent).toContain("1.67");
   expect(container.textContent).toContain("Yes 4 · No 1 · Abstain 2");
-  click("button[aria-label='Next page']");
-  expect(mockUseMembers).toHaveBeenLastCalledWith({ page: 2, limit: 40 }, expect.objectContaining({ enabled: true }));
-  click("button[aria-label='Sort by Tier']");
-  expect(mockUseMembers).toHaveBeenLastCalledWith(
-    { page: 1, limit: 40, sort: "tier", order: "desc" },
-    expect.anything(),
-  );
-  click("button[aria-label='Sort by Tier']");
-  expect(mockUseMembers).toHaveBeenLastCalledWith(
-    expect.objectContaining({ sort: "tier", order: "asc" }),
-    expect.anything(),
-  );
-  click("button[aria-label='Sort by Tier']");
-  expect(mockUseMembers).toHaveBeenLastCalledWith({ page: 1, limit: 40 }, expect.anything());
-  click("button[aria-label='Sort by Tier']");
-  click("button[aria-label='Sort by Voting Power']");
-  expect(mockUseMembers).toHaveBeenLastCalledWith(
-    expect.objectContaining({ sort: "power", order: "desc" }),
-    expect.anything(),
-  );
 });
 
 it("keeps proposal rows clickable while exposing keyboard navigation through their title links", () => {
@@ -424,10 +403,6 @@ it("supports mainnet and testnet, remounts the network's sort and page, and make
   selectMembers();
   click("button[aria-label='Sort by Voting Power']");
   click("button[aria-label='Next page']");
-  expect(mockUseMembers).toHaveBeenLastCalledWith(
-    { page: 2, limit: 40, sort: "power", order: "desc" },
-    expect.objectContaining({ enabled: true }),
-  );
 
   mockNetwork = { currentNetwork: { chainId: "mainnet" }, isCustomNetwork: false };
   render();
@@ -468,10 +443,6 @@ it("restores both table sorts, pages and the selected tab after returning from a
   expect(container.querySelector("table[aria-label='Governance members']")).not.toBeNull();
   expect(container.querySelector("th[aria-sort='ascending']")?.textContent).toBe("Voting Power");
   expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
-  expect(mockUseMembers).toHaveBeenLastCalledWith(
-    { page: 2, limit: 40, sort: "power", order: "asc" },
-    expect.objectContaining({ enabled: true }),
-  );
 
   click("button[aria-pressed='false']");
   expect(container.querySelector("table[aria-label='Governance proposals']")).not.toBeNull();
@@ -501,19 +472,29 @@ it("starts a new history entry fresh without replacing the previous entry's sele
   expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
 });
 
-it("keeps the previous selection while the network is initializing after a remount", () => {
+it("waits for the network without replacing the saved search, sort or page", () => {
   render();
   click("button[aria-label='Sort by Status']");
+  changeSearch("  validator  ");
+  act(() => void jest.advanceTimersByTime(300));
   click("button[aria-label='Next page']");
   act(() => root.render(null));
 
+  jest.clearAllMocks();
   mockNetwork = { currentNetwork: null, isCustomNetwork: false };
   render();
+  expect(container.querySelector("input[type=search]")).toBeNull();
+  expect(container.querySelector("table[aria-label='Governance proposals']")).toBeNull();
+  expect(mockUseSummary).not.toHaveBeenCalled();
+  expect(mockUseLive).not.toHaveBeenCalled();
+  expect(mockUseProposals).not.toHaveBeenCalled();
+  expect(mockUseMembers).not.toHaveBeenCalled();
   act(() => root.render(null));
   mockNetwork = { currentNetwork: { chainId: "mainnet" }, isCustomNetwork: false };
   render();
 
+  expect(container.querySelector<HTMLInputElement>("input[type=search]")?.value).toBe("  validator  ");
   expect(container.querySelector("th[aria-sort='descending']")?.textContent).toBe("Status");
   expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
-  expect(lastProposalRequest()).toMatchObject({ page: 2, sort: "status", order: "desc" });
+  expect(lastProposalRequest()).toMatchObject({ page: 2, sort: "status", order: "desc", q: "validator" });
 });

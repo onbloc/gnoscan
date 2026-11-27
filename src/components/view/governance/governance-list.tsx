@@ -17,6 +17,8 @@ import {
 } from "./governance-common";
 import * as S from "./governance-list.styles";
 
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
 export interface GovernanceSort<Field extends string> {
   field: Field;
   order: "asc" | "desc";
@@ -71,7 +73,40 @@ const LiveProposalCarousel = ({ proposals }: { proposals: GovernanceProposal[] }
   const { getUrlWithNetwork } = useNetwork();
   const router = useRouter();
   const viewport = React.useRef<HTMLDivElement>(null);
-  const [index, setIndex] = React.useState(0);
+  const focusedElement = React.useRef<HTMLElement | null>(null);
+  const committedProposals = React.useRef(proposals);
+  const [selection, setSelection] = React.useState({ id: proposals[0].id, index: 0 });
+  const selectedIndex = proposals.findIndex(proposal => proposal.id === selection.id);
+  const index = selectedIndex < 0 ? Math.min(selection.index, proposals.length - 1) : selectedIndex;
+
+  useIsomorphicLayoutEffect(() => {
+    const previousProposals = committedProposals.current;
+    if (
+      previousProposals.length !== proposals.length ||
+      previousProposals.some((proposal, previousIndex) => proposal.id !== proposals[previousIndex].id)
+    ) {
+      setSelection({ id: proposals[index].id, index });
+      const element = viewport.current;
+      if (element) {
+        // Identity corrections must not inherit the viewport's smooth scrolling.
+        const scrollBehavior = element.style.scrollBehavior;
+        element.style.scrollBehavior = "auto";
+        element.scrollLeft = index * getLiveProposalStep(element);
+        element.style.scrollBehavior = scrollBehavior;
+
+        const target = focusedElement.current;
+        const focused = document.activeElement;
+        if (target && target !== focused && (!focused || focused === document.body || element.contains(focused))) {
+          const nextTarget = element.contains(target)
+            ? target
+            : element.children[index]?.querySelector<HTMLElement>("a[href]") ?? element;
+          nextTarget.focus({ preventScroll: true });
+        }
+      }
+    }
+    committedProposals.current = proposals;
+  }, [proposals, index]);
+
   const navigate = (direction: number) => {
     const element = viewport.current;
     if (element) element.scrollTo({ left: (index + direction) * getLiveProposalStep(element) });
@@ -109,10 +144,29 @@ const LiveProposalCarousel = ({ proposals }: { proposals: GovernanceProposal[] }
         aria-label="Live proposals"
         aria-roledescription="carousel"
         tabIndex={0}
+        onFocusCapture={event => {
+          focusedElement.current = event.target as HTMLElement;
+        }}
+        onBlurCapture={event => {
+          if (
+            (event.target as HTMLElement).isConnected &&
+            !(event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget))
+          ) {
+            focusedElement.current = null;
+          }
+        }}
         onScroll={event => {
+          // Ignore old offsets while the new keyed slides are being committed.
+          if (committedProposals.current !== proposals) return;
           const element = event.currentTarget;
           const step = getLiveProposalStep(element);
-          if (step > 0) setIndex(Math.max(0, Math.min(proposals.length - 1, Math.round(element.scrollLeft / step))));
+          if (step > 0) {
+            const nextIndex = Math.max(0, Math.min(proposals.length - 1, Math.round(element.scrollLeft / step)));
+            const nextId = proposals[nextIndex].id;
+            setSelection(previous =>
+              previous.id === nextId && previous.index === nextIndex ? previous : { id: nextId, index: nextIndex },
+            );
+          }
         }}
       >
         {proposals.map(proposal => {
@@ -168,7 +222,7 @@ export const GovernanceSummaryCards = ({
       </S.ProposalsSummaryCard>
       <S.LiveCard>
         {!liveError && live && live.length > 0 ? (
-          <LiveProposalCarousel key={live.map(proposal => proposal.id).join(",")} proposals={live} />
+          <LiveProposalCarousel proposals={live} />
         ) : (
           <>
             <LiveHeading count={live?.length} />

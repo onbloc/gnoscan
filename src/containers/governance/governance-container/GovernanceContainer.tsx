@@ -12,7 +12,7 @@ import {
 } from "@/common/react-query/governance/queries";
 import { formatGovernanceNumber } from "@/common/utils/governance-util";
 import { DEFAULT_LIST_ITEMS_SIZE, LIST_SUMMARY_REFETCH_INTERVAL } from "@/common/values/query.constant";
-import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
+import { ListPagination, ListPaginationProps } from "@/components/view/common/list-pagination/ListPagination";
 import { PageTitle } from "@/components/view/common/page-title/PageTitle";
 import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import {
@@ -33,6 +33,89 @@ interface GovernanceListState {
   searchValue: string;
   keyword: string;
 }
+
+interface GovernanceTableProps<Field extends string>
+  extends Pick<ListPaginationProps, "page" | "scope" | "onChangePage"> {
+  sort: GovernanceSort<Field> | null;
+  onSort: (sort: GovernanceSort<Field> | undefined) => void;
+}
+
+// Each keyed table owns its query observer; only page changes retain previous rows.
+const GovernanceProposals = ({
+  page,
+  scope,
+  sort,
+  keyword,
+  onSort,
+  onChangePage,
+}: GovernanceTableProps<"id" | "status"> & { keyword: string }) => {
+  const proposals = useGetGovernanceProposals({
+    page,
+    limit: DEFAULT_LIST_ITEMS_SIZE,
+    ...(sort ? { sort: sort.field, order: sort.order } : {}),
+    ...(keyword ? { q: keyword } : {}),
+  });
+
+  return (
+    <>
+      {proposals.isError ? (
+        <ErrorMessage role="alert">
+          Unable to load proposals.
+          <button type="button" onClick={() => proposals.refetch()}>
+            Try again
+          </button>
+        </ErrorMessage>
+      ) : proposals.data === undefined ? (
+        <TableSkeleton />
+      ) : (
+        <GovernanceProposalTable proposals={proposals.data.items} sort={sort ?? undefined} onSort={onSort} />
+      )}
+      <ListPagination
+        page={page}
+        pageSize={DEFAULT_LIST_ITEMS_SIZE}
+        totalCount={proposals.isPreviousData ? undefined : proposals.data?.page.totalCount}
+        hasNext={proposals.isPreviousData ? undefined : proposals.data?.page.hasNext}
+        isSettled={proposals.isSuccess && !proposals.isPreviousData}
+        scope={scope}
+        onChangePage={onChangePage}
+      />
+    </>
+  );
+};
+
+const GovernanceMembers = ({ page, scope, sort, onSort, onChangePage }: GovernanceTableProps<"tier" | "power">) => {
+  const members = useGetGovernanceMembers({
+    page,
+    limit: DEFAULT_LIST_ITEMS_SIZE,
+    ...(sort ? { sort: sort.field, order: sort.order } : {}),
+  });
+
+  return (
+    <>
+      {members.isError ? (
+        <ErrorMessage role="alert">
+          Unable to load members.
+          <button type="button" onClick={() => members.refetch()}>
+            Try again
+          </button>
+        </ErrorMessage>
+      ) : members.data === undefined ? (
+        <TableSkeleton />
+      ) : (
+        <GovernanceMemberTable members={members.data.items} sort={sort ?? undefined} onSort={onSort} />
+      )}
+      <ListPagination
+        page={page}
+        pageSize={DEFAULT_LIST_ITEMS_SIZE}
+        totalCount={members.isPreviousData ? undefined : members.data?.page.totalCount}
+        hasNext={members.isPreviousData ? undefined : members.data?.page.hasNext}
+        isSettled={members.isSuccess && !members.isPreviousData}
+        scope={scope}
+        onChangePage={onChangePage}
+      />
+    </>
+  );
+};
 
 const GovernanceList = () => {
   const { currentNetwork } = useNetworkProvider();
@@ -70,30 +153,9 @@ const GovernanceList = () => {
       refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL,
     },
   );
-  const proposals = useGetGovernanceProposals(
-    {
-      page: proposalPage,
-      limit: DEFAULT_LIST_ITEMS_SIZE,
-      ...(proposalsSort ? { sort: proposalsSort.field, order: proposalsSort.order } : {}),
-      ...(keyword ? { q: keyword } : {}),
-    },
-    { enabled: tab === "proposals", keepPreviousData: true },
-  );
-  const members = useGetGovernanceMembers(
-    {
-      page: memberPage,
-      limit: DEFAULT_LIST_ITEMS_SIZE,
-      ...(membersSort ? { sort: membersSort.field, order: membersSort.order } : {}),
-    },
-    { enabled: tab === "members", keepPreviousData: true },
-  );
 
   return (
     <>
-      <div>
-        <PageTitle title="Governance" type="h2" />
-        <S.Subtitle>GovDAO proposals and tiered membership</S.Subtitle>
-      </div>
       <GovernanceSummaryCards
         summary={summary.data}
         summaryError={summary.isError}
@@ -134,67 +196,30 @@ const GovernanceList = () => {
           )}
         </S.Toolbar>
         {tab === "proposals" ? (
-          <>
-            {proposals.isError ? (
-              <ErrorMessage role="alert">
-                Unable to load proposals.
-                <button type="button" onClick={() => proposals.refetch()}>
-                  Try again
-                </button>
-              </ErrorMessage>
-            ) : proposals.data === undefined ? (
-              <TableSkeleton />
-            ) : (
-              <GovernanceProposalTable
-                proposals={proposals.data.items}
-                sort={proposalsSort ?? undefined}
-                onSort={sort => {
-                  setProposalPage(1);
-                  setListState(previous => ({ ...previous, proposalsSort: sort ?? null }));
-                }}
-              />
-            )}
-            <ListPagination
-              page={proposalPage}
-              pageSize={DEFAULT_LIST_ITEMS_SIZE}
-              totalCount={proposals.isPreviousData ? undefined : proposals.data?.page.totalCount}
-              hasNext={proposals.isPreviousData ? undefined : proposals.data?.page.hasNext}
-              isSettled={proposals.isSuccess && !proposals.isPreviousData}
-              scope={proposalScope}
-              onChangePage={setProposalPage}
-            />
-          </>
+          <GovernanceProposals
+            key={proposalScope}
+            page={proposalPage}
+            scope={proposalScope}
+            sort={proposalsSort}
+            keyword={keyword}
+            onSort={sort => {
+              setProposalPage(1);
+              setListState(previous => ({ ...previous, proposalsSort: sort ?? null }));
+            }}
+            onChangePage={setProposalPage}
+          />
         ) : (
-          <>
-            {members.isError ? (
-              <ErrorMessage role="alert">
-                Unable to load members.
-                <button type="button" onClick={() => members.refetch()}>
-                  Try again
-                </button>
-              </ErrorMessage>
-            ) : members.data === undefined ? (
-              <TableSkeleton />
-            ) : (
-              <GovernanceMemberTable
-                members={members.data.items}
-                sort={membersSort ?? undefined}
-                onSort={sort => {
-                  setMemberPage(1);
-                  setListState(previous => ({ ...previous, membersSort: sort ?? null }));
-                }}
-              />
-            )}
-            <ListPagination
-              page={memberPage}
-              pageSize={DEFAULT_LIST_ITEMS_SIZE}
-              totalCount={members.isPreviousData ? undefined : members.data?.page.totalCount}
-              hasNext={members.isPreviousData ? undefined : members.data?.page.hasNext}
-              isSettled={members.isSuccess && !members.isPreviousData}
-              scope={memberScope}
-              onChangePage={setMemberPage}
-            />
-          </>
+          <GovernanceMembers
+            key={memberScope}
+            page={memberPage}
+            scope={memberScope}
+            sort={membersSort}
+            onSort={sort => {
+              setMemberPage(1);
+              setListState(previous => ({ ...previous, membersSort: sort ?? null }));
+            }}
+            onChangePage={setMemberPage}
+          />
         )}
       </S.Panel>
     </>
@@ -213,7 +238,24 @@ const GovernanceContainer = () => {
     );
   }
 
-  return <GovernanceList key={currentNetwork?.chainId} />;
+  return (
+    <>
+      <div>
+        <PageTitle title="Governance" type="h2" />
+        <S.Subtitle>GovDAO proposals and tiered membership</S.Subtitle>
+      </div>
+      {currentNetwork ? (
+        <GovernanceList key={currentNetwork.chainId} />
+      ) : (
+        <>
+          <GovernanceSummaryCards summaryError={false} liveError={false} latestError={false} />
+          <S.Panel aria-busy="true">
+            <TableSkeleton />
+          </S.Panel>
+        </>
+      )}
+    </>
+  );
 };
 
 export default GovernanceContainer;
