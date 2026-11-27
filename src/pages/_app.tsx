@@ -15,7 +15,7 @@ import { getNetworkConfig } from "@/common/config/network.config";
 import { CACHE_POLICY } from "@/common/values/query.constant";
 
 const App: React.FC = ({ Component, pageProps }: any) => {
-  const networks = getNetworkConfig(DefaultChainData);
+  const [networks] = React.useState(() => getNetworkConfig(DefaultChainData));
   // Create the client once: a new client per render would drop the cache on every route change.
   const [queryClient] = React.useState(
     () =>

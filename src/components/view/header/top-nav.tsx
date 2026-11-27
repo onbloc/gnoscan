@@ -41,6 +41,7 @@ const blocksLink = { name: "Blocks", path: "/blocks" };
 const transactionsLink = { name: "Transactions", path: "/transactions" };
 const accountsLink = { name: "Accounts", path: "/accounts" };
 const validatorsLink = { name: "Validators", path: "/validators" };
+const governanceLink = { name: "Governance", path: "/governance" };
 const tokensLink = { name: "Tokens", path: "/tokens" };
 const nftsLink = { name: "NFTs", path: "/nfts" };
 const realmsLink = { name: "Realms", path: "/realms" };
@@ -53,7 +54,7 @@ const realmsLink = { name: "Realms", path: "/realms" };
  */
 export const navItems: (NavLink | NavGroup)[] = [
   { name: "Home", path: "/" },
-  { name: "Blockchain", items: [blocksLink, transactionsLink, accountsLink, validatorsLink] },
+  { name: "Blockchain", items: [blocksLink, transactionsLink, accountsLink, validatorsLink, governanceLink] },
   tokensLink,
   nftsLink,
   realmsLink,
@@ -74,6 +75,7 @@ export const mobileNavItems: NavLink[] = [
   nftsLink,
   realmsLink,
   validatorsLink,
+  governanceLink,
 ];
 
 export const TopNav = () => {

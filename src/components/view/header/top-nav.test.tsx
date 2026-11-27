@@ -154,3 +154,19 @@ it.each(["click", "Escape"])("returns focus to the menu trigger when %s closes f
   expectUnlocked();
   expect(document.activeElement).toBe(trigger());
 });
+
+it("opens Governance from the desktop dropdown and mobile menu", () => {
+  const mobileLink = modalRoot.querySelector<HTMLAnchorElement>("a[href='/governance']")!;
+  expect(mobileLink.textContent).toBe("Governance");
+  act(() => mobileLink.click());
+  expectUnlocked();
+
+  const desktopTrigger = Array.from(container.querySelectorAll("button")).find(
+    button => button.textContent === "Blockchain",
+  )!;
+  act(() => desktopTrigger.click());
+  const desktopLink = container.querySelector<HTMLAnchorElement>("a[href='/governance']")!;
+  expect(desktopLink.textContent).toBe("Governance");
+  act(() => desktopLink.click());
+  expect(desktopTrigger.getAttribute("aria-expanded")).toBe("false");
+});

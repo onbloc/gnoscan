@@ -1,61 +1,37 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/router";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 
 import { NetworkState } from "@/states";
-import { makeQueryString } from "../utils/string-util";
+import { getDefaultChain } from "@/common/config/network.config";
+import { useNetworkProvider } from "./provider/use-network-provider";
 
-type NetworkTransitionState = {
-  isPending: boolean;
-  startTime: number | null;
-  timerId: NodeJS.Timeout | null;
-};
-
-function parseSearchString(search: string) {
-  if (!search || search.length === 1) {
-    return {};
-  }
-
-  return search
-    .replace("?", "")
-    .split("&")
-    .reduce<{ [key in string]: string }>((accum, current) => {
-      const separatorIndex = current.indexOf("=");
-      if (separatorIndex < 0 || separatorIndex + 1 >= current.length) {
-        return accum;
-      }
-
-      const values = [
-        current.substring(0, separatorIndex),
-        decodeURIComponent(current.substring(separatorIndex + 1, current.length)),
-      ];
-      if (values.length === 0) {
-        return accum;
-      }
-
-      if (["type", "rpcUrl", "indexerUrl", "chainId"].includes(values[0])) {
-        return accum;
-      }
-
-      accum[values[0]] = values.length > 1 ? values[1] : "";
-      return accum;
-    }, {});
+export interface NetworkInfo {
+  isCustom: boolean;
+  chainId: string;
+  apiUrl: string;
+  rpcUrl: string;
+  indexerUrl: string;
+  gnoWebUrl: string | null;
 }
 
-export const useNetwork = () => {
+export interface NetworkControls {
+  currentNetwork: NetworkInfo | null;
+  gnoWebUrl: string | null;
+  getUrlWithNetwork: (uri: string) => string;
+  changeNetwork: (chainId: string) => void;
+  changeCustomNetwork: (rpcUrl: string, indexerUrl: string) => Promise<void>;
+}
+
+export const useNetwork = (): NetworkControls => {
   const { replace } = useRouter();
-  const [currentNetwork, setCurrentNetwork] = useRecoilState(NetworkState.currentNetwork);
-  const [chainData] = useRecoilState(NetworkState.chainData);
+  const { currentNetwork: currentNetworkModel } = useNetworkProvider();
+  const storedNetwork = useRecoilValue(NetworkState.currentNetwork);
+  const chainData = useRecoilValue(NetworkState.chainData);
+  const currentNetwork = currentNetworkModel ? storedNetwork : null;
 
-  const networkTransitionRef = React.useRef<NetworkTransitionState>({
-    isPending: false,
-    startTime: null,
-    timerId: null,
-  });
-
-  const networkParams = useMemo(() => {
-    if (!currentNetwork || currentNetwork.chainId === chainData[0].chainId) {
+  const networkParams = useMemo((): Record<string, string> | null => {
+    if (!currentNetwork) {
       return null;
     }
 
@@ -67,94 +43,52 @@ export const useNetwork = () => {
       };
     }
 
-    return {
-      chainId: currentNetwork?.chainId || "",
-    };
-  }, [currentNetwork]);
-
-  const gnoWebUrl = useMemo(() => {
-    if (!currentNetwork) {
+    if (currentNetwork.chainId === getDefaultChain(chainData)?.chainId) {
       return null;
     }
 
-    return currentNetwork.gnoWebUrl || null;
-  }, [currentNetwork]);
-
-  React.useEffect(() => {
-    return () => {
-      const { timerId } = networkTransitionRef.current;
-      if (timerId) clearTimeout(timerId);
+    return {
+      chainId: currentNetwork.chainId,
     };
-  }, []);
+  }, [currentNetwork, chainData]);
 
-  const getUrlWithNetwork = (uri: string) => {
-    return getUrlWithNetworkData(uri, networkParams);
-  };
+  const gnoWebUrl = currentNetwork?.gnoWebUrl || null;
 
-  const getUrlWithNetworkData = (uri: string, networkParamData: any) => {
+  const getUrlWithNetworkData = (uri: string, networkParamData: Record<string, string> | null) => {
     try {
-      const origin = window.location.origin;
-      const urlData = new URL(origin + uri);
-      const params = { ...networkParamData, ...parseSearchString(urlData.search) };
-      const queryString = makeQueryString(params);
-
-      if (!queryString) {
-        return uri;
-      }
-
-      return `${urlData.pathname}?${queryString}`;
-    } catch {}
-    return uri;
+      const origin = typeof window === "undefined" ? "http://localhost" : window.location.origin;
+      const url = new URL(uri, origin);
+      if (url.origin !== origin) return uri;
+      ["type", "rpcUrl", "indexerUrl", "chainId"].forEach(key => url.searchParams.delete(key));
+      Object.entries(networkParamData || {}).forEach(([key, value]) => url.searchParams.set(key, value));
+      return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+      return uri;
+    }
   };
+
+  const getUrlWithNetwork = (uri: string) => getUrlWithNetworkData(uri, networkParams);
 
   const changeNetwork = (chainId: string) => {
-    const chain = chainData.find(chain => chain.chainId === chainId) || chainData[0];
-
-    setCurrentNetwork({
-      isCustom: false,
-      chainId: chain.chainId,
-      apiUrl: chain.apiUrl || "",
-      rpcUrl: chain.rpcUrl || "",
-      indexerUrl: chain.indexerUrl || "",
-      gnoWebUrl: chain.gnoWebUrl || "",
-    });
-
-    const uri = window.location.pathname + window.location.search;
-    replace(
-      getUrlWithNetworkData(uri, {
-        chainId,
-      }),
-    );
+    const uri = window.location.pathname + window.location.search + window.location.hash;
+    replace(getUrlWithNetworkData(uri, { chainId }));
   };
 
   const changeCustomNetwork = async (rpcUrl: string, indexerUrl: string) => {
-    setCurrentNetwork({
-      isCustom: true,
-      chainId: "",
-      apiUrl: "",
-      rpcUrl,
-      indexerUrl,
-      gnoWebUrl: null,
-    });
-
-    const uri = window.location.pathname + window.location.search;
-    try {
-      await replace(
-        getUrlWithNetworkData(uri, {
-          type: "custom",
-          rpcUrl,
-          indexerUrl,
-        }),
-      );
-    } finally {
-    }
+    const uri = window.location.pathname + window.location.search + window.location.hash;
+    await replace(
+      getUrlWithNetworkData(uri, {
+        type: "custom",
+        rpcUrl,
+        indexerUrl,
+      }),
+    );
   };
 
   return {
     currentNetwork,
     gnoWebUrl,
     getUrlWithNetwork,
-    setCurrentNetwork,
     changeNetwork,
     changeCustomNetwork,
   };
