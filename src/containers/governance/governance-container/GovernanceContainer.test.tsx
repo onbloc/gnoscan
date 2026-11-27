@@ -262,7 +262,13 @@ it("navigates whole live items by click and keyboard without hijacking their tit
 it.each([
   { address: "g1proposer", nameTag: "@alice", expected: "alice" },
   { address: null, nameTag: "alice", expected: "alice" },
-  { address: "g1proposer", nameTag: null, expected: "g1proposer" },
+  {
+    address: "g1aeddlftlfk27ret5rf750d7w5dume3kcsm8r8m",
+    nameTag: null,
+    expected: "g1aeddlf...kcsm8r8m",
+  },
+  { address: "g1short", nameTag: null, expected: "g1short" },
+  { address: "g1proposer", nameTag: "@long-governance-proposer-name", expected: "long-governance-proposer-name" },
   { address: null, nameTag: null, expected: "-" },
 ])("shows the proposer as plain text for $address and $nameTag", ({ address, nameTag, expected }) => {
   mockUseProposals.mockReturnValue({
@@ -276,6 +282,9 @@ it.each([
   const proposer = container.querySelector("table[aria-label='Governance proposals'] tbody tr td:nth-child(3)")!;
   expect(proposer.textContent).toBe(expected);
   expect(proposer.querySelector("a, button")).toBeNull();
+  if (address && !nameTag) {
+    expect(proposer.querySelector("span")?.getAttribute("title")).toBe(address);
+  }
 });
 
 it("shows the latest proposal's real rejected status when none are active", () => {

@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { HeaderRowItem } from "@/components/ui/datatable/header/header-row-item";
 import { useNetwork } from "@/common/hooks/use-network";
 import { decodeGovernanceTitle, formatGovernanceNumber } from "@/common/utils/governance-util";
+import { textEllipsis } from "@/common/utils/string-util";
 import { GovernanceMember, GovernanceProposal, GovernanceSummary } from "@/models/api/governance";
 import { GovernanceAccountView, ProposalStatusBadge, TierBadge, VoteBreakdown } from "./governance-common";
 import * as S from "./governance-list.styles";
@@ -160,7 +161,8 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
         <tbody>
           {proposals.map(proposal => {
             const href = getUrlWithNetwork(`/governance/${proposal.id}`);
-            const proposer = proposal.proposer.nameTag?.replace(/^@/, "") || proposal.proposer.address || "-";
+            const proposerName = proposal.proposer.nameTag?.replace(/^@/, "");
+            const proposer = proposerName || proposal.proposer.address || "-";
             return (
               <S.ProposalRow
                 key={proposal.id}
@@ -183,7 +185,7 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
                   </S.ProposalLink>
                 </td>
                 <td>
-                  <S.ProposerName title={proposer}>{proposer}</S.ProposerName>
+                  <S.ProposerName title={proposer}>{proposerName || textEllipsis(proposer, 8)}</S.ProposerName>
                 </td>
                 <td>
                   <ProposalStatusBadge status={proposal.status} />
