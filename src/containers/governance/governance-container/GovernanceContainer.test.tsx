@@ -233,18 +233,18 @@ it("navigates proposal rows by click, Enter and Space without hijacking nested l
   expect(mockPush).toHaveBeenCalledTimes(3);
   expect(mockPush).toHaveBeenLastCalledWith("/governance/20?chainId=mainnet");
 
-  const proposer = row.querySelector<HTMLAnchorElement>("a[href^='/account/']")!;
-  act(() => proposer.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true })));
-  act(() => proposer.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
+  const titleLink = row.querySelector<HTMLAnchorElement>("a[href^='/governance/']")!;
+  act(() => titleLink.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true })));
+  act(() => titleLink.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
   expect(mockPush).toHaveBeenCalledTimes(3);
 });
 
-it("navigates whole live items by click and keyboard without hijacking their nested proposer links", () => {
+it("navigates whole live items by click and keyboard without hijacking their title links", () => {
   render();
   const item = container.querySelector<HTMLElement>("article[aria-label='View live proposal #20']")!;
   expect(item.getAttribute("role")).toBe("link");
   expect(item.tabIndex).toBe(0);
-  expect(item.textContent).toContain("by @alice");
+  expect(item.querySelectorAll("a")).toHaveLength(1);
   act(() => item.click());
   act(() => item.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
   const space = new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true });
@@ -253,10 +253,29 @@ it("navigates whole live items by click and keyboard without hijacking their nes
   expect(mockPush).toHaveBeenCalledTimes(3);
   expect(mockPush).toHaveBeenLastCalledWith("/governance/20?chainId=mainnet");
 
-  const proposer = item.querySelector<HTMLAnchorElement>("a[href^='/account/']")!;
-  act(() => proposer.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true })));
-  act(() => proposer.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
+  const titleLink = item.querySelector<HTMLAnchorElement>("a[href^='/governance/']")!;
+  act(() => titleLink.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true })));
+  act(() => titleLink.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
   expect(mockPush).toHaveBeenCalledTimes(3);
+});
+
+it.each([
+  { address: "g1proposer", nameTag: "@alice", expected: "alice" },
+  { address: null, nameTag: "alice", expected: "alice" },
+  { address: "g1proposer", nameTag: null, expected: "g1proposer" },
+  { address: null, nameTag: null, expected: "-" },
+])("shows the proposer as plain text for $address and $nameTag", ({ address, nameTag, expected }) => {
+  mockUseProposals.mockReturnValue({
+    ...success,
+    data: {
+      items: [{ ...proposal, proposer: { address, nameTag } }],
+      page: { totalCount: 1, hasNext: false },
+    },
+  });
+  render();
+  const proposer = container.querySelector("table[aria-label='Governance proposals'] tbody tr td:nth-child(3)")!;
+  expect(proposer.textContent).toBe(expected);
+  expect(proposer.querySelector("a, button")).toBeNull();
 });
 
 it("shows the latest proposal's real rejected status when none are active", () => {

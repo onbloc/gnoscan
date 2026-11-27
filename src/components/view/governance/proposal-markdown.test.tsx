@@ -47,7 +47,7 @@ it("renders formatted Markdown and resolves realm and user links against the sel
 });
 
 it("removes raw HTML and script blocks rather than interpreting proposal HTML", () => {
-  render('<script>window.proposalScript = true</script>\n\n<img src="x" onerror="alert(1)">\n\n**Safe text**');
+  render("<script>window.proposalScript = true</script>\n\n<img src=\"x\" onerror=\"alert(1)\">\n\n**Safe text**");
   expect(container.querySelector("script, img")).toBeNull();
   expect(container.textContent).not.toContain("window.proposalScript");
   expect(container.querySelector("strong")?.textContent).toBe("Safe text");

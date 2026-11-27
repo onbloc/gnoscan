@@ -40,35 +40,35 @@ const render = (prevId: number | null, nextId: number | null) => {
 
 it("uses nullable API neighbors instead of calculating consecutive IDs", () => {
   render(17, 24);
-  expect(container.querySelector('[aria-label="Previous proposal"]')?.getAttribute("href")).toBe(
+  expect(container.querySelector("[aria-label=\"Previous proposal\"]")?.getAttribute("href")).toBe(
     "/governance/17?chainId=testnet",
   );
-  expect(container.querySelector('[aria-label="Next proposal"]')?.getAttribute("href")).toBe(
+  expect(container.querySelector("[aria-label=\"Next proposal\"]")?.getAttribute("href")).toBe(
     "/governance/24?chainId=testnet",
   );
   expect(container.textContent).toContain("Proposal #20");
   expect(container.textContent).not.toContain("Back");
-  expect(container.querySelector('[aria-label*="block"]')).toBeNull();
+  expect(container.querySelector("[aria-label*=\"block\"]")).toBeNull();
 });
 
 it("renders a disabled previous control at the first proposal and a usable next link", () => {
   render(null, 23);
-  const previous = container.querySelector<HTMLButtonElement>('[aria-label="Previous proposal"]');
+  const previous = container.querySelector<HTMLButtonElement>("[aria-label=\"Previous proposal\"]");
   expect(previous?.tagName).toBe("BUTTON");
   expect(previous?.disabled).toBe(true);
   expect(previous?.hasAttribute("href")).toBe(false);
-  expect(container.querySelector('[aria-label="Next proposal"]')?.getAttribute("href")).toBe(
+  expect(container.querySelector("[aria-label=\"Next proposal\"]")?.getAttribute("href")).toBe(
     "/governance/23?chainId=testnet",
   );
 });
 
 it("renders a disabled next control at the latest proposal without disabling proposal zero", () => {
   render(0, null);
-  const next = container.querySelector<HTMLButtonElement>('[aria-label="Next proposal"]');
+  const next = container.querySelector<HTMLButtonElement>("[aria-label=\"Next proposal\"]");
   expect(next?.tagName).toBe("BUTTON");
   expect(next?.disabled).toBe(true);
   expect(next?.hasAttribute("href")).toBe(false);
-  expect(container.querySelector('[aria-label="Previous proposal"]')?.getAttribute("href")).toBe(
+  expect(container.querySelector("[aria-label=\"Previous proposal\"]")?.getAttribute("href")).toBe(
     "/governance/0?chainId=testnet",
   );
 });

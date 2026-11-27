@@ -81,14 +81,14 @@ it("does not mount governance query hooks on custom networks", () => {
 
 it("shows a loading state rather than a not-found result while the route is not ready", () => {
   render("", false);
-  expect(container.querySelector('[aria-label="Loading proposal"]')).not.toBeNull();
+  expect(container.querySelector("[aria-label=\"Loading proposal\"]")).not.toBeNull();
   expect(mockProposalQuery).toHaveBeenLastCalledWith("", { enabled: false });
   expect(container.textContent).not.toContain("Invalid");
 });
 
 it.each(["invalid", "-1", "1.5", "9007199254740992"])("rejects invalid ID %s without enabling requests", id => {
   render(id);
-  expect(container.querySelector('[role="alert"]')?.textContent).toContain("Invalid proposal ID");
+  expect(container.querySelector("[role=\"alert\"]")?.textContent).toContain("Invalid proposal ID");
   expect(mockProposalQuery).toHaveBeenLastCalledWith(id, { enabled: false });
   expect(mockVotesQuery).toHaveBeenLastCalledWith({ id, page: 1, limit: 40 }, { enabled: false });
 });
@@ -98,6 +98,6 @@ it.each([400, 404, 500])("handles HTTP %s as a meaningful proposal state without
   render();
   if (status === 400) expect(container.textContent).toContain("Invalid proposal ID");
   else if (status === 404) expect(container.textContent).toContain("Proposal #20 was not found");
-  else expect(container.querySelector('[role="alert"]')?.textContent).toContain("Unable to load this proposal");
+  else expect(container.querySelector("[role=\"alert\"]")?.textContent).toContain("Unable to load this proposal");
   expect(container.textContent).not.toContain("No votes yet");
 });

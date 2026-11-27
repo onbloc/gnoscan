@@ -116,6 +116,13 @@ export const ProposalLink = styled(Link)`
   white-space: nowrap;
 `;
 
+export const ProposerName = styled.span`
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 export const LatestProposal = styled.div`
   margin: auto;
   text-align: center;
@@ -130,10 +137,6 @@ export const LatestProposal = styled.div`
 
 export const LatestLink = styled(Link)`
   color: ${({ theme }) => theme.colors.blue};
-`;
-
-export const Muted = styled.span`
-  color: ${({ theme }) => theme.colors.tertiary};
 `;
 
 export const Message = styled.div`

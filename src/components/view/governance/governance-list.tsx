@@ -106,10 +106,6 @@ export const GovernanceSummaryCards = ({
                   #{proposal.id} {decodeGovernanceTitle(proposal.title)}
                 </S.ProposalLink>
                 <VoteBreakdown votes={proposal.votes} status={proposal.status} />
-                <div>
-                  <S.Muted>by </S.Muted>
-                  <GovernanceAccountView account={proposal.proposer} />
-                </div>
               </S.LiveProposal>
             );
           })
@@ -164,6 +160,7 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
         <tbody>
           {proposals.map(proposal => {
             const href = getUrlWithNetwork(`/governance/${proposal.id}`);
+            const proposer = proposal.proposer.nameTag?.replace(/^@/, "") || proposal.proposer.address || "-";
             return (
               <S.ProposalRow
                 key={proposal.id}
@@ -186,7 +183,7 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
                   </S.ProposalLink>
                 </td>
                 <td>
-                  <GovernanceAccountView account={proposal.proposer} />
+                  <S.ProposerName title={proposer}>{proposer}</S.ProposerName>
                 </td>
                 <td>
                   <ProposalStatusBadge status={proposal.status} />

@@ -8,7 +8,6 @@ import {
   useGetGovernanceSummary,
   useGetLiveGovernanceProposals,
 } from "@/common/react-query/governance/queries";
-import { formatDate, getDateDiff } from "@/common/utils/date-util";
 import { formatGovernanceNumber } from "@/common/utils/governance-util";
 import { DEFAULT_LIST_ITEMS_SIZE, LIST_SUMMARY_REFETCH_INTERVAL } from "@/common/values/query.constant";
 import { ListPagination } from "@/components/view/common/list-pagination/ListPagination";
@@ -81,16 +80,12 @@ const GovernanceList = () => {
     },
     { enabled: tab === "members", keepPreviousData: true },
   );
-  const syncedAt = summary.data?.syncedAt;
 
   return (
     <>
       <div>
         <PageTitle title="Governance" type="h2" />
-        <S.Subtitle>
-          GovDAO proposals and tiered membership · Synced{" "}
-          {syncedAt && formatDate(syncedAt) !== "-" ? getDateDiff(syncedAt) : "unknown"}
-        </S.Subtitle>
+        <S.Subtitle>GovDAO proposals and tiered membership</S.Subtitle>
       </div>
       <GovernanceSummaryCards
         summary={summary.data}

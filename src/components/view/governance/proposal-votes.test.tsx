@@ -94,7 +94,7 @@ it("shows absolute vote times only for transactions with a known timestamp", () 
 
 it("distinguishes a failed vote request from an empty vote list", () => {
   render([], true);
-  expect(container.querySelector('[role="alert"]')?.textContent).toContain("Unable to load votes");
+  expect(container.querySelector("[role=\"alert\"]")?.textContent).toContain("Unable to load votes");
   expect(container.textContent).not.toContain("No votes yet");
   render([]);
   expect(container.textContent).toContain("No votes yet");
@@ -102,7 +102,7 @@ it("distinguishes a failed vote request from an empty vote list", () => {
 
 it("renders a semantic vote table with the exact fixed column proportions", () => {
   render([vote]);
-  const table = container.querySelector('table[aria-label="Proposal votes"]');
+  const table = container.querySelector("table[aria-label=\"Proposal votes\"]");
   expect(table).not.toBeNull();
   expect(Array.from(table!.querySelectorAll("col")).map(column => column.style.width)).toEqual([
     "26%",
