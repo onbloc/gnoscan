@@ -2,6 +2,7 @@ import Link from "next/link";
 import styled from "styled-components";
 
 import { media } from "@/common/values/ui.constant";
+import { Card as ListSummaryCard } from "@/components/view/list-summary/ListSummary.styles";
 
 export const Subtitle = styled.p`
   margin-top: 4px;
@@ -19,20 +20,9 @@ export const SummaryGrid = styled.div`
   }
 `;
 
-export const SummaryCard = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-  padding: 20px 24px;
-  border-radius: 10px;
-  background-color: ${({ theme }) => theme.colors.base};
-`;
-
-export const ProposalsSummaryCard = styled(SummaryCard)`
+export const ProposalsSummaryCard = styled(ListSummaryCard)`
   ${media.NOT_DESKTOP} {
     align-self: start;
-    padding: 16px;
 
     > h3 {
       display: none;
@@ -50,15 +40,33 @@ export const ProposalsSummaryCard = styled(SummaryCard)`
 export const CardHeading = styled.h3`
   display: flex;
   align-items: center;
-  gap: 8px;
-  ${({ theme }) => theme.fonts.h6};
+  gap: 6px;
+  ${({ theme }) => theme.fonts.p4};
+  color: ${({ theme }) => theme.colors.tertiary};
 `;
 
 export const Count = styled.span`
   padding: 0 8px;
   border-radius: 10px;
   background-color: ${({ theme }) => theme.colors.dimmed100};
+  color: ${({ theme }) => theme.colors.primary};
   ${({ theme }) => theme.fonts.body1};
+`;
+
+export const TabCount = styled(Count)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 14px;
+  background-color: ${({ theme }) => theme.colors.surface};
+  ${({ theme }) => theme.fonts.p4};
+
+  ${media.DESKTOP} {
+    min-width: 28px;
+    height: 28px;
+  }
 `;
 
 export const Stats = styled.dl`
@@ -110,12 +118,8 @@ export const Stats = styled.dl`
   }
 `;
 
-export const LiveCard = styled(SummaryCard)`
+export const LiveCard = styled(ListSummaryCard)`
   overflow: hidden;
-
-  ${media.NOT_DESKTOP} {
-    padding: 16px;
-  }
 `;
 
 export const LiveHeading = styled.div`
@@ -167,10 +171,8 @@ export const LiveProposal = styled.article`
   scroll-snap-stop: always;
   cursor: pointer;
 
-  ${media.NOT_DESKTOP} {
-    > a {
-      ${({ theme }) => theme.fonts.p4};
-    }
+  > a {
+    ${({ theme }) => theme.fonts.p4};
   }
 `;
 
@@ -227,30 +229,33 @@ export const Toolbar = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px 28px;
-  padding: 0 24px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed100};
+  gap: 12px 24px;
+  padding: 24px 24px 0;
 `;
 
 export const Tabs = styled.div`
   display: flex;
-  gap: 28px;
+  gap: 24px;
 `;
 
 export const Tab = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 18px 0 14px;
-  margin-bottom: -1px;
-  border-bottom: 2px solid ${({ theme, $active }) => ($active ? theme.colors.primary : "transparent")};
+  gap: 10px;
   color: ${({ theme, $active }) => ($active ? theme.colors.primary : theme.colors.tertiary)};
-  ${({ theme }) => theme.fonts.p3};
-  font-weight: ${({ $active }) => ($active ? 500 : 400)};
+  ${({ theme, $active }) => ($active ? theme.fonts.h6 : theme.fonts.h7)};
+
+  ${media.DESKTOP} {
+    ${({ theme, $active }) => ($active ? theme.fonts.h4 : theme.fonts.h6)};
+  }
 `;
 
 export const Search = styled.div`
+  display: flex;
+  align-items: center;
   width: 240px;
+  max-width: 100%;
+  height: 36px;
   margin-left: auto;
 
   > label {
@@ -259,15 +264,21 @@ export const Search = styled.div`
     background-color: ${({ theme }) => theme.colors.surface};
   }
 
-  @media (max-width: 600px) {
-    margin-bottom: 12px;
+  ${media.NOT_MOBILE} {
+    /* Keep one-row search controls from stretching the shared heading height. */
+    height: 0;
   }
 `;
 
 export const Scroll = styled.div`
   width: 100%;
   overflow-x: auto;
-  padding: 8px 24px 20px;
+  padding: 16px 24px 20px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export const Table = styled.table<{ $members?: boolean }>`

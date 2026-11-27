@@ -111,7 +111,8 @@ const GovernanceList = () => {
               aria-pressed={tab === "proposals"}
               onClick={() => setListState(previous => ({ ...previous, tab: "proposals" }))}
             >
-              Proposals <S.Count>{summary.data ? formatGovernanceNumber(summary.data.proposals.total) : "-"}</S.Count>
+              Proposals{" "}
+              <S.TabCount>{summary.data ? formatGovernanceNumber(summary.data.proposals.total) : "-"}</S.TabCount>
             </S.Tab>
             <S.Tab
               type="button"
@@ -119,7 +120,7 @@ const GovernanceList = () => {
               aria-pressed={tab === "members"}
               onClick={() => setListState(previous => ({ ...previous, tab: "members" }))}
             >
-              Members <S.Count>{summary.data ? formatGovernanceNumber(summary.data.members.total) : "-"}</S.Count>
+              Members <S.TabCount>{summary.data ? formatGovernanceNumber(summary.data.members.total) : "-"}</S.TabCount>
             </S.Tab>
           </S.Tabs>
           {tab === "proposals" && (

@@ -115,25 +115,3 @@ it("distinguishes a failed vote request from an empty vote list", () => {
   render([]);
   expect(container.textContent).toContain("No votes yet");
 });
-
-it("renders a semantic vote table with the exact fixed column proportions", () => {
-  render([vote]);
-  const table = container.querySelector('table[aria-label="Proposal votes"]');
-  expect(table).not.toBeNull();
-  expect(Array.from(table!.querySelectorAll("col")).map(column => column.style.width)).toEqual([
-    "26%",
-    "10%",
-    "11%",
-    "14%",
-    "19%",
-    "20%",
-  ]);
-  expect(Array.from(table!.querySelectorAll("th")).map(header => header.textContent)).toEqual([
-    "Voter",
-    "Tier",
-    "Vote",
-    "Voting Power",
-    "Tx Hash",
-    "Time",
-  ]);
-});

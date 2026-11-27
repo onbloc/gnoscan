@@ -28,20 +28,27 @@ const formatVoteTime = (vote: GovernanceVote) => {
 
 const ProposalVotes = ({ votes, totalCount, isLoading, isError, onRetry, pagination }: ProposalVotesProps) => (
   <VotesSection>
-    <Heading role="tablist" aria-label="Proposal details">
-      <VoteTab
+    <div className="tab-area" role="tablist" aria-label="Proposal details">
+      <button
         type="button"
+        className="tab-item"
         role="tab"
         id="proposal-votes-tab"
         aria-selected="true"
         aria-controls="proposal-votes-panel"
       >
-        <Text type="h6" color="primary">
+        <Text type="h6" desktopType="h4" color="primary">
           Votes
         </Text>
-        {totalCount !== undefined && <Count>{formatGovernanceNumber(totalCount)}</Count>}
-      </VoteTab>
-    </Heading>
+        {totalCount !== undefined && (
+          <div className="badge">
+            <Text type="p4" color="primary">
+              {formatGovernanceNumber(totalCount)}
+            </Text>
+          </div>
+        )}
+      </button>
+    </div>
     <div role="tabpanel" id="proposal-votes-panel" aria-labelledby="proposal-votes-tab" className="votes-panel">
       {isError ? (
         <Message role="alert">
@@ -58,12 +65,12 @@ const ProposalVotes = ({ votes, totalCount, isLoading, isError, onRetry, paginat
         <TableViewport>
           <VotesTable aria-label="Proposal votes">
             <colgroup>
-              <col style={{ width: "26%" }} />
+              <col style={{ width: "20%" }} />
               <col style={{ width: "10%" }} />
               <col style={{ width: "11%" }} />
               <col style={{ width: "14%" }} />
-              <col style={{ width: "19%" }} />
-              <col style={{ width: "20%" }} />
+              <col style={{ width: "23%" }} />
+              <col style={{ width: "22%" }} />
             </colgroup>
             <thead>
               <tr>
@@ -119,6 +126,11 @@ const VotesSection = styled(DetailsContainer)`
 const TableViewport = styled.div`
   width: 100%;
   overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const VotesTable = styled.table`
@@ -131,17 +143,15 @@ const VotesTable = styled.table`
 
   th,
   td {
-    padding: 16px 12px;
+    padding: 16px;
     text-align: left;
     vertical-align: middle;
     overflow-wrap: anywhere;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed50};
   }
   th {
     color: ${({ theme }) => theme.colors.tertiary};
     font-weight: 400;
-  }
-  td {
-    border-top: 1px solid ${({ theme }) => theme.colors.dimmed50};
   }
   th:first-child,
   td:first-child {
@@ -152,31 +162,6 @@ const VotesTable = styled.table`
     padding-right: 0;
     white-space: nowrap;
   }
-`;
-
-const Heading = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.dimmed100};
-`;
-
-const VoteTab = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 0 14px;
-  margin-bottom: -1px;
-  border-bottom: 2px solid ${({ theme }) => theme.colors.primary};
-`;
-
-const Count = styled.span`
-  padding: 0 8px;
-  border-radius: 10px;
-  background: ${({ theme }) => theme.colors.dimmed100};
-  color: ${({ theme }) => theme.colors.primary};
-  ${({ theme }) => theme.fonts.body1};
 `;
 
 const Message = styled.div`
