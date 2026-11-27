@@ -13,7 +13,10 @@ const mockUseLive = jest.fn();
 const mockUseProposals = jest.fn();
 const mockUseMembers = jest.fn();
 const mockPush = jest.fn();
-let mockNetwork = { currentNetwork: { chainId: "mainnet" }, isCustomNetwork: false };
+let mockNetwork: { currentNetwork: { chainId: string } | null; isCustomNetwork: boolean } = {
+  currentNetwork: { chainId: "mainnet" },
+  isCustomNetwork: false,
+};
 
 jest.mock("@/common/react-query/governance/queries", () => ({
   useGetGovernanceSummary: (...args: unknown[]) => mockUseSummary(...args),
@@ -25,12 +28,9 @@ jest.mock("@/common/hooks/provider/use-network-provider", () => ({
   useNetworkProvider: () => mockNetwork,
 }));
 jest.mock("@/common/hooks/use-network", () => ({
-  useNetwork: () => ({ getUrlWithNetwork: (path: string) => `${path}?chainId=${mockNetwork.currentNetwork.chainId}` }),
+  useNetwork: () => ({ getUrlWithNetwork: (path: string) => `${path}?chainId=${mockNetwork.currentNetwork?.chainId}` }),
 }));
 jest.mock("next/router", () => ({ useRouter: () => ({ push: mockPush }) }));
-jest.mock("@/common/hooks/detail-tabs/use-history-entry-state", () => ({
-  useHistoryEntryState: (_name: string, initial: unknown) => jest.requireActual("react").useState(initial),
-}));
 jest.mock("next/link", () => ({
   __esModule: true,
   default: ({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props}>{children}</a>,
@@ -120,6 +120,8 @@ beforeAll(() => Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }));
 beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
+  window.sessionStorage.clear();
+  window.history.replaceState({ key: "governance-entry" }, "", "/governance");
   mockNetwork = { currentNetwork: { chainId: "mainnet" }, isCustomNetwork: false };
   mockUseSummary.mockReturnValue({ ...success, data: summary });
   mockUseLive.mockReturnValue({ ...success, data: [proposal] });
@@ -336,6 +338,22 @@ it("supports mainnet and testnet, remounts the network's sort and page, and make
   expect(lastProposalRequest()).toEqual({ page: 1, limit: 40 });
   expect(container.textContent).not.toContain("not supported");
   expect(container.querySelector("a[href='/governance/20?chainId=testnet']")).not.toBeNull();
+  selectMembers();
+  click("button[aria-label='Sort by Voting Power']");
+  click("button[aria-label='Next page']");
+  expect(mockUseMembers).toHaveBeenLastCalledWith(
+    { page: 2, limit: 40, sort: "power", order: "desc" },
+    expect.objectContaining({ enabled: true }),
+  );
+
+  mockNetwork = { currentNetwork: { chainId: "mainnet" }, isCustomNetwork: false };
+  render();
+  expect(container.querySelector("table[aria-label='Governance proposals']")).not.toBeNull();
+  expect(lastProposalRequest()).toEqual({ page: 1, limit: 40 });
+  expect(container.querySelector("th[aria-sort='descending']")).toBeNull();
+  selectMembers();
+  expect(container.querySelector("[data-current-page]")?.textContent).toBe("1");
+  expect(container.querySelector("th[aria-sort='descending']")).toBeNull();
 
   jest.clearAllMocks();
   mockNetwork = { currentNetwork: { chainId: "custom" }, isCustomNetwork: true };
@@ -345,4 +363,71 @@ it("supports mainnet and testnet, remounts the network's sort and page, and make
   expect(mockUseLive).not.toHaveBeenCalled();
   expect(mockUseProposals).not.toHaveBeenCalled();
   expect(mockUseMembers).not.toHaveBeenCalled();
+});
+
+it("restores both table sorts, pages and the selected tab after returning from an account", () => {
+  render();
+  click("button[aria-label='Sort by Status']");
+  click("button[aria-label='Next page']");
+  selectMembers();
+  click("button[aria-label='Sort by Voting Power']");
+  click("button[aria-label='Sort by Voting Power']");
+  click("button[aria-label='Next page']");
+
+  act(() => root.render(null));
+  window.history.replaceState({ key: "account-entry" }, "", "/account/g1member");
+  window.history.replaceState({ key: "governance-entry" }, "", "/governance");
+  render();
+
+  expect(container.querySelector("table[aria-label='Governance members']")).not.toBeNull();
+  expect(container.querySelector("th[aria-sort='ascending']")?.textContent).toBe("Voting Power");
+  expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
+  expect(mockUseMembers).toHaveBeenLastCalledWith(
+    { page: 2, limit: 40, sort: "power", order: "asc" },
+    expect.objectContaining({ enabled: true }),
+  );
+
+  click("button[aria-pressed='false']");
+  expect(container.querySelector("table[aria-label='Governance proposals']")).not.toBeNull();
+  expect(container.querySelector("th[aria-sort='descending']")?.textContent).toBe("Status");
+  expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
+  expect(lastProposalRequest()).toMatchObject({ page: 2, sort: "status", order: "desc" });
+});
+
+it("starts a new history entry fresh without replacing the previous entry's selected tab", () => {
+  render();
+  selectMembers();
+  click("button[aria-label='Sort by Tier']");
+  click("button[aria-label='Next page']");
+  act(() => root.render(null));
+
+  window.history.replaceState({ key: "new-governance-entry" }, "", "/governance");
+  render();
+  expect(container.querySelector("table[aria-label='Governance proposals']")).not.toBeNull();
+  expect(lastProposalRequest()).toEqual({ page: 1, limit: 40 });
+  expect(container.querySelector("th[aria-sort='descending']")).toBeNull();
+  act(() => root.render(null));
+
+  window.history.replaceState({ key: "governance-entry" }, "", "/governance");
+  render();
+  expect(container.querySelector("table[aria-label='Governance members']")).not.toBeNull();
+  expect(container.querySelector("th[aria-sort='descending']")?.textContent).toBe("Tier");
+  expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
+});
+
+it("keeps the previous selection while the network is initializing after a remount", () => {
+  render();
+  click("button[aria-label='Sort by Status']");
+  click("button[aria-label='Next page']");
+  act(() => root.render(null));
+
+  mockNetwork = { currentNetwork: null, isCustomNetwork: false };
+  render();
+  act(() => root.render(null));
+  mockNetwork = { currentNetwork: { chainId: "mainnet" }, isCustomNetwork: false };
+  render();
+
+  expect(container.querySelector("th[aria-sort='descending']")?.textContent).toBe("Status");
+  expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
+  expect(lastProposalRequest()).toMatchObject({ page: 2, sort: "status", order: "desc" });
 });

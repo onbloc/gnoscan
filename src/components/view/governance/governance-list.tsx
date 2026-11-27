@@ -20,7 +20,7 @@ interface SortHeaderProps<Field extends string> {
   label: string;
   field: Field;
   sort?: GovernanceSort<Field>;
-  onSort: (field: Field) => void;
+  onSort: (sort: GovernanceSort<Field> | undefined) => void;
 }
 
 const SortHeader = <Field extends string>({ label, field, sort, onSort }: SortHeaderProps<Field>) => {
@@ -30,7 +30,7 @@ const SortHeader = <Field extends string>({ label, field, sort, onSort }: SortHe
       <HeaderRowItem
         header={{ key: field, name: label, sort: true }}
         sortOption={sort}
-        setSortOption={() => onSort(field)}
+        setSortOption={({ order }) => onSort(order === "asc" || order === "desc" ? { field, order } : undefined)}
       />
     </S.SortHeaderCell>
   );
@@ -132,7 +132,7 @@ export const GovernanceSummaryCards = ({
 interface ProposalTableProps {
   proposals: GovernanceProposal[];
   sort?: GovernanceSort<"id" | "status">;
-  onSort: (field: "id" | "status") => void;
+  onSort: (sort: GovernanceSort<"id" | "status"> | undefined) => void;
 }
 
 export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTableProps) => {
@@ -212,7 +212,7 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
 interface MemberTableProps {
   members: GovernanceMember[];
   sort?: GovernanceSort<"tier" | "power">;
-  onSort: (field: "tier" | "power") => void;
+  onSort: (sort: GovernanceSort<"tier" | "power"> | undefined) => void;
 }
 
 export const GovernanceMemberTable = ({ members, sort, onSort }: MemberTableProps) => (

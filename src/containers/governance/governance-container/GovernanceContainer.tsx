@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useListPagination } from "@/common/hooks/common/use-list-pagination";
+import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
 import {
   useGetGovernanceMembers,
@@ -22,31 +23,33 @@ import {
 import * as S from "@/components/view/governance/governance-list.styles";
 import { ListSearch, useListKeyword } from "@/components/view/list-summary/ListSearch";
 
-const useGovernanceSort = <Field extends string>() => {
-  const [sort, setSort] = React.useState<GovernanceSort<Field>>();
-  const onSort = (field: Field) => {
-    setSort(previous =>
-      previous?.field !== field
-        ? { field, order: "desc" }
-        : previous.order === "desc"
-        ? { field, order: "asc" }
-        : undefined,
-    );
-  };
-  return { sort, onSort };
-};
+interface GovernanceListState {
+  network: string | undefined;
+  tab: "proposals" | "members";
+  proposalsSort: GovernanceSort<"id" | "status"> | null;
+  membersSort: GovernanceSort<"tier" | "power"> | null;
+}
 
 const GovernanceList = () => {
-  const [tab, setTab] = React.useState<"proposals" | "members">("proposals");
+  const { currentNetwork } = useNetworkProvider();
+  const network = currentNetwork?.chainId;
+  const initialState = React.useMemo<GovernanceListState>(
+    () => ({ network, tab: "proposals", proposalsSort: null, membersSort: null }),
+    [network],
+  );
+  const [listState, setListState] = useHistoryEntryState("governance:list", initialState);
+  const networkChanged = network !== undefined && listState.network !== network;
+  const { tab, proposalsSort, membersSort } = networkChanged ? initialState : listState;
   const search = useListKeyword();
-  const proposalsSort = useGovernanceSort<"id" | "status">();
-  const membersSort = useGovernanceSort<"tier" | "power">();
-  const proposalScope = `${proposalsSort.sort?.field ?? "none"}:${proposalsSort.sort?.order ?? "none"}:${
-    search.keyword ?? ""
-  }`;
-  const memberScope = `${membersSort.sort?.field ?? "none"}:${membersSort.sort?.order ?? "none"}`;
+  const proposalScope = `${proposalsSort?.field ?? "none"}:${proposalsSort?.order ?? "none"}:${search.keyword ?? ""}`;
+  const memberScope = `${membersSort?.field ?? "none"}:${membersSort?.order ?? "none"}`;
   const [proposalPage, setProposalPage] = useListPagination("governance-proposals", proposalScope);
   const [memberPage, setMemberPage] = useListPagination("governance-members", memberScope);
+  if (networkChanged) {
+    setListState(initialState);
+    setProposalPage(1);
+    setMemberPage(1);
+  }
   const previousKeyword = React.useRef(search.keyword);
   React.useEffect(() => {
     if (previousKeyword.current !== search.keyword) {
@@ -67,7 +70,7 @@ const GovernanceList = () => {
     {
       page: proposalPage,
       limit: DEFAULT_LIST_ITEMS_SIZE,
-      ...(proposalsSort.sort ? { sort: proposalsSort.sort.field, order: proposalsSort.sort.order } : {}),
+      ...(proposalsSort ? { sort: proposalsSort.field, order: proposalsSort.order } : {}),
       ...(search.keyword ? { q: search.keyword } : {}),
     },
     { enabled: tab === "proposals", keepPreviousData: true },
@@ -76,7 +79,7 @@ const GovernanceList = () => {
     {
       page: memberPage,
       limit: DEFAULT_LIST_ITEMS_SIZE,
-      ...(membersSort.sort ? { sort: membersSort.sort.field, order: membersSort.sort.order } : {}),
+      ...(membersSort ? { sort: membersSort.field, order: membersSort.order } : {}),
     },
     { enabled: tab === "members", keepPreviousData: true },
   );
@@ -102,7 +105,7 @@ const GovernanceList = () => {
               type="button"
               $active={tab === "proposals"}
               aria-pressed={tab === "proposals"}
-              onClick={() => setTab("proposals")}
+              onClick={() => setListState(previous => ({ ...previous, tab: "proposals" }))}
             >
               Proposals <S.Count>{summary.data ? formatGovernanceNumber(summary.data.proposals.total) : "-"}</S.Count>
             </S.Tab>
@@ -110,7 +113,7 @@ const GovernanceList = () => {
               type="button"
               $active={tab === "members"}
               aria-pressed={tab === "members"}
-              onClick={() => setTab("members")}
+              onClick={() => setListState(previous => ({ ...previous, tab: "members" }))}
             >
               Members <S.Count>{summary.data ? formatGovernanceNumber(summary.data.members.total) : "-"}</S.Count>
             </S.Tab>
@@ -130,10 +133,10 @@ const GovernanceList = () => {
             ) : (
               <GovernanceProposalTable
                 proposals={proposals.data.items}
-                sort={proposalsSort.sort}
-                onSort={field => {
+                sort={proposalsSort ?? undefined}
+                onSort={sort => {
                   setProposalPage(1);
-                  proposalsSort.onSort(field);
+                  setListState(previous => ({ ...previous, proposalsSort: sort ?? null }));
                 }}
               />
             )}
@@ -156,10 +159,10 @@ const GovernanceList = () => {
             ) : (
               <GovernanceMemberTable
                 members={members.data.items}
-                sort={membersSort.sort}
-                onSort={field => {
+                sort={membersSort ?? undefined}
+                onSort={sort => {
                   setMemberPage(1);
-                  membersSort.onSort(field);
+                  setListState(previous => ({ ...previous, membersSort: sort ?? null }));
                 }}
               />
             )}

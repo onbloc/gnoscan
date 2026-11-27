@@ -50,6 +50,7 @@ const MarkdownBody = styled.div`
   min-width: 0;
   overflow-wrap: anywhere;
   color: ${({ theme }) => theme.colors.primary};
+  ${({ theme }) => theme.fonts.p4};
 
   h1,
   h2,
