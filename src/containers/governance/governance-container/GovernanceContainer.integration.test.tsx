@@ -105,6 +105,14 @@ const mount = async () => {
 };
 const click = (label: string) =>
   act(() => container.querySelector<HTMLButtonElement>(`button[aria-label='${label}']`)!.click());
+const activateSort = (label: string) => {
+  const control = container.querySelector<HTMLButtonElement>(`button[aria-label='Sort by ${label}']`)!;
+  act(() => {
+    control.focus();
+    control.click();
+  });
+  return control;
+};
 const changeSearch = (value: string) => {
   const input = container.querySelector<HTMLInputElement>("input[type=search]")!;
   act(() => {
@@ -191,17 +199,19 @@ it("keeps previous proposal rows for page changes within the same scope", async 
   expect(container.textContent).toContain("Page 2 of 3");
 });
 
-it("hides previous-order proposal links until the requested server ordering arrives", async () => {
+it("keeps the focused proposal sort control while replacing stale-order rows", async () => {
   const pending = Promise.withResolvers<GovernancePage<GovernanceProposal>>();
   proposalResponse = request =>
     request.sort === "status" && request.order === "desc" ? pending.promise : Promise.resolve(pageResponse([proposal]));
   await mount();
-  click("Sort by Status");
+  const control = activateSort("Status");
   await flush();
+  expect(document.activeElement).toBe(control);
   expect(proposalLink(20)).toBeNull();
   pending.resolve(pageResponse([haltProposal]));
   await flush();
   expect(proposalLink(19)).not.toBeNull();
+  expect(document.activeElement).toBe(control);
   expect(container.querySelector("th[aria-sort='descending']")?.textContent).toBe("Status");
   expect(container.textContent).toContain("Page 1 of 3");
 });
@@ -232,13 +242,15 @@ it("preserves paged members but replaces stale-order rows and cycles server-side
   await flush();
   expect(memberLink("g1nextmember")).not.toBeNull();
 
-  click("Sort by Tier");
+  const control = activateSort("Tier");
   await flush();
+  expect(document.activeElement).toBe(control);
   expect(memberLink("g1nextmember")).toBeNull();
   expect(memberLink("g1member")).toBeNull();
   sorted.resolve(pageResponse([tierDescending]));
   await flush();
   expect(memberLink("g1tierdescending")).not.toBeNull();
+  expect(document.activeElement).toBe(control);
   expect(container.querySelector("th[aria-sort='descending']")?.textContent).toBe("Tier");
   expect(container.textContent).toContain("Page 1 of 3");
 
@@ -273,7 +285,8 @@ it("never exposes an earlier search response while a newer search is pending", a
   await flush(300);
   halt.resolve(pageResponse([haltProposal], 1));
   await flush();
-  expect(container.querySelector("table[aria-label='Governance proposals']")).toBeNull();
+  expect(proposalLink(20)).toBeNull();
+  expect(proposalLink(19)).toBeNull();
   validator.resolve(pageResponse([validatorProposal], 1));
   await flush();
   expect(proposalLink(18)?.textContent).toBe("Validator proposal");
@@ -295,4 +308,78 @@ it("shows a fresh cached scope immediately instead of carrying another scope or 
   await flush(300);
   expect(proposalLink(19)).not.toBeNull();
   expect(proposalLink(20)).toBeNull();
+});
+
+it("keeps keyboard sorting available while earlier sort requests remain pending", async () => {
+  const descending = Promise.withResolvers<GovernancePage<GovernanceProposal>>();
+  const ascending = Promise.withResolvers<GovernancePage<GovernanceProposal>>();
+  proposalResponse = request => {
+    if (request.sort === "status") return request.order === "desc" ? descending.promise : ascending.promise;
+    return Promise.resolve(pageResponse([proposal]));
+  };
+  await mount();
+  const control = activateSort("Status");
+  await flush();
+  expect(document.activeElement).toBe(control);
+  expect(proposalLink(20)).toBeNull();
+
+  click("Sort by Status");
+  await flush();
+  expect(document.activeElement).toBe(control);
+  expect(container.querySelector("th[aria-sort='ascending']")?.textContent).toBe("Status");
+  expect(proposalLink(20)).toBeNull();
+
+  click("Sort by Status");
+  expect(document.activeElement).toBe(control);
+  expect(proposalLink(20)).not.toBeNull();
+  descending.resolve(pageResponse([haltProposal]));
+  ascending.resolve(pageResponse([validatorProposal]));
+  await flush();
+  expect(document.activeElement).toBe(control);
+  expect(proposalLink(20)).not.toBeNull();
+  expect(proposalLink(19)).toBeNull();
+  expect(proposalLink(18)).toBeNull();
+});
+
+it("does not steal external focus when a sorted response arrives", async () => {
+  const pending = Promise.withResolvers<GovernancePage<GovernanceProposal>>();
+  proposalResponse = request =>
+    request.sort === "status" ? pending.promise : Promise.resolve(pageResponse([proposal]));
+  await mount();
+  activateSort("Status");
+  const input = container.querySelector<HTMLInputElement>("input[type=search]")!;
+  act(() => input.focus());
+  pending.resolve(pageResponse([haltProposal]));
+  await flush();
+  expect(proposalLink(19)).not.toBeNull();
+  expect(document.activeElement).toBe(input);
+});
+
+it("keeps the sort header usable through an error and retry", async () => {
+  let failSort = true;
+  const recovery = Promise.withResolvers<GovernancePage<GovernanceProposal>>();
+  proposalResponse = request => {
+    if (request.sort !== "status") return Promise.resolve(pageResponse([proposal]));
+    return failSort ? Promise.reject(new Error("Sort unavailable")) : recovery.promise;
+  };
+  await mount();
+  const control = activateSort("Status");
+  await flush();
+  expect(document.activeElement).toBe(control);
+  expect(proposalLink(20)).toBeNull();
+  const retry = container.querySelector<HTMLButtonElement>("tbody [role='alert'] button")!;
+  failSort = false;
+  act(() => {
+    retry.focus();
+    retry.click();
+  });
+  await flush();
+  act(() => control.focus());
+  expect(document.activeElement).toBe(control);
+  expect(proposalLink(20)).toBeNull();
+  recovery.resolve(pageResponse([haltProposal]));
+  await flush();
+  expect(proposalLink(19)).not.toBeNull();
+  expect(document.activeElement).toBe(control);
+  expect(container.querySelector("tbody [role='alert']")).toBeNull();
 });

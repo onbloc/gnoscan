@@ -8,6 +8,7 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { GovernanceMember, GovernanceProposal, GovernanceSummary } from "@/models/api/governance";
 import IconArrow from "@/assets/svgs/icon-arrow.svg";
 import { ArrowButton } from "@/components/view/common/title-option/TitleOption.styles";
+import TableSkeleton from "@/components/view/common/table-skeleton/TableSkeleton";
 import {
   getProposalStatusLabel,
   GovernanceAccountView,
@@ -251,13 +252,21 @@ export const GovernanceSummaryCards = ({
   );
 };
 
+const TableStateRow = ({ children }: { children: React.ReactNode }) => (
+  <tr>
+    <td colSpan={5}>{children}</td>
+  </tr>
+);
+
 interface ProposalTableProps {
-  proposals: GovernanceProposal[];
+  /** Undefined data renders loading without removing sortable headers. */
+  proposals?: GovernanceProposal[];
   sort?: GovernanceSort<"id" | "status">;
   onSort: (sort: GovernanceSort<"id" | "status"> | undefined) => void;
+  error?: React.ReactNode;
 }
 
-export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTableProps) => {
+export const GovernanceProposalTable = ({ proposals, sort, onSort, error }: ProposalTableProps) => {
   const { getUrlWithNetwork } = useNetwork();
   const router = useRouter();
 
@@ -280,43 +289,44 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
             <th scope="col">Votes</th>
           </tr>
         </thead>
-        <tbody>
-          {proposals.map(proposal => {
-            const href = getUrlWithNetwork(`/governance/${proposal.id}`);
-            const proposerName = proposal.proposer.nameTag?.replace(/^@/, "");
-            const proposer = proposerName || proposal.proposer.address || "-";
-            return (
-              <S.ProposalRow
-                key={proposal.id}
-                onClick={event => {
-                  if (event.defaultPrevented || (event.target as Element).closest("a, button, input")) return;
-                  void router.push(href);
-                }}
-              >
-                <td>#{proposal.id}</td>
-                <td>
-                  <S.ProposalLink href={href} title={decodeGovernanceTitle(proposal.title)}>
-                    {decodeGovernanceTitle(proposal.title)}
-                  </S.ProposalLink>
-                </td>
-                <td>
-                  <S.ProposerName title={proposer}>{proposerName || textEllipsis(proposer, 8)}</S.ProposerName>
-                </td>
-                <td>
-                  <ProposalStatusBadge status={proposal.status} />
-                </td>
-                <td>
-                  <VoteBreakdown votes={proposal.votes} status={proposal.status} />
-                </td>
-              </S.ProposalRow>
-            );
-          })}
-          {proposals.length === 0 && (
-            <tr>
-              <td colSpan={5}>
-                <S.Message>No proposals to display</S.Message>
-              </td>
-            </tr>
+        <tbody aria-busy={proposals === undefined && !error}>
+          {error || proposals === undefined ? (
+            <TableStateRow>{error ?? <TableSkeleton />}</TableStateRow>
+          ) : proposals.length === 0 ? (
+            <TableStateRow>
+              <S.Message>No proposals to display</S.Message>
+            </TableStateRow>
+          ) : (
+            proposals.map(proposal => {
+              const href = getUrlWithNetwork(`/governance/${proposal.id}`);
+              const proposerName = proposal.proposer.nameTag?.replace(/^@/, "");
+              const proposer = proposerName || proposal.proposer.address || "-";
+              return (
+                <S.ProposalRow
+                  key={proposal.id}
+                  onClick={event => {
+                    if (event.defaultPrevented || (event.target as Element).closest("a, button, input")) return;
+                    void router.push(href);
+                  }}
+                >
+                  <td>#{proposal.id}</td>
+                  <td>
+                    <S.ProposalLink href={href} title={decodeGovernanceTitle(proposal.title)}>
+                      {decodeGovernanceTitle(proposal.title)}
+                    </S.ProposalLink>
+                  </td>
+                  <td>
+                    <S.ProposerName title={proposer}>{proposerName || textEllipsis(proposer, 8)}</S.ProposerName>
+                  </td>
+                  <td>
+                    <ProposalStatusBadge status={proposal.status} />
+                  </td>
+                  <td>
+                    <VoteBreakdown votes={proposal.votes} status={proposal.status} />
+                  </td>
+                </S.ProposalRow>
+              );
+            })
           )}
         </tbody>
       </S.Table>
@@ -325,12 +335,14 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
 };
 
 interface MemberTableProps {
-  members: GovernanceMember[];
+  /** Undefined data renders loading without removing sortable headers. */
+  members?: GovernanceMember[];
   sort?: GovernanceSort<"tier" | "power">;
   onSort: (sort: GovernanceSort<"tier" | "power"> | undefined) => void;
+  error?: React.ReactNode;
 }
 
-export const GovernanceMemberTable = ({ members, sort, onSort }: MemberTableProps) => (
+export const GovernanceMemberTable = ({ members, sort, onSort, error }: MemberTableProps) => (
   <S.Scroll>
     <S.Table $members aria-label="Governance members">
       <colgroup>
@@ -351,45 +363,46 @@ export const GovernanceMemberTable = ({ members, sort, onSort }: MemberTableProp
           </th>
         </tr>
       </thead>
-      <tbody>
-        {members.map(member => (
-          <tr key={member.address}>
-            <td>
-              <TierBadge tier={member.tier} />
-            </td>
-            <td>
-              <GovernanceAccountView account={{ address: member.address, nameTag: null }} addressOnly />
-            </td>
-            <td>{formatGovernanceNumber(member.power)}</td>
-            <td>
-              <S.MemberVotes>
-                <span>{formatGovernanceNumber(member.votes.total)}</span>
-                <S.VoteTrack aria-hidden="true">
-                  {(["yes", "no", "abstain"] as const).map(choice => (
-                    <S.VoteSegment
-                      key={choice}
-                      $choice={choice}
-                      $width={
-                        member.votes.total > 0 ? Math.min(100, (member.votes[choice] / member.votes.total) * 100) : 0
-                      }
-                    />
-                  ))}
-                </S.VoteTrack>
-                <small>
-                  Yes {formatGovernanceNumber(member.votes.yes)} · No {formatGovernanceNumber(member.votes.no)} ·
-                  Abstain {formatGovernanceNumber(member.votes.abstain)}
-                </small>
-              </S.MemberVotes>
-            </td>
-            <td className="right">{formatGovernanceNumber(member.proposalsAuthored)}</td>
-          </tr>
-        ))}
-        {members.length === 0 && (
-          <tr>
-            <td colSpan={5}>
-              <S.Message>No members to display</S.Message>
-            </td>
-          </tr>
+      <tbody aria-busy={members === undefined && !error}>
+        {error || members === undefined ? (
+          <TableStateRow>{error ?? <TableSkeleton />}</TableStateRow>
+        ) : members.length === 0 ? (
+          <TableStateRow>
+            <S.Message>No members to display</S.Message>
+          </TableStateRow>
+        ) : (
+          members.map(member => (
+            <tr key={member.address}>
+              <td>
+                <TierBadge tier={member.tier} />
+              </td>
+              <td>
+                <GovernanceAccountView account={{ address: member.address, nameTag: null }} addressOnly />
+              </td>
+              <td>{formatGovernanceNumber(member.power)}</td>
+              <td>
+                <S.MemberVotes>
+                  <span>{formatGovernanceNumber(member.votes.total)}</span>
+                  <S.VoteTrack aria-hidden="true">
+                    {(["yes", "no", "abstain"] as const).map(choice => (
+                      <S.VoteSegment
+                        key={choice}
+                        $choice={choice}
+                        $width={
+                          member.votes.total > 0 ? Math.min(100, (member.votes[choice] / member.votes.total) * 100) : 0
+                        }
+                      />
+                    ))}
+                  </S.VoteTrack>
+                  <small>
+                    Yes {formatGovernanceNumber(member.votes.yes)} · No {formatGovernanceNumber(member.votes.no)} ·
+                    Abstain {formatGovernanceNumber(member.votes.abstain)}
+                  </small>
+                </S.MemberVotes>
+              </td>
+              <td className="right">{formatGovernanceNumber(member.proposalsAuthored)}</td>
+            </tr>
+          ))
         )}
       </tbody>
     </S.Table>

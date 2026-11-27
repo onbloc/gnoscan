@@ -23,6 +23,13 @@ jest.mock("@/assets/svgs/icon-sort-up.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-tooltip.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-table-loading.svg", () => () => null);
 jest.mock("@/components/view/datatable/item/address-copy", () => ({ AddressCopy: () => null }));
+jest.mock(
+  "@/components/view/common/table-skeleton/TableSkeleton",
+  () =>
+    function TableSkeleton() {
+      return <div role="status">Loading list</div>;
+    },
+);
 
 const proposals: GovernanceProposal[] = [31, 32, 33].map(id => ({
   id,

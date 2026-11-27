@@ -40,7 +40,15 @@ interface GovernanceTableProps<Field extends string>
   onSort: (sort: GovernanceSort<Field> | undefined) => void;
 }
 
-// Each keyed table owns its query observer; only page changes retain previous rows.
+// A pending scope must not claim data retained from the previous query.
+const useScopedData = <Data,>(scope: string, data: Data | undefined, isPreviousData: boolean) => {
+  const [dataScope, setDataScope] = React.useState(scope);
+  if (data !== undefined && !isPreviousData && dataScope !== scope) {
+    setDataScope(scope);
+  }
+  return isPreviousData && dataScope !== scope ? undefined : data;
+};
+
 const GovernanceProposals = ({
   page,
   scope,
@@ -55,21 +63,25 @@ const GovernanceProposals = ({
     ...(sort ? { sort: sort.field, order: sort.order } : {}),
     ...(keyword ? { q: keyword } : {}),
   });
+  const data = useScopedData(scope, proposals.data, proposals.isPreviousData);
 
   return (
     <>
-      {proposals.isError ? (
-        <ErrorMessage role="alert">
-          Unable to load proposals.
-          <button type="button" onClick={() => proposals.refetch()}>
-            Try again
-          </button>
-        </ErrorMessage>
-      ) : proposals.data === undefined ? (
-        <TableSkeleton />
-      ) : (
-        <GovernanceProposalTable proposals={proposals.data.items} sort={sort ?? undefined} onSort={onSort} />
-      )}
+      <GovernanceProposalTable
+        proposals={data?.items}
+        sort={sort ?? undefined}
+        onSort={onSort}
+        error={
+          proposals.isError ? (
+            <ErrorMessage role="alert">
+              Unable to load proposals.
+              <button type="button" onClick={() => proposals.refetch()}>
+                Try again
+              </button>
+            </ErrorMessage>
+          ) : undefined
+        }
+      />
       <ListPagination
         page={page}
         pageSize={DEFAULT_LIST_ITEMS_SIZE}
@@ -89,21 +101,25 @@ const GovernanceMembers = ({ page, scope, sort, onSort, onChangePage }: Governan
     limit: DEFAULT_LIST_ITEMS_SIZE,
     ...(sort ? { sort: sort.field, order: sort.order } : {}),
   });
+  const data = useScopedData(scope, members.data, members.isPreviousData);
 
   return (
     <>
-      {members.isError ? (
-        <ErrorMessage role="alert">
-          Unable to load members.
-          <button type="button" onClick={() => members.refetch()}>
-            Try again
-          </button>
-        </ErrorMessage>
-      ) : members.data === undefined ? (
-        <TableSkeleton />
-      ) : (
-        <GovernanceMemberTable members={members.data.items} sort={sort ?? undefined} onSort={onSort} />
-      )}
+      <GovernanceMemberTable
+        members={data?.items}
+        sort={sort ?? undefined}
+        onSort={onSort}
+        error={
+          members.isError ? (
+            <ErrorMessage role="alert">
+              Unable to load members.
+              <button type="button" onClick={() => members.refetch()}>
+                Try again
+              </button>
+            </ErrorMessage>
+          ) : undefined
+        }
+      />
       <ListPagination
         page={page}
         pageSize={DEFAULT_LIST_ITEMS_SIZE}
@@ -197,7 +213,6 @@ const GovernanceList = () => {
         </S.Toolbar>
         {tab === "proposals" ? (
           <GovernanceProposals
-            key={proposalScope}
             page={proposalPage}
             scope={proposalScope}
             sort={proposalsSort}
@@ -210,7 +225,6 @@ const GovernanceList = () => {
           />
         ) : (
           <GovernanceMembers
-            key={memberScope}
             page={memberPage}
             scope={memberScope}
             sort={membersSort}
