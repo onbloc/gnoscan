@@ -18,6 +18,7 @@ import { ApiStatisticsRepository, ApiStatisticsRepositoryImpl } from "@/reposito
 import { ApiSearchRepository, ApiSearchRepositoryImpl } from "@/repositories/api/search";
 import { ApiValidatorRepository, ApiValidatorRepositoryImpl } from "@/repositories/api/validator";
 import { ApiPriceRepository, ApiPriceRepositoryImpl } from "@/repositories/api/price";
+import { ApiGovernanceRepository, ApiGovernanceRepositoryImpl } from "@/repositories/api/governance";
 
 interface ServiceContextProps {
   chainRepository: IChainRepository | null;
@@ -34,6 +35,7 @@ interface ServiceContextProps {
   apiSearchRepository: ApiSearchRepository | null;
   apiValidatorRepository: ApiValidatorRepository | null;
   apiPriceRepository: ApiPriceRepository | null;
+  apiGovernanceRepository: ApiGovernanceRepository | null;
 }
 
 export const ServiceContext = createContext<ServiceContextProps | null>(null);
@@ -126,6 +128,11 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     [onblocAPIClient],
   );
 
+  const apiGovernanceRepository = useMemo(
+    () => (!isCustomNetwork && onblocAPIClient ? new ApiGovernanceRepositoryImpl(onblocAPIClient) : null),
+    [isCustomNetwork, onblocAPIClient],
+  );
+
   const transactionRepository = useMemo(() => {
     if (!nodeRPCClient) {
       return null;
@@ -179,6 +186,7 @@ const ServiceProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         apiSearchRepository,
         apiValidatorRepository,
         apiPriceRepository,
+        apiGovernanceRepository,
       }}
     >
       {children}

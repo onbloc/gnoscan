@@ -1,4 +1,12 @@
 export enum QUERY_KEY {
+  // governance
+  getGovernanceSummary = "api_get_governance_summary",
+  getGovernanceProposals = "api_get_governance_proposals",
+  getLiveGovernanceProposals = "api_get_live_governance_proposals",
+  getGovernanceMembers = "api_get_governance_members",
+  getGovernanceProposal = "api_get_governance_proposal",
+  getGovernanceProposalVotes = "api_get_governance_proposal_votes",
+
   // account
   getAccount = "api_get_account",
   getAccounts = "api_get_accounts",
