@@ -6,6 +6,8 @@ import { useNetwork } from "@/common/hooks/use-network";
 import { decodeGovernanceTitle, formatGovernanceNumber } from "@/common/utils/governance-util";
 import { textEllipsis } from "@/common/utils/string-util";
 import { GovernanceMember, GovernanceProposal, GovernanceSummary } from "@/models/api/governance";
+import IconArrow from "@/assets/svgs/icon-arrow.svg";
+import { ArrowButton } from "@/components/view/common/title-option/TitleOption.styles";
 import { GovernanceAccountView, ProposalStatusBadge, TierBadge, VoteBreakdown } from "./governance-common";
 import * as S from "./governance-list.styles";
 
@@ -45,6 +47,100 @@ interface SummaryProps {
   latestError: boolean;
 }
 
+const LiveHeading = ({ count, children }: { count?: number; children?: React.ReactNode }) => (
+  <S.LiveHeading>
+    <S.CardHeading>
+      Live Proposals
+      <S.Count>{count === undefined ? "-" : formatGovernanceNumber(count)}</S.Count>
+    </S.CardHeading>
+    {children}
+  </S.LiveHeading>
+);
+
+const getLiveProposalStep = (element: HTMLDivElement) => {
+  const first = element.children[0] as HTMLElement;
+  const second = element.children[1] as HTMLElement | undefined;
+  return second ? second.offsetLeft - first.offsetLeft : element.clientWidth;
+};
+
+const LiveProposalCarousel = ({ proposals }: { proposals: GovernanceProposal[] }) => {
+  const { getUrlWithNetwork } = useNetwork();
+  const router = useRouter();
+  const viewport = React.useRef<HTMLDivElement>(null);
+  const [index, setIndex] = React.useState(0);
+  const navigate = (direction: number) => {
+    const element = viewport.current;
+    if (element) element.scrollTo({ left: (index + direction) * getLiveProposalStep(element) });
+  };
+
+  return (
+    <>
+      <LiveHeading count={proposals.length}>
+        {proposals.length > 1 && (
+          <S.LiveControls>
+            <ArrowButton
+              as="button"
+              type="button"
+              aria-label="Previous live proposal"
+              disabled={index === 0}
+              onClick={() => navigate(-1)}
+            >
+              <IconArrow className="icon-arrow-right" />
+            </ArrowButton>
+            <ArrowButton
+              as="button"
+              type="button"
+              aria-label="Next live proposal"
+              disabled={index === proposals.length - 1}
+              onClick={() => navigate(1)}
+            >
+              <IconArrow />
+            </ArrowButton>
+          </S.LiveControls>
+        )}
+      </LiveHeading>
+      <S.LiveViewport
+        ref={viewport}
+        role="region"
+        aria-label="Live proposals"
+        aria-roledescription="carousel"
+        tabIndex={0}
+        onScroll={event => {
+          const element = event.currentTarget;
+          const step = getLiveProposalStep(element);
+          if (step > 0) setIndex(Math.max(0, Math.min(proposals.length - 1, Math.round(element.scrollLeft / step))));
+        }}
+      >
+        {proposals.map(proposal => {
+          const href = getUrlWithNetwork(`/governance/${proposal.id}`);
+          return (
+            <S.LiveProposal
+              key={proposal.id}
+              role="link"
+              tabIndex={0}
+              aria-label={`View live proposal #${proposal.id}`}
+              onClick={event => {
+                if (event.defaultPrevented || (event.target as Element).closest("a, button, input")) return;
+                void router.push(href);
+              }}
+              onKeyDown={event => {
+                if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
+                event.preventDefault();
+                void router.push(href);
+              }}
+            >
+              <S.ProposalLink href={href}>
+                #{proposal.id} {decodeGovernanceTitle(proposal.title)}
+              </S.ProposalLink>
+              <VoteBreakdown votes={proposal.votes} status={proposal.status} />
+            </S.LiveProposal>
+          );
+        })}
+      </S.LiveViewport>
+    </>
+  );
+};
+
 export const GovernanceSummaryCards = ({
   summary,
   summaryError,
@@ -54,11 +150,10 @@ export const GovernanceSummaryCards = ({
   latestError,
 }: SummaryProps) => {
   const { getUrlWithNetwork } = useNetwork();
-  const router = useRouter();
 
   return (
     <S.SummaryGrid>
-      <S.SummaryCard>
+      <S.ProposalsSummaryCard aria-label="Proposals summary">
         <S.CardHeading>Proposals Summary</S.CardHeading>
         {summaryError ? (
           <S.Message role="alert">Unable to load governance summary.</S.Message>
@@ -74,55 +169,32 @@ export const GovernanceSummaryCards = ({
         ) : (
           <S.Message role="status">Loading summary…</S.Message>
         )}
-      </S.SummaryCard>
+      </S.ProposalsSummaryCard>
       <S.LiveCard>
-        <S.CardHeading>
-          Live Proposals
-          <S.Count>{live === undefined ? "-" : formatGovernanceNumber(live.length)}</S.Count>
-        </S.CardHeading>
-        {liveError || (live?.length === 0 && latestError) ? (
-          <S.Message role="alert">Unable to load proposals.</S.Message>
-        ) : live === undefined || (live.length === 0 && latest === undefined) ? (
-          <S.Message role="status">Loading proposals…</S.Message>
-        ) : live.length > 0 ? (
-          live.map(proposal => {
-            const href = getUrlWithNetwork(`/governance/${proposal.id}`);
-            return (
-              <S.LiveProposal
-                key={proposal.id}
-                role="link"
-                tabIndex={0}
-                aria-label={`View live proposal #${proposal.id}`}
-                onClick={event => {
-                  if (event.defaultPrevented || (event.target as Element).closest("a, button, input")) return;
-                  void router.push(href);
-                }}
-                onKeyDown={event => {
-                  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-                  event.preventDefault();
-                  void router.push(href);
-                }}
-              >
-                <S.ProposalLink href={href}>
-                  #{proposal.id} {decodeGovernanceTitle(proposal.title)}
-                </S.ProposalLink>
-                <VoteBreakdown votes={proposal.votes} status={proposal.status} />
-              </S.LiveProposal>
-            );
-          })
-        ) : latest?.length ? (
-          <S.LatestProposal>
-            <div>No active proposals</div>
-            <small>
-              <S.LatestLink href={getUrlWithNetwork(`/governance/${latest[0].id}`)}>
-                Latest #{latest[0].id} {decodeGovernanceTitle(latest[0].title)}
-              </S.LatestLink>
-              {" · "}
-              {STATUS_LABELS[latest[0].status]}
-            </small>
-          </S.LatestProposal>
+        {!liveError && live && live.length > 0 ? (
+          <LiveProposalCarousel key={live.map(proposal => proposal.id).join(",")} proposals={live} />
         ) : (
-          <S.Message>No proposals yet</S.Message>
+          <>
+            <LiveHeading count={live?.length} />
+            {liveError || (live?.length === 0 && latestError) ? (
+              <S.Message role="alert">Unable to load proposals.</S.Message>
+            ) : live === undefined || (live.length === 0 && latest === undefined) ? (
+              <S.Message role="status">Loading proposals…</S.Message>
+            ) : latest?.length ? (
+              <S.LatestProposal>
+                <div>No active proposals</div>
+                <small>
+                  <S.LatestLink href={getUrlWithNetwork(`/governance/${latest[0].id}`)}>
+                    Latest #{latest[0].id} {decodeGovernanceTitle(latest[0].title)}
+                  </S.LatestLink>
+                  {" · "}
+                  {STATUS_LABELS[latest[0].status]}
+                </small>
+              </S.LatestProposal>
+            ) : (
+              <S.Message>No proposals yet</S.Message>
+            )}
+          </>
         )}
       </S.LiveCard>
     </S.SummaryGrid>

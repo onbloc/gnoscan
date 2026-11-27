@@ -1,6 +1,8 @@
 import Link from "next/link";
 import styled from "styled-components";
 
+import { media } from "@/common/values/ui.constant";
+
 export const Subtitle = styled.p`
   margin-top: 4px;
   ${({ theme }) => theme.fonts.p4};
@@ -12,7 +14,7 @@ export const SummaryGrid = styled.div`
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 
-  @media (max-width: 600px) {
+  ${media.MOBILE} {
     grid-template-columns: minmax(0, 1fr);
   }
 `;
@@ -25,6 +27,24 @@ export const SummaryCard = styled.section`
   padding: 20px 24px;
   border-radius: 10px;
   background-color: ${({ theme }) => theme.colors.base};
+`;
+
+export const ProposalsSummaryCard = styled(SummaryCard)`
+  ${media.NOT_DESKTOP} {
+    align-self: start;
+    padding: 16px;
+
+    > h3 {
+      display: none;
+    }
+
+    > [role="status"],
+    > [role="alert"] {
+      padding: 0;
+      text-align: left;
+      ${({ theme }) => theme.fonts.p4};
+    }
+  }
 `;
 
 export const CardHeading = styled.h3`
@@ -63,30 +83,77 @@ export const Stats = styled.dl`
     font-weight: 700;
   }
 
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  ${media.NOT_DESKTOP} {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    white-space: nowrap;
+
+    > div {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    dt {
+      ${({ theme }) => theme.fonts.body1};
+    }
+
+    dd {
+      margin-top: 0;
+      ${({ theme }) => theme.fonts.p3};
+      font-weight: 600;
+    }
   }
 `;
 
 export const LiveCard = styled(SummaryCard)`
-  height: 0;
-  min-height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
+
+  ${media.NOT_DESKTOP} {
+    padding: 16px;
+  }
+`;
+
+export const LiveHeading = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`;
+
+export const LiveControls = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+
+  ${media.MOBILE} {
+    display: none;
+  }
+`;
+
+export const LiveViewport = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
-    width: 8px;
-    background: transparent;
+    display: none;
   }
 
-  &::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    background: ${({ theme }) => theme.colors.dimmed200};
-  }
-
-  @media (max-width: 600px) {
-    height: auto;
-    min-height: 180px;
-    max-height: 320px;
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
   }
 `;
 
@@ -95,16 +162,20 @@ export const LiveProposal = styled.article`
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   cursor: pointer;
+
+  ${media.NOT_DESKTOP} {
+    > a {
+      ${({ theme }) => theme.fonts.p4};
+    }
+  }
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.blue};
-    outline-offset: 2px;
-  }
-
-  & + & {
-    border-top: 1px solid ${({ theme }) => theme.colors.dimmed100};
-    padding-top: 12px;
+    outline-offset: -2px;
   }
 `;
 

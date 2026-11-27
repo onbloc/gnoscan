@@ -49,6 +49,7 @@ jest.mock("@/components/view/common/list-pagination/ListPagination", () => ({
   ),
 }));
 jest.mock("@/assets/svgs/icon-sort-down.svg", () => () => null);
+jest.mock("@/assets/svgs/icon-arrow.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-sort-up.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-nft-search.svg", () => () => null);
 jest.mock("@/assets/svgs/icon-tooltip.svg", () => () => null);
