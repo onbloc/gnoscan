@@ -14,8 +14,8 @@ describe("toCsv", () => {
   });
 
   it("quotes a cell with a comma, a quote or a line break, doubling the quotes", () => {
-    expect(toCsv(["h"], [["a,b"], ["say \"hi\""], ["two\nlines"]])).toBe(
-      "h\r\n\"a,b\"\r\n\"say \"\"hi\"\"\"\r\n\"two\nlines\"\r\n",
+    expect(toCsv(["h"], [["a,b"], ['say "hi"'], ["two\nlines"]])).toBe(
+      'h\r\n"a,b"\r\n"say ""hi"""\r\n"two\nlines"\r\n',
     );
   });
 
@@ -26,6 +26,6 @@ describe("toCsv", () => {
   });
 
   it("quotes a formula cell that also needs quoting", () => {
-    expect(toCsv(["h"], [["=a,b"]])).toBe("h\r\n\"'=a,b\"\r\n");
+    expect(toCsv(["h"], [["=a,b"]])).toBe('h\r\n"\'=a,b"\r\n');
   });
 });

@@ -20,6 +20,12 @@ interface ProposalVotesProps {
   pagination: ListPaginationProps;
 }
 
+const formatVoteTime = (vote: GovernanceVote) => {
+  if (!vote.txHash || !vote.votedAt) return "-";
+  const date = dayjs(vote.votedAt);
+  return date.isValid() ? date.format("YYYY-MM-DD HH:mm:ss") : "-";
+};
+
 const ProposalVotes = ({ votes, totalCount, isLoading, isError, onRetry, pagination }: ProposalVotesProps) => (
   <VotesSection>
     <Heading role="tablist" aria-label="Proposal details">
@@ -83,7 +89,7 @@ const ProposalVotes = ({ votes, totalCount, isLoading, isError, onRetry, paginat
                   </td>
                   <td>{formatGovernanceNumber(vote.power)}</td>
                   <td>{vote.txHash ? <TxHashCopy txHash={vote.txHash} /> : "-"}</td>
-                  <td>{vote.txHash && vote.votedAt ? dayjs(vote.votedAt).format("YYYY-MM-DD HH:mm:ss") : "-"}</td>
+                  <td>{formatVoteTime(vote)}</td>
                 </tr>
               ))}
             </tbody>

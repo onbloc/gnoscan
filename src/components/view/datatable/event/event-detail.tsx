@@ -54,9 +54,8 @@ export const EventDetail: React.FC<{ visible: boolean; event: GnoEvent }> = ({ v
               <Text type="p4" color={"primary"}>
                 <span className="func-definition">func </span>
                 <span className="func-name">{event.functionName}</span>
-                {' → std.Emit("'} {/* eslint-disable-line quotes */}
-                <span className="event-name">{event.type}</span>
-                {'"'} {/* eslint-disable-line quotes */}
+                {' → std.Emit("'} <span className="event-name">{event.type}</span>
+                {'"'}{" "}
                 {(event.attrs || []).map((attr, index) => (
                   <React.Fragment key={index}>
                     {", "}

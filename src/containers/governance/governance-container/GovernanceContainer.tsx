@@ -3,6 +3,7 @@ import React from "react";
 import { useListPagination } from "@/common/hooks/common/use-list-pagination";
 import { useHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { useDebounce } from "@/common/hooks/use-debounce";
 import {
   useGetGovernanceMembers,
   useGetGovernanceProposals,
@@ -21,27 +22,31 @@ import {
   GovernanceSummaryCards,
 } from "@/components/view/governance/governance-list";
 import * as S from "@/components/view/governance/governance-list.styles";
-import { ListSearch, useListKeyword } from "@/components/view/list-summary/ListSearch";
+import { ListSearch } from "@/components/view/list-summary/ListSearch";
+import { Message as ErrorMessage } from "@/layouts/governance/ProposalLayout.styles";
 
 interface GovernanceListState {
   network: string | undefined;
   tab: "proposals" | "members";
   proposalsSort: GovernanceSort<"id" | "status"> | null;
   membersSort: GovernanceSort<"tier" | "power"> | null;
+  searchValue: string;
+  keyword: string;
 }
 
 const GovernanceList = () => {
   const { currentNetwork } = useNetworkProvider();
   const network = currentNetwork?.chainId;
   const initialState = React.useMemo<GovernanceListState>(
-    () => ({ network, tab: "proposals", proposalsSort: null, membersSort: null }),
+    () => ({ network, tab: "proposals", proposalsSort: null, membersSort: null, searchValue: "", keyword: "" }),
     [network],
   );
   const [listState, setListState] = useHistoryEntryState("governance:list", initialState);
   const networkChanged = network !== undefined && listState.network !== network;
-  const { tab, proposalsSort, membersSort } = networkChanged ? initialState : listState;
-  const search = useListKeyword();
-  const proposalScope = `${proposalsSort?.field ?? "none"}:${proposalsSort?.order ?? "none"}:${search.keyword ?? ""}`;
+  const { tab, proposalsSort, membersSort, searchValue = "", keyword = "" } = networkChanged ? initialState : listState;
+  // Seed the restored query while a pending search resumes its debounce.
+  const debouncedKeyword = useDebounce(searchValue.trim(), 300, keyword);
+  const proposalScope = `${proposalsSort?.field ?? "none"}:${proposalsSort?.order ?? "none"}:${keyword}`;
   const memberScope = `${membersSort?.field ?? "none"}:${membersSort?.order ?? "none"}`;
   const [proposalPage, setProposalPage] = useListPagination("governance-proposals", proposalScope);
   const [memberPage, setMemberPage] = useListPagination("governance-members", memberScope);
@@ -50,15 +55,14 @@ const GovernanceList = () => {
     setProposalPage(1);
     setMemberPage(1);
   }
-  const previousKeyword = React.useRef(search.keyword);
   React.useEffect(() => {
-    if (previousKeyword.current !== search.keyword) {
+    if (debouncedKeyword === searchValue.trim() && debouncedKeyword !== keyword) {
       setProposalPage(1);
-      previousKeyword.current = search.keyword;
+      setListState(previous => ({ ...previous, keyword: debouncedKeyword }));
     }
-  }, [search.keyword, setProposalPage]);
-  const summary = useGetGovernanceSummary({ refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
-  const live = useGetLiveGovernanceProposals({ refetchInterval: LIST_SUMMARY_REFETCH_INTERVAL });
+  }, [debouncedKeyword, searchValue, keyword, setProposalPage, setListState]);
+  const summary = useGetGovernanceSummary();
+  const live = useGetLiveGovernanceProposals();
   const latest = useGetGovernanceProposals(
     { page: 1, limit: 1 },
     {
@@ -71,7 +75,7 @@ const GovernanceList = () => {
       page: proposalPage,
       limit: DEFAULT_LIST_ITEMS_SIZE,
       ...(proposalsSort ? { sort: proposalsSort.field, order: proposalsSort.order } : {}),
-      ...(search.keyword ? { q: search.keyword } : {}),
+      ...(keyword ? { q: keyword } : {}),
     },
     { enabled: tab === "proposals", keepPreviousData: true },
   );
@@ -120,14 +124,23 @@ const GovernanceList = () => {
           </S.Tabs>
           {tab === "proposals" && (
             <S.Search>
-              <ListSearch value={search.value} onChange={search.setValue} placeholder="Search proposals" />
+              <ListSearch
+                value={searchValue}
+                onChange={value => setListState(previous => ({ ...previous, searchValue: value }))}
+                placeholder="Search proposals"
+              />
             </S.Search>
           )}
         </S.Toolbar>
         {tab === "proposals" ? (
           <>
             {proposals.isError ? (
-              <S.Message role="alert">Unable to load proposals.</S.Message>
+              <ErrorMessage role="alert">
+                Unable to load proposals.
+                <button type="button" onClick={() => proposals.refetch()}>
+                  Try again
+                </button>
+              </ErrorMessage>
             ) : proposals.data === undefined ? (
               <TableSkeleton />
             ) : (
@@ -153,7 +166,12 @@ const GovernanceList = () => {
         ) : (
           <>
             {members.isError ? (
-              <S.Message role="alert">Unable to load members.</S.Message>
+              <ErrorMessage role="alert">
+                Unable to load members.
+                <button type="button" onClick={() => members.refetch()}>
+                  Try again
+                </button>
+              </ErrorMessage>
             ) : members.data === undefined ? (
               <TableSkeleton />
             ) : (

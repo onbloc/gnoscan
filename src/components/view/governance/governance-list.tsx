@@ -8,10 +8,14 @@ import { textEllipsis } from "@/common/utils/string-util";
 import { GovernanceMember, GovernanceProposal, GovernanceSummary } from "@/models/api/governance";
 import IconArrow from "@/assets/svgs/icon-arrow.svg";
 import { ArrowButton } from "@/components/view/common/title-option/TitleOption.styles";
-import { GovernanceAccountView, ProposalStatusBadge, TierBadge, VoteBreakdown } from "./governance-common";
+import {
+  getProposalStatusLabel,
+  GovernanceAccountView,
+  ProposalStatusBadge,
+  TierBadge,
+  VoteBreakdown,
+} from "./governance-common";
 import * as S from "./governance-list.styles";
-
-const STATUS_LABELS = { ACTIVE: "Active", ACCEPTED: "Accepted", REJECTED: "Rejected" } as const;
 
 export interface GovernanceSort<Field extends string> {
   field: Field;
@@ -116,16 +120,8 @@ const LiveProposalCarousel = ({ proposals }: { proposals: GovernanceProposal[] }
           return (
             <S.LiveProposal
               key={proposal.id}
-              role="link"
-              tabIndex={0}
-              aria-label={`View live proposal #${proposal.id}`}
               onClick={event => {
                 if (event.defaultPrevented || (event.target as Element).closest("a, button, input")) return;
-                void router.push(href);
-              }}
-              onKeyDown={event => {
-                if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-                event.preventDefault();
                 void router.push(href);
               }}
             >
@@ -188,7 +184,7 @@ export const GovernanceSummaryCards = ({
                     Latest #{latest[0].id} {decodeGovernanceTitle(latest[0].title)}
                   </S.LatestLink>
                   {" · "}
-                  {STATUS_LABELS[latest[0].status]}
+                  {getProposalStatusLabel(latest[0].status)}
                 </small>
               </S.LatestProposal>
             ) : (
@@ -238,15 +234,8 @@ export const GovernanceProposalTable = ({ proposals, sort, onSort }: ProposalTab
             return (
               <S.ProposalRow
                 key={proposal.id}
-                tabIndex={0}
-                aria-label={`View proposal #${proposal.id}`}
                 onClick={event => {
                   if (event.defaultPrevented || (event.target as Element).closest("a, button, input")) return;
-                  void router.push(href);
-                }}
-                onKeyDown={event => {
-                  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-                  event.preventDefault();
                   void router.push(href);
                 }}
               >

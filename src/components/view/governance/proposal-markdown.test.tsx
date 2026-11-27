@@ -47,7 +47,7 @@ it("renders formatted Markdown and resolves realm and user links against the sel
 });
 
 it("removes raw HTML and script blocks rather than interpreting proposal HTML", () => {
-  render("<script>window.proposalScript = true</script>\n\n<img src=\"x\" onerror=\"alert(1)\">\n\n**Safe text**");
+  render('<script>window.proposalScript = true</script>\n\n<img src="x" onerror="alert(1)">\n\n**Safe text**');
   expect(container.querySelector("script, img")).toBeNull();
   expect(container.textContent).not.toContain("window.proposalScript");
   expect(container.querySelector("strong")?.textContent).toBe("Safe text");
@@ -75,4 +75,17 @@ it("updates relative destinations when the network changes", () => {
   expect(container.querySelector("a")?.href).toBe("https://gno.land/r/gov/dao");
   render("[GovDAO](/r/gov/dao)", "https://testnet.gno.land");
   expect(container.querySelector("a")?.href).toBe("https://testnet.gno.land/r/gov/dao");
+});
+
+it("retains external and network-relative images without sending the explorer referrer", () => {
+  render("![External](https://images.example.org/proposal.png) ![Realm](/r/gov/dao/banner.png)");
+  const images = Array.from(container.querySelectorAll("img"));
+  expect(images.map(image => image.src)).toEqual([
+    "https://images.example.org/proposal.png",
+    "https://testnet.gno.land/r/gov/dao/banner.png",
+  ]);
+  images.forEach(image => {
+    expect(image.getAttribute("referrerpolicy")).toBe("no-referrer");
+    expect(image.getAttribute("loading")).toBe("lazy");
+  });
 });

@@ -14,7 +14,7 @@ export default [
     rules: {
       ...tsPlugin.configs.recommended.rules,
       "linebreak-style": ["error", "unix"],
-      quotes: ["error", "double"],
+      quotes: ["error", "double", { avoidEscape: true }],
       semi: ["error", "always"],
       "array-element-newline": [
         "warn",

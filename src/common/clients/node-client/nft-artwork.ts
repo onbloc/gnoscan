@@ -44,10 +44,10 @@ function splitEvalValues(text: string): string[] {
     if (quoted) {
       if (escaped) escaped = false;
       else if (char === "\\") escaped = true;
-      else if (char === "\"") quoted = false;
+      else if (char === '"') quoted = false;
       continue;
     }
-    if (char === "\"") quoted = true;
+    if (char === '"') quoted = true;
     else if (char === "(" || char === "[" || char === "{") {
       closers.push(char === "(" ? ")" : char === "[" ? "]" : "}");
     } else if (char === ")" || char === "]" || char === "}") {
@@ -68,10 +68,10 @@ function unquoteGoString(literal: string): { text: string; validUtf8: boolean } 
   const appendText = (text: string) => {
     for (const byte of encoder.encode(text)) bytes.push(byte);
   };
-  const escapes: Record<string, number> = { a: 7, b: 8, f: 12, n: 10, r: 13, t: 9, v: 11, "\\": 92, "\"": 34 };
+  const escapes: Record<string, number> = { a: 7, b: 8, f: 12, n: 10, r: 13, t: 9, v: 11, "\\": 92, '"': 34 };
   let start = 1;
   for (let i = 1; i < literal.length - 1; i++) {
-    if (literal[i] === "\n" || literal[i] === "\"") throw new Error("Invalid Go string literal");
+    if (literal[i] === "\n" || literal[i] === '"') throw new Error("Invalid Go string literal");
     if (literal[i] !== "\\") continue;
     appendText(literal.slice(start, i));
     const escape = literal[++i];
@@ -158,7 +158,7 @@ function jsonEntries(source: string): Array<[string, string]> {
       }
       start = object ? -1 : tokens.lastIndex;
     } else if (depth === 1 && object && start === -1) {
-      if (token[0] === "\"") key = JSON.parse(token);
+      if (token[0] === '"') key = JSON.parse(token);
       else if (token === ":") start = tokens.lastIndex;
     }
     if (token === "{" || token === "[") {

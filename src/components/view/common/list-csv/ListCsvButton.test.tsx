@@ -50,7 +50,7 @@ describe("ListCsvButton", () => {
 
     act(() => button().click());
 
-    expect(downloadCsv).toHaveBeenCalledWith("blocks_page-2.csv", "h,n\r\n\"a,b\",1\r\n");
+    expect(downloadCsv).toHaveBeenCalledWith("blocks_page-2.csv", 'h,n\r\n"a,b",1\r\n');
   });
 
   it("cannot download before the list reports, while the rows are those of another page, or without rows", () => {

@@ -172,11 +172,6 @@ export const LiveProposal = styled.article`
       ${({ theme }) => theme.fonts.p4};
     }
   }
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.blue};
-    outline-offset: -2px;
-  }
 `;
 
 export const ProposalLink = styled(Link)`
@@ -185,6 +180,11 @@ export const ProposalLink = styled(Link)`
   color: ${({ theme }) => theme.colors.blue};
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.blue};
+    outline-offset: -2px;
+  }
 `;
 
 export const ProposerName = styled.span`
@@ -306,11 +306,6 @@ export const Table = styled.table<{ $members?: boolean }>`
 
 export const ProposalRow = styled.tr`
   cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.blue};
-    outline-offset: -2px;
-  }
 `;
 
 export const SortHeaderCell = styled.th`

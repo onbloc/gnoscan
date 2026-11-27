@@ -21,26 +21,32 @@ const choiceColors: Record<GovernanceVote["choice"], PaletteKeyType> = {
   ABSTAIN: "pending",
 };
 const choices = ["yes", "no", "abstain"] as const;
-const choiceLabels = { yes: "Yes", no: "No", abstain: "Abstain" };
+const choiceLabels = { YES: "Yes", NO: "No", ABSTAIN: "Abstain" };
+const tallyChoiceLabels = { yes: choiceLabels.YES, no: choiceLabels.NO, abstain: choiceLabels.ABSTAIN };
 const tierColors: Record<string, { background: string; text: string }> = {
   T1: { background: "#329175", text: "#FFFFFF" },
   T2: { background: "#21577A", text: "#FFFFFF" },
   T3: { background: "#F3D3BC", text: "#7a4f2a" },
 };
 
+export const getGovernanceLabel = (labels: Record<string, string>, value: unknown) => {
+  if (typeof value !== "string" || !value) return "Unknown";
+  return Object.prototype.hasOwnProperty.call(labels, value) ? labels[value] : value;
+};
+
+export const getProposalStatusLabel = (status: unknown) => getGovernanceLabel(statusLabels, status);
+
 export const GovernanceAccountView = ({
   account,
   addressOnly = false,
-  copy = false,
   showNameTagPrefix = true,
 }: {
   account: GovernanceAccount;
   addressOnly?: boolean;
-  copy?: boolean;
   showNameTagPrefix?: boolean;
 }) => {
   const { getUrlWithNetwork } = useNetwork();
-  if (account.address && (addressOnly || copy || !account.nameTag)) {
+  if (account.address && (addressOnly || !account.nameTag)) {
     return <AddressCopy address={account.address} />;
   }
   const nameTag = account.nameTag ? `${showNameTagPrefix ? "@" : ""}${account.nameTag.replace(/^@/, "")}` : "-";
@@ -48,17 +54,23 @@ export const GovernanceAccountView = ({
   return <AccountLink href={getUrlWithNetwork(`/account/${account.address}`)}>{nameTag}</AccountLink>;
 };
 
-export const ProposalStatusBadge = ({ status }: { status: GovernanceStatus }) => (
-  <Badge type={statusColors[status]} margin="0" style={{ color: "#FFFFFF" }}>
-    {statusLabels[status]}
-  </Badge>
-);
+export const ProposalStatusBadge = ({ status }: { status: GovernanceStatus }) => {
+  const type = Object.prototype.hasOwnProperty.call(statusColors, status) ? statusColors[status] : undefined;
+  return (
+    <Badge type={type} margin="0" style={{ color: type ? "#FFFFFF" : undefined }}>
+      {getProposalStatusLabel(status)}
+    </Badge>
+  );
+};
 
-export const VoteChoiceBadge = ({ choice }: { choice: GovernanceVote["choice"] }) => (
-  <Badge type={choiceColors[choice]} margin="0" padding="2px 12px" style={{ color: "#FFFFFF", minHeight: 20 }}>
-    {choiceLabels[choice.toLowerCase() as (typeof choices)[number]]}
-  </Badge>
-);
+export const VoteChoiceBadge = ({ choice }: { choice: GovernanceVote["choice"] }) => {
+  const type = Object.prototype.hasOwnProperty.call(choiceColors, choice) ? choiceColors[choice] : undefined;
+  return (
+    <Badge type={type} margin="0" padding="2px 12px" style={{ color: type ? "#FFFFFF" : undefined, minHeight: 20 }}>
+      {getGovernanceLabel(choiceLabels, choice)}
+    </Badge>
+  );
+};
 
 export const TierBadge = ({ tier }: { tier: string }) => {
   const colors = tierColors[tier];
@@ -81,7 +93,7 @@ export const VoteBreakdown = ({ votes, status }: { votes: GovernanceVotes; statu
         : hasPercent
         ? `${formatGovernanceNumber(votes[choice].percent!)}%`
         : formatGovernanceNumber(votes[choice].count);
-      return `${choiceLabels[choice]} ${value}`;
+      return `${tallyChoiceLabels[choice]} ${value}`;
     })
     .join(" / ");
 
@@ -101,7 +113,7 @@ export const VoteBreakdown = ({ votes, status }: { votes: GovernanceVotes; statu
       <VoteLegend>
         {choices.map(choice => (
           <span key={choice}>
-            {choiceLabels[choice]}{" "}
+            {tallyChoiceLabels[choice]}{" "}
             <strong>
               {unknown
                 ? "-"

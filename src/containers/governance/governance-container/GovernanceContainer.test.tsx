@@ -4,6 +4,7 @@ import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { ThemeProvider } from "styled-components";
 
+import { writeHistoryEntryState } from "@/common/hooks/detail-tabs/use-history-entry-state";
 import { GovernanceMember, GovernanceProposal, GovernanceSummary } from "@/models/api/governance";
 import theme from "@/styles/theme";
 import GovernanceContainer from "./GovernanceContainer";
@@ -191,6 +192,74 @@ it("debounces the trimmed q request by 300ms and resets its page, including clea
   expect(lastProposalRequest().page).toBe(1);
 });
 
+it("restores the search input and effective query with the saved page before requesting the list", () => {
+  render();
+  changeSearch("  validators  ");
+  act(() => void jest.advanceTimersByTime(300));
+  click("button[aria-label='Sort by Status']");
+  click("button[aria-label='Next page']");
+  expect(lastProposalRequest()).toMatchObject({ q: "validators", page: 2, sort: "status", order: "desc" });
+  selectMembers();
+  click("button[aria-label='Next page']");
+
+  act(() => root.render(null));
+  window.history.replaceState({ key: "proposal-entry" }, "", "/governance/20");
+  window.history.replaceState({ key: "governance-entry" }, "", "/governance");
+  mockUseProposals.mockClear();
+  render();
+  expect(container.querySelector("table[aria-label='Governance members']")).not.toBeNull();
+  expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
+  click("button[aria-pressed='false']");
+  expect(container.querySelector<HTMLInputElement>("input[type=search]")?.value).toBe("  validators  ");
+  expect(container.querySelector("[data-current-page]")?.textContent).toBe("2");
+  act(() => void jest.advanceTimersByTime(300));
+  const requests = mockUseProposals.mock.calls.filter(([params]) => params.limit === 40);
+  expect(requests.length).toBeGreaterThan(0);
+  requests.forEach(([params]) =>
+    expect(params).toMatchObject({ q: "validators", page: 2, sort: "status", order: "desc" }),
+  );
+
+  changeSearch("validators updated");
+  act(() => void jest.advanceTimersByTime(299));
+  expect(lastProposalRequest()).toMatchObject({ q: "validators", page: 2 });
+  act(() => void jest.advanceTimersByTime(1));
+  expect(lastProposalRequest()).toMatchObject({ q: "validators updated", page: 1 });
+});
+
+it("restores a pending input without immediately replacing its saved query and page", () => {
+  render();
+  changeSearch("validator");
+  act(() => void jest.advanceTimersByTime(300));
+  click("button[aria-label='Next page']");
+  changeSearch("  validators pending  ");
+  act(() => void jest.advanceTimersByTime(100));
+  act(() => root.render(null));
+  window.history.replaceState({ key: "proposal-entry" }, "", "/governance/20");
+  window.history.replaceState({ key: "governance-entry" }, "", "/governance");
+  render();
+  expect(container.querySelector<HTMLInputElement>("input[type=search]")?.value).toBe("  validators pending  ");
+  expect(lastProposalRequest()).toMatchObject({ q: "validator", page: 2 });
+  act(() => void jest.advanceTimersByTime(299));
+  expect(lastProposalRequest()).toMatchObject({ q: "validator", page: 2 });
+  act(() => void jest.advanceTimersByTime(1));
+  expect(lastProposalRequest()).toMatchObject({ q: "validators pending", page: 1 });
+});
+
+it("restores legacy saved pagination with empty search defaults", () => {
+  writeHistoryEntryState("governance:list", {
+    network: "mainnet",
+    tab: "proposals",
+    proposalsSort: null,
+    membersSort: null,
+  });
+  writeHistoryEntryState("governance-proposals:mainnet:page", { scope: "none:none:", page: 2 });
+  render();
+  expect(container.querySelector<HTMLInputElement>("input[type=search]")?.value).toBe("");
+  expect(lastProposalRequest()).toEqual({ page: 2, limit: 40 });
+  act(() => void jest.advanceTimersByTime(300));
+  expect(lastProposalRequest()).toEqual({ page: 2, limit: 40 });
+});
+
 it("resets proposal pagination when sort changes and pages members beyond forty", () => {
   render();
   click("button[aria-label='Next page']");
@@ -223,43 +292,46 @@ it("resets proposal pagination when sort changes and pages members beyond forty"
   );
 });
 
-it("navigates proposal rows by click, Enter and Space without hijacking nested links", () => {
+it("keeps proposal rows clickable while exposing keyboard navigation through their title links", () => {
   render();
-  const row = container.querySelector<HTMLElement>("tr[aria-label='View proposal #20']")!;
-  expect(row.tabIndex).toBe(0);
+  const row = container.querySelector<HTMLElement>("table[aria-label='Governance proposals'] tbody tr")!;
+  expect(row.hasAttribute("tabindex")).toBe(false);
+  expect(row.getAttribute("role")).not.toBe("link");
   expect(row.textContent).toContain("Add & review validators");
   act(() => row.click());
   act(() => row.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
   const space = new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true });
   act(() => row.dispatchEvent(space));
-  expect(space.defaultPrevented).toBe(true);
-  expect(mockPush).toHaveBeenCalledTimes(3);
+  expect(space.defaultPrevented).toBe(false);
+  expect(mockPush).toHaveBeenCalledTimes(1);
   expect(mockPush).toHaveBeenLastCalledWith("/governance/20?chainId=mainnet");
 
   const titleLink = row.querySelector<HTMLAnchorElement>("a[href^='/governance/']")!;
+  expect(titleLink.tabIndex).toBe(0);
   act(() => titleLink.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true })));
   act(() => titleLink.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
-  expect(mockPush).toHaveBeenCalledTimes(3);
+  expect(mockPush).toHaveBeenCalledTimes(1);
 });
 
-it("navigates whole live items by click and keyboard without hijacking their title links", () => {
+it("keeps live items clickable without duplicating their native title link's keyboard target", () => {
   render();
-  const item = container.querySelector<HTMLElement>("article[aria-label='View live proposal #20']")!;
-  expect(item.getAttribute("role")).toBe("link");
-  expect(item.tabIndex).toBe(0);
+  const item = container.querySelector<HTMLElement>("article")!;
+  expect(item.hasAttribute("role")).toBe(false);
+  expect(item.hasAttribute("tabindex")).toBe(false);
   expect(item.querySelectorAll("a")).toHaveLength(1);
   act(() => item.click());
   act(() => item.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
   const space = new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true });
   act(() => item.dispatchEvent(space));
-  expect(space.defaultPrevented).toBe(true);
-  expect(mockPush).toHaveBeenCalledTimes(3);
+  expect(space.defaultPrevented).toBe(false);
+  expect(mockPush).toHaveBeenCalledTimes(1);
   expect(mockPush).toHaveBeenLastCalledWith("/governance/20?chainId=mainnet");
 
   const titleLink = item.querySelector<HTMLAnchorElement>("a[href^='/governance/']")!;
+  expect(titleLink.tabIndex).toBe(0);
   act(() => titleLink.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true })));
   act(() => titleLink.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
-  expect(mockPush).toHaveBeenCalledTimes(3);
+  expect(mockPush).toHaveBeenCalledTimes(1);
 });
 
 it.each([
@@ -332,11 +404,21 @@ it("distinguishes zero proposals from loading and errors", () => {
 it("supports mainnet and testnet, remounts the network's sort and page, and makes no requests on custom", () => {
   render();
   click("button[aria-label='Sort by ID']");
+  changeSearch("  validator  ");
+  act(() => void jest.advanceTimersByTime(300));
   click("button[aria-label='Next page']");
-  expect(lastProposalRequest()).toMatchObject({ page: 2, sort: "id", order: "desc" });
+  expect(lastProposalRequest()).toMatchObject({ page: 2, sort: "id", order: "desc", q: "validator" });
   mockNetwork = { currentNetwork: { chainId: "testnet" }, isCustomNetwork: false };
   render();
   expect(lastProposalRequest()).toEqual({ page: 1, limit: 40 });
+  expect(container.querySelector<HTMLInputElement>("input[type=search]")?.value).toBe("");
+  act(() => void jest.advanceTimersByTime(300));
+  expect(lastProposalRequest()).toEqual({ page: 1, limit: 40 });
+  changeSearch("testnet proposal");
+  act(() => void jest.advanceTimersByTime(299));
+  expect(lastProposalRequest()).not.toHaveProperty("q");
+  act(() => void jest.advanceTimersByTime(1));
+  expect(lastProposalRequest().q).toBe("testnet proposal");
   expect(container.textContent).not.toContain("not supported");
   expect(container.querySelector("a[href='/governance/20?chainId=testnet']")).not.toBeNull();
   selectMembers();
@@ -352,6 +434,9 @@ it("supports mainnet and testnet, remounts the network's sort and page, and make
   expect(container.querySelector("table[aria-label='Governance proposals']")).not.toBeNull();
   expect(lastProposalRequest()).toEqual({ page: 1, limit: 40 });
   expect(container.querySelector("th[aria-sort='descending']")).toBeNull();
+  expect(container.querySelector<HTMLInputElement>("input[type=search]")?.value).toBe("");
+  act(() => void jest.advanceTimersByTime(300));
+  expect(lastProposalRequest()).toEqual({ page: 1, limit: 40 });
   selectMembers();
   expect(container.querySelector("[data-current-page]")?.textContent).toBe("1");
   expect(container.querySelector("th[aria-sort='descending']")).toBeNull();

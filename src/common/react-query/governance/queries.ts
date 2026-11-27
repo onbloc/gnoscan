@@ -1,5 +1,5 @@
 import { UseQueryOptions } from "@tanstack/react-query";
-import { useNetworkProvider } from "@/common/hooks/provider/use-network-provider";
+import { isAxiosError } from "axios";
 import { useServiceProvider } from "@/common/hooks/provider/use-service-provider";
 import { useApiRepositoryPageQuery, useApiRepositoryQuery } from "@/common/react-query/hoc/api";
 import { QUERY_KEY } from "@/common/react-query/query-keys";
@@ -18,14 +18,8 @@ import {
   GetGovernanceProposalVotesRequest,
 } from "@/repositories/api/governance/request";
 
-function useGovernanceRepository() {
-  const { apiGovernanceRepository } = useServiceProvider();
-  const { isCustomNetwork } = useNetworkProvider();
-  return isCustomNetwork ? null : apiGovernanceRepository;
-}
-
 export function useGetGovernanceSummary(options?: UseQueryOptions<GovernanceSummary, Error>) {
-  const repository = useGovernanceRepository();
+  const { apiGovernanceRepository: repository } = useServiceProvider();
   return useApiRepositoryQuery(
     [QUERY_KEY.getGovernanceSummary],
     repository,
@@ -39,7 +33,7 @@ export function useGetGovernanceProposals(
   params: GetGovernanceProposalsRequest = {},
   options?: UseQueryOptions<GovernancePage<GovernanceProposal>, Error>,
 ) {
-  const repository = useGovernanceRepository();
+  const { apiGovernanceRepository: repository } = useServiceProvider();
   const request = { ...params, page: params.page ?? 1 };
   return useApiRepositoryPageQuery(
     [QUERY_KEY.getGovernanceProposals],
@@ -55,7 +49,7 @@ export function useGetGovernanceMembers(
   params: GetGovernanceMembersRequest = {},
   options?: UseQueryOptions<GovernancePage<GovernanceMember>, Error>,
 ) {
-  const repository = useGovernanceRepository();
+  const { apiGovernanceRepository: repository } = useServiceProvider();
   const request = { ...params, page: params.page ?? 1 };
   return useApiRepositoryPageQuery(
     [QUERY_KEY.getGovernanceMembers],
@@ -68,13 +62,20 @@ export function useGetGovernanceMembers(
 }
 
 export function useGetGovernanceProposal(id: string, options?: UseQueryOptions<GovernanceProposalDetail, Error>) {
-  const repository = useGovernanceRepository();
+  const { apiGovernanceRepository: repository } = useServiceProvider();
   return useApiRepositoryQuery(
     [QUERY_KEY.getGovernanceProposal, id],
     repository,
     API_REPOSITORY_KEY.GOVERNANCE_REPOSITORY,
     repository => repository.getGovernanceProposal(id),
-    { ...options, enabled: !!id && options?.enabled !== false },
+    {
+      retry: (failureCount, error) => {
+        const status = isAxiosError(error) ? error.response?.status : undefined;
+        return status !== 400 && status !== 404 && failureCount < 3;
+      },
+      ...options,
+      enabled: !!id && options?.enabled !== false,
+    },
   );
 }
 
@@ -82,7 +83,7 @@ export function useGetGovernanceProposalVotes(
   params: GetGovernanceProposalVotesRequest,
   options?: UseQueryOptions<GovernancePage<GovernanceVote>, Error>,
 ) {
-  const repository = useGovernanceRepository();
+  const { apiGovernanceRepository: repository } = useServiceProvider();
   const request = { ...params, page: params.page ?? 1 };
   return useApiRepositoryPageQuery(
     [QUERY_KEY.getGovernanceProposalVotes],
@@ -95,7 +96,7 @@ export function useGetGovernanceProposalVotes(
 }
 
 export function useGetLiveGovernanceProposals(options?: UseQueryOptions<GovernanceProposal[], Error>) {
-  const repository = useGovernanceRepository();
+  const { apiGovernanceRepository: repository } = useServiceProvider();
   return useApiRepositoryQuery(
     [QUERY_KEY.getLiveGovernanceProposals],
     repository,
@@ -104,6 +105,7 @@ export function useGetLiveGovernanceProposals(options?: UseQueryOptions<Governan
       const proposals: GovernanceProposal[] = [];
       let page = 1;
       let hasNext = true;
+      let previousId: number | undefined;
       while (hasNext) {
         const response = await repository.getGovernanceProposals({
           status: "ACTIVE",
@@ -112,7 +114,20 @@ export function useGetLiveGovernanceProposals(options?: UseQueryOptions<Governan
           page,
           limit: 100,
         });
-        proposals.push(...response.items);
+        if (response.items.length === 0 && response.page.hasNext) {
+          throw new Error("Governance pagination returned an empty page with more pages");
+        }
+        // Strictly descending nonnegative safe IDs bound pagination without a page cap.
+        for (const proposal of response.items) {
+          if (!Number.isSafeInteger(proposal.id) || proposal.id < 0) {
+            throw new Error("Governance pagination returned an invalid proposal ID");
+          }
+          if (previousId !== undefined && !(proposal.id < previousId)) {
+            throw new Error("Governance pagination did not advance in descending ID order");
+          }
+          previousId = proposal.id;
+          proposals.push(proposal);
+        }
         hasNext = response.page.hasNext;
         page += 1;
       }

@@ -22,7 +22,9 @@ jest.mock(
       return <div>Loading votes</div>;
     },
 );
-jest.mock("@/components/view/common/list-pagination/ListPagination", () => ({ ListPagination: () => null }));
+jest.mock("@/components/view/common/list-pagination/ListPagination", () => ({
+  ListPagination: () => <nav aria-label="Vote pagination" />,
+}));
 
 let container: HTMLDivElement;
 let root: Root;
@@ -92,17 +94,31 @@ it("shows absolute vote times only for transactions with a known timestamp", () 
   expect(rows[1].querySelectorAll("td")[5].textContent).toBe("-");
 });
 
+it("keeps malformed nonempty timestamps out of the vote table", () => {
+  render([{ ...vote, txHash: "ABC", votedAt: "not-a-date" }]);
+  const cells = container.querySelectorAll("tbody td");
+  expect(cells[4].querySelector("a")?.textContent).toBe("ABC");
+  expect(cells[5].textContent).toBe("-");
+  expect(container.textContent).not.toContain("Invalid Date");
+});
+
+it("preserves local interpretation and the absolute format for timezone-free timestamps", () => {
+  render([{ ...vote, txHash: "ABC", votedAt: "2026-11-25T05:02:11" }]);
+  expect(container.querySelectorAll("tbody td")[5].textContent).toBe("2026-11-25 05:02:11");
+});
+
 it("distinguishes a failed vote request from an empty vote list", () => {
   render([], true);
-  expect(container.querySelector("[role=\"alert\"]")?.textContent).toContain("Unable to load votes");
+  expect(container.querySelector('[role="alert"]')?.textContent).toContain("Unable to load votes");
   expect(container.textContent).not.toContain("No votes yet");
+  expect(container.querySelector("nav[aria-label='Vote pagination']")).not.toBeNull();
   render([]);
   expect(container.textContent).toContain("No votes yet");
 });
 
 it("renders a semantic vote table with the exact fixed column proportions", () => {
   render([vote]);
-  const table = container.querySelector("table[aria-label=\"Proposal votes\"]");
+  const table = container.querySelector('table[aria-label="Proposal votes"]');
   expect(table).not.toBeNull();
   expect(Array.from(table!.querySelectorAll("col")).map(column => column.style.width)).toEqual([
     "26%",

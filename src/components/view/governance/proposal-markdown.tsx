@@ -34,7 +34,8 @@ const ProposalMarkdown = ({ description, gnoWebUrl }: ProposalMarkdownProps) => 
             ) : (
               <span>{children}</span>
             ),
-          img: ({ src, alt }) => (src ? <img src={src} alt={alt || ""} loading="lazy" /> : <span>{alt}</span>),
+          img: ({ src, alt }) =>
+            src ? <img src={src} alt={alt || ""} loading="lazy" referrerPolicy="no-referrer" /> : <span>{alt}</span>,
         }}
       >
         {description}

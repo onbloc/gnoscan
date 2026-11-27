@@ -8,7 +8,7 @@ const escapeCell = (cell: CsvCell): string => {
   // Only text can be a formula; a number is written as is.
   const text = typeof cell === "string" && FORMULA_PREFIX.test(cell) ? `'${cell}` : String(cell);
 
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, "\"\"")}"` : text;
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
 /** Builds RFC 4180 CSV text (CRLF rows). Text starting with a formula character is prefixed with `'`. */

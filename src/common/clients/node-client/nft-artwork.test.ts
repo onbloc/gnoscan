@@ -30,9 +30,9 @@ const invalidInline = { tokenId: TOKEN, uri: "", status: "found", needsRefetch: 
 // at f428a02454a8013aa0e3f6bc527ece2268eb9dd6, projected to the listing model.
 describe("requestNftTokenUri", () => {
   it.each([
-    "(\"ipfs://token/1\" string)",
-    "(\"ipfs://token/1\" string)\n(undefined)",
-    "(\"ipfs://token/1\" string)\n(undefined error)",
+    '("ipfs://token/1" string)',
+    '("ipfs://token/1" string)\n(undefined)',
+    '("ipfs://token/1" string)\n(undefined error)',
   ])("accepts single and nil-error URI returns: %s", async evalText => {
     expect(await requestNftTokenUri(clientFor(evalText), PACKAGE, TOKEN)).toEqual({
       tokenId: TOKEN,
@@ -52,11 +52,11 @@ describe("requestNftTokenUri", () => {
   });
 
   it.each([
-    "(\"\" string)",
+    '("" string)',
     "( string)",
-    "(\"\" string)\n(undefined)",
-    "(\"\" string)\n(&(struct{(\"token has no uri\" string)} errors.errorString) *errors.errorString)",
-    "(\"ipfs://ignored\" string)\n(&(struct{(\"business error\" string)} errors.errorString) *errors.errorString)",
+    '("" string)\n(undefined)',
+    '("" string)\n(&(struct{("token has no uri" string)} errors.errorString) *errors.errorString)',
+    '("ipfs://ignored" string)\n(&(struct{("business error" string)} errors.errorString) *errors.errorString)',
   ])("classifies empty/business-error returns as not_set: %s", async evalText => {
     expect(await requestNftTokenUri(clientFor(evalText), PACKAGE, TOKEN)).toEqual({
       tokenId: TOKEN,
@@ -70,7 +70,7 @@ describe("requestNftTokenUri", () => {
     const evalText = String.raw`("https://example.com/(a)\"/\\/\a\b\f\n\r\t\v/\x41\101\u00e9\U0001F680" string)`;
     expect(await requestNftTokenUri(clientFor(evalText), PACKAGE, TOKEN)).toEqual({
       tokenId: TOKEN,
-      uri: "https://example.com/(a)\"/\\/\x07\b\f\n\r\t\x0b/AAé🚀",
+      uri: 'https://example.com/(a)"/\\/\x07\b\f\n\r\t\x0b/AAé🚀',
       status: "found",
       needsRefetch: false,
     });
@@ -86,35 +86,35 @@ describe("requestNftTokenUri", () => {
   it.each([
     "",
     "garbage",
-    "(\"ipfs://x\" string",
-    "(\"ipfs://x\" string))",
-    "(\"ipfs://x\" string) trailing",
-    "(\"ipfs://x\" string)\n(undefined)\n(true bool)",
-    "(\"ipfs://x string)",
-    "(\"ipfs://x\" string)\n(",
+    '("ipfs://x" string',
+    '("ipfs://x" string))',
+    '("ipfs://x" string) trailing',
+    '("ipfs://x" string)\n(undefined)\n(true bool)',
+    '("ipfs://x string)',
+    '("ipfs://x" string)\n(',
     "()",
     "(123 int)",
-    "(\"x\" int)",
-    "(\"line\nbreak\" string)",
+    '("x" int)',
+    '("line\nbreak" string)',
     String.raw`("\q" string)`,
-    "(\"\\x0\" string)",
+    '("\\x0" string)',
     String.raw`("\400" string)`,
     String.raw`("\uD800" string)`,
     String.raw`("\U00110000" string)`,
-    "(\"x\" string)\n(&(struct{(\"bad\" string)} error]",
+    '("x" string)\n(&(struct{("bad" string)} error]',
   ])("does not complete/cache malformed eval %s", async evalText => {
     expect(await requestNftTokenUri(clientFor(evalText), PACKAGE, TOKEN)).toEqual(unavailable);
   });
 
-  it.each(["1\"); panic(\"injected\") //", "\\\"\n\x00\t", "引号🚀", ") (undefined)"])(
+  it.each(['1"); panic("injected") //', '\\"\n\x00\t', "引号🚀", ") (undefined)"])(
     "keeps untrusted token ID inside a single Go string: %s",
     async tokenId => {
       let expression = "";
-      const client = clientFor("(\"unused\" string)");
+      const client = clientFor('("unused" string)');
       client.abciQuery = async (path, data) => {
         expect(path).toBe("vm/qeval");
         expression = Buffer.from(data, "base64").toString("utf8");
-        return response("(\"unused\" string)");
+        return response('("unused" string)');
       };
       const result = await requestNftTokenUri(client, PACKAGE, tokenId);
       expect(result.tokenId).toBe(tokenId);
@@ -128,7 +128,7 @@ describe("requestNftTokenUri", () => {
   );
 
   it("rejects executable package expressions without contacting the node", async () => {
-    const client = clientFor("(\"unused\" string)");
+    const client = clientFor('("unused" string)');
     await expect(requestNftTokenUri(client, `${PACKAGE}.func(){panic("x")}()`, TOKEN)).rejects.toThrow(
       "Invalid NFT package path",
     );
@@ -145,7 +145,7 @@ describe("requestNftTokenUri", () => {
     const client = clientFor(
       "",
       { "@type": "/abci.StringError", value: "realm:0:0: name TokenURI not declared" },
-      "[{\"FuncName\":\"BalanceOf\"}]",
+      '[{"FuncName":"BalanceOf"}]',
     );
     expect(await requestNftTokenUri(client, PACKAGE, TOKEN)).toEqual({
       tokenId: TOKEN,
@@ -156,7 +156,7 @@ describe("requestNftTokenUri", () => {
     expect(client.abciQueryVMQueryFuncs).toHaveBeenCalledWith(PACKAGE);
   });
 
-  it.each(["[{\"FuncName\":\"TokenURI\"}]", "not JSON", "null", "{}", "[{\"FuncName\":42}]"])(
+  it.each(['[{"FuncName":"TokenURI"}]', "not JSON", "null", "{}", '[{"FuncName":42}]'])(
     "does not blacklist a realm on failed/contradictory confirmation %s",
     async funcs => {
       const client = clientFor("", { "@type": "/abci.StringError", value: "panic: name TokenURI not declared" }, funcs);
@@ -195,7 +195,7 @@ describe("requestNftTokenUri", () => {
   });
 
   it("accepts encoded RPC data exactly at the allocation boundary", async () => {
-    const text = "(\"ipfs://boundary\" string)";
+    const text = '("ipfs://boundary" string)';
     const client = clientFor(text + " ".repeat((3 * 1024 * 1024) / 4 - text.length));
     expect(await requestNftTokenUri(client, PACKAGE, TOKEN)).toEqual({
       tokenId: TOKEN,
@@ -219,7 +219,7 @@ describe("requestNftTokenUri", () => {
 
 describe("inline TokenURI card projection", () => {
   const payload =
-    "{\"image\":\"ipfs://image+A+B\",\"name\":\"Bazaar\",\"image_data\":\"<svg>+</svg>\",\"attributes\":[{\"display_type\":\"number\",\"trait_type\":\"large\",\"value\":9007199254740993123456789},{\"value\":1.234567890123456789},{\"value\":true},{\"value\":false},{\"value\":null},{\"value\":\"A+B\"},{\"value\":1e100}]}";
+    '{"image":"ipfs://image+A+B","name":"Bazaar","image_data":"<svg>+</svg>","attributes":[{"display_type":"number","trait_type":"large","value":9007199254740993123456789},{"value":1.234567890123456789},{"value":true},{"value":false},{"value":null},{"value":"A+B"},{"value":1e100}]}';
 
   it.each([
     `data:application/json,${payload}`,
@@ -238,7 +238,7 @@ describe("inline TokenURI card projection", () => {
   });
 
   it("preserves literal plus signs in base64 and percent-decoded JSON", async () => {
-    const data = "{\"image\":\"https://example.com/\uffff+A+B\"}";
+    const data = '{"image":"https://example.com/\uffff+A+B"}';
     expect(stringToBase64(data)).toContain("+");
     expect(await lookupUri(`data:application/json;base64,${stringToBase64(data)}`)).toMatchObject({
       image: "https://example.com/\uffff+A+B",
@@ -249,10 +249,10 @@ describe("inline TokenURI card projection", () => {
 
   it.each([
     "{}",
-    "{\"image\":null,\"attributes\":null}",
-    "{\"image\":\"\",\"attributes\":[]}",
-    "{\"IMAGE\":\"ipfs://upper\"}",
-    "{\"image\":\"ipfs://x\",\"unknown\":{\"nested\":[1,2]}}",
+    '{"image":null,"attributes":null}',
+    '{"image":"","attributes":[]}',
+    '{"IMAGE":"ipfs://upper"}',
+    '{"image":"ipfs://x","unknown":{"nested":[1,2]}}',
   ])("accepts missing/null fields and ignores unknown fields %s", async json => {
     const result = await lookupUri(`data:application/json,${json}`);
     expect(result.uri).toBe("");
@@ -278,13 +278,13 @@ describe("inline TokenURI card projection", () => {
     "data:application/json,42",
     "data:application/json,{}{}",
     "data:application/json,{",
-    "data:application/json,{\"image\":\"ipfs://discard\",\"name\":42}",
-    "data:application/json,{\"image\":\"ipfs://discard\",\"attributes\":{}}",
-    "data:application/json,{\"attributes\":[null]}",
-    "data:application/json,{\"attributes\":[1]}",
-    "data:application/json,{\"attributes\":[{\"value\":[]}]}",
-    "data:application/json,{\"attributes\":[{\"value\":{}}]}",
-    "data:application/json,{\"attributes\":[{\"trait_type\":true}]}",
+    'data:application/json,{"image":"ipfs://discard","name":42}',
+    'data:application/json,{"image":"ipfs://discard","attributes":{}}',
+    'data:application/json,{"attributes":[null]}',
+    'data:application/json,{"attributes":[1]}',
+    'data:application/json,{"attributes":[{"value":[]}]}',
+    'data:application/json,{"attributes":[{"value":{}}]}',
+    'data:application/json,{"attributes":[{"trait_type":true}]}',
     "data:application/json,%7B%22image%22:%22%FF%22%7D",
     "data:application/json,%EF%BB%BF%7B%7D",
   ])("marks found URI/incomplete metadata, never raw JSON as image: %s", async uri => {
@@ -317,21 +317,21 @@ describe("inline TokenURI card projection", () => {
   });
 
   it("matches Go duplicate-field validation and null-string semantics", async () => {
-    expect(await lookupUri("data:application/json,{\"image\":123,\"image\":\"ipfs://cannot-hide-invalid\"}")).toEqual(
+    expect(await lookupUri('data:application/json,{"image":123,"image":"ipfs://cannot-hide-invalid"}')).toEqual(
       invalidInline,
     );
-    expect(await lookupUri("data:application/json,{\"image\":\"ipfs://retained\",\"image\":null}")).toMatchObject({
+    expect(await lookupUri('data:application/json,{"image":"ipfs://retained","image":null}')).toMatchObject({
       image: "ipfs://retained",
       needsRefetch: false,
     });
     expect(
-      await lookupUri("data:application/json,{\"image\":\"ipfs://discard\",\"attributes\":[{\"value\":{},\"value\":1}]}"),
+      await lookupUri('data:application/json,{"image":"ipfs://discard","attributes":[{"value":{},"value":1}]}'),
     ).toEqual(invalidInline);
   });
 
   it("accepts large JSON numbers without lossy number coercion or nested-field confusion", async () => {
     const json =
-      "{\"image\":\"ipfs://punctuation/[]{}:,\",\"attributes\":[{\"value\":1e1000},{\"value\":9007199254740993123456789}],\"unknown\":{\"image\":123}}";
+      '{"image":"ipfs://punctuation/[]{}:,","attributes":[{"value":1e1000},{"value":9007199254740993123456789}],"unknown":{"image":123}}';
     expect(await lookupUri(`data:application/json,${json}`)).toEqual({
       tokenId: TOKEN,
       uri: "",
@@ -344,9 +344,9 @@ describe("inline TokenURI card projection", () => {
   it.each(["raw", "percent", "base64"])("applies the exact 64KiB UTF-8 boundary to %s encoding", async encoding => {
     for (const extra of [0, 1]) {
       const json =
-        "{\"image\":\"ipfs://boundary\",\"name\":\"" +
-        "x".repeat(65536 - "{\"image\":\"ipfs://boundary\",\"name\":\"\"}".length + extra) +
-        "\"}";
+        '{"image":"ipfs://boundary","name":"' +
+        "x".repeat(65536 - '{"image":"ipfs://boundary","name":""}'.length + extra) +
+        '"}';
       const uri =
         encoding === "base64"
           ? `data:application/json;base64,${stringToBase64(json)}`
@@ -366,8 +366,8 @@ describe("inline TokenURI card projection", () => {
   });
 
   it("counts UTF-8 bytes rather than JavaScript character units", async () => {
-    const prefix = "{\"image\":\"ipfs://unicode\",\"name\":\"";
-    const suffix = "\"}";
+    const prefix = '{"image":"ipfs://unicode","name":"';
+    const suffix = '"}';
     const budget = 65536 - prefix.length - suffix.length;
     const json = prefix + "é".repeat(Math.floor(budget / 2)) + "x".repeat(budget % 2) + suffix;
     expect(await lookupUri(`data:application/json,${json}`)).toMatchObject({
@@ -399,7 +399,7 @@ describe("inline TokenURI card projection", () => {
   });
 
   it("matches attribute keys case-insensitively like top-level fields", async () => {
-    expect((await lookupUri("data:application/json,{\"attributes\":[{\"value\":{}}]}")).needsRefetch).toBe(true);
-    expect((await lookupUri("data:application/json,{\"attributes\":[{\"Value\":{}}]}")).needsRefetch).toBe(true);
+    expect((await lookupUri('data:application/json,{"attributes":[{"value":{}}]}')).needsRefetch).toBe(true);
+    expect((await lookupUri('data:application/json,{"attributes":[{"Value":{}}]}')).needsRefetch).toBe(true);
   });
 });

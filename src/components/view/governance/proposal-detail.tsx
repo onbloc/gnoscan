@@ -11,7 +11,13 @@ import { Field } from "@/components/ui/detail-field";
 import { DateDiffText, DetailsContainer } from "@/components/ui/detail-page-common-styles";
 import Text from "@/components/ui/text";
 import { TxHashCopy } from "@/components/view/datatable/item/tx-hash-copy";
-import { GovernanceAccountView, ProposalStatusBadge, TierBadge, VoteBreakdown } from "./governance-common";
+import {
+  getGovernanceLabel,
+  GovernanceAccountView,
+  ProposalStatusBadge,
+  TierBadge,
+  VoteBreakdown,
+} from "./governance-common";
 import ProposalMarkdown from "./proposal-markdown";
 
 const TYPE_LABELS: Record<GovernanceProposalDetail["type"], string> = {
@@ -38,7 +44,7 @@ const ProposalDetail = ({ proposal }: { proposal: GovernanceProposalDetail }) =>
         <Badge>{decodeGovernanceTitle(proposal.title)}</Badge>
       </Field>
       <Field label="Type">
-        <Badge>{TYPE_LABELS[proposal.type]}</Badge>
+        <Badge>{getGovernanceLabel(TYPE_LABELS, proposal.type)}</Badge>
       </Field>
       <Field label="Status">
         <ProposalStatusBadge status={proposal.status} />

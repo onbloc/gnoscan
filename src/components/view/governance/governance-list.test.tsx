@@ -6,12 +6,13 @@ import { ThemeProvider } from "styled-components";
 
 import type { GovernanceProposal } from "@/models/api/governance";
 import theme from "@/styles/theme";
-import { GovernanceSummaryCards } from "./governance-list";
+import { GovernanceProposalTable, GovernanceSummaryCards } from "./governance-list";
 
 jest.mock("@/common/hooks/use-network", () => ({
   useNetwork: () => ({ getUrlWithNetwork: (path: string) => `${path}?chainId=mainnet` }),
 }));
-jest.mock("next/router", () => ({ useRouter: () => ({ push: jest.fn() }) }));
+const mockPush = jest.fn();
+jest.mock("next/router", () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock("next/link", () => ({
   __esModule: true,
   default: ({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props}>{children}</a>,
@@ -37,20 +38,20 @@ const proposals: GovernanceProposal[] = [31, 32, 33].map(id => ({
 }));
 let container: HTMLDivElement;
 let root: Root;
-const render = (props: Partial<React.ComponentProps<typeof GovernanceSummaryCards>> = {}) =>
+const renderContent = (children: React.ReactNode) =>
   act(() =>
-    root.render(
-      <ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts }}>
-        <GovernanceSummaryCards
-          summaryError={false}
-          live={proposals}
-          liveError={false}
-          latest={[]}
-          latestError={false}
-          {...props}
-        />
-      </ThemeProvider>,
-    ),
+    root.render(<ThemeProvider theme={{ colors: theme.lightTheme, fonts: theme.fonts }}>{children}</ThemeProvider>),
+  );
+const render = (props: Partial<React.ComponentProps<typeof GovernanceSummaryCards>> = {}) =>
+  renderContent(
+    <GovernanceSummaryCards
+      summaryError={false}
+      live={proposals}
+      liveError={false}
+      latest={[]}
+      latestError={false}
+      {...props}
+    />,
   );
 const button = (direction: string) =>
   container.querySelector<HTMLButtonElement>(`button[aria-label='${direction} live proposal']`);
@@ -69,6 +70,7 @@ const scroll = (left: number) => {
 
 beforeAll(() => Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }));
 beforeEach(() => {
+  mockPush.mockClear();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -150,4 +152,67 @@ it.each([
   expect(viewport()).toBeNull();
   expect(button("Previous")).toBeNull();
   expect(button("Next")).toBeNull();
+});
+
+it("exposes native live title links without duplicate card focus targets", () => {
+  render();
+  const links = Array.from(viewport().querySelectorAll<HTMLElement>("a[href], [role='link']"));
+  expect(links.map(link => link.textContent)).toEqual([
+    "#31 Proposal 31 & members",
+    "#32 Proposal 32 & members",
+    "#33 Proposal 33 & members",
+  ]);
+  links.forEach(link => {
+    expect(link.tagName).toBe("A");
+    expect(link.tabIndex).toBe(0);
+    link.focus();
+    expect(document.activeElement).toBe(link);
+    const card = link.closest("article")!;
+    expect(card.getAttribute("role")).toBeNull();
+    expect(card.hasAttribute("tabindex")).toBe(false);
+  });
+  expect(viewport().getAttribute("role")).toBe("region");
+  expect(viewport().tabIndex).toBe(0);
+});
+
+it("keeps whole-card pointer navigation alongside the native title link", () => {
+  render({ live: [proposals[0]] });
+  const link = viewport().querySelector("a")!;
+  expect(link.getAttribute("href")).toBe("/governance/31?chainId=mainnet");
+  act(() => link.dispatchEvent(new Event("click", { bubbles: true })));
+  expect(mockPush).not.toHaveBeenCalled();
+  act(() => link.closest("article")!.click());
+  expect(mockPush).toHaveBeenCalledWith("/governance/31?chainId=mainnet");
+});
+
+it("keeps native table link semantics without a duplicate focusable row", () => {
+  renderContent(<GovernanceProposalTable proposals={[proposals[0]]} onSort={jest.fn()} />);
+  const table = container.querySelector("table[aria-label='Governance proposals']")!;
+  const row = table.querySelector<HTMLTableRowElement>("tbody tr")!;
+  const links = row.querySelectorAll<HTMLAnchorElement>("a[href], [role='link']");
+  expect(links).toHaveLength(1);
+  expect(links[0].tagName).toBe("A");
+  expect(links[0].textContent).toBe("Proposal 31 & members");
+  expect(links[0].getAttribute("href")).toBe("/governance/31?chainId=mainnet");
+  expect(links[0].tabIndex).toBe(0);
+  links[0].focus();
+  expect(document.activeElement).toBe(links[0]);
+  expect(row.hasAttribute("tabindex")).toBe(false);
+  expect(row.hasAttribute("aria-label")).toBe(false);
+  expect(row.querySelectorAll("td")).toHaveLength(5);
+  act(() => row.click());
+  expect(mockPush).toHaveBeenCalledWith("/governance/31?chainId=mainnet");
+});
+
+it("does not hijack the native title link when its click bubbles through the row", () => {
+  renderContent(<GovernanceProposalTable proposals={[proposals[0]]} onSort={jest.fn()} />);
+  const link = container.querySelector("tbody a")!;
+  act(() => link.dispatchEvent(new Event("click", { bubbles: true })));
+  expect(mockPush).not.toHaveBeenCalled();
+});
+
+it("retains an unsupported latest proposal status instead of omitting its label", () => {
+  render({ live: [], latest: [{ ...proposals[0], status: "PAUSED" as GovernanceProposal["status"] }] });
+  expect(container.textContent).toContain("PAUSED");
+  expect(container.querySelector("a")?.textContent).toBe("Latest #31 Proposal 31 & members");
 });

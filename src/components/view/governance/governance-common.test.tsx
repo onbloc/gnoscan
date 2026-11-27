@@ -5,8 +5,8 @@ import { act } from "react-dom/test-utils";
 import { ThemeProvider } from "styled-components";
 
 import theme from "@/styles/theme";
-import type { GovernanceVotes } from "@/models/api/governance";
-import { GovernanceAccountView, VoteBreakdown } from "./governance-common";
+import type { GovernanceStatus, GovernanceVote, GovernanceVotes } from "@/models/api/governance";
+import { GovernanceAccountView, ProposalStatusBadge, VoteBreakdown, VoteChoiceBadge } from "./governance-common";
 
 jest.mock("@/common/hooks/use-network", () => ({
   useNetwork: () => ({ getUrlWithNetwork: (path: string) => `${path}?network=testnet` }),
@@ -43,7 +43,7 @@ it.each(["ACTIVE", "ACCEPTED"] as const)(
     expect(container.textContent).toContain("Yes 31.25%");
     expect(container.textContent).toContain("No 6.5%");
     expect(container.textContent).toContain("Abstain 0%");
-    const segments = container.querySelectorAll<HTMLElement>("[role=\"img\"] > span");
+    const segments = container.querySelectorAll<HTMLElement>('[role="img"] > span');
     expect(Array.from(segments, segment => segment.style.width)).toEqual(["31.25%", "6.5%", "0%"]);
   },
 );
@@ -52,7 +52,7 @@ it("falls back to counts and count-relative widths when closed percentages are i
   render(<VoteBreakdown votes={{ ...votes, yes: { ...votes.yes, percent: null } }} status="ACCEPTED" />);
   expect(container.textContent).toBe("Yes 3No 1Abstain 0");
   expect(
-    Array.from(container.querySelectorAll<HTMLElement>("[role=\"img\"] > span"), segment => segment.style.width),
+    Array.from(container.querySelectorAll<HTMLElement>('[role="img"] > span'), segment => segment.style.width),
   ).toEqual(["75%", "25%", "0%"]);
 });
 
@@ -60,7 +60,7 @@ it("does not misrepresent an unknown active percentage as zero or a count-derive
   render(<VoteBreakdown votes={{ ...votes, no: { ...votes.no, percent: null } }} status="ACTIVE" />);
   expect(container.textContent).toContain("Yes -No -Abstain -");
   expect(container.textContent).toContain("Voting power unavailable");
-  expect(container.querySelector("[role=\"img\"]")?.children.length).toBe(0);
+  expect(container.querySelector('[role="img"]')?.children.length).toBe(0);
 });
 
 it("renders zero closed votes with an empty track and no invalid widths", () => {
@@ -68,7 +68,7 @@ it("renders zero closed votes with an empty track and no invalid widths", () => 
   render(<VoteBreakdown votes={{ yes: zero, no: zero, abstain: zero }} status="REJECTED" />);
   expect(container.textContent).toBe("Yes 0No 0Abstain 0");
   expect(
-    Array.from(container.querySelectorAll<HTMLElement>("[role=\"img\"] > span"), segment => segment.style.width),
+    Array.from(container.querySelectorAll<HTMLElement>('[role="img"] > span'), segment => segment.style.width),
   ).toEqual(["0%", "0%", "0%"]);
 });
 
@@ -90,4 +90,28 @@ it.each([null, "g1member"])("omits the proposer prefix without changing link ava
   expect(container.querySelector("a")?.getAttribute("href") ?? null).toBe(
     address ? "/account/g1member?network=testnet" : null,
   );
+});
+
+it.each(["PAUSED", "toString", "__proto__"])(
+  "renders unsupported status %s truthfully with a neutral badge",
+  status => {
+    render(<ProposalStatusBadge status={status as GovernanceStatus} />);
+    const badge = container.querySelector<HTMLElement>(".badge")!;
+    expect(badge.textContent).toBe(status);
+    expect(getComputedStyle(badge).backgroundColor).toBe("rgb(255, 255, 255)");
+    expect(badge.style.color).toBe("");
+  },
+);
+
+it.each(["VETO", "toString", "__proto__"])("does not mislabel unsupported vote choice %s as abstention", choice => {
+  render(<VoteChoiceBadge choice={choice as GovernanceVote["choice"]} />);
+  const badge = container.querySelector<HTMLElement>(".badge")!;
+  expect(badge.textContent).toBe(choice);
+  expect(getComputedStyle(badge).backgroundColor).toBe("rgb(255, 255, 255)");
+  expect(badge.style.color).toBe("");
+});
+
+it.each([null, undefined, 123, ""])("safely displays an unavailable vote choice %s", choice => {
+  render(<VoteChoiceBadge choice={choice as GovernanceVote["choice"]} />);
+  expect(container.textContent).toBe("Unknown");
 });

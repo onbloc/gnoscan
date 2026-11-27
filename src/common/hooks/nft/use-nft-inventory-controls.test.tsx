@@ -149,13 +149,13 @@ it("resumes remaining pages and search results after a failed next page is succe
   view.render(null, 20);
   await settleUntil(() => view.container.querySelectorAll("article").length === 20);
   view.click(0);
-  await settleUntil(() => !!view.container.querySelector("[role=\"alert\"]"));
+  await settleUntil(() => !!view.container.querySelector('[role="alert"]'));
   failing = false;
   await act(async () => {
     await view.client.refetchQueries(["test-chain", QUERY_KEY.getNftCollectionItems, "all"]);
   });
   await settleUntil(() => view.container.querySelector("article")?.textContent === "28");
-  expect(view.container.querySelector("[role=\"alert\"]")).toBeNull();
+  expect(view.container.querySelector('[role="alert"]')).toBeNull();
   expect(view.container.querySelectorAll("article")).toHaveLength(1);
 });
 
@@ -235,7 +235,7 @@ it("finds an off-page linked NFT, restores its owner and neighbors, and stops th
   await settleUntil(() => view.value("[data-page]") === "2" && view.value("[data-previous]") === "27");
   expect(view.value("[data-owner]")).toBe("owner-28");
   expect(view.value("[data-next]")).toBe("29");
-  expect(view.container.querySelector("article[data-selected=\"true\"]")?.textContent).toBe("28");
+  expect(view.container.querySelector('article[data-selected="true"]')?.textContent).toBe("28");
   expect(
     mockRepository.getNftCollectionItems.mock.calls.some(([params]) => params.limit === 20 && params.page > 2),
   ).toBe(false);
@@ -332,14 +332,14 @@ it("resumes a failed linked-token lookup after refetch rather than leaving its o
     return collectionPage(params);
   });
   view.render("28");
-  await settleUntil(() => !!view.container.querySelector("[role=\"alert\"]"));
+  await settleUntil(() => !!view.container.querySelector('[role="alert"]'));
   failing = false;
   await act(async () => {
     await view.client.refetchQueries(["test-chain", QUERY_KEY.getNftCollectionItems, "all"]);
   });
   await settleUntil(() => view.value("[data-page]") === "2" && view.value("[data-next]") === "29");
   expect(view.value("[data-owner]")).toBe("owner-28");
-  expect(view.container.querySelector("[role=\"alert\"]")).toBeNull();
+  expect(view.container.querySelector('[role="alert"]')).toBeNull();
 });
 
 it("sorts the full collection from page one while a selected NFT remains open off-page", async () => {
@@ -356,7 +356,7 @@ it("sorts the full collection from page one while a selected NFT remains open of
   expect(view.value("[data-owner]")).toBe("owner-28");
   expect(view.value("[data-previous]")).toBe("27");
   expect(view.value("[data-next]")).toBe("29");
-  expect(view.container.querySelector("article[data-selected=\"true\"]")).toBeNull();
+  expect(view.container.querySelector('article[data-selected="true"]')).toBeNull();
 
   view.click(1);
   await settleUntil(() => view.container.querySelector("article")?.textContent === "21");
@@ -380,7 +380,7 @@ it("moves across display pages in both sorted directions and stops only at resul
   expect(ascending.value("[data-page]")).toBe("1");
   ascending.click(4);
   ascending.render("21", 20);
-  await settleUntil(() => ascending.container.querySelector("article[data-selected=\"true\"]")?.textContent === "21");
+  await settleUntil(() => ascending.container.querySelector('article[data-selected="true"]')?.textContent === "21");
   expect(ascending.value("[data-page]")).toBe("2");
   expect(ascending.value("[data-previous]")).toBe("20");
   ascending.click(5);
@@ -404,7 +404,7 @@ it("moves across display pages in both sorted directions and stops only at resul
   descending.click(4);
   descending.render("50", 20);
   expect(descending.value("[data-page]")).toBe("2");
-  expect(descending.container.querySelector("article[data-selected=\"true\"]")?.textContent).toBe("50");
+  expect(descending.container.querySelector('article[data-selected="true"]')?.textContent).toBe("50");
   expect(descending.value("[data-previous]")).toBe("51");
   descending.click(5);
   descending.render("51", 20);
