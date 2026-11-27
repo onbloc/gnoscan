@@ -45,7 +45,7 @@ const ProposalDetail = ({ proposal }: { proposal: GovernanceProposalDetail }) =>
       </Field>
       <Field label="Proposer">
         <Badge>
-          <GovernanceAccountView account={proposal.proposer} />
+          <GovernanceAccountView account={proposal.proposer} showNameTagPrefix={false} />
         </Badge>
       </Field>
       {proposal.newMember != null && (
@@ -59,7 +59,7 @@ const ProposalDetail = ({ proposal }: { proposal: GovernanceProposalDetail }) =>
         </Field>
       )}
       <Field label="Created Tx">
-        <Badge>{createdTx?.hash ? <TxHashCopy txHash={createdTx.hash} /> : "-"}</Badge>
+        <Badge>{createdTx?.hash ? <TxHashCopy txHash={createdTx.hash} ellipsis={false} /> : "-"}</Badge>
       </Field>
       <Field label="Block">
         <Badge>

@@ -11,15 +11,20 @@ import { CopyTooltip } from "@/components/ui/tooltip/copy-tooltip";
 
 interface Props {
   txHash: string;
+  /** Controls visible truncation only; links and copied hashes stay complete. */
+  ellipsis?: boolean;
 }
 
-export const TxHashCopy = ({ txHash }: Props) => {
+export const TxHashCopy = ({ txHash, ellipsis = true }: Props) => {
   const { getUrlWithNetwork } = useNetwork();
   const displayHash = toDisplayHash(txHash ?? "");
   return (
     <TxHashWrapper>
-      <Link className="ellipsis" href={getUrlWithNetwork(`/transactions/details?txhash=${displayHash}`)}>
-        {textEllipsis(displayHash, TX_HASH_ELLIPSIS_LENGTH)}
+      <Link
+        className={ellipsis ? "ellipsis" : undefined}
+        href={getUrlWithNetwork(`/transactions/details?txhash=${displayHash}`)}
+      >
+        {ellipsis ? textEllipsis(displayHash, TX_HASH_ELLIPSIS_LENGTH) : displayHash}
       </Link>
       {/* A sibling of the link, so copying does not also open the transaction. */}
       <CopyTooltip variant="path" copyText={displayHash} />

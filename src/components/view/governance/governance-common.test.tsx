@@ -83,3 +83,11 @@ it("links a resolved proposer on the selected network", () => {
   expect(container.querySelector("a")?.getAttribute("href")).toBe("/account/g1member?network=testnet");
   expect(container.querySelector("a")?.textContent).toBe("@moul");
 });
+
+it.each([null, "g1member"])("omits the proposer prefix without changing link availability for %s", address => {
+  render(<GovernanceAccountView account={{ address, nameTag: "@moul" }} showNameTagPrefix={false} />);
+  expect(container.textContent).toBe("moul");
+  expect(container.querySelector("a")?.getAttribute("href") ?? null).toBe(
+    address ? "/account/g1member?network=testnet" : null,
+  );
+});

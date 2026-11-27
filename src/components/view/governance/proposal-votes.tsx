@@ -144,7 +144,6 @@ const VotesTable = styled.table`
   th:last-child,
   td:last-child {
     padding-right: 0;
-    text-align: right;
     white-space: nowrap;
   }
 `;

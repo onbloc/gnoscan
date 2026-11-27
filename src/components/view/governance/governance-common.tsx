@@ -32,19 +32,20 @@ export const GovernanceAccountView = ({
   account,
   addressOnly = false,
   copy = false,
+  showNameTagPrefix = true,
 }: {
   account: GovernanceAccount;
   addressOnly?: boolean;
   copy?: boolean;
+  showNameTagPrefix?: boolean;
 }) => {
   const { getUrlWithNetwork } = useNetwork();
-  if (!account.address) return <span>{account.nameTag ? `@${account.nameTag.replace(/^@/, "")}` : "-"}</span>;
-  if (addressOnly || copy || !account.nameTag) return <AddressCopy address={account.address} />;
-  return (
-    <AccountLink href={getUrlWithNetwork(`/account/${account.address}`)}>
-      @{account.nameTag.replace(/^@/, "")}
-    </AccountLink>
-  );
+  if (account.address && (addressOnly || copy || !account.nameTag)) {
+    return <AddressCopy address={account.address} />;
+  }
+  const nameTag = account.nameTag ? `${showNameTagPrefix ? "@" : ""}${account.nameTag.replace(/^@/, "")}` : "-";
+  if (!account.address) return <span>{nameTag}</span>;
+  return <AccountLink href={getUrlWithNetwork(`/account/${account.address}`)}>{nameTag}</AccountLink>;
 };
 
 export const ProposalStatusBadge = ({ status }: { status: GovernanceStatus }) => (
